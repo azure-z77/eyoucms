@@ -15,11 +15,6 @@
 4. 丰富的资料：作为一个国内cms，易优拥有完善的帮助文档及标签手册。
 5. 丰富的模版：易优拥有大量免费的漂亮模版，涵盖各行各业，任用户自由选择。
 
-#### 安装教程
-
-1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
-2. 安装 Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
-
 #### 效果演示
 
 1. 在线浏览：http://demo.eyoucms.com
@@ -28,6 +23,11 @@
 4. 更多模板：http://www.eyoucms.com/moban/
 5. 后台账号：admin
 6. 后台密码：admin
+
+#### 安装教程
+
+1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
+2. 安装 Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
 
 #### 参与贡献
 
