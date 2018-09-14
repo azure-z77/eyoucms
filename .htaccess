@@ -1,0 +1,26 @@
+<Files *.htm>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks -Multiviews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php?s=/$1 [QSA,PT,L]
+    #RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+    #RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+
+    RewriteCond % !^$
+    RewriteRule ^/?(.*)/.*\.sql - [F]
+    RewriteRule ^/?application/.*\.php - [F]
+    RewriteRule ^/?core/.*\.php - [F]
+    RewriteRule ^/?data/.*\.php - [F]
+    RewriteRule ^/?extend/.*\.php - [F]
+    RewriteRule ^/?html/.*\.php - [F]
+    RewriteRule ^/?public/.*\.php - [F]
+    RewriteRule ^/?template/.*\.php - [F]
+    RewriteRule ^/?vendor/.*\.php - [F]
+    RewriteRule ^/?weapp/.*\.php - [F]
+</IfModule>

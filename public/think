@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+/**
+ * 易优CMS
+ * ============================================================================
+ * 版权所有 2016-2028 海南赞赞网络科技有限公司，并保留所有权利。
+ * 网站地址: http://www.eyoucms.com
+ * ----------------------------------------------------------------------------
+ * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
+ * ============================================================================
+ * Author: 小虎哥 <1105415366@qq.com>
+ * Date: 2018-4-3
+ */
+
+// 当前是http还是https协议
+$http = false ? 'https' : 'http';
+// 网站域名
+define('DOMAIN', $_SERVER['HTTP_HOST']); 
+// 带http/https网站域名
+define('SITE_URL', $http.'://'.DOMAIN); 
+// 不带www的域名-网站根域名
+$pattern = '/^([^.]+)\.([^\/]+)$/';
+$url_suffix = preg_replace($pattern, '$2', DOMAIN);
+define('ROOT_SITE_URL', '.'.$url_suffix);
+// 定义项目路径
+define('APP_PATH', __DIR__ . '/application/');
+// https主域名
+define('HTTPS_SITE_URL', 'https://'.DOMAIN);
+//静态页面文件目录，存储静态页面文件
+define('HTML_ROOT', __DIR__ . '/data/runtime/html/'); 
+//静态页面文件目录，存储静态页面文件
+define('HTML_PATH', HTML_ROOT . $http.'/'); 
+//静态页面缓存文件目录，存储不指定文件名的静态页面文件
+define('HTML_OTHER_PATH', HTML_PATH . 'other/');
+//静态页面缓存文件目录， 存储cache方式的页面缓存
+define('HTML_CACHE_PATH', HTML_PATH . 'cache/'); 
+
+// 加载框架引导文件
+require __DIR__.'/core/console.php';
