@@ -8,22 +8,12 @@
 #### 软件架构
 1. 这是基于thinkphp5+小程序+layui研发的一套简易CMS企业建站系统，包含完整后台管理、前台展示。
 
-
 #### 安装教程
 
 1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
 2. 安装 Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
 
-#### 使用说明
-
-1. 模板多，门槛低，后台简洁，操作简单，更多整套模板+后台源码：http://www.eyoucms.com/moban/
-
-#### 参与贡献
-
-1. 赞赞团队
-
-
-#### 码云特技
+#### 效果演示
 
 1. 在线浏览：http://demo.eyoucms.com
 2. 后台登录：http://demo.eyoucms.com/login.php
@@ -31,3 +21,7 @@
 4. 更多模板：http://www.eyoucms.com/moban/
 5. 后台账号：admin
 6. 后台密码：admin
+
+#### 参与贡献
+
+1. 赞赞团队
