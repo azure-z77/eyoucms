@@ -1,7 +1,6 @@
     <div class="fixed-bar">
         <div class="item-title">
-            {if condition="'Admin' == $Think.const.CONTROLLER_NAME AND 'index' == $Think.const.ACTION_NAME"}
-            {else /}
+            {if condition="'index' != $Think.const.ACTION_NAME"}
             <a class="back" href="{:U($Think.const.CONTROLLER_NAME.'/index')}" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
             {/if}
             <div class="subject">

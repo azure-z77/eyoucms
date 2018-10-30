@@ -96,7 +96,10 @@ function is_check_access($str = 'Index@index') {
         $all_auths = array_unique($all_auths);
         $admin_auths = array_unique($admin_auths);
         $diff_auths = array_diff($all_auths, $admin_auths);
-
+// if ($str == 'Weapp@uninstall') {
+//     var_dump($diff_auths);
+//     exit;
+// }
         if (in_array($ctl_act, $diff_auths) || in_array($ctl_all, $diff_auths)) {
             $bool_flag = false;
         }
@@ -110,7 +113,7 @@ function is_check_access($str = 'Index@index') {
  */
 function getMenuList() {
     $menuArr = getAllMenu();
-    return $menuArr;
+    // return $menuArr;
 
     $role_id = session('admin_info.role_id');
     if ($role_id != '-1') {

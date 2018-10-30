@@ -19,4 +19,5 @@ return array(
     'author' => '小虎哥',
     'description' => '简单的企业站小程序，展示文章、图集、产品等信息。',
     'scene' => 1,  // 使用场景 0 PC+手机 1 手机 2 PC
+    'permission' => array(),
 );

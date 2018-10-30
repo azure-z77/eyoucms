@@ -165,7 +165,7 @@ return  array(
                 'id'=>2001,
                 'parent_id'=>2000,
                 'name' => '基本信息',
-                'action'=>'index',
+                'action'=>'web',
                 'controller'=>'System',
                 'url'=>'', 
                 'target'=>'workspace',

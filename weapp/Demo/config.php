@@ -19,9 +19,5 @@ return array(
     'author' => '小虎哥', // 开发者
     'description' => '插件描述插件描述插件描述插件描述插件描述', // 插件描述
     'scene' => '0',  // 使用场景 0 PC+手机 1 手机 2 PC
-    'permission' => array(
-        'add' => '新增',
-        'edit' => '编辑',
-        'del' => '删除',
-    ),
+    'permission' => array(),
 );

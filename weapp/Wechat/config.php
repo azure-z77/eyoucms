@@ -19,4 +19,5 @@ return array(
     'author' => '小虎哥',
     'description' => '无缝整合微信公众号，实现简单操作、菜单、文档同步推送等功能。',
     'scene' => 0,  // 使用场景 0 PC+手机 1 手机 2 PC
+    'permission' => array(),
 );

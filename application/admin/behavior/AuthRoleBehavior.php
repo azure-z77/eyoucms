@@ -36,7 +36,7 @@ class AuthRoleBehavior
      */
     public function moduleInit(&$params)
     {
-        
+
     }
 
     /**
@@ -47,6 +47,8 @@ class AuthRoleBehavior
     public function actionBegin(&$params)
     {
         if (-1 != self::$admin_info['role_id']) {
+            // 检测每个小插件的权限
+            $this->weapp_access();
             // 检测全局的增、改、删的权限
             $this->cud_access();
             // 检测栏目管理的每个栏目权限
@@ -77,24 +79,62 @@ class AuthRoleBehavior
     }
 
     /**
+     * 检测每个小插件的权限
+     * @access private
+     */
+    private function weapp_access()
+    {
+        /*只有相应的控制器和操作名才执行，以便提高性能*/
+        $ctl = strtolower(self::$controllerName);
+        $act = strtolower(self::$actionName);
+        if ('weapp' == $ctl && 'execute' == $act) {
+            $sc = input('param.sc/s');
+            $admin_info = self::$admin_info;
+            $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
+            $plugins = !empty($auth_role_info['permission']['plugins']) ? $auth_role_info['permission']['plugins'] : [];
+            if (!isset($plugins[$sc])) {
+                $this->error('您没有操作权限，请联系超级管理员分配权限');
+            }
+        }
+        /*--end*/
+    }
+
+    /**
      * 检测全局的增、改、删的权限
      * @access private
      */
     private function cud_access()
     {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
+        $ctl = strtolower(self::$controllerName);
         $act = strtolower(self::$actionName);
         $actArr = ['add','edit','del'];
-        foreach ($actArr as $key => $cud) {
-            $act = preg_replace('/^(.*)_('.$cud.')$/i', '$2', $act); // 同名add 或者以_add类似结尾都符合
-            if ($act == $cud) {
-                $admin_info = self::$admin_info;
-                $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
-                $cudArr = !empty($auth_role_info['cud']) ? $auth_role_info['cud'] : [];
-                if (!in_array($act, $cudArr)) {
-                    $this->error('您没有操作权限，请联系超级管理员分配权限');
+        if ('weapp' == $ctl && 'execute' == $act) {
+            $sa = input('param.sa/s');
+            foreach ($actArr as $key => $cud) {
+                $sa = preg_replace('/^(.*)_('.$cud.')$/i', '$2', $sa); // 同名add 或者以_add类似结尾都符合
+                if ($sa == $cud) {
+                    $admin_info = self::$admin_info;
+                    $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
+                    $cudArr = !empty($auth_role_info['cud']) ? $auth_role_info['cud'] : [];
+                    if (!in_array($sa, $cudArr)) {
+                        $this->error('您没有操作权限，请联系超级管理员分配权限');
+                    }
+                    break;
                 }
-                break;
+            }
+        } else {
+            foreach ($actArr as $key => $cud) {
+                $act = preg_replace('/^(.*)_('.$cud.')$/i', '$2', $act); // 同名add 或者以_add类似结尾都符合
+                if ($act == $cud) {
+                    $admin_info = self::$admin_info;
+                    $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
+                    $cudArr = !empty($auth_role_info['cud']) ? $auth_role_info['cud'] : [];
+                    if (!in_array($act, $cudArr)) {
+                        $this->error('您没有操作权限，请联系超级管理员分配权限');
+                    }
+                    break;
+                }
             }
         }
         /*--end*/

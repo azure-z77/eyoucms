@@ -24,6 +24,15 @@ class Weapp extends Base
 {
     public $weappM;
     public $weappLogic;
+    public $plugins = array();
+
+    /*
+     * 前置操作
+     */
+    protected $beforeActionList = array(
+        'init'
+    );
+
 
     /*
      * 初始化操作
@@ -34,6 +43,24 @@ class Weapp extends Base
         $this->weappLogic = new WeappLogic();
         //  更新插件
         $this->weappLogic->insertWeapp();
+    }
+
+    public function init(){
+        /*权限控制 by 小虎哥*/
+        $role_id = session('admin_info.role_id');
+        if (-1 != $role_id) {
+            $auth_role_info = session('admin_info.auth_role_info');
+            if(! empty($auth_role_info)){
+                if(! empty($auth_role_info['permission']['plugins'])){
+                    foreach ($auth_role_info['permission']['plugins'] as $plugins){
+                        if(isset($plugins['code'])){
+                            $this->plugins[] = $plugins['code'];
+                        }
+                    }
+                }
+            }
+        }
+        /*--end*/
     }
 
     /*
@@ -57,6 +84,12 @@ class Weapp extends Base
             }
         }
 
+        /*权限控制 by 小虎哥*/
+        if(! empty($this->plugins)){
+            $condition['a.code'] = array('in', $this->plugins);
+        }
+        /*--end*/
+
         $weappArr = array(); // 插件标识数组
 
         /**
@@ -67,6 +100,7 @@ class Weapp extends Base
         $list = DB::name('weapp')
             ->field('a.*')
             ->alias('a')
+            ->where($condition)
             ->order('a.add_time desc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('id');

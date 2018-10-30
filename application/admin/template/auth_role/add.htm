@@ -108,7 +108,7 @@
                                 {php}$first_arctype_id = 0;{/php}
                                 {if condition="! empty($arctypes)"}
                                 <p>
-                                    {foreach name="arctypes" item="arctype" key="k"}
+                                {foreach name="arctypes" item="arctype" key="k"}
                                     {if condition="isset($arctype_array[$arctype['id']])"}
                                     {if condition="$k>0"}
                                     <em class="arctype_bg expandable"></em>
@@ -117,8 +117,8 @@
                                     {php}$first_arctype_id = $arctype['id'];{/php}
                                     {/if}
                                     {/if}
-                                    <label><input type="checkbox" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
-                                    {/foreach}
+                                    <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
+                                {/foreach}
                                 </p>
                                 
                                 {foreach name="arctypes" item="arctype"}
@@ -126,12 +126,12 @@
                                     <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
                                     {foreach $arctype_array[$arctype['id']] as $item}
                                     <div style="padding-left:10px;">
-                                    <label><input type="checkbox" name="permission[arctype][]" value="{$item.id}" />{$item.typename}</label>
+                                    <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
                                     </div>
                                         {if condition="isset($arctype_array[$item['id']])"}
-                                        <div style="padding-left:20px;">
+                                        <div style="padding-left:20px;" id="arctype_child_{$item['id']}">
                                         {foreach $arctype_array[$item['id']] as $vo}
-                                        <label><input type="checkbox" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
+                                        <label><input type="checkbox" class="arctype_cbox" name="permission[arctype][]" value="{$vo.id}" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" />{$vo.typename}</label>
                                         {/foreach}
                                         </div>
                                         {/if}
@@ -195,7 +195,28 @@
                 $('#'+input).show();
             }
         });
-
+        $('.arctype_cbox').bind('click', function(){
+            var acid = $(this).val(), input = 'arctype_child_' + acid;
+            var pid = $(this).data('pid');
+            var tpid = $(this).data('tpid');
+            if($(this).attr('checked')){
+                if (0 < $('input[data-pid="'+pid+'"]:checked').length) {
+                    $('.arctype_id_'+pid).attr('checked', 'checked');
+                }
+                if (0 < $('#arctype_child_'+tpid).find('input[type="checkbox"]:checked').length) {
+                    $('.arctype_id_'+tpid).attr('checked', 'checked');
+                }
+                $('#'+input).find('input[type="checkbox"]').attr('checked', 'checked');
+            }else{
+                if (1 > $('input[data-pid="'+pid+'"]:checked').length) {
+                    $('.arctype_id_'+pid).removeAttr('checked');
+                }
+                if (1 > $('#arctype_child_'+tpid).find('input[type="checkbox"]:checked').length) {
+                    $('.arctype_id_'+tpid).removeAttr('checked');
+                }
+                $('#'+input).find('input[type="checkbox"]').removeAttr('checked');
+            }
+        });
         $('#select_cud').bind('click', function(){
             if($(this).attr('checked')){
                 $('#postForm input[name^="cud"]').attr('checked', 'checked');

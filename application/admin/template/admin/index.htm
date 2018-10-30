@@ -133,11 +133,20 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Admin@admin_del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@admin_del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Admin/admin_del')}">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
+                        </div>
+                    </a>
+                </div>
+                {/eq}
+                {eq name="$Think.const.CONTROLLER_NAME.'@admin_add'|is_check_access" value="1"}
+                <div class="fbutton">
+                    <a href="{:U('Admin/admin_add')}">
+                        <div class="add" title="新增管理员">
+                            <span class="red"><i class="fa fa-plus"></i>新增管理员</span>
                         </div>
                     </a>
                 </div>
