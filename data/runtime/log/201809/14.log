@@ -1,4 +1,0 @@
----------------------------------------------------------------
-[ 2018-09-14T09:00:33+08:00 ] 127.0.0.1 GET /login.php
-[ info ] 127.0.0.100/login.php [运行时间：3.276035s][吞吐率：0.31req/s] [内存消耗：2,395.97kb] [文件加载：76]
-[ error ] [2]file_get_contents(http://127.0.0.100/api/Rewrite/testing.html): failed to open stream: HTTP request failed! [E:\wwweyou\eyoucms_develop\application\admin\behavior\TestingBehavior.php:59]
