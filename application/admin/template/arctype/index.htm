@@ -258,7 +258,7 @@
           $.ajax({
             type : 'post',
             url : $(obj).attr('data-url'),
-            data : {id:$(obj).attr('data-id')},
+            data : {del_id:$(obj).attr('data-id')},
             dataType : 'json',
             success : function(data){
               layer.closeAll();

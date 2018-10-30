@@ -56,10 +56,6 @@ class Base extends Controller {
         parent::_initialize();
 
         /*及时更新cookie中的admin_id，用于前台的可视化权限验证*/
-        $admin_id = cookie('admin_id'); // 传递到前台
-        if (empty($admin_id) && session('?admin_info.admin_id')) {
-            cookie('admin_id', session('admin_info.admin_id')); // 传递到前台
-        }
         $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
         session('admin_info.auth_role_info', $auth_role_info);
         /*--end*/
