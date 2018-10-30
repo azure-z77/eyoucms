@@ -129,13 +129,13 @@
                             </td>
                             <td class="">
                                 <div class="w180 tc">
-                                    <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('Article/edit',array('id'=>$vo['aid']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Article/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
+                                    <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
                                 </div>
                             </td>
                              <td class="sort">

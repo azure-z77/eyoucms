@@ -108,7 +108,7 @@ class Base extends Controller {
 
             //检查是否拥有此操作权限
             if (!$bool) {
-                $this->error('您没有操作权限，请联系超级管理员分配权限', U('Index/welcome'));
+                $this->error('您没有操作权限，请联系超级管理员分配权限');
             }
         }
     }  

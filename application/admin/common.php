@@ -110,7 +110,7 @@ function is_check_access($str = 'Index@index') {
  */
 function getMenuList() {
     $menuArr = getAllMenu();
-    // return $menuArr;
+    return $menuArr;
 
     $role_id = session('admin_info.role_id');
     if ($role_id != '-1') {

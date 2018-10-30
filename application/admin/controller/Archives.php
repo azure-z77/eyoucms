@@ -40,12 +40,19 @@ class Archives extends Base
         foreach ($arctype_list as $key => $val) {
             $typeurl = U('Archives/index_archives', array('typeid'=>$val['id']));
             $typename = $val['typename'];
-            $zNodes .= "{"."id:{$val['id']}, pId:{$val['parent_id']}, name:\"{$typename}\", open:false,url:'{$typeurl}',target:'content_body'";
+            $zNodes .= "{"."id:{$val['id']}, pId:{$val['parent_id']}, name:\"{$typename}\", url:'{$typeurl}',target:'content_body'";
+            /*默认展开一级栏目*/
+            if (empty($val['parent_id'])) {
+                $zNodes .= ",open:true";
+            }
+            /*--end*/
+            /*栏目有下级栏目时，显示图标*/
             if (1 == $val['has_children']) {
                 $zNodes .= ",isParent:true";
             } else {
                 $zNodes .= ",isParent:false";
             }
+            /*--end*/
             $zNodes .= "},";
         }
         $zNodes .= "]";

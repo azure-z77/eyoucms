@@ -1217,7 +1217,7 @@ img.layer_tips_img {
 .flexigrid .mDiv .fbutton{ float: right; padding-right: 0px; margin-right: 0px;}
 div.addartbtn{ border:none !important; }
 .addartbtn input.btn{ color: #fff;background-color: #ff6f06;border:1px solid #ff6f06 !important; height: 28px !important;} 
-.addartbtn input.btn:hover{background-color: #c9302c !important;}
+.addartbtn input.btn:hover{background-color: #ff5606 !important;}
 .addartbtn input.btn.current{background: #e7e7e7;color: #000; border:none !important;}
 .addartbtn input.btn.current:hover{ background: #e7e7e7 !important; color:#000; cursor: default; }
 div.probtn{ float: left; margin-right: 6px; }
