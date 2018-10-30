@@ -53,6 +53,7 @@ class TagGuestbookform extends Base
             return false;
         } else {
             $newAttribute = array();
+            $attr_input_type_1 = 1; // 兼容v1.1.6之前的版本
             foreach ($row as $key => $val) {
                 // $newKey = $key + 1;
                 $attr_id = $val['attr_id'];
@@ -75,15 +76,22 @@ class TagGuestbookform extends Base
                         );
                         array_push($options, $tmp_val);
                     }
-                    $newAttribute['options'] = $options;
+                    $newAttribute['options_'.$attr_id] = $options;
+
+                    /*兼容v1.1.6之前的版本*/
+                    if (1 == $attr_input_type_1) {
+                        $newAttribute['options'] = $options;
+                    }
+                    ++$attr_input_type_1;
+                    /*--end*/
                 }
                 /*--end*/
             }
 
-            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'">';
+            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" />';
             $newAttribute['hidden'] = $hidden;
 
-            $action = url('home/Guestbook/submit');
+            $action = url('home/Lists/gbook_submit');
             $newAttribute['action'] = $action;
 
             $result[0] = $newAttribute;

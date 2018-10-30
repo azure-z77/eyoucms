@@ -11,6 +11,23 @@
  * Date: 2018-4-3
  */
 
+// 设置前台URL模式
+function set_home_url_mode() {
+    $uiset = I('param.uiset/s', 'off');
+    $uiset = trim($uiset, '/');
+    $seo_pseudo = tpCache('seo.seo_pseudo');
+    if ($seo_pseudo == 1 || $uiset == 'on') {
+        config('url_common_param', true);
+        config('url_route_on', false);
+    } elseif ($seo_pseudo == 2 && $uiset != 'on') {
+        config('url_common_param', false);
+        config('url_route_on', true);
+    } elseif ($seo_pseudo == 3 && $uiset != 'on') {
+        config('url_common_param', false);
+        config('url_route_on', true);
+    }
+}
+
 /**
  * 设置内容标题
  */

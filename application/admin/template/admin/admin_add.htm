@@ -1,4 +1,10 @@
 {include file="public/layout" /}
+<style type="text/css">
+    .arctype_child{display: none;}
+    .arctype_bg{width: 13px;height: 13px;display: inline-block;margin:0 5px;cursor: pointer;}
+    .expandable{background: url(__SKIN__/images/tv-expandable.gif)}
+    .collapsable{background: url(__SKIN__/images/tv-collapsable-last.gif)}
+</style>
 <body style="background-color: #FFF; overflow: auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
@@ -7,22 +13,6 @@
     {include file="admin/admin_bar" /}
     <form class="form-horizontal" id="adminAdd" action="{:U('Admin/admin_add')}" method="post">
         <div class="ncap-form-default">
-            <dl class="row none">
-                <dt class="tit">
-                    <label><em>*</em>所属角色</label>
-                </dt>
-                <dd class="opt">
-                    <select name="role_id" id="role_id">
-                        <!-- <option value="">--请选择--</option> -->
-                        {eq name="$Think.session.admin_info.role_id" value="-1"}
-                        <option value="-1" selected="true">超级管理员</option>
-                        {/eq}
-                        {$select_html}
-                    </select>
-                    <span class="err"></span>
-                    <p class="notic"></p>
-                </dd>
-            </dl>
             <dl class="row">
                 <dt class="tit">
                     <label for="user_name"><em>*</em>用户名</label>
@@ -68,24 +58,319 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
+            <dl class="row"><dt class="tit"><label><b>管理员权限设置</b></label></dt></dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="name">权限角色组</label>
+                </dt>
+                <dd class="opt">
+                    {foreach name="admin_role_list" item="role" key="k"}
+                    <p><label><input type="radio" name="role_id" value="{$role.id}" />{$role.name}</label></p>
+                    {/foreach}
+                    <p><label><a href="javascript:void(0);" class="ncap-btn-dis ncap-btn-green" onclick="addRole();">自定义角色组</a></label></p>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+<!--             <dl class="row">
+                <dt class="tit">
+                    <label for="name">语言权限</label>
+                </dt>
+                <dd class="opt">
+                    <label><input type="checkbox" name="language[]" value="cn" />简体中文</label>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl> -->
+            <dl class="row">
+                <dt class="tit">
+                    <label for="name">在线升级</label>
+                </dt>
+                <dd class="opt">
+                    <label><input type="checkbox" name="online_update" value="1" />允许操作</label>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+<!--             <dl class="row">
+                <dt class="tit">
+                    <label for="name">可视化编辑</label>
+                </dt>
+                <dd class="opt">
+                    <label><input type="checkbox" name="editor_visual" value="1" />开启（管理员会拥有所有可视化编辑状态下的管理功能）</label>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl> -->
+            <dl class="row">
+                <dt class="tit">
+                    <label for="name">信息权限</label>
+                </dt>
+                <dd class="opt">
+                    <label><input type="checkbox" name="only_oneself" value="1" />只允许查看自己发表的信息</label>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="name">操作权限</label>
+                </dt>
+                <dd class="opt">
+                    <p><label><input type="checkbox" id="select_cud" />全选</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="add" />添加信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="edit" />修改信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="del" />删除信息</label></p>
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="name"><em>*</em>操作权限</label>
+                </dt>
+                <dd class="opt">
+                    <p>
+                        <label><input type="checkbox" id="select_all_permission" />全选</label>
+                    </p>
+
+                    {foreach name="modules" item="vo"}
+                      {foreach name="vo.child" item="vo2"}
+                        {if condition="1 == $vo2['is_modules'] AND ! empty($auth_rule_list[$vo2.id])"}
+                          {if condition="1002 == $vo2['id']"}
+                            <div>
+                                <h2>{$vo2.name}</h2>
+                                {if condition="! empty($arctypes)"}
+                                <p>
+                                    {foreach name="arctypes" item="arctype" key="k"}
+                                    {if condition="isset($arctype_array[$arctype['id']])"}
+                                    {if condition="$k>0"}
+                                    <em class="arctype_bg expandable"></em>
+                                    {else /}
+                                    <em class="arctype_bg collapsable"></em>
+                                    {php}$first_arctype_id = $arctype['id'];{/php}
+                                    {/if}
+                                    {/if}
+                                    <label><input type="checkbox" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
+                                    {/foreach}
+                                </p>
+                                
+                                {foreach name="arctypes" item="arctype" key="k"}
+                                {if condition="isset($arctype_array[$arctype['id']])"}
+                                    <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
+                                    {foreach $arctype_array[$arctype['id']] as $item}
+                                    <div style="padding-left:10px;">
+                                    <label><input type="checkbox" name="permission[arctype][]" value="{$item.id}" />{$item.typename}</label>
+                                    </div>
+                                        {if condition="isset($arctype_array[$item['id']])"}
+                                        <div style="padding-left:20px;">
+                                        {foreach $arctype_array[$item['id']] as $vo}
+                                        <label><input type="checkbox" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
+                                        {/foreach}
+                                        </div>
+                                        {/if}
+                                    {/foreach}
+                                    </div>
+                                {/if}
+                                {/foreach}
+                                {/if}
+                            </div>
+                          {else /}
+                            <div>
+                                <h2>{$vo2.name}</h2>
+                                <p>
+                                    {foreach name="auth_rule_list[$vo2.id]" item="rule"}
+                                    <label><input type="checkbox" name="permission[rules][]" value="{$rule.id}" />{$rule.name}</label>
+                                    {/foreach}
+                                </p>
+                            </div>
+                          {/if}
+                        {/if}
+                      {/foreach}
+                    {/foreach}
+                    
+                    {if condition="! empty($plugins)"}
+                    <div>
+                        <h2>插件应用</h2>
+                        <ul>
+                            {foreach name="plugins" item="plugin"}
+                            <li>
+                                <label><input type="checkbox" name="permission[plugins][{$plugin.code}][code]" value="{$plugin.code}" />{$plugin.name}</label>
+                                {php}$config = json_decode($plugin['config'], true);{/php}
+                                {if condition="! empty($config['permission'])"}
+                                <p style="padding-left:10px;">
+                                    {foreach $config['permission'] as $index => $text}
+                                    <label><input type="checkbox" name="permission[plugins][{$plugin.code}][child][]" value="{$index}" />{$text}</label>
+                                    {/foreach}
+                                </p>
+                                {/if}
+                            </li>
+                            {/foreach}
+                        </ul>
+                    </div>
+                    {/if}
+                </dd>
+            </dl>
             <div class="bot"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
         </div>
     </form>
 </div>
 <script type="text/javascript">
+    var admin_role_list = {$admin_role_list|json_encode};
+    $(function(){
+        $('#adminAdd input[type="checkbox"]').attr("disabled","disabled");
+
+        $('#adminAdd input[name="role_id"]').bind('click', function(){
+            changeRole($(this).val());
+        });
+
+        $('.arctype_bg').bind('click', function(){
+            var acid = $(this).next().find('input').val(), input = 'arctype_child_' + acid;
+            $('.arctype_child').hide();
+            if( $(this).attr('class').indexOf('expandable') == -1 ){
+                $(this).removeClass('collapsable').addClass('expandable');
+            }else{
+                $('.arctype_bg').removeClass('collapsable').addClass('expandable');
+                $(this).removeClass('expandable').addClass('collapsable');
+                $('#'+input).show();
+            }
+        });
+        $('#select_cud').bind('click', function(){
+            if($(this).attr('checked')){
+                $('#adminAdd input[name^="cud"]').attr('checked', 'checked');
+            }else{
+                $('#adminAdd input[name^="cud"]').removeAttr('checked');
+            }
+        });
+
+        $('#select_all_permission').bind('click', function(){
+            if($(this).attr('checked')){
+                $('#adminAdd input[name^="permission"]').attr('checked', 'checked');
+            }else{
+                $('#adminAdd input[name^="permission"]').removeAttr('checked');
+            }
+        });
+        $('#adminAdd input[name^="permission"],#adminAdd input[name^="cud"]').bind('click', function(){
+            hasSelectAll();
+        });
+    });
+
+    function hasSelectAll(){
+        var c = true;
+        $('#adminAdd input[name^="permission"]').each(function(idx, ele){
+            if(! $(ele).attr('checked')){
+                c = false;
+                return;
+            }
+        });
+        if(c){
+            $('#select_all_permission').attr('checked', 'checked');
+        }else{
+            $('#select_all_permission').removeAttr('checked');
+        }
+
+        var c1 = true;
+        $('#adminAdd input[name^="cud"]').each(function(idx, ele){
+            if(! $(ele).attr('checked')){
+                c1 = false;
+                return;
+            }
+        });
+        if(c1){
+            $('#select_cud').attr('checked', 'checked');
+        }else{
+            $('#select_cud').removeAttr('checked');
+        }
+    }
+
+    function changeRole(value){
+        $('#adminAdd input[name!="role_id"]').removeAttr('checked').removeAttr('disabled');
+
+        if(value == "0"){
+            $('#adminAdd input[name!="role_id"]').attr('checked', 'checked');
+            $('#adminAdd input[name="online_update"]').removeAttr('checked');
+            $('#adminAdd input[name="only_oneself"]').removeAttr('checked');
+            return ;
+        }
+        for(var i in admin_role_list){
+            var item = admin_role_list[i];
+            if(item.id == value){
+                if(item.language){
+                    item.language.map(function(row){
+                        $('#adminAdd input[name^="language"][value="'+row+'"]').attr('checked', 'checked');
+                    });
+                }
+
+                if(item.online_update){
+                    $('#adminAdd input[name="online_update"]').attr('checked', 'checked');
+                };
+                if(item.editor_visual){
+                    $('#adminAdd input[name="editor_visual"]').attr('checked', 'checked');
+                };
+                if(item.only_oneself){
+                    $('#adminAdd input[name="only_oneself"]').attr('checked', 'checked');
+                };
+                if(item.cud){
+                    item.cud.map(function(row){
+                        $('#adminAdd input[name^="cud"][value="'+row+'"]').attr('checked', 'checked');
+                    });
+                }
+
+                if(item.permission){
+                    for(var p in item.permission){
+                        if(p == 'plugins'){
+                            if(item.permission[p]){
+                                for(var pluginId in item.permission[p]){
+                                    $('#adminAdd input[name="permission['+p+']['+pluginId+'][code]"][value="'+pluginId+'"]').attr('checked', 'checked');
+                                    if(item.permission[p][pluginId].child){
+                                        item.permission[p][pluginId].child.map(function(row){
+                                            $('#adminAdd input[name="permission['+p+']['+pluginId+'][child][]"][value="'+row+'"]').attr('checked', 'checked');
+                                        });
+                                    }
+                                }
+                            }
+                        }else{
+                            item.permission[p].map(function(row){
+                                $('#adminAdd input[name="permission['+p+'][]"][value="'+row+'"]').attr('checked', 'checked');
+                            });
+                        }
+                        
+                    }
+                }
+
+                hasSelectAll();
+                $('#adminAdd input[type="checkbox"]').attr('disabled', 'disabled');
+                break;
+            }
+        }
+    }
+
+    function addRole()
+    {
+        var url = "{:U('AuthRole/add', array('iframe'=>1))}";
+        // iframe窗
+        layer.open({
+            type: 2,
+            title: '自定义权限角色组',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: false, //开启最大化最小化按钮
+            area: ['90%', '90%'],
+            content: url
+        });
+    }
+
     // 判断输入框是否为空
     function adsubmit(){
-        if($('#role_id').val() == ''){
-            // layer.tips('请选择所属角色！', '#role_id', {tips: 3});
-            layer.msg('请选择所属角色！', {icon: 2,time: 1000});
-            return false;
-        }
         if($('input[name=user_name]').val() == ''){
-            layer.msg('用户名不能为空！', {icon: 2,time: 1000});
+            showErrorMsg('用户名不能为空！');
+            $('input[name=user_name]').focus();
             return false;
         }
         if($('input[name=password]').val() == ''){
-            layer.msg('密码不能为空！', {icon: 2,time: 1000});
+            showErrorMsg('密码不能为空！');
+            $('input[name=password]').focus();
             return false;
         }
         layer_loading('正在处理');

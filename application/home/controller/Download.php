@@ -26,20 +26,9 @@ class Download extends Base
         $this->channeltype = $channeltype_list[$this->nid];
     }
 
-    public function index()
+    public function lists($tid)
     {
-        $fetch_tpl = './template/'.$this->theme_style.'/'.$this->nid.'_index.'.$this->view_suffix;
-        if ($this->exists($fetch_tpl) == false) {
-            return $this->lists();
-        }
-        $this->assign('eyou', $this->eyou);
-        return $this->fetch($fetch_tpl);
-    }
-
-    public function lists()
-    {
-    	$param = input('param.');
-        $tid = !empty($param['tid']) ? $param['tid'] : '';
+        $dirname = '';
     	if (empty($tid)) {
             $map = array(
                 'channeltype'   => $this->channeltype,
@@ -47,55 +36,27 @@ class Download extends Base
                 'is_hidden' => 0,
                 'status'    => 1,
             );
-            $tid = M('arctype')->where($map)->order('sort_order asc')->limit(1)->getField('id');
     	} else {
-            $tid_tmp = strval(intval($tid));
-            if ($tid_tmp != strval($tid)) {
-                $tid = M('Arctype')->where(array('dirname'=>$tid))->getField('id');
+            if (strval(intval($tid)) != strval($tid)) {
+                $map = array('dirname'=>$tid);
+            } else {
+                $map = array('id'=>$tid);
             }
         }
-
-        $result = array();
+        $row = M('arctype')->field('id,dirname')->where($map)->order('sort_order asc')->limit(1)->find();
+        $tid = !empty($row['id']) ? intval($row['id']) : 0;
+        $dirname = !empty($row['dirname']) ? $row['dirname'] : '';
         
-        if (!empty($tid)) {
-            $result = model('Arctype')->getInfo($tid);
-            
-            if (!empty($result)) {
-                /*自定义字段的数据格式处理*/
-                $result = $this->fieldLogic->getTableFieldList($result, config('global.arctype_channel_id'));
-                /*--end*/
-                /*是否有子栏目，用于标记【全部】选中状态*/
-                $result['has_children'] = model('Arctype')->hasChildren($tid);
-                /*--end*/
-                // seo
-                $result['seo_title'] = set_typeseotitle($result['typename'], $result['seo_title']);
-                /*获取当前页面URL*/
-                if (80 == $_SERVER["SERVER_PORT"]) {
-                    $result['pageurl'] = SITE_URL.$_SERVER["REQUEST_URI"];
-                } else {
-                    $result['pageurl'] = SITE_URL.':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
-                }
-                /*--end*/
-            }
-        }
-
-        $eyou = array(
-            'field' => $result,
-        );
-        $this->eyou = array_merge($this->eyou, $eyou);
-        $this->assign('eyou', $this->eyou);
-
-        /*模板文件*/
-        $templist = !empty($result['templist']) ? $result['templist'] : 'lists_'.$this->nid.'.'.$this->view_suffix;
+        /*301重定向到新的伪静态格式*/
+        $this->jumpRewriteFormat($tid, $dirname, 'lists');
         /*--end*/
 
-        $fetch_tpl = './template/'.$this->theme_style.'/'.$templist;
-        return $this->fetch($fetch_tpl);
+        return action('home/Lists/index', $tid);
     }
 
-    public function view()
+    public function view($aid)
     {
-        $param = input('param.');
+        $param = I('param.');
         $aid = !empty($param['aid']) ? intval($param['aid']) : '';
         if (empty($aid)) {
             $this->redirect('/404');
@@ -114,102 +75,14 @@ class Download extends Base
             header('Location: '.$result['jumplinks']);
             exit;
         }
+        /*--end*/
 
         $tid = $result['typeid'];
         $arctypeInfo = model('Arctype')->getInfo($tid);
-        /*自定义字段的数据格式处理*/
-        $arctypeInfo = $this->fieldLogic->getTableFieldList($arctypeInfo, config('global.arctype_channel_id'));
-        /*--end*/
-        // 是否有子栏目，用于标记【全部】选中状态
-        if (!empty($arctypeInfo)) {
-            $arctypeInfo['has_children'] = model('Arctype')->hasChildren($tid);
-        }
-        $result = array_merge($arctypeInfo, $result);
-
-        // 文档链接
-        $result['arcurl'] = '';
-        if ($result['is_jump'] != 1) {
-            $result['arcurl'] = arcurl(MODULE_NAME.'/Download/view', $result, true, true);
-        }
+        /*301重定向到新的伪静态格式*/
+        $this->jumpRewriteFormat($aid, $arctypeInfo['dirname'], 'view');
         /*--end*/
 
-        /*获取当前页面URL*/
-        if (80 == $_SERVER["SERVER_PORT"]) {
-            $result['pageurl'] = SITE_URL.$_SERVER["REQUEST_URI"];
-        } else {
-            $result['pageurl'] = SITE_URL.':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
-        }
-        /*--end*/
-
-        // 下载资料列表
-        $file_list = model('DownloadFile')->getDownFile($aid);
-        $result['file_list'] = $file_list;
-
-        // seo
-        $result['seo_title'] = set_arcseotitle($result['title'], $result['seo_title'], $result['typename']);
-        /*自定义字段的数据格式处理*/
-        $result = $this->fieldLogic->getChannelFieldList($result, $this->channeltype);
-        /*--end*/
-
-        $eyou = array(
-            'field' => $result,
-        );
-        $this->eyou = array_merge($this->eyou, $eyou);
-        $this->assign('eyou', $this->eyou);
-
-        /*模板文件*/
-        $tempview = !empty($result['tempview']) ? $result['tempview'] : 'view_'.$this->nid.'.'.$this->view_suffix;
-        /*--end*/
-
-        $fetch_tpl = './template/'.$this->theme_style.'/'.$tempview;
-        $html = $this->fetch($fetch_tpl);
-/*
-        $seo_pseudo = tpCache('global.seo_pseudo');
-        if ($seo_pseudo == 2) {
-            if (empty($result['dirpath'])) {
-                return '';
-            }
-            $filename = ROOT_PATH.ltrim($result['dirpath'], '/');
-            tp_mkdir($filename);
-            $filename = $filename."/{$aid}.html";
-            file_put_contents($filename, $html);
-        }
-*/
-        return $html;
-    }
-
-    /**
-     * 下载文件
-     */
-    public function downfile()
-    {
-        $file_id = I('param.id/d', 0);
-        $uhash = I('param.uhash/s', '');
-
-        if (empty($file_id) || empty($uhash)) {
-            $this->error('下载地址出错！');
-            exit;
-        }
-
-        $map = array(
-            'file_id'   => $file_id,
-            'uhash' => $uhash,
-        );
-        $result = M('download_file')->where($map)->find();
-        $filename = isset($result['file_url']) ? trim($result['file_url'], '/') : '';
-        $filename = ROOT_PATH.$filename;
-        clearstatcache();
-        if (empty($result) || !is_file($filename)) {
-            $this->error('下载文件不存在！');
-            exit;
-        }
-        $file_url = is_http_url($result['file_url']) ? $result['file_url'] : ROOT_PATH.trim($result['file_url'], '/');
-        if (md5_file($file_url) != $result['md5file']) {
-            $this->error('下载文件包不完整！');
-            exit;
-        }
-        
-        header('Location: '. $result['file_url']);
-        exit;
+        return action('home/View/index', $aid);
     }
 }

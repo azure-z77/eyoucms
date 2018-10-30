@@ -253,6 +253,7 @@ jQuery(function($){
             layer.alert('html报错：uiupload标签的外层html元素缺少属性 e-page | e-id');
             return false;
         }
+        var imgsrc = $(that).find('img').attr('src');
         var oldhtml = $.trim($(that).html());
         oldhtml = encodeURI(oldhtml);
         //iframe窗
@@ -263,12 +264,14 @@ jQuery(function($){
             shadeClose: false,
             shade: 0.3,
             maxmin: false, //开启最大化最小化按钮
-            area: ['400px', '250px'],
+            area: ['400px', '280px'],
             content: '/index.php?m=api&c=Uiset&a=upload&id='+e_id+'&page='+e_page+'&v='+v,
             success: function(layero, index){
                 // layer.iframeAuto(index);
                 var body = layer.getChildFrame('body', index);
                 body.find('input[name=oldhtml]').val(oldhtml);
+                body.find('a.imgsrc').attr('href',imgsrc);
+                body.find('a.imgsrc img').attr('src',imgsrc);
                 // var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
                 // console.log(body.html()) //得到iframe页的body内容
             }
@@ -289,7 +292,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
             area: ['800px', '500px'],
-            content: admin_basefile+'?m='+admin_module_name+'&c=Ad&a=ui_edit&id='+e_id+'&v='+v
+            content: admin_basefile+'?m='+admin_module_name+'&c=Other&a=ui_edit&id='+e_id+'&v='+v
         });
         // console.log(a)
     }

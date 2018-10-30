@@ -31,10 +31,8 @@ class Count extends Base
         $aid = I('aid/d', 0);
         $click = 0;
         if (empty($aid)) {
-            respose(array(
-                'errcode'   => 0,
-                'errmsg' => $click,
-            ));
+            echo($click);
+            exit;
         }
 
         if ($aid > 0) {
@@ -42,9 +40,7 @@ class Count extends Base
             $click = M('archives')->where(array('aid'=>$aid))->getField('click');
         }
 
-        respose(array(
-            'errcode'   => 0,
-            'errmsg' => $click,
-        ));
+        echo($click);
+        exit;
     }
 }

@@ -77,21 +77,18 @@
                     <label for="web_ico">地址栏图标</label>
                 </dt>
                 <dd class="opt">
-                    <div class="input-file-show div_web_ico_local" {if condition="isset($config.web_ico_is_remote) AND $config.web_ico_is_remote == 1"}style="display: none;"{/if}>
+                    <div class="input-file-show">
                         <span class="show">
-                            <a id="img_a_web_ico" class="nyroModal" rel="gal" href="{$config.web_ico_local|default='javascript:void(0);'}" target="_blank">
-                                <i id="img_i_web_ico" class="fa fa-picture-o" {notempty name="$config.web_ico_local"}onmouseover="layer_tips=layer.tips('<img src={$config.web_ico_local|default=''} width=32 height=32>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                            <a id="img_a_web_ico" class="nyroModal" rel="gal" href="{$config.web_ico|default='javascript:void(0);'}?t={php}echo time();{/php}" target="_blank">
+                                <i id="img_i_web_ico" class="fa fa-picture-o" {notempty name="$config.web_ico"}onmouseover="layer_tips=layer.tips('<img src={$config.web_ico|default=''}?t={php}echo time();{/php} width=32 height=32>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="web_ico_local" name="web_ico_local" value="{$config.web_ico_local|default=''}" class="type-file-text">
+                            <input type="text" id="web_ico" name="web_ico" value="{$config.web_ico|default=''}" class="type-file-text">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','system','web_ico_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                         </span>
                     </div>
-                    <input type="text" id="web_ico_remote" name="web_ico_remote" value="{$config.web_ico_remote|default=''}" placeholder="http://" class="input-txt" {if condition="!isset($config.web_ico_is_remote) OR empty($config.web_ico_is_remote)"}style="display: none;"{/if}>
-                    &nbsp;
-                    <label><input type="checkbox" name="web_ico_is_remote" id="web_ico_is_remote" value="1" {if condition="isset($config.web_ico_is_remote) AND $config.web_ico_is_remote == 1"}checked="checked"{/if} onClick="clickRemote(this, 'web_ico');">远程图片</label>
                     <span class="err"></span>
                     <p class="notic">建议尺寸 32 * 32 (像素) 的.ico文件。<br/>如果无法正常显示新上传图标，清空浏览器缓存后访问。</p>
                 </dd>
@@ -192,7 +189,7 @@
                 </dd>
                 {/eq}
             </dl>
-            <dl class="row"><dt class="tit" style="width: auto"><label><b>自定义变量</b></label> <a href="javascript:void(0);" onclick="customvar(this);" data-id="0">[新增]</a></dt></dl>
+            <dl class="row"><dt class="tit" style="width: auto"><label><b>自定义变量</b></label>&nbsp;&nbsp;<a href="javascript:void(0);" onclick="customvar(this);" data-id="0">[新增]</a>&nbsp;&nbsp;<!-- <a href="javascript:void(0);" onclick="customvar_recycle(this);">[回收站]</a> --></dt></dl>
             {volist name="eyou_row" id="vo"}
             <dl class="row" id="dl_{$vo['attr_var_name']}">
                 <dt class="tit">
@@ -304,14 +301,13 @@
     
     function web_ico_img_call_back(fileurl_tmp)
     {
-        $("#web_ico_local").val(fileurl_tmp);
+        $("#web_ico").val(fileurl_tmp);
         $("#img_a_web_ico").attr('href', fileurl_tmp);
         $("#img_i_web_ico").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" width=32 height=32>',this,{tips: [1, '#fff']});");
     }
 
     function customvar(obj)
     {
-        var custom_var_list = $('#custom_var_list');
         var id = $(obj).attr('data-id');
         var url = "{:U('System/customvar', array('inc_type'=>$inc_type))}";
         if (url.indexOf('?') > -1) {
@@ -327,21 +323,21 @@
             fixed: true, //不固定
             shadeClose: false,
             shade: 0.3,
-            maxmin: true, //开启最大化最小化按钮
+            maxmin: false, //开启最大化最小化按钮
             area: ['700px', '450px'],
             content: url
         });
     }
 
     function customvar_del(obj) {
-        layer.confirm('此操作不可逆，确认删除？', {
+        layer.confirm('模板数据将不完整，确认删除？', {
               btn: ['确定','取消'] //按钮
             }, function(){
                 // 确定
                 layer_loading('正在处理');
                 $.ajax({
                     type : 'post',
-                    url : "{:U('System/customvar_del', array('inc_type'=>$inc_type))}",
+                    url : "{:U('System/customvar_del')}",
                     data : {del_id:$(obj).attr('data-id')},
                     dataType : 'json',
                     success : function(data){
@@ -360,6 +356,25 @@
                 return false;// 取消
             }
         );
+    }
+
+    function customvar_recycle(obj)
+    {
+        var url = "{:U('System/customvar_recycle')}";
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: '自定义变量-回收站列表',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: false, //开启最大化最小化按钮
+            area: ['700px', '450px'],
+            content: url,
+            end: function(){ //结束弹窗之后的处理
+                window.location.reload();
+            }
+        });
     }
 
     function showtext(classname){

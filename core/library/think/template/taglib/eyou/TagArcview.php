@@ -59,7 +59,7 @@ class TagArcview extends Base
         $result['litpic'] = get_default_pic($result['litpic']); // 默认封面图
 
         // 获取查询的控制器名
-        $channelInfo = model('Channeltype')->getInfo($result['channel'], 'id,table,ctl_name');
+        $channelInfo = model('Channeltype')->getInfo($result['channel']);
         $controller_name = $channelInfo['ctl_name'];
         $channeltype_table = $channelInfo['table'];
 
@@ -91,6 +91,8 @@ class TagArcview extends Base
         $row = $this->fieldLogic->getChannelFieldList($row, $result['channel']); // 自定义字段的数据格式处理
         $result = array_merge($row, $result);
         /*--end*/
+
+        $result = view_logic($aid, $result['channel'], $result);
 
         return $result;
     }

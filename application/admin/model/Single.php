@@ -38,7 +38,7 @@ class Single extends Model
     {
         $post['aid'] = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
-        model('Field')->dealChannelPostData(6, $post, $addonFieldExt, $opt);
+        model('Field')->dealChannelPostData(6, $post, $addonFieldExt);
     }
 
     /**

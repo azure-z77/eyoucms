@@ -28,6 +28,7 @@ class Rewrite extends Base
      */
     public function testing()
     {
+        ob_clean();
         exit('ok');
     }
 }

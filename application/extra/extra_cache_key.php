@@ -19,17 +19,11 @@
 
 return array(
     /* -------------------------全局使用------------------------- */
-    'global_get_province_list'     => array(
-        'tag'=>'global', 'options'=>array('expire'=>0, 'prefix'=>'')
-    ),
-    'global_get_city_list'     => array(
-        'tag'=>'global', 'options'=>array('expire'=>0, 'prefix'=>'')
-    ),
-    'global_get_area_list'     => array(
-        'tag'=>'global', 'options'=>array('expire'=>0, 'prefix'=>'')
-    ),
     'global_get_arcrank_list'     => array(
         'tag'=>'arcrank', 'options'=>array('expire'=>86400, 'prefix'=>'')
+    ),
+    'common_getEveryTopDirnameList_model'     => array(
+        'tag'=>'arctype', 'options'=>array('expire'=>0, 'prefix'=>'')
     ),
 
     /* -------------------------前台使用------------------------- */

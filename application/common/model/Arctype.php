@@ -73,8 +73,8 @@ class Arctype extends Model
                 /*--end*/
                 $result = array_merge($result, $parent_row);
             } else {
-                $parent_row = M('arctype')->where('id', $result['parent_id'])->find();
-                if (!empty($parent_row)) {
+                if (!empty($result['parent_id'])) {
+                    $parent_row = M('arctype')->where('id', $result['parent_id'])->cache(true,EYOUCMS_CACHE_TIME,"arctype")->find();
                     $ptypeurl = $this->getTypeUrl($parent_row);
                     $ptypename = $parent_row['typename'];
                     $pdirname = $parent_row['dirname'];
@@ -300,35 +300,35 @@ class Arctype extends Model
      * @param boolean $self 包括自己本身
      * @author wengxianhu by 2017-7-26
      */
-    public function getHasChildren($id, $channeltype = '', $self = true)
+    public function getHasChildren($id, $self = true)
     {
-        // 模型ID
-        if ($id > 0 && empty($channeltype)) {
-            // $channeltype = M('Arctype')->where('id', $id)->getField('channeltype');
+        $cacheKey = "common_model_Arctype_getHasChildren_{$id}_{$self}";
+        $result = cache($cacheKey);
+        if (empty($result)) {
+            $where = array(
+                'c.status'  => 1,
+            );
+            $fields = "c.*, count(s.id) as has_children";
+            $res = db('arctype')
+                ->field($fields)
+                ->alias('c')
+                ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
+                ->where($where)
+                ->group('c.id')
+                ->order('c.parent_id asc, c.sort_order asc, c.id')
+                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
+                ->select();
+
+            $result = arctype_options($id, $res, 'id', 'parent_id');
+
+            if (!$self) {
+                array_shift($result);
+            }
+
+            cache($cacheKey, $result, null, 'arctype');
         }
-        $where = array(
 
-            // 'c.channeltype' => $channeltype,
-            'c.status'  => 1,
-        );
-        $fields = "c.*, count(s.id) as has_children";
-        $res = db('arctype')
-            ->field($fields)
-            ->alias('c')
-            ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
-            ->where($where)
-            ->group('c.id')
-            ->order('c.parent_id asc, c.sort_order asc, c.id')
-            ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
-            ->select();
-
-        $options = arctype_options($id, $res, 'id', 'parent_id');
-
-        if (!$self) {
-            array_shift($options);
-        }
-
-        return $options;
+        return $result;
     }
 
     /**
@@ -376,31 +376,45 @@ class Arctype extends Model
      */
     public function getAllPid($id)
     {
-        $typeid = $id;
-        $arr = array();
-        $arctype_list = M('Arctype')->field('*, id as typeid')->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getAllWithIndex('id');
-        if (isset($arctype_list[$typeid])) {
-            // 第一个先装起来
-            $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
-            $arr[$typeid] = $arctype_list[$typeid];
-        } else {
-            return $arr;
+        $cacheKey = array(
+            'common',
+            'model',
+            'Arctype',
+            'getAllPid',
+            $id,
+        );
+        $cacheKey = json_encode($cacheKey);
+        $data = cache($cacheKey);
+        if (empty($data)) {
+            $data = array();
+            $typeid = $id;
+            $arctype_list = M('Arctype')->field('*, id as typeid')->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getAllWithIndex('id');
+            if (isset($arctype_list[$typeid])) {
+                // 第一个先装起来
+                $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
+                $data[$typeid] = $arctype_list[$typeid];
+            } else {
+                return $data;
+            }
+
+            while (true)
+            {
+                $typeid = $arctype_list[$typeid]['parent_id'];
+                if($typeid > 0){
+                    if (isset($arctype_list[$typeid])) {
+                        $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
+                        $data[$typeid] = $arctype_list[$typeid];
+                    }
+                } else {
+                    break;
+                }
+            }
+            $data = array_reverse($data, true);
+
+            cache($cacheKey, $data, null, 'arctype');
         }
 
-        while (true)
-        {
-            $typeid = $arctype_list[$typeid]['parent_id'];
-            if($typeid > 0){
-                if (isset($arctype_list[$typeid])) {
-                    $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
-                    $arr[$typeid] = $arctype_list[$typeid];
-                }
-            } else {
-                break;
-            }
-        }
-        $arr = array_reverse($arr, true);
-        return $arr;
+        return $data;
     }
 
     /**
@@ -417,5 +431,41 @@ class Arctype extends Model
         }
 
         return false;
+    }
+
+    /**
+     * 每个栏目的顶级栏目的目录名称
+     */
+    public function getEveryTopDirnameList()
+    {
+        $result = extra_cache('common_getEveryTopDirnameList_model');
+        if ($result === false)
+        {
+            $fields = "c.id, c.parent_id, c.dirname, c.grade, count(s.id) as has_children";
+            $row = db('arctype')
+                ->field($fields)
+                ->alias('c')
+                ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
+                ->group('c.id')
+                ->order('c.parent_id asc, c.sort_order asc, c.id')
+                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
+                ->select();
+            $row = arctype_options(0, $row, 'id', 'parent_id');
+
+            $result = array();
+            foreach ($row as $key => $val) {
+                if (empty($val['parent_id'])) {
+                    $val['tdirname'] = $val['dirname'];
+                } else {
+                    $val['tdirname'] = isset($row[$val['parent_id']]['tdirname']) ? $row[$val['parent_id']]['tdirname'] : $val['dirname'];
+                }
+                $row[$key] = $val;
+                $result[md5($val['dirname'])] = $val;
+            }
+
+            extra_cache('common_getEveryTopDirnameList_model', $result);
+        }
+
+        return $result;
     }
 }

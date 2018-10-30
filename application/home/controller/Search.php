@@ -32,7 +32,7 @@ class Search extends Base
      */
     public function lists()
     {
-        $param = input('param.');
+        $param = I('param.');
         
         $result = $param;
         $eyou = array(
@@ -41,6 +41,6 @@ class Search extends Base
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
 
-        return $this->fetch('./template/'.$this->theme_style.'/lists_search.'.$this->view_suffix);
+        return $this->fetch('template/'.$this->theme_style.'/lists_search.'.$this->view_suffix);
     }
 }

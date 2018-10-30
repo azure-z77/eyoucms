@@ -5,6 +5,7 @@ return array(
     // 应用初始化
     'app_init'     => array(
         // 'app\\common\\behavior\\InitHookBehavior',
+        'app\\common\\behavior\\AppInitBehavior',
     ),
     // 应用开始
     'app_begin'    => array(),

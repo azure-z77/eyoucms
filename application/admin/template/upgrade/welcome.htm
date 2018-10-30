@@ -47,7 +47,7 @@
                                           <textarea id="textarea_filelist" style="display:none;">{$upgradeMsg['upgrade']}</textarea> 
                                           <textarea id="textarea_intro" style="display:none;">{$upgradeMsg['intro']}</textarea> 
                                           <textarea id="textarea_notice" style="display:none;">{$upgradeMsg['notice']}</textarea> 
-                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" title="{$upgradeMsg['tips']}" data-tips_url="{:U('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:U('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
+                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" title="{$upgradeMsg['tips']}" data-tips_url="{:U('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:U('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
                                           {neq name="$web_show_popup_upgrade" value="-1"}
                                           <script type="text/javascript">
                                             $(document).ready(function(){
@@ -66,16 +66,16 @@
                                     <td class="gray_bg">程序名称：</td>
                                     <td>{$sys_info.web_name|default='Eyoucms企业网站管理系统'}</td>
                                     <td class="gray_bg">版权所有：</td>
-                                    <td>{eq name="$is_eyou_authortoken" value="-1"}盗版必究{else /}正版软件{/eq}</td>
+                                    <td>{notempty name="$is_eyou_authortoken"}盗版必究{else /}正版软件{/notempty}</td>
                                 </tr>
-                                {eq name="$is_eyou_authortoken" value="-1"}
+                                {notempty name="$is_eyou_authortoken"}
                                 <tr>
                                     <td class="gray_bg">更新日志：</td>
                                     <td><a href="http://www.eyoucms.com/news/rizhi/" target="_blank">查看</a></td>
-                                    <td class="gray_bg">官方论坛:</td>
-                                    <td><a href="http://www.eyoucms.com/bbs/" target="_blank">EyouCms交流论坛</a></td>
+                                    <td class="gray_bg">帮助中心:</td>
+                                    <td><a href="http://www.eyoucms.com/bbs/" target="_blank">查看</a></td>
                                 </tr>
-                                {/eq}
+                                {/notempty}
                             </tbody>
                         </table>
                     </div>

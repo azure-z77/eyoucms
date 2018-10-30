@@ -70,9 +70,9 @@ class Channeltype extends Base
                 'update_time'           => getTime(),
             );
             $data = array_merge($post, $nowData);
-            $r = M('channeltype')->insertGetId($data);
-
-            if ($r) {
+            $insertId = M('channeltype')->insertGetId($data);
+            $_POST['id'] = $insertId;
+            if ($insertId) {
                 \think\Cache::clear('channeltype');
                 extra_cache('admin_channeltype_list_logic', NULL);
                 adminLog('新增模型：'.$post['title']);

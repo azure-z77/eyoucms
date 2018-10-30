@@ -71,6 +71,7 @@ class Weapp extends Base
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('id');
         foreach ($list as $key => $val) {
+            $val['config'] = include WEAPP_PATH.$val['code'].DS.'config.php';
             $val['version'] = getWeappVersion($val['code']);
 
             switch ($val['status']) {
@@ -152,7 +153,7 @@ class Weapp extends Base
         $sm = request()->param('sm');
         $sc = request()->param('sc');
         $sa = request()->param('sa');
-        $controllerName = !empty($sc) ? format_class($sc) : format_class($sm);
+        $controllerName = !empty($sc) ? $sc : $sm;
         $actionName = !empty($sa) ? $sa : "index";
         $class_path = "\\".WEAPP_DIR_NAME."\\".$sm."\\controller\\".$controllerName;
         $controller = new $class_path();
@@ -165,7 +166,8 @@ class Weapp extends Base
      */
     public function install(){
         $id       =   I('id');
-        $row      =   M('Weapp')->field('code,thorough,min_version')->find($id);
+        $row      =   M('Weapp')->field('code,thorough,config')->find($id);
+        $row['config'] = json_decode($row['config'], true);
         $class    =   get_weapp_class($row['code']);
         if (!class_exists($class)) {
             $this->error('插件不存在！');
@@ -175,14 +177,17 @@ class Weapp extends Base
             $this->error('插件config配置参数不全！');
         }
         $cms_version = getCmsVersion();
-        $min_version = $row['min_version'];
+        $min_version = $row['config']['min_version'];
         if ($cms_version < $min_version) {
             $this->error('当前CMS版本太低，该插件要求CMS版本 >= '.$min_version.'，请升级系统！');
         }
-        $data   =   $weapp->install();
-        if (true == $data['status']) {
+        /*插件安装的前置操作（可无）*/
+        $this->beforeInstall($weapp);
+        /*--end*/
+
+        if (true) {
             /*插件sql文件*/
-            $sqlfile = WEAPP_PATH.$row['code'].DS.'data'.DS.'install.sql';
+            $sqlfile = WEAPP_DIR_NAME.DS.$row['code'].DS.'data'.DS.'install.sql';
             if (empty($row['thorough']) && file_exists($sqlfile)) {
                 $execute_sql = file_get_contents($sqlfile);
                 $sqlFormat = $this->sql_split($execute_sql, PREFIX);
@@ -208,12 +213,16 @@ class Weapp extends Base
             if ($r) {
                 cache('hooks', null);
                 cache("hookexec_".$row['code'], null);
-                $this->success($data['message'], U('Weapp/index'));
+                \think\Cache::clear('hooks');
+                /*插件安装的后置操作（可无）*/
+                $this->afterInstall($weapp);
+                /*--end*/
+                $this->success('安装成功', U('Weapp/index'));
                 exit;
             }
         }
 
-        $this->error($data['message']);
+        $this->error('安装失败');
     }
 
     /**
@@ -228,8 +237,12 @@ class Weapp extends Base
             $this->error('插件不存在！');
         }
         $weapp  =   new $class;
-        $data =   $weapp->uninstall();
-        if (true == $data['status']) {
+
+        // 插件卸载的前置操作（可无）
+        $this->beforeUninstall($weapp);
+        /*--end*/
+
+        if (true) {
             if (1 == $thorough) {
                 $r = M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'add_time'=>getTime()));
             } else if (0 == $thorough) {
@@ -237,7 +250,7 @@ class Weapp extends Base
             }
             if (false !== $r) {
                /*插件sql文件，不执行删除插件数据表*/
-                $sqlfile = WEAPP_PATH.$row['code'].DS.'data'.DS.'uninstall.sql';
+                $sqlfile = WEAPP_DIR_NAME.DS.$row['code'].DS.'data'.DS.'uninstall.sql';
                 if (empty($thorough) && file_exists($sqlfile)) {
                     $execute_sql = file_get_contents($sqlfile);
                     $sqlFormat = $this->sql_split($execute_sql, PREFIX);
@@ -262,12 +275,16 @@ class Weapp extends Base
 
                 cache('hooks', null);
                 cache("hookexec_".$row['code'], null);
-                $this->success($data['message'], U('Weapp/index'));
+                \think\Cache::clear('hooks');
+                /*插件卸载的后置操作（可无）*/
+                $this->afterUninstall($weapp);
+                /*--end*/
+                $this->success('卸载成功', U('Weapp/index'));
                 exit;
             }
         }
 
-        $this->error($data['message']);
+        $this->error('卸载失败');
     }
 
     /**
@@ -277,11 +294,23 @@ class Weapp extends Base
     {
         $id       =   I('param.id/d', 0);
         if (0 < $id) {
+            $row = M('weapp')->field('code')->find($id);
+            $class    =   get_weapp_class($row['code']);
+            if (!class_exists($class)) {
+                $this->error('插件不存在！');
+            }
+            $weapp  =   new $class;
+            /*插件启用的前置操作（可无）*/
+            $this->beforeEnable($weapp);
+            /*--end*/
             $r = M('weapp')->where('id',$id)->update(array('status'=>1,'update_time'=>getTime()));
             if ($r) {
-                $row = M('weapp')->field('code')->find($id);
+                /*插件启用的后置操作（可无）*/
+                $this->afterEnable($weapp);
+                /*--end*/
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
+                \think\Cache::clear('hooks');
                 $this->success('操作成功！', U('Weapp/index'));
                 exit;
             }
@@ -297,11 +326,23 @@ class Weapp extends Base
     {
         $id       =   I('param.id/d', 0);
         if (0 < $id) {
+            $row = M('weapp')->field('code')->find($id);
+            $class    =   get_weapp_class($row['code']);
+            if (!class_exists($class)) {
+                $this->error('插件不存在！');
+            }
+            $weapp  =   new $class;
+            /*插件禁用的前置操作（可无）*/
+            $this->beforeDisable($weapp);
+            /*--end*/
             $r = M('weapp')->where('id',$id)->update(array('status'=>-1,'update_time'=>getTime()));
             if ($r) {
-                $row = M('weapp')->field('code')->find($id);
+                /*插件禁用的后置操作（可无）*/
+                $this->afterDisable($weapp);
+                /*--end*/
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
+                \think\Cache::clear('hooks');
                 $this->success('操作成功！', U('Weapp/index'));
                 exit;
             }
@@ -342,42 +383,83 @@ class Weapp extends Base
     }
 
     /**
+     * 插件安装的前置操作（可无）
+     */
+    public function beforeInstall($weappClass){
+        if (method_exists($weappClass, 'beforeInstall')) {
+            $weappClass->beforeInstall();
+        }
+    }
+
+    /**
+     * 插件安装的后置操作（可无）
+     */
+    public function afterInstall($weappClass){
+        if (method_exists($weappClass, 'afterInstall')) {
+            $weappClass->afterInstall();
+        }
+    }
+
+    /**
+     * 插件卸载的前置操作（可无）
+     */
+    public function beforeUninstall($weappClass){
+        if (method_exists($weappClass, 'beforeUninstall')) {
+            $weappClass->beforeUninstall();
+        }
+    }
+
+    /**
+     * 插件卸载的后置操作（可无）
+     */
+    public function afterUninstall($weappClass){
+        if (method_exists($weappClass, 'afterUninstall')) {
+            $weappClass->afterUninstall();
+        }
+    }
+
+    /**
+     * 插件启用的前置操作（可无）
+     */
+    public function beforeEnable($weappClass){
+        if (method_exists($weappClass, 'beforeEnable')) {
+            $weappClass->beforeEnable();
+        }
+    }
+
+    /**
+     * 插件启用的后置操作（可无）
+     */
+    public function afterEnable($weappClass){
+        if (method_exists($weappClass, 'afterEnable')) {
+            $weappClass->afterEnable();
+        }
+    }
+
+    /**
+     * 插件禁用的前置操作（可无）
+     */
+    public function beforeDisable($weappClass){
+        if (method_exists($weappClass, 'beforeDisable')) {
+            $weappClass->beforeDisable();
+        }
+    }
+
+    /**
+     * 插件禁用的后置操作（可无）
+     */
+    public function afterDisable($weappClass){
+        if (method_exists($weappClass, 'afterDisable')) {
+            $weappClass->afterDisable();
+        }
+    }
+
+    /**
      * 上传插件并解压
      */
     public function upload() 
     {
         if (IS_POST) {
-            $fileError = isset($_FILES['weappfile']['error']) ? $_FILES['weappfile']['error'] : 0;
-            switch ($fileError) {
-                case '1':
-                    $errmsg = '上传的文件超过了 php.ini 中 upload_max_filesize选项限制的值';
-                    break;
-                
-                case '2':
-                    $errmsg = '上传文件的大小超过了 HTML 表单中 MAX_FILE_SIZE 选项指定的值';
-                    break;
-                
-                case '3':
-                    $errmsg = '文件只有部分被上传';
-                    break;
-                
-                case '4':
-                    $errmsg = '请上传zip压缩包';
-                    break;
-                
-                case '5':
-                    $errmsg = '上传文件大小为0';
-                    break;
-
-                default:
-                    # code...
-                    break;
-            }
-            if ($fileError > 0) {
-                $this->error($errmsg);
-                exit;
-            }
-
             $fileExt = 'zip';
             $savePath = UPLOAD_PATH.'tmp'.DS;
             $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
@@ -479,6 +561,235 @@ class Weapp extends Base
      */
     public function create()
     {
+        if (IS_POST) {
+            $post = I('post.');
+            $code = trim($post['code']);
+            if (!preg_match('/^[A-Z]([a-zA-Z0-9]*)$/', $code)) {
+                $this->error('插件标识格式不正确！');
+            }
+            if ('Sample' == $code) {
+                $this->error('插件标识已被占用！');
+            }
+            if (!preg_match('/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/', $post['version'])) {
+                $this->error('插件版本号格式不正确！');
+            }
+            if (empty($post['min_version'])) {
+                $post['min_version'] = getCmsVersion();
+            }
+            if (empty($post['version'])) {
+                $post['version'] = 'v1.0.0';
+            }
 
+            /*复制样本结构到插件目录下*/
+            $sample = 'Sample';
+            $srcPath = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$sample;
+            $srcFiles = getDirFile($srcPath);
+            $filetxt = '';
+            foreach ($srcFiles as $key => $srcfile) {
+                /*排除并删除多余文件，兼容v1.1.7之前的版本*/
+                if (preg_match('/(common)\.php$/i', $srcfile)) {
+                    $unfile = $srcPath.DS.$srcfile;
+                    if (file_exists($unfile)) {
+                        @unlink($unfile);
+                    }
+                    continue;
+                }
+                /*--end*/
+                $dstfile = str_replace($sample, $code, $srcfile);
+                $dstfile = str_replace(strtolower($sample), strtolower($code), $dstfile);
+                $filetxt .= $dstfile."\n\r";
+                if(true == tp_mkdir(dirname($dstfile))) {
+                    $fileContent = file_get_contents($srcPath . DS . $srcfile);
+                    $fileContent = str_replace($sample, $code, $fileContent);
+                    $fileContent = str_replace(strtolower($sample), strtolower($code), $fileContent);
+                    $puts = file_put_contents($dstfile, $fileContent); //初始化插件文件列表   
+                    if (!$puts) {
+                        $this->error('写入文件内容 ' . $dstfile . ' 失败');
+                        exit;
+                    }
+                }
+            }
+            @file_put_contents(WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt', $filetxt); //初始化插件文件列表  
+            /*--end*/
+
+            /*读取配置文件，并替换插件信息*/
+            $configPath = WEAPP_DIR_NAME.DS.$code.DS.'config.php';
+            if (!eyPreventShell($configPath) || !file_exists($configPath)) {
+                $this->error('创建插件结构不完整，请重新创建！');
+            }
+            $strConfig = file_get_contents(WEAPP_DIR_NAME.DS.$code.DS.'config.php');
+            $strConfig = str_replace('#CODE#', $code, $strConfig);
+            $strConfig = str_replace('#NAME#', $post['name'], $strConfig);
+            $strConfig = str_replace('#VERSION#', $post['version'], $strConfig);
+            $strConfig = str_replace('#MIN_VERSION#', $post['min_version'], $strConfig);
+            $strConfig = str_replace('#AUTHOR#', $post['author'], $strConfig);
+            $strConfig = str_replace('#DESCRIPTION#', $post['description'], $strConfig);
+            $strConfig = str_replace('#SCENE#', $post['scene'], $strConfig);
+            @chmod(WEAPP_DIR_NAME.DS.$code.DS.'config.php'); //配置文件的地址
+            $puts = file_put_contents(WEAPP_DIR_NAME.DS.$code.DS.'config.php', $strConfig); //配置文件的地址    
+            if (!$puts) {
+                $this->error('替换插件信息失败，请设置目录权限为 755！');
+            }
+            /*--end*/
+
+            $this->success('初始化插件成功！', U('Weapp/index'));
+        }
+
+        $assign_data = array();
+        $assign_data['min_version'] = getCmsVersion();
+
+        $this->assign($assign_data);
+        return $this->fetch();
+    }
+
+    /**
+     * 打包插件
+     */
+    public function pack()
+    {
+        if (IS_POST) {
+            $packfiles = array(); // 打包的全部文件列表
+
+            $post = I('post.');
+            $code = $post['code'];
+            $additional_file = $post['additional_file'];
+
+            if (!preg_match('/^[A-Z]([a-zA-Z0-9]*)$/', $code)) {
+                $this->error('插件标识格式不正确！');
+            } else if (!file_exists(WEAPP_DIR_NAME.DS.$code)) {
+                $this->error('该插件不存在！');
+            }
+            if (empty($additional_file)) {
+                $this->error('打包文件不能为空！');
+            }
+
+            /*额外打包文件*/
+            if (!empty($additional_file)) {
+                $file_arr = explode(PHP_EOL, $additional_file);
+                foreach ($file_arr as $key => $val) {
+                    if (empty($val)) {
+                        continue;
+                    }
+                    if (eyPreventShell($val) && is_file($val) && file_exists($val)) {
+                        $packfiles[$val] = $val;
+                    } else if (eyPreventShell($val) && is_dir($val) && file_exists($val)) {
+                        $dirfiles = getDirFile($val, $val);
+                        foreach ($dirfiles as $k2 => $v2) {
+                            $packfiles[$v2] = $v2;
+                        }
+                    }
+                }
+            }
+            /*--end*/
+
+            /*压缩插件目录*/
+            $zip = new \ZipArchive();//新建一个ZipArchive的对象
+            $filepath = DATA_PATH.WEAPP_DIR_NAME;
+            tp_mkdir($filepath);
+            $zipName = $filepath.DS.$code.'.zip';//定义打包后的包名
+            if ($zip->open($zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE)
+                $this->error('插件压缩包打开失败！');
+
+            /*打包插件标准结构涉及的文件与目录，并且打包zip*/
+            $filetxt = '';
+            foreach ($packfiles as $key => $srcfile) {
+                $filetxt .= $srcfile."\n\r";
+                // $dstfile = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$code.DS.$srcfile;
+                // if(true == tp_mkdir(dirname($dstfile))) {
+                    if(file_exists($srcfile)) {
+                        // $copyrt = copy($srcfile, $dstfile); //复制文件
+                        // if (!$copyrt) {
+                        //     $this->error('copy ' . $dstfile . ' 失败');
+                        //     exit;
+                        // }
+                        //addFile函数首个参数如果带有路径，则压缩的文件里包含的是带有路径的文件压缩
+                        //若不希望带有路径，则需要该函数的第二个参数
+                        $zip->addFile($srcfile);//第二个参数是放在压缩包中的文件名称，如果文件可能会有重复，就需要注意一下
+                    }
+                // }
+            }
+            // $dst_filelist = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$code.DS.WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
+            $src_filelist = WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
+            @file_put_contents($src_filelist, $filetxt); //初始化插件文件列表  
+            // copy($src_filelist, $dst_filelist);
+            /*--end*/
+            $zip->addFile($src_filelist);
+            $zip->close(); 
+
+            /*压缩插件目录*/
+            if (!file_exists($zipName)) {
+                $this->error('打包zip文件包失败！');
+            }
+            
+            $this->success('打包成功', U('Weapp/pack'));
+
+        }
+
+        return $this->fetch();
+    }
+
+    /**
+     * 压缩文件
+     */
+    private function zip($files = array(), $zipName){
+        $zip = new \ZipArchive; //使用本类，linux需开启zlib，windows需取消php_zip.dll前的注释
+        /*
+         * 通过ZipArchive的对象处理zip文件
+         * $zip->open这个方法如果对zip文件对象操作成功，$zip->open这个方法会返回TRUE
+         * $zip->open这个方法第一个参数表示处理的zip文件名。
+         * 这里重点说下第二个参数，它表示处理模式
+         * ZipArchive::OVERWRITE 总是以一个新的压缩包开始，此模式下如果已经存在则会被覆盖。
+         * ZIPARCHIVE::CREATE 如果不存在则创建一个zip压缩包，若存在系统就会往原来的zip文件里添加内容。
+         *
+         * 这里不得不说一个大坑。
+         * 我的应用场景是需要每次都是创建一个新的压缩包，如果之前存在，则直接覆盖，不要追加
+         * so，根据官方文档和参考其他代码，$zip->open的第二个参数我应该用 ZipArchive::OVERWRITE
+         * 问题来了，当这个压缩包不存在的时候，会报错：ZipArchive::addFile(): Invalid or uninitialized Zip object
+         * 也就是说，通过我的测试发现，ZipArchive::OVERWRITE 不会新建，只有当前存在这个压缩包的时候，它才有效
+         * 所以我的解决方案是 $zip->open($zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE)
+         *
+         * 以上总结基于我当前的运行环境来说
+         * */
+        if ($zip->open($zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE) {
+            return '无法打开文件，或者文件创建失败';
+        }
+        foreach($files as $val){
+            //$attachfile = $attachmentDir . $val['filepath']; //获取原始文件路径
+            if(file_exists($val)){
+                //addFile函数首个参数如果带有路径，则压缩的文件里包含的是带有路径的文件压缩
+                //若不希望带有路径，则需要该函数的第二个参数
+                $zip->addFile($val, basename($val));//第二个参数是放在压缩包中的文件名称，如果文件可能会有重复，就需要注意一下
+            }
+        }
+        $zip->close();//关闭
+ 
+        if(!file_exists($zipName)){
+            return "无法找到文件"; //即使创建，仍有可能失败
+        }
+ 
+        //如果不要下载，下面这段删掉即可，如需返回压缩包下载链接，只需 return $zipName;
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header('Content-disposition: attachment; filename='.basename($zipName)); //文件名
+        header("Content-Type: application/zip"); //zip格式的
+        header("Content-Transfer-Encoding: binary"); //告诉浏览器，这是二进制文件
+        header('Content-Length: '. filesize($zipName)); //告诉浏览器，文件大小
+        @readfile($zipName);
+    }
+
+    /**
+     * 验证插件标识是否同名
+     */
+    public function ajax_check_code($code)
+    {
+        $service_ey = base64_decode(config('service_ey'));
+        $url = "{$service_ey}/index.php?m=api&c=Weapp&a=checkIsCode&code={$code}";
+        $response = httpRequest($url, "GET");
+        if (1 == intval($response)) {
+            $this->success('插件标识可使用！', U('Weapp/create'));
+        } else if (-1 == intval($response)) {
+            $this->error('插件标识已被占用！');
+        }
+        $this->error('远程验证插件标识失败！');
     }
 }

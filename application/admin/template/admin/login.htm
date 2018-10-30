@@ -44,11 +44,11 @@
         </div>
         <div class="container">
             <div class="logo">
-                {eq name="$is_eyou_authortoken" value="-1"}
+                {notempty name="$is_eyou_authortoken"}
                 <img src="__SKIN__/images/logo_ey.png?v={php}echo time();{/php}">
                 {else /}
                 <img src="__SKIN__/images/logo.png?v={php}echo time();{/php}">
-                {/eq}
+                {/notempty}
             </div>
             <div class="box">
                 <form action="" name='theForm' id="theForm" method="post">

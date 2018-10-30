@@ -58,20 +58,12 @@ class TagGlobal extends Base
                 case 'web_basehost':
                 case 'web_cmsurl':
                     {
-                        if ($uiset == 'on') {
-                            $arr_tmp = explode('?', $value);
-                            $query_string = isset($arr_tmp[1]) ? '&'.$arr_tmp[1] : '';
-                            $value = rtrim($arr_tmp[0], '/').'/?uiset=on'.$query_string;
+                        if ('on' == $uiset) {
                             /*电脑版与手机版的切换*/
                             $v = I('param.v/s', 'pc');
                             $v = trim($v, '/');
-                            if (!empty($v)) {
-                                $value .= '&v='.$v;
-                            }
                             /*--end*/
-                            /*处理掉url末尾的斜杆，以免干扰前面的参数*/
-                            $value .= '&tmp=';
-                            /*--end*/
+                            $value .= U('home/Index/index', array('uiset'=>'on','v'=>$v,'tmp'=>''));
                         }
                     }
                     break;

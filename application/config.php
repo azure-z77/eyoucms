@@ -21,7 +21,7 @@ return array(
     // 应用命名空间
     'app_namespace'          => 'app',
     // 应用调试模式
-    'app_debug'              => true,
+    'app_debug'              => false,
     // 应用Trace
     'app_trace'              => false,
     // 应用模式状态
@@ -202,7 +202,7 @@ return array(
         // 缓存保存目录
         'path'   => CACHE_PATH,
         // 缓存前缀
-        'prefix' => 'eyoucms_cache_prefix',
+        'prefix' => '',
         // 缓存有效期 0表示永久缓存
         'expire' => 0,
     ),

@@ -72,7 +72,7 @@ class Field extends Model
         $addonRow = array();
         if (0 < intval($aid)) {
             if (6 == $channel_id) {
-                $aid = M('archives')->where('typeid', $aid)->getField('aid');
+                $aid = M('archives')->where(array('typeid'=>$aid, 'channel'=>$channel_id))->getField('aid');
             }
             $tableExt = M('channeltype')->where('id', $channel_id)->getField('table');
             $tableExt .= '_content';
@@ -230,7 +230,7 @@ class Field extends Model
      * 查询解析模型数据用以构造from表单
      * @author 小虎哥 by 2018-7-25
      */
-    public function dealChannelPostData($channel_id, $data = array(), $dataExt = array(), $opt = 'add')
+    public function dealChannelPostData($channel_id, $data = array(), $dataExt = array())
     {
         if (!empty($dataExt) && !empty($channel_id)) {
 
@@ -312,10 +312,11 @@ class Field extends Model
             $nowDataExt = array_merge($nowDataExt, $nowData);
             $tableExt = M('channeltype')->where('id', $channel_id)->getField('table');
             $tableExt .= '_content';
-            if ('add' == $opt) {
+            $count = M($tableExt)->where('aid', $data['aid'])->count();
+            if (empty($count)) {
                 M($tableExt)->insert($nowDataExt);
-            } else if ('edit' == $opt) {
-                M($tableExt)->where('aid', $data['aid'])->update($nowDataExt);
+            } else {
+                M($tableExt)->where('aid', $data['aid'])->save($nowDataExt);
             }
         }
     }

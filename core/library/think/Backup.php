@@ -57,7 +57,7 @@ class Backup{
             }
         } else {
             $backuppath = $this->config['path'];
-            $filename   = "{$backuppath}{$this->file['name']}-{$this->file['part']}.sql";
+            $filename   = "{$backuppath}{$this->file['name']}-{$this->file['part']}-{$this->file['version']}.sql";
             if($this->config['compress']){
                 $filename = "{$filename}.gz";
                 $this->fp = @gzopen($filename, "a{$this->config['level']}");
@@ -85,6 +85,7 @@ class Backup{
         $sql .= "-- Database       : " . config('database.database') . "\n";
         $sql .= "-- \n";
         $sql .= "-- Part : #{$this->file['part']}\n";
+        $sql .= "-- Version : #{$this->file['version']}\n";
         $sql .= "-- Date : " . date("Y-m-d H:i:s") . "\n";
         $sql .= "-- -----------------------------------------\n\n";
         $sql .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";

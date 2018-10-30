@@ -42,30 +42,47 @@ class TagPrenext extends Base
         }
 
         $channelRes = model('Channeltype')->getInfoByAid($aid);
+        $channel = $channelRes['channel'];
         $typeid = $channelRes['typeid'];
         $controller_name = $channelRes['ctl_name'];
 
         if ($get == 'next') {
             /* 下一篇 */
-            $result = M('archives')->field('a.*, b.*')
+            $result = M('archives')->field('b.*, a.*')
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                ->where("a.typeid = {$typeid} AND a.aid > {$aid} AND a.status = 1")
+                ->where("a.typeid = {$typeid} AND a.aid > {$aid} AND a.channel = {$channel} AND a.status = 1")
                 ->order('a.aid asc')
                 ->find();
             if (!empty($result)) {
                 $result['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $result);
+                /*封面图*/
+                if (empty($result['litpic'])) {
+                    $result['is_litpic'] = 0; // 无封面图
+                } else {
+                    $result['is_litpic'] = 1; // 有封面图
+                }
+                $result['litpic'] = get_default_pic($result['litpic']); // 默认封面图
+                /*--end*/
             }
         } else {
             /* 上一篇 */
-            $result = M('archives')->field('a.*, b.*')
+            $result = M('archives')->field('b.*, a.*')
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                ->where("a.typeid = {$typeid} AND a.aid < {$aid} AND a.status = 1")
+                ->where("a.typeid = {$typeid} AND a.aid < {$aid} AND a.channel = {$channel} AND a.status = 1")
                 ->order('a.aid desc')
                 ->find();
             if (!empty($result)) {
                 $result['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $result);
+                /*封面图*/
+                if (empty($result['litpic'])) {
+                    $result['is_litpic'] = 0; // 无封面图
+                } else {
+                    $result['is_litpic'] = 1; // 有封面图
+                }
+                $result['litpic'] = get_default_pic($result['litpic']); // 默认封面图
+                /*--end*/
             }
         }
 

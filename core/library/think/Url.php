@@ -14,10 +14,26 @@ class Url
      * @param string|array      $vars 参数（支持数组和字符串）a=val&b=val2... ['a'=>'val1', 'b'=>'val2']
      * @param string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
      * @param boolean|string    $domain 是否显示域名 或者直接传入域名
+     * @param string    $seo_pseudo URL模式
+     * @param string    $seo_pseudo_format URL格式
      * @return string
      */
-    public static function build($url = '', $vars = '', $suffix = true, $domain = false)
+    public static function build($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
+        $request = Request::instance();
+
+        /*自动识别系统环境隐藏入口文件 by 小虎哥*/
+        $seo_inlet = config('ey_config.seo_inlet');
+        if (1 == $seo_inlet) {
+            $mca = !empty($url) ? explode($url, '/') : [];
+            if ('admin' != $request->module()) { // 排除后台分组模块
+                self::root('/');
+            } else if (3 == count($mca) && 'admin' != $mca[0]) { // 排除url中带有admin分组模块
+                self::root('/');
+            }
+        }
+        /*--end*/
+
         if (false === $domain && Route::rules('domain')) {
             $domain = true;
         }
@@ -120,34 +136,65 @@ class Url
 
         // URL后缀
         $suffix = in_array($url, ['/', '']) ? '' : self::parseSuffix($suffix);
+
         // 锚点
         $anchor = !empty($anchor) ? '#' . $anchor : '';
-        // 参数组装
-        if (!empty($vars)) {
-            // 添加参数
-            if (Config::get('url_common_param')) {
-                $vars = http_build_query($vars);
-                $url .= $suffix . '?' . $vars . $anchor;
-            } else {
-                $paramType = Config::get('url_param_type');
-                foreach ($vars as $var => $val) {
-                    if ('' !== trim($val)) {
-                        if ($paramType) {
-                            $url .= $depr . urlencode($val);
-                        } else {
-                            $url .= $depr . $var . $depr . urlencode($val);
+        
+        $ey_config = config('ey_config'); // URL模式 by 小虎哥
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : $ey_config['seo_pseudo'];
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = $ey_config['seo_dynamic_format'];
+            } else if (3 == $seo_pseudo) {
+                $seo_pseudo_format = $ey_config['seo_rewrite_format'];
+            }
+        }
+        if (1 == $seo_pseudo && 1 == $seo_pseudo_format) {
+            /*默认兼容模式，支持不开启pathinfo模式*/
+            $urlinfo = explode('/', $url);
+            $len = count($urlinfo);
+            $m = !empty($urlinfo[$len - 3]) ? $urlinfo[$len - 3] : $request->module();
+            $c = !empty($urlinfo[$len - 2]) ? $urlinfo[$len - 2] : $request->controller();
+            $a = !empty($urlinfo[$len - 1]) ? $urlinfo[$len - 1] : $request->action();
+            $url = $domain . rtrim(self::$root ?: $request->root(), '/')."?m={$m}&c={$c}&a={$a}";
+            foreach ($vars as $key => $val) {
+                if (in_array($key, ['m','c','a'])) {
+                    unset($vars[$key]);
+                }
+            }
+            $vars = http_build_query($vars);
+            if (!empty($vars)) {
+                $url .= "&".$vars.$anchor;
+            }
+            /*--end*/
+        } else {
+            // 参数组装
+            if (!empty($vars)) {
+                // 添加参数
+                if (Config::get('url_common_param')) {
+                    $vars = http_build_query($vars);
+                    $url .= $suffix . '?' . $vars . $anchor;
+                } else {
+                    $paramType = Config::get('url_param_type');
+                    foreach ($vars as $var => $val) {
+                        if ('' !== trim($val)) {
+                            if ($paramType) {
+                                $url .= $depr . urlencode($val);
+                            } else {
+                                $url .= $depr . $var . $depr . urlencode($val);
+                            }
                         }
                     }
+                    $url .= $suffix . $anchor;
                 }
+            } else {
                 $url .= $suffix . $anchor;
             }
-        } else {
-            $url .= $suffix . $anchor;
+            // 检测域名
+            $domain = self::parseDomain($url, $domain);
+            // URL组装
+            $url = $domain . rtrim(self::$root ?: $request->root(), '/') . '/' . ltrim($url, '/');
         }
-        // 检测域名
-        $domain = self::parseDomain($url, $domain);
-        // URL组装
-        $url = $domain . rtrim(self::$root ?: Request::instance()->root(), '/') . '/' . ltrim($url, '/');
 
         self::$bindCheck = false;
         return $url;

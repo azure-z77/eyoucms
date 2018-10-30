@@ -45,7 +45,7 @@ class Article extends Model
     {
         $post['aid'] = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
-        model('Field')->dealChannelPostData($post['channel'], $post, $addonFieldExt, $opt);
+        model('Field')->dealChannelPostData($post['channel'], $post, $addonFieldExt);
         // 自动推送链接给蜘蛛
         push_zzbaidu($opt, $aid);
 
@@ -63,7 +63,8 @@ class Article extends Model
         $field = !empty($field) ? $field : '*';
         $result = db('archives')->field($field)->find($aid);
         if ($isshowbody) {
-            $result['addonFieldExt'] = db('article_content')->where('aid',$aid)->find();
+            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $result['addonFieldExt'] = db($tableName.'_content')->where('aid',$aid)->find();
         }
 
         // 文章TAG标签

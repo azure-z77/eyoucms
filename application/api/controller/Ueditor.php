@@ -605,7 +605,7 @@ class Ueditor extends Base
             $state = "ERROR" . $result;
         } else {
             $info = $file->rule(function ($file) {    
-                return date('YmdHis_').input('Filename'); // 使用自定义的文件保存规则
+                return date('YmdHis_').I('Filename'); // 使用自定义的文件保存规则
             })->move($path);
             if ($info) {
                 $state = "SUCCESS";                         

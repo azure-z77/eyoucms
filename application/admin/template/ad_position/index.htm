@@ -3,7 +3,7 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="ad/bar" /}
+    {include file="other/bar" /}
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
@@ -12,6 +12,7 @@
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:U('AdPosition/index')}" method="get" onsubmit="layer_loading('正在处理');">
+                {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="名称搜索...">
@@ -81,7 +82,7 @@
                             </td>
                             <td align="left" class="">
                                 <div class="w160 tl">
-                                    {eq name="'AdPosition@edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
@@ -110,11 +111,11 @@
                             </td>
                             <td class="">
                                 <div class="w250 tc">
-                                    <a class="btn blue" href="{:U('Ad/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
-                                    {eq name="'AdPosition@edit'|is_check_access" value="1"}
+                                    <a class="btn blue" href="{:U('Other/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {eq name="'AdPosition@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('AdPosition/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']}, 1)">标签调用</a>
@@ -134,7 +135,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'AdPosition@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('AdPosition/del')}">
                         <div class="add" title="批量删除">
@@ -143,7 +144,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'AdPosition@add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('AdPosition/add')}">
                         <div class="add" title="新增广告位">
@@ -182,7 +183,7 @@
       var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px"><dd>标签 adv 调用：</dd>'
       contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:60px;">' + advstr + '}</textarea>'
       contentdiv += '<dd>JavaScript：</dd>'
-      contentdiv += '<dd><input type="text" style=" width:400px;" value="<script type=&quot;text/javascript&quot; src=&quot;http://' + '{$Think.server.http_host}' + '/index.php?m=api&amp;c=ad&amp;a=ad_show&amp;pid=' + id + '&amp;row='+limit+'&quot;><\/script>"></dd>'
+      contentdiv += '<dd><input type="text" style=" width:400px;" value="<script type=&quot;text/javascript&quot; src=&quot;http://' + '{$Think.server.http_host}' + '/index.php?m=api&amp;c=Other&amp;a=other_show&amp;pid=' + id + '&amp;row='+limit+'&quot;><\/script>"></dd>'
       contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将标签adv或JavaScript代码复制并粘贴到对应模板文件中！</dd></dl></div>'
       layer.open({
         title: '代码调用',

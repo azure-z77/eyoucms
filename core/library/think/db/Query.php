@@ -1468,6 +1468,14 @@ class Query
      */
     public function group($group)
     {
+        /*设置sql_mode为宽松模式，避免分组查询遇到问题 ONLY_FULL_GROUP_BY by 小虎哥*/
+        $system_sql_mode = config('ey_config.system_sql_mode');
+        if (stristr($system_sql_mode, 'ONLY_FULL_GROUP_BY')) {
+            $system_sql_mode = str_replace('ONLY_FULL_GROUP_BY', '', $system_sql_mode);
+            $system_sql_mode = str_replace(',,', ',', trim($system_sql_mode, ','));
+            Db::execute("SET sql_mode ='{$system_sql_mode}'");
+        }
+        /*--end*/
         $this->options['group'] = $group;
         return $this;
     }
@@ -1726,13 +1734,14 @@ class Query
         $db         = $this->getConfig('database');
         if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
-                $schema = $db . '.' . $guid;
+                // $schema = $db . '.' . $guid;
+                $schema = $guid; // 以表名做为文件名 by 小虎哥
             } else {
                 $schema = $guid;
             }
             // 读取缓存
-            if (!App::$debug && is_file(RUNTIME_PATH . 'schema/' . $schema . '.php')) {
-                $info = include RUNTIME_PATH . 'schema/' . $schema . '.php';
+            if (!App::$debug && is_file(DATA_PATH . 'schema/' . $schema . '.php')) {
+                $info = include DATA_PATH . 'schema/' . $schema . '.php'; // 修改表字段文件路径  by 小虎哥
             } else {
                 $info = $this->connection->getFields($guid);
             }
@@ -2973,7 +2982,7 @@ class Query
         foreach ($data as $_k => $_v) {
             foreach ($_v as $_f => $_fv) {
                 if (!isset(${$_f . '_temp'})) ${$_f . '_temp'} = "";
-                ${$_f . '_temp'} .= "WHEN '{$_v[$index_key]}' THEN '" . addslashes(stripslashes($_fv)) . "' ";
+                ${$_f . '_temp'} .= "WHEN '{$_v[$index_key]}' THEN '" . addslashes($_fv) . "' ";
                 array_push($index_key_array, $_v[$index_key]);
             }
         }
@@ -3012,7 +3021,7 @@ class Query
     }
 
     /**
-     * 批量更新数据
+     * 批量更新数据[此方法废弃，建议使用模型中的 saveAll 方法]
      *
      * @author wengxianhu
      * @created to 2013-05-27

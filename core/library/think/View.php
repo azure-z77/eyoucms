@@ -35,6 +35,8 @@ class View
         }
         $baseReplace = [
             '__ROOT__'   => $root,
+            '__DOMAIN__'    => $_SERVER['HTTP_HOST'],
+            '__SITE_URL__'    => $request->domain(),
             '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
             '__PUBLIC__' => $root . '/public',
             '__STATIC__' => $root . '/public/static',

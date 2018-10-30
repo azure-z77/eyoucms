@@ -5,7 +5,6 @@ define('THINK_START_TIME', microtime(true));
 define('THINK_START_MEM', memory_get_usage());
 define('EXT', '.php');
 define('DS', DIRECTORY_SEPARATOR);
-define('WEAPP_DIR_NAME', 'weapp');
 defined('THINK_PATH') or define('THINK_PATH', __DIR__ . DS);
 define('LIB_PATH', THINK_PATH . 'library' . DS);
 define('CORE_PATH', LIB_PATH . 'think' . DS);
@@ -21,6 +20,9 @@ defined('TEMP_PATH') or define('TEMP_PATH', RUNTIME_PATH . 'temp' . DS);
 defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
 defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
+defined('DATA_NAME') or define('DATA_NAME', 'data');
+defined('DATA_PATH') or define('DATA_PATH', ROOT_PATH . DATA_NAME . DS);
+defined('WEAPP_DIR_NAME') or define('WEAPP_DIR_NAME', 'weapp');
 defined('WEAPP_PATH') or define('WEAPP_PATH', ROOT_PATH . WEAPP_DIR_NAME . DS);
 
 // 环境常量

@@ -82,8 +82,14 @@ class Field extends Base
         $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
         /*--end*/
 
-        /*模型列表，排除留言模型*/
-        $assign_data['channeltype_list'] = model('Channeltype')->getAll('id,title', array('id'=>array('neq',8)), 'id');
+        /*有栏目的模型列表*/
+        $channeltype_list = model('Channeltype')->getArctypeChannel();
+        foreach ($channeltype_list as $key => $val) {
+            if ('guestbook' == $key) { // 排除留言模型
+                unset($channeltype_list[$key]);
+            }
+        }
+        $assign_data['channeltype_list'] = $channeltype_list;
         /*--end*/
 
         /*模型ID*/

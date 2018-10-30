@@ -127,10 +127,27 @@ if (!function_exists('input')) {
             $method = 'param';
         }
         if (isset($has)) {
-            return request()->has($key, $method, $default);
+            $data = request()->has($key, $method, $default);
         } else {
-            return request()->$method($key, $default, $filter);
+            $data = request()->$method($key, $default, $filter);
         }
+        /*防止shell注入处理*/
+        if (is_array($data)) {
+            foreach ($data as $key => $val) {
+                $data[$key] = eyPreventShell($val) ? $val : '';
+            }
+        } else if (is_string($data) && stristr($data, ',')) {
+            $arr = explode(',', $data);
+            foreach ($arr as $key => $val) {
+                $arr[$key] = eyPreventShell($val) ? $val : '';
+            }
+            $data = implode(',', $arr);
+        } else {
+            $data = eyPreventShell($data) ? $data : '';
+        }
+        /*--end*/
+
+        return $data;
     }
 }
 
@@ -266,10 +283,13 @@ if (!function_exists('url')) {
      * @param string|array  $vars 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function url($url = '', $vars = '', $suffix = true, $domain = false)
+    function url($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
         if ($uiset == 'on') {
@@ -294,10 +314,10 @@ if (!function_exists('url')) {
                 $vars .= "&".$str;
             }
 
-            $url = Url::build($url, $vars, $suffix, $domain);
+            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
 
         } else {
-            $url = Url::build($url, $vars, $suffix, $domain);
+            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
         return $url;
@@ -601,33 +621,43 @@ if (!function_exists('hook')) {
 
 if (!function_exists('hookexec')) {
     /**
-     * 执行某个行为
+     * 执行插件某个行为
      * @access public
-     * @param  mixed  $class  要执行的行为
-     * @param  string $tag    方法名（标签名）
-     * @param  mixed  $params 传人的参数
+     * @param  mixed  $class  要执行的行为(插件标识/控制器/操作方法)
+     * @param  mixed  $params 传入的参数
      * @param  mixed  $extra  额外参数
      * @return mixed
      */
-    function hookexec($class, $tag = '', $params = null, $extra = null)
+    function hookexec($class, $params = null, $extra = null)
     {
-        $keys = "hookexec_".$class;
+        $keys = "hookexec_{$class}_".json_encode($params)."_".json_encode($extra);
         $value = cache($keys);
-        if(empty($value)){
+        $mcaArr = explode('/', $class);
+        $m = !empty($mcaArr[0]) ? $mcaArr[0] : '';
+        $c = !empty($mcaArr[1]) ? $mcaArr[1] : '';
+        $a = !empty($mcaArr[2]) ? $mcaArr[2] : '';
+        if(true === config('app_debug') || empty($value)){
             $exist = \think\Db::query('SHOW TABLES LIKE "'.config('database.prefix').'weapp"');
             if (!empty($exist)) {
-                $count = M('weapp')->where(array('code'=>$class,'status'=>1))->count('id');
-                if (!empty($count)) {
-                    $value = 1;
-                } else {
-                    $value = -1;
+                $row = M('weapp')->field('id,code')->where(array('code'=>$m,'status'=>1))->find();
+                $value = -1;
+                if (!empty($row)) {
+                    $configValue = include WEAPP_DIR_NAME.DS.$row['code'].DS.'config.php';
+                    $scene = intval($configValue['scene']);
+                    if (0 == $scene) { // 场景：手机端+PC端
+                        $value = 1;
+                    } else if (1 == $scene && isMobile()) { // 场景：手机端
+                        $value = 1;
+                    } else if (2 == $scene && !isMobile()) { // 场景：PC端
+                        $value = 1;
+                    }
                 }
-                cache($keys, $value);
+                cache($keys, $value, null, 'hook');
             }
         }
         if (1 == $value) {
-            $class_path = get_weapp_class($class);
-            \think\Hook::exec($class_path, $tag, $params, $extra);
+            $class_path =  WEAPP_DIR_NAME."\\{$m}\\controller\\{$c}";
+            \think\Hook::exec($class_path, $a, $params, $extra);
         }
     }
 }
@@ -789,11 +819,12 @@ if (!function_exists('U')) {
      * @param string|array $vars 传入的参数，支持数组和字符串
      * @param string|boolean $suffix 伪静态后缀，默认为true表示获取配置值
      * @param boolean $domain 是否显示域名
+     * @param bool          $seo_pseudo URL模式
      * @return string
      */
-    function  U($url='',$vars='',$suffix=true,$domain=false) 
+    function  U($url='',$vars='',$suffix=true,$domain=false, $seo_pseudo = null) 
     {
-       return url($url, $vars, $suffix, $domain);
+       return url($url, $vars, $suffix, $domain, $seo_pseudo);
     }
 }
  
@@ -826,10 +857,9 @@ if (!function_exists('I')) {
      * @param string $name 变量的名称 支持指定类型
      * @param mixed $default 不存在的时候默认值
      * @param mixed $filter 参数过滤方法
-     * @param mixed $datas 要获取的额外数据源
      * @return mixed
      */
-    function I($name,$default='',$filter='',$datas=null) {
+    function I($name, $default='', $filter='') {
      
         $value = input($name,'',$filter);        
         if($value !== null && $value !== ''){
@@ -841,8 +871,11 @@ if (!function_exists('I')) {
             $value = input(end($name),'',$filter);           
             if($value !== null && $value !== '')
                 return $value;            
-        }  
-        return $default;        
+        }
+        if (!eyPreventShell($default)) {
+            $default = '';
+        }
+        return $default;
     } 
 }
     

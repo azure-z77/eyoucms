@@ -58,9 +58,10 @@ class Tools extends Base {
             $path = tpCache('global.web_sqldatapath');
             $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
             $path = trim($path, '/');
-            if(!is_dir($path)){
+            if(!empty($path) && !is_dir($path)){
                 mkdir($path, 0755, true);
             }
+
             //读取备份配置
             $config = array(
                 'path'     => realpath($path) . DS,
@@ -87,6 +88,7 @@ class Tools extends Base {
             $file = array(
                 'name' => date('Ymd-His', $_SERVER['REQUEST_TIME']),
                 'part' => 1,
+                'version' => getCmsVersion(),
             );
             session('backup_file', $file);
             //缓存要备份的表
@@ -114,9 +116,15 @@ class Tools extends Base {
                     return json(array('tab' => $tab, 'info'=>'备份完成！', 'status'=>1, 'url'=>''));
                 } else { //备份完成，清空缓存
                     /*自动覆盖安装目录下的eyoucms.sql*/
-                    $install_path = ROOT_PATH.'install';
-                    if (file_exists($install_path)) {
-                        $srcfile = session('backup_config.path').session('backup_file.name').'-'.session('backup_file.part').'.sql';
+                    $install_time = DEFAULT_INSTALL_DATE;
+                    $constsant_path = APP_PATH.MODULE_NAME.'/conf/constant.php';
+                    if (file_exists($constsant_path)) {
+                        require_once($constsant_path);
+                        defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
+                    }
+                    $install_path = ROOT_PATH.'install_'.$install_time;
+                    if (is_dir($install_path) && file_exists($install_path)) {
+                        $srcfile = session('backup_config.path').session('backup_file.name').'-'.session('backup_file.part').'-'.session('backup_file.version').'.sql';
                         $dstfile = $install_path.'/eyoucms.sql';
                         @copy($srcfile, $dstfile);
                     }
@@ -198,7 +206,7 @@ class Tools extends Base {
         $path = tpCache('global.web_sqldatapath');
         $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
         $path = trim($path, '/');
-        if(!is_dir($path)){
+        if(!empty($path) && !is_dir($path)){
             mkdir($path, 0755, true);
         }
         $path = realpath($path);
@@ -207,11 +215,12 @@ class Tools extends Base {
         $list = array();
         $filenum = $total = 0;
         foreach ($glob as $name => $file) {
-            if(preg_match('/^\d{8,8}-\d{6,6}-\d+\.sql(?:\.gz)?$/', $name)){
-                $name = sscanf($name, '%4s%2s%2s-%2s%2s%2s-%d');
+            if(preg_match('/^\d{8,8}-\d{6,6}-\d+-v\d+\.\d+\.\d+\.sql(?:\.gz)?$/', $name)){
+                $name = sscanf($name, '%4s%2s%2s-%2s%2s%2s-%d-%s');
                 $date = "{$name[0]}-{$name[1]}-{$name[2]}";
                 $time = "{$name[3]}:{$name[4]}:{$name[5]}";
                 $part = $name[6];
+                $version = preg_replace('#\.sql(.*)#i', '', $name[7]);
                 $info = pathinfo($file);
                 if(isset($list["{$date} {$time}"])){
                     $info = $list["{$date} {$time}"];
@@ -223,6 +232,7 @@ class Tools extends Base {
                 }
                 $info['compress'] = ($info['extension'] === 'sql') ? '-' : $info['extension'];
                 $info['time']  = strtotime("{$date} {$time}");
+                $info['version']  = $version;
                 $filenum++;
                 $total += $info['size'];
                 $list["{$date} {$time}"] = $info;
@@ -240,37 +250,6 @@ class Tools extends Base {
      */
     public function restoreUpload()
     {
-        $fileError = isset($_FILES['sqlfile']['error']) ? $_FILES['sqlfile']['error'] : 0;
-        switch ($fileError) {
-            case '1':
-                $errmsg = '上传的文件超过了 php.ini 中 upload_max_filesize选项限制的值';
-                break;
-            
-            case '2':
-                $errmsg = '上传文件的大小超过了 HTML 表单中 MAX_FILE_SIZE 选项指定的值';
-                break;
-            
-            case '3':
-                $errmsg = '文件只有部分被上传';
-                break;
-            
-            case '4':
-                $errmsg = '请上传sql文件';
-                break;
-            
-            case '5':
-                $errmsg = '上传文件大小为0';
-                break;
-
-            default:
-                # code...
-                break;
-        }
-        if ($fileError > 0) {
-            $this->error($errmsg);
-            exit;
-        }
-
         $file = request()->file('sqlfile');
         if(empty($file)){
             $this->error('请上传sql文件');
@@ -405,8 +384,8 @@ class Tools extends Base {
             $list  = array();
             foreach($files as $name){
                 $basename = basename($name);
-                $match    = sscanf($basename, '%4s%2s%2s-%2s%2s%2s-%d');
-                $gz       = preg_match('/^\d{8,8}-\d{6,6}-\d+\.sql.gz$/', $basename);
+                $match    = sscanf($basename, '%4s%2s%2s-%2s%2s%2s-%d-%s');
+                $gz       = preg_match('/^\d{8,8}-\d{6,6}-\d+-v\d+\.\d+\.\d+\.sql.gz$/', $basename);
                 $list[$match[6]] = array($match[6], $name, $gz);
             }
             ksort($list);
@@ -415,6 +394,13 @@ class Tools extends Base {
             $last = end($list);
             $file_path_full = !empty($last[1]) ? $last[1] : '';
             if (file_exists($file_path_full)) {
+                /*校验sql文件是否属于当前CMS版本*/
+                preg_match('/(\d{8,8})-(\d{6,6})-(\d+)-(v\d+\.\d+\.\d+)\.sql/i', $file_path_full, $matches);
+                $version = getCmsVersion();
+                if ($matches[4] != $version) {
+                    $this->error('sql不兼容当前版本：'.$version, U('Tools/restore'));
+                }
+                /*--end*/
                 $sqls = Backup::parseSql($file_path_full);
                 if(Backup::install($sqls)){
                     /*清除缓存*/

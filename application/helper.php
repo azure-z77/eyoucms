@@ -232,16 +232,23 @@ if (!function_exists('typeurl')) {
      * @param string|array  $param 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function typeurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo ='')
+    function typeurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
-        // \think\Url::root('/');
         $eyouUrl = '';
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
-        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : tpCache('seo.seo_pseudo');
-        if ($seo_pseudo == 1 || $uiset == 'on') {
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+
+        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_pseudo_format) {
             if (is_array($param)) {
                 $vars = array(
                     'tid'   => $param['id'],
@@ -250,7 +257,7 @@ if (!function_exists('typeurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, array(), $suffix, $domain);
+            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
             $urlParam = parse_url($eyouUrl);
             $query_str = isset($urlParam['query']) ? $urlParam['query'] : '';
             if (empty($query_str)) {
@@ -259,11 +266,11 @@ if (!function_exists('typeurl')) {
                 $eyouUrl .= '&';
             }
             $eyouUrl .= $vars;
-        } elseif ($seo_pseudo == 2 && $uiset != 'on') {
+        } elseif ('on' != $uiset && 2 == $seo_pseudo) {
             $vars = array();
             $url = $param['dirpath']."/";
-            $eyouUrl = url($url, $vars, false, SITE_URL);
-        } elseif ($seo_pseudo == 3 && $uiset != 'on') {
+            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
+        } elseif ('on' != $uiset && 3 == $seo_pseudo) {
             if (is_array($param)) {
                 $vars = array(
                     'tid'   => $param['dirname'],
@@ -271,10 +278,26 @@ if (!function_exists('typeurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, $vars, $suffix, $domain);
+            /*伪静态格式*/
+            $seo_rewrite_format = config('ey_config.seo_rewrite_format');
+            if (1 == intval($seo_rewrite_format)) {
+                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format).'/';
+            } else {
+                $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format); // 兼容v1.1.6之前被搜索引擎收录的URL
+            }
+            /*--end*/
+        } else {
+            if (is_array($param)) {
+                $vars = array(
+                    'tid'   => $param['id'],
+                );
+            } else {
+                $vars = $param;
+            }
+            $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
-        $eyouUrl = auto_hide_index($eyouUrl);
+        // $eyouUrl = auto_hide_index($eyouUrl);
 
         return $eyouUrl;
     }
@@ -287,16 +310,24 @@ if (!function_exists('arcurl')) {
      * @param string|array  $param 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function arcurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '')
+    function arcurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '', $seo_pseudo_format = null)
     {
         // \think\Url::root('/');
         $eyouUrl = '';
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
-        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : tpCache('seo.seo_pseudo');
-        if ($seo_pseudo == 1 || $uiset == 'on') {
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+        
+        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_pseudo_format) {
             if (is_array($param)) {
                 $vars = array(
                     'aid'   => $param['aid'],
@@ -305,7 +336,7 @@ if (!function_exists('arcurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, array(), $suffix, $domain);
+            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
             $urlParam = parse_url($eyouUrl);
             $query_str = isset($urlParam['query']) ? $urlParam['query'] : '';
             if (empty($query_str)) {
@@ -318,8 +349,20 @@ if (!function_exists('arcurl')) {
             $vars = array();
             $aid = $param['aid'];
             $url = $param['dirpath']."/{$aid}.html";
-            $eyouUrl = url($url, $vars, false, SITE_URL);
+            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
         } elseif ($seo_pseudo == 3 && $uiset != 'on') {
+            /*伪静态格式*/
+            $seo_rewrite_format = config('ey_config.seo_rewrite_format');
+            if (1 == intval($seo_rewrite_format)) {
+                $url = 'home/View/index';
+                /*URL里第一层级固定是顶级栏目的目录名称*/
+                $tdirnameArr = every_top_dirname_list();
+                if (!empty($param['dirname']) && isset($tdirnameArr[md5($param['dirname'])]['tdirname'])) {
+                    $param['dirname'] = $tdirnameArr[md5($param['dirname'])]['tdirname'];
+                }
+                /*--end*/
+            }
+            /*--end*/
             if (is_array($param)) {
                 $vars = array(
                     'aid'   => $param['aid'],
@@ -328,10 +371,20 @@ if (!function_exists('arcurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, $vars, $suffix, $domain);
+            $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
+        } else {
+            if (is_array($param)) {
+                $vars = array(
+                    'aid'   => $param['aid'],
+                );
+                $vars = http_build_query($vars);
+            } else {
+                $vars = $param;
+            }
+            $eyouUrl = url('home/View/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
-        $eyouUrl = auto_hide_index($eyouUrl);
+        // $eyouUrl = auto_hide_index($eyouUrl);
 
         return $eyouUrl;
     }

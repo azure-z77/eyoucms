@@ -60,7 +60,7 @@ class TagArclist extends Base
         if (!empty($channeltype)) { // 如果指定了频道ID，则频道下的所有文档都展示
             unset($param['typeid']);
         } else {
-            unset($param['channel']);
+            // unset($param['channel']);
             if (!empty($typeid)) {
                 $typeidArr = explode(',', $typeid);
                 if (count($typeidArr) == 1) {
@@ -86,6 +86,7 @@ class TagArclist extends Base
                     $firstTypeid = M('Arctype')->where(array('id|dirname'=>array('eq', $firstTypeid)))->getField('id');
                     $channeltype = M('Arctype')->where(array('id'=>array('eq', $firstTypeid)))->getField('current_channel');*/
                 }
+                $param['channel'] = $channeltype;
             }
         }
 
@@ -196,7 +197,7 @@ class TagArclist extends Base
         }
 
         // 获取查询的控制器名
-        $channeltype_info = model('Channeltype')->getInfo($channeltype, 'id,table,ctl_name');
+        $channeltype_info = model('Channeltype')->getInfo($channeltype);
         $controller_name = $channeltype_info['ctl_name'];
         $channeltype_table = $channeltype_info['table'];
 
@@ -255,7 +256,7 @@ class TagArclist extends Base
                     $tableContent = $channeltype_table.'_content';
                     $rowExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
-                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype);
+                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype, true);
                     /*--end*/
                     foreach ($result as $key => $val) {
                         $valExt = !empty($rowExt[$val['aid']]) ? $rowExt[$val['aid']] : array();

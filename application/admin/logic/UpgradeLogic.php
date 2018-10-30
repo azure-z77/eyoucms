@@ -54,11 +54,8 @@ class UpgradeLogic extends Model
             'upgrade_welcome',
         );
         $ctl_act_str = strtolower(CONTROLLER_NAME).'_'.strtolower(ACTION_NAME);
-        if(in_array($ctl_act_str, $ctl_act_list))  
+        if(!in_array($ctl_act_str, $ctl_act_list))  
         {
-            // welcome  index
-            // echo  'welcome  index';            
-        } else {
             return false;
         }
         //error_reporting(0);//关闭所有错误报告        
@@ -247,11 +244,8 @@ class UpgradeLogic extends Model
             }
         }
         /*--end*/
-        // 推送回服务器  记录升级成功
-        $this->UpgradeLog($serviceVersion['key_num']);
         // 清空缓存
         delFile(rtrim(RUNTIME_PATH, '/'));
-        \think\Cache::clear();
         tpCache('global');
 
         /*删除下载的升级包*/
@@ -259,6 +253,9 @@ class UpgradeLogic extends Model
         $ziplist = glob($this->data_path.'backup'.DS.'*.zip');
         @array_map('unlink', $ziplist);
         /*--end*/
+        
+        // 推送回服务器  记录升级成功
+        $this->UpgradeLog($serviceVersion['key_num']);
         
         return 1; 
     }
@@ -313,7 +310,7 @@ class UpgradeLogic extends Model
         fclose($fp);
         if($md5File != md5_file($saveDir))
         {
-            return "下载升级包不完整, 请重试!";
+            return "下载升级包不完整, 请检查目录data/backup是否有权限!";
         }
         return 1;
     }            
@@ -343,7 +340,7 @@ class UpgradeLogic extends Model
         // api_Service_upgradeLog
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT11cGdyYWRlTG9nJg==';
         $url = base64_decode($this->service_ey).base64_decode($tmp_str).http_build_query($vaules);
-        file_get_contents($url);
+        @file_get_contents($url);
     }
 } 
 ?>

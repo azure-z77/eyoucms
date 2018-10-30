@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
     <script type="text/javascript" src="../internal.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.1&services=true"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=Wq6eXvkq0DTxpvvwwMVG8ARF2bskGnzo&s=1"></script>
     <style type="text/css">
         .content{width:530px; height: 350px;margin: 10px auto;}
         .content table{width: 100%}
@@ -53,7 +53,7 @@
                         map.centerAndZoom(points[0], 13);
                     }
                     point = map.getCenter();
-                    marker.setPoint(point);
+                    marker.setPosition(point);
                 } else {
                     alert(lang.errorMsg);
                 }
@@ -105,11 +105,11 @@
     };
     dialog.onok = function (){
         var center = map.getCenter();
-        var zoom = map.zoomLevel;
+        var zoom = map.getZoom();
         var size = map.getSize();
         var mapWidth = size.width;
         var mapHeight = size.height;
-        var point = marker.getPoint();
+        var point = marker.getPosition();
 
         if($G('is_dynamic').checked) {
             var URL = editor.options.UEDITOR_HOME_URL,
@@ -122,7 +122,7 @@
                     '&markerStyles=' + 'l,A'].join('');
             editor.execCommand('inserthtml', '<iframe class="ueditor_baidumap" src="' + url + '"' + (styleStr ? ' style="' + styleStr + '"' :'') + ' frameborder="0" width="' + (mapWidth+4) + '" height="' + (mapHeight+4) + '"></iframe>');
         } else {
-            var url = "http://api.map.baidu.com/staticimage?center=" + center.lng + ',' + center.lat +
+            var url = "https://api.map.baidu.com/staticimage?s=1&center=" + center.lng + ',' + center.lat +
                     "&zoom=" + zoom + "&width=" + size.width + '&height=' + size.height + "&markers=" + point.lng + ',' + point.lat;
             editor.execCommand('inserthtml', '<img width="'+ size.width +'"height="'+ size.height +'" src="' + url + '"' + (styleStr ? ' style="' + styleStr + '"' :'') + '/>');
         }

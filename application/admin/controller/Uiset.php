@@ -23,7 +23,6 @@ class Uiset extends Base
     /*
      * 初始化操作
      */
-    
     public function _initialize() {
         parent::_initialize();
         $this->theme_style = 'pc';
@@ -43,12 +42,9 @@ class Uiset extends Base
      */
     public function pc()
     {
-        // session('is_mobile', null);
-
-        $index_url = url('home/Index/index').'?uiset=on&v=pc';
+        $index_url = url('home/Index/index', array('uiset'=>'on', 'v'=>'pc'));
         // 自动隐藏index.php入口文件
         $index_url = auto_hide_index($index_url);
-
         header('Location: '.$index_url);
         exit;
     }
@@ -58,12 +54,9 @@ class Uiset extends Base
      */
     public function mobile()
     {
-        // session('is_mobile', 1);
-
-        $index_url = url('home/Index/index').'?uiset=on&v=mobile';
+        $index_url = url('home/Index/index', array('uiset'=>'on', 'v'=>'mobile'));
         // 自动隐藏index.php入口文件
         $index_url = auto_hide_index($index_url);
-
         header('Location: '.$index_url);
         exit;
     }

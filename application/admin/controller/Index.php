@@ -27,6 +27,16 @@ class Index extends Base
    
     public function welcome()
     {
+        /*百度分享*/
+        $webConfig = tpCache('web');
+        $share = array(
+            'bdText'    => $webConfig['web_title'],
+            'bdPic'     => is_http_url($webConfig['web_logo']) ? $webConfig['web_logo'] : SITE_URL.$webConfig['web_logo'],
+            'bdUrl'     => $webConfig['web_basehost'],
+        );
+        $this->assign('share',$share);
+        /*--end*/
+
         $this->assign('sys_info',$this->get_sys_info());
         $this->assign('web_show_popup_upgrade', tpCache('web.web_show_popup_upgrade'));
         return $this->fetch();
@@ -82,7 +92,7 @@ class Index extends Base
             if ($result) {
                 session('isset_author', null);
                 adminLog('录入商业授权');
-                $this->success("操作成功!", U('Index/welcome'));
+                $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
             }else{
                 $this->error("操作失败!", U('Index/authortoken'));
             }

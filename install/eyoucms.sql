@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-08-29 09:58:02
+Date: 2018-10-18 11:09:57
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -42,7 +42,7 @@ CREATE TABLE `ey_ad` (
   PRIMARY KEY (`id`),
   KEY `position_id` (`pid`) USING BTREE,
   KEY `status` (`status`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='广告表';
 
 -- ----------------------------
 -- Records of ey_ad
@@ -70,12 +70,12 @@ CREATE TABLE `ey_admin` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`admin_id`),
   KEY `user_name` (`user_name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of ey_admin
 -- ----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1533524597', '127.0.0.1', '10', 'r3icbrs77i2vkshlir4lbrbht1', '1', '1531707001', '0');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1539823429', '127.0.0.1', '36', 'u4po5ut95750qc83rohsn5iiq5', '1', '1531707001', '0');
 
 -- ----------------------------
 -- Table structure for ey_admin_log
@@ -90,7 +90,7 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(10) DEFAULT NULL COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=118 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- ----------------------------
 -- Records of ey_admin_log
@@ -147,7 +147,7 @@ CREATE TABLE `ey_archives` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`),
   KEY `aid` (`typeid`,`channel`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='资讯表';
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='文档主表';
 
 -- ----------------------------
 -- Records of ey_archives
@@ -230,7 +230,7 @@ CREATE TABLE `ey_arctype` (
   UNIQUE KEY `dirname` (`dirname`) USING BTREE,
   UNIQUE KEY `dirpath` (`dirpath`,`id`) USING BTREE,
   KEY `parent_id` (`channeltype`,`parent_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
 
 -- ----------------------------
 -- Records of ey_arctype
@@ -423,7 +423,7 @@ CREATE TABLE `ey_auth_modular` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=515 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=515 DEFAULT CHARSET=utf8 COMMENT='权限模块表';
 
 -- ----------------------------
 -- Records of ey_auth_modular
@@ -671,17 +671,17 @@ CREATE TABLE `ey_channeltype` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idention` (`nid`) USING BTREE,
   UNIQUE KEY `ctl_name` (`ctl_name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='系统模型表';
 
 -- ----------------------------
 -- Records of ey_channeltype
 -- ----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1533524598');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1533524598');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1533524598');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1533524598');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1533524598');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1533524598');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1539823450');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1539823450');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1539823450');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1539823450');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1539823450');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1539823450');
 
 -- ----------------------------
 -- Table structure for ey_config
@@ -690,81 +690,91 @@ DROP TABLE IF EXISTS `ey_config`;
 CREATE TABLE `ey_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT '' COMMENT '配置的key键名',
-  `value` varchar(512) DEFAULT '' COMMENT '配置的val值',
+  `value` text,
   `inc_type` varchar(64) DEFAULT '' COMMENT '配置分组',
   `desc` varchar(50) DEFAULT '' COMMENT '描述',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=81 DEFAULT CHARSET=utf8;
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- ----------------------------
 -- Records of ey_config
 -- ----------------------------
-INSERT INTO `ey_config` VALUES ('1', 'is_mark', '0', 'water', '');
-INSERT INTO `ey_config` VALUES ('2', 'mark_txt', '易优Cms', 'water', '');
-INSERT INTO `ey_config` VALUES ('3', 'mark_img', '/public/upload/water/2018/05/08/93806077e5a4c4e12ceed30df5cde761.png', 'water', '');
-INSERT INTO `ey_config` VALUES ('4', 'mark_width', '200', 'water', '');
-INSERT INTO `ey_config` VALUES ('5', 'mark_height', '50', 'water', '');
-INSERT INTO `ey_config` VALUES ('6', 'mark_degree', '54', 'water', '');
-INSERT INTO `ey_config` VALUES ('7', 'mark_quality', '56', 'water', '');
-INSERT INTO `ey_config` VALUES ('8', 'mark_sel', '9', 'water', '');
-INSERT INTO `ey_config` VALUES ('9', 'sms_time_out', '120', 'sms', '');
-INSERT INTO `ey_config` VALUES ('10', 'theme_style', '1', 'basic', '');
-INSERT INTO `ey_config` VALUES ('11', 'file_size', '500', 'basic', '');
-INSERT INTO `ey_config` VALUES ('12', 'image_type', 'jpg|gif|png|bmp|jpeg|ico', 'basic', '');
-INSERT INTO `ey_config` VALUES ('13', 'file_type', 'zip|gz|rar|iso|doc|xsl|ppt|wps', 'basic', '');
-INSERT INTO `ey_config` VALUES ('14', 'media_type', 'swf|mpg|mp3|rm|rmvb|wmv|wma|wav|mid|mov|mp4', 'basic', '');
-INSERT INTO `ey_config` VALUES ('15', 'web_keywords', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('17', 'sms_platform', '1', 'sms', '');
-INSERT INTO `ey_config` VALUES ('18', 'seo_viewtitle_format', '2', 'seo', '');
-INSERT INTO `ey_config` VALUES ('19', 'smtp_server', 'smtp.qq.com', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('20', 'smtp_port', '465', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('21', 'smtp_user', 'xxxxxxxxx@qq.com', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('22', 'smtp_pwd', 'xxxxxxxxxxx', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('23', 'inc_type', 'smtp', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('24', 'mark_type', 'img', 'water', '');
-INSERT INTO `ey_config` VALUES ('25', 'mark_txt_size', '30', 'water', '');
-INSERT INTO `ey_config` VALUES ('26', 'mark_txt_color', '#000000', 'water', '');
-INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '');
-INSERT INTO `ey_config` VALUES ('28', 'web_name', '易优Cms-演示站', 'web', '');
-INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/public/upload/system/2018/05/24/8c675d3dae162ebc1936f3ab43d58960.png', 'web', '');
-INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '');
-INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.4', 'web', '');
-INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '');
-INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. 易优CMS 版权所有', 'web', '');
-INSERT INTO `ey_config` VALUES ('34', 'web_thirdcode_pc', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('35', 'web_thirdcode_wap', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('39', 'seo_arcdir', '/html', 'seo', '');
-INSERT INTO `ey_config` VALUES ('40', 'seo_pseudo', '1', 'seo', '');
-INSERT INTO `ey_config` VALUES ('41', 'list_symbol', '&gt;', 'basic', '');
-INSERT INTO `ey_config` VALUES ('42', 'sitemap_auto', '1', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('43', 'sitemap_not1', '0', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('44', 'sitemap_not2', '1', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('45', 'sitemap_xml', '1', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('46', 'sitemap_txt', '0', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '');
-INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '');
-INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优CMS -  Powered by Eyoucms.com', 'web', '');
-INSERT INTO `ey_config` VALUES ('56', 'smtp_test_eamil', 'xxxxxxxx@qq.com', 'smtp', '');
-INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('58', 'web_attr_3', '123456789', 'web', '');
-INSERT INTO `ey_config` VALUES ('59', 'web_attr_2', '8888-88888888', 'web', '');
-INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', 'http://www.weibo.com', 'web', '');
-INSERT INTO `ey_config` VALUES ('61', 'web_attr_4', '/public/upload/system/2018/05/18/dfda33373cf1ba7baa39423036a5678a.jpg', 'web', '');
-INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '0', 'seo', '');
-INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('64', 'web_sqldatapath', '/data/sqldata', 'web', '');
-INSERT INTO `ey_config` VALUES ('65', 'web_cmsurl', '', 'web', '');
-INSERT INTO `ey_config` VALUES ('66', 'web_templets_dir', '/template', 'web', '');
-INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '');
-INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '');
-INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '');
-INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '');
-INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'CNPwa7FgeA7kpfa7BqT6vNEG', 'php', '');
-INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '');
-INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '');
-INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '');
+INSERT INTO `ey_config` VALUES ('1', 'is_mark', '0', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('2', 'mark_txt', '易优Cms', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('3', 'mark_img', '/public/upload/water/2018/05/08/93806077e5a4c4e12ceed30df5cde761.png', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('4', 'mark_width', '200', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('5', 'mark_height', '50', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('6', 'mark_degree', '54', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('7', 'mark_quality', '56', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('8', 'mark_sel', '9', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('9', 'sms_time_out', '120', 'sms', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('10', 'theme_style', '1', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('11', 'file_size', '500', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('12', 'image_type', 'jpg|gif|png|bmp|jpeg|ico', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('13', 'file_type', 'zip|gz|rar|iso|doc|xsl|ppt|wps', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('14', 'media_type', 'swf|mpg|mp3|rm|rmvb|wmv|wma|wav|mid|mov|mp4', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('15', 'web_keywords', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('17', 'sms_platform', '1', 'sms', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('18', 'seo_viewtitle_format', '2', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('19', 'smtp_server', 'smtp.qq.com', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('20', 'smtp_port', '465', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('21', 'smtp_user', 'xxxxxxxxx@qq.com', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('22', 'smtp_pwd', 'xxxxxxxxxxx', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('23', 'inc_type', 'smtp', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('24', 'mark_type', 'img', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('25', 'mark_txt_size', '30', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('26', 'mark_txt_color', '#000000', 'water', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('28', 'web_name', '易优Cms-演示站', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/public/upload/system/2018/05/24/8c675d3dae162ebc1936f3ab43d58960.png', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.4', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. 易优CMS 版权所有', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('34', 'web_thirdcode_pc', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('35', 'web_thirdcode_wap', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('39', 'seo_arcdir', '/html', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('40', 'seo_pseudo', '1', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('41', 'list_symbol', '&gt;', 'basic', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('42', 'sitemap_auto', '1', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('43', 'sitemap_not1', '0', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('44', 'sitemap_not2', '1', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('45', 'sitemap_xml', '1', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('46', 'sitemap_txt', '0', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优CMS -  Powered by Eyoucms.com', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('56', 'smtp_test_eamil', 'xxxxxxxx@qq.com', 'smtp', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('58', 'web_attr_3', '123456789', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('59', 'web_attr_2', '8888-88888888', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', 'http://www.weibo.com', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('61', 'web_attr_4', '/public/upload/system/2018/05/18/dfda33373cf1ba7baa39423036a5678a.jpg', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '0', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('64', 'web_sqldatapath', '/data/sqldata', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('65', 'web_cmsurl', '', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('66', 'web_templets_dir', '/template', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'lAzN5Nh4lvrBhdrL9HtbDvaf', 'php', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('84', 'web_htmlcache_expires_in', '7200', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('85', 'web_show_popup_upgrade', '1', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('86', 'web_weapp_switch', '-1', 'web', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'ONLY_FULL_GROUP_BY', 'system', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for ey_config_attribute
@@ -780,7 +790,7 @@ CREATE TABLE `ey_config_attribute` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
   KEY `attr_prefix` (`inc_type`,`attr_var_name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='留言表单属性';
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='自定义变量表';
 
 -- ----------------------------
 -- Records of ey_config_attribute
@@ -829,7 +839,7 @@ CREATE TABLE `ey_download_file` (
   `add_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`file_id`),
   KEY `arcid` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='下载附件表';
 
 -- ----------------------------
 -- Records of ey_download_file
@@ -850,7 +860,7 @@ CREATE TABLE `ey_email_template` (
   `add_time` int(11) DEFAULT NULL COMMENT '添加时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`tpl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='邮箱模板表';
 
 -- ----------------------------
 -- Records of ey_email_template
@@ -901,7 +911,7 @@ CREATE TABLE `ey_guestbook` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`)
-) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COMMENT='留言主表';
 
 -- ----------------------------
 -- Records of ey_guestbook
@@ -1093,7 +1103,7 @@ CREATE TABLE `ey_images_upload` (
   `add_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`img_id`),
   KEY `arcid` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='图集图片表';
 
 -- ----------------------------
 -- Records of ey_images_upload
@@ -1127,16 +1137,16 @@ CREATE TABLE `ey_links` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='友情链接表';
 
 -- ----------------------------
 -- Records of ey_links
 -- ----------------------------
-INSERT INTO `ey_links` VALUES ('1', '1', '易优CMS', 'http://www.eyoucms.com', '', '100', '1', '', '', '1', '0', '1524975826', '1532396443');
-INSERT INTO `ey_links` VALUES ('2', '1', '微信小程序开发教程', 'http://www.yiyongtong.com/', '', '100', '1', '', '', '1', '0', '1524976095', '1532414095');
-INSERT INTO `ey_links` VALUES ('3', '1', '织梦58源码', 'http://www.dede58.com', '', '100', '1', '', '', '1', '0', '1532414285', '1532414285');
-INSERT INTO `ey_links` VALUES ('4', '1', '素材58', 'http://www.sucai58.com/', '', '100', '1', '', '', '1', '0', '1532414529', '1532414529');
-INSERT INTO `ey_links` VALUES ('5', '1', '搜海口', 'http://www.souhaikou.com/', '', '100', '1', '', '', '1', '0', '1532414726', '1532414726');
+INSERT INTO `ey_links` VALUES ('1', '1', '百度', 'http://www.baidu.com', '', '100', '1', '', '', '1', '0', '1524975826', '1537585074');
+INSERT INTO `ey_links` VALUES ('2', '1', '腾讯', 'http://www.qq.com', '', '100', '1', '', '', '1', '0', '1524976095', '1537585061');
+INSERT INTO `ey_links` VALUES ('3', '1', '新浪', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', '0', '1532414285', '1537585047');
+INSERT INTO `ey_links` VALUES ('4', '1', '小程序开发教程', 'http://www.yiyongtong.com', '', '100', '1', '', '', '1', '0', '1532414529', '1537585013');
+INSERT INTO `ey_links` VALUES ('5', '1', '素材58', 'http://www.sucai58.com', '', '100', '1', '', '', '1', '0', '1532414726', '1537585146');
 
 -- ----------------------------
 -- Table structure for ey_product_attr
@@ -1153,7 +1163,7 @@ CREATE TABLE `ey_product_attr` (
   PRIMARY KEY (`product_attr_id`),
   KEY `aid` (`aid`) USING BTREE,
   KEY `attr_id` (`attr_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COMMENT='产品表单属性值';
 
 -- ----------------------------
 -- Records of ey_product_attr
@@ -1187,7 +1197,7 @@ CREATE TABLE `ey_product_attribute` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
   KEY `cat_id` (`typeid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='产品表单属性表';
 
 -- ----------------------------
 -- Records of ey_product_attribute
@@ -1240,7 +1250,7 @@ CREATE TABLE `ey_product_img` (
   `add_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`img_id`),
   KEY `arcid` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COMMENT='产品图片表';
 
 -- ----------------------------
 -- Records of ey_product_img
@@ -1293,7 +1303,7 @@ CREATE TABLE `ey_sms_log` (
   `scene` int(1) DEFAULT '0' COMMENT '发送场景,1:用户注册,2:找回密码,3:客户下单,4:客户支付,5:商家发货,6:身份验证',
   `error_msg` text COMMENT '发送短信异常内容',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='短信发送记录表';
 
 -- ----------------------------
 -- Records of ey_sms_log
@@ -1312,7 +1322,7 @@ CREATE TABLE `ey_sms_template` (
   `add_time` int(11) DEFAULT NULL COMMENT '添加时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`tpl_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='短信模板表';
 
 -- ----------------------------
 -- Records of ey_sms_template
@@ -1323,21 +1333,21 @@ CREATE TABLE `ey_sms_template` (
 -- ----------------------------
 DROP TABLE IF EXISTS `ey_tagindex`;
 CREATE TABLE `ey_tagindex` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `tag` varchar(20) NOT NULL DEFAULT '',
-  `typeid` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `count` int(10) unsigned DEFAULT '0',
-  `total` int(10) unsigned DEFAULT '0',
-  `weekcc` int(10) unsigned DEFAULT '0',
-  `monthcc` int(10) unsigned DEFAULT '0',
-  `weekup` int(10) unsigned DEFAULT '0',
-  `monthup` int(10) unsigned DEFAULT '0',
-  `add_time` int(10) unsigned DEFAULT '0',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'tagid',
+  `tag` varchar(50) NOT NULL DEFAULT '' COMMENT 'tag内容',
+  `typeid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '栏目ID',
+  `count` int(10) unsigned DEFAULT '0' COMMENT '点击',
+  `total` int(10) unsigned DEFAULT '0' COMMENT '文档数',
+  `weekcc` int(10) unsigned DEFAULT '0' COMMENT '周统计',
+  `monthcc` int(10) unsigned DEFAULT '0' COMMENT '月统计',
+  `weekup` int(10) unsigned DEFAULT '0' COMMENT '每周更新',
+  `monthup` int(10) unsigned DEFAULT '0' COMMENT '每月更新',
+  `add_time` int(10) unsigned DEFAULT '0' COMMENT '添加时间',
   PRIMARY KEY (`id`),
   KEY `typeid` (`typeid`) USING BTREE,
   KEY `count` (`count`,`total`,`weekcc`,`monthcc`,`weekup`,`monthup`,`add_time`) USING BTREE,
   KEY `tag` (`tag`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COMMENT='标签索引表';
 
 -- ----------------------------
 -- Records of ey_tagindex
@@ -1362,10 +1372,10 @@ INSERT INTO `ey_tagindex` VALUES ('37', '一号', '5', '0', '0', '0', '0', '0', 
 -- ----------------------------
 DROP TABLE IF EXISTS `ey_taglist`;
 CREATE TABLE `ey_taglist` (
-  `tid` int(10) unsigned NOT NULL DEFAULT '0',
-  `aid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
+  `tid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'tagid',
+  `aid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '文档ID',
   `typeid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '栏目ID',
-  `tag` varchar(12) DEFAULT '' COMMENT 'tag内容',
+  `tag` varchar(50) DEFAULT '' COMMENT 'tag内容',
   `arcrank` tinyint(1) DEFAULT '0' COMMENT '阅读权限',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -1403,7 +1413,7 @@ CREATE TABLE `ey_ui_config` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5key` (`md5key`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='页面美化参数设置';
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='可视化参数设置';
 
 -- ----------------------------
 -- Records of ey_ui_config

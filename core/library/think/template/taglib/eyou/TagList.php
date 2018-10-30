@@ -73,7 +73,7 @@ class TagList extends Base
         if (!empty($channeltype)) { // 优先展示模型下的文章
             unset($param['typeid']);
         } elseif (!empty($typeid)) { // 其次展示栏目下的文章
-            unset($param['channel']);
+            // unset($param['channel']);
             $typeidArr = explode(',', $typeid);
             if (count($typeidArr) == 1) {
                 $channel_info = M('Arctype')->field('id,current_channel')->where(array('id'=>$typeid))->find();
@@ -83,7 +83,7 @@ class TagList extends Base
                 }
                 $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : '';
 
-                /*获取当前栏目下的所有子孙栏目*/
+                /*获取当前栏目下的同模型所有子孙栏目*/
                 $arctype_list = model("Arctype")->getHasChildren($channel_info['id'], $channeltype);
                 foreach ($arctype_list as $key => $val) {
                     if ($channeltype != $val['current_channel']) {
@@ -98,6 +98,7 @@ class TagList extends Base
                 $firstTypeid = M('Arctype')->where(array('id|dirname'=>array('eq', $firstTypeid)))->getField('id');
                 $channeltype = M('Arctype')->where(array('id'=>array('eq', $firstTypeid)))->getField('current_channel');*/
             }
+            $param['channel'] = $channeltype;
         } else { // 再次展示控制器对应的模型文章
             $controller_name = request()->controller();
             $channeltype_info = model('Channeltype')->getInfoByWhere(array('ctl_name'=>$controller_name), 'id');
@@ -214,7 +215,7 @@ class TagList extends Base
         }
 
         // 获取查询的表名
-        $channeltype_info = model('Channeltype')->getInfo($channeltype, 'id,table,ctl_name');
+        $channeltype_info = model('Channeltype')->getInfo($channeltype);
         $controller_name = $channeltype_info['ctl_name'];
         $channeltype_table = $channeltype_info['table'];
 
@@ -267,7 +268,7 @@ class TagList extends Base
                 /*--end*/
 
                 $paginate_type = config('paginate.type');
-                if (THEME_STYLE == 'mobile') {
+                if (isMobile()) {
                     $paginate_type = 'mobile';
                 }
                 $paginate = array(
@@ -323,7 +324,7 @@ class TagList extends Base
                     $tableContent = $channeltype_table.'_content';
                     $rowExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
-                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype);
+                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype, true);
                     /*--end*/
                     foreach ($list as $key => $val) {
                         $valExt = !empty($rowExt[$val['aid']]) ? $rowExt[$val['aid']] : array();
@@ -345,16 +346,16 @@ class TagList extends Base
                             if (!isset($downloadFileArr[$val['aid']]) || empty($downloadFileArr[$val['aid']])) {
                                 $downloadFileArr[$val['aid']] = array();
                             }
-                            $val['downurl'] = url("home/{$controller_name}/downfile", array('id'=>$val['file_id'], 'uhash'=>$val['uhash']));
+                            $val['downurl'] = url("home/View/downfile", array('id'=>$val['file_id'], 'uhash'=>$val['uhash']));
                             $downloadFileArr[$val['aid']][] = $val;
                         }
                         /*--end*/
-                        /*将组装好的文件列表与文档相关联*/
-                        foreach ($list as $key => $val) {
-                            $list[$key]['file_list'] = $downloadFileArr[$val['aid']];
-                        }
-                        /*--end*/
                     }
+                    /*将组装好的文件列表与文档相关联*/
+                    foreach ($list as $key => $val) {
+                        $list[$key]['file_list'] = !empty($downloadFileArr[$val['aid']]) ? $downloadFileArr[$val['aid']] : array();
+                    }
+                    /*--end*/
                 }
                 /*--end*/
 
@@ -434,7 +435,7 @@ class TagList extends Base
         $list = array();
         $query_get = I('get.');
         $paginate_type = config('paginate.type');
-        if (THEME_STYLE == 'mobile') {
+        if (isMobile()) {
             $paginate_type = 'mobile';
         }
         $paginate = array(

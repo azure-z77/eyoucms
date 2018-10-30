@@ -51,7 +51,7 @@ $steps = array(
     '4' => '安装详细过程',
     '5' => '安装完成',
 );
-$step = isset($_GET['step']) ? $_GET['step'] : 1;
+$step = isset($_GET['step']) ? intval($_GET['step']) : 1;
 
 //地址
 $scriptName = !empty($_SERVER["REQUEST_URI"]) ? $scriptName = $_SERVER["REQUEST_URI"] : $scriptName = $_SERVER["PHP_SELF"];
@@ -65,6 +65,9 @@ $domain = $domain . $rootpath;
 switch ($step) {
 
     case '1':
+        session_start();
+        $_SESSION['isset_author'] = null;
+        session_destroy();
         include_once ("./templates/step1.php");
         exit();
 
@@ -80,7 +83,7 @@ switch ($step) {
         if ($mini_php <= phpversion()){
             $phpvStr = '<img src="images/ok.png">';
         }else{
-            $phpvStr = '<img src="images/del.png"> 当前版本('.phpversion().')不支持';
+            $phpvStr = '<img src="images/del.png"> &nbsp;<a href="http://www.eyoucms.com/bbs/3132.html" target="_blank">当前版本('.phpversion().')不支持</a>';
             $err++;
         }
         $os = PHP_OS;
@@ -92,10 +95,10 @@ switch ($step) {
         $max_execution_time = ini_get('max_execution_time');
         $allow_reference = (ini_get('allow_call_time_pass_reference') ? '<img src="images/ok.png">' : '<img src="images/del.png">');
         $allow_url_fopen = (ini_get('allow_url_fopen') ? '<img src="images/ok.png">' : '<img src="images/del.png">');
-        $safe_mode = (ini_get('safe_mode') ? '<img src="images/del.png">' : '<img src="images/ok.png">');
+        $safe_mode = (ini_get('safe_mode') ? '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3125.html" target="_blank">详情</a>' : '<img src="images/ok.png">');
         
         if (empty($tmp['GD Version'])) {
-            $gd = '<img src="images/del.png">';
+            $gd = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3126.html" target="_blank">详情</a>';
             $err++;
         } else {
             $gd = '<img src="images/ok.png">';
@@ -103,24 +106,24 @@ switch ($step) {
         if (function_exists('mysqli_connect')) {
             $mysql = '<img src="images/ok.png">';
         } else {
-            $mysql = '<img src="images/del.png"> 请安装mysqli扩展';
+            $mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3127.html" target="_blank">详情</a>';
             $err++;
         }
-        if (ini_get('file_uploads')) {
-            $uploadSize = '<img src="images/ok.png">';
-        } else {
-            $uploadSize = '<img src="images/del.png"> 禁止上传';
-        }
+        // if (ini_get('file_uploads')) {
+        //     $uploadSize = '<img src="images/ok.png">';
+        // } else {
+        //     $uploadSize = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3128.html" target="_blank">详情</a>';
+        // }
         if (class_exists('pdo')) {
             $pdo = '<img src="images/ok.png">';
         } else {
-            $pdo = '<img src="images/del.png">';
+            $pdo = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3129.html" target="_blank">详情</a>';
             $err++;
         }
         if (extension_loaded('pdo_mysql')) {
             $pdo_mysql = '<img src="images/ok.png">';
         } else {
-            $pdo_mysql = '<img src="images/del.png">';
+            $pdo_mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3129.html" target="_blank">详情</a>';
             $err++;
         }
 /*        if (function_exists('session_start')) {
@@ -132,56 +135,60 @@ switch ($step) {
         if(function_exists('curl_init')){
             $curl = '<img src="images/ok.png">';
         }else{
-            $curl = '<img src="images/del.png">';
+            $curl = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3130.html" target="_blank">详情</a>';
             $err++;
         }
         if(function_exists('file_put_contents')){
             $file_put_contents = '<img src="images/ok.png">';
         }else{
-            $file_put_contents = '<img src="images/del.png">';
+            $file_put_contents = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3131.html" target="_blank">详情</a>';
             $err++;
         }
-        if(function_exists('scandir')){
-            $scandir = '<img src="images/ok.png">';
-        }else{
-            $scandir = '<img src="images/del.png">';
-            $err++;
-        }
+        // if(function_exists('scandir')){
+        //     $scandir = '<img src="images/ok.png">';
+        // }else{
+        //     $scandir = '<img src="images/del.png">';
+        //     $err++;
+        // }
         
         $folder = array(
             'install',
             'data/runtime',
             'public/upload',
             'application/admin/conf',
+            'application/config.php',
+            'application/database.php',
         );
         include_once ("./templates/step2.php");
         exit();
 
     case '3':
-        $dbName = trim($_POST['dbName']);
-        $_POST['dbport'] = $_POST['dbport'] ? $_POST['dbport'] : '3306';
+        $dbName = trim(addslashes($_POST['dbName']));
+        $dbUser = trim(addslashes($_POST['dbUser']));
+        $dbport = !empty($_POST['dbport']) ? addslashes($_POST['dbport']) : '3306';
+        $dbPwd = $_POST['dbPwd'];
+        $dbHost = addslashes($_POST['dbHost']);
         if ($_GET['testdbpwd']) {
-            $dbHost = $_POST['dbHost'];
-            $conn = @mysqli_connect($dbHost, $_POST['dbUser'], $_POST['dbPwd'],NULL,$_POST['dbport']);          
+            $conn = @mysqli_connect($dbHost, $dbUser, $dbPwd,NULL,$dbport);     
             if (mysqli_connect_errno($conn)){
                 die(json_encode(array(
                     'errcode'   => 0,
                     'dbpwmsg'    => "<span for='dbname' generated='true' class='tips_error'>数据库连接失败，请重新设定</span>",
                 )));
             } else {
-                /*针对mysql5.7版本，结合程序本身一些复杂SQL进行sql_mode设置*/
-                /*$result = mysqli_query($conn,"SELECT @@global.sql_mode");               
-                $result = $result->fetch_array();
-                $version = mysqli_get_server_info($conn);
-                if ($version >= 5.7) 
-                {
-                    if(strstr($result[0],'STRICT_TRANS_TABLES') || strstr($result[0],'STRICT_ALL_TABLES') || strstr($result[0],'TRADITIONAL') || strstr($result[0],'ANSI')) {
-                        die(json_encode(array(
-                            'errcode'   => -1,
-                            'dbpwmsg'    => "<span for='dbname' generated='true' class='tips_error'>请在mysql配置文件修sql-mode或sql_mode为NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION</span>",
-                        )));
-                    } 
-                }*/
+                /*针对mysql5版本，结合程序本身一些复杂SQL进行sql_mode设置*/
+                // $result = mysqli_query($conn,"SELECT @@global.sql_mode");
+                // $result = $result->fetch_array();
+                // $version = mysqli_get_server_info($conn);
+                // if ($version >= 5)
+                // {
+                //     if(strstr($result[0],'STRICT_ALL_TABLES') || strstr($result[0],'TRADITIONAL') || strstr($result[0],'ANSI') || strstr($result[0],'ONLY_FULL_GROUP_BY')) {
+                //         die(json_encode(array(
+                //             'errcode'   => -1,
+                //             'dbpwmsg'    => "<span for='dbname' generated='true' class='tips_error'>请在mysql配置文件修改sql-mode或sql_mode</span>&nbsp;<a href='http://www.eyoucms.com/bbs/2799.html' target='_blank'>点击查看操作</a>",
+                //         )));
+                //     } 
+                // }
                 /*--end*/
 
                 if (empty($dbName)) {
@@ -210,169 +217,206 @@ switch ($step) {
                 )));
             }
         }
-        include_once ("./templates/step3.php");
-        exit();
-
-
-    case '4':
-        if (intval($_GET['install'])) {
-            $n = intval($_GET['n']);
-            $arr = array();
-
-            $dbHost = trim($_POST['dbhost']);
-            $_POST['dbport'] = $_POST['dbport'] ? $_POST['dbport'] : '3306';
-            $dbName = trim($_POST['dbname']);
-            $dbUser = trim($_POST['dbuser']);
-            $dbPwd = trim($_POST['dbpw']);
-            $dbPrefix = empty($_POST['dbprefix']) ? 'ey_' : trim($_POST['dbprefix']);
-
-            $username = trim($_POST['manager']);
-            $password = trim($_POST['manager_pwd']);
-            $email    = trim($_POST['manager_email']);
-            
+        else if ($_GET['check']) 
+        {
             if (!function_exists('mysqli_connect')) {
-                $arr['msg'] = "请安装 mysqli 扩展!";
-                echo json_encode($arr);
-                exit;
-            }           
-            
-            $conn = @mysqli_connect($dbHost, $dbUser, $dbPwd,NULL,$_POST['dbport']);
-            if (mysqli_connect_errno($conn)){
-                $arr['msg'] = "连接数据库失败!".mysqli_connect_error($conn);           
-                echo json_encode($arr);
-                exit;
+                $arr = array(
+                    'code'   => -1,
+                    'msg'   => "请安装 mysqli 扩展！",
+                );
+                die(json_encode($arr));
             }
+
+            $conn = @mysqli_connect($dbHost, $dbUser, $dbPwd,NULL,$dbport);
+            if (mysqli_connect_errno($conn)){
+                $arr = array(
+                    'code'   => -1,
+                    'msg'   => "请检查数据库连接信息，".iconv('gbk', 'utf-8', mysqli_connect_error($conn)),
+                );
+                die(json_encode($arr));
+            }
+
             mysqli_set_charset($conn, "utf8"); //,character_set_client=binary,sql_mode='';
             $version = mysqli_get_server_info($conn);
             if ($version < 5.1) {
-                $arr['msg'] = '数据库版本('.$version.')太低! 必须 >= 5.1';
-                echo json_encode($arr);
-                exit;
+                $arr = array(
+                    'code'   => -1,
+                    'msg'   => '数据库版本('.$version.')太低！必须 >= 5.1',
+                );
+                die(json_encode($arr));
             }
-            
+
             if (!@mysqli_select_db($conn,$dbName)) {
                 //创建数据时同时设置编码
                 if (!@mysqli_query($conn,"CREATE DATABASE IF NOT EXISTS `" . $dbName . "` DEFAULT CHARACTER SET utf8;")) {
-                    $arr['msg'] = '数据库 ' . $dbName . ' 不存在，也没权限创建新的数据库，建议联系空间商或者服务器负责人！';
-                    echo json_encode($arr);
-                    exit;
-                }
-                if ($n==-1) {
-                    $arr['n'] = 0;
-                    $arr['msg'] = "成功创建数据库:{$dbName}<br>";
-                    echo json_encode($arr);
-                    exit;
-                }
-                mysqli_select_db($conn , $dbName);
-            }
-
-            //读取数据文件
-            $sqldata = file_get_contents(SITEDIR . 'install/' . $sqlFile);
-            $sqlFormat = sql_split($sqldata, $dbPrefix);
-            //创建写入sql数据库文件到库中 结束
-
-            /**
-             * 执行SQL语句
-             */
-            $counts = count($sqlFormat);
-
-            for ($i = $n; $i < $counts; $i++) {
-                $sql = trim($sqlFormat[$i]);
-
-                if (strstr($sql, 'CREATE TABLE')) {
-                    preg_match('/CREATE TABLE `([^ ]*)`/', $sql, $matches);
-                    mysqli_query($conn,"DROP TABLE IF EXISTS `$matches[1]");
-                    $ret = mysqli_query($conn,$sql);
-                    if ($ret) {
-                        $message = '<li><span class="correct_span">&radic;</span>创建数据表' . $matches[1] . '，完成!<span style="float: right;">'.date('Y-m-d H:i:s').'</span></li> ';
-                    } else {
-                        $message = '<li><span class="correct_span error_span">&radic;</span>创建数据表' . $matches[1] . '，失败!<span style="float: right;">'.date('Y-m-d H:i:s').'</span></li>';
-                    }
-                    $i++;
-                    $arr = array('n' => $i, 'msg' => $message);
-                    echo json_encode($arr);
-                    exit;
-                } else {
-                    if(trim($sql) == '')
-                       continue;
-                    $ret = mysqli_query($conn,$sql);
-                    $message = '';
-                    $arr = array('n' => $i, 'msg' => $message);
-                    //echo json_encode($arr); exit;
+                    $arr = array(
+                        'code'   => -1,
+                        'msg'   => '数据库 ' . $dbName . ' 不存在，也没权限创建新的数据库，建议联系空间商或者服务器负责人！',
+                    );
+                    die(json_encode($arr));
                 }
             }
 
-            // 清空测试数据
-/*            if($_POST['demo'] != 'demo')
-            {               
-                $result = mysqli_query($conn,"show tables");      
-                $tables=$result->fetch_all(MYSQLI_NUM);//参数MYSQL_ASSOC、MYSQLI_NUM、MYSQLI_BOTH规定产生数组类型
-                $bl_table = array('ey_admin','ey_arcrank','ey_auth_access','ey_auth_modular','ey_auth_role','ey_auth_role_admin','ey_auth_rule','ey_channeltype','ey_config','ey_email_template');
-                foreach($bl_table as $k => $v)
-                {
-                    $bl_table[$k] = str_replace('ey_',$dbPrefix,$v); 
-                }                 
-            
-                foreach($tables as $key => $val)
-                {                   
-                    if(!in_array($val[0], $bl_table))
-                    {
-                        mysqli_query($conn,"truncate table ".$val[0]);
-                    }       
-                }
-                delFile('../public/upload'); // 清空测试图片
-            }*/
+            $arr = array(
+                'code'   => 0,
+                'msg'   => '',
+            );
+            die(json_encode($arr));
+        }
 
-            /*清空缓存*/
-            delFile('../data/runtime');
-            /*--end*/
+        include_once ("./templates/step3.php");
+        exit();
 
-            if (999999 == $i) {
-                exit('-1');
-            }       
+    case '4':
+        $arr = array();
 
-            //读取配置文件，并替换真实配置数据1
-            $strConfig = file_get_contents(SITEDIR . 'install/' . $configFile);
-            $strConfig = str_replace('#DB_HOST#', $dbHost, $strConfig);
-            $strConfig = str_replace('#DB_NAME#', $dbName, $strConfig);
-            $strConfig = str_replace('#DB_USER#', $dbUser, $strConfig);
-            $strConfig = str_replace('#DB_PWD#', $dbPwd, $strConfig);
-            $strConfig = str_replace('#DB_PORT#', $_POST['dbport'], $strConfig);
-            $strConfig = str_replace('#DB_PREFIX#', $dbPrefix, $strConfig);
-            $strConfig = str_replace('#DB_CHARSET#', 'utf8', $strConfig);
-            $strConfig = str_replace('#DB_DEBUG#', false, $strConfig);
-            @chmod(SITEDIR . '/application/database.php',0777); //数据库配置文件的地址
-            @file_put_contents(SITEDIR . '/application/database.php', $strConfig); //数据库配置文件的地址
-            
-            //读取配置文件，并替换缓存前缀
-            $strConfig = file_get_contents(SITEDIR . '/application/config.php');
-            $uniqid_str = uniqid();
-            $uniqid_str = md5($uniqid_str);
-            $strConfig = str_replace('eyoucms_cache_prefix', $uniqid_str, $strConfig);           
-            @chmod(SITEDIR . '/application/config.php',0777); //配置文件的地址
-            @file_put_contents(SITEDIR . '/application/config.php', $strConfig); //配置文件的地址            
-            
-            //更新网站基本配置信息
-            $web_basehost = 'http://'.trim($_SERVER['HTTP_HOST'], '/');
-            $sql = "UPDATE `{$dbPrefix}config` SET `value` = '$web_basehost' WHERE name = 'web_basehost' AND inc_type = 'web'";
-            mysqli_query($conn, $sql);
+        $dbHost = trim(addslashes($_POST['dbhost']));
+        $dbport = !empty($_POST['dbport']) ? addslashes($_POST['dbport']) : '3306';
+        $dbName = trim(addslashes($_POST['dbname']));
+        $dbUser = trim(addslashes($_POST['dbuser']));
+        $dbPwd = trim($_POST['dbpw']);
+        $dbPrefix = empty($_POST['dbprefix']) ? 'ey_' : trim(addslashes($_POST['dbprefix']));
 
-            //插入管理员表字段tp_admin表
-            $time = time();
-            $ip = get_client_ip();
-            $ip = empty($ip) ? "0.0.0.0" : $ip;
-            $password = md5('!*&^eyoucms<>|?'.trim($_POST['manager_pwd']));
-            mysqli_query($conn, "DELETE FROM `{$dbPrefix}admin` WHERE user_name = 'admin'");
-            mysqli_query($conn, " INSERT  INTO `{$dbPrefix}admin` (`admin_id`,`user_name`,`true_name`,`email`,`password`,`add_time`,`last_login`,`last_ip`,`login_cnt`,`status`) VALUES ('1','$username','$username','$email','$password','$time','0','$ip','1','1')");
-                    
-            $message = '成功添加管理员<br />成功写入配置文件<br>安装完成．';
-            $arr = array('n' => 999999, 'msg' => $message);
+        $username = trim(addslashes($_POST['manager']));
+        $password = trim($_POST['manager_pwd']);
+        
+        if (!function_exists('mysqli_connect')) {
+            $arr['msg'] = "请安装 mysqli 扩展!";
+            echo json_encode($arr);
+            exit;
+        }           
+        
+        $conn = @mysqli_connect($dbHost, $dbUser, $dbPwd,NULL,$dbport);
+        if (mysqli_connect_errno($conn)){
+            $arr['msg'] = "连接数据库失败!".mysqli_connect_error($conn);           
+            echo json_encode($arr);
+            exit;
+        }
+        mysqli_set_charset($conn, "utf8"); //,character_set_client=binary,sql_mode='';
+        $version = mysqli_get_server_info($conn);
+        if ($version < 5.1) {
+            $arr['msg'] = '数据库版本('.$version.')太低! 必须 >= 5.1';
             echo json_encode($arr);
             exit;
         }
 
-        include_once ("./templates/step4.php");
-        exit();
+        if (!@mysqli_select_db($conn,$dbName)) {
+            //创建数据时同时设置编码
+            if (!@mysqli_query($conn,"CREATE DATABASE IF NOT EXISTS `" . $dbName . "` DEFAULT CHARACTER SET utf8;")) {
+                $arr['msg'] = '数据库 ' . $dbName . ' 不存在，也没权限创建新的数据库，建议联系空间商或者服务器负责人！';
+                echo json_encode($arr);
+                exit;
+            }
+
+            mysqli_select_db($conn , $dbName);
+        }
+
+        //读取数据文件
+        $sqldata = file_get_contents(SITEDIR . 'install/' . $sqlFile);
+        $sqlFormat = sql_split($sqldata, $dbPrefix);
+        //创建写入sql数据库文件到库中 结束
+
+        /**
+         * 执行SQL语句
+         */
+        $counts = count($sqlFormat);
+
+        for ($i = 0; $i < $counts; $i++) {
+            $sql = trim($sqlFormat[$i]);
+
+            if (strstr($sql, 'CREATE TABLE')) {
+                preg_match('/CREATE TABLE `([^ ]*)`/', $sql, $matches);
+                mysqli_query($conn,"DROP TABLE IF EXISTS `$matches[1]");
+                $ret = mysqli_query($conn,$sql);
+                if (!$ret) {
+                    $message = '创建数据表' . $matches[1] . '失败，请尝试F5刷新!';
+                    $arr = array('msg' => $message);
+                    echo json_encode($arr);
+                    exit;
+                }
+            } else {
+                if(trim($sql) == '')
+                   continue;
+                preg_match('/INSERT INTO `([^ ]*)`/', $sql, $matches);
+                $ret = mysqli_query($conn,$sql);
+                if (!$ret) {
+                    $message = '写入表' . $matches[1] . '记录失败，请尝试F5刷新!';
+                    $arr = array('msg' => $message);
+                    echo json_encode($arr);
+                    exit;
+                }
+            }
+        }
+
+        // 清空测试数据
+/*            if(addslashes($_POST['demo']) != 'demo')
+        {               
+            $result = mysqli_query($conn,"show tables");      
+            $tables=$result->fetch_all(MYSQLI_NUM);//参数MYSQL_ASSOC、MYSQLI_NUM、MYSQLI_BOTH规定产生数组类型
+            $bl_table = array('ey_admin','ey_arcrank','ey_auth_access','ey_auth_modular','ey_auth_role','ey_auth_role_admin','ey_auth_rule','ey_channeltype','ey_config','ey_email_template');
+            foreach($bl_table as $k => $v)
+            {
+                $bl_table[$k] = str_replace('ey_',$dbPrefix,$v); 
+            }                 
+        
+            foreach($tables as $key => $val)
+            {                   
+                if(!in_array($val[0], $bl_table))
+                {
+                    mysqli_query($conn,"truncate table ".$val[0]);
+                }       
+            }
+            delFile('../public/upload'); // 清空测试图片
+        }*/
+
+        /*清空缓存*/
+        delFile('../data/runtime');
+        /*--end*/
+
+        if (999999 == $i) {
+            exit('-1');
+        }       
+
+        //读取配置文件，并替换真实配置数据1
+        $strConfig = file_get_contents(SITEDIR . 'install/' . $configFile);
+        $strConfig = str_replace('#DB_HOST#', $dbHost, $strConfig);
+        $strConfig = str_replace('#DB_NAME#', $dbName, $strConfig);
+        $strConfig = str_replace('#DB_USER#', $dbUser, $strConfig);
+        $strConfig = str_replace('#DB_PWD#', $dbPwd, $strConfig);
+        $strConfig = str_replace('#DB_PORT#', $dbport, $strConfig);
+        $strConfig = str_replace('#DB_PREFIX#', $dbPrefix, $strConfig);
+        $strConfig = str_replace('#DB_CHARSET#', 'utf8', $strConfig);
+        $strConfig = str_replace('#DB_DEBUG#', false, $strConfig);
+        @chmod(SITEDIR . '/application/database.php',0777); //数据库配置文件的地址
+        @file_put_contents(SITEDIR . '/application/database.php', $strConfig); //数据库配置文件的地址
+        
+        //读取配置文件，并替换缓存前缀
+        $strConfig = file_get_contents(SITEDIR . '/application/config.php');
+        $uniqid_str = uniqid();
+        $uniqid_str = md5($uniqid_str);
+        $strConfig = str_replace('eyoucms_cache_prefix', $uniqid_str, $strConfig);           
+        @chmod(SITEDIR . '/application/config.php',0777); //配置文件的地址
+        @file_put_contents(SITEDIR . '/application/config.php', $strConfig); //配置文件的地址            
+        
+        //更新网站基本配置信息
+        $web_cmspath = preg_replace('/(.*)\/install([\w]*)\/index\.php/i', '$1', $_SERVER['SCRIPT_NAME']);
+        $web_basehost = 'http://'.trim($_SERVER['HTTP_HOST'], '/').$web_cmspath;
+        $sql = "UPDATE `{$dbPrefix}config` SET `value` = '$web_basehost' WHERE name = 'web_basehost' AND inc_type = 'web'";
+        mysqli_query($conn, $sql);
+        $sql = "UPDATE `{$dbPrefix}config` SET `value` = '$web_cmspath' WHERE name = 'web_cmspath' AND inc_type = 'web'";
+        mysqli_query($conn, $sql);
+
+        //插入管理员表字段tp_admin表
+        $time = time();
+        $ip = get_client_ip();
+        $ip = empty($ip) ? "0.0.0.0" : $ip;
+        $password = md5('!*&^eyoucms<>|?'.trim($_POST['manager_pwd']));
+        mysqli_query($conn, "DELETE FROM `{$dbPrefix}admin` WHERE user_name = 'admin'");
+        mysqli_query($conn, " INSERT  INTO `{$dbPrefix}admin` (`admin_id`,`user_name`,`true_name`,`password`,`add_time`,`last_login`,`last_ip`,`login_cnt`,`status`) VALUES ('1','$username','$username','$password','$time','0','$ip','1','1')");
+                
+        $url = $_SERVER['PHP_SELF']."?step=5";
+        header("Location: {$url}");
+        exit;
 
     case '5':
         $ip = get_server_ip();

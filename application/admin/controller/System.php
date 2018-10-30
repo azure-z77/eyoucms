@@ -47,14 +47,6 @@ class System extends Base
                 $config['web_logo_is_remote'] = 0;
                 $config['web_logo_local'] = $config['web_logo'];
             }
-            // 浏览器地址图标
-            if (is_http_url($config['web_ico'])) {
-                $config['web_ico_is_remote'] = 1;
-                $config['web_ico_remote'] = $config['web_ico'];
-            } else {
-                $config['web_ico_is_remote'] = 0;
-                $config['web_ico_local'] = $config['web_ico'];
-            }
             
             /*系统模式*/
             $web_cmsmode = isset($config['web_cmsmode']) ? $config['web_cmsmode'] : 2;
@@ -66,6 +58,7 @@ class System extends Base
                 ->alias('a')
                 ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
                 ->where('a.inc_type', $inc_type)
+                ->where('b.is_del', 0)
                 ->order('a.attr_id asc')
                 ->select();
             $this->assign('eyou_row',$eyou_row);
@@ -74,7 +67,7 @@ class System extends Base
         } elseif ($inc_type == 'web2') {
             $config = tpCache('web');
             //自定义后台路径名
-            $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : '/login.php';
+            $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : request()->baseFile();
             $adminbasefile = preg_replace('/^\/(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
             $this->assign('adminbasefile', $adminbasefile);
             // 数据库备份目录
@@ -131,17 +124,6 @@ class System extends Base
             unset($param['web_logo_local']);
 
             // 浏览器地址图标
-            $web_ico_is_remote = !empty($param['web_ico_is_remote']) ? $param['web_ico_is_remote'] : 0;
-            $web_ico = '';
-            if ($web_ico_is_remote == 1) {
-                $web_ico = $param['web_ico_remote'];
-            } else {
-                $web_ico = $param['web_ico_local'];
-            }
-            $param['web_ico'] = $web_ico;
-            unset($param['web_ico_is_remote']);
-            unset($param['web_ico_remote']);
-            unset($param['web_ico_local']);
             if (!empty($param['web_ico']) && !is_http_url($param['web_ico'])) {
                 $web_ico = trim($param['web_ico'], '/');
                 $source = ROOT_PATH.$web_ico;
@@ -159,12 +141,19 @@ class System extends Base
             $web_cmspath = !empty($web_cmspath) ? '/'.$web_cmspath : '';
             $param['web_cmspath'] = $web_cmspath;
             /*--end*/
+            /*插件入口*/
+            $web_weapp_switch = $param['web_weapp_switch'];
+            $web_weapp_switch_old = tpCache('web.web_weapp_switch');
+            /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
             $param['web_adminbasefile'] = '/'.$adminbasefile;
             $adminbasefile_old = trim($param['adminbasefile_old']).'.php'; // 旧的文件名
             unset($param['adminbasefile']);
             unset($param['adminbasefile_old']);
+            if ('index.php' == $adminbasefile) {
+                $this->error("新后台地址禁止使用index", null, '', 1);
+            }
             /*--end*/
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
@@ -185,12 +174,28 @@ class System extends Base
         tpCache($inc_type,$param);
         write_global_params(); // 写入全局内置参数
         if ($inc_type_old == 'web2') { // 保存该板块下的后续业务逻辑
+            $refresh = false;
+            $gourl = SITE_URL.'/'.$adminbasefile;
             /*更改自定义后台路径名*/
-            if ($adminbasefile_old != $adminbasefile) {
-                if(rename($adminbasefile_old, $adminbasefile)) {
-                    $gourl = SITE_URL.'/'.$adminbasefile;
-                    $this->success('操作成功', $gourl, '', 1, [], '_parent');
+            if ($adminbasefile_old != $adminbasefile && eyPreventShell($adminbasefile_old)) {
+                if (file_exists($adminbasefile_old)) {
+                    if(rename($adminbasefile_old, $adminbasefile)) {
+                        $refresh = true;
+                    }
+                } else {
+                    $this->error("根目录{$adminbasefile_old}文件不存在！", null, '', 2);
                 }
+            }
+            /*--end*/
+            /*更改插件入口*/
+            if ($web_weapp_switch_old != $web_weapp_switch) {
+                $refresh = true;
+            }
+            /*--end*/
+            
+            /*刷新整个后台*/
+            if ($refresh) {
+                $this->success('操作成功', $gourl, '', 1, [], '_parent');
             }
             /*--end*/
         }
@@ -214,8 +219,16 @@ class System extends Base
                 $this->clearSystemCache($post['clearCache']);
             }
 
+            /*清除旧升级备份包，保留最后一个*/
+            $backupArr = glob(DATA_PATH.'backup/v*_www');
+            for ($i=0; $i < count($backupArr) - 1; $i++) { 
+                delFile($backupArr[$i], true);
+            }
+            /*--end*/
+
             $this->success('操作成功！', U('Index/welcome'));
         }
+        
         return $this->fetch();
     }
 
@@ -365,16 +378,6 @@ class System extends Base
         $res = send_email($param['smtp_test_eamil'],'易优CMS','易优CMS验证码:'.mt_rand(1000,9999), 1);
         exit(json_encode($res));
     }
-      
-    /**
-     * 发送测试短信
-     */
-    public function send_mobile()
-    {
-        $param = I('post.');
-        $res = sendSms(4,$param['sms_test_mobile'],array('content'=>mt_rand(1000,9999)));
-        exit(json_encode($res));
-    }
 
     /**
      * 新增自定义变量
@@ -492,7 +495,78 @@ class System extends Base
     public function customvar_del()
     {
         $id = I('del_id/d');
-        $inc_type = I('param.inc_type/s', '');
+        if(!empty($id)){
+            $attr_var_name = M('config')->where("id = $id")->getField('name');
+
+            $r = M('config')->where("id = $id")->update(array('is_del'=>1, 'update_time'=>getTime()));
+            if($r){
+                M('config_attribute')->where(array('attr_var_name'=>array('eq', $attr_var_name)))->update(array('update_time'=>getTime()));
+                adminLog('删除自定义变量：'.$attr_var_name);
+                respose(array('status'=>1, 'msg'=>'删除成功'));
+            }else{
+                respose(array('status'=>0, 'msg'=>'删除失败'));
+            }
+        }else{
+            respose(array('status'=>0, 'msg'=>'参数有误'));
+        }
+    }
+
+    /**
+     * 恢复自定义变量
+     */
+    public function customvar_recovery()
+    {
+        $id = I('del_id/d');
+        if(!empty($id)){
+            $attr_var_name = M('config')->where("id = $id")->getField('name');
+
+            $r = M('config')->where("id = $id")->update(array('is_del'=>0, 'update_time'=>getTime()));
+            if($r){
+                adminLog('恢复自定义变量：'.$attr_var_name);
+                respose(array('status'=>1, 'msg'=>'删除成功'));
+            }else{
+                respose(array('status'=>0, 'msg'=>'删除失败'));
+            }
+        }else{
+            respose(array('status'=>0, 'msg'=>'参数有误'));
+        }
+    }
+
+    /**
+     * 自定义变量回收站列表
+     */
+    public function customvar_recycle()
+    {
+        $list = array();
+        $condition = array();
+        // 应用搜索条件
+        $attr_var_names = M('config')->field('name')->where('is_del',1)->getAllWithIndex('name');
+        $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
+
+        $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
+        $Page = new \think\Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list = M('config_attribute')->alias('a')
+            ->field('a.*, b.id')
+            ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
+            ->where($condition)
+            ->order('a.update_time desc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
+
+        $show = $Page->show();// 分页显示输出
+        $this->assign('page',$show);// 赋值分页输出
+        $this->assign('list',$list);// 赋值数据集
+        $this->assign('pager',$Page);// 赋值分页对象
+
+        return $this->fetch();
+    }
+
+    /**
+     * 彻底删除自定义变量
+     */
+    public function customvar_del_thorough()
+    {
+        $id = I('del_id/d');
         if(!empty($id)){
             $attr_var_name = M('config')->where("id = $id")->getField('name');
 
@@ -500,7 +574,7 @@ class System extends Base
             if($r){
                 // 同时删除
                 M('config_attribute')->where(array('attr_var_name'=>array('eq', $attr_var_name)))->delete();
-                adminLog('删除自定义变量：'.$attr_var_name);
+                adminLog('彻底删除自定义变量：'.$attr_var_name);
                 respose(array('status'=>1, 'msg'=>'删除成功'));
             }else{
                 respose(array('status'=>0, 'msg'=>'删除失败'));

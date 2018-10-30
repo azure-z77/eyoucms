@@ -35,32 +35,32 @@
         </tr>
         <tr>
           <td class="first">PHP版本</td>
-          <td>>5.4.x</td>
+          <td>5.4及5.4以上<br/>(支持php7)</td>
           <td><?php echo $phpvStr; ?></td>
         </tr>
         <tr>
           <td class="first">safe_mode</td>
-          <td>基础配置</td>
+          <td><font title="影响缓存清除、系统升级、模板管理等功能">基础配置</font></td>
           <td><?php echo $safe_mode; ?></td>
         </tr>
         <tr>
           <td class="first">GD库</td>
-          <td>必须开启</td>
+          <td><font title="影响验证码是否显示、图片水印、以及图像处理等问题">必须开启</font></td>
           <td><?php echo $gd; ?></td>
         </tr>
         <tr>
           <td class="first">mysqli</td>
-          <td>必须开启</td>
+          <td><font title="影响数据库的连接和一系列读、写、删、改操作">必须开启</font></td>
           <td><?php echo $mysql; ?></td>
         </tr>
         <tr>
           <td class="first">pdo</td>
-          <td>必须开启</td>
+          <td><font title="影响数据库的连接和一系列读、写、删、改操作">必须开启</font></td>
           <td><?php echo $pdo; ?></td>
         </tr>
         <tr>
           <td class="first">pdo_mysql</td>
-          <td>必须开启</td>
+          <td><font title="影响数据库的连接和一系列读、写、删、改操作">必须开启</font></td>
           <td><?php echo $pdo_mysql; ?></td>
         </tr>
       </table>
@@ -73,84 +73,65 @@
         </tr>
         <tr>
           <td class="first">curl_init</td>
-          <td>必须扩展</td>
+          <td><font title="影响插件功能、伪静态、系统升级、采集文章等功能">必须扩展</font></td>
           <td><?php echo $curl; ?></td>
         </tr>
         <tr>
           <td class="first">file_put_contents</td>
-          <td>建议开启</td>
+          <td><font title="影响系统安装、文件上传、数据库备份、百度地图xml等功能">必须扩展</font></td>
           <td><?php echo $file_put_contents; ?></td>
         </tr>
-        <tr>
+<!--         <tr>
           <td class="first">scandir</td>
           <td><a href="http://www.eyoucms.com/bbs/823.html" target="_blank">必须支持</a></td>
           <td><?php echo $scandir; ?></td>
-        </tr>
+        </tr> -->
       </table>
 
       <table width="100%" id="table" cellspacing="1">
         <tr>
-          <td class="td1">目录、文件权限检查</td>
-          <td class="td1" width="23%">推荐配置</td>
-          <td class="td1" width="46%">是否通过</td>
+            <td class="td1">目录、文件权限检查</td>
+            <td class="td1" width="23%">推荐配置</td>
+            <td class="td1" width="46%">是否通过</td>
         </tr>
-		<?php
-		foreach($folder as $dir){
-		     $Testdir = SITEDIR.$dir;
-			 //echo "<br/>";
-		         dir_create($Testdir);
-			 if(TestWrite($Testdir)){
-			     $w = '<img src="images/ok.png">';
-			 }else{
-			     $w = '<img src="images/del.png">';
-				 $err++;
-			 }
-			 
-		?>
-		        <tr>
-		          <td class="first"><?php echo $dir; ?></td>
-		          <td>读写</td>
-		          <td><?php echo $w; ?></td>
-		        </tr>
-		<?php
-		}                
-		?>   
-                <tr>
-                  <td class="first">application/database.php</td>
-                  <td>读写</td>
-                  <?php
-                     if (is_writable(SITEDIR.'application/database.php')){
-                        echo "<td><img src='images/ok.png'></td>";                 
-                     }else{
-                         $err++;
-                        echo "<td><img src='images/del.png'></td>";                        
-                     }
-                  ?>
-                </tr>            
-                <tr>
-                  <td class="first">application/config.php</td>
-                  <td>读写</td>
-                  <?php
-                     if (is_writable(SITEDIR.'application/config.php')){
-                        echo "<td><img src='images/ok.png'></td>";                 
-                     }else{
-                         $err++;
-                        echo "<td><img src='images/del.png'></td>";                        
-                     }
-                  ?>
-                </tr>                                 
+        <?php
+        foreach($folder as $dir){
+            $is_write = false;
+            $Testdir = SITEDIR.$dir;
+            if (file_exists($Testdir) && is_dir($Testdir)) {
+                dir_create($Testdir);
+                $is_write = TestWrite($Testdir);
+            } else if (file_exists($Testdir) && is_file($Testdir)) {
+                $is_write = is_writable($Testdir);
+            }
+            
+            if($is_write){
+                $w = '<img src="images/ok.png">';
+            }else{
+                $w = '<img src="images/del.png">';
+                $err++;
+            }
+        ?>
+        <tr>
+            <td class="first"><?php echo $dir; ?></td>
+            <td>读写</td>
+            <td><?php echo $w; ?></td>
+        </tr>
+        <?php
+        }
+        ?>                              
       </table>
       
     </div>
     <div class="bottom tac"> 
       <div class="blank20"></div>
       <center>
-	    <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=2" class="btn_b">重新检测</a>
-	    <?php if($err>0){?>
-	    <a href="javascript:void(0)" onClick="javascript:alert('安装环境检测未通过，请检查')" class="btn_a" style="background: gray;">下一步</a> 
-	    <?php }else{?>
-	    <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=3" class="btn_a">下一步</a> 
-	    <?php }?>
+        <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=2" class="btn_b">重新检测</a>
+        <?php if($err>0){?>
+        <a href="javascript:void(0)" onClick="javascript:alert('安装环境检测未通过，请检查')" class="btn_a" style="background: gray;">下一步</a> 
+        <?php }else{?>
+        <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=3" class="btn_a">下一步</a> 
+        <?php }?>
       </center>
     </div>
   </section>

@@ -31,7 +31,7 @@ $html_cache_arr = array();
 /*--end*/
 
 /*引入全部插件的页面缓存规则*/
-$html_list = glob(WEAPP_PATH.'*/html.php');
+$html_list = glob(WEAPP_DIR_NAME.DS.'*'.DS.'html.php');
 if (!empty($html_list)) {
     foreach ($html_list as $key => $file) {
         $html_value = include_once $file;

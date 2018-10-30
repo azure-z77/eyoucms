@@ -7,12 +7,15 @@
 	{load href="__STATIC__/common/js/jquery.min.js" /}
 	{load href="__PUBLIC__/plugins/layer-v3.1.0/layer.js" /}
 	<style type="text/css">
+		.controls {
+			width: 100%;
+		}
 		.container-fluid {
 		    padding: 10px 10px;
 		    overflow: hidden;
 		}
 		.control-group {
-			padding: 15px 0px;
+			padding: 5px 0px;
 		}
 		.title{
 			float: left;
@@ -44,6 +47,14 @@
 				<form class="form-horizontal" id="post_form" onsubmit="return check_submit();">
 					<div class="control-group">
 						<div class="controls">
+							<div class="title">原图片：</div>
+							<div class="">
+								<a href="" class="imgsrc" target="_blank"><img src="" width="60" height="60" /></a>
+							</div>
+						</div>
+					</div>
+					<div class="control-group">
+						<div class="controls">
 							<div class="title">上传图片：</div>
 							<div class="left div_litpic_local" {if condition="isset($field.is_remote) AND $field.is_remote == 1"}style="display: none;"{/if}>
 								<input type="file" name="litpic_local" id="litpic_local" value="{$field.litpic_local|default=''}">
@@ -53,7 +64,7 @@
                     		</div>
 						</div>
 					</div>
-					<div class="control-group">
+					<div class="control-group" style="margin-top: 25px;">
 						<div class="controls">
                     		<label>
                     			<input type="checkbox" name="is_remote" id="is_remote" value="1" {if condition="isset($field.is_remote) AND $field.is_remote == 1"}checked="checked"{/if} onClick="clickRemote(this, 'litpic');">远程图片

@@ -141,7 +141,7 @@ class File
 
     public function delFile2($dir,$file_type='') {
     	if(is_dir($dir)){
-    		$files = scandir($dir);
+    		$files = ey_scandir($dir);
     		//打开目录 //列出目录中的所有文件并去掉 . 和 ..
     		foreach($files as $filename){
     			if($filename!='.' && $filename!='..'){
@@ -338,7 +338,7 @@ class File
         if (($frst = file_get_contents($dir)) && is_file($dir)) {
             return true; // 是文件，并且可读
         } else { // 是目录
-            if (is_dir($dir) && scandir($dir)) {
+            if (is_dir($dir) && ey_scandir($dir)) {
                 return true; // 目录可读
             } else {
                 return false;
@@ -375,7 +375,7 @@ class File
      */
     public static function emptyDir($dir)
     {
-        if (($files = @scandir($dir)) && count($files) <= 2)
+        if (($files = @ey_scandir($dir)) && count($files) <= 2)
             return true;
         return false;
 
@@ -399,7 +399,7 @@ class File
     public static function scanDir($dir, $file = false)
     {
         if ($file == true) {
-            $res = scandir($dir);
+            $res = ey_scandir($dir);
             foreach ($res as $key => $value) {
                 if (($res[$key][0]) == '.') {
                     unset($res[$key]);

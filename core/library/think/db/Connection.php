@@ -378,7 +378,7 @@ abstract class Connection
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
-            echo '错误语句:'. $sql;
+            // echo '错误语句:'. $sql;
             throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
@@ -444,7 +444,7 @@ abstract class Connection
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind);
             }
-            echo '错误语句:'. $sql;
+            // echo '错误语句:'. $sql;
             throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {

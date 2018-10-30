@@ -22,7 +22,6 @@ class ValidateBehavior {
 
     // 行为扩展的执行入口必须是run
     public function run(&$params){
-        \think\Coding::checkauthor();
         self::$actionName = request()->action();
         self::$controllerName = request()->controller();
         self::$moduleName = request()->module();
@@ -34,14 +33,14 @@ class ValidateBehavior {
     }
 
     protected function _initialize() {
-        $this->validate();
+        $this->corecall('Y29kZV92YWxpZGF0ZQ==');
     }
 
     /**
      * @access protected
      */
-    protected function validate() {
-        $var = base64_decode('Y29kZV92YWxpZGF0ZQ==');
+    protected function corecall($str = '') {
+        $var = base64_decode($str);
         $var();
     }
 }

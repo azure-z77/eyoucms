@@ -6,7 +6,6 @@
 </style>
 <body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default;">
 <div class="page">
-  
   <form method="post">
     <div class="flexigrid">
       <div class="mDiv">
@@ -22,7 +21,6 @@
                   </div>
               </a>
         </div>
-
       </div>
       <div class="hDiv">
         <div class="hDivBox">
@@ -34,27 +32,22 @@
                 </th>
                 <th axis="col3" class="">
                   <div class="sundefined" style="padding-left: 15px">
-                    <img src="__SKIN__/images/tv-expandable.gif" id="all_treeclicked" title="展开所有子栏目" style="float: none;" data-status="close" onClick="treeClicked(this,'all',0);">
+                    <img src="__SKIN__/images/tv-expandable.gif" id="all_treeclicked" title="关闭所有子栏目" style="float: none;" data-status="open" onClick="treeClicked(this,'all',0);">
                     栏目名称
                   </div>
                 </th>
                 <th axis="col2" class="w100">
                   <div class="tc">所属模型</div>
                 </th>
-                
                 <th axis="col2" class="w60">
                   <div>隐藏</div>
                 </th>
-                <th axis="col3" class="w120">
-                  <div class="sundefined">目录名称</div>
-                </th>
-                <th axis="col1" class="w250">
+                <th axis="col1" class="w300">
                     <div class="tl" style="text-indent: 6px">操作</div>
                 </th>
                 <th axis="col2" class="w60">
                   <div class="tc">排序</div>
                 </th>
-                
               </tr>
             </thead>
           </table>
@@ -102,8 +95,13 @@
                   {else /}
                   <img src="__SKIN__/images/tv-collapsable-last.gif" style="float: none;" fieldid="2" status="open" nc_type="flex">
                   {/gt}
-
-                  <a href="{:U('Arctype/edit',array('id'=>$vo['id']))}">{$vo.typename}</a>
+                  
+                  {if condition="$vo['current_channel'] == 6" /}
+                  <a href="{:U('Arctype/single',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
+                  {else /}
+                  <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
+                  <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
+                  {/if}
                 </div>
               </td>
               <td class="sort">
@@ -115,21 +113,23 @@
               <td align="center" class="">
                   <div class="w60">
                   {if condition='$vo.is_hidden eq 1'}
-                      <span class="yes" {eq name="'Arctype@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
+                      <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
                   {else /}
-                      <span class="no" {eq name="'Arctype@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                      <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
                   {/if}
                   </div>
               </td>
-              <td class="name">
-                <div class="w120">
-                  {$vo.dirname}
-                </div>
-              </td>
               <td>
-                  <div class="w250 tl pb0">
+                  <div class="w300 tl pb0">
                       <a href="{:U('Arctype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
-                      {eq name="'Arctype@add'|is_check_access" value="1"}    
+                      {eq name="$Think.const.CONTROLLER_NAME.'Archives@index'|is_check_access" value="1"}  
+                        {if condition="$vo['current_channel'] == 6" /}
+                        <a href="{:U('Arctype/single',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        {else /}
+                        <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        {/if}
+                      {/eq}
+                      {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}    
                         {if condition="$vo['grade'] < ($arctype_max_level - 1)"}           
                           <a href="{:U('Arctype/add',array('parent_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>增加子栏目</a>
                         {else /}
@@ -137,14 +137,14 @@
                         {/if}
                       {/eq}  
                       <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>
-                      {eq name="'Arctype@del'|is_check_access" value="1"}
+                      {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                       <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                       {/eq}
                   </div>
               </td>
               <td class="sort">
                 <div class="w60 tc pb0">
-                  {eq name="'Arctype@edit'|is_check_access" value="1"}
+                  {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                   <input type="text" onKeyUp="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'');" onChange="changeTableVal('arctype','id','{$vo.id}','sort_order',this);" size="4" value="{$vo.sort_order}" class="tc" />
                   {else /}
                   {$vo.sort_order}

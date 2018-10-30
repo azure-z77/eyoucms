@@ -40,7 +40,7 @@ class Images extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $get = I('get.');
+        $param = I('param.');
         $flag = I('flag/s');
         $typeid = I('typeid/d', 0);
         $begin = strtotime(I('add_time_begin'));
@@ -48,16 +48,34 @@ class Images extends Base
 
         // 应用搜索条件
         foreach (['keywords','typeid','flag'] as $key) {
-            if (isset($get[$key]) && $get[$key] !== '') {
+            if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    $condition['a.title'] = array('LIKE', "%{$get[$key]}%");
+                    $condition['a.title'] = array('LIKE', "%{$param[$key]}%");
                 } else if ($key == 'typeid') {
-                    $result = model('Arctype')->getHasChildren($get[$key]);
-                    $condition['a.typeid'] = array('IN', array_keys($result));
+                    $typeid = $param[$key];
+                    $hasRow = model('Arctype')->getHasChildren($typeid);
+                    $typeids = get_arr_column($hasRow, 'id');
+                    /*权限控制 by 小虎哥*/
+                    $admin_info = session('admin_info');
+                    if (-1 != $admin_info['role_id']) {
+                        $auth_role_info = $admin_info['auth_role_info'];
+                        if(! empty($auth_role_info)){
+                            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                                $condition['a.admin_id'] = $admin_info['admin_id'];
+                            }
+                            if(! empty($auth_role_info['permission']['arctype'])){
+                                if (!empty($typeid)) {
+                                    $typeids = array_intersect($typeids, $auth_role_info['permission']['arctype']);
+                                }
+                            }
+                        }
+                    }
+                    /*--end*/
+                    $condition['a.typeid'] = array('IN', $typeids);
                 } else if ($key == 'flag') {
-                    $condition['a.'.$get[$key]] = array('eq', 1);
+                    $condition['a.'.$param[$key]] = array('eq', 1);
                 } else {
-                    $condition['a.'.$key] = array('eq', $get[$key]);
+                    $condition['a.'.$key] = array('eq', $param[$key]);
                 }
             }
         }
@@ -101,7 +119,7 @@ class Images extends Base
                 ->where('a.aid', 'in', $aids)
                 ->getAllWithIndex('aid');
             foreach ($list as $key => $val) {
-                $row[$val['aid']]['arcurl'] = arcurl('home/Images/view', $row[$val['aid']]);
+                $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
                 $list[$key] = $row[$val['aid']];
             }
         }
@@ -185,10 +203,12 @@ class Images extends Base
             }
             // --存储数据
             $newData = array(
-                'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
                 'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
                 'channel'   => $this->channeltype,
-                'is_recom'     => isset($post['is_recom']) ? $post['is_recom'] : 0,
+                'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
+                'is_head'      => empty($post['is_head']) ? 0 : $post['is_head'],
+                'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
+                'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'     => $is_jump,
                 'jumplinks'     => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
@@ -199,13 +219,13 @@ class Images extends Base
             $data = array_merge($post, $newData);
 
             $aid = M('archives')->insertGetId($data);
-
+            $_POST['aid'] = $aid;
             if ($aid) {
             	// ---------后置操作
             	model('Images')->afterSave($aid, $data, 'add');
             	// ---------end
                 adminLog('新增图集：'.$data['title']);
-                $this->success("操作成功!",U('Images/index', array('typeid'=>$data['typeid'])));
+                $this->success("操作成功!", $post['gourl']);
                 exit;
             }
 
@@ -228,7 +248,15 @@ class Images extends Base
 
         // 阅读权限
         $arcrank_list = get_arcrank_list();
-        $assign_data['arcrank_list'] = $arcrank_list; // 
+        $assign_data['arcrank_list'] = $arcrank_list;
+
+        /*返回上一层*/
+        $gourl = I('param.gourl/s', '');
+        if (empty($gourl)) {
+            $gourl = U('Images/index', array('typeid'=>$typeid));
+        }
+        $assign_data['gourl'] = $gourl;
+        /*--end*/
 
         $this->assign($assign_data);
 
@@ -277,10 +305,12 @@ class Images extends Base
             }
             // --存储数据
             $newData = array(
-                'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
                 'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
                 'channel'   => $this->channeltype,
-                'is_recom'     => isset($post['is_recom']) ? $post['is_recom'] : 0,
+                'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
+                'is_head'      => empty($post['is_head']) ? 0 : $post['is_head'],
+                'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
+                'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'     => $is_jump,
                 'jumplinks'     => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
@@ -297,7 +327,7 @@ class Images extends Base
             	model('Images')->afterSave($data['aid'], $data, 'edit');
             	// ---------end
                 adminLog('编辑图集：'.$data['title']);
-                $this->success("操作成功!",U('Images/index', array('typeid'=>$data['typeid'])));
+                $this->success("操作成功!", $post['gourl']);
             }
 
             $this->error("操作失败!");
@@ -312,6 +342,7 @@ class Images extends Base
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
+        $typeid = $info['typeid'];
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
             $info['litpic_remote'] = $info['litpic'];
@@ -326,18 +357,26 @@ class Images extends Base
         $assign_data['imgupload_list'] = $imgupload_list;
         
         /*允许发布文档列表的栏目*/
-        $arctype_html = allow_release_arctype($info['typeid'], array($this->channeltype));
+        $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
 
         /*自定义字段*/
-        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($this->channeltype, 0, $id);
+        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($info['channel'], 0, $id);
         $assign_data['aid'] = $id;
         /*--end*/
 
         // 阅读权限
         $arcrank_list = get_arcrank_list();
         $assign_data['arcrank_list'] = $arcrank_list;
+
+        /*返回上一层*/
+        $gourl = I('param.gourl/s', '');
+        if (empty($gourl)) {
+            $gourl = U('Images/index', array('typeid'=>$typeid));
+        }
+        $assign_data['gourl'] = $gourl;
+        /*--end*/
 
         $this->assign($assign_data);
         return $this->fetch();
@@ -348,22 +387,8 @@ class Images extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
-        $id_arr = eyIntval($id_arr);
-        if(!empty($id_arr)){
-            $r = M('archives')->where("aid",'IN',$id_arr)->delete();
-            if($r){
-                // ---------后置操作
-                model('Images')->afterDel($id_arr);
-                // ---------end
-                adminLog('删除图集-id：'.implode(',', $id_arr));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
-            }
-        }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
-        }
+        $archivesLogic = new \app\admin\logic\ArchivesLogic;
+        $archivesLogic->del();
     }
 
     /**
@@ -439,6 +464,6 @@ class Images extends Base
         $this->assign('form_action', $form_action);
         /*--end*/
 
-        return $this->fetch('article/move');
+        return $this->fetch('archives/move');
     }
 }

@@ -36,7 +36,7 @@ class WeappLogic extends Model
         // $this->curent_version = getWeappVersion($this->code);
         $this->service_ey = config('service_ey');
         $this->app_path = ROOT_PATH; // 
-        $this->weapp_path = WEAPP_PATH; // 
+        $this->weapp_path = WEAPP_DIR_NAME.DS; // 
         $this->data_path = DATA_PATH; // 
         // $this->config_path = $this->weapp_path.$this->code.DS.'config.php'; // 版本配置文件路径
         // api_Weapp_checkVersion
@@ -50,9 +50,10 @@ class WeappLogic extends Model
      * @param $weapp_list array 本地插件数组
      */
     public function insertWeapp(){
-        $row = M('weapp')->field('code')->getAllWithIndex('code'); // 数据库
+        $row = M('weapp')->field('id,code,config')->getAllWithIndex('code'); // 数据库
         $new_arr = array(); // 本地
         $addData = array(); // 数据存储变量
+        $updateData = array(); // 数据存储变量
         $weapp_list = $this->scanWeapp();
         //  本地对比数据库
         foreach($weapp_list as $k=>$v){
@@ -62,28 +63,38 @@ class WeappLogic extends Model
                 continue;
             }
             /*--end*/
-            $tmp['code'] = $code;
-            $new_arr[] = $tmp;
+            $new_arr[] = $code;
             // 对比数据库 本地有 数据库没有
-            if(empty($row[$code])){
-                $addData[] = array(
-                    'code'          => $code,
-                    'name'          => isset($v['name']) ? $v['name'] : '配置信息不完善',
-                    'author'        => isset($v['author']) ? $v['author'] : '',
-                    'description'   => isset($v['description']) ? $v['description'] : '插件制作不符合官方规范',
-                    'scene'         => isset($v['scene']) ? $v['scene'] : '',
-                    'min_version'         => !empty($v['min_version']) ? $v['min_version'] : 'v1.1.0',
-                    'config'        => empty($v) ? '' : json_encode($v),
-                    'add_time'      => getTime(),
-                );
+            $data = array(
+                'code'          => $code,
+                'name'          => isset($v['name']) ? $v['name'] : '配置信息不完善',
+                // 'author'        => isset($v['author']) ? $v['author'] : '',
+                // 'description'   => isset($v['description']) ? $v['description'] : '插件制作不符合官方规范',
+                // 'scene'         => isset($v['scene']) ? $v['scene'] : '',
+                // 'min_version'         => !empty($v['min_version']) ? $v['min_version'] : 'v1.1.0',
+                'config'        => empty($v) ? '' : json_encode($v),
+            );
+            if(empty($row[$code])){ // 新增插件
+                $data['add_time'] = getTime();
+                $addData[] = $data;
+            } else { // 更新插件
+                if ($row[$code]['config'] != json_encode($v)) {
+                    $data['id'] = $row[$code]['id'];
+                    $data['update_time'] = getTime();
+                    $updateData[] = $data;
+                }
             }
         }
         if (!empty($addData)) {
-            M('weapp')->insertAll($addData);
+            model('weapp')->saveAll($addData);
+        }
+        if (!empty($updateData)) {
+            model('weapp')->saveAll($updateData);
+            // \think\Cache::clear('hook');
         }
         //数据库有 本地没有
         foreach($row as $k => $v){
-            if (!in_array($v, $new_arr)) {
+            if (!in_array($v['code'], $new_arr)) {
                 M('weapp')->where($v)->delete();
             }
         }
@@ -94,16 +105,15 @@ class WeappLogic extends Model
      * @return array 返回目录数组
      */
     private function scanWeapp(){
-        $dir = rtrim(WEAPP_PATH, DS);
+        $dir = WEAPP_DIR_NAME;
         $weapp_list = $this->dirscan($dir);
-        
         foreach($weapp_list as $k=>$v){
-            if (!is_dir(WEAPP_PATH.$v) || !file_exists(WEAPP_PATH.$v.'/config.php')) {
+            if (!is_dir(WEAPP_DIR_NAME.DS.$v) || !file_exists(WEAPP_DIR_NAME.DS.$v.'/config.php')) {
                 unset($weapp_list[$k]);
             }
             else
             {
-                $weapp_list[$v] = include(WEAPP_PATH.$v.'/config.php');
+                $weapp_list[$v] = include(WEAPP_DIR_NAME.DS.$v.'/config.php');
                 unset($weapp_list[$k]);                    
             }
         }

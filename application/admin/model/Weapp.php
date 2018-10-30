@@ -30,4 +30,17 @@ class Weapp extends Model
         parent::initialize();
         // $this->weappLogic = new WeappLogic();
     }
+
+    /**
+     * 获取插件列表
+     */
+    public function getList($where = array()){
+        $result = M('weapp')->where($where)->getAllWithIndex('code');
+        foreach ($result as $key => $val) {
+            $config = include WEAPP_PATH.$val['code'].DS.'config.php';
+            $val['config'] = json_encode($config);
+            $result[$key] = $val;
+        }
+        return $result;
+    }
 }

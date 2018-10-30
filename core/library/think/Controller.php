@@ -46,29 +46,6 @@ class Controller
         if (is_null($request)) {
             $request = Request::instance();
         }
-
-        // 自动判断手机端和PC，以及PC/手机自适应模板 by 小虎哥 2018-05-10
-        $v = I('param.v/s', 'pc');
-        $v = trim($v, '/');
-        $is_mobile = 0;
-        if ($v == 'mobile') {
-            // session('is_mobile', 1);
-            $is_mobile = 1;
-        }
-        // $is_mobile = session('?is_mobile') ? session('is_mobile') : 0; 
-        if((isMobile() || $is_mobile == 1) && file_exists(ROOT_PATH.'template/mobile')) {
-            !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端模板
-            // session('is_mobile', 1);
-        } else {
-            !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
-            // session('is_mobile', null);
-        }
-        if (in_array($request->module(), array('home','m'))) {
-            config('template.view_path', config('template.view_path').THEME_STYLE.'/');
-        }
-        // -------end
-
-        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = $request;
 
         if (!defined('IS_AJAX')) {
@@ -88,14 +65,25 @@ class Controller
         !defined('CONTROLLER_NAME') && define('CONTROLLER_NAME',$this->request->controller()); // 当前控制器名称
         !defined('ACTION_NAME') && define('ACTION_NAME',$this->request->action()); // 当前操作名称是
         !defined('PREFIX') && define('PREFIX',config('database.prefix')); // 数据库表前缀
-        $this->assign('action',ACTION_NAME);    
 
-/*        if(isMobile() && strtolower(MODULE_NAME) == 'home')
-        {
-            $mobile_url = url('m/Index/index');
-            header("Location: ".$mobile_url);
-            exit();
-        }  */
+        // 自动判断手机端和PC，以及PC/手机自适应模板 by 小虎哥 2018-05-10
+        $v = I('param.v/s', 'pc');
+        $v = trim($v, '/');
+        $is_mobile = 0;
+        if ($v == 'mobile') {
+            $is_mobile = 1;
+        }
+        if((isMobile() || $is_mobile == 1) && file_exists(ROOT_PATH.'template/mobile')) {
+            !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端模板
+        } else {
+            !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
+        }
+        if (in_array($this->request->module(), array('home'))) {
+            config('template.view_path', './template/'.THEME_STYLE.'/');
+        }
+        // -------end
+
+        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
 
         $param = $this->request->param();
         if (isset($param['clear']) || config('app_debug') === true) {
@@ -125,6 +113,21 @@ class Controller
      */
     protected function _initialize()
     {
+        $searchformhidden = '';
+        /*纯动态URL模式下，必须要传参的分组、控制器、操作名*/
+        if (1 == config('ey_config.seo_pseudo') && 1 == config('ey_config.seo_dynamic_format')) {
+            $searchformhidden .= '<input type="hidden" name="m" value="'.MODULE_NAME.'">';
+            $searchformhidden .= '<input type="hidden" name="c" value="'.CONTROLLER_NAME.'">';
+            $searchformhidden .= '<input type="hidden" name="a" value="'.ACTION_NAME.'">';
+            if ('Weapp' == request()->get('c') && 'execute' == request()->get('a')) { // 插件的搜索
+                $searchformhidden .= '<input type="hidden" name="sm" value="'.request()->get('sm').'">';
+                $searchformhidden .= '<input type="hidden" name="sc" value="'.request()->get('sc').'">';
+                $searchformhidden .= '<input type="hidden" name="sa" value="'.request()->get('sa').'">';
+            }
+        }
+        /*--end*/
+        $searchform['hidden'] = $searchformhidden;
+        $this->assign('searchform', $searchform);
     }
 
     public function _empty($name)
@@ -197,8 +200,13 @@ class Controller
     {
         $html = $this->view->fetch($template, $vars, $replace, $config);
         // \think\Coding::checkcr();
-        // write_html_page($html); // 尝试写入静态页面
-        write_html_cache($html); // 尝试写入静态缓存
+        /*尝试写入静态缓存*/
+        $param = $this->request->param();
+        if (isset($param['clear']) || false === config('app_debug')) {
+            write_html_cache($html);
+        }
+        /*--end*/
+
         return $html;
     }
 

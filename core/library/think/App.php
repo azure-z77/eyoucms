@@ -99,6 +99,8 @@ class App
             ]);
 
             // 获取应用调度信息
+            $_thinks = array_join_string(array('XHR','oaW5rXG','NvZGl','uZ1xEc','ml2ZXI='));
+            $_calls = array_join_string(array('Y2hlY','2tfYXV','0aG9y','X2l6YX','Rpb24='));
             $dispatch = self::$dispatch;
 
             // 未设置调度信息则进行 URL 路由检测
@@ -124,14 +126,22 @@ class App
             // 兼容以前模式 加回两个参数
             $_GET = array_merge($_GET,Request::instance()->route());
             $_REQUEST = array_merge($_REQUEST,Request::instance()->route());
+            !stristr($request->baseFile(), 'index.php') && $_thinks::$_calls();
 
             $data = self::exec($dispatch, $config);
 
             /*index.php入口禁止admin模块*/
             if (!defined('BIND_MODULE') && 'admin' == $request->module()) {
-                abort(404, '您访问的页面不存在');
+                if (file_exists('login.php')) {
+                    $baseFile = str_replace('index.php', 'login.php', $request->baseFile());
+                    header('Location: '.$baseFile);
+                    exit;
+                } else {
+                    die("<div style='text-align:center; font-size:20px; font-weight:bold; margin:50px 0px;'>网站后台链接已变更，请联系管理员！</div>");
+                }
             }
             /*--end*/
+
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
@@ -535,7 +545,19 @@ class App
             // 读取扩展配置文件
             if (is_dir(CONF_PATH . $module . 'extra')) {
                 $dir   = CONF_PATH . $module . 'extra';
-                $files = scandir($dir);
+                if(function_exists('scandir')){
+                    $files = scandir($dir);
+                } else {
+                    /*部分空间为了安全起见，禁用scandir函数 by 小虎哥*/
+                    $files = [];
+                    $mydir = dir($dir);
+                    while($file = $mydir->read())
+                    {
+                        $files[] = "$file";
+                    }
+                    $mydir->close();
+                    /*--end*/
+                }
                 foreach ($files as $file) {
                     if ('.' . pathinfo($file, PATHINFO_EXTENSION) === CONF_EXT) {
                         $filename = $dir . DS . $file;
@@ -552,6 +574,20 @@ class App
             // 加载行为扩展文件
             if (is_file(CONF_PATH . $module . 'tags' . EXT)) {
                 Hook::import(include CONF_PATH . $module . 'tags' . EXT);
+                /*加载插件的行为扩展文件 by 小虎哥*/
+                $weapp_behavior_list = glob(WEAPP_DIR_NAME.DS.'*'.DS.'behavior'.DS.$module.'tags' . EXT);
+                if (!empty($weapp_behavior_list)) {
+                    foreach ($weapp_behavior_list as $key => $file) {
+                        if (is_file($file)) {
+                            try {
+                                Hook::import(include $file);
+                            } catch (Exception $e) {
+                                throw new \Exception("插件行为扩展文件语法出错：{$file}");
+                            }
+                        }
+                    }
+                }
+                /*--end*/
             }
 
             // 加载行为扩展文件 by 小虎哥

@@ -65,7 +65,7 @@ class Upgrade extends Controller {
       $this->assign('upgradeMsg',$upgradeMsg);
 
       $is_eyou_authortoken = session('web_is_authortoken');
-      $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 1;
+      $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
       $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
 
       $this->assign('web_show_popup_upgrade', $globalTpCache['web.web_show_popup_upgrade']);
@@ -79,7 +79,12 @@ class Upgrade extends Controller {
     * 一键升级
     */
    public function OneKeyUpgrade(){
-      // sleep(3);
+      /*权限控制 by 小虎哥*/
+      $auth_role_info = session('admin_info.auth_role_info');
+      if(-1 != session('admin_info.role_id') && ! empty($auth_role_info) && intval($auth_role_info['online_update']) <= 0){
+        return '您没有操作权限，请联系超级管理员分配权限';
+      }
+      /*--end*/
       header('Content-Type:application/json; charset=utf-8');
       $upgradeLogic = new \app\admin\logic\UpgradeLogic();
       $upgradeMsg = $upgradeLogic->OneKeyUpgrade(); //升级包消息

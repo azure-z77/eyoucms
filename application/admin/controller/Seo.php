@@ -55,7 +55,17 @@ class Seo extends Base
         $param = I('post.');
         $inc_type = $param['inc_type'];
         if ($inc_type == 'seo') {
-            $param['seo_arcdir'] = rtrim($param['seo_arcdir'], '/');
+            /*检测是否开启pathinfo模式*/
+            try {
+                if (3 == $param['seo_pseudo'] || (1 == $param['seo_pseudo'] && 2 == $param['seo_dynamic_format'])) {
+                    $fix_pathinfo = ini_get('cgi.fix_pathinfo');
+                    if ('' != $fix_pathinfo && 0 === $fix_pathinfo) {
+                        $this->error('空间不支持伪静态，请开启pathinfo，或者在php.ini里修改cgi.fix_pathinfo=1');
+                    }
+                }
+            } catch (Exception $e) {}
+            /*--end*/
+            // $param['seo_arcdir'] = rtrim($param['seo_arcdir'], '/');
         } elseif($inc_type == 'sitemap'){
             $param['sitemap_not1'] = isset($param['sitemap_not1']) ? $param['sitemap_not1'] : 0;
             $param['sitemap_not2'] = isset($param['sitemap_not2']) ? $param['sitemap_not2'] : 0;
@@ -127,7 +137,7 @@ class Seo extends Base
      */
     public function bindIndexHtml()
     {
-        if (is_https()) {
+        if (config('is_https')) {
             $filename = 'indexs.html';
         } else {
             $filename = 'index.html';

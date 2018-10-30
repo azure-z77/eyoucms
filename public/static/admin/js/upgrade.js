@@ -14,7 +14,7 @@ function btn_upgrade(obj, type)
     var notice = $("#textarea_notice").val();
     // v = v.replace(/\n/g,"<br/>");
     v = notice + intro + '<br/>' + v;
-    var version = $(obj).attr('data-version');  
+    var version = $(obj).data('version');
     var title = '检测系统最新版本：'+version;
 
     if (0 == type) {
@@ -42,7 +42,6 @@ function btn_upgrade(obj, type)
         }, function(){
             layer_loading('升级中');
             upgrade(obj); // 请求后台
-            
         }, function(){  
             layer.msg('不升级可能有安全隐患', {
                 btnAlign: 'c',
@@ -57,22 +56,40 @@ function btn_upgrade(obj, type)
 
 function upgrade(obj){
     var url = $(obj).data('upgrade_url');
+    var version = $(obj).data('version');
+    var max_version = $(obj).data('max_version');
     $.ajax({
         type : "GET",
         url  :  url,
         timeout : 360000, //超时时间设置，单位毫秒 设置了 1小时
         data : {},
         error: function(request) {
+            layer.closeAll();
             layer.alert("网络请求失败", {icon: 2}, function(){
                 top.location.reload();
             });
         },
         success: function(v) {
+            layer.closeAll();
             if(v=='1'){
-                layer.alert('已升级最新版本!', {icon: 1}, function(){
-                    // top.location.href = eyou_basefile + "?m="+module_name+"&c=Admin&a=logout";
-                    top.location.reload();
-                });
+                if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
+                    var title = '已升级版本：'+version+'，官方最新版本：'+max_version+'。';
+                    var btn = ['开始检测'];
+                } else { // 升级版本是官方最新版本，将引导到备份新数据
+                    var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
+                    var btn = ['前往备份'];
+                }
+                layer.alert(title, {
+                        title: '重要提示',
+                        btn: btn //按钮
+                    }, function(){
+                        if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
+                            top.location.reload();
+                        } else { // 升级版本是官方最新版本，将引导到备份新数据
+                            window.location.href = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                        }
+                    }
+                );
             }
             else{
                 layer.alert(v, {icon: 2}, function(){

@@ -35,7 +35,7 @@ class Base extends Controller {
 
         /*---------*/
         $is_eyou_authortoken = session('web_is_authortoken');
-        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 1;
+        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
         $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
         /*--end*/
 
@@ -53,14 +53,29 @@ class Base extends Controller {
         $this->session_id = session_id(); // 当前的 session_id
         !defined('SESSION_ID') && define('SESSION_ID', $this->session_id); //将当前的session_id保存为常量，供其它方法调用
 
+        parent::_initialize();
+
+        /*及时更新cookie中的admin_id，用于前台的可视化权限验证*/
+        $admin_id = cookie('admin_id'); // 传递到前台
+        if (empty($admin_id) && session('?admin_info.admin_id')) {
+            cookie('admin_id', session('admin_info.admin_id')); // 传递到前台
+        }
+        $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
+        session('admin_info.auth_role_info', $auth_role_info);
+        /*--end*/
+
         //过滤不需要登陆的行为
-        if(in_array(ACTION_NAME, config('filter_login_action')) || in_array(CONTROLLER_NAME, config('filter_login_controller'))){
+        $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
+        $ctl_all = CONTROLLER_NAME.'@*';
+        $uneed_check_action = config('uneed_check_action');
+        if (in_array($ctl_act, $uneed_check_action) || in_array($ctl_all, $uneed_check_action)) {
             //return;
         }else{
             if(session('admin_id') > 0 ){
                 $this->check_priv();//检查管理员菜单操作权限
             }else{
-                $this->redirect('Admin/login');
+                $url = request()->baseFile().'?s=/Admin/login';
+                $this->redirect($url);
             }
         }
     }
@@ -69,34 +84,31 @@ class Base extends Controller {
     {
         $ctl = CONTROLLER_NAME;
         $act = ACTION_NAME;
-        $ctl_act = $ctl.config('POWER_OPERATOR').$act;
-        $act_list = session('admin_info.act_list');
-        //无需验证的控制器
-        $uneed_check_controller = config('uneed_check_controller');
+        $ctl_act = $ctl.'@'.$act;
+        $ctl_all = $ctl.'@*';
         //无需验证的操作
         $uneed_check_action = config('uneed_check_action');
         if (session('admin_info.role_id') == -1) {
             //超级管理员无需验证
             return true;
-        } elseif (in_array($ctl, $uneed_check_controller)) {
-            //在列表中的控制器不需要验证权限
-            return true;
-        } elseif (IS_AJAX || strpos($act,'ajax') !== false || in_array($ctl_act, $uneed_check_action)) {
-            //所有ajax请求不需要验证权限
-            return true;
         } else {
-            $role_right = array();
-            $right = M('auth_rule')->where("id", "in", $act_list)->cache(false)->getField('right',true);
-            $role_right = '';
-            foreach ($right as $val){
-                $role_right .= $val.',';
+            $bool = false;
+
+            /*检测是否有该权限*/
+            if (is_check_access($ctl_act)) {
+                $bool = true;
             }
-            $role_right = explode(',', trim($role_right, ','));
-            $role_right = array_unique($role_right);
-            
+            /*--end*/
+
+            /*在列表中的操作不需要验证权限*/
+            if (IS_AJAX || strpos($act,'ajax') !== false || in_array($ctl_act, $uneed_check_action) || in_array($ctl_all, $uneed_check_action)) {
+                $bool = true;
+            }
+            /*--end*/
+
             //检查是否拥有此操作权限
-            if (!in_array($ctl_act, $role_right)) {
-                $this->error('您没有操作权限['.($ctl_act).'],请联系超级管理员分配权限', U('Index/welcome'));
+            if (!$bool) {
+                $this->error('您没有操作权限，请联系超级管理员分配权限', U('Index/welcome'));
             }
         }
     }  

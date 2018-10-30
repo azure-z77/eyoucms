@@ -67,9 +67,9 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="adminbasefile">后台路径入口</label>
+                    <label for="adminbasefile">新后台地址</label>
                 </dt>
-                <dd class="opt"><input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
+                <dd class="opt">__SITE_URL__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
                     <p class="notic">为了提高后台的安全性，请及时更改后台入口文件。</p>
                 </dd>
             </dl>
@@ -117,10 +117,26 @@
     }
 
     function adsubmit(){
-        if($.trim($('input[name=adminbasefile]').val()) == ''){
-            showErrorMsg('后台路径入口不能为空！');
-            $('input[name=adminbasefile]').focus();
+        var adminbasefileObj = $('input[name=adminbasefile]');
+        var adminbasefile_oldObj = $('input[name=adminbasefile_old]');
+        if($.trim(adminbasefileObj.val()) == ''){
+            showErrorMsg('新后台地址不能为空！');
+            adminbasefileObj.focus();
             return false;
+        }
+        if(adminbasefile_oldObj.val() != adminbasefileObj.val()){
+            var flag = false;
+            var site_url = adminbasefileObj.data('site_url');
+            layer.confirm('新后台地址：<font color="red">'+site_url+'/'+adminbasefileObj.val()+'.php</font>，确认更改？', {
+                    btn: ['继续更改','取消'] //按钮
+                }, function(){
+                    parent_layer_loading();
+                    $('#handlepost').submit();
+                }, function(index){
+                    flag = false;
+                }
+            );
+            return flag;
         }
         parent_layer_loading();
         $('#handlepost').submit();

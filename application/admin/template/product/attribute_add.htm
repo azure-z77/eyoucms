@@ -21,7 +21,7 @@
                 <dd class="opt"> 
                     <select name="typeid" id="typeid">
                         <option value="0">请选择栏目…</option>
-                        {$select_html}
+                        {$arctype_html}
                     </select>
                     <span class="err" id="err_typeid" style="color:#F00; display:none;"></span>
                     <p class="notic"></p>
@@ -82,6 +82,17 @@
                 $('.attr_input_type2').show();
             } else {
                 $('.attr_input_type2').hide();
+            }
+        });
+
+        var dftypeid = {$Request.param.typeid|default='0'};
+        $('#typeid').change(function(){
+            var current_channel = $(this).find('option:selected').data('current_channel');
+            if (0 < $(this).val() && {$channeltype} != current_channel) {
+                showErrorMsg('请选择对应模型的栏目！');
+                $(this).val(dftypeid);
+            } else if ({$channeltype} == current_channel) {
+                layer.closeAll();
             }
         });
     });

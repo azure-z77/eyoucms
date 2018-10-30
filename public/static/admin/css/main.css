@@ -1212,11 +1212,11 @@ img.layer_tips_img {
     max-height: 250px;
 }
 
-.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #d9534f;border-color: #d43f3a; border-radius: 3px;}
-.flexigrid .mDiv .fbutton div.add:hover{ background-color: #c9302c;border-color: #ac2925;}
+.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #ff6f06;border-color: #ff5606; border-radius: 3px;}
+.flexigrid .mDiv .fbutton div.add:hover{ background-color: #ff5606;border-color: #ff5606;}
 .flexigrid .mDiv .fbutton{ float: right; padding-right: 0px; margin-right: 0px;}
 div.addartbtn{ border:none !important; }
-.addartbtn input.btn{ color: #fff;background-color: #d9534f;border:1px solid #d9534f !important; height: 28px !important;} 
+.addartbtn input.btn{ color: #fff;background-color: #ff6f06;border:1px solid #ff6f06 !important; height: 28px !important;} 
 .addartbtn input.btn:hover{background-color: #c9302c !important;}
 .addartbtn input.btn.current{background: #e7e7e7;color: #000; border:none !important;}
 .addartbtn input.btn.current:hover{ background: #e7e7e7 !important; color:#000; cursor: default; }

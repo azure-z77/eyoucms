@@ -52,6 +52,6 @@ class Coding
     static public function checkauthor()
     {
         $object = new Driver();
-        $object::check_author_ization();
+        return $object::check_author_ization();
     }
 }

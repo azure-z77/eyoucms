@@ -137,21 +137,24 @@ class Links extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
-        $id_arr = eyIntval($id_arr);
-        if(!empty($id_arr)){
-            $result = M('links')->field('title')->where("id",'IN',$id_arr)->select();
-            $title_list = get_arr_column($result, 'title');
+        if (IS_AJAX_POST) {
+            $id_arr = I('del_id/a');
+            $id_arr = eyIntval($id_arr);
+            if(!empty($id_arr)){
+                $result = M('links')->field('title')->where("id",'IN',$id_arr)->select();
+                $title_list = get_arr_column($result, 'title');
 
-            $r = M('links')->where("id",'IN',$id_arr)->cache(true,EYOUCMS_CACHE_TIME,"links")->delete();
-            if($r){
-                adminLog('删除友情链接：'.implode(',', $title_list));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $r = M('links')->where("id",'IN',$id_arr)->cache(true,EYOUCMS_CACHE_TIME,"links")->delete();
+                if($r){
+                    adminLog('删除友情链接：'.implode(',', $title_list));
+                    respose(array('status'=>1, 'msg'=>'删除成功'));
+                }else{
+                    respose(array('status'=>0, 'msg'=>'删除失败'));
+                }
+            } else {
+                respose(array('status'=>0, 'msg'=>'参数有误'));
             }
-        }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
         }
+        respose(array('status'=>0, 'msg'=>'非法访问'));
     }
 }

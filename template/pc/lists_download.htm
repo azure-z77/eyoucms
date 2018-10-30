@@ -52,16 +52,18 @@
       <div class="row"> 
        <div class="met-download-list"> 
         <ul class="ulstyle met-pager-ajax imagesize" data-scale="1" m-id="met_download"> 
-          {eyou:list pagesize="10" titlelen="20"}
+          {eyou:list pagesize="10" titlelen="20" id='field'}
           <li class="list-group-item"> 
           <div class="media"> 
            <div class="media-left p-r-5 p-l-10 hidden-xs-down"> 
             <a href="{$field.arcurl}" title="{$field.title}" target="_self"> <i class="icon fa-file-archive-o blue-grey-400"></i> </a> 
            </div> 
            <div class="media-body"> 
-            {eyou:volist name="$field.file_list" id="vo" length="6"}
-            <a class="btn btn-outline btn-primary btn-squared pull-xs-right" href="{$vo.downurl}" title="{$vo.title}">下载包({$i})</a>
-            {/eyou:volist}
+            {eyou:arcview aid='$field.aid' id='view'}
+              {eyou:volist name="$view.file_list" id='vo'}
+              <a class="btn btn-outline btn-primary btn-squared pull-xs-right" href="{$vo.downurl}" title="{$vo.title}">下载包({$i})</a>
+              {/eyou:volist}
+            {/eyou:arcview}
             <h4 class="media-heading font-size-16"> <a class="name" href="{$field.arcurl}" title="{$field.title}" target="_self">{$field.title}</a> </h4> 
             <small class="font-size-14 blue-grey-500"> <span>100 kb</span> <span class="m-l-10">{$field.add_time|MyDate='Y-m-d',###}</span> </small> 
            </div> 
@@ -78,9 +80,9 @@
      <div class="col-md-3" m-id="downlaod_bar" m-type="nocontent"> 
       <div class="row"> 
        <div class="met-bar"> 
-        <form class="sidebar-search" method="get" action="{eyou:searchurl /}">
-         <input type="hidden" name="channel" value="" />
-         <input type="hidden" name="typeid" value="" />
+        {eyou:searchform type='default'}
+        <form class="sidebar-search" method="get" action="{$field.action}">
+          {$field.hidden}
          <div class="form-group"> 
           <div class="input-search"> 
            <button type="submit" class="input-search-btn"> <i class="icon wb-search" aria-hidden="true"></i> </button> 
@@ -88,6 +90,7 @@
           </div> 
          </div> 
         </form> 
+        {/eyou:searchform}
         <div class="sidebar-news-list recommend"> 
          <h3 class="m-0">为你推荐</h3> 
          <ul class="list-icons list-group-bordered m-t-10 m-b-0"> 

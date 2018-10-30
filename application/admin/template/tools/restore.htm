@@ -34,6 +34,9 @@
                         <th abbr="article_title" axis="col3" class="">
                             <div class="">文件名称</div>
                         </th>
+                        <th abbr="article_show" axis="col5" class="w100">
+                            <div class="tc">系统版本</div>
+                        </th>
                         <th abbr="ac_id" axis="col4" class="w40">
                             <div class="tc">卷号</div>
                         </th>
@@ -50,7 +53,6 @@
                         <th axis="col1" class="w160">
                             <div class="tc">操作</div>
                         </th>
-                       
                     </tr>
                     </thead>
                 </table>
@@ -75,6 +77,9 @@
                             <td style="width: 100%">
                                 <div>{$vo.basename}</div>
                             </td>
+                            <td>
+                                <div class="w100 tc">{$vo.version}</div>
+                            </td>
                             <td class="">
                                 <div class="w40 tc">{$vo.part}</div>
                             </td>
@@ -90,13 +95,13 @@
                            
                             <td>
                                 <div class="w160 tc">
-                                    {eq name="'Tools@new_import'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@new_import'|is_check_access" value="1"}
                                     <a href="javascript:void(0);" data-url="{:U('Tools/new_import', array('time'=>$vo['time']))}" class="btn blue db-import"><i class="fa fa-repeat"></i>恢复</a>
                                     {/eq}
-                                    {eq name="'Tools@downFile'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@downFile'|is_check_access" value="1"}
                                     <a href="{:U('Tools/downFile',array('time'=>$vo['time']))}" class="btn green"><i class="fa fa-download"></i>下载</a>
                                     {/eq}
-                                    {eq name="'Tools@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Tools/del')}" data-id="{$vo.time}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
@@ -115,7 +120,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Tools@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Tools/del')}">
                         <div class="add" title="批量删除">
@@ -124,7 +129,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Tools@restoreUpload'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@restoreUpload'|is_check_access" value="1"}
                 <div class="fbutton">
                     <form class="navbar-form form-inline" action="{:U('Tools/restoreUpload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
                         <input type="file" class="btn fl w200" name="sqlfile" id="sqlfile">

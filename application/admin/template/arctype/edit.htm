@@ -39,8 +39,9 @@
                     <label for="dirname">目录名称</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" value="{$field.dirname|default=''}" name="dirname" id="dirname" class="input-txt" onkeyup="this.value=this.value.replace(/\W/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/\W/g,''));">
+                    <input type="text" value="{$field.dirname|default=''}" name="dirname" id="dirname" class="input-txt" onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^a-zA-Z0-9_]/g,''));">
                     <p class="notic">系统默认为全拼音，开启伪静态后，将作为URL优化</p>
+                    <p class="">不填写系统自动生成全拼音，仅支持字母、数字、下划线</p>
                 </dd>
             </dl>
             <dl class="row">
@@ -48,8 +49,11 @@
                     <label for="current_channel">内容模型</label>
                 </dt>
                 <dd class="opt">
-                    {$channeltype_list[$field['current_channel']]['title']}
-                    <input type="hidden" name="current_channel" id="current_channel" value="{$field.current_channel|default=''}" />
+                    <select class="small form-control" id="current_channel" name="current_channel" onchange="ajax_get_template();">
+                        {volist name="channeltype_list" id="vo"}
+                        <option value="{$vo.id}" {eq name="$field['current_channel']" value="$vo.id"}selected="true"{/eq}>{$vo.title}</option>
+                        {/volist}
+                    </select>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -134,7 +138,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="englist_name">英文名称</label>
+                    <label for="englist_name">英文别名</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" value="{$field.englist_name|default=''}" name="englist_name" id="englist_name" class="input-txt">
@@ -223,7 +227,6 @@
             <div class="bot">
                 <input type="hidden" name="tab" value="{$tab|default='0'}">
                 <input type="hidden" name="id" id="id" value="{$field.id|default=''}">
-                <input type="hidden" name="aid" id="aid" value="{$field.aid|default=''}">
                 <input type="hidden" name="grade" id="grade" value="{$field.grade|default=0}">
                 <input type="hidden" name="oldgrade" id="oldgrade" value="{$field.grade|default=0}">
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>

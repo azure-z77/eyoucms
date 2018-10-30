@@ -26,9 +26,10 @@ class FieldLogic extends Model
      * 查询解析模型数据用以页面展示
      * @param array $data 表数据
      * @param intval $channel_id 模型ID
+     * @param array $batch 是否批量列表
      * @author 小虎哥 by 2018-7-25
      */
-    public function getChannelFieldList($data, $channel_id = '')
+    public function getChannelFieldList($data, $channel_id = '', $batch = false)
     {
         if (!empty($data) && !empty($channel_id)) {
             /*获取模型对应的附加表字段信息*/
@@ -37,7 +38,7 @@ class FieldLogic extends Model
             );
             $fieldInfo = model('Channelfield')->getListByWhere($map, '*', 'name');
             /*--end*/
-            $data = $this->handleAddonFieldList($data, $fieldInfo);
+            $data = $this->handleAddonFieldList($data, $fieldInfo, $batch);
         } else {
             $data = array();
         }
@@ -49,9 +50,10 @@ class FieldLogic extends Model
      * 查询解析单个数据表的数据用以页面展示
      * @param array $data 表数据
      * @param intval $channel_id 模型ID
+     * @param array $batch 是否批量列表
      * @author 小虎哥 by 2018-7-25
      */
-    public function getTableFieldList($data, $channel_id = '')
+    public function getTableFieldList($data, $channel_id = '', $batch = false)
     {
         if (!empty($data) && !empty($channel_id)) {
             /*获取自定义表字段信息*/
@@ -60,7 +62,7 @@ class FieldLogic extends Model
             );
             $fieldInfo = model('Channelfield')->getListByWhere($map, '*', 'name');
             /*--end*/
-            $data = $this->handleAddonFieldList($data, $fieldInfo);
+            $data = $this->handleAddonFieldList($data, $fieldInfo, $batch);
         } else {
             $data = array();
         }
@@ -72,10 +74,15 @@ class FieldLogic extends Model
      * 处理自定义字段的值
      * @param array $data 表数据
      * @param array $fieldInfo 自定义字段集合
+     * @param array $batch 是否批量列表
      * @author 小虎哥 by 2018-7-25
      */
-    public function handleAddonFieldList($data, $fieldInfo)
+    public function handleAddonFieldList($data, $fieldInfo, $batch = false)
     {
+        if (false !== $batch) {
+            return $this->handleBatchAddonFieldList($data, $fieldInfo);
+        }
+
         if (!empty($data) && !empty($fieldInfo)) {
             foreach ($data as $key => $val) {
                 $dtype = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dtype'] : '';
@@ -116,6 +123,22 @@ class FieldLogic extends Model
                     }
                 }
                 $data[$key] = $val;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * 列表批量处理自定义字段的值
+     * @param array $data 表数据
+     * @param array $fieldInfo 自定义字段集合
+     * @author 小虎哥 by 2018-7-25
+     */
+    public function handleBatchAddonFieldList($data, $fieldInfo)
+    {
+        if (!empty($data) && !empty($fieldInfo)) {
+            foreach ($data as $key => $subdata) {
+                $data[$key] = $this->handleAddonFieldList($subdata, $fieldInfo);
             }
         }
         return $data;

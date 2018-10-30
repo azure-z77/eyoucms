@@ -46,6 +46,22 @@ class ArctypeLogic extends Model
                 $where = array(
                     'status' => 1,
                 );
+
+                /*权限控制 by 小虎哥*/
+                $admin_info = session('admin_info');
+                if (-1 != $admin_info['role_id']) {
+                    $auth_role_info = $admin_info['auth_role_info'];
+                    if(! empty($auth_role_info)){
+                        if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                            $where['admin_id'] = $admin_info['admin_id'];
+                        }
+                        if(! empty($auth_role_info['permission']['arctype'])){
+                            $where['id'] = array('IN', $auth_role_info['permission']['arctype']);
+                        }
+                    }
+                }
+                /*--end*/
+
                 if (!empty($map)) {
                     $where = array_merge($where, $map);
                 }
@@ -54,6 +70,7 @@ class ArctypeLogic extends Model
                     $where[$key_tmp] = $val;
                     unset($where[$key]);
                 }
+                
                 $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
                 $res = DB::name('arctype')
                     ->field($fields)
@@ -62,8 +79,10 @@ class ArctypeLogic extends Model
                     ->where($where)
                     ->group('c.id')
                     ->order('c.parent_id asc, c.sort_order asc, c.id')
+                    // ->fetchSql(true)
                     ->cache($is_cache,EYOUCMS_CACHE_TIME,"arctype")
                     ->select();
+                // var_dump($res);exit;
             }
             else
             {

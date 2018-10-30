@@ -37,7 +37,7 @@ class UiConfig extends Model
             'md5key'    => $md5key,
             'type'  => $type,
         );
-        $result = M('ui_config')->where($map)->find();
+        $result = M('ui_config')->where($map)->cache(true,EYOUCMS_CACHE_TIME,"ui_config")->find();
 
         return $result;
     }

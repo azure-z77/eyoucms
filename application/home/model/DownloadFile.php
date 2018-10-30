@@ -40,7 +40,7 @@ class DownloadFile extends Model
 
         if (!empty($result)) {
             foreach ($result as $key => $val) {
-                $downurl = url('home/Download/downfile', array('id'=>$val['file_id'], 'uhash'=>$val['uhash']));
+                $downurl = url('home/View/downfile', array('id'=>$val['file_id'], 'uhash'=>$val['uhash']));
                 $result[$key]['downurl'] = $downurl;
             }
         }

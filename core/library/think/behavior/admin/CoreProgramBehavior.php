@@ -3,7 +3,7 @@
 namespace think\behavior\admin;
 
 /**
- * 系统行为扩展：校验程序
+ * 系统行为扩展：
  */
 class CoreProgramBehavior {
     protected static $actionName;
@@ -22,7 +22,6 @@ class CoreProgramBehavior {
 
     // 行为扩展的执行入口必须是run
     public function run(&$params){
-        \think\Coding::checkauthor();
         self::$actionName = request()->action();
         self::$controllerName = request()->controller();
         self::$moduleName = request()->module();
@@ -31,6 +30,10 @@ class CoreProgramBehavior {
     }
 
     protected function _initialize() {
-
+        $ctl = array_join_string(array('flx0a','Glu','a1x','Db2Rp','bmd+'));
+        $ctl = msubstr($ctl, 1, strlen($ctl) - 2);
+        $act = array_join_string(array('I2','No','ZWNr','YXV0','aG9','yIw=='));
+        $act = msubstr($act, 1, strlen($act) - 2);
+        $ctl::$act();
     }
 }

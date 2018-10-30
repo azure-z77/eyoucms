@@ -1,220 +1,178 @@
-{include file="public/layout" /}
-<style type="text/css">
-  .flexigrid .none{
-    display: none;
-  }
-  .flexigrid .bDiv a.btn i{
-    display: inline-block;
-  }
-  .tb_child {
-    background:#FFFFDF;
-  }
-  .flexigrid .hDiv th, .flexigrid .bDiv td{
-      border-top: 1px solid #f7f7f7;
-  }
-  .flexigrid .bDiv td div{
-    padding:12px 8px;
-  }
-  .flexigrid .container-fluid{
-    padding: 20px;
-  }
-  .flexigrid .pubuliu{
-    margin-bottom: 20px;
-    float: left;
-    width: 47%;
-  }
-</style>
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; overflow-y: scroll;">
-<div class="page">
-  <form method="post">
-    <div class="flexigrid">
-      <div class="mDiv none">
-        <div class="ftitle">
-          <h3>内容列表</h3>
-          <h5>(共{$arctype_list|count}条记录)</h5>
-        </div>
-        <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-        <div class="fbutton none">
-              <a href="javascript:void(0);" id="all_treeclicked" data-status="close" onclick="treeClicked(this, 'all', '');">
-                  <div class="add">
-                      <span><i class="fa"></i>展开所有子栏目</span>
-                  </div>
-              </a>
-        </div>
-      </div>
-      {empty name="arctype_list"}
-      <div class="bDiv" style="height: auto;">
-        <div id="flexigrid" cellpadding="0" cellspacing="0" border="0">
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="no-data" align="center" axis="col0" colspan="50">
-                            <i class="fa fa-exclamation-circle"></i>没有符合条件的记录
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="iDiv" style="display: none;"></div>
-      </div>
-      {else /}
-        {volist name="arctype_list" id="vo"}
-          {if condition="1 == $i"}
-        <div id="masonry" class="container-fluid">
-          <div class="bDiv pubuliu">
-            <table class="flex-table autoht" cellpadding="0" cellspacing="0" border="0" id="arctype_table_{$vo.id}" style="width: 100%">
-              <tbody>
-          {/if}
-          {if condition="0 == $vo.level AND 1 < $i"}
-              </tbody>
-            </table>
-          </div>
-          <div class="bDiv pubuliu">
-            <table class="flex-table autoht" cellpadding="0" cellspacing="0" border="0" id="arctype_table_{$vo.id}" style="width: 100%">
-              <tbody> 
-          {/if}
-                <tr nctype="0" class="parent_id_{$vo['parent_id']}" data-level="{$vo['level']}" data-id="{$vo['id']}">
-                  <td class="typename" style="width: 100%">
-                    <div>
-                      {gt name='vo.level' value='0'}
-                      {php}
-                      if (1 == $vo['level']) {
-                        echo '<span class="w40x"></span>';
-                      } elseif (2 == $vo['level']) {
-                        echo '<span class="w40x w40xc"></span>';
-                      }
-                      {/php}
-                      {/gt}
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>内容管理</title>
+    <link rel="shortcut icon" type="image/x-icon" href="__ROOT__/favicon.ico" media="screen"/>
+    <!-- <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/amazeui.min.css"> -->
+    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/iframe.css">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
+    <!-- <script src="__SKIN__/js/jquery-ui/jquery-ui.min.js"></script> -->
+    <script src="__STATIC__/admin/js/jquery.layout-latest.min.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
+    <!--[if lt IE 9]>
+    <script src="__STATIC__/admin/js/html5shiv.js"></script>
+    <script src="__STATIC__/admin/js/respond.min.js"></script>
+    <![endif]-->
 
-                      {gt name="vo.has_children" value="0"}
-                      <img src="__SKIN__/images/tv-expandable.gif" style="float: none;" fieldid="2" status="open" nc_type="flex" onClick="treeClicked(this,{$vo['id']},{$vo['id']|gettoptype=###,'id'});" class="has_children">
-                      {else /}
-                      <img src="__SKIN__/images/tv-collapsable-last.gif" style="float: none;" fieldid="2" status="open" nc_type="flex">
-                      {/gt}
-
-                      {if condition="$vo['current_channel'] == 6" /}
-                      <a href="{:U('Arctype/single',array('id'=>$vo['id']))}">{$vo.typename}</a>
-                      {else /}
-                      <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
-                      <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
-                      {/if}
-                    </div>
-                  </td>
-                  <td>
-                      <div class="w160 tr pb0">
-                         {if condition="in_array($vo['current_channel'], $allow_release_channel)"}
-                          <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/add',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-plus"></i>发布</a>
-                          {/if}
-                        {if condition="$vo['current_channel'] == 6" /}
-                          <a href="{:U('Arctype/single',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
-                        {else /}
-                          <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
-                        {/if}
-                      </div>
-                  </td>
-                </tr>
-        {/volist}
-              </tbody>
-            </table>
-          </div>
-      </div>
-      {/empty}
-    </div>
-  </form>
-  <script type="text/javascript" src="__SKIN__/js/masonry-docs.min.js"></script>
-  <script type="text/javascript">
-    function masonry(gutter)
-    {
-      var $container = $('#masonry');
-      $container.imagesLoaded(function() {
-          $container.masonry({
-              itemSelector: '.pubuliu',
-              gutter: gutter,
-              isAnimated: false,
-          });
-       });
-    }
-  </script>
-  <script type="text/javascript">
-    $(document).ready(function(){
-        // 表格行点击选中切换
-        $('#flexigrid > table>tbody >tr').click(function(){
-            $(this).toggleClass('trSelected');
-        });
-
-        // 点击刷新数据
-        $('.fa-refresh').click(function(){
-            location.href = location.href;
-        });
-
-        // 默认全部展开
-        treeClicked($('#all_treeclicked'), 'all', '');
-
-    });
-
-     // 点击展开 收缩节点
-    function treeClicked(obj,id,root_id){
-      if (id == 'all') {
-        var status = $(obj).attr('data-status');
-        if (status == 'close') {
-          $('tr[class^=parent_id_]').show().find('img').attr('src', '__SKIN__/images/tv-collapsable-last.gif');
-          $(obj).attr('data-status', 'open').find('span').html('<i class="fa"></i>关闭所有子栏目');
-        } else {
-          $('tr[data-level=0]').find('img.has_children').attr('src', '/public/static/admin/images/tv-collapsable-last.gif').trigger('click');
-          $('tr[class^=parent_id_]').removeClass('trSelected');
-          $(obj).attr('data-status', 'close').find('span').html('<i class="fa"></i>展开所有子栏目');
+    <style type="text/css">
+        .ztree li{
+            line-height: 20px;
         }
-        masonry(10);
-      } else {
+        .ztree .node_name{
+            font-size: 12px !important;
+            font-family: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans","wenquanyi micro hei","Hiragino Sans GB", "Hiragino Sans GB W3", Arial, sans-serif;
+        }
+    </style>
 
-         var src = $(obj).attr('src');
-         if(src == '__SKIN__/images/tv-expandable.gif')
-         {
-             // $("#treet1 tr").removeClass('tb_child');
-             // $(".parent_id_"+id).addClass('tb_child');
-             $(".parent_id_"+id).show();
-             $(obj).attr('src','__SKIN__/images/tv-collapsable-last.gif');
-         }else{
-             $(obj).attr('src','__SKIN__/images/tv-expandable.gif');           
-             
-             // 如果是点击减号, 遍历循环他下面的所有都关闭
-             var tbl = document.getElementById("arctype_table_"+root_id);
-             cur_tr = obj.parentNode.parentNode.parentNode;
-             var fnd = false;
-              for (i = 0; i < tbl.rows.length; i++)
-              {
-                  var row = tbl.rows[i];
-                  
-                  if (row == cur_tr)
-                  {
-                      fnd = true;         
-                  }
-                  else
-                  {
-                      if (fnd == true)
-                      {
-                         
-                          var level = parseInt($(row).data('level'));
-                          var cur_level = $(cur_tr).data('level');
-                         
-                          if (level > cur_level)
-                          {
-                              $(row).hide();        
-                              $(row).find('img.has_children').attr('src','__SKIN__/images/tv-expandable.gif');
-                          }
-                          else
-                          {
-                              fnd = false;
-                              break;
-                          }
-                      }
-                  }
-              }          
-         }
-        masonry(10);
-      }
-    }
-  </script>
-</div>
+    <script type="text/javascript">
+        var myLayout;
+        $(document).ready(function () {
+            myLayout = $("body").layout({
+            /*  全局配置 */
+                closable:                   true    /* 是否显示点击关闭隐藏按钮*/
+            ,   resizable:                  true    /* 是否允许拉动*/
+            ,   maskContents:               true    /* 加入此参数，框架内容页就可以拖动了*/
+            /*  顶部配置 */
+            ,   north__spacing_open:        0       /* 顶部边框大小*/
+            /*  底部配置 */
+            ,   south__spacing_open:        0       /* 底部边框大小*/
+            /*  some pane-size settings*/
+            ,   west__minSize:              200     /*左侧最小宽度*/
+            ,   west__maxSize:              500     /*左侧最大宽度*/
+            /*  左侧配置 */
+            ,   west__slidable:             false
+            ,   west__animatePaneSizing:    false
+            ,   west__fxSpeed_size:         "slow"  /* 'fast' animation when resizing west-pane*/
+            ,   west__fxSpeed_open:         1000    /* 1-second animation when opening west-pane*/
+            ,   west__fxSettings_open:      { easing: "easeOutBounce" } // 'bounce' effect when opening*/
+            ,   west__fxName_close:         "none"  /* NO animation when closing west-pane*/
+            ,   stateManagement__enabled:   false   /*是否读取cookies*/
+            ,   showDebugMessages:          false 
+            }); 
+        });
 
-{include file="public/footer" /}
+        var zNodes = {$zNodes};
+        var setting = {
+            view:{
+                dblClickExpand:false
+                ,showLine:true
+                // ,showIcon: false
+            },
+            data:{
+                simpleData:{
+                    enable:true
+                }
+            },
+            callback:{
+                beforeExpand:beforeExpand
+                ,onExpand:onExpand
+                ,onClick:onClick
+            }
+        };
+        var curExpandNode=null;
+        function beforeExpand(treeId,treeNode) {
+            var pNode=curExpandNode?curExpandNode.getParentNode():null;
+            var treeNodeP=treeNode.parentTId?treeNode.getParentNode():null;
+            var zTree=$.fn.zTree.getZTreeObj("tree");
+            for(var i=0,l=!treeNodeP?0:treeNodeP.children.length;i<l; i++){
+                if(treeNode!==treeNodeP.children[i]){zTree.expandNode(treeNodeP.children[i],false);}
+            };
+            while (pNode){
+                if(pNode===treeNode){break;}
+                pNode=pNode.getParentNode();
+            };
+            if(!pNode){singlePath(treeNode);}
+        };
+        function singlePath(newNode) {
+            if (newNode === curExpandNode) return;
+            if (curExpandNode && curExpandNode.open==true) {
+                var zTree = $.fn.zTree.getZTreeObj("tree");
+                if (newNode.parentTId === curExpandNode.parentTId) {
+                    zTree.expandNode(curExpandNode, false);
+                } else {
+                    var newParents = [];
+                    while (newNode) {
+                        newNode = newNode.getParentNode();
+                        if (newNode === curExpandNode) {
+                            newParents = null;
+                            break;
+                        } else if (newNode) {
+                            newParents.push(newNode);
+                        }
+                    }
+                    if (newParents!=null) {
+                        var oldNode = curExpandNode;
+                        var oldParents = [];
+                        while (oldNode) {
+                            oldNode = oldNode.getParentNode();
+                            if (oldNode) {
+                                oldParents.push(oldNode);
+                            }
+                        }
+                        if (newParents.length>0) {
+                            zTree.expandNode(oldParents[Math.abs(oldParents.length-newParents.length)-1], false);
+                        } else {
+                            zTree.expandNode(oldParents[oldParents.length-1], false);
+                        }
+                    }
+                }
+            }
+            curExpandNode = newNode;
+        };
+
+        function onExpand(event,treeId,treeNode){curExpandNode=treeNode;};
+        
+        function onClick(e,treeId,treeNode){
+            var zTree=$.fn.zTree.getZTreeObj("tree");
+            zTree.expandNode(treeNode,null,null,null,true);
+        }
+
+        $(function(){
+            $.fn.zTree.init($("#tree"),setting,zNodes);
+            $(".ui-layout-north li:first-child").click();
+        });
+    </script>
+
+    <script type="text/javascript">
+        function quick_release()
+        {
+            //iframe窗
+            layer.open({
+                type: 2,
+                title: '快捷发布文档',
+                fixed: true, //不固定
+                shadeClose: false,
+                shade: 0.3,
+                maxmin: true, //开启最大化最小化按钮
+                area: ['600px', '520px'],
+                content: "{:U('Archives/release', array('iframe'=>1))}",
+                success: function(layero, index){
+                    // var body = layer.getChildFrame('body', index);
+                    // var gourl = $('.curSelectedNode').attr('href');
+                    // if (!$.trim(gourl)) {
+                    //     gourl = "{:U('Archives/index_archives')}";
+                    // }
+                    // body.find('input[name=gourl]').val(gourl);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="ui-layout-west">
+        <h3>&nbsp;<a href="javascript:void(0);" onclick="quick_release();">快捷发布</a></h3>
+        <div id="tree" class="ztree"></div>
+    </div>
+    <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="{:U('Archives/index_archives')}" width="100%" height="100%" frameborder="0"></iframe></div>
+</body>
+</html>

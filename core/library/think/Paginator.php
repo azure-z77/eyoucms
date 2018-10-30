@@ -119,39 +119,21 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         }
         $url = $path;
 
+        /*-----------------URL模式------------------*/
+        // URL模式
+        $seo_pseudo = config('ey_config.seo_pseudo');
+        if (3 == $seo_pseudo) { // 伪静态模式 by 小虎哥
+            $seo_rewrite_format = config('ey_config.seo_rewrite_format');
+            if (1 == intval($seo_rewrite_format)) {
+                $url .= '/';
+            }
+            /*--end*/
+        } 
+        /*------------------------end*/
+
         if (!empty($parameters)) {
             $url .= '?' . http_build_query($parameters, null, '&');
         }
-
-        // -----------新增生成静态页面的分页 by 小虎哥
-        $seo_pseudo = tpCache('seo.seo_pseudo');
-        if ($seo_pseudo == 2) {
-            $param_tmp = I('param.');
-            // 组合参数  
-            if(!empty($param_tmp) && isset($param_tmp['tid']))
-            {
-                $arctype = array();
-                if (!isset($param_tmp['page'])) {
-                    $param_tmp['page'] = 1;
-                }
-                if ($param_tmp['tid'] > 0 && $page > 1) {
-                    $filename = 'list';
-                    foreach ($param_tmp as $k=>$v) {
-                        if ($k == 'page') {
-                            $v = $page;
-                        } else {
-                            $v = !empty($v) ? $v : 0;
-                        }
-                        $filename .= '_'.$v;
-                    }
-                } else {
-                    $filename = 'index';
-                }
-                $arctype = M('arctype')->field('dirpath')->find($param_tmp['tid']);
-                $url = $arctype['dirpath'].'/'.$filename.'.html';
-            }
-        }
-        // ------------end
 
         return $url . $this->buildFragment();
     }

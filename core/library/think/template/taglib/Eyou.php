@@ -59,6 +59,7 @@ class Eyou extends Taglib
         'prenext'    => ['attr' => 'get,titlelen,id,empty'],
         'field'      => ['attr' => 'name', 'close' => 0], 
         'searchurl'  => ['attr' => '', 'close' => 0],
+        'searchform' => ['attr' => 'channel,typeid,type,empty,id,mod,key', 'close'=>1], 
         'tag'        => ['attr' => 'aid,name,row,id,key,mod,typeid,getall,sort,empty,style'],
         'flink'      => ['attr' => 'type,row,id,key,mod,titlelen,empty'],
         'ui'         => ['attr' => 'open', 'close' => 0],
@@ -126,7 +127,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -419,7 +420,7 @@ class Eyou extends Taglib
 
         $headInf = @get_headers($http_url,1); 
         if (is_array($headInf)) {
-            $update_time = strtotime($headInf['Last-Modified']); 
+            $update_time = !empty($headInf['Last-Modified']) ? strtotime($headInf['Last-Modified']) : getTime(); 
             $type = strtolower(substr(strrchr($http_url, '.'), 1));
             $http_url = str_replace($http_site_url, '', $http_url);
             $parseStr .= '<?php echo "'. $http_url . '?ver='.$update_time.'";?>';
@@ -527,7 +528,7 @@ class Eyou extends Taglib
 
         $parseStr .= ' $__LIST__[$key] = $_result[$key] = $' . $id . ';';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -590,7 +591,7 @@ class Eyou extends Taglib
 
         $parseStr .= ' $__LIST__[$key] = $_result[$key] = $' . $id . ';';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -702,7 +703,7 @@ class Eyou extends Taglib
         $parseStr .= '$' . $id . '["seo_description"] = msubstr($' . $id . '["seo_description"], 0, '.$infolen.', true);';
 
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
@@ -783,7 +784,7 @@ class Eyou extends Taglib
         $parseStr .= '$' . $id . '["seo_description"] = msubstr($' . $id . '["seo_description"], 0, '.$infolen.', true);';
 
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
@@ -831,7 +832,7 @@ class Eyou extends Taglib
         $typeid = !empty($tag['typeid']) ? $tag['typeid'] : '';
         $typeid = $this->varOrvalue($typeid);
 
-        $symbol     = isset($tag['symbol']) ? $tag['symbol'] : tpCache('global.list_symbol');
+        $symbol     = isset($tag['symbol']) ? $tag['symbol'] : '';
         $style   = !empty($tag['style']) ? $tag['style'] : '';
 
         $parseStr = ' <?php ';
@@ -859,10 +860,55 @@ class Eyou extends Taglib
      */
     public function tagSearchurl($tag)
     {
-        $parseStr = ' <?php ';
-        $parseStr .= ' echo url("Search/lists");';
-        $parseStr .= ' ?>';
+        $parseStr = '<?php echo url("home/Search/lists");?>';
         return $parseStr;
+    }
+
+    /**
+     * searchform 搜索表单标签解析 TAG调用
+     * {eyou:searchform type='default'}
+        {$field.searchurl}
+     * {/eyou:searchform}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSearchform($tag, $content)
+    {
+        $channel   = !empty($tag['channel']) ? $tag['channel'] : '';
+        $channel  = $this->varOrvalue($channel);
+        $typeid   = !empty($tag['typeid']) ? $tag['typeid'] : '';
+        $typeid  = $this->varOrvalue($typeid);
+        $type   = !empty($tag['type']) ? $tag['type'] : 'default';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSearchform = new \think\template\taglib\eyou\TagSearchform;';
+        $parseStr .= ' $_result = $tagSearchform->getSearchform('.$typeid.','.$channel.');';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach;';
+        $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
     }
 
     /**
@@ -970,6 +1016,7 @@ class Eyou extends Taglib
         $parseStr .= '?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
         /*--end*/
 
         if (!empty($parseStr)) {
@@ -1029,7 +1076,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -1077,7 +1124,7 @@ class Eyou extends Taglib
         $parseStr .= '$' . $id . '["title"] = msubstr($' . $id . '["title"], 0, '.$titlelen.', false);';
         $parseStr .= ' $__LIST__[$key] = $_result[$key] = $' . $id . ';';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -1175,7 +1222,7 @@ class Eyou extends Taglib
         $parseStr .= ' endif;';
 
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
@@ -1260,7 +1307,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . ';?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach;';
@@ -1635,7 +1682,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
-        $parseStr .= '++$' . $key . '; ?>';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';

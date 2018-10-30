@@ -35,10 +35,13 @@ abstract class Weapp{
     public $info                =   array();
     public $weapp_path          =   '';
     public $config_file         =   '';
-    public $custom_config       =   '';
-    public $admin_list          =   array();
-    public $custom_adminlist    =   '';
-    public $access_url          =   array();
+    public $weapp_module_name       =   '';
+    public $weapp_controller_name       =   '';
+    public $weapp_action_name       =   '';
+    // public $custom_config       =   '';
+    // public $admin_list          =   array();
+    // public $custom_adminlist    =   '';
+    // public $access_url          =   array();
 
     public function __construct(Request $request = null){
         if (!session_id()) {
@@ -51,29 +54,26 @@ abstract class Weapp{
         }
         $this->request = $request;
 
-        !defined('WEAPP_MODULE_NAME') && define('WEAPP_MODULE_NAME', $this->request->param('sm')?:$this->getName());  // 当前插件模块名称是
-        !defined('WEAPP_CONTROLLER_NAME') && define('WEAPP_CONTROLLER_NAME', $this->request->param('sc')?:$this->getName()); // 当前插件控制器名称
-        !defined('WEAPP_ACTION_NAME') && define('WEAPP_ACTION_NAME', $this->request->param('sa')?:'index'); // 当前插件操作名称是
+        $class = get_class($this); // 返回对象的类名
+        $wmcArr = explode('\\', $class);
+        $this->weapp_module_name = $this->request->param('sm')?:$wmcArr[1]; // 当前插件模块名称
+        $this->weapp_controller_name = $this->request->param('sc')?:$wmcArr[3]; // 当前插件控制器名称
+        $this->weapp_action_name = $this->request->param('sa')?:'index'; // 当前插件操作名称是
 
         // 模板路径
-        config('template.view_path', '.'.__ROOT__.'/'.WEAPP_DIR_NAME.'/'.WEAPP_MODULE_NAME.'/template/');
+        config('template.view_path', '.'.__ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template/');
         config('view_replace_str.__ADMIN_SKIN__', __ROOT__.'/public/static/admin');
-        config('view_replace_str.__WEAPP_TEMPLATE__', __ROOT__.'/'.WEAPP_DIR_NAME.'/'.WEAPP_MODULE_NAME.'/template');
+        config('view_replace_str.__WEAPP_TEMPLATE__', __ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template');
         
         $this->view    = \think\View::instance(config('template'), config('view_replace_str'));
 
-        $this->weapp_path   =   WEAPP_PATH.WEAPP_MODULE_NAME.DS;
+        $this->weapp_path   =   WEAPP_DIR_NAME.DS.$this->weapp_module_name.DS;
         if(is_file($this->weapp_path.'config.php')){
             $this->config_file = $this->weapp_path.'config.php';
         }
 
         // 验证插件的配置完整性
         $this->checkConfig();
-
-        // 加载公共文件
-        if (is_file($this->weapp_path . 'common' . EXT)) {
-            require_once $this->weapp_path . 'common' . EXT;
-        }
 
         // 控制器初始化
         $this->_initialize();
@@ -87,7 +87,7 @@ abstract class Weapp{
     {
         /*---------*/
         $is_eyou_authortoken = session('web_is_authortoken');
-        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 1;
+        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
         $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
         /*--end*/
     }
@@ -101,10 +101,10 @@ abstract class Weapp{
      * @param array  $config     模板参数
      * @return mixed
      */
-    final protected function display($template, $vars = [], $replace = [], $config = [])
+    final protected function display($template = '', $vars = [], $replace = [], $config = [])
     {
-        if($template == '') {
-            $template = WEAPP_ACTION_NAME;
+        if(empty($template)) {
+            die('没有指定模板文件！');
         }
         echo $this->fetch($template, $vars, $replace, $config);
     }
@@ -134,7 +134,7 @@ abstract class Weapp{
         $view_path = config('template.view_path');
 
         if (empty($template)) {
-            $template = WEAPP_ACTION_NAME;
+            $template = $this->weapp_action_name;
         }
         if('' == pathinfo($template, PATHINFO_EXTENSION)){
             $template = str_replace('\\', '/', $template);
@@ -142,32 +142,22 @@ abstract class Weapp{
             if (1 == count($arr)) {
                 $template = $view_path.$arr[0];
             } else if (2 == count($arr)) {
-                $template = $view_path.$arr[1];
+                $template = $view_path.$arr[0].DS.$arr[1];
             } else if (3 == count($arr)) {
-                $view_path = str_replace('/'.WEAPP_MODULE_NAME.'/template/', '/'.$arr[0].'/template/', $view_path);
-                $template = $view_path.$arr[2];
+                $view_path = str_replace('/'.$this->weapp_module_name.'/template/', '/'.$arr[0].'/template/', $view_path);
+                $template = $view_path.$arr[1].DS.$arr[2];
             } else {
                 $template = $view_path.$arr[count($arr) - 1];
             }
             $template = $template.'.'.config('template.view_suffix');
         }
         if(!is_file($template)){
-            throw new \Exception("模板不存在:$template");
+            die("模板不存在:$template");
         }
         // $this->view->engine(config('template'));
         $replace = array_merge(config('view_replace_str'), $replace);
         $config = array_merge(config('template'), $config);
         return $this->view->fetch($template, $vars, $replace, $config, $renderContent);
-    }
-
-    /**
-     * 获取插件类名
-     * @return string
-     * @throws Exception
-     */
-    final public function getName(){
-        $class = get_class($this); // 返回对象的类名
-        return substr($class,strrpos($class, '\\')+1);
     }
 
     /**
@@ -180,7 +170,8 @@ abstract class Weapp{
         $config = include $this->config_file;
         foreach ($config_check_keys as $value) {
             if(!array_key_exists($value, $config)) {
-                throw new \Exception("插件配置文件config.php不符合官方规范，缺少{$value}数组元素！");
+                die("插件配置文件config.php不符合官方规范，缺少{$value}数组元素！");
+                // throw new \Exception("插件配置文件config.php不符合官方规范，缺少{$value}数组元素！");
             }
         }
         return true;
@@ -193,20 +184,19 @@ abstract class Weapp{
         static $_weapp = array();
         if(empty($code)){
             $config = $this->getConfig();
-            $code = !empty($config['code']) ? $config['code'] : $this->getName();
+            $code = !empty($config['code']) ? $config['code'] : $this->weapp_module_name;
         }
         if(isset($_weapp[$code])){
             return $_weapp[$code];
         }
-        $row =   array();
-        $map['code']    =   $code;
-        $row  =   M('Weapp')->where($map)->find();
-        if($row){
-            $row['config']   =   json_decode($row['config'], true);
+        $values =   array();
+        $config  =   M('Weapp')->where('code',$code)->getField('config');
+        if(!empty($config)){
+            $values   =   json_decode($config, true);
         }
-        $_weapp[$code]     =   $row;
+        $_weapp[$code]     =   $values;
         
-        return $row;
+        return $values;
     }
 
     /**
@@ -238,12 +228,6 @@ abstract class Weapp{
         $this->view->engine(['view_path' => $view_path]);
         echo $this->fetch($template_name, $params);
     }
-
-    //必须实现安装
-    // abstract public function install();
-
-    //必须卸载插件方法
-    // abstract public function uninstall();
 
     /**
      * 插件使用说明

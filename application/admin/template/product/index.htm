@@ -13,6 +13,7 @@
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:U('Product/index')}" method="get" onsubmit="layer_loading('正在处理');">
+                {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">  
                         <select name="flag" class="select" style="margin:0px 5px;">
@@ -96,7 +97,7 @@
                                     {notempty name="vo.litpic"}
                                         <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
                                     {/notempty}
-                                    {eq name="'Product@edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('Product/edit',array('id'=>$vo['aid']))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
@@ -109,9 +110,9 @@
                             <td class="">
                                 <div class="tc w50">
                                     {if condition="$vo['is_recom'] eq 1"}
-                                        <span class="yes" {eq name="'Product@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
+                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
                                     {else /}
-                                        <span class="no" {eq name="'Product@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
                                     {/if}
                                 </div>
                             </td>
@@ -128,17 +129,17 @@
                             <td align="center" class="">
                                 <div class="w180 tc">
                                     <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
-                                    {eq name="'Product@edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('Product/edit',array('id'=>$vo['aid']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {eq name="'Product@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Product/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
                             </td>
                             <td class="sort">
                                 <div class="w60 tc">
-                                    {eq name="'Product@edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <input style="text-align: left;" type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" onchange="changeTableVal('archives','aid','{$vo.aid}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
                                     {else /}
                                     {$vo.sort_order}
@@ -159,7 +160,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Product@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Product/del')}">
                         <div class="add" title="批量删除">
@@ -168,7 +169,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Product@move'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@move'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="func_move(this, 'ids');" data-url="{:U('Product/move', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="批量移动">
@@ -177,7 +178,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Product@add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Product/add', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="新增产品">

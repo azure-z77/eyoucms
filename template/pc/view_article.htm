@@ -70,7 +70,7 @@
          <span> <i class="icon wb-eye m-r-5" aria-hidden="true"></i> {eyou:arcclick /} </span> 
         </div> 
        </section> 
-       <section class="met-editor clearfix"> 
+       <section class="met-editor clearfix" id="content"> 
         {$eyou.field.content}
        </section> 
        <div class="met-page met-shownews-footer border-top1"> 
@@ -92,9 +92,9 @@
      <dv class="col-md-3"> 
       <div class="row"> 
        <div class="met-bar"> 
-        <form class="sidebar-search" method="get" action="{eyou:searchurl /}">
-         <input type="hidden" name="channel" value="" />
-         <input type="hidden" name="typeid" value="" />
+        {eyou:searchform type='default'}
+        <form class="sidebar-search" method="get" action="{$field.action}">
+          {$field.hidden}
          <div class="form-group"> 
           <div class="input-search"> 
            <button type="submit" class="input-search-btn"> <i class="icon wb-search" aria-hidden="true"></i> </button> 
@@ -102,6 +102,7 @@
           </div> 
          </div> 
         </form> 
+        {/eyou:searchform}
         <div class="sidebar-news-list recommend"> 
          <h3 class=" font-weight-300 m-0">为您推荐</h3> 
          <ul class="list-icons list-group-bordered m-t-10 m-b-0"> 
@@ -123,5 +124,14 @@
   {eyou:include file="footer.htm" /}
   <!--footer-e-->
   {eyou:ui open='off' /}
+  <script src="__PUBLIC__/plugins/Ueditor/ueditor.parse.js"></script>
+  <script>
+    $(function () {
+      var cbg = $("#content p[data-background]:hidden");
+      if(cbg.length>0) {
+        $("#content").attr("style", cbg.attr("data-background"));
+      }
+    })
+  </script>
  </body>
 </html>

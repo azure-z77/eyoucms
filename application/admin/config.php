@@ -12,7 +12,13 @@
  */
 
 $admin_config = array(
-
+    'ey_config' => [
+        'seo_pseudo'    => 1, // 默认纯动态URL模式，兼容不支持pathinfo环境
+        'seo_dynamic_format'    => 1, // 1=兼容模式的URL，2=伪动态
+        'seo_rewrite_format'    => config('ey_config.seo_rewrite_format'),
+        'system_sql_mode'   => config('ey_config.system_sql_mode'),
+        'seo_inlet' => config('ey_config.seo_inlet'), // 0=保留入口文件，1=隐藏入口文件
+    ],
     //分页配置
     'paginate'      => array(
         'list_rows' => 15,

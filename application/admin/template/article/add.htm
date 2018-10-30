@@ -5,11 +5,11 @@
 {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
 {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
 
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow: auto;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="min-width:auto;">
     <div class="fixed-bar">
         <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
             <div class="subject">
@@ -205,6 +205,7 @@
         <!-- 其他参数 -->
         <div class="ncap-form-default">
             <div class="bot">
+                <input type="hidden" name="gourl" value="{$gourl}">
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div> 

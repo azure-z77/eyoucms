@@ -1,4 +1,15 @@
 <?php
+/**
+ * 易优CMS
+ * ============================================================================
+ * 版权所有 2016-2028 海南赞赞网络科技有限公司，并保留所有权利。
+ * 网站地址: http://www.eyoucms.com
+ * ----------------------------------------------------------------------------
+ * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
+ * ============================================================================
+ * Author: 小虎哥 <1105415366@qq.com>
+ * Date: 2018-4-3
+ */
 
 $icon_arr = array(
     'article' => 'fa fa-file-text',
@@ -20,16 +31,16 @@ $channel_list = model('Channeltype')->getArctypeChannel('yes');
 foreach ($channel_list as $key => $val) {
     $default_words[] = array(
         'name'  => $val['ntitle'],
-        'act'  => 'index',
-        'op'  => $val['ctl_name'],
+        'action'  => 'index',
+        'controller'  => $val['ctl_name'],
         'url'  => $val['typelink'],
         'icon'  => $icon_arr[$val['nid']],
     );
     if (!in_array($val['nid'], array('single','guestbook','feedback'))) {
         $default_addcontent[] = array(
             'name'  => $val['ntitle'],
-            'act'  => 'add',
-            'op'  => $val['ctl_name'],
+            'action'  => 'add',
+            'controller'  => $val['ctl_name'],
             'url'  => $val['typelink'],
             'icon'  => $icon_arr[$val['nid']],
         );
@@ -58,64 +69,311 @@ if (!empty($uiset_pc_url) || !empty($uiset_mobile_url)) {
 /*--end*/
 
 /*可视编辑URL*/
-$uiset_index_url = '';
+$uiset_index_arr = array();
 if (!empty($uiset_pc_url) || !empty($uiset_mobile_url)) {
-    $uiset_index_url = url('Uiset/index', array(), true, SITE_URL);
+    $uiset_index_arr = array(
+        'controller' => 'Weapp',
+        'action' => 'index',
+        'url' => url('Uiset/index', array(), true, SITE_URL),
+    );
 }
 /*--end*/
 
 /*插件应用URl*/
-$weapp_index_url = '';
+$weapp_index_arr = array();
 // $weappDirList = glob(ROOT_PATH.'weapp/*');
 if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
-    $weapp_index_url = url('Weapp/index', array(), true, SITE_URL);
+    $weapp_index_arr = array(
+        'controller' => 'Weapp',
+        'action' => 'index',
+        'url' => '',
+    );
 }
 /*--end*/
 
 return  array(
-    'default'=>array('name'=>'','act'=>'','op'=>'','url'=>'', 'target'=>'workspace','child'=>array(
-        array('name' => '栏目管理','act'=>'index','op'=>'Arctype','url'=>'', 'target'=>'workspace','icon'=>'fa fa-sitemap',
-            'child' => array()
+    '1000'=>array(
+        'id'=>1000,
+        'parent_id'=>0,
+        'name'=>'',
+        'action'=>'',
+        'controller'=>'',
+        'url'=>'',
+        'target'=>'workspace',
+        'grade'=>0,
+        'is_menu'=>1,
+        'is_modules'=>1,
+        'child'=>array(
+            '1001' => array(
+                'id'=>1001,
+                'parent_id'=>1000,
+                'name' => '栏目管理',
+                'action'=>'index',
+                'controller'=>'Arctype',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-sitemap',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(),
+            ),
+            '1002' => array(
+                'id'=>1002,
+                'parent_id'=>1000,
+                'name' => '内容管理',
+                'action'=>'index',
+                'controller'=>'Archives',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-list',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(),
+            ),
+            '1003' => array(
+                'id'=>1003,
+                'parent_id'=>1000,
+                'name' => '广告管理',
+                'action'=>'index',
+                'controller'=>'Other',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-image',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(),
+            ),
         ),
-        array('name' => '内容管理','act'=>'index','op'=>'Archives','url'=>'', 'target'=>'workspace','icon'=>'fa fa-list',
-            'child' => array()
-        ),
-        array('name' => '广告管理','act'=>'index','op'=>'Ad','url'=>'', 'target'=>'workspace','icon'=>'fa fa-image',
-            'child' => array()
-        ),
-    )),
+    ),
         
-    'set'=>array('name'=>'设置','act'=>'','op'=>'','url'=>'', 'target'=>'workspace','child'=>array(
-        array('name' => '基本信息','act'=>'index','op'=>'System','url'=>U('System/index', array('inc_type'=>'web')), 'target'=>'workspace','icon'=>'fa fa-cog',
-            'child' => array()
-        ),
-        array('name' => '可视编辑','act'=>'','op'=>'','url'=>$uiset_index_url, 'target'=>'workspace','icon'=>'fa fa-tachometer',
-            'child'=>array(
-                array('name' => '电脑版','act'=>'','op'=>'','url'=>$uiset_pc_url, 'target'=>'_blank','icon'=>'fa fa-desktop'
+    '2000'=>array(
+        'id'=>2000,
+        'parent_id'=>0,
+        'name'=>'设置',
+        'action'=>'',
+        'controller'=>'',
+        'url'=>'', 
+        'target'=>'workspace',
+        'grade'=>0,
+        'is_menu'=>1,
+        'is_modules'=>1,
+        'child'=>array(
+            '2001' => array(
+                'id'=>2001,
+                'parent_id'=>2000,
+                'name' => '基本信息',
+                'action'=>'index',
+                'controller'=>'System',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-cog',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(),
+            ),
+            '2002' => array(
+                'id'=>2002,
+                'parent_id'=>2000,
+                'name' => '可视编辑',
+                'action'=>isset($uiset_index_arr['action']) ? $uiset_index_arr['action'] : '',
+                'controller'=>isset($uiset_index_arr['controller']) ? $uiset_index_arr['controller'] : '',
+                'url'=>isset($uiset_index_arr['url']) ? $uiset_index_arr['url'] : '',
+                'target'=>'workspace',
+                'icon'=>'fa fa-tachometer',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child'=>array(
+                    '2002001' => array(
+                        'id'=>2002001,
+                        'parent_id'=>2002,
+                        'name' => '电脑版',
+                        'action'=>'',
+                        'controller'=>'',
+                        'url'=>$uiset_pc_url, 
+                        'target'=>'_blank',
+                        'icon'=>'fa fa-desktop',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2002002' => array(
+                        'id'=>2002002,
+                        'parent_id'=>2002,
+                        'name' => '手机版',
+                        'action'=>'',
+                        'controller'=>'',
+                        'url'=>$uiset_mobile_url, 
+                        'target'=>'_blank',
+                        'icon'=>'fa fa-mobile',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2002003' => array(
+                        'id'=>2002003,
+                        'parent_id'=>2002,
+                        'name' => '数据清理',
+                        'action'=>'ui_index',
+                        'controller'=>'Uiset',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
                 ),
-                array('name' => '手机版','act'=>'','op'=>'','url'=>$uiset_mobile_url, 'target'=>'_blank','icon'=>'fa fa-mobile'
+            ),
+            '2003' => array(
+                'id'=>2003,
+                'parent_id'=>2000,
+                'name' => '营销设置',
+                'action'=>'index',
+                'controller'=>'Other',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-paper-plane',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child'=>array(
+                    '2003001' => array(
+                        'id'=>2003001,
+                        'parent_id'=>2003,
+                        'name' => 'SEO优化', 
+                        'action'=>'index', 
+                        'controller'=>'Seo',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-newspaper-o',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2003002' => array(
+                        'id'=>2003002,
+                        'parent_id'=>2003,
+                        'name' => '友情链接', 
+                        'action'=>'index', 
+                        'controller'=>'Links',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-link',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
                 ),
-                array('name' => '数据清理','act'=>'','op'=>'','url'=>$uiset_data_url, 'target'=>'workspace','icon'=>'fa fa-undo'
+            ),
+            '2004' => array(
+                'id'=>2004,
+                'parent_id'=>2000,
+                'name' => '高级选项',
+                'action'=>'',
+                'controller'=>'Senior',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-code',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(
+                    '2004001' => array(
+                        'id'=>2004001,
+                        'parent_id'=>2004,
+                        'name' => '管理员', 
+                        'action'=>'index', 
+                        'controller'=>'Admin',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-user',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004002' => array(
+                        'id'=>2004002,
+                        'parent_id'=>2004,
+                        'name' => '备份还原', 
+                        'action'=>'index', 
+                        'controller'=>'Tools',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-database',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004003' => array(
+                        'id'=>2004003,
+                        'parent_id'=>2004,
+                        'name' => '模板管理', 
+                        'action'=>'index', 
+                        'controller'=>'Filemanager',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-folder-open',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004004' => array(
+                        'id'=>2004004,
+                        'parent_id'=>2004,
+                        'name' => '字段管理', 
+                        'action'=>'channel_index', 
+                        'controller'=>'Field',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-cogs',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004005' => array(
+                        'id'=>2004005,
+                        'parent_id'=>2004,
+                        'name' => '清除缓存',
+                        'action'=>'clearCache', 
+                        'controller'=>'System',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
                 ),
-            )
+            ),
+            '2005' => array(
+                'id'=>2005,
+                'parent_id'=>2000,
+                'name' => '插件应用',
+                'action'=>isset($weapp_index_arr['action']) ? $weapp_index_arr['action'] : '',
+                'controller'=>isset($weapp_index_arr['controller']) ? $weapp_index_arr['controller'] : '',
+                'url'=>isset($weapp_index_arr['url']) ? $weapp_index_arr['url'] : '',
+                'target'=>'workspace',
+                'icon'=>'fa fa-recycle',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>0,
+                'child'=>array(),
+            ),
         ),
-        array('name' => '营销设置','act'=>'index','op'=>'Ad','url'=>'', 'target'=>'workspace','icon'=>'fa fa-paper-plane',
-            'child'=>array(
-                array('name' => 'SEO优化', 'act'=>'index', 'op'=>'Seo','url'=>U('Seo/index', array('inc_type'=>'seo')), 'target'=>'workspace','icon'=>'fa fa-newspaper-o'),
-                array('name' => '友情链接', 'act'=>'index', 'op'=>'Links','url'=>'', 'target'=>'workspace','icon'=>'fa fa-link'),
-            )
-        ),
-        array('name' => '高级选项','act'=>'','op'=>'Senior','url'=>'', 'target'=>'workspace','icon'=>'fa fa-code',
-            'child' => array(
-                array('name' => '管理员', 'act'=>'index', 'op'=>'Admin','url'=>'', 'target'=>'workspace','icon'=>'fa fa-user'),
-                array('name' => '备份还原', 'act'=>'index', 'op'=>'Tools','url'=>'', 'target'=>'workspace','icon'=>'fa fa-database'),
-                array('name' => '模板管理', 'act'=>'index', 'op'=>'Filemanager','url'=>'', 'target'=>'workspace','icon'=>'fa fa-folder-open'),
-                array('name' => '字段管理', 'act'=>'channel_index', 'op'=>'Field','url'=>'', 'target'=>'workspace','icon'=>'fa fa-cogs'),
-                array('name' => '清除缓存','act'=>'clearCache', 'op'=>'System','url'=>'', 'target'=>'workspace','icon'=>'fa fa-undo'),
-            )
-        ),
-        array('name' => '插件应用','act'=>'','op'=>'','url'=>$weapp_index_url, 'target'=>'workspace','icon'=>'fa fa-recycle',
-            'child'=>array()
-        ),
-    )),
+    ),
 );

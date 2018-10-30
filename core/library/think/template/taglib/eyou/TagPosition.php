@@ -41,19 +41,22 @@ class TagPosition extends Base
      * 获取面包屑位置
      * @author wengxianhu by 2018-4-20
      */
-    public function getPosition($typeid, $symbol = '&gt;', $style = 'crumb')
+    public function getPosition($typeid, $symbol = '', $style = 'crumb')
     {
         $typeid = !empty($typeid) ? $typeid : $this->tid;
 
-        $symbol = htmlspecialchars_decode($symbol);
-        $str = '<a href="'.tpCache('global.core_cmsurl').'/" class="crumb">首页</a>';
+        $basicConfig = tpCache('basic');
+        $basic_indexname = !empty($basicConfig['basic_indexname']) ? $basicConfig['basic_indexname'] : '首页';
+        $symbol = !empty($symbol) ? $symbol : $basicConfig['list_symbol'];
+        // $symbol = htmlspecialchars_decode($symbol);
+        $str = "<a href='".tpCache('global.core_cmsurl')."/' class='{$style}'>{$basic_indexname}</a>";
         $result = model('Arctype')->getAllPid($typeid);
         $i = 1;
         foreach ($result as $key => $val) {
             if ($i < count($result)) {
-                $str .= " {$symbol} ".'<a href="'.$val['typeurl'].'" class="crumb">'.$val['typename'].'</a>';
+                $str .= " {$symbol} <a href='{$val['typeurl']}' class='{$style}'>{$val['typename']}</a>";
             } else {
-                $str .= " {$symbol} ".$val['typename'];
+                $str .= " {$symbol} {$val['typename']}";
             }
             ++$i;
         }

@@ -7,7 +7,9 @@
 <meta http-equiv="Content-Language" content="zh-cn"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 <title><?php echo $Title; ?> - <?php echo $Powered; ?></title>
-<link rel="stylesheet" href="./css/install.css?v=9.0" />
+<link rel="stylesheet" href="./css/install.css?v=v1.1.8" />
+<script src="./js/jquery.js?v=v1.1.8"></script> 
+<script src="./../public/plugins/layer-v3.1.0/layer.js?v=v1.1.8"></script> 
 </head>
 <body>
 <div class="wrap">
@@ -133,7 +135,43 @@
           }
       });
   }
-  
+   
+  function beforeSubmit()
+  {
+      var flag = false;
+      var dbHost = $('#dbhost').val();
+      var dbUser = $('#dbuser').val();
+      var dbPwd = $('#dbpw').val();
+      var dbName = $('#dbname').val();
+      var dbport = $('#dbport').val();
+      data={'dbHost':dbHost,'dbUser':dbUser,'dbPwd':dbPwd,'dbName':dbName,'dbport':dbport};
+      var url =  "<?php echo $_SERVER['PHP_SELF']; ?>?step=3&check=1";
+      $.ajax({
+          type: "POST",
+          url: url,
+          async: false,
+          data: data,
+          dataType:'JSON',
+          beforeSend:function(){
+          },
+          success: function(res){
+              if (-1 == res.code) {
+                  layer.closeAll();
+                  layer.alert(res.msg, {icon: 5});
+              } else {
+                  flag = true;
+              }
+          },
+          complete:function(){
+          },
+          error:function(){
+              layer.closeAll();
+              layer.alert('网络请求失败，请尝试F5刷新！', {icon: 5});
+          }
+      });
+
+      return flag;
+  }
 
   function checkForm()
   {
@@ -155,8 +193,27 @@
       {
         layer.alert('两次密码不一致', {icon: 5});
         return false;
-      }       
-      TestDbPwd(1);   
+      }
+      layer_loading('正在安装');
+      if (!beforeSubmit()) {
+        return false;
+      }
+      TestDbPwd(1);
+  }
+
+  /**
+   * 封装的加载层
+   */
+  function layer_loading(msg){
+      var loading = layer.msg(
+      msg+'...<img src="./images/loading-0.gif"/>&nbsp;请勿刷新页面', 
+      {
+          icon: 1,
+          time: 3600000, //1小时后后自动关闭
+          shade: [0.2] //0.1透明度的白色背景
+      });
+
+      return loading;
   }
 </script> 
 </div>

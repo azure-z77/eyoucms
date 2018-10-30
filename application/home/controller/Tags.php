@@ -84,6 +84,6 @@ class Tags extends Base
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
 
-        return $this->fetch('./template/'.$this->theme_style.'/lists_tags.'.$this->view_suffix);
+        return $this->fetch('template/'.$this->theme_style.'/lists_tags.'.$this->view_suffix);
     }
 }

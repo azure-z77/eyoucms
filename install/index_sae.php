@@ -38,7 +38,7 @@ $steps = array(
     '4' => '安装详细过程',
     '5' => '安装完成',
 );
-$step = isset($_GET['step']) ? $_GET['step'] : 1;
+$step = isset($_GET['step']) ? intval($_GET['step']) : 1;
 
 //地址
 $scriptName = !empty($_SERVER["REQUEST_URI"]) ? $scriptName = $_SERVER["REQUEST_URI"] : $scriptName = $_SERVER["PHP_SELF"];
@@ -104,8 +104,8 @@ switch ($step) {
     case '3':
 
         if ($_GET['testdbpwd']) {
-            $dbHost = $_POST['dbHost'] . ':' . $_POST['dbport'];
-            $conn = @mysql_connect($dbHost, $_POST['dbUser'], $_POST['dbPwd']);
+            $dbHost = addslashes($_POST['dbHost']) . ':' . addslashes($_POST['dbport']);
+            $conn = @mysql_connect($dbHost, addslashes($_POST['dbUser']), $_POST['dbPwd']);
             if ($conn) {
                 die("1");
             } else {
@@ -122,11 +122,11 @@ switch ($step) {
             $arr = array();
 			
 			$dbName = SAE_MYSQL_DB;
-            $dbPrefix = empty($_POST['dbprefix']) ? 'ey_' : trim($_POST['dbprefix']);
+            $dbPrefix = empty($_POST['dbprefix']) ? 'ey_' : trim(addslashes($_POST['dbprefix']));
 
-            $username = trim($_POST['manager']);
+            $username = trim(addslashes($_POST['manager']));
             $password = trim($_POST['manager_pwd']);
-            $email	  = trim($_POST['manager_email']);
+            $email	  = trim(addslashes($_POST['manager_email']));
 
             if (!$conn) {
                 $arr['msg'] = "连接数据库失败!";
@@ -193,10 +193,10 @@ switch ($step) {
 
             if ($i == 999999) exit;
             /*
-            $site_name = trim($_POST['sitename']);
-            $site_url = trim($_POST['siteurl']);
-            $site_keywords = trim($_POST['sitekeywords']);
-            $site_desc = trim($_POST['siteinfo']);
+            $site_name = trim(addslashes($_POST['sitename']));
+            $site_url = trim(addslashes($_POST['siteurl']));
+            $site_keywords = trim(addslashes($_POST['sitekeywords']));
+            $site_desc = trim(addslashes($_POST['siteinfo']));
             $sql = "INSERT INTO `{$dbPrefix}config` (name,value,inc_type) VALUES ('site_name','$site_name','shop_info'),('site_url','$site_url','shop_info'),('site_keywords','$site_keywords','shop_info'),('site_desc','$site_desc','shop_info')";
             mysql_query($sql);
             */

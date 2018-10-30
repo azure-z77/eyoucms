@@ -34,18 +34,18 @@ class EmailLogic
     public function replaceContent($scene, $params)
     {
         $emailTemp = M('email_template')->where("send_scene", $scene)->find();
-        $content = !empty($params['content']) ? $params['content'] : false;
-        $username = !empty($params['username']) ? $params['username'] : false;
+        if (is_array($params)) {
+            $content = !empty($params['content']) ? $params['content'] : false;
+            $username = !empty($params['username']) ? $params['username'] : false;
+        } else {
+            $content = $params;
+        }
 
         $emailParams = array(
             1 => "{\"content\":\"$content\"}", //1. 通用
-            2 => "{\"content\":\"$content\"}", //2. 用户注册
-            3 => "{\"content\":\"$content\"}", //3. 用户找回密码
-            4 => "{\"content\":\"$content\"}", //4. 发表评论
-            5 => "{\"content\":\"$content\"}", //5. 回复评论
-            6 => "{\"content\":\"$content\"}", //6. 申请入驻小程序
-            7 => "{\"content\":\"$content\"}", //7. 小程序审核通知
-            // 8 => "{\"username\":\"$username\",\"content\":\"$content\"}", //7. 修改邮箱号码
+            2 => "{\"username\":\"$username\",\"content\":\"$content\"}", //2. 小程序审核通知
+            3 => "{\"content\":\"$content\"}", //3. 小程序入驻通知
+            4 => "{\"content\":\"$content\"}", //4. 小程序取消授权通知
         );
 
         $emailParam = $emailParams[$scene];

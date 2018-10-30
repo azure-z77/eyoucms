@@ -49,7 +49,7 @@ class Driver
     static public function reset_copy_right()
     {
         if (self::$moduleName == 'home' && self::$controllerName == 'Index' && self::$actionName == 'index') {
-            $tmpArray = array('I1','9','D','TV','ND','T1','BZ','U','k','l','H','S','F','R+');
+            $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
             $cname = array_join_string($tmpArray);
             $cname = msubstr($cname, 1, strlen($cname) - 2);
             tpCache(self::$incType, array($cname=>''));
@@ -67,7 +67,7 @@ class Driver
         if ($name == $tmpName) {
 
             if (self::$moduleName == 'home' && self::$controllerName == 'Index' && self::$actionName == 'index') {
-                $tmpArray = array('I1','9','D','TV','ND','T1','BZ','U','k','l','H','S','F','R+');
+                $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
                 $cname = array_join_string($tmpArray);
                 $cname = msubstr($cname, 1, strlen($cname) - 2);
                 $is_cr = tpCache(self::$incType.'.'.$cname);
@@ -79,8 +79,7 @@ class Driver
             $tmpArray = array('IX','d','lY','l9','pc','1','9','hd','XR','ob3','J0','b2','tl','b','n','4=');
             $is_author_key = array_join_string($tmpArray);
             $is_author_key = msubstr($is_author_key, 1, strlen($is_author_key) - 2);
-            $is_author = !empty($globalTpCache[$is_author_key]) ? $globalTpCache[$is_author_key] : 1;
-            if (-1 == $is_author) {
+            if (!empty($globalTpCache[$is_author_key]) || !isset($globalTpCache[$is_author_key])) {
                 $tmp_array = array('I','D','x','h','I','G','h','y','Z','W','Y','9','I','m','h','0','d','H','A','6','L','y','9','3','d','3','c','u','Z','X','l','v','d','W','N','t','c','y','5','j','b','2','0','i','I','H','R','h','c','m','d','l','d','D','0','i','X','2','J','s','Y','W','5','r','I','j','5','Q','b','3','d','l','c','m','V','k','I','G','J','5','I','E','V','5','b','3','V','D','b','X','M','8','L','2','E','+');
                 $value .= array_join_string($tmp_array);
             }
@@ -92,7 +91,7 @@ class Driver
     static public function check_copy_right()
     {
         if (self::$moduleName != 'admin') {
-            $tmpArray = array('I1','9','D','TV','ND','T1','BZ','U','k','l','H','S','F','R+');
+            $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
             $cname = array_join_string($tmpArray);
             $cname = msubstr($cname, 1, strlen($cname) - 2);
             $val = tpCache(self::$incType.'.'.$cname);
@@ -112,11 +111,12 @@ class Driver
      */
     static public function check_author_ization()
     {
-        $isset_author = session('isset_author');
-        if(!empty($isset_author)) {
+        $tmpbase64 = 'aXNzZXRfYXV0aG9y';
+        $isset_session = session(base64_decode($tmpbase64));
+        if(!empty($isset_session)) {
             return false;
         }
-        session('isset_author', 1);
+        session(base64_decode($tmpbase64), 1);
 
         $tokenKey = array_join_string(array('f','m','d','s','b','2','J','h','b','C','5','3','Z','W','J','f','Y','X','V','0','a','G','9','y','d','G','9','r','Z','W','5','+'));
         $tokenKey = msubstr($tokenKey, 1, strlen($tokenKey) - 2);
@@ -142,12 +142,12 @@ class Driver
 
         $iseyKey = array_join_string(array('I','X','dl','Yl9','pc','1','9','hd','XRo','b3','J0b','2t','lb','n4','='));
         $iseyKey = msubstr($iseyKey, 1, strlen($iseyKey) - 2);
-        session($iseyKey, 1); // 是
-        tpCache('web', array($iseyKey=>1)); // 是
+        session($iseyKey, 0); // 是
+        tpCache('web', array($iseyKey=>0)); // 是
         if (is_array($params) && $params['errcode'] == 0) {
             if (empty($params['info']['code']) || $codeStr != $params['info']['code']) {
                 tpCache('web', array($iseyKey=>-1));
-                session($iseyKey, -1); // 诱饵，只在Base用
+                session($iseyKey, -1); // 只在Base用
                 return true;
             }
         }
@@ -163,7 +163,7 @@ class Driver
             {
 
             } else {
-                session('isset_author', null);
+                session(base64_decode($tmpbase64), null);
                 die($params['errmsg']);
             }
         }

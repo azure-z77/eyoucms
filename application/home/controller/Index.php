@@ -21,24 +21,21 @@ class Index extends Base
 
     public function index()
     {
-        if (is_https()) {
+        if (config('is_https')) {
             $filename = 'indexs.html';
         } else {
             $filename = 'index.html';
         }
-        if (file_exists(__ROOT__.$filename)) {
-            @unlink(__ROOT__.$filename);
+
+        if (file_exists($filename)) {
+            @unlink($filename);
         }
 
         //自动生成HTML版
-        if(isset($_GET['clear']) || !file_exists(ROOT_PATH.$filename))
+        if(isset($_GET['clear']) || !file_exists($filename))
         {
             /*获取当前页面URL*/
-            if (80 == $_SERVER["SERVER_PORT"]) {
-                $result['pageurl'] = SITE_URL;
-            } else {
-                $result['pageurl'] = SITE_URL.':'.$_SERVER["SERVER_PORT"];
-            }
+            $result['pageurl'] = request()->domain();
             /*--end*/
             $eyou = array(
                 'field' => $result,
@@ -46,7 +43,7 @@ class Index extends Base
             $this->eyou = array_merge($this->eyou, $eyou);
             $this->assign('eyou', $this->eyou);
             $html = $this->fetch(':index');
-            // file_put_contents(ROOT_PATH.$filename, $html);
+            // @file_put_contents($filename, $html);
             return $html;
         }
         else

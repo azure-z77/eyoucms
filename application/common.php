@@ -13,105 +13,16 @@
 
 // 应用公共文件
 
-use think\Db;
-
-/**
- * 前台检验登陆
- * @param
- * @return bool
- */
-function is_home_login(){
-    if(cookie('user_id') && cookie('user_id') > 0){
-        return cookie('user_id');
-    }else{
-        return false;
-    }
-}
-
-/**
- * ajax请求时，检测到未登录时返回json
- * 参数 is_jsonp 为true，表示跨域ajax请求的返回值
- */
-function ajax_notLogin_return($res = array(), $is_jsonp = false){
-    if (!is_home_login()) {
-        if ($res) {
-            respose($res, $is_jsonp);
-        } else {
-            $login_url = U('index/User/login', array(), 'html', SITE_URL);
-            respose(array('status'=>-100, 'msg'=>'请先登录', 'login_url'=>$login_url), $is_jsonp);
-        }
-    }
-}
-
-/**
- * 获取用户信息
- * @param $user_id_or_name  用户id 邮箱 手机 第三方id
- * @param int $type  类型 0 user_id查找 1 邮箱查找 2 手机查找 3 第三方唯一标识查找
- * @param string $oauth  第三方来源
- * @return mixed
- */
-function get_user_info($user_id_or_name,$type = 0,$oauth=''){
-    $map = array();
-    switch ($type) {
-        case 0:
-            $map['user_id'] = $user_id_or_name;
-            break;
-
-        case 1:
-            $map['email'] = $user_id_or_name;
-            break;
-            
-        case 2:
-            $map['mobile'] = $user_id_or_name;
-            break;
-            
-        case 3: // QQ登录
-            $map['openid'] = $user_id_or_name;
-            $map['oauth'] = $oauth;
-            break;
-            
-        case 4: // 微信登录
-            $map['unionid'] = $user_id_or_name;
-            $map['oauth'] = $oauth;
-            break;
-            
-        case 5:
-            $map['username'] = $user_id_or_name;
-            break;
-        
-        default:
-            # code...
-            break;
-    }
-
-    switch ($type) {
-        case 3:
-        case 4:
-            $user_oauth = M('user_oauth')->where($map)->find();
-            $user = array();
-            if (!empty($user_oauth)) {
-                $user = M('user')->find($user_oauth['user_id']);
-            }
-            break;
-        
-        default:
-            $user = M('user')->where($map)->find();
-            break;
-    }
-    
-    return $user;
-}
-
 /**
  * 邮件发送
  * @param $to    接收人
  * @param string $subject   邮件标题
- * @param string $content   邮件内容(html模板渲染后的内容)
+ * @param string $data   邮件内容(html模板渲染后的内容)
  * @param string $scene   使用场景
  * @throws Exception
  * @throws phpmailerException
  */
-function send_email($to,$subject='',$content='',$scene=0){
+function send_email($to,$subject='',$data=array(),$scene=1){
     vendor('phpmailer.PHPMailerAutoload'); ////require_once vendor/phpmailer/PHPMailerAutoload.php';
     //判断openssl是否开启
     $openssl_funcs = get_extension_funcs('openssl');
@@ -155,17 +66,11 @@ function send_email($to,$subject='',$content='',$scene=0){
     }
 
     $mail->isHTML(true);// send as HTML
-
-    //邮件场景模板
-    if ($scene > 0) {
-        $emailLogic = new \app\common\logic\EmailLogic;
-        $email_data = $emailLogic->replaceContent($scene, array('content'=>$content));
-        $subject = $email_data['title'];
-        $content = $email_data['msg'];
-    }
     //标题
     $mail->Subject = $subject;
-    //内容
+    //HTML内容转换
+    $emailLogic = new \app\common\logic\EmailLogic;
+    $content = $emailLogic->replaceContent($scene, $data);
     $mail->msgHTML($content);
     //Replace the plain text body with one created manually
     //$mail->AltBody = 'This is a plain-text message body';
@@ -177,75 +82,6 @@ function send_email($to,$subject='',$content='',$scene=0){
     } else {
         return array('status'=>1 , 'msg'=>'发送成功');
     }
-}
-
-/**
- * 检测是否能够发送短信
- * @param unknown $scene
- * @return multitype:number string
- */
-function checkEnableSendSms($scene)
-{
-    $scenes = config('SEND_SCENE');
-    $sceneItem = $scenes[$scene];
-    if (!$sceneItem) {
-        return array("status" => -1, "msg" => "场景参数'scene'错误!");
-    }
-    $key = $sceneItem[2];
-    $sceneName = $sceneItem[0];
-    $config = tpCache('sms');
-    $smsEnable = $config[$key];
-
-    if (!$smsEnable) {
-        return array("status" => -1, "msg" => "['$sceneName']发送短信被关闭'");
-    }
-    //判断是否添加"注册模板"
-    $size = M('sms_template')->where("send_scene", $scene)->count('tpl_id');
-    if (!$size) {
-        return array("status" => -1, "msg" => "请先添加['$sceneName']短信模板");
-    }
-
-    return array("status"=>1,"msg"=>"可以发送短信");
-}
-
-/**
- * 发送短信逻辑
- * @param unknown $scene
- */
-function sendSms($scene, $sender, $params,$unique_id=0)
-{
-    $smsLogic = new \app\common\logic\SmsLogic;
-    return $smsLogic->sendSms($scene, $sender, $params, $unique_id);
-}
-
-/**
- * 查询快递
- * @param $postcom  快递公司编码
- * @param $getNu  快递单号
- * @return array  物流跟踪信息数组
- */
-function queryExpress($postcom , $getNu) {
-    /*    $url = "http://wap.kuaidi100.com/wap_result.jsp?rand=".getTime()."&id={$postcom}&fromWeb=null&postid={$getNu}";
-        //$resp = httpRequest($url,'GET');
-        $resp = file_get_contents($url);
-        if (empty($resp)) {
-            return array('status'=>0, 'message'=>'物流公司网络异常，请稍后查询');
-        }
-        preg_match_all('/\\<p\\>&middot;(.*)\\<\\/p\\>/U', $resp, $arr);
-        if (!isset($arr[1])) {
-            return array( 'status'=>0, 'message'=>'查询失败，参数有误' );
-        }else{
-            foreach ($arr[1] as $key => $value) {
-                $a = array();
-                $a = explode('<br /> ', $value);
-                $data[$key]['time'] = $a[0];
-                $data[$key]['context'] = $a[1];
-            }
-            return array( 'status'=>1, 'message'=>'1','data'=> array_reverse($data));
-        }*/
-    $url = "https://m.kuaidi100.com/query?type=".$postcom."&postid=".$getNu."&id=1&valicode=&temp=0.49738534969422676";
-    $resp = httpRequest($url,"GET");
-    return json_decode($resp,true);
 }
 
 /**
@@ -268,9 +104,9 @@ function tpCache($config_key,$data = array()){
             //缓存文件不存在就读取数据库
             if ($param[0] == 'global') {
                 $param[0] = 'global';
-                $res = M('config')->select();
+                $res = M('config')->where('is_del',0)->select();
             } else {
-                $res = M('config')->where("inc_type",$param[0])->select();
+                $res = M('config')->where("inc_type",$param[0])->where('is_del',0)->select();
             }
             if($res){
                 foreach($res as $k=>$val){
@@ -288,7 +124,7 @@ function tpCache($config_key,$data = array()){
         }
     }else{
         //更新缓存
-        $result =  M('config')->where("inc_type", $param[0])->select();
+        $result =  M('config')->where("inc_type", $param[0])->where('is_del',0)->select();
         if($result){
             foreach($result as $val){
                 $temp[$val['name']] = $val['value'];
@@ -309,7 +145,7 @@ function tpCache($config_key,$data = array()){
                 M('config')->insertAll($add_data);
             }
             //更新后的数据库记录
-            $newRes = M('config')->where("inc_type", $param[0])->select();
+            $newRes = M('config')->where("inc_type", $param[0])->where('is_del',0)->select();
             foreach ($newRes as $rs){
                 $newData[$rs['name']] = $rs['value'];
             }
@@ -330,7 +166,7 @@ function tpCache($config_key,$data = array()){
         //     $global = array_merge($global, $newData);
         //     $result = F('global',$global,TEMP_PATH);
         // } else {
-            $res = M('config')->select();
+            $res = M('config')->where('is_del',0)->select();
             if($res){
                 $global = array();
                 foreach($res as $k=>$val){
@@ -399,20 +235,20 @@ function write_html_cache($html){
     $html_cache_status = config('HTML_CACHE_STATUS');
     $html_cache_arr = config('HTML_CACHE_ARR');
     if ($html_cache_status) {
+        $request = think\Request::instance();
 
-        /*URL模式是否启动页面缓存*/
+        /*URL模式是否启动页面缓存（排除admin后台、前台可视化装修）*/
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
-        $seo_pseudo = tpCache('global.seo_pseudo');
-        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : 1;
-        if (in_array($seo_pseudo, array(1,3)) && 'on' != $uiset) {
-            // 空
-        } else {
+        if ('on' == $uiset || 'admin' == $request->module()) {
+            return false;
+        }
+        $seo_pseudo = config('ey_config.seo_pseudo');
+        if (!in_array($seo_pseudo, array(1,3))) {
             return false;
         }
         /*--end*/
 
-        $request = think\Request::instance();
         $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
         $m_c_a_str = strtolower($m_c_a_str);
         //exit('write_html_cache写入缓存<br/>');
@@ -524,11 +360,10 @@ function read_html_cache(){
                 $path = dirname($path.$val['filename']).'/';
                 $options = array(
                     'path'  => $path,
-                    'expire'=> $val['cache'],
+                    'expire'=> intval($val['cache']),
                 );
-                $html_cache = html_cache($options);
-                $html = $html_cache->get($filename);
-                // $html = \think\Cache::get($filename);
+                $html = html_cache($filename, '', $options);
+                // $html = $html_cache->get($filename);
                 if($html)
                 {
                     echo $html;
@@ -540,160 +375,20 @@ function read_html_cache(){
 }
 
 /**
- * 清除静态页面缓存
- */
-function clear_html_cache($filename = ''){
-
-}
-
-/**
- * 链接前缀
- */
-function prefix_http($domain)
-{
-    $http = config('is_https') ? 'https://' : 'http://';
-    return $http.$domain;
-}
-
-/**
- * 获得全部省份列表
- */
-function get_province_list()
-{
-    $result = extra_cache('global_get_province_list');
-    if ($result == false) {
-        $result = M('region')->field('id, name')
-            ->where('level',1)
-            ->getAllWithIndex('id');
-        extra_cache('global_get_province_list', $result);
-    }
-
-    return $result;
-}
-
-/**
- * 获得全部城市列表
- */
-function get_city_list()
-{
-    $result = extra_cache('global_get_city_list');
-    if ($result == false) {
-        $result = M('region')->field('id, name')
-            ->where('level',2)
-            ->getAllWithIndex('id');
-        extra_cache('global_get_city_list', $result);
-    }
-
-    return $result;
-}
-
-/**
- * 获得全部地区列表
- */
-function get_area_list()
-{
-    $result = extra_cache('global_get_area_list');
-    if ($result == false) {
-        $result = M('region')->field('id, name')
-            ->where('level',3)
-            ->getAllWithIndex('id');
-        extra_cache('global_get_area_list', $result);
-    }
-
-    return $result;
-}
-
-/**
- * 根据地区ID获得省份名称
- */
-function get_province_name($id)
-{
-    $result = get_province_list();
-    return empty($result[$id]) ? '银河系' : $result[$id]['name'];
-}
-
-/**
- * 根据地区ID获得城市名称
- */
-function get_city_name($id)
-{
-    $result = get_city_list();
-    return empty($result[$id]) ? '火星' : $result[$id]['name'];
-}
-
-/**
- * 根据地区ID获得县区名称
- */
-function get_area_name($id)
-{
-    $result = get_area_list();
-    return empty($result[$id]) ? '部落' : $result[$id]['name'];
-}
-
-/**
- * 默认头像
- */
-function get_head_pic($pic_url = '')
-{
-    $default_pic = SITE_URL . '/public/static/common/images/bag-imgB.jpg';
-    return empty($pic_url) ? $default_pic : $pic_url;
-}
-
-/**
- * 默认无图封面
+ * 图片不存在，显示默认无图封面
  */
 function get_default_pic($pic_url = '')
 {
     if (!is_http_url($pic_url)) {
         $realpath = realpath(trim($pic_url, '/'));
         if ( is_file($realpath) && file_exists($realpath) ) {
-            $pic_url = SITE_URL . $pic_url;
+            $pic_url = request()->domain() . $pic_url;
         } else {
-            $pic_url = SITE_URL . '/public/static/common/images/not_adv.jpg';
+            $pic_url = request()->domain() . '/public/static/common/images/not_adv.jpg';
         }
     }
 
     return $pic_url;
-}
-
-/**
- * 关键字显眼
- */
-function show_keywords($keywords, $title)
-{
-    $str = str_replace($keywords, "<strong style='color:red;'>{$keywords}</strong>", $title);
-    return $str;
-}
-
-/**
- * 文章内容替换为内链
- * @param $content
- * @return mixed
- */
-function get_glo_keywords($content)
-{
-    /* 这里可以改为读取数据表，然后缓存起来 */
-    $keywords_list = array(
-        ['title'=>'易优CMS', 'url'=>'http://www.eyoucms.com'],
-        ['title'=>'易优', 'url'=>'http://www.eyoucms.com'],
-    );
-    if($keywords_list){
-        $readnum = 0;
-        foreach ($keywords_list as $key => $val) {
-            $title = $val['title'];
-            $len = strlen($title);
-            $str = '<a href="'.$val['url'].'" target="_blank">'.$title.'</a>';
-            $str_index = mb_strpos($content, $title);
-            $content = preg_replace('/(?!<[^>]*)'.$title.'(?![^<]*>)/', $str, $content, 1);
-            if(is_numeric($str_index)){
-                $readnum += 1;
-                //$content = substr_replace($content,$str,$str_index,$len);
-                //$content = $this->str_replace_limit($title,$str,$content,$this->limit);
-            }
-            if($readnum == 8) return $content; //匹配到8个关键词就退出
-        }
-    }
-    return $content;
 }
 
 /**
@@ -884,6 +579,17 @@ function get_product_sub_images($sub_img, $aid, $width, $height)
     }
 }
 
+if (!function_exists('get_controller_byct')) {
+/**
+ * 根据模型ID获取控制器的名称
+ * @return mixed
+ */
+    function get_controller_byct($current_channel)
+    {
+        $channeltype_info = model('Channeltype')->getInfo($current_channel);
+        return $channeltype_info['ctl_name'];
+    }
+}
 
 if (!function_exists('ui_read_bidden_inc')) {
 /**
@@ -910,7 +616,7 @@ if (!function_exists('ui_read_bidden_inc')) {
                 'theme_style'   => THEME_STYLE,
                 'page'   => $page,
             );
-            $result = M('ui_config')->where($map)->select();
+            $result = M('ui_config')->where($map)->cache(true,EYOUCMS_CACHE_TIME,"ui_config")->select();
             if ($result) {
                 $dataArr = array();
                 foreach ($result as $key => $val) {
@@ -1017,18 +723,6 @@ if (!function_exists('ui_write_bidden_inc')) {
     }
 }
 
-if (!function_exists('get_controller_byct')) {
-/**
- * 根据模型ID获取控制器的名称
- * @return mixed
- */
-    function get_controller_byct($current_channel)
-    {
-        $channeltype_info = model('Channeltype')->getInfo($current_channel, 'id,ctl_name');
-        return $channeltype_info['ctl_name'];
-    }
-}
-
 if (!function_exists('get_ui_inc_params')) {
 /**
  * 获取模板主题的美化配置参数
@@ -1045,43 +739,28 @@ if (!function_exists('get_ui_inc_params')) {
 }
 
 /**
- * 生成静态页面
- */
-function write_html_page($html, $htmlfile, $htmlpath){
-    $seo_pseudo = tpCache('global.seo_pseudo');
-    if ($seo_pseudo == 2) {
-        if (empty($htmlfile) || empty($htmlpath)) {
-            return '';
-        }
-        tp_mkdir($htmlpath);
-        $filename = "{$htmlpath}/{$htmlfile}.html";
-        file_put_contents($filename, $html);
-    }
-}
-
-// 设置前台URL模式
-function set_home_url_mode() {
-    $uiset = I('param.uiset/s', 'off');
-    $uiset = trim($uiset, '/');
-    $seo_pseudo = tpCache('seo.seo_pseudo');
-    if ($seo_pseudo == 1 || $uiset == 'on') {
-        config('url_common_param', true);
-        config('url_route_on', false);
-    } elseif ($seo_pseudo == 2 && $uiset != 'on') {
-        config('url_common_param', false);
-        config('url_route_on', true);
-    } elseif ($seo_pseudo == 3 && $uiset != 'on') {
-        config('url_common_param', false);
-        config('url_route_on', true);
-    }
-}
-
-/**
- * 允许发布文档的栏目
+ * 允许发布文档的栏目列表
  */
 function allow_release_arctype($selected = 0, $allow_release_channel = array(), $selectform = true)
 {
-    $cacheKey = $selected.json_encode($allow_release_channel).$selectform;
+    $where = [];
+
+    /*权限控制 by 小虎哥*/
+    $admin_info = session('admin_info');
+    if (-1 != $admin_info['role_id']) {
+        $auth_role_info = $admin_info['auth_role_info'];
+        if(! empty($auth_role_info)){
+            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                $where['c.admin_id'] = $admin_info['admin_id'];
+            }
+            if(! empty($auth_role_info['permission']['arctype'])){
+                $where['c.id'] = array('IN', $auth_role_info['permission']['arctype']);
+            }
+        }
+    }
+    /*--end*/
+
+    $cacheKey = $selected.json_encode($allow_release_channel).$selectform.json_encode($where);
     $select_html = cache($cacheKey);
     if (empty($select_html) || false == $selectform) {
         /*允许发布文档的模型*/
@@ -1089,15 +768,13 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
 
         /*所有栏目分类*/
         $arctype_max_level = intval(config('global.arctype_max_level'));
-        $map = array(
-            'c.status'  => 1,
-        );
+        $where['c.status'] = 1;
         $fields = "c.id, c.parent_id, c.current_channel, c.typename, c.grade, count(s.id) as has_children, '' as children";
         $res = db('arctype')
             ->field($fields)
             ->alias('c')
             ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
-            ->where($map)
+            ->where($where)
             ->group('c.id')
             ->order('c.parent_id asc, c.sort_order asc, c.id')
             ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
@@ -1131,12 +808,12 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
         }
         /*--end*/
 
-        /*过滤掉第二级栏目属于不允许发布的模型下*/
+        /*过滤掉第二级不包含允许发布模型的栏目*/
         $nowArr = $arr[0];
         foreach ($nowArr as $key => $val) {
             if (!empty($nowArr[$key]['children'])) {
                 foreach ($nowArr[$key]['children'] as $key2 => $val2) {
-                    if (!in_array($nowArr[$key]['children'][$key2]['current_channel'], $allow_release_channel)) {
+                    if (empty($val2['children']) && !in_array($val2['current_channel'], $allow_release_channel)) {
                         unset($nowArr[$key]['children'][$key2]);
                     }
                 }
@@ -1154,7 +831,10 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
             foreach ($nowArr AS $key => $val)
             {
                 $select_html .= '<option value="' . $val['id'] . '" data-grade="' . $val['grade'] . '" data-current_channel="' . $val['current_channel'] . '"';
-                $select_html .= ($selected == $val['id']) ? " selected='ture'" : '';
+                $select_html .= ($selected == $val['id']) ? ' selected="ture"' : '';
+                if (!empty($allow_release_channel) && !in_array($val['current_channel'], $allow_release_channel)) {
+                    $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                }
                 $select_html .= '>';
                 if ($val['grade'] > 0)
                 {
@@ -1167,7 +847,10 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
                 }
                 foreach ($nowArr[$key]['children'] as $key2 => $val2) {
                     $select_html .= '<option value="' . $val2['id'] . '" data-grade="' . $val2['grade'] . '" data-current_channel="' . $val2['current_channel'] . '"';
-                    $select_html .= ($selected == $val2['id']) ? " selected='ture'" : '';
+                    $select_html .= ($selected == $val2['id']) ? ' selected="ture"' : '';
+                    if (!empty($allow_release_channel) && !in_array($val2['current_channel'], $allow_release_channel)) {
+                        $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                    }
                     $select_html .= '>';
                     if ($val2['grade'] > 0)
                     {
@@ -1180,7 +863,10 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
                     }
                     foreach ($nowArr[$key]['children'][$key2]['children'] as $key3 => $val3) {
                         $select_html .= '<option value="' . $val3['id'] . '" data-grade="' . $val3['grade'] . '" data-current_channel="' . $val3['current_channel'] . '"';
-                        $select_html .= ($selected == $val3['id']) ? " selected='ture'" : '';
+                        $select_html .= ($selected == $val3['id']) ? ' selected="ture"' : '';
+                        if (!empty($allow_release_channel) && !in_array($val3['current_channel'], $allow_release_channel)) {
+                            $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                        }
                         $select_html .= '>';
                         if ($val3['grade'] > 0)
                         {
@@ -1200,14 +886,11 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
 }
 
 /**
- * 自动隐藏index.php入口文件
+ * 获取一级栏目的目录名称
  */
-function auto_hide_index($url) {
-    $web_adminbasefile = tpCache('web.web_adminbasefile');
-    $url = str_replace($web_adminbasefile, '/index.php', $url);
-    $seo_inlet = tpCache('seo.seo_inlet');
-    if ($seo_inlet == 1) {
-        $url = str_replace('/index.php/', '/', $url);
-    }
-    return $url;
+function every_top_dirname_list() {
+    $arctypeModel = new \app\common\model\Arctype();
+    $result = $arctypeModel->getEveryTopDirnameList();
+    
+    return $result;
 }

@@ -11,29 +11,26 @@
  * Date: 2018-4-3
  */
 
-$weapp_rewrite = array(
-    // 插件公共伪静态
-    
-);
+$weapp_route = array();
 
 /*引入全部插件的路由配置*/
-$rewrite_list = glob(WEAPP_PATH.'*/route.php');
-if (!empty($rewrite_list)) {
-    foreach ($rewrite_list as $key => $file) {
-        $rewrite_value = include_once $file;
-        if (!empty($rewrite_value)) {
-            $weapp_rewrite = array_merge($rewrite_value, $weapp_rewrite);
+$route_list = glob(WEAPP_DIR_NAME.DS.'*'.DS.'route.php');
+if (!empty($route_list)) {
+    foreach ($route_list as $key => $file) {
+        $route_value = include_once $file;
+        if (!empty($route_value)) {
+            $weapp_route = array_merge($route_value, $weapp_route);
         }
     }
 }
 /*--end*/
 
-$weapp_route = array(
+$route = array(
     '__pattern__' => array(),
     '__alias__' => array(),
     '__domain__' => array(),
 );
 
-$weapp_route = array_merge($weapp_route, $weapp_rewrite);
+$route = array_merge($route, $weapp_route);
 
-return $weapp_route;
+return $route;

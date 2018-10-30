@@ -38,7 +38,7 @@ class Base
     {
         /*tid为目录名称的情况下*/
         if (!empty($typeid) && strval($typeid) != strval(intval($typeid))) {
-            $typeid = M('Arctype')->where(array('dirname'=>$typeid))->getField('id');
+            $typeid = M('Arctype')->where(array('dirname'=>$typeid))->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getField('id');
         }
         /*--end*/
 

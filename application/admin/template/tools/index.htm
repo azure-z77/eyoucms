@@ -94,10 +94,10 @@
                                 </td>
                                 <td>
                                     <div class="w160 tc">
-                                        {eq name="'Tools@optimize'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@optimize'|is_check_access" value="1"}
                                         <a href="{:U('Tools/optimize',array('tablename'=>$vo['Name']))}" class="btn blue"><i class="fa fa-magic"></i>优化</a>
                                         {/eq}
-                                        {eq name="'Tools@repair'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@repair'|is_check_access" value="1"}
                                         <a class="btn green" href="{:U('Tools/repair',array('tablename'=>$vo['Name']))}"><i class="fa fa-wrench"></i>修复</a>
                                         {/eq}
                                     </div>
@@ -117,7 +117,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=tables]').prop('checked',this.checked);" checked="checked">
                 </div>
-                {eq name="'Tools@export'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@export'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a id="ing_btn">
                         <div class="add" title="数据备份">

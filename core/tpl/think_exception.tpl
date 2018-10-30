@@ -320,7 +320,7 @@
             <div>
                 <h2><?php echo sprintf('报错 %s', parse_file($file, $line)); ?></h2>
             </div>
-            <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
+            <div><h3 style="font-weight: normal;"><?php echo 'eyou' == $code ? nl2br($message) : nl2br(htmlentities($message)); ?></h3></div>
         </div>
     </div>
 

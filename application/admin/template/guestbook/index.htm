@@ -13,6 +13,7 @@
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:U('Guestbook/index')}" method="get" onsubmit="layer_loading('正在处理');">
+                {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
                         <input type="hidden" name="typeid" id="typeid" value="{$Request.param.typeid|default=''}">
@@ -94,7 +95,7 @@
                             </td>
                             <td>
                                 <div class="w60 tc">
-                                    {eq name="'Guestbook@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Guestbook/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
@@ -113,7 +114,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Guestbook@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Guestbook/del')}">
                         <div class="add" title="批量删除">
@@ -122,7 +123,7 @@
                     </a>
                 </div>
                 {/eq}
-                <!--{eq name="'Guestbook@attribute_index'|is_check_access" value="1"}
+                <!--{eq name="$Think.const.CONTROLLER_NAME.'@attribute_index'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Guestbook/attribute_index')}">
                         <div class="add" title="表单列表">
@@ -131,7 +132,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Guestbook@attribute_add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@attribute_add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Guestbook/attribute_add')}">
                         <div class="add" title="新增表单">
