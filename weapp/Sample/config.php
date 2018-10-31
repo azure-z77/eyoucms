@@ -12,15 +12,16 @@
  */
 
 return array(
-    'code' => 'Demo', // 插件标识
-    'name' => '示例', // 插件名称
+    'code' => 'Sample', // 插件标识
+    'name' => '样本', // 插件名称
     'version' => 'v1.0.0', // 插件版本号
     'min_version' => 'v1.1.8', // CMS最低版本支持
     'author' => '小虎哥', // 开发者
-    'description' => '插件描述插件描述插件描述插件描述插件描述', // 插件描述
+    'description' => '样本描述', // 插件描述
     'scene' => '0',  // 使用场景 0 PC+手机 1 手机 2 PC
     'permission' => array(
-        'Demo@edit' => '编辑',
-        'Demo@del' => '删除',
+        'add'   => '新增',
+        'edit'   => '编辑',
+        'del'   => '删除',
     ),
 );

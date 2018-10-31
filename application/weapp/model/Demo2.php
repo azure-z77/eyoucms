@@ -8,19 +8,23 @@
  * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
  * ============================================================================
  * Author: 小虎哥 <1105415366@qq.com>
- * Date: 2018-06-23
+ * Date: 2018-4-3
  */
 
-return array(
-    'code' => 'Demo', // 插件标识
-    'name' => '示例', // 插件名称
-    'version' => 'v1.0.0', // 插件版本号
-    'min_version' => 'v1.1.8', // CMS最低版本支持
-    'author' => '小虎哥', // 开发者
-    'description' => '插件描述插件描述插件描述插件描述插件描述', // 插件描述
-    'scene' => '0',  // 使用场景 0 PC+手机 1 手机 2 PC
-    'permission' => array(
-        'Demo@edit' => '编辑',
-        'Demo@del' => '删除',
-    ),
-);
+namespace app\weapp\model;
+
+use think\Model;
+use think\Db;
+
+/**
+ * 模型
+ */
+class Demo2 extends Model
+{
+    //初始化
+    protected function initialize()
+    {
+        // 需要调用`Model`的`initialize`方法
+        parent::initialize();
+    }
+}

@@ -47,10 +47,10 @@ class AuthRoleBehavior
     public function actionBegin(&$params)
     {
         if (-1 != self::$admin_info['role_id']) {
+            // 检测全局的增、改、删的权限——优先级最高
+            $this->cud_access();
             // 检测每个小插件的权限
             $this->weapp_access();
-            // 检测全局的增、改、删的权限
-            $this->cud_access();
             // 检测栏目管理的每个栏目权限
             $this->arctype_access();
             // 检测内容管理每个栏目对应的内容里列表等权限
@@ -76,27 +76,6 @@ class AuthRoleBehavior
     public function appEnd(&$params)
     {
 
-    }
-
-    /**
-     * 检测每个小插件的权限
-     * @access private
-     */
-    private function weapp_access()
-    {
-        /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctl = strtolower(self::$controllerName);
-        $act = strtolower(self::$actionName);
-        if ('weapp' == $ctl && 'execute' == $act) {
-            $sc = input('param.sc/s');
-            $admin_info = self::$admin_info;
-            $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
-            $plugins = !empty($auth_role_info['permission']['plugins']) ? $auth_role_info['permission']['plugins'] : [];
-            if (!isset($plugins[$sc])) {
-                $this->error('您没有操作权限，请联系超级管理员分配权限');
-            }
-        }
-        /*--end*/
     }
 
     /**
@@ -135,6 +114,48 @@ class AuthRoleBehavior
                     }
                     break;
                 }
+            }
+        }
+        /*--end*/
+    }
+
+    /**
+     * 检测每个小插件的权限
+     * @access private
+     */
+    private function weapp_access()
+    {
+        /*只有相应的控制器和操作名才执行，以便提高性能*/
+        $ctl = strtolower(self::$controllerName);
+        $act = strtolower(self::$actionName);
+        if ('weapp' == $ctl && 'execute' == $act) {
+            $sc = input('param.sc/s');
+            $sm = input('param.sm/s');
+            $sa = input('param.sa/s');
+            $admin_info = self::$admin_info;
+            $auth_role_info = !empty($admin_info['auth_role_info']) ? $admin_info['auth_role_info'] : [];
+            $plugins = !empty($auth_role_info['permission']['plugins']) ? $auth_role_info['permission']['plugins'] : [];
+            // 插件本身设置的权限列表
+            $config = include WEAPP_PATH.$sc.DS.'config.php';
+            $plugins_permission = !empty($config['permission']) ? array_keys($config['permission']) : [];
+            // 管理员拥有的插件具体权限
+            $admin_permission = !empty($plugins[$sc]['child']) ? $plugins[$sc]['child'] : [];
+            // 没有赋给管理员的插件具体权限
+            $diff_plugins_perm = array_diff($plugins_permission, $admin_permission);
+            // 检测插件权限
+            $bool = true;
+            if (empty($plugins_permission) && !isset($plugins[$sc])) {
+                $bool = false;
+            } else if (!empty($plugins_permission)) {
+                foreach ($diff_plugins_perm as $key => $val) {
+                    if (strtolower($sm.'@'.$sa) == strtolower($val)) {
+                        $bool = false;
+                        break;
+                    }
+                }
+            }
+            if (!$bool) {
+                $this->error('您没有操dd作权限，请联系超级管理员分配权限');
             }
         }
         /*--end*/
