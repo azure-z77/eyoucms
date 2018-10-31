@@ -47,7 +47,7 @@ class Windows extends Pipes
     public function __destruct()
     {
         $this->close();
-        $this->removeFiles();
+        // $this->removeFiles(); // 注释掉可能会影响性能，在程序结束的时候释放删除文件（by 水泡泡）
     }
 
     /**

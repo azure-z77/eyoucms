@@ -17,7 +17,7 @@
  * 邮件发送
  * @param $to    接收人
  * @param string $subject   邮件标题
- * @param string $data   邮件内容(html模板渲染后的内容)
+ * @param string $content   邮件内容(html模板渲染后的内容)
  * @param string $scene   使用场景
  * @throws Exception
  * @throws phpmailerException

@@ -63,15 +63,6 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
-  'editor_visual' => 
-  array (
-    'name' => 'editor_visual',
-    'type' => 'tinyint(1) unsigned',
-    'notnull' => false,
-    'default' => '1',
-    'primary' => false,
-    'autoinc' => false,
-  ),
   'only_oneself' => 
   array (
     'name' => 'only_oneself',
@@ -114,6 +105,15 @@ return array (
     'type' => 'tinyint(1)',
     'notnull' => false,
     'default' => '1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'admin_id' => 
+  array (
+    'name' => 'admin_id',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),

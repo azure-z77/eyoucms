@@ -171,6 +171,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'admin_id' => 
+  array (
+    'name' => 'admin_id',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'status' => 
   array (
     'name' => 'status',

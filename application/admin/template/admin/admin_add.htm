@@ -1,11 +1,5 @@
 {include file="public/layout" /}
-<style type="text/css">
-    .arctype_child{display: none;}
-    .arctype_bg{width: 13px;height: 13px;display: inline-block;margin:0 5px;cursor: pointer;}
-    .expandable{background: url(__SKIN__/images/tv-expandable.gif)}
-    .collapsable{background: url(__SKIN__/images/tv-collapsable-last.gif)}
-</style>
-<body style="background-color: #FFF; overflow: auto;">
+<body class="rolecss">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -72,11 +66,12 @@
                 </dt>
                 <dd class="opt">
                     {foreach name="admin_role_list" item="role" key="k"}
-                    <p><label><input type="radio" name="role_id" value="{$role.id}" />{$role.name}</label>&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a></p>
+                    <p><label><input type="radio" name="role_id" value="{$role.id}" {if condition="$role.id == $Request.param.role_id"} checked="checked"{/if} />{$role.name}</label>&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a></p>
                     {/foreach}
-                    <p><label><a href="javascript:void(0);" class="ncap-btn-dis ncap-btn-green" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);">自定义角色组</a></label></p>
+                    <p><label style="color: #ff660f;"><input type="radio" name="role_id" value="{$role.id}" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);"/>自定义</label></p>
                 </dd>
             </dl>
+            {if condition="false"}
 <!--             <dl class="row">
                 <dt class="tit">
                     <label for="name">语言权限</label>
@@ -112,7 +107,7 @@
                     <label for="name">操作权限</label>
                 </dt>
                 <dd class="opt">
-                    <p><label><input type="checkbox" id="select_cud" />全选</label></p>
+                    <p><label><input type="checkbox" id="select_cud" />完全控制</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="add" />添加信息</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="edit" />修改信息</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="del" />删除信息</label></p>
@@ -122,18 +117,18 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="name"><em>*</em>操作权限</label>
+                    <label for="name"><em>*</em>功能权限</label>
                 </dt>
                 <dd class="opt">
                     <p>
-                        <label><input type="checkbox" id="select_all_permission" />全选</label>
+                        <label><input type="checkbox" id="select_all_permission" />完全控制</label>
                     </p>
 
                     {foreach name="modules" item="vo"}
                       {foreach name="vo.child" item="vo2"}
                         {if condition="1 == $vo2['is_modules'] AND ! empty($auth_rule_list[$vo2.id])"}
                           {if condition="1002 == $vo2['id']"}
-                            <div>
+                            <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
                                 {if condition="! empty($arctypes)"}
                                 <p>
@@ -154,14 +149,15 @@
                                 {if condition="isset($arctype_array[$arctype['id']])"}
                                     <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
                                     {foreach $arctype_array[$arctype['id']] as $item}
-                                    <div style="padding-left:10px;">
-                                    <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
-                                    </div>
+                                        <div class="arctype_child1">
+                                            <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
+                                        </div>
                                         {if condition="isset($arctype_array[$item['id']])"}
-                                        <div style="padding-left:20px;" id="arctype_child_{$item['id']}">
-                                        {foreach $arctype_array[$item['id']] as $vo}
-                                        <label><input type="checkbox" class="arctype_cbox" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
-                                        {/foreach}
+                                        <div class="arctype_child2" id="arctype_child_{$item['id']}">
+                                            <span class="button level1 switch center_docu"></span>
+                                            {foreach $arctype_array[$item['id']] as $vo}
+                                            <label><input type="checkbox" class="arctype_cbox" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
+                                            {/foreach}
                                         </div>
                                         {/if}
                                     {/foreach}
@@ -171,7 +167,7 @@
                                 {/if}
                             </div>
                           {else /}
-                            <div>
+                            <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
                                 <p>
                                     {foreach name="auth_rule_list[$vo2.id]" item="rule"}
@@ -185,7 +181,7 @@
                     {/foreach}
                     
                     {if condition="! empty($plugins)"}
-                    <div>
+                    <div class="admin_poplistdiv">
                         <h2>插件应用</h2>
                         <ul>
                             {foreach name="plugins" item="plugin"}
@@ -206,6 +202,7 @@
                     {/if}
                 </dd>
             </dl>
+            {/if}
             <div class="bot"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
         </div>
     </form>
@@ -390,6 +387,23 @@
             $('input[name=password]').focus();
             return false;
         }
+        var role_id = $('input[name=role_id]:checked').val();
+        if(role_id == '' || undefined == role_id){
+            showErrorMsg('请选择权限角色组！');
+            $('input[name=role_id]').focus();
+            return false;
+        }
+        var a = [];
+        $('input[name^=permission]').each(function(i,o){
+            if($(o).is(':checked')){
+                a.push($(o).val());
+            }
+        })
+        if(a.length == 0){
+            showErrorMsg('请具体分配权限！');
+            return false;
+        }
+
         layer_loading('正在处理');
         $('#adminAdd').submit();
     }

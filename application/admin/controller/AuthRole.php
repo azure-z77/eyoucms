@@ -79,10 +79,11 @@ class AuthRole extends Base {
             if(! empty($count)){
                 $this->error('该角色名称已存在，请检查');
             }
-            $rs = $model->saveAuthRole(input());
-            if($rs){
+            $role_id = $model->saveAuthRole(input());
+            if($role_id){
                 adminLog('新增角色：'.$data['name']);
-                $this->success('操作成功', U('AuthRole/index'));
+                $gourl = url('Admin/admin_add', ['role_id'=>$role_id]);
+                $this->success('操作成功', U('AuthRole/index'), ['gourl'=>$gourl]);
             }else{
                 $this->error('操作失败');
             }
@@ -149,10 +150,11 @@ class AuthRole extends Base {
             if(! empty($count)){
                 $this->error('该角色名称已存在，请检查');
             }
-            $rs = $model->saveAuthRole(input(), true);
-            if($rs){
+            $role_id = $model->saveAuthRole(input(), true);
+            if($role_id){
                 adminLog('编辑角色：'.$data['name']);
-                $this->success('操作成功', U('AuthRole/index'));
+                $gourl = url('Admin/admin_add', ['role_id'=>$role_id]);
+                $this->success('操作成功', U('AuthRole/index'), ['gourl'=>$gourl]);
             }else{
                 $this->error('操作失败');
             }

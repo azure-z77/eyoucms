@@ -45,12 +45,11 @@ function adminLog($log_info){
 function getAdminInfo($admin_id = 0)
 {
     if ($admin_id > 0) {
-        $fields = 'a.*, b.role_id, c.name AS role_name';
+        $fields = 'a.*, b.name AS role_name';
         $admin_info = M('admin')
             ->field($fields)
             ->alias('a')
-            ->join('__AUTH_ROLE_ADMIN__ b', 'a.admin_id = b.admin_id', 'LEFT')
-            ->join('__AUTH_ROLE__ c', 'c.id = b.role_id', 'LEFT')
+            ->join('__AUTH_ROLE__ b', 'b.id = a.role_id', 'LEFT')
             ->where("a.admin_id", $admin_id)->find();
     } else {
         $admin_info = session('admin_info');
@@ -96,10 +95,7 @@ function is_check_access($str = 'Index@index') {
         $all_auths = array_unique($all_auths);
         $admin_auths = array_unique($admin_auths);
         $diff_auths = array_diff($all_auths, $admin_auths);
-// if ($str == 'Weapp@uninstall') {
-//     var_dump($diff_auths);
-//     exit;
-// }
+
         if (in_array($ctl_act, $diff_auths) || in_array($ctl_all, $diff_auths)) {
             $bool_flag = false;
         }

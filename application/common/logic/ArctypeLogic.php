@@ -79,10 +79,8 @@ class ArctypeLogic extends Model
                     ->where($where)
                     ->group('c.id')
                     ->order('c.parent_id asc, c.sort_order asc, c.id')
-                    // ->fetchSql(true)
                     ->cache($is_cache,EYOUCMS_CACHE_TIME,"arctype")
                     ->select();
-                // var_dump($res);exit;
             }
             else
             {

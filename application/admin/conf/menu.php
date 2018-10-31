@@ -91,6 +91,22 @@ if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
 }
 /*--end*/
 
+/**
+ * 权限模块属性说明
+ * array
+ *      id  主键ID
+ *      parent_id   父ID
+ *      name    模块名称
+ *      action  操作名
+ *      controller  控制器
+ *      url     跳转链接(控制器与操作名为空时，才使用url)
+ *      target  打开窗口方式
+ *      icon    菜单图标
+ *      grade   层级
+ *      is_menu 是否显示菜单
+ *      is_modules  是否显示权限模块分组
+ *      child   子模块
+ */
 return  array(
     '1000'=>array(
         'id'=>1000,

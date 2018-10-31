@@ -85,28 +85,14 @@ class AuthRole extends Model{
             'add_time'  => getTime(),
             'update_time'  => getTime(),
         );
-        // var_dump($data, $batchAdminRole);exit;
-/*        if(! empty($input['admin_id']) && $input['admin_id'] > 0){
-            $info = parent::where('admin_id', $input['admin_id'])->find();
-            if(empty($info)){
-                unset($input['id']);
-            }else{
-                $input['id'] = $info['id'];
-            }
-            $data['admin_id'] = (int)$input['admin_id'];
-        }else{
-            $data['admin_id'] = 0;
-        }*/
+        
         if(! empty($input['id']) && $input['id'] > 0){
             $data['id'] = $input['id'];
             $rs = parent::update($data);
-            // 修改所有相同角色的用户
-/*            if($rs && $batchAdminRole == true){
-                unset($data['id'], $data['name'], $data['role_id'], $data['admin_id']);
-                parent::update($data, 'role_id='.$input['id'].' AND id<>'.$input['id']);
-            }*/
+            $rs = !empty($rs) ? $input['id'] : $rs;
         }else{
-            $rs = parent::save($data);
+            parent::save($data);
+            $rs = M($this->name)->getLastInsID();
         }
 
         \think\Cache::clear('auth_role');

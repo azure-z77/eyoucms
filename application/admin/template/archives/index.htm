@@ -12,8 +12,8 @@
     <title>内容管理</title>
     <link rel="shortcut icon" type="image/x-icon" href="__ROOT__/favicon.ico" media="screen"/>
     <!-- <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/amazeui.min.css"> -->
-    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/iframe.css">
-    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/iframe.css?v={$version}">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/zTreeStyle/zTreeStyle.css?v={$version}" type="text/css">
     <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
     <!-- <script src="__SKIN__/js/jquery-ui/jquery-ui.min.js"></script> -->
     <script src="__STATIC__/admin/js/jquery.layout-latest.min.js"></script>
@@ -170,7 +170,7 @@
 </head>
 <body>
     <div class="ui-layout-west">
-        <h3>&nbsp;<a href="javascript:void(0);" onclick="quick_release();">快捷发布</a></h3>
+        <h3><a href="javascript:void(0);" onclick="quick_release();"><i class="fa fa-edit"></i>快捷发布</a></h3>
         <div id="tree" class="ztree"></div>
     </div>
     <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="{:U('Archives/index_archives')}" width="100%" height="100%" frameborder="0"></iframe></div>

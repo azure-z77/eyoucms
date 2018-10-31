@@ -179,7 +179,7 @@ return array(
         // 日志保存目录
         'path'  => LOG_PATH,
         // 日志记录级别
-        'level' => array('error'),
+        'level' => array('error','sql'),
         // 日志开关  1 开启 0 关闭
         'switch' => 1,  
     ),

@@ -26,7 +26,7 @@ class AppInitBehavior {
     }
 
     private function _initialize() {
-        // $this->saveSqlmode();
+        $this->saveSqlmode();
     }
 
     /**

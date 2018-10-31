@@ -539,7 +539,8 @@ padding: 6px 0 6px 6px; float: left; overflow: hidden; }
 .flexigrid .fbutton { vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;
 padding-right: 8px; margin-left: 8px; margin-right: -1px;  *zoom:1/*IE7*/;
 cursor: pointer; }
-.flexigrid .fbutton div { font-size: 12px; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #f7f7f7;padding: 8px 16px;}
+.flexigrid .fbutton div { font-size: 12px; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #fdfdfd;padding: 3px 9px; border-radius: 5px;}
+
 .flexigrid .fbutton div.dx{ color: #ff0000; }
 .flexigrid .fbutton .add:hover,
 .flexigrid .fbutton.fbOver .add:hover {background: #fff;}
@@ -555,7 +556,7 @@ cursor: pointer; }
 .flexigrid .bDiv td.sign input,.flexigrid .hDiv th.sign input{ margin: 5px 8px; }
 .flexigrid .bDiv td div {}
 .flexigrid .bDiv a { color: #3b639f; }
-.flexigrid .bDiv a:hover { text-decoration: underline; color: #CD0200; }
+.flexigrid .bDiv a:hover { text-decoration: underline; color: #ff6600; }
 .flexigrid .bDiv td i.ico-check { background: url(../images/flexigrid_pic.png) no-repeat 0 0; display: inline-block; width: 20px; height: 20px; }
 .flexigrid .bDiv .trSelected td i.ico-check { background-position: -20px 0; }
 .flexigrid .bDiv td .on,
@@ -1096,7 +1097,7 @@ select{ box-shadow: none; marign:0px !important; }
 .item-title a.back i { font-size: 28px; }
 
 .ncap-form-default dd.opt a.ui_tips{background: url(../images/ui_tip.png) no-repeat; opacity: 0.5; background-size: 100%; display: inline-block; text-indent: -999px; width: 15px; height: 21px; vertical-align: bottom; margin-left: 3px; }
-.checkboxall{ height: 38px; line-height: 50px; }
+.checkboxall{ height: 28px; line-height: 44px; }
 
 .ui-text .ui_tips,.ui-keyword .ui_tips,.zzbaidu .ui_tips  { display: none !important;; }
 .ui-text .notic,.ui-keyword .notic,.zzbaidu .notic{ display: block !important; }
@@ -1247,3 +1248,73 @@ a.upimg:hover{background-color: #e6e6e6;border-color: #adadad;}
 .system-web .variable div {width: 60%; float: left; height: 28px; font-size: 12px; text-align:center; line-height: 28px; }
 .system-web .variable div p{border-right: 1px solid #eee;}
 .system-web .variable div.r{ width: 40% }
+
+
+/*管理员-新增角色*/
+.admin_poplistdiv {
+    background: #f5f5f5;
+    padding: 5px 8px;
+    border: 1px solid #dfdfdf;
+    margin: 0px 0px 8px;
+}
+.admin_poplistdiv h2 {
+    font-size: 14px;
+    margin-bottom: 5px;
+    cursor: default;
+}
+.arctype_child {
+    margin: 5px 0px 3px;
+    padding: 5px 8px;
+    background: #fff;
+    border: 1px solid #dfdfdf;
+}
+
+.rolecss{background-color: #FFF; overflow: auto; min-width: auto;}
+.rolecss input{vertical-align: text-bottom;margin-bottom: 3px;}
+
+  .rolecss  .table_box {
+        border: 1px solid #e4e4e4;
+    }
+   .rolecss  .table_box td {
+        border-right: 1px solid #e4e4e4;
+        border-bottom: 1px solid #e4e4e4;
+        line-height: 38px;
+    }
+   .rolecss  .table_box td ul {
+        margin-top: 5px;
+    }
+   .rolecss  .layui-this-selected{
+        background-color: #cbe9f3;
+    }
+    .rolecss .arctype_child{display: none;}
+    .rolecss .arctype_bg{width: 13px;height: 13px;display: inline-block;margin:0 1px;cursor: pointer;}
+    .rolecss .expandable{background: url(../images/tv-expandable.gif)}
+    .rolecss .collapsable{background: url(../images/tv-collapsable-last.gif)}
+
+.rolecss span.button.center_docu {
+    background-position: -56px -18px;
+}
+.rolecss span.button.switch {
+    width: 18px;
+    height: 18px;
+    margin-top: -6px;
+}
+.rolecss span.button {
+    line-height: 0;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: transparent;
+    background-attachment: scroll;
+    background-image: url(../../../plugins/ztree/css/zTreeStyle/img/zTreeStandard.png);
+    margin: 0px;
+    border-width: 0px;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    outline: none;
+    background-repeat: no-repeat;
+}
+.rolecss .admin_poplistdiv label{ margin-right: 3px; }
+.rolecss .admin_poplistdiv .arctype_child1{padding-left:10px;}
+.rolecss .admin_poplistdiv .arctype_child2{padding-left:10px;color: #390; height:20px;}

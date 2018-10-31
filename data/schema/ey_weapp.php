@@ -21,7 +21,7 @@ return array (
   'name' => 
   array (
     'name' => 'name',
-    'type' => 'varchar(50)',
+    'type' => 'varchar(55)',
     'notnull' => false,
     'default' => '',
     'primary' => false,
@@ -45,21 +45,21 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
-  'tag_weapp' => 
-  array (
-    'name' => 'tag_weapp',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '1',
-    'primary' => false,
-    'autoinc' => false,
-  ),
   'status' => 
   array (
     'name' => 'status',
     'type' => 'tinyint(1)',
     'notnull' => false,
     'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'tag_weapp' => 
+  array (
+    'name' => 'tag_weapp',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '1',
     'primary' => false,
     'autoinc' => false,
   ),

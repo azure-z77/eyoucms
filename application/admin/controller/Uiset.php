@@ -55,7 +55,7 @@ class Uiset extends Base
             $admin_auths = array_unique($admin_auths);
             $diff_auths = array_diff($all_auths, $admin_auths);
 
-            if(!in_array(2002, $diff_auths)){
+            if(in_array(2002, $diff_auths)){
                 $this->error('您没有操作权限，请联系超级管理员分配权限');
             }
         }

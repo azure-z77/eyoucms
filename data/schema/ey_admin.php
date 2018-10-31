@@ -95,7 +95,7 @@ return array (
     'name' => 'role_id',
     'type' => 'int(10)',
     'notnull' => false,
-    'default' => '0',
+    'default' => '-1',
     'primary' => false,
     'autoinc' => false,
   ),

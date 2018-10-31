@@ -15,9 +15,13 @@
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     {eq name="'Archives@add'|is_check_access" value="1"}
-                    <div class="sDiv2 addartbtn">
-                        <input type="button" class="btn" value="+发布文档" onClick="{gt name="$Request.param.typeid" value="0"}window.location.href='{:url("Archives/add", array("typeid"=>$Request.param.typeid))}';{else /}quick_release();{/gt}">
-                    </div>
+                        <div class="fbutton" style="float: none;">
+                              <a href="javascript:void(0);" onClick="{gt name="$Request.param.typeid" value="0"}window.location.href='{:url("Archives/add", array("typeid"=>$Request.param.typeid))}';{else /}quick_release();{/gt}">
+                                  <div class="add">
+                                      <span><i class="fa fa-plus"></i>发布文档</span>
+                                  </div>
+                              </a>
+                        </div>
                     {/eq}
 <!--                     <div class="sDiv2">  
                         <select name="typeid" id="typeid" class="select" style="margin:0px 5px;">

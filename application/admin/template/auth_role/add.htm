@@ -1,25 +1,5 @@
 {include file="public/layout" /}
-<style type="text/css">
-    .table_box {
-        border: 1px solid #e4e4e4;
-    }
-    .table_box td {
-        border-right: 1px solid #e4e4e4;
-        border-bottom: 1px solid #e4e4e4;
-        line-height: 38px;
-    }
-    .table_box td ul {
-        margin-top: 5px;
-    }
-    .layui-this-selected{
-        background-color: #cbe9f3;
-    }
-    .arctype_child{display: none;}
-    .arctype_bg{width: 13px;height: 13px;display: inline-block;margin:0 5px;cursor: pointer;}
-    .expandable{background: url(__SKIN__/images/tv-expandable.gif)}
-    .collapsable{background: url(__SKIN__/images/tv-collapsable-last.gif)}
-</style>
-<body style="background-color: #FFF; overflow: auto; min-width: auto;">
+<body class="rolecss">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -83,7 +63,7 @@
                     <label for="name">操作权限</label>
                 </dt>
                 <dd class="opt">
-                    <p><label><input type="checkbox" id="select_cud" />全选</label></p>
+                    <p><label><input type="checkbox" id="select_cud" />完全控制</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="add" />新增功能</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="edit" />编辑功能</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="del" />删除功能</label></p>
@@ -93,17 +73,17 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="name"><em>*</em>操作权限</label>
+                    <label for="name"><em>*</em>功能权限</label>
                 </dt>
                 <dd class="opt">
                     <p>
-                        <label><input type="checkbox" id="select_all_permission" />全选</label>
+                        <label><input type="checkbox" id="select_all_permission" />完全控制</label>
                     </p>
                     {foreach name="modules" item="vo"}
                       {foreach name="vo.child" item="vo2"}
                         {if condition="1 == $vo2['is_modules'] AND ! empty($auth_rule_list[$vo2.id])"}
                           {if condition="1002 == $vo2['id']"}
-                            <div>
+                            <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
                                 {php}$first_arctype_id = 0;{/php}
                                 {if condition="! empty($arctypes)"}
@@ -125,14 +105,15 @@
                                 {if condition="isset($arctype_array[$arctype['id']])"}
                                     <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
                                     {foreach $arctype_array[$arctype['id']] as $item}
-                                    <div style="padding-left:10px;">
-                                    <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
-                                    </div>
+                                        <div class="arctype_child1">
+                                            <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
+                                        </div>
                                         {if condition="isset($arctype_array[$item['id']])"}
-                                        <div style="padding-left:20px;" id="arctype_child_{$item['id']}">
-                                        {foreach $arctype_array[$item['id']] as $vo}
-                                        <label><input type="checkbox" class="arctype_cbox" name="permission[arctype][]" value="{$vo.id}" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" />{$vo.typename}</label>
-                                        {/foreach}
+                                        <div class="arctype_child2" id="arctype_child_{$item['id']}">
+                                            <span class="button level1 switch center_docu"></span>
+                                            {foreach $arctype_array[$item['id']] as $vo}
+                                            <label><input type="checkbox" class="arctype_cbox" name="permission[arctype][]" value="{$vo.id}" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" />{$vo.typename}</label>
+                                            {/foreach}
                                         </div>
                                         {/if}
                                     {/foreach}
@@ -142,7 +123,7 @@
                                 {/if}
                             </div>
                           {else /}
-                            <div>
+                            <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
                                 <p>
                                     {foreach name="auth_rule_list[$vo2.id]" item="rule"}
@@ -156,7 +137,7 @@
                     {/foreach}
 
                     {if condition="! empty($plugins)"}
-                    <div>
+                    <div class="admin_poplistdiv">
                         <h2>插件应用</h2>
                         <ul>
                             {foreach name="plugins" item="plugin"}
@@ -264,7 +245,7 @@
 
     function postSubmit(){
         if($('input[name=name]').val() == '' ){
-            layer.msg('角色名称不能为空！', {icon: 2,time: 1000});
+            showErrorMsg('角色名称不能为空！');
             return false;
         }
 
@@ -275,7 +256,7 @@
             }
         })
         if(a.length == 0){
-            layer.msg('请具体分配权限！', {icon: 2,time: 1000});
+            showErrorMsg('请具体分配权限！');
             return false;
         }
 
@@ -292,7 +273,7 @@
                     layer.closeAll();
                     if (res.code == 1) {
                         parent.layer.msg(res.msg, {shade: 0.3, time: 500});
-                        parent.window.location.reload();
+                        parent.window.location.href = res.data.gourl;
                         parent.layer.close(parentObj);
                     } else {
                         parent.showErrorMsg(res.msg);

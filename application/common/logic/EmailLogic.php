@@ -34,6 +34,7 @@ class EmailLogic
     public function replaceContent($scene, $params)
     {
         $emailTemp = M('email_template')->where("send_scene", $scene)->find();
+        $username = $content = '';
         if (is_array($params)) {
             $content = !empty($params['content']) ? $params['content'] : false;
             $username = !empty($params['username']) ? $params['username'] : false;
@@ -57,6 +58,6 @@ class EmailLogic
             $msg = str_replace('${' . $k . '}', $v, $msg);
         }
 
-        return array('title'=>$emailTemp['tpl_title'], 'msg'=>$msg);
+        return $msg;
     }
 }

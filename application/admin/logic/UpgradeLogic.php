@@ -297,6 +297,13 @@ class UpgradeLogic extends Model
         $downFileName = end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.$downFileName; // 保存目录
         tp_mkdir(dirname($saveDir));
+        $wwwroot = ey_scandir(ROOT_PATH, 'dir');
+        foreach ($wwwroot as $key => $val) {
+            $chownPathinfo = get_chown_pathinfo($val);
+            if (isset($chownPathinfo['name']) && 'root' == $chownPathinfo['name']) {
+                return '网站根目录权限不够，无法升级，请参考 http://www.eyoucms.com/bbs/3217.html';
+            }
+        }
         if(!file_get_contents($fileUrl, 0, null, 0, 1)){
             return "下载升级包不存在"; // 文件存在直接退出
         }
