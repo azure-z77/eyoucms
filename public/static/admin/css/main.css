@@ -539,7 +539,7 @@ padding: 6px 0 6px 6px; float: left; overflow: hidden; }
 .flexigrid .fbutton { vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;
 padding-right: 8px; margin-left: 8px; margin-right: -1px;  *zoom:1/*IE7*/;
 cursor: pointer; }
-.flexigrid .fbutton div { font-size: 12px; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #fdfdfd;padding: 3px 9px; border-radius: 5px;}
+.flexigrid .fbutton div { font-size: 12px; font-family: 宋体; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #fdfdfd;padding: 3px 9px; border-radius: 5px;}
 
 .flexigrid .fbutton div.dx{ color: #ff0000; }
 .flexigrid .fbutton .add:hover,

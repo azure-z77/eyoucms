@@ -26,20 +26,20 @@ return [
         'menu_id' => 1001,
         'menu_id2' => 0,
         'name'  => '栏目管理',
-        'auths' => 'Arctype@*',
+        'auths' => 'Arctype@index,Arctype@add,Arctype@edit,Arctype@del',
     ],
     [
         'id' => 2,
         'menu_id' => 1002,
         'menu_id2' => 0,
         'name'  => '内容管理',
-        'auths' => 'Archives@*',
+        'auths' => 'Archives@*,Arctype@single',
     ],
     [
         'id' => 3,
         'menu_id' => 1003,
         'menu_id2' => 0,
-        'name'  => '广告管理',
+        'name'  => '允许操作',
         'auths' => 'Other@*,AdPosition@*',
     ],
     [

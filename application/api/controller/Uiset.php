@@ -39,7 +39,10 @@ class Uiset extends Controller
     public function _initialize() 
     {
         //过滤不需要登陆的行为
-        if(in_array(ACTION_NAME, config('filter_login_action')) || in_array(CONTROLLER_NAME, config('filter_login_controller'))){
+        $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
+        $ctl_all = CONTROLLER_NAME.'@*';
+        $uneed_check_action = config('uneed_check_action');
+        if (in_array($ctl_act, $uneed_check_action) || in_array($ctl_all, $uneed_check_action)) {
             //return;
         }else{
             if(!session('?admin_id')){

@@ -72,7 +72,7 @@ function get_conf($name = 'global')
 function is_check_access($str = 'Index@index') {  
     $bool_flag = 1;
     $role_id = session('admin_info.role_id');
-    if ($role_id != '-1') {
+    if (-1 < intval($role_id)) {
         $ctl_act = strtolower($str);
         $arr = explode('@', $ctl_act);
         $ctl = !empty($arr[0]) ? $arr[0] : '';
@@ -81,6 +81,7 @@ function is_check_access($str = 'Index@index') {
 
         $auth_role_info = session('admin_info.auth_role_info');
         $permission = $auth_role_info['permission'];
+        $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
 
         $auth_rule = get_conf('auth_rule');
         $all_auths = []; // 系统全部权限对应的菜单ID
@@ -88,7 +89,7 @@ function is_check_access($str = 'Index@index') {
         $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
         foreach($auth_rule as $key => $val){
             $all_auths = array_merge($all_auths, explode(',', strtolower($val['auths'])));
-            if (in_array($val['id'], $permission['rules'])) {
+            if (in_array($val['id'], $permission_rules)) {
                 $admin_auths = array_merge($admin_auths, explode(',', strtolower($val['auths'])));
             }
         }
@@ -112,9 +113,10 @@ function getMenuList() {
     // return $menuArr;
 
     $role_id = session('admin_info.role_id');
-    if ($role_id != '-1') {
+    if (0 < intval($role_id)) {
         $auth_role_info = session('admin_info.auth_role_info');
         $permission = $auth_role_info['permission'];
+        $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
 
         $auth_rule = get_conf('auth_rule');
         $all_auths = []; // 系统全部权限对应的菜单ID
@@ -122,7 +124,7 @@ function getMenuList() {
         $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
         foreach($auth_rule as $key => $val){
             $all_auths = array_merge($all_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
-            if (in_array($val['id'], $permission['rules'])) {
+            if (in_array($val['id'], $permission_rules)) {
                 $admin_auths = array_merge($admin_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
             }
         }

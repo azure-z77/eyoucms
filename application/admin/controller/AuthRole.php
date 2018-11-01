@@ -21,7 +21,7 @@ use app\admin\logic\AuthRoleLogic;
 class AuthRole extends Base {
     
     /**
-     * 角色管理
+     * 权限组管理
      */
     public function index()
     {   
@@ -54,7 +54,7 @@ class AuthRole extends Base {
     }
     
     /**
-     * 新增角色
+     * 新增权限组
      */
     public function add()
     {
@@ -63,7 +63,7 @@ class AuthRole extends Base {
                 'name'  => 'require',
             );
             $msg = array(
-                'name.require' => '角色名称不能为空！',
+                'name.require' => '权限组名称不能为空！',
             );
             $data = array(
                 'name' => trim(I('name/s')),
@@ -77,17 +77,20 @@ class AuthRole extends Base {
             $model = model('AuthRole');
             $count = $model->where('name', $data['name'])->count();
             if(! empty($count)){
-                $this->error('该角色名称已存在，请检查');
+                $this->error('该权限组名称已存在，请检查');
             }
             $role_id = $model->saveAuthRole(input());
             if($role_id){
-                adminLog('新增角色：'.$data['name']);
-                $gourl = url('Admin/admin_add', ['role_id'=>$role_id]);
-                $this->success('操作成功', U('AuthRole/index'), ['gourl'=>$gourl]);
+                adminLog('新增权限组：'.$data['name']);
+                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name']]);
             }else{
                 $this->error('操作失败');
             }
         }
+
+        // 角色
+        $admin_role_list = model('AuthRole')->getRoleAll();
+        $this->assign('admin_role_list', $admin_role_list);
 
         // 权限分组
         $modules = getAllMenu();
@@ -132,7 +135,7 @@ class AuthRole extends Base {
                 'name'  => 'require',
             );
             $msg = array(
-                'name.require' => '角色名称不能为空！',
+                'name.require' => '权限组名称不能为空！',
             );
             $data = array(
                 'name' => trim(I('name/s')),
@@ -148,13 +151,12 @@ class AuthRole extends Base {
                 ->where('id', '<>', $id)
                 ->count();
             if(! empty($count)){
-                $this->error('该角色名称已存在，请检查');
+                $this->error('该权限组名称已存在，请检查');
             }
             $role_id = $model->saveAuthRole(input(), true);
             if($role_id){
-                adminLog('编辑角色：'.$data['name']);
-                $gourl = url('Admin/admin_add', ['role_id'=>$role_id]);
-                $this->success('操作成功', U('AuthRole/index'), ['gourl'=>$gourl]);
+                adminLog('编辑权限组：'.$data['name']);
+                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name']]);
             }else{
                 $this->error('操作失败');
             }
@@ -166,6 +168,10 @@ class AuthRole extends Base {
             $this->error('数据不存在，请联系管理员！');
         }
         $this->assign('info', $info);
+
+        // 角色
+        $admin_role_list = model('AuthRole')->getRoleAll();
+        $this->assign('admin_role_list', $admin_role_list);
 
         // 权限分组
         $modules = getAllMenu();
@@ -202,18 +208,24 @@ class AuthRole extends Base {
         $id_arr = I('del_id/a');
         $id_arr = eyIntval($id_arr);
         if (!empty($id_arr)) {
+
+            $count = M('auth_role')->where(['built_in'=>1,'id'=>['IN',$id_arr]])->count();
+            if (!empty($count)) {
+                respose(array('status'=>0, 'msg'=>'系统内置不允许删除！'));
+            }
+
             $role = M('auth_role')->where("pid",'IN',$id_arr)->select();
             if ($role) {
-                respose(array('status'=>0, 'msg'=>'请先清空该角色下的子角色'));
+                respose(array('status'=>0, 'msg'=>'请先清空该权限组下的子权限组'));
             }
 
             $role_admin = M('admin')->where("role_id",'IN',$id_arr)->select();
             if ($role_admin) {
-                respose(array('status'=>0, 'msg'=>'请先清空所属该角色的管理员'));
+                respose(array('status'=>0, 'msg'=>'请先清空所属该权限组的管理员'));
             } else {
                 $r = M('auth_role')->where("id",'IN',$id_arr)->delete();
                 if($r){
-                    adminLog('删除角色');
+                    adminLog('删除权限组');
                     respose(array('status'=>1, 'msg'=>'删除成功'));
                 }else{
                     respose(array('status'=>0, 'msg'=>'删除失败'));

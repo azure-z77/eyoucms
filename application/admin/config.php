@@ -53,31 +53,20 @@ $admin_config = array(
     'DATA_BACKUP_COMPRESS' => 0, //数据库备份文件是否启用压缩
     'DATA_BACKUP_COMPRESS_LEVEL' => 9, //数据库备份文件压缩级别
 
-    // 过滤不需要登录的控制器
-    'filter_login_controller' => array(
-    ),
-
     // 过滤不需要登录的操作
     'filter_login_action' => array(
-        'login',
-        'logout',
-        'vertify',
+        'Admin@login', // 登录
+        'Admin@logout', // 退出
+        'Admin@vertify', // 验证码
     ),
-
-    // 无需验证权限的控制器
-    'uneed_check_controller' => array(
-        'Base', // 基类
-        'Index', // 后台首页
-        'Ajax', // 所有ajax操作
-        'Ueditor', // 编辑器上传
-        'Uploadify', // 图片上传
-    ),
-
+    
     // 无需验证权限的操作
     'uneed_check_action' => array(
-        'Admin@login',
-        'Admin@logout',
-        'Admin@vertify',
+        'Base@*', // 基类
+        'Index@*', // 后台首页
+        'Ajax@*', // 所有ajax操作
+        'Ueditor@*', // 编辑器上传
+        'Uploadify@*', // 图片上传
     ),
 );
 

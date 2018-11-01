@@ -35,6 +35,13 @@ class Admin extends Base {
             $condition['a.user_name|a.true_name'] = array('LIKE', "%{$keywords}%");
         }
 
+        /*权限控制 by 小虎哥*/
+        $admin_info = session('admin_info');
+        if (-1 != $admin_info['role_id']) {
+            $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
+        }
+        /*--end*/
+
         /**
          * 数据查询
          */
@@ -44,7 +51,7 @@ class Admin extends Base {
             ->alias('a')
             ->join('__AUTH_ROLE__ b', 'a.role_id = b.id', 'LEFT')
             ->where($condition)
-            ->order('a.admin_id desc')
+            ->order('a.admin_id asc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->select();
 
@@ -217,8 +224,17 @@ class Admin extends Base {
     {
         if (IS_POST) {
             $data = I('post.');
+
+            if (empty($data['password']) || empty($data['password2'])) {
+                $this->error("密码不能为空！");
+            }else if ($data['password'] != $data['password2']) {
+                $this->error("两次密码输入不一致！");
+            }
+
             $data['user_name'] = trim($data['user_name']);
             $data['password'] = func_encrypt($data['password']);
+            $data['password2'] = func_encrypt($data['password2']);
+            $data['role_id'] = intval($data['role_id']);
             $data['add_time'] = getTime();
             if (M('admin')->where("user_name", $data['user_name'])->count()) {
                 $this->error("此用户名已被注册，请更换",U('Admin/admin_add'));
@@ -228,7 +244,7 @@ class Admin extends Base {
                     adminLog('新增管理员：'.$data['user_name']);
                     $this->success("操作成功", U('Admin/index'));
                 } else {
-                    $this->error("操作失败", U('Admin/index'));
+                    $this->error("操作失败");
                 }
             }
         }
@@ -280,6 +296,12 @@ class Admin extends Base {
                 $this->error('禁止更改别人的信息！');
             }
 
+            if (!empty($data['password']) || !empty($data['password2'])) {
+                if ($data['password'] != $data['password2']) {
+                    $this->error("两次密码输入不一致！");
+                }
+            }
+
             $user_name = $data['user_name'];
             if(empty($data['password'])){
                 unset($data['password']);
@@ -288,13 +310,20 @@ class Admin extends Base {
             }
             unset($data['user_name']);
 
+            /*不允许修改自己的权限组*/
+            if (isset($data['role_id'])) {
+                if (-1 != session('admin_info.role_id') && intval($data['role_id']) != session('admin_info.role_id')) {
+                    $data['role_id'] = session('admin_info.role_id');
+                }
+            }
+            /*--end*/
             $data['update_time'] = getTime();
             $r = M('admin')->where('admin_id', $id)->save($data);
             if ($r) {
                 adminLog('编辑管理员：'.$user_name);
                 $this->success("操作成功",U('Admin/index'));
             } else {
-                $this->error("操作失败",U('Admin/index'));
+                $this->error("操作失败");
             }
         }
 

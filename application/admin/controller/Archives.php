@@ -123,6 +123,27 @@ class Archives extends Base
                 }
             }
         }
+        
+        /*权限控制 by 小虎哥*/
+        if (empty($typeid)) {
+            $typeids = [];
+            $admin_info = session('admin_info');
+            if (-1 != $admin_info['role_id']) {
+                $auth_role_info = $admin_info['auth_role_info'];
+                if(! empty($auth_role_info)){
+                    if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                        $condition['a.admin_id'] = $admin_info['admin_id'];
+                    }
+                    if(! empty($auth_role_info['permission']['arctype'])){
+                        $typeids = $auth_role_info['permission']['arctype'];
+                    }
+                }
+            }
+            if (!empty($typeids)) {
+                $condition['a.typeid'] = array('IN', $typeids); 
+            }
+        }
+        /*--end*/
 
         // 模型ID
         $condition['a.channel'] = array('neq', 6);

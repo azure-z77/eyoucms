@@ -13,7 +13,7 @@
                 {/eq}
 
                 {eq name="$Think.const.CONTROLLER_NAME.'@index'|is_check_access" value="1"}
-                <li><a href="{:U("AuthRole/index")}" class="tab {if condition="in_array($Request.controller, array('AuthRole'))"}current{/if}"><span>角色管理</span></a></li>
+                <li><a href="{:U("AuthRole/index")}" class="tab {if condition="in_array($Request.controller, array('AuthRole'))"}current{/if}"><span>权限组列表</span></a></li>
                 {/eq}
             </ul>
         </div>

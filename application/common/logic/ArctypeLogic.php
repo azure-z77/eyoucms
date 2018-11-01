@@ -52,9 +52,6 @@ class ArctypeLogic extends Model
                 if (-1 != $admin_info['role_id']) {
                     $auth_role_info = $admin_info['auth_role_info'];
                     if(! empty($auth_role_info)){
-                        if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
-                            $where['admin_id'] = $admin_info['admin_id'];
-                        }
                         if(! empty($auth_role_info['permission']['arctype'])){
                             $where['id'] = array('IN', $auth_role_info['permission']['arctype']);
                         }

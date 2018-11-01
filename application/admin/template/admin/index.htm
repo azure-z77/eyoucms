@@ -36,13 +36,13 @@
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="ac_id" axis="col4">
-                            <div class="tl" style="padding-left: 10px;">用户名</div>
+                            <div class="">用户名</div>
                         </th>
-                        <th abbr="ac_id" axis="col4" class="w100">
-                            <div class="tl">真实姓名</div>
+                        <th abbr="ac_id" axis="col4" class="w150">
+                            <div class="tc">真实姓名</div>
                         </th>
-                        <th abbr="article_show" axis="col5" class="w100">
-                            <div class="tl">所属角色</div>
+                        <th abbr="article_show" axis="col5" class="w150">
+                            <div class="tc">权限组</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w120">
                             <div class="tc">手机号码</div>
@@ -79,11 +79,11 @@
                                     {/neq}
                                 </div>
                             </td>
-                            <td class="">
+                            <td class="sort">
                                 <div class="w40 tc">{$vo.admin_id}</div>
                             </td>
                             <td style="width: 100%">
-                                <div style="padding-left: 10px;">
+                                <div style="">
                                     {eq name="'Admin@admin_edit'|is_check_access" value="1"}
                                     <a href="{:U('Admin/admin_edit',array('id'=>$vo['admin_id']))}">{$vo.user_name}</a>
                                     {else /}
@@ -92,34 +92,39 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="w100">
+                                <div class="w150 tc">
                                     {$vo.true_name}
                                 </div>
                             </td>
                             <td>
-                                <div class="w100">{$vo.role_name|default='<em class="red">数据出错</em>'}</div>
+                                <div class="w150 tc">{$vo.role_name|default='<em class="red">数据出错</em>'}</div>
                             </td>
                             <td>
-                                <div class="w120">
+                                <div class="w120 tc">
                                     {$vo.mobile}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="tc w160">{$vo.last_login|date='Y-m-d H:i:s',###}</div>
+                                <div class="tc w160">
+                                {empty name="vo.last_login"}
+                                未登录
+                                {else /}
+                                {$vo.last_login|date='Y-m-d H:i:s',###}
+                                {/empty}
+                                </div>
                             </td>
                             <td class="">
                                 <div class="w120 tc">
                                     {eq name="'Admin@admin_edit'|is_check_access" value="1"}
                                     <a href="{:U('Admin/admin_edit',array('id'=>$vo['admin_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {neq name="$vo.admin_id" value="$Think.session.admin_id"}
-                                        {eq name="'Admin@admin_del'|is_check_access" value="1"}
+                                    {eq name="'Admin@admin_del'|is_check_access" value="1"}
+                                        {neq name="$vo.admin_id" value="$Think.session.admin_id"}
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:U('Admin/admin_del')}" data-id="{$vo.admin_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
-                                        {/eq}
-                                    {/neq}
+                                        {/neq}
+                                    {/eq}
                                 </div>
                             </td>
-                            
                         </tr>
                         {/foreach}
                     {/empty}
@@ -130,6 +135,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
+                {if condition="-1 == $Think.session.admin_info.role_id"}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
@@ -151,6 +157,7 @@
                     </a>
                 </div>
                 {/eq}
+                {/if}
             </div>
             <div style="clear:both"></div>
         </div>

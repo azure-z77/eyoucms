@@ -380,11 +380,12 @@ function read_html_cache(){
 function get_default_pic($pic_url = '')
 {
     if (!is_http_url($pic_url)) {
+        $web_basehost = rtrim(tpCache('web.web_basehost'), '/');
         $realpath = realpath(trim($pic_url, '/'));
         if ( is_file($realpath) && file_exists($realpath) ) {
-            $pic_url = request()->domain() . $pic_url;
+            $pic_url = $web_basehost . $pic_url;
         } else {
-            $pic_url = request()->domain() . '/public/static/common/images/not_adv.jpg';
+            $pic_url = $web_basehost . '/public/static/common/images/not_adv.jpg';
         }
     }
 

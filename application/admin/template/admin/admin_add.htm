@@ -12,7 +12,7 @@
             </div>
         </div>
     </div>
-    <form class="form-horizontal" id="adminAdd" action="{:U('Admin/admin_add')}" method="post">
+    <form class="form-horizontal" id="postForm" action="{:U('Admin/admin_add')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
@@ -29,6 +29,15 @@
                 </dt>
                 <dd class="opt">
                     <input type="password" name="password" value="" id="password" class="input-txt">
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="password"><em>*</em>确认密码</label>
+                </dt>
+                <dd class="opt">
+                    <input type="password" name="password2" value="" id="password2" class="input-txt">
                     <p class="notic"></p>
                 </dd>
             </dl>
@@ -52,26 +61,21 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="email">Email邮箱</label>
+                    <label for="name">管理员权限组</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" name="email" value="" id="email" class="input-txt">
-                    <p class="notic"></p>
-                </dd>
-            </dl>
-            <dl class="row"><dt class="tit"><label><b>管理员权限设置</b></label></dt></dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label for="name">权限角色组</label>
-                </dt>
-                <dd class="opt">
+                    <p><label><input type="radio" name="role_id" value="-1" checked="checked" />超级管理员</label></p>
                     {foreach name="admin_role_list" item="role" key="k"}
-                    <p><label><input type="radio" name="role_id" value="{$role.id}" {if condition="$role.id == $Request.param.role_id"} checked="checked"{/if} />{$role.name}</label>&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a></p>
+                    <p>
+                        <label><input type="radio" name="role_id" value="{$role.id}" {if condition="$role.id == $Request.param.role_id"} checked="checked"{/if} />{$role.name}</label>
+                        <!-- &nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
+                    </p>
                     {/foreach}
-                    <p><label style="color: #ff660f;"><input type="radio" name="role_id" value="{$role.id}" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);"/>自定义</label></p>
+                    <p id="custom_role"><label><input type="radio" name="role_id" value="0"" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">快捷新增权限组</a></label></p>
                 </dd>
             </dl>
-            {if condition="false"}
+            {if condition="true"}
+            <dl class="row"><dt class="tit"><label><b>当前权限组预览</b></label></dt></dl>
 <!--             <dl class="row">
                 <dt class="tit">
                     <label for="name">语言权限</label>
@@ -94,10 +98,10 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="name">信息权限</label>
+                    <label for="name">文档权限</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="checkbox" name="only_oneself" value="1" />只允许查看自己发表的信息</label>
+                    <label><input type="checkbox" name="only_oneself" value="1" />只允许查看自己发布的文档</label>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -117,11 +121,11 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="name"><em>*</em>功能权限</label>
+                    <label for="name">功能权限</label>
                 </dt>
                 <dd class="opt">
                     <p>
-                        <label><input type="checkbox" id="select_all_permission" />完全控制</label>
+                        <label><input type="checkbox" id="select_all_permission" />全部选择</label>
                     </p>
 
                     {foreach name="modules" item="vo"}
@@ -190,6 +194,7 @@
                                 {php}$config = json_decode($plugin['config'], true);{/php}
                                 {if condition="! empty($config['permission'])"}
                                 <p style="padding-left:10px;">
+                                    <span class="button level1 switch center_docu"></span>
                                     {foreach $config['permission'] as $index => $text}
                                     <label><input type="checkbox" name="permission[plugins][{$plugin.code}][child][]" value="{$index}" />{$text}</label>
                                     {/foreach}
@@ -210,9 +215,16 @@
 <script type="text/javascript">
     var admin_role_list = {$admin_role_list|json_encode};
     $(function(){
-        $('#adminAdd input[type="checkbox"]').attr("disabled","disabled");
+        // 默认全部禁用复选框
+        $('#postForm input[type="checkbox"]').attr("disabled","disabled");
 
-        $('#adminAdd input[name="role_id"]').bind('click', function(){
+        /*超级管理员默认全选复选框*/
+        if (-1 == $('#postForm input[name="role_id"]').val()) {
+            $('#postForm input[type="checkbox"]').attr('checked', 'checked');
+        }
+        /*--end*/
+
+        $('#postForm input[name="role_id"]').bind('click', function(){
             changeRole($(this).val());
         });
 
@@ -251,27 +263,27 @@
         });
         $('#select_cud').bind('click', function(){
             if($(this).attr('checked')){
-                $('#adminAdd input[name^="cud"]').attr('checked', 'checked');
+                $('#postForm input[name^="cud"]').attr('checked', 'checked');
             }else{
-                $('#adminAdd input[name^="cud"]').removeAttr('checked');
+                $('#postForm input[name^="cud"]').removeAttr('checked');
             }
         });
 
         $('#select_all_permission').bind('click', function(){
             if($(this).attr('checked')){
-                $('#adminAdd input[name^="permission"]').attr('checked', 'checked');
+                $('#postForm input[name^="permission"]').attr('checked', 'checked');
             }else{
-                $('#adminAdd input[name^="permission"]').removeAttr('checked');
+                $('#postForm input[name^="permission"]').removeAttr('checked');
             }
         });
-        $('#adminAdd input[name^="permission"],#adminAdd input[name^="cud"]').bind('click', function(){
+        $('#postForm input[name^="permission"],#postForm input[name^="cud"]').bind('click', function(){
             hasSelectAll();
         });
     });
 
     function hasSelectAll(){
         var c = true;
-        $('#adminAdd input[name^="permission"]').each(function(idx, ele){
+        $('#postForm input[name^="permission"]').each(function(idx, ele){
             if(! $(ele).attr('checked')){
                 c = false;
                 return;
@@ -284,7 +296,7 @@
         }
 
         var c1 = true;
-        $('#adminAdd input[name^="cud"]').each(function(idx, ele){
+        $('#postForm input[name^="cud"]').each(function(idx, ele){
             if(! $(ele).attr('checked')){
                 c1 = false;
                 return;
@@ -298,12 +310,12 @@
     }
 
     function changeRole(value){
-        $('#adminAdd input[name!="role_id"]').removeAttr('checked').removeAttr('disabled');
+        $('#postForm input[name!="role_id"]').removeAttr('checked').removeAttr('disabled');
 
         if(value == "0"){
-            $('#adminAdd input[name!="role_id"]').attr('checked', 'checked');
-            $('#adminAdd input[name="online_update"]').removeAttr('checked');
-            $('#adminAdd input[name="only_oneself"]').removeAttr('checked');
+            $('#postForm input[name!="role_id"]').attr('checked', 'checked');
+            $('#postForm input[name="online_update"]').removeAttr('checked');
+            $('#postForm input[name="only_oneself"]').removeAttr('checked');
             return ;
         }
         for(var i in admin_role_list){
@@ -311,22 +323,22 @@
             if(item.id == value){
                 if(item.language){
                     item.language.map(function(row){
-                        $('#adminAdd input[name^="language"][value="'+row+'"]').attr('checked', 'checked');
+                        $('#postForm input[name^="language"][value="'+row+'"]').attr('checked', 'checked');
                     });
                 }
 
                 if(item.online_update){
-                    $('#adminAdd input[name="online_update"]').attr('checked', 'checked');
+                    $('#postForm input[name="online_update"]').attr('checked', 'checked');
                 };
                 if(item.editor_visual){
-                    $('#adminAdd input[name="editor_visual"]').attr('checked', 'checked');
+                    $('#postForm input[name="editor_visual"]').attr('checked', 'checked');
                 };
                 if(item.only_oneself){
-                    $('#adminAdd input[name="only_oneself"]').attr('checked', 'checked');
+                    $('#postForm input[name="only_oneself"]').attr('checked', 'checked');
                 };
                 if(item.cud){
                     item.cud.map(function(row){
-                        $('#adminAdd input[name^="cud"][value="'+row+'"]').attr('checked', 'checked');
+                        $('#postForm input[name^="cud"][value="'+row+'"]').attr('checked', 'checked');
                     });
                 }
 
@@ -335,17 +347,17 @@
                         if(p == 'plugins'){
                             if(item.permission[p]){
                                 for(var pluginId in item.permission[p]){
-                                    $('#adminAdd input[name="permission['+p+']['+pluginId+'][code]"][value="'+pluginId+'"]').attr('checked', 'checked');
+                                    $('#postForm input[name="permission['+p+']['+pluginId+'][code]"][value="'+pluginId+'"]').attr('checked', 'checked');
                                     if(item.permission[p][pluginId].child){
                                         item.permission[p][pluginId].child.map(function(row){
-                                            $('#adminAdd input[name="permission['+p+']['+pluginId+'][child][]"][value="'+row+'"]').attr('checked', 'checked');
+                                            $('#postForm input[name="permission['+p+']['+pluginId+'][child][]"][value="'+row+'"]').attr('checked', 'checked');
                                         });
                                     }
                                 }
                             }
                         }else{
                             item.permission[p].map(function(row){
-                                $('#adminAdd input[name="permission['+p+'][]"][value="'+row+'"]').attr('checked', 'checked');
+                                $('#postForm input[name="permission['+p+'][]"][value="'+row+'"]').attr('checked', 'checked');
                             });
                         }
                         
@@ -353,7 +365,7 @@
                 }
 
                 hasSelectAll();
-                $('#adminAdd input[type="checkbox"]').attr('disabled', 'disabled');
+                $('#postForm input[type="checkbox"]').attr('disabled', 'disabled');
                 break;
             }
         }
@@ -365,7 +377,7 @@
         // iframe窗
         layer.open({
             type: 2,
-            title: '自定义权限角色组',
+            title: '自定义权限组',
             fixed: true, //不固定
             shadeClose: false,
             shade: 0.3,
@@ -375,6 +387,11 @@
         });
     }
 
+    function custom_role(str)
+    {
+        $('#custom_role').before(str);
+    }
+
     // 判断输入框是否为空
     function adsubmit(){
         if($('input[name=user_name]').val() == ''){
@@ -382,30 +399,32 @@
             $('input[name=user_name]').focus();
             return false;
         }
-        if($('input[name=password]').val() == ''){
-            showErrorMsg('密码不能为空！');
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        if(password == ''){
+            showErrorMsg('登录密码不能为空！');
+            $('input[name=password]').focus();
+            return false;
+        }
+        if(password2 == ''){
+            showErrorMsg('确认密码不能为空！');
+            $('input[name=password2]').focus();
+            return false;
+        }
+        if (password != password2) {
+            showErrorMsg('两次密码输入不一致！');
             $('input[name=password]').focus();
             return false;
         }
         var role_id = $('input[name=role_id]:checked').val();
         if(role_id == '' || undefined == role_id){
-            showErrorMsg('请选择权限角色组！');
+            showErrorMsg('请选择权限组！');
             $('input[name=role_id]').focus();
-            return false;
-        }
-        var a = [];
-        $('input[name^=permission]').each(function(i,o){
-            if($(o).is(':checked')){
-                a.push($(o).val());
-            }
-        })
-        if(a.length == 0){
-            showErrorMsg('请具体分配权限！');
             return false;
         }
 
         layer_loading('正在处理');
-        $('#adminAdd').submit();
+        $('#postForm').submit();
     }
 </script>
 

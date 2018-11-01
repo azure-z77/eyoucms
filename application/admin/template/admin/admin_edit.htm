@@ -35,6 +35,15 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
+                    <label for="password">确认密码</label>
+                </dt>
+                <dd class="opt">
+                    <input type="password" name="password2" value="" id="password2" class="input-txt">
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
                     <label for="true_name">真实姓名</label>
                 </dt>
                 <dd class="opt">
@@ -64,13 +73,17 @@
             <dl class="row"><dt class="tit"><label><b>管理员权限设置</b></label></dt></dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="name">权限角色组</label>
+                    <label for="name">用户组</label>
                 </dt>
                 <dd class="opt">
+                    <p><label><input type="radio" name="role_id" value="-1" {if condition="-1 == $info.role_id"}checked="checked"{/if} />超级管理员</label></p>
                     {foreach name="admin_role_list" item="role"}
-                    <p><label><input type="radio" name="role_id" value="{$role.id}" {eq name="$role_info.id" value="$role.id"} checked="checked"{/eq} />{$role.name}</label>&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a></p>
+                    <p>
+                        <label><input type="radio" name="role_id" value="{$role.id}" {eq name="$role_info.id" value="$role.id"} checked="checked"{/eq} />{$role.name}</label>
+                        <!-- &nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
+                    </p>
                     {/foreach}
-                    <p><label style="color: #ff660f;"><input type="radio" name="role_id" value="{$role.id}" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);"/>自定义</label></p>
+                    <p id="custom_role"><label><input type="radio" name="role_id" value="0"" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">自定义用户组</a></label></p>
                 </dd>
             </dl>
             {/if}
@@ -370,7 +383,7 @@
         // iframe窗
         layer.open({
             type: 2,
-            title: '自定义权限角色组',
+            title: '自定义用户组',
             fixed: true, //不固定
             shadeClose: false,
             shade: 0.3,
@@ -380,14 +393,23 @@
         });
     }
 
+    function custom_role(str)
+    {
+        $('#custom_role').before(str);
+    }
+
     // 判断输入框是否为空
     function adsubmit(){
-        var role_id = $('input[name=role_id]:checked').val();
-        if(role_id == '' || undefined == role_id){
-            showErrorMsg('请选择权限角色组！');
-            $('input[name=role_id]').focus();
-            return false;
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        if (password != '' || password2 != '') {
+            if (password != password2) {
+                showErrorMsg('两次密码输入不一致！');
+                $('input[name=password]').focus();
+                return false;
+            }
         }
+
         layer_loading('正在处理');
         $('#adminEdit').submit();
     }

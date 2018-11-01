@@ -90,6 +90,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'parent_id' => 
+  array (
+    'name' => 'parent_id',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'role_id' => 
   array (
     'name' => 'role_id',

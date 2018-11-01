@@ -36,12 +36,6 @@ class Base extends Common {
     public function _initialize() 
     {
         parent::_initialize();
-        //过滤不需要登陆的行为
-        if(in_array(ACTION_NAME, config('filter_login_action')) || in_array(CONTROLLER_NAME, config('filter_login_controller'))){
-            //return;
-        }else{
-
-        }
         
         $this->set_global_variable();
     }
