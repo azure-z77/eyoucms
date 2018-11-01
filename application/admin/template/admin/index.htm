@@ -74,9 +74,9 @@
                         <tr>
                             <td class="sign">
                                 <div class="w40 tc">
-                                    {neq name="$vo.admin_id" value="$Think.session.admin_id"}
+                                    {if condition="$Think.session.admin_id != $vo.admin_id AND !empty($vo.parent_id)"}
                                     <input type="checkbox" name="ids[]" value="{$vo.admin_id}">
-                                    {/neq}
+                                    {/if}
                                 </div>
                             </td>
                             <td class="sort">
@@ -119,9 +119,9 @@
                                     <a href="{:U('Admin/admin_edit',array('id'=>$vo['admin_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="'Admin@admin_del'|is_check_access" value="1"}
-                                        {neq name="$vo.admin_id" value="$Think.session.admin_id"}
+                                        {if condition="$Think.session.admin_id != $vo.admin_id AND !empty($vo.parent_id)"}
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:U('Admin/admin_del')}" data-id="{$vo.admin_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
-                                        {/neq}
+                                        {/if}
                                     {/eq}
                                 </div>
                             </td>

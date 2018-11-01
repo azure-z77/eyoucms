@@ -37,7 +37,11 @@ class Admin extends Base {
 
         /*权限控制 by 小虎哥*/
         $admin_info = session('admin_info');
-        if (-1 != $admin_info['role_id']) {
+        if (-1 == $admin_info['role_id']) {
+            if (!empty($admin_info['parent_id'])) {
+                $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
+            }
+        } else {
             $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
         }
         /*--end*/
@@ -56,7 +60,9 @@ class Admin extends Base {
             ->select();
 
         foreach ($list as $key => $val) {
-            $val['role_name'] = ($val['role_id'] == -1) ? '超级管理员' : $val['role_name'];
+            if (-1 == intval($val['role_id'])) {
+                $val['role_name'] = !empty($val['parent_id']) ? '超级管理员' : '创始人';
+            }
             $list[$key] = $val;
         }
 
@@ -95,8 +101,8 @@ class Admin extends Base {
 
                     $role_id = $admin_info['role_id'];
                     $auth_role_info = array();
-                    $role_name = '超级管理员';
-                    if (-1 != $role_id) {
+                    $role_name = !empty($admin_info['parent_id']) ? '超级管理员' : '创始人';
+                    if (0 < intval($role_id)) {
                         $auth_role_info = M('auth_role')
                             ->field("a.*, a.name AS role_name")
                             ->alias('a')
@@ -239,6 +245,7 @@ class Admin extends Base {
             $data['password'] = func_encrypt($data['password']);
             $data['password2'] = func_encrypt($data['password2']);
             $data['role_id'] = intval($data['role_id']);
+            $data['parent_id'] = session('admin_info.admin_id');
             $data['add_time'] = getTime();
             if (M('admin')->where("user_name", $data['user_name'])->count()) {
                 $this->error("此用户名已被注册，请更换",U('Admin/admin_add'));
@@ -391,10 +398,12 @@ class Admin extends Base {
                 respose(array('status'=>0, 'msg'=>'禁止删除自己'));
             }
             if (!empty($id_arr)) {
-                $count = M('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
-                    ->count();
-                if (!empty($count)) {
-                    respose(array('status'=>0, 'msg'=>'禁止删除超级管理员'));
+                if (-1 != session('admin_info.role_id') || !empty($parent_id) ) {
+                    $count = M('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
+                        ->count();
+                    if (!empty($count)) {
+                        respose(array('status'=>0, 'msg'=>'禁止删除超级管理员'));
+                    }
                 }
 
                 $result = M('admin')->field('user_name')->where("admin_id",'IN',$id_arr)->select();

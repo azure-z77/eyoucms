@@ -82,7 +82,8 @@ class AuthRole extends Base {
             $role_id = $model->saveAuthRole(input());
             if($role_id){
                 adminLog('新增权限组：'.$data['name']);
-                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name']]);
+                $admin_role_list = model('AuthRole')->getRoleAll();
+                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name'],'admin_role_list'=>json_encode($admin_role_list)]);
             }else{
                 $this->error('操作失败');
             }

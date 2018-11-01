@@ -64,14 +64,14 @@
                     <label for="name">管理员权限组</label>
                 </dt>
                 <dd class="opt">
-                    <p><label><input type="radio" name="role_id" value="-1" checked="checked" />超级管理员</label></p>
+                    <p><label><input type="radio" name="role_id" value="-1" onclick="changeRole(-1);" checked="checked" />超级管理员</label></p>
                     {foreach name="admin_role_list" item="role" key="k"}
                     <p>
-                        <label><input type="radio" name="role_id" value="{$role.id}" {if condition="$role.id == $Request.param.role_id"} checked="checked"{/if} />{$role.name}</label>
+                        <label><input type="radio" name="role_id" value="{$role.id}" onclick="changeRole({$role.id});" {if condition="$role.id == $Request.param.role_id"} checked="checked"{/if} />{$role.name}</label>
                         <!-- &nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
                     </p>
                     {/foreach}
-                    <p id="custom_role"><label><input type="radio" name="role_id" value="0"" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">快捷新增权限组</a></label></p>
+                    <p id="custom_role"><label><input type="radio" name="role_id" value="0" onclick="changeRole(0);" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">快捷新增权限组</a></label></p>
                 </dd>
             </dl>
             <dl class="row"><dt class="tit"><label><b>当前权限组预览</b></label></dt></dl>
@@ -210,8 +210,8 @@
         </div>
     </form>
 </div>
+<textarea name="admin_role_list" id="admin_role_list" class="none">{$admin_role_list|json_encode}</textarea>
 <script type="text/javascript">
-    var admin_role_list = {$admin_role_list|json_encode};
     $(function(){
         // 默认全部禁用复选框
         $('#postForm input[type="checkbox"]').attr("disabled","disabled");
@@ -221,10 +221,6 @@
             $('#postForm input[type="checkbox"]').attr('checked', 'checked');
         }
         /*--end*/
-
-        $('#postForm input[name="role_id"]').bind('click', function(){
-            changeRole($(this).val());
-        });
 
         $('.arctype_bg').bind('click', function(){
             var acid = $(this).next().find('input').val(), input = 'arctype_child_' + acid;
@@ -323,6 +319,7 @@
         //     return ;
         // }
         /*--end*/
+        var admin_role_list = JSON.parse($('#admin_role_list').val());
         for(var i in admin_role_list){
             var item = admin_role_list[i];
             if(item.id == value){
@@ -392,9 +389,11 @@
         });
     }
 
-    function custom_role(str)
+    function custom_role(str, new_role_id, auth_role_list)
     {
         $('#custom_role').before(str);
+        $('#admin_role_list').val(auth_role_list);
+        changeRole(new_role_id);
     }
 
     // 判断输入框是否为空

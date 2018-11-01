@@ -358,8 +358,8 @@
                 success: function(res){
                     layer.closeAll();
                     if (res.code == 1) {
-                        var str = '<p><label><input type="radio" name="role_id" value="'+res.data.role_id+'" checked="checked" />'+res.data.role_name+'</label></p>';
-                        parent.custom_role(str);
+                        var str = '<p><label><input type="radio" name="role_id" value="'+res.data.role_id+'" onclick="changeRole('+res.data.role_id+');" checked="checked" />'+res.data.role_name+'</label></p>';
+                        parent.custom_role(str, res.data.role_id, res.data.admin_role_list);
                         parent.layer.close(parentObj);
                         parent.layer.msg(res.msg, {shade: 0.3, time: 1000});
                     } else {

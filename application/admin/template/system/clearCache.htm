@@ -48,17 +48,17 @@
             {/eq}
             {eq name="$Think.const.CONTROLLER_NAME.'@clearSystemCache'|is_check_access" value="1"}
             <dl class="row">
-                <dt class="tit">数据缓存</dt>
+                <dt class="tit">系统缓存</dt>
                 <dd class="opt">
                     <ul class="nc-row ncap-waybill-list">
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="cache" checked="checked">模板缓存(cache)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="cache" checked="checked">数据缓存(cache)</label>
                         </li>
                         <li>
                             <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="data" checked="checked">项目数据(data)</label>
                         </li>
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="logs" checked="checked">logs日志(logs)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="log" checked="checked">访问日志(log)</label>
                         </li>
                         <li>
                             <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="temp" checked="checked">临时数据(temp)</label>

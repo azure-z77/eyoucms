@@ -130,13 +130,15 @@ class Driver
         $arrKey = array_join_string(array('fm','N','sa','WV','udF','9k','b2','1','h','a','W','5+'));
         $arrKey = msubstr($arrKey, 1, strlen($arrKey) - 2);
         /*--end*/
+        $web_basehost = tpCache('web.web_basehost');
+        $web_basehost = preg_replace('#(http://|https://)#i', '', $web_basehost);
         $vaules = array(
-            $arrKey => urldecode($_SERVER['HTTP_HOST']),
+            $arrKey => urldecode($web_basehost),
         );
         $query_str = array_join_string(array('f','i','9','p','b','m','R','l','e','C','5','w','a','H','A','/','b','T','1','h','c','G','k','m','Y','z','1','T','Z','X','J','2','a','W','N','l','J','m','E','9','Z','2','V','0','X','2','F','1','d','G','h','v','c','n','R','v','a','2','V','u','J','n','4','='));
         $query_str = msubstr($query_str, 1, strlen($query_str) - 2);
         $url = $domian.$query_str.http_build_query($vaules);
-        $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+        $context = stream_context_set_default(array('http' => array('timeout' => 2,'method'=>'GET')));
         $response = @file_get_contents($url,false,$context);
         $params = json_decode($response,true);
 
