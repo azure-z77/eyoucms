@@ -238,7 +238,6 @@ class System extends Base
     {
         if (IS_POST) {
             $post = I('post.');
-            var_dump($post);exit;
 
             if (!empty($post['clearHtml'])) { // 清除页面缓存
                 $this->clearHtmlCache($post['clearHtml']);

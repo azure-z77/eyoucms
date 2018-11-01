@@ -49,11 +49,10 @@ class UpgradeLogic extends Model
     public  function checkVersion() { 
         
         $ctl_act_list = array(
-            'index_index',
-            'index_welcome',
-            'upgrade_welcome',
+            'index@welcome',
+            'upgrade@welcome',
         );
-        $ctl_act_str = strtolower(CONTROLLER_NAME).'_'.strtolower(ACTION_NAME);
+        $ctl_act_str = strtolower(CONTROLLER_NAME).'@'.strtolower(ACTION_NAME);
         if(!in_array($ctl_act_str, $ctl_act_list))  
         {
             return false;

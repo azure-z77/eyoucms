@@ -135,16 +135,17 @@
                                 <h2>{$vo2.name}</h2>
                                 {if condition="! empty($arctypes)"}
                                 <p>
+                                    {php}$first_arctype_id = '';{/php}
                                     {foreach name="arctypes" item="arctype" key="k"}
-                                    {if condition="isset($arctype_array[$arctype['id']])"}
-                                    {if condition="$k>0"}
-                                    <em class="arctype_bg expandable"></em>
-                                    {else /}
-                                    <em class="arctype_bg collapsable"></em>
-                                    {php}$first_arctype_id = $arctype['id'];{/php}
-                                    {/if}
-                                    {/if}
-                                    <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
+                                        {if condition="isset($arctype_array[$arctype['id']])"}
+                                            {if condition="$k>0"}
+                                            <em class="arctype_bg expandable"></em>
+                                            {else /}
+                                            <em class="arctype_bg collapsable"></em>
+                                            {php}$first_arctype_id = $arctype['id'];{/php}
+                                            {/if}
+                                        {/if}
+                                        <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
                                     {/foreach}
                                 </p>
                                 
