@@ -83,7 +83,7 @@ class Archives extends Base
             $ctl_name = $row['ctl_name'];
             $current_channel = $row['id'];
             if (6 == $current_channel) {
-                $gourl = U("Arctype/single", array('typeid'=>$typeid));
+                $gourl = U("Arctype/single_edit", array('typeid'=>$typeid));
                 $this->redirect($gourl);
             } else if (8 == $current_channel) {
                 $gourl = U("Guestbook/index", array('typeid'=>$typeid));

@@ -41,7 +41,7 @@ class Uiset extends Base
         if (-1 != $admin_info['role_id']) {
             $auth_role_info = $admin_info['auth_role_info'];
             $permission = $auth_role_info['permission'];
-            $auth_rule = get_conf('auth_rule');
+            $auth_rule = get_auth_rule();
             $all_auths = []; // 系统全部权限对应的菜单ID
             $admin_auths = []; // 用户当前拥有权限对应的菜单ID
             $diff_auths = []; // 用户没有被授权的权限对应的菜单ID

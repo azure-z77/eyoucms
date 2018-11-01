@@ -135,11 +135,10 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
-                {if condition="-1 == $Think.session.admin_info.role_id"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@admin_del'|is_check_access" value="1"}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="$Think.const.CONTROLLER_NAME.'@admin_del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Admin/admin_del')}">
                         <div class="add" title="批量删除">
@@ -157,7 +156,6 @@
                     </a>
                 </div>
                 {/eq}
-                {/if}
             </div>
             <div style="clear:both"></div>
         </div>

@@ -33,6 +33,13 @@ $api_config = array(
     //'exception_tmpl'         => ROOT_PATH.'public/static/errpage/404.html',
     // errorpage 错误页面
     //'error_tmpl'         => ROOT_PATH.'public/static/errpage/404.html',
+
+    // 过滤不需要登录的操作
+    'filter_login_action' => array(
+        'Admin@login', // 登录
+        'Admin@logout', // 退出
+        'Admin@vertify', // 验证码
+    ),
     
     // 无需验证权限的操作
     'uneed_check_action' => array(
@@ -41,9 +48,6 @@ $api_config = array(
         'Ajax@*', // 所有ajax操作
         'Ueditor@*', // 编辑器上传
         'Uploadify@*', // 图片上传
-        'Admin@login', // 登录
-        'Admin@logout', // 退出
-        'Admin@vertify', // 验证码
     ),
 );
 

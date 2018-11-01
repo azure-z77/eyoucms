@@ -225,6 +225,10 @@ class Admin extends Base {
         if (IS_POST) {
             $data = I('post.');
 
+            if (-1 != session('admin_info.role_id')) {
+                $this->error("超级管理员才能操作！");
+            }
+
             if (empty($data['password']) || empty($data['password2'])) {
                 $this->error("密码不能为空！");
             }else if ($data['password'] != $data['password2']) {
@@ -258,7 +262,7 @@ class Admin extends Base {
         $this->assign('modules', $modules);
 
         // 权限集
-        $auth_rules = get_conf('auth_rule');
+        $auth_rules = get_auth_rule(['is_modules'=>1]);
         $auth_rule_list = group_same_key($auth_rules, 'menu_id');
         $this->assign('auth_rule_list', $auth_rule_list);
 
@@ -292,7 +296,9 @@ class Admin extends Base {
             $data = I('post.');
             $id = $data['admin_id'];
 
-            if (-1 != session('admin_info.role_id') && session('admin_id') != $id) {
+            if ($id == session('admin_info.admin_id')) {
+                unset($data['role_id']); // 不能修改自己的权限组
+            } else if (-1 != session('admin_info.role_id') && session('admin_info.admin_id') != $id) {
                 $this->error('禁止更改别人的信息！');
             }
 
@@ -348,7 +354,7 @@ class Admin extends Base {
         $this->assign('modules', $modules);
 
         // 权限集
-        $auth_rules = get_conf('auth_rule');
+        $auth_rules = get_auth_rule(['is_modules'=>1]);
         $auth_rule_list = group_same_key($auth_rules, 'menu_id');
         $this->assign('auth_rule_list', $auth_rule_list);
 

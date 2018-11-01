@@ -1318,3 +1318,7 @@ a.upimg:hover{background-color: #e6e6e6;border-color: #adadad;}
 .rolecss .admin_poplistdiv label{ margin-right: 3px; }
 .rolecss .admin_poplistdiv .arctype_child1{padding-left:10px;}
 .rolecss .admin_poplistdiv .arctype_child2{padding-left:10px;color: #390; height:20px;}
+
+
+.rolecss .form-horizontal .ncap-form-default div.bot{position: fixed;background: #fff; height: 36px;padding: 8px 0px 8px 134px;margin-left: -134px; width: 100%; bottom: 0px;}
+.rolecss .ncap-form-default{ padding-bottom: 58px; }

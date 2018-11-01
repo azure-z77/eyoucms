@@ -18,6 +18,7 @@
  *      menu_id   一级模块ID
  *      menu_id2    二级模块ID
  *      name  权限名称
+ *      is_modules 是否显示在分组下
  *      auths  权限列表(格式：控制器@*,控制器@操作名 --多个权限以逗号隔开)
  */
 return [
@@ -26,6 +27,7 @@ return [
         'menu_id' => 1001,
         'menu_id2' => 0,
         'name'  => '栏目管理',
+        'is_modules'    => 1,
         'auths' => 'Arctype@index,Arctype@add,Arctype@edit,Arctype@del',
     ],
     [
@@ -33,13 +35,15 @@ return [
         'menu_id' => 1002,
         'menu_id2' => 0,
         'name'  => '内容管理',
-        'auths' => 'Archives@*,Arctype@single',
+        'is_modules'    => 1,
+        'auths' => 'Archives@*,Arctype@single_edit',
     ],
     [
         'id' => 3,
         'menu_id' => 1003,
         'menu_id2' => 0,
         'name'  => '允许操作',
+        'is_modules'    => 1,
         'auths' => 'Other@*,AdPosition@*',
     ],
     [
@@ -47,6 +51,7 @@ return [
         'menu_id' => 2001,
         'menu_id2' => 0,
         'name'  => '允许操作',
+        'is_modules'    => 1,
         'auths' => 'System@web,System@web2,System@basic,System@water,System@index',
     ],
     // [
@@ -54,6 +59,7 @@ return [
     //     'menu_id' => 2001,
     //     'menu_id2' => 0,
     //     'name'  => '核心设置',
+    //     'is_modules'    => 1,
     //     'auths' => 'System@web2,System@index',
     // ],
     // [
@@ -61,6 +67,7 @@ return [
     //     'menu_id' => 2001,
     //     'menu_id2' => 0,
     //     'name'  => '附件设置',
+    //     'is_modules'    => 1,
     //     'auths' => 'System@basic,System@index',
     // ],
     // [
@@ -68,6 +75,7 @@ return [
     //     'menu_id' => 2001,
     //     'menu_id2' => 0,
     //     'name'  => '图片水印',
+    //     'is_modules'    => 1,
     //     'auths' => 'System@water,System@index',
     // ],
     [
@@ -75,6 +83,7 @@ return [
         'menu_id' => 2003,
         'menu_id2' => 2003001,
         'name'  => 'SEO优化',
+        'is_modules'    => 1,
         'auths' => 'Seo@*',
     ],
     [
@@ -82,6 +91,7 @@ return [
         'menu_id' => 2003,
         'menu_id2' => 2003002,
         'name'  => '友情链接',
+        'is_modules'    => 1,
         'auths' => 'Links@*',
     ],
     [
@@ -89,13 +99,15 @@ return [
         'menu_id' => 2004,
         'menu_id2' => 2004001,
         'name'  => '管理员',
-        'auths' => 'Admin@*,AuthRole@*',
+        'is_modules'    => 1,
+        'auths' => 'Admin@admin_edit,Admin@admin_pwd',
     ],
     [
         'id' => 11,
         'menu_id' => 2004,
         'menu_id2' => 2004002,
         'name'  => '备份还原',
+        'is_modules'    => 1,
         'auths' => 'Tools@*',
     ],
     [
@@ -103,6 +115,7 @@ return [
         'menu_id' => 2004,
         'menu_id2' => 2004003,
         'name'  => '模板管理',
+        'is_modules'    => 1,
         'auths' => 'Filemanager@*',
     ],
     [
@@ -110,6 +123,7 @@ return [
         'menu_id' => 2004,
         'menu_id2' => 2004004,
         'name'  => '字段管理',
+        'is_modules'    => 1,
         'auths' => 'Field@*',
     ],
     [
@@ -117,6 +131,7 @@ return [
         'menu_id' => 2004,
         'menu_id2' => 2004005,
         'name'  => '清除缓存',
+        'is_modules'    => 1,
         'auths' => 'System@clearCache',
     ],
     [
@@ -124,6 +139,7 @@ return [
         'menu_id' => 2005,
         'menu_id2' => 0,
         'name'  => '插件应用',
+        'is_modules'    => 1,
         'auths' => 'Weapp@index,Weapp@create,Weapp@pack,Weapp@upload,Weapp@disable,Weapp@install,Weapp@enable,Weapp@execute',
     ],
     [
@@ -131,6 +147,7 @@ return [
         'menu_id' => 2002,
         'menu_id2' => 0,
         'name'  => '允许操作',
+        'is_modules'    => 1,
         'auths' => 'Uiset@*',
     ],
     [
@@ -138,6 +155,15 @@ return [
         'menu_id' => 2005,
         'menu_id2' => 0,
         'name'  => '插件卸载',
+        'is_modules'    => 0,
         'auths' => 'Weapp@uninstall',
+    ],
+    [
+        'id' => 18,
+        'menu_id' => 2004,
+        'menu_id2' => 2004001,
+        'name'  => '权限组',
+        'is_modules'    => 0,
+        'auths' => 'Admin@admin_add,Admin@admin_del,AuthRole@*',
     ],
 ];

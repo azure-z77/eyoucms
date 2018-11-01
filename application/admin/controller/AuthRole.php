@@ -98,7 +98,7 @@ class AuthRole extends Base {
 
         // 权限集
         // $singleArr = array_multi2single($modules, 'child'); // 多维数组转为一维
-        $auth_rules = get_conf('auth_rule');
+        $auth_rules = get_auth_rule(['is_modules'=>1]);
         $auth_rule_list = group_same_key($auth_rules, 'menu_id');
         $this->assign('auth_rule_list', $auth_rule_list);
 
@@ -178,7 +178,7 @@ class AuthRole extends Base {
         $this->assign('modules', $modules);
 
         // 权限集
-        $auth_rules = get_conf('auth_rule');
+        $auth_rules = get_auth_rule(['is_modules'=>1]);
         $auth_rule_list = group_same_key($auth_rules, 'menu_id');
         $this->assign('auth_rule_list', $auth_rule_list);
 

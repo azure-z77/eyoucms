@@ -67,6 +67,24 @@ function get_conf($name = 'global')
 }
 
 /**
+ * 获取权限列表文件
+ */
+function get_auth_rule($where = [])
+{
+    $auth_rule = include APP_PATH.MODULE_NAME.'/conf/auth_rule.php';
+    if (!empty($where)) {
+        foreach ($auth_rule as $k1 => $rules) {
+            foreach ($where as $k2 => $v2) {
+                if ($rules[$k2] != $v2) {
+                    unset($auth_rule[$k1]);
+                }
+            }
+        }
+    }
+    return $auth_rule;
+}
+
+/**
  * 检测是否有该权限
  */
 function is_check_access($str = 'Index@index') {  
@@ -83,7 +101,7 @@ function is_check_access($str = 'Index@index') {
         $permission = $auth_role_info['permission'];
         $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
 
-        $auth_rule = get_conf('auth_rule');
+        $auth_rule = get_auth_rule();
         $all_auths = []; // 系统全部权限对应的菜单ID
         $admin_auths = []; // 用户当前拥有权限对应的菜单ID
         $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
@@ -118,7 +136,7 @@ function getMenuList() {
         $permission = $auth_role_info['permission'];
         $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
 
-        $auth_rule = get_conf('auth_rule');
+        $auth_rule = get_auth_rule();
         $all_auths = []; // 系统全部权限对应的菜单ID
         $admin_auths = []; // 用户当前拥有权限对应的菜单ID
         $diff_auths = []; // 用户没有被授权的权限对应的菜单ID

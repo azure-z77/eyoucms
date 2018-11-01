@@ -74,7 +74,6 @@
                     <p id="custom_role"><label><input type="radio" name="role_id" value="0"" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">快捷新增权限组</a></label></p>
                 </dd>
             </dl>
-            {if condition="true"}
             <dl class="row"><dt class="tit"><label><b>当前权限组预览</b></label></dt></dl>
 <!--             <dl class="row">
                 <dt class="tit">
@@ -207,7 +206,6 @@
                     {/if}
                 </dd>
             </dl>
-            {/if}
             <div class="bot"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
         </div>
     </form>
@@ -310,14 +308,21 @@
     }
 
     function changeRole(value){
+        if (-1 == value) {
+            $('#postForm input[type="checkbox"]').attr("checked","checked").attr('disabled', 'disabled');
+            return;
+        }
+        
         $('#postForm input[name!="role_id"]').removeAttr('checked').removeAttr('disabled');
 
-        if(value == "0"){
-            $('#postForm input[name!="role_id"]').attr('checked', 'checked');
-            $('#postForm input[name="online_update"]').removeAttr('checked');
-            $('#postForm input[name="only_oneself"]').removeAttr('checked');
-            return ;
-        }
+        /*自定义权限组*/
+        // if(value == "0"){
+        //     $('#postForm input[name!="role_id"]').attr('checked', 'checked');
+        //     $('#postForm input[name="online_update"]').removeAttr('checked');
+        //     $('#postForm input[name="only_oneself"]').removeAttr('checked');
+        //     return ;
+        // }
+        /*--end*/
         for(var i in admin_role_list){
             var item = admin_role_list[i];
             if(item.id == value){
@@ -330,9 +335,9 @@
                 if(item.online_update){
                     $('#postForm input[name="online_update"]').attr('checked', 'checked');
                 };
-                if(item.editor_visual){
-                    $('#postForm input[name="editor_visual"]').attr('checked', 'checked');
-                };
+                // if(item.editor_visual){
+                //     $('#postForm input[name="editor_visual"]').attr('checked', 'checked');
+                // };
                 if(item.only_oneself){
                     $('#postForm input[name="only_oneself"]').attr('checked', 'checked');
                 };

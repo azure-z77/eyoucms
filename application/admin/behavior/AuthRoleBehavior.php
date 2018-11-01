@@ -87,7 +87,7 @@ class AuthRoleBehavior
         /*只有相应的控制器和操作名才执行，以便提高性能*/
         $ctl = strtolower(self::$controllerName);
         $act = strtolower(self::$actionName);
-        $actArr = ['add','edit','del','single'];
+        $actArr = ['add','edit','del'];
         if ('weapp' == $ctl && 'execute' == $act) {
             $sa = input('param.sa/s');
             foreach ($actArr as $key => $cud) {

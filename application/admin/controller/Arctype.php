@@ -146,6 +146,10 @@ class Arctype extends Base
                         }
                     }
 
+                    /*同步栏目ID到权限组，默认是赋予该栏目的权限*/
+                    $this->syn_auth_role($insertId);
+                    /*--end*/
+
                     \think\Cache::clear('arctype');
                     extra_cache('admin_all_menu', NULL);
                     \think\Cache::clear('admin_archives_release');
@@ -455,7 +459,7 @@ class Arctype extends Base
     /**
      * 内容管理
      */
-    public function single()
+    public function single_edit()
     {
         if (IS_POST) {
             $post = I('post.');
@@ -501,7 +505,7 @@ class Arctype extends Base
         /*返回上一层*/
         $gourl = I('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Arctype/single', array('typeid'=>$typeid));
+            $gourl = U('Arctype/single_edit', array('typeid'=>$typeid));
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -756,5 +760,32 @@ class Arctype extends Base
             'templisthtml'   => $templisthtml,
             'tempviewhtml'   => $tempviewhtml,
         ));
+    }
+
+    /**
+     * 同步栏目ID到权限组，默认是赋予该栏目的权限
+     * @param int $typeid
+     */
+    private function syn_auth_role($typeid = 0)
+    {
+        if (0 < intval($typeid)) {
+            $roleRow = model('AuthRole')->getRoleAll();
+            if (!empty($roleRow)) {
+                $saveData = [];
+                foreach ($roleRow as $key => $val) {
+                    $permission = $val['permission'];
+                    $arctype = !empty($permission['arctype']) ? $permission['arctype'] : [];
+                    if (!empty($arctype)) {
+                        array_push($arctype, $typeid);
+                        $permission['arctype'] = $arctype;
+                    }
+                    $saveData[] = array(
+                        'id'    => $val['id'],
+                        'permission'    => $permission,
+                    );
+                }
+                model('AuthRole')->saveAll($saveData);
+            }
+        }
     }
 }

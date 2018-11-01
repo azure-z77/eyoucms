@@ -41,8 +41,8 @@ class Uiset extends Controller
         //过滤不需要登陆的行为
         $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
         $ctl_all = CONTROLLER_NAME.'@*';
-        $uneed_check_action = config('uneed_check_action');
-        if (in_array($ctl_act, $uneed_check_action) || in_array($ctl_all, $uneed_check_action)) {
+        $filter_login_action = config('filter_login_action');
+        if (in_array($ctl_act, $filter_login_action) || in_array($ctl_all, $filter_login_action)) {
             //return;
         }else{
             if(!session('?admin_id')){

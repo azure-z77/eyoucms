@@ -269,11 +269,11 @@
     }
 
     function changeRole(value){
-        $('#postForm input[type="checkbox"]').removeAttr('checked');
         if (-1 == value) {
             $('#postForm input[type="checkbox"]').attr("checked","checked");
             return;
         }
+        $('#postForm input[type="checkbox"]').removeAttr('checked');
         for(var i in admin_role_list){
             var item = admin_role_list[i];
             if(item.id == value){
