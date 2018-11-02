@@ -213,6 +213,7 @@ class Images extends Base
                 'jumplinks'     => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
+                'admin_id'  => session('admin_info.admin_id'),
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'  => getTime(),
             );

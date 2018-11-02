@@ -91,6 +91,7 @@ class AuthRole extends Model{
             $rs = parent::update($data);
             $rs = !empty($rs) ? $input['id'] : $rs;
         }else{
+            $data['admin_id'] = session('admin_info.admin_id');
             parent::save($data);
             $rs = M($this->name)->getLastInsID();
         }

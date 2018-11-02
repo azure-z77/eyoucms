@@ -769,11 +769,16 @@ class Arctype extends Base
     private function syn_auth_role($typeid = 0)
     {
         if (0 < intval($typeid)) {
-            $roleRow = model('AuthRole')->getRoleAll();
+            $authRole = new \app\admin\model\AuthRole;
+            $roleRow = $authRole->getRoleAll();
             if (!empty($roleRow)) {
                 $saveData = [];
                 foreach ($roleRow as $key => $val) {
                     $permission = $val['permission'];
+                    $rules = !empty($permission['rules']) ? $permission['rules'] : [];
+                    if (!in_array(1, $rules)) {
+                        continue;
+                    }
                     $arctype = !empty($permission['arctype']) ? $permission['arctype'] : [];
                     if (!empty($arctype)) {
                         array_push($arctype, $typeid);
@@ -784,8 +789,8 @@ class Arctype extends Base
                         'permission'    => $permission,
                     );
                 }
-                $r = model('AuthRole')->saveAll($saveData);
-                if (false != $r) {
+                $r = $authRole->saveAll($saveData);
+                if (false != $r && -1 < session('admin_info.role_id')) {
                     /*及时更新当前管理员权限*/
                     $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
                     session('admin_info.auth_role_info', $auth_role_info);

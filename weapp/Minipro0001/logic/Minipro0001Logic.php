@@ -114,7 +114,7 @@ class Minipro0001Logic
             return get_api_url($query_str);
         }
 
-        $apiUrl = 'aHR0cHM6Ly9zZXJ2aWNlLmV5b3VjbXMuY29tL2luZGV4LnBocC8=';
+        $apiUrl = 'aHR0cHM6Ly9zZXJ2aWNlLmV5b3VjbXMuY29t';
         return base64_decode($apiUrl).$query_str;
     }
 
@@ -125,7 +125,7 @@ class Minipro0001Logic
     {
         $data = $this->model->getValue($this->model->miniproType);
         if (!empty($data)) {
-            $url = "api/MiniproClient/minipro.html?appId=".$data['appId']."&appSecret=".$data['appSecret'];
+            $url = "/index.php?m=api&c=MiniproClient&a=minipro&appId=".$data['appId']."&appSecret=".$data['appSecret'];
             $response = httpRequest($this->get_api_url($url));
             $params = array();
             $params = json_decode($response, true);

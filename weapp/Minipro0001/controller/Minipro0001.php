@@ -455,7 +455,7 @@ class Minipro0001 extends Weapp{
             $post['domain'] = trim($post['domain'], '/');
 
             /*同步数据到服务器*/
-            $response = httpRequest($this->logic->get_api_url("api/MiniproClient/minipro.html"), "POST", $post);
+            $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=MiniproClient&a=minipro"), "POST", $post);
             $params = array();
             $params = json_decode($response, true);
             /*--end*/
@@ -495,7 +495,7 @@ class Minipro0001 extends Weapp{
 
         /*模板类型*/
         $template_list = array();
-        $response = httpRequest($this->logic->get_api_url("api/MiniproClient/get_minipro_list.html"), "GET");
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=MiniproClient&a=get_minipro_list"), "GET");
         $params = json_decode($response,true);
         if (!empty($params) && $params['errcode'] == 0) {
             $template_list = $params['errmsg'];
@@ -527,7 +527,7 @@ class Minipro0001 extends Weapp{
 
         if ($inc['authorizerStatus'] == 0) {
             $gourl = urlencode(weapp_url('Minipro0001/Minipro0001/createMinipro', '', true, SITE_URL));
-            $authorization_url = $this->logic->get_api_url("api/Minipro/client_authoriza.html?authorizer_appid=".$inc['appId']."&gourl={$gourl}");
+            $authorization_url = $this->logic->get_api_url("/index.php?m=api&c=Minipro&a=client_authoriza&authorizer_appid=".$inc['appId']."&gourl={$gourl}");
             header('Location: '.$authorization_url);
             exit;
         }
@@ -535,7 +535,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/createMinipro.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=createMinipro"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
@@ -560,7 +560,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/getQrcode.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=getQrcode"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
@@ -601,7 +601,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/submitAudit.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=submitAudit"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
@@ -628,7 +628,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/getAuditstatus.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=getAuditstatus"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
@@ -660,7 +660,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/release.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=release"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
@@ -687,7 +687,7 @@ class Minipro0001 extends Weapp{
         $post_data = array(
             'appid' => $inc['appId'],
         );
-        $response = httpRequest($this->logic->get_api_url("api/Minipro/getWxaCodeunlimit.html"), "POST", $post_data);
+        $response = httpRequest($this->logic->get_api_url("/index.php?m=api&c=Minipro&a=getWxaCodeunlimit"), "POST", $post_data);
         $params = array();
         $params = json_decode($response,true);
         if ($params) {
