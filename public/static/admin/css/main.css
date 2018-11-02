@@ -1323,3 +1323,5 @@ a.upimg:hover{background-color: #e6e6e6;border-color: #adadad;}
 .rolecss .form-horizontal .ncap-form-default div.bot{position: fixed;background: #fff; height: 36px;padding: 8px 0px 20px 134px;width: 100%; bottom: 0px;}
 .rolecss .ncap-form-default{ padding-bottom: 58px; }
 .rolecss .ncap-form-default dl.row{ position: inherit; }
+
+img.cboximg{height: 11px; width: 13px; padding-right: 2px;}

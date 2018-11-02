@@ -89,11 +89,11 @@ class AuthRole extends Base {
             }
         }
 
-        // 角色
+        // 权限组
         $admin_role_list = model('AuthRole')->getRoleAll();
         $this->assign('admin_role_list', $admin_role_list);
 
-        // 权限分组
+        // 模块组
         $modules = getAllMenu();
         $this->assign('modules', $modules);
 
@@ -170,11 +170,11 @@ class AuthRole extends Base {
         }
         $this->assign('info', $info);
 
-        // 角色
+        // 权限组
         $admin_role_list = model('AuthRole')->getRoleAll();
         $this->assign('admin_role_list', $admin_role_list);
 
-        // 权限分组
+        // 模块组
         $modules = getAllMenu();
         $this->assign('modules', $modules);
 

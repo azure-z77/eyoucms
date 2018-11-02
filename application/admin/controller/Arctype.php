@@ -784,7 +784,13 @@ class Arctype extends Base
                         'permission'    => $permission,
                     );
                 }
-                model('AuthRole')->saveAll($saveData);
+                $r = model('AuthRole')->saveAll($saveData);
+                if (false != $r) {
+                    /*及时更新当前管理员权限*/
+                    $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
+                    session('admin_info.auth_role_info', $auth_role_info);
+                    /*--end*/
+                }
             }
         }
     }

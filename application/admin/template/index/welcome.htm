@@ -113,7 +113,7 @@
                                           <textarea id="textarea_filelist" style="display:none;">{$upgradeMsg['upgrade']}</textarea> 
                                           <textarea id="textarea_intro" style="display:none;">{$upgradeMsg['intro']}</textarea> 
                                           <textarea id="textarea_notice" style="display:none;">{$upgradeMsg['notice']}</textarea> 
-                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" title="{$upgradeMsg['tips']}" data-tips_url="{:U('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:U('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
+                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:U('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:U('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
                                           {if condition="-1 != $web_show_popup_upgrade AND (-1 == $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
                                           <script type="text/javascript">
                                             $(document).ready(function(){

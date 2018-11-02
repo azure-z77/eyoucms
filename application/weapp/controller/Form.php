@@ -1,0 +1,48 @@
+<?php
+/**
+ * 易优CMS
+ * ============================================================================
+ * 版权所有 2016-2028 海南赞赞网络科技有限公司，并保留所有权利。
+ * 网站地址: http://www.eyoucms.com
+ * ----------------------------------------------------------------------------
+ * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
+ * ============================================================================
+ * Author: 小虎哥 <1105415366@qq.com>
+ * Date: 2018-4-3
+ */
+
+namespace app\weapp\controller;
+use think\Request;
+use app\weapp\model\Form as FormModel;
+
+class Form extends Base
+{
+    /**
+     * 构造方法
+     */
+    public function __construct(){
+        parent::__construct();
+    }
+
+    /**
+     * index
+     */
+    public function index()
+    {
+        return $this->fetch();
+    }
+
+    public function add(Request $request)
+    {
+        $formid = $request->param('formid');
+        $form = FormModel::get($formid);
+
+        $data = $request->post();
+
+        $res = FormModel::addData($form['tag'], $data);
+        if($res === false){
+            $this->error('添加失败');
+        }
+        $this->success('添加成功');
+    }
+}

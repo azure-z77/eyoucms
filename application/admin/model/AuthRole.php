@@ -39,8 +39,8 @@ class AuthRole extends Model{
         return $result;
     }
 
-    public function getRoleAll(){
-        $result = M($this->name)->where('status',1)->order('id asc')->select();
+    public function getRoleAll($where = ['status'=>1]){
+        $result = M($this->name)->where($where)->order('id asc')->select();
         foreach ($result as $key => $val) {
             $val['language'] = unserialize($val['language']);
             $val['cud'] = unserialize($val['cud']);

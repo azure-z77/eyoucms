@@ -20,6 +20,7 @@ use think\db\Query;
 use think\Session;
 use app\admin\logic\AuthModularLogic;
 use app\admin\logic\AuthRoleLogic;
+use app\admin\model\AuthRole;
 
 class Admin extends Base {
     private $modular_system_id = array(); // 系统默认的模块id，不可删除
@@ -70,6 +71,11 @@ class Admin extends Base {
         $this->assign('page',$show);// 赋值分页输出
         $this->assign('list',$list);// 赋值数据集
         $this->assign('pager',$Page);// 赋值分页集
+
+        /*第一次同步CMS用户的栏目ID到权限组里*/
+        $this->syn_built_auth_role();
+        /*--end*/
+
         return $this->fetch();
     }
 
@@ -260,11 +266,11 @@ class Admin extends Base {
             }
         }
 
-        // 角色
+        // 权限组
         $admin_role_list = model('AuthRole')->getRoleAll();
         $this->assign('admin_role_list', $admin_role_list);
 
-        // 权限分组
+        // 模块组
         $modules = getAllMenu();
         $this->assign('modules', $modules);
 
@@ -352,11 +358,11 @@ class Admin extends Base {
         $role_info = $admin_role_model->getRole(array('id' => $info['role_id']));
         $this->assign('role_info', $role_info);
 
-        // 角色
+        // 权限组
         $admin_role_list = $admin_role_model->getRoleAll();
         $this->assign('admin_role_list', $admin_role_list);
 
-        // 权限分组
+        // 模块组
         $modules = getAllMenu();
         $this->assign('modules', $modules);
 
@@ -421,5 +427,33 @@ class Admin extends Base {
             }
         }
         respose(array('status'=>0, 'msg'=>'非法操作'));
+    }
+
+    /*
+     * 第一次同步CMS用户的栏目ID到权限组里
+     * 默认赋予内置权限所有的内容栏目权限
+     */
+    private function syn_built_auth_role()
+    {
+        $authRole = new AuthRole;
+        $roleRow = $authRole->getRoleAll(['built_in'=>1,'update_time'=>['elt',0]]);
+        if (!empty($roleRow)) {
+            $saveData = [];
+            foreach ($roleRow as $key => $val) {
+                $permission = $val['permission'];
+                $arctype = M('arctype')->where('status',1)->column('id');
+                if (!empty($arctype)) {
+                    $permission['arctype'] = $arctype;
+                } else {
+                    unset($permission['arctype']);
+                }
+                $saveData[] = array(
+                    'id'    => $val['id'],
+                    'permission'    => $permission,
+                    'update_time'   => getTime(),
+                );
+            }
+            $authRole->saveAll($saveData);
+        }
     }
 }

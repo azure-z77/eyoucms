@@ -65,12 +65,11 @@ function btn_upgrade(obj, type)
 }
 
 function upgrade(obj){
-    var url = $(obj).data('upgrade_url');
     var version = $(obj).data('version');
     var max_version = $(obj).data('max_version');
     $.ajax({
         type : "GET",
-        url  :  url,
+        url  :  $(obj).data('upgrade_url'),
         timeout : 360000, //超时时间设置，单位毫秒 设置了 1小时
         data : {},
         error: function(request) {
@@ -98,7 +97,13 @@ function upgrade(obj){
                             top.location.reload();
                         } else { // 升级版本是官方最新版本，将引导到备份新数据
                             layer.close(full);
-                            workspace.window.location.href = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                            var url = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                            var iframe = $(obj).data('iframe');
+                            if ('parent' == iframe) {
+                                workspace.window.location.href = url;
+                            } else {
+                                window.location.href = url;
+                            }
                         }
                     }
                 );

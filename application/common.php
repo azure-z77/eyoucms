@@ -751,9 +751,6 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
     if (-1 != $admin_info['role_id']) {
         $auth_role_info = $admin_info['auth_role_info'];
         if(! empty($auth_role_info)){
-            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
-                $where['c.admin_id'] = $admin_info['admin_id'];
-            }
             if(! empty($auth_role_info['permission']['arctype'])){
                 $where['c.id'] = array('IN', $auth_role_info['permission']['arctype']);
             }

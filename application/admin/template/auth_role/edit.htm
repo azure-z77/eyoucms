@@ -5,14 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {lt name="$Request.param.iframe" value="1"}
-    <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="{:U('AuthRole/index')}" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
-            <div class="subject">
-                <h3>管理员 - 编辑权限组</h3>
-                <h5></h5>
-            </div>
-        </div>
-    </div>
+    {include file="admin/admin_bar" /}
     {/lt}
     <form class="form-horizontal" id="postForm" method="post" action="{:U('AuthRole/edit')}">
         <div class="ncap-form-default">

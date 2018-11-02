@@ -4,14 +4,7 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
-            <div class="subject">
-                <h3>管理员 - 新增管理员</h3>
-                <h5></h5>
-            </div>
-        </div>
-    </div>
+    {include file="admin/admin_bar" /}
     <form class="form-horizontal" id="postForm" action="{:U('Admin/admin_add')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
@@ -71,7 +64,7 @@
                         <!-- &nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
                     </p>
                     {/foreach}
-                    <p id="custom_role"><label><input type="radio" name="role_id" value="0" onclick="changeRole(0);" disabled="disabled" /><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);" style="color: #ff660f;">快捷新增权限组</a></label></p>
+                    <p id="custom_role" style="padding-left: 13px; text-decoration:underline;"><label><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);">自定义</a></label></p>
                 </dd>
             </dl>
             <dl class="row"><dt class="tit"><label><b>当前权限组预览</b></label></dt></dl>
@@ -80,7 +73,7 @@
                     <label for="name">语言权限</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="checkbox" name="language[]" value="cn" />简体中文</label>
+                    <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="language[]" value="cn" class="none" />简体中文</label>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -90,7 +83,7 @@
                     <label for="name">在线升级</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="checkbox" name="online_update" value="1" />允许操作</label>
+                    <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="online_update" value="1" class="none" />允许操作</label>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -100,7 +93,7 @@
                     <label for="name">文档权限</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="checkbox" name="only_oneself" value="1" />只允许查看自己发布的文档</label>
+                    <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="only_oneself" value="1" class="none" />只允许查看自己发布的文档</label>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -110,10 +103,10 @@
                     <label for="name">操作权限</label>
                 </dt>
                 <dd class="opt">
-                    <p><label><input type="checkbox" id="select_cud" />完全控制</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="add" />添加信息</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="edit" />修改信息</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="del" />删除信息</label></p>
+                    <p><label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" id="select_cud" class="none" />完全控制</label></p>
+                    <p><label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="cud[]" value="add" class="none" />添加信息</label></p>
+                    <p><label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="cud[]" value="edit" class="none" />修改信息</label></p>
+                    <p><label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" name="cud[]" value="del" class="none" />删除信息</label></p>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -124,7 +117,7 @@
                 </dt>
                 <dd class="opt">
                     <p>
-                        <label><input type="checkbox" id="select_all_permission" />全部选择</label>
+                        <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" id="select_all_permission" class="none" />全部选择</label>
                     </p>
 
                     {foreach name="modules" item="vo"}
@@ -133,7 +126,7 @@
                           {if condition="1002 == $vo2['id']"}
                             <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
-                                {if condition="! empty($arctypes)"}
+                            {if condition="! empty($arctypes)"}
                                 <p>
                                     {php}$first_arctype_id = '';{/php}
                                     {foreach name="arctypes" item="arctype" key="k"}
@@ -145,7 +138,7 @@
                                             {php}$first_arctype_id = $arctype['id'];{/php}
                                             {/if}
                                         {/if}
-                                        <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
+                                        <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id} none" name="permission[arctype][]" value="{$arctype.id}" />{$arctype.typename}</label>
                                     {/foreach}
                                 </p>
                                 
@@ -154,13 +147,13 @@
                                     <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
                                     {foreach $arctype_array[$arctype['id']] as $item}
                                         <div class="arctype_child1">
-                                            <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
+                                            <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="arctype_cbox arctype_id_{$item.id} none" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" />{$item.typename}</label>
                                         </div>
                                         {if condition="isset($arctype_array[$item['id']])"}
                                         <div class="arctype_child2" id="arctype_child_{$item['id']}">
                                             <span class="button level1 switch center_docu"></span>
                                             {foreach $arctype_array[$item['id']] as $vo}
-                                            <label><input type="checkbox" class="arctype_cbox" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
+                                            <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="arctype_cbox none" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" name="permission[arctype][]" value="{$vo.id}" />{$vo.typename}</label>
                                             {/foreach}
                                         </div>
                                         {/if}
@@ -168,14 +161,14 @@
                                     </div>
                                 {/if}
                                 {/foreach}
-                                {/if}
+                            {/if}
                             </div>
                           {else /}
                             <div class="admin_poplistdiv">
                                 <h2>{$vo2.name}</h2>
                                 <p>
                                     {foreach name="auth_rule_list[$vo2.id]" item="rule"}
-                                    <label><input type="checkbox" name="permission[rules][]" value="{$rule.id}" />{$rule.name}</label>
+                                    <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="none" name="permission[rules][]" value="{$rule.id}" />{$rule.name}</label>
                                     {/foreach}
                                 </p>
                             </div>
@@ -190,13 +183,13 @@
                         <ul>
                             {foreach name="plugins" item="plugin"}
                             <li>
-                                <label><input type="checkbox" name="permission[plugins][{$plugin.code}][code]" value="{$plugin.code}" />{$plugin.name}</label>
+                                <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="none" name="permission[plugins][{$plugin.code}][code]" value="{$plugin.code}" />{$plugin.name}</label>
                                 {php}$config = json_decode($plugin['config'], true);{/php}
                                 {if condition="! empty($config['permission'])"}
                                 <p style="padding-left:10px;">
                                     <span class="button level1 switch center_docu"></span>
                                     {foreach $config['permission'] as $index => $text}
-                                    <label><input type="checkbox" name="permission[plugins][{$plugin.code}][child][]" value="{$index}" />{$text}</label>
+                                    <label><img class="cboximg" src="__SKIN__/images/ok.png" /><input type="checkbox" class="none" name="permission[plugins][{$plugin.code}][child][]" value="{$index}" />{$text}</label>
                                     {/foreach}
                                 </p>
                                 {/if}
@@ -220,6 +213,7 @@
         /*超级管理员默认全选复选框*/
         if (-1 == $('#postForm input[name="role_id"]').val()) {
             $('#postForm input[type="checkbox"]').attr('checked', 'checked');
+            $('#postForm img.cboximg').attr('src', '__SKIN__/images/ok.png');
         }
         /*--end*/
 
@@ -241,34 +235,44 @@
             if($(this).attr('checked')){
                 if (0 < $('input[data-pid="'+pid+'"]:checked').length) {
                     $('.arctype_id_'+pid).attr('checked', 'checked');
+                    $('.arctype_id_'+pid).parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                 }
                 if (0 < $('#arctype_child_'+tpid).find('input[type="checkbox"]:checked').length) {
                     $('.arctype_id_'+tpid).attr('checked', 'checked');
+                    $('.arctype_id_'+tpid).parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                 }
                 $('#'+input).find('input[type="checkbox"]').attr('checked', 'checked');
+                $('#'+input).find('input[type="checkbox"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
             }else{
                 if (1 > $('input[data-pid="'+pid+'"]:checked').length) {
                     $('.arctype_id_'+pid).removeAttr('checked');
+                    $('.arctype_id_'+pid).parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
                 }
                 if (1 > $('#arctype_child_'+tpid).find('input[type="checkbox"]:checked').length) {
                     $('.arctype_id_'+tpid).removeAttr('checked');
+                    $('.arctype_id_'+tpid).parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
                 }
                 $('#'+input).find('input[type="checkbox"]').removeAttr('checked');
+                $('#'+input).find('input[type="checkbox"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
             }
         });
         $('#select_cud').bind('click', function(){
             if($(this).attr('checked')){
                 $('#postForm input[name^="cud"]').attr('checked', 'checked');
+                $('#postForm input[name^="cud"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
             }else{
                 $('#postForm input[name^="cud"]').removeAttr('checked');
+                $('#postForm input[name^="cud"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
             }
         });
 
         $('#select_all_permission').bind('click', function(){
             if($(this).attr('checked')){
                 $('#postForm input[name^="permission"]').attr('checked', 'checked');
+                $('#postForm input[name^="permission"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
             }else{
                 $('#postForm input[name^="permission"]').removeAttr('checked');
+                $('#postForm input[name^="permission"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
             }
         });
         $('#postForm input[name^="permission"],#postForm input[name^="cud"]').bind('click', function(){
@@ -286,8 +290,10 @@
         });
         if(c){
             $('#select_all_permission').attr('checked', 'checked');
+            $('#select_all_permission').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
         }else{
             $('#select_all_permission').removeAttr('checked');
+            $('#select_all_permission').parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
         }
 
         var c1 = true;
@@ -299,18 +305,22 @@
         });
         if(c1){
             $('#select_cud').attr('checked', 'checked');
+            $('#select_cud').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
         }else{
             $('#select_cud').removeAttr('checked');
+            $('#select_cud').parent().find('img.cboximg').attr('src', '__SKIN__/images/del.png');
         }
     }
 
     function changeRole(value){
         if (-1 == value) {
             $('#postForm input[type="checkbox"]').attr("checked","checked").attr('disabled', 'disabled');
+            $('#postForm img.cboximg').attr('src', '__SKIN__/images/ok.png');
             return;
         }
         
         $('#postForm input[name!="role_id"]').removeAttr('checked').removeAttr('disabled');
+        $('#postForm img.cboximg').attr('src', '__SKIN__/images/del.png');
 
         /*自定义权限组*/
         // if(value == "0"){
@@ -327,21 +337,26 @@
                 if(item.language){
                     item.language.map(function(row){
                         $('#postForm input[name^="language"][value="'+row+'"]').attr('checked', 'checked');
+                        $('#postForm input[name^="language"][value="'+row+'"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                     });
                 }
 
                 if(item.online_update){
                     $('#postForm input[name="online_update"]').attr('checked', 'checked');
+                    $('#postForm input[name="online_update"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                 };
                 // if(item.editor_visual){
                 //     $('#postForm input[name="editor_visual"]').attr('checked', 'checked');
+                //     $('#postForm input[name="editor_visual"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                 // };
                 if(item.only_oneself){
                     $('#postForm input[name="only_oneself"]').attr('checked', 'checked');
+                    $('#postForm input[name="only_oneself"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                 };
                 if(item.cud){
                     item.cud.map(function(row){
                         $('#postForm input[name^="cud"][value="'+row+'"]').attr('checked', 'checked');
+                        $('#postForm input[name^="cud"][value="'+row+'"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                     });
                 }
 
@@ -351,9 +366,11 @@
                             if(item.permission[p]){
                                 for(var pluginId in item.permission[p]){
                                     $('#postForm input[name="permission['+p+']['+pluginId+'][code]"][value="'+pluginId+'"]').attr('checked', 'checked');
+                                    $('#postForm input[name="permission['+p+']['+pluginId+'][code]"][value="'+pluginId+'"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                                     if(item.permission[p][pluginId].child){
                                         item.permission[p][pluginId].child.map(function(row){
                                             $('#postForm input[name="permission['+p+']['+pluginId+'][child][]"][value="'+row+'"]').attr('checked', 'checked');
+                                            $('#postForm input[name="permission['+p+']['+pluginId+'][child][]"][value="'+row+'"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                                         });
                                     }
                                 }
@@ -361,6 +378,7 @@
                         }else{
                             item.permission[p].map(function(row){
                                 $('#postForm input[name="permission['+p+'][]"][value="'+row+'"]').attr('checked', 'checked');
+                                $('#postForm input[name="permission['+p+'][]"][value="'+row+'"]').parent().find('img.cboximg').attr('src', '__SKIN__/images/ok.png');
                             });
                         }
                         
