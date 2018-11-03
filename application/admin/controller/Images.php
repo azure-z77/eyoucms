@@ -193,7 +193,6 @@ class Images extends Base
             } else {
                 $seo_description = $post['seo_description'];
             }
-            // $seo_description = filter_line_return($seo_description);
 
             // --外部链接
             $jumplinks = '';
@@ -296,7 +295,6 @@ class Images extends Base
             } else {
                 $seo_description = $post['seo_description'];
             }
-            // $seo_description = filter_line_return($seo_description);
 
             // --外部链接
             $jumplinks = '';

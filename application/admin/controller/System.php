@@ -17,6 +17,11 @@ use think\Cache;
 
 class System extends Base
 {
+    public function index()
+    {
+        $this->redirect(url('System/web'));
+    }
+
     /**
      * 网站设置
      */

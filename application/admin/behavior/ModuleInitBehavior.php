@@ -193,7 +193,7 @@ EOF;
             curl_close ($ch);  */
             if ('ok' == $response) {
                 $now_seo_inlet = 1;
-            } else if (!stristr($response, 'not found')) {
+            } else if (!empty($response) && !stristr($response, 'not found')) {
                 /*解决部分空间file_get_contents获取不到自身网址数据的问题*/
                 $web_server = strtolower($_SERVER['SERVER_SOFTWARE']);
                 if (stristr($web_server, 'apache') && file_exists('.htaccess')) {

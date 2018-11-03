@@ -105,7 +105,9 @@ class Weapp extends Base
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('id');
         foreach ($list as $key => $val) {
-            $val['config'] = include WEAPP_PATH.$val['code'].DS.'config.php';
+            $config = include WEAPP_PATH.$val['code'].DS.'config.php';
+            $config['description'] = filter_line_return($config['description'], '<br/>');
+            $val['config'] = $config;
             $val['version'] = getWeappVersion($val['code']);
 
             switch ($val['status']) {

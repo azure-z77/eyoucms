@@ -156,6 +156,9 @@ class Url
             $m = !empty($urlinfo[$len - 3]) ? $urlinfo[$len - 3] : $request->module();
             $c = !empty($urlinfo[$len - 2]) ? $urlinfo[$len - 2] : $request->controller();
             $a = !empty($urlinfo[$len - 1]) ? $urlinfo[$len - 1] : $request->action();
+            // 检测域名
+            $domain = self::parseDomain($url, $domain);
+            // URL组装
             $url = $domain . rtrim(self::$root ?: $request->root(), '/')."?m={$m}&c={$c}&a={$a}";
             foreach ($vars as $key => $val) {
                 if (in_array($key, ['m','c','a'])) {

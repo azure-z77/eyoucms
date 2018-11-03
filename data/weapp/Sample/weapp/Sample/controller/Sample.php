@@ -59,7 +59,8 @@ class Sample extends Weapp
     }
 
     /**
-     * 系统内置钩子show方法，用于在前台模板显示片段的html代码，比如：QQ客服、对联广告等
+     * 系统内置钩子show方法（没用到这个方法，建议删掉）
+     * 用于在前台模板显示片段的html代码，比如：QQ客服、对联广告等
      *
      * @param  mixed  $params 传入的参数
      */
