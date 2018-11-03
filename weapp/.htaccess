@@ -1,0 +1,4 @@
+<IfModule mod_rewrite.c>
+    RewriteCond % !^$
+    RewriteRule ^.*\.(php|asp|aspx|jsp|exe) - [F]
+</IfModule>
