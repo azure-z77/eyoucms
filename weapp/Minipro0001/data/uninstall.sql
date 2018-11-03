@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS `#@__weapp_minipro0001`;
