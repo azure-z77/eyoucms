@@ -264,16 +264,14 @@ function push_zzbaidu($type = 'urls', $aid = '', $typeid = '')
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
             ->find($aid);
-        $ctl_name = $channeltype_list[$res['current_channel']]['ctl_name'];
-        $arcurl = arcurl("home/{$ctl_name}/view", $res, true, SITE_URL);
+        $arcurl = get_arcurl($res);
         array_push($urlsArr, $arcurl);
     }
     if (0 < $typeid) {
         $res = M('arctype')->field('a.*')
             ->alias('a')
             ->find($typeid);
-        $ctl_name = $channeltype_list[$res['current_channel']]['ctl_name'];
-        $typeurl = typeurl("home/{$ctl_name}/lists", $res, true, SITE_URL);
+        $typeurl = get_typeurl($res);
         array_push($urlsArr, $typeurl);
     }
 
@@ -657,4 +655,19 @@ function menu_select($selected = 0)
     }
 
     return $select_html;
+}
+
+/**
+ * 重新生成数据表缓存字段文件
+ */
+function schemaTable($name)
+{
+    $table = $name;
+    $prefix = \think\Config::get('database.prefix');
+    if (!preg_match('/^'.$prefix.'/i', $name)) {
+        $table = $prefix.$name;
+    }
+    /*调用命令行的指令*/
+    \think\Console::call('optimize:schema', ['--table', $table]);
+    /*--end*/
 }

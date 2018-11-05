@@ -173,6 +173,13 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->save($data);
                 /*--end*/
+
+                /*重新生成数据表字段缓存文件*/
+                try {
+                    schemaTable($table);
+                } catch (Exception $e) {}
+                /*--end*/
+
                 \think\Cache::clear('channelfield');
                 $this->success("操作成功！", U('Field/channel_index', array('channel_id'=>$channel_id)));
             }
@@ -269,6 +276,13 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
                 /*--end*/
+
+                /*重新生成数据表字段缓存文件*/
+                try {
+                    schemaTable($table);
+                } catch (Exception $e) {}
+                /*--end*/
+
                 $this->success("操作成功！", U('Field/channel_index', array('channel_id'=>$post['channel_id'])));
             } else {
                 $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
@@ -497,6 +511,13 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->save($data);
                 /*--end*/
+
+                /*重新生成数据表字段缓存文件*/
+                try {
+                    schemaTable($table);
+                } catch (Exception $e) {}
+                /*--end*/
+
                 \think\Cache::clear('channelfield');
                 \think\Cache::clear('arctype');
                 $this->success("操作成功！", U('Field/arctype_index'));
@@ -596,6 +617,13 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
                 /*--end*/
+
+                /*重新生成数据表字段缓存文件*/
+                try {
+                    schemaTable($table);
+                } catch (Exception $e) {}
+                /*--end*/
+
                 \think\Cache::clear('arctype');
                 $this->success("操作成功！", U('Field/arctype_index'));
             } else {

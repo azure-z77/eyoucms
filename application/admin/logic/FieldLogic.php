@@ -254,6 +254,11 @@ class FieldLogic extends Model
             if ($this->checkChannelFieldList($table, $fieldname, $channel_id)) {
                 $sql = "ALTER TABLE `{$table}` DROP COLUMN `{$fieldname}`;";
                 if(false !== Db::execute($sql)) {
+                    /*重新生成数据表字段缓存文件*/
+                    try {
+                        schemaTable($table);
+                    } catch (Exception $e) {}
+                    /*--end*/
                     return array('code'=>1, 'msg'=>'删除成功！');
                 } else {
                     $code = 0;
@@ -288,6 +293,11 @@ class FieldLogic extends Model
             if ($this->checkTableFieldList($table, $fieldname)) {
                 $sql = "ALTER TABLE `{$table}` DROP COLUMN `{$fieldname}`;";
                 if(false !== Db::execute($sql)) {
+                    /*重新生成数据表字段缓存文件*/
+                    try {
+                        schemaTable($table);
+                    } catch (Exception $e) {}
+                    /*--end*/
                     return array('code'=>1, 'msg'=>'删除成功！');
                 } else {
                     $code = 0;
@@ -442,6 +452,10 @@ class FieldLogic extends Model
                 M('channelfield')->where($map)->delete();
             }
         }
+        /*--end*/
+
+        /*修复v1.1.9版本的admin_id为系统字段*/
+        M('channelfield')->where('name','admin_id')->update(['ifsystem'=>1]);
         /*--end*/
 
         \think\Cache::clear('channelfield');

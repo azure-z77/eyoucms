@@ -724,10 +724,10 @@ class Weapp extends Base
 
             /*压缩插件目录*/
             $zip = new \ZipArchive();//新建一个ZipArchive的对象
-            $filepath = DATA_PATH.WEAPP_DIR_NAME;
-            tp_mkdir($filepath);
+            $filepath = WEAPP_DIR_NAME;
+            tp_mkdir(DATA_PATH.$filepath);
             $zipName = $filepath.DS.$code.'.zip';//定义打包后的包名
-            if ($zip->open($zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE)
+            if ($zip->open(DATA_PATH.$zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE)
                 $this->error('插件压缩包打开失败！');
 
             /*打包插件标准结构涉及的文件与目录，并且打包zip*/
@@ -761,7 +761,7 @@ class Weapp extends Base
                 $this->error('打包zip文件包失败！');
             }
             
-            $this->success('打包成功', U('Weapp/pack'));
+            $this->success('打包成功', url('Weapp/pack'));
 
         }
 

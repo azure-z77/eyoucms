@@ -252,6 +252,27 @@ class System extends Base
                 $this->clearSystemCache($post['clearCache']);
             }
 
+            /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
+            try {
+                schemaTable('arctype');
+            } catch (Exception $e) {}
+            try {
+                schemaTable('article_content');
+            } catch (Exception $e) {}
+            try {
+                schemaTable('download_content');
+            } catch (Exception $e) {}
+            try {
+                schemaTable('images_content');
+            } catch (Exception $e) {}
+            try {
+                schemaTable('product_content');
+            } catch (Exception $e) {}
+            try {
+                schemaTable('single_content');
+            } catch (Exception $e) {}
+            /*--end*/
+
             /*清除旧升级备份包，保留最后一个*/
             $backupArr = glob(DATA_PATH.'backup/v*_www');
             for ($i=0; $i < count($backupArr) - 1; $i++) { 
