@@ -39,6 +39,36 @@ class TagUi extends Base
         $v = trim($v, '/');
         $parseStr = '';
         if ("on" == $this->uiset) {
+
+            /*权限控制 by 小虎哥*/
+            $config = config('session');
+            $admin_info = $_SESSION[$config['prefix']]['admin_info'];
+            if (-1 != $admin_info['role_id']) {
+                if(empty($admin_info['auth_role_info'])){
+                    return '';
+                }
+                $auth_role_info = $admin_info['auth_role_info'];
+                $permission = $auth_role_info['permission'];
+                $auth_rule = include APP_PATH.'admin/conf/auth_rule.php';
+                $all_auths = []; // 系统全部权限对应的菜单ID
+                $admin_auths = []; // 用户当前拥有权限对应的菜单ID
+                $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
+                foreach($auth_rule as $key => $val){
+                    $all_auths = array_merge($all_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+                    if (in_array($val['id'], $permission['rules'])) {
+                        $admin_auths = array_merge($admin_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+                    }
+                }
+                $all_auths = array_unique($all_auths);
+                $admin_auths = array_unique($admin_auths);
+                $diff_auths = array_diff($all_auths, $admin_auths);
+
+                if(in_array(2002, $diff_auths)){
+                    return '';
+                }
+            }
+            /*--end*/
+            
             $version = getCmsVersion();
             $webConfig = tpCache('web');
             $web_cmspath = !empty($webConfig['web_cmspath']) ? $webConfig['web_cmspath'] : ''; // CMS安装路径

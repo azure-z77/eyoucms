@@ -12,16 +12,16 @@
         {notempty name="vo.name"}<dt>{$vo.name}</dt>{/notempty}
         <dd class="sub-menu">
           {volist name="vo['child']" id="v2" key="k2"}
-            {if condition="!empty($v2['op']) OR !empty($v2['url']) OR !empty($vo2['child'])"}
+            {if condition="!empty($v2['controller']) OR !empty($v2['url']) OR !empty($vo2['child'])"}
                 {empty name="v2['child']"}
-                <a href="{$v2.url|default='javascript:void(0);'}" {empty name="$v2.url"}data-param="{$v2.act}|{$v2.op}"{/empty} target="{$v2.target}"><i class="{$v2.icon|default='fa fa-minus'}"></i>{$v2.name}</a>
+                <a href="{$v2.url|default='javascript:void(0);'}" {empty name="$v2.url"}data-param="{$v2.action}|{$v2.controller}"{/empty} target="{$v2.target}"><i class="{$v2.icon|default='fa fa-minus'}"></i>{$v2.name}</a>
                 {else/}
                 <dl class="jslist" style="border-bottom:none;">
-                    <dt><i class="{$v2.icon|default='fa fa-minus'}"></i>{$v2.name}<i class="fa fa-angle-right"></i>{if condition="$v2.op == 'Senior' and !empty($upgradeMsg)"}{/if}</dt>
+                    <dt><i class="{$v2.icon|default='fa fa-minus'}"></i>{$v2.name}<i class="fa fa-angle-right"></i>{if condition="$v2.controller == 'Senior' and !empty($upgradeMsg)"}{/if}</dt>
                     <dd style="display: none;">
                         {volist name="v2['child']" id="v3" key="k3"}
-                            {if condition="!empty($v3['op']) OR !empty($v3['url']) OR !empty($v3['child'])"}
-                            <a href="{$v3.url|default='javascript:void(0);'}" {empty name="$v3.url"}data-param="{$v3.act}|{$v3.op}"{/empty} target="{$v3.target}"><i class="{$v3.icon|default='fa fa-minus'}"></i>{$v3.name}{if condition="$v3.op == 'Upgrade' and !empty($upgradeMsg)"}{/if}</a>
+                            {if condition="!empty($v3['controller']) OR !empty($v3['url']) OR !empty($v3['child'])"}
+                            <a href="{$v3.url|default='javascript:void(0);'}" {empty name="$v3.url"}data-param="{$v3.action}|{$v3.controller}"{/empty} target="{$v3.target}"><i class="{$v3.icon|default='fa fa-minus'}"></i>{$v3.name}{if condition="$v3.controller == 'Upgrade' and !empty($upgradeMsg)"}{/if}</a>
                             {/if}
                         {/volist}
                     </dd>

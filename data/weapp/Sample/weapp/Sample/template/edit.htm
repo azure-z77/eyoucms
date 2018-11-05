@@ -6,17 +6,14 @@
 <div class="page">
     {include file="bar.htm" /}
     <form class="form-horizontal" id="post_form" action="{:weapp_url('Sample/Sample/edit')}" method="post">
-        <input type="hidden" name="id" value="{$row.id}">
         <div class="ncap-form-default">
             <dl class="row">
-                <dt class="tit"><em>*</em>链接类型</dt>
+                <dt class="tit">
+                    <label for="title"><em>*</em>网站名称</label>
+                </dt>
                 <dd class="opt">
-                    <div class="onoff">
-                        <label for="typeid1" class="cb-enable {if condition='$row.typeid == 1'}selected{/if}">文字</label>
-                        <label for="typeid2" class="cb-disable {if condition='$row.typeid == 2'}selected{/if}" >图片</label>
-                        <input id="typeid1" name="typeid" value="1" {if condition='$row.typeid == 1'}checked="checked"{/if} type="radio">
-                        <input id="typeid2" name="typeid"  value="2" {if condition='$row.typeid == 2'}checked="checked"{/if} type="radio">
-                    </div>
+                    <input type="text" name="title" value="{$row.title|default=''}" id="title" class="input-txt">
+                    <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
             </dl>
@@ -32,23 +29,13 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="title"><em>*</em>名称</label>
-                </dt>
-                <dd class="opt">
-                    <input type="text" name="title" value="{$row.title|default=''}" id="title" class="input-txt">
-                    <span class="err"></span>
-                    <p class="notic"></p>
-                </dd>
-            </dl>
-            <dl class="row typeid2 {if condition='$row.typeid == 1'}none{/if}">
-                <dt class="tit">
                     <label for="logo"><em>*</em>上传Logo</label>
                 </dt>
                 <dd class="opt">
                     <div class="input-file-show div_logo_local" {neq name="$row.is_remote" value="0"}style="display: none;"{/neq}>
                         <span class="show">
-                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$row.logo_local|default='javascript:void(0);'}">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$row.logo_local"}onmouseover="layer_tips=layer.tips('<img src={$row.logo_local|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                            <a id="img_a_local" target="_blank" class="nyroModal" rel="gal" href="{$row.logo_local|default='javascript:void(0);'}">
+                                <i id="img_i_local" class="fa fa-picture-o" {notempty name="$row.logo_local"}onmouseover="layer_tips=layer.tips('<img src={$row.logo_local|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -77,15 +64,6 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="email">站长Email</label>
-                </dt>
-                <dd class="opt">
-                    <input type="text" name="email" value="{$row.email|default=''}" id="email" class="input-txt">
-                    <p class="notic"></p>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
                     <label for="intro">网站备注</label>
                 </dt>
                 <dd class="opt">
@@ -107,7 +85,10 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            <div class="bot"><a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
+            <div class="bot">
+                <input type="hidden" name="id" value="{$row.id}">
+                <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
+            </div>
         </div>
     </form>
 </div>

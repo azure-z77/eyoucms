@@ -8,6 +8,7 @@ return array(
     ),
     // 操作开始执行
     'action_begin' => array(
+        'app\\admin\\behavior\\AuthRoleBehavior',
         'app\\admin\\behavior\\ActionBeginBehavior',
     ),
     // 视图内容过滤

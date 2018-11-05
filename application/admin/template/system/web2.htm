@@ -4,7 +4,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="system/bar" /}
-    <form method="post" id="handlepost" action="{:U('System/handle')}" enctype="multipart/form-data" name="form1">
+    <form method="post" id="handlepost" action="{:U('System/web2')}" enctype="multipart/form-data" name="form1">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">系统模式</dt>
@@ -97,7 +97,6 @@
                 </dd>
             </dl> -->
             <div class="bot">
-                <input type="hidden" name="inc_type" value="{$inc_type}">
                 <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onClick="adsubmit();">确认提交</a>
             </div>
         </div>

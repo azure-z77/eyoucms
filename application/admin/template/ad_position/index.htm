@@ -82,7 +82,7 @@
                             </td>
                             <td align="left" class="">
                                 <div class="w160 tl">
-                                    {eq name="'AdPosition@edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
@@ -111,11 +111,11 @@
                             </td>
                             <td class="">
                                 <div class="w250 tc">
-                                    <a class="btn blue" href="{:U('Ad/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
-                                    {eq name="'AdPosition@edit'|is_check_access" value="1"}
+                                    <a class="btn blue" href="{:U('Other/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {eq name="'AdPosition@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('AdPosition/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']}, 1)">标签调用</a>
@@ -135,7 +135,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'AdPosition@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('AdPosition/del')}">
                         <div class="add" title="批量删除">
@@ -144,7 +144,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'AdPosition@add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('AdPosition/add')}">
                         <div class="add" title="新增广告位">

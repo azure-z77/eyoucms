@@ -22,11 +22,15 @@ use weapp\Sample\model\SampleModel;
  */
 class Sample extends Weapp
 {
-
     /**
      * 实例化模型
      */
     private $model;
+
+    /**
+     * 实例化对象
+     */
+    private $db;
 
     /**
      * 插件基本信息
@@ -39,6 +43,7 @@ class Sample extends Weapp
     public function __construct(){
         parent::__construct();
         $this->model = new SampleModel;
+        $this->db = db('WeappSample');
 
         /*插件基本信息*/
         $this->weappInfo = $this->getWeappInfo();
@@ -54,13 +59,15 @@ class Sample extends Weapp
     }
 
     /**
-     * 插件前台展示 - show钩子方法
+     * 系统内置钩子show方法（没用到这个方法，建议删掉）
+     * 用于在前台模板显示片段的html代码，比如：QQ客服、对联广告等
+     *
      * @param  mixed  $params 传入的参数
      */
     public function show($params = null){
-        $list = db($this->model->name)->select();
+        $list = $this->db->select();
         $this->assign('list', $list);
-        $this->display('show');
+        echo $this->fetch('show');
     }
 
     /**
@@ -76,9 +83,9 @@ class Sample extends Weapp
             $map['title'] = array('LIKE', "%{$keywords}%");
         }
 
-        $count = db($this->model->name)->where($map)->count('id');// 查询满足要求的总记录数
+        $count = $this->db->where($map)->count('id');// 查询满足要求的总记录数
         $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = db($this->model->name)->where($map)->order('id desc')->limit($pageObj->firstRow.','.$pageObj->listRows)->select();
+        $list = $this->db->where($map)->order('id desc')->limit($pageObj->firstRow.','.$pageObj->listRows)->select();
         $pageStr = $pageObj->show(); // 分页显示输出
         $this->assign('list', $list); // 赋值数据集
         $this->assign('pageStr', $pageStr); // 赋值分页输出
@@ -95,9 +102,20 @@ class Sample extends Weapp
         if (IS_POST) {
             $post = I('post.');
 
-            /*这里可以实现存储数据之前的额外逻辑 start*/
+            /*------------这里可以实现存储数据之前的额外逻辑 start-------------*/
 
+            /*处理LOGO的本地上传与远程*/
+            $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
+            $logo = '';
+            if ($is_remote == 1) {
+                $logo = $post['logo_remote']; // 远程链接
+            } else {
+                $logo = $post['logo_local']; // 本地上传链接
+            }
+            $post['logo'] = $logo;
             /*--end*/
+
+            /*--------------------------------end------------------------------*/
 
             /*组装存储数据*/
             $nowData = array(
@@ -106,7 +124,7 @@ class Sample extends Weapp
             );
             $saveData = array_merge($post, $nowData);
             /*--end*/
-            $insertId = $this->model->insert($saveData);
+            $insertId = $this->db->insert($saveData);
             if (false !== $insertId) {
                 adminLog('新增'.$this->weappInfo['name'].'：'.$post['title']); // 写入操作日志
                 $this->success("操作成功", weapp_url('Sample/Sample/index'));
@@ -129,12 +147,10 @@ class Sample extends Weapp
             $post['id'] = eyIntval($post['id']);
             if(!empty($post['id'])){
 
-                /*这里可以实现存储数据之前的额外逻辑 start*/
-
-                /*--end*/
+                /*------------这里可以实现存储数据之前的额外逻辑 start-------------*/
 
                 /*处理LOGO的本地上传与远程*/
-                $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0; // 远程图片还是本地上传
+                $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
                 $logo = '';
                 if ($is_remote == 1) {
                     $logo = $post['logo_remote']; // 远程链接
@@ -143,6 +159,8 @@ class Sample extends Weapp
                 }
                 $post['logo'] = $logo;
                 /*--end*/
+
+                /*--------------------------------end------------------------------*/
 
                 /*组装存储数据*/
                 $nowData = array(
@@ -153,7 +171,7 @@ class Sample extends Weapp
                 $saveData = array_merge($post, $nowData);
                 /*--end*/
 
-                $r = $this->model->save($saveData, array('id'=>$post['id']));
+                $r = $this->db->where(array('id'=>$post['id']))->update($saveData);
                 if ($r) {
                     adminLog('编辑'.$this->weappInfo['name'].'：'.$post['title']); // 写入操作日志
                     $this->success("操作成功!", weapp_url('Sample/Sample/index'));
@@ -163,7 +181,7 @@ class Sample extends Weapp
         }
 
         $id = I('id/d', 0);
-        $row = $this->model->get($id);
+        $row = $this->db->find($id);
         if (empty($row)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -192,10 +210,10 @@ class Sample extends Weapp
         $id_arr = I('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
-            $result = $this->model->where("id",'IN',$id_arr)->select();
+            $result = $this->db->where("id",'IN',$id_arr)->select();
             $title_list = get_arr_column($result, 'title');
 
-            $r = $this->model->where("id",'IN',$id_arr)->delete();
+            $r = $this->db->where("id",'IN',$id_arr)->delete();
             if($r){
                 adminLog('删除'.$this->weappInfo['name'].'：'.implode(',', $title_list));
                 $this->success("操作成功!");
@@ -205,5 +223,33 @@ class Sample extends Weapp
         }else{
             $this->error("参数有误!");
         }
+    }
+    
+    /**
+     * 插件配置
+     */
+    public function conf()
+    {
+        if (IS_POST) {
+            $post = I('post.');
+            if(!empty($post['code'])){
+                $data = array(
+                    'tag_weapp' => $post['tag_weapp'],
+                    'update_time' => getTime(),
+                );
+                $r = M('weapp')->where('code','eq',$post['code'])->update($data);
+                if ($r) {
+                    \think\Cache::clear('hooks');
+                    adminLog('编辑'.$this->weappInfo['name'].'：插件配置'); // 写入操作日志
+                    $this->success("操作成功!", weapp_url('Sample/Sample/conf'));
+                }
+            }
+            $this->error("操作失败!");
+        }
+
+        $row = M('weapp')->where('code','eq','Sample')->find();
+        $this->assign('row', $row);
+
+        return $this->fetch('conf');
     }
 }

@@ -96,7 +96,7 @@ class Other extends Base
                 // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
                 \think\Cache::clear('ad');
                 adminLog('新增广告：'.$post['title']);
-                $this->success("操作成功", U('Other/index', array('pid'=>$post['pid'])));
+                $this->success("操作成功", U('Other/index'));
             } else {
                 $this->error("操作失败");
             }
@@ -143,7 +143,7 @@ class Other extends Base
                 // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
                 // \think\Cache::clear('ad'.$post['pid']);
                 adminLog('编辑广告');
-                $this->success("操作成功", U('Other/index', array('pid'=>$post['pid'])));
+                $this->success("操作成功", U('Other/index'));
             } else {
                 $this->error("操作失败");
             }

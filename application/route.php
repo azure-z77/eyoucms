@@ -101,8 +101,8 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
 
     /*插件模块路由*/
     $weapp_route_file = 'weapp/route.php';
-    if (file_exists($weapp_route_file)) {
-        $weapp_route = include_once 'weapp/route.php';
+    if (file_exists(APP_PATH.$weapp_route_file)) {
+        $weapp_route = include_once $weapp_route_file;
         $route = array_merge($weapp_route, $route);
     }
     /*--end*/

@@ -17,7 +17,7 @@
  * 邮件发送
  * @param $to    接收人
  * @param string $subject   邮件标题
- * @param string $data   邮件内容(html模板渲染后的内容)
+ * @param string $content   邮件内容(html模板渲染后的内容)
  * @param string $scene   使用场景
  * @throws Exception
  * @throws phpmailerException
@@ -377,14 +377,20 @@ function read_html_cache(){
 /**
  * 图片不存在，显示默认无图封面
  */
-function get_default_pic($pic_url = '')
+function get_default_pic($pic_url = '', $domain = false)
 {
     if (!is_http_url($pic_url)) {
+        if (true === $domain) {
+            $domain = request()->domain();
+        } else if (false === $domain) {
+            $domain = '';
+        }
+        
         $realpath = realpath(trim($pic_url, '/'));
         if ( is_file($realpath) && file_exists($realpath) ) {
-            $pic_url = request()->domain() . $pic_url;
+            $pic_url = $domain . $pic_url;
         } else {
-            $pic_url = request()->domain() . '/public/static/common/images/not_adv.jpg';
+            $pic_url = $domain . '/public/static/common/images/not_adv.jpg';
         }
     }
 
@@ -586,7 +592,7 @@ if (!function_exists('get_controller_byct')) {
  */
     function get_controller_byct($current_channel)
     {
-        $channeltype_info = model('Channeltype')->getInfo($current_channel, 'id,ctl_name');
+        $channeltype_info = model('Channeltype')->getInfo($current_channel);
         return $channeltype_info['ctl_name'];
     }
 }
@@ -616,7 +622,7 @@ if (!function_exists('ui_read_bidden_inc')) {
                 'theme_style'   => THEME_STYLE,
                 'page'   => $page,
             );
-            $result = M('ui_config')->where($map)->select();
+            $result = M('ui_config')->where($map)->cache(true,EYOUCMS_CACHE_TIME,"ui_config")->select();
             if ($result) {
                 $dataArr = array();
                 foreach ($result as $key => $val) {
@@ -743,7 +749,21 @@ if (!function_exists('get_ui_inc_params')) {
  */
 function allow_release_arctype($selected = 0, $allow_release_channel = array(), $selectform = true)
 {
-    $cacheKey = $selected.json_encode($allow_release_channel).$selectform;
+    $where = [];
+
+    /*权限控制 by 小虎哥*/
+    $admin_info = session('admin_info');
+    if (-1 != $admin_info['role_id']) {
+        $auth_role_info = $admin_info['auth_role_info'];
+        if(! empty($auth_role_info)){
+            if(! empty($auth_role_info['permission']['arctype'])){
+                $where['c.id'] = array('IN', $auth_role_info['permission']['arctype']);
+            }
+        }
+    }
+    /*--end*/
+
+    $cacheKey = $selected.json_encode($allow_release_channel).$selectform.json_encode($where);
     $select_html = cache($cacheKey);
     if (empty($select_html) || false == $selectform) {
         /*允许发布文档的模型*/
@@ -751,15 +771,13 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
 
         /*所有栏目分类*/
         $arctype_max_level = intval(config('global.arctype_max_level'));
-        $map = array(
-            'c.status'  => 1,
-        );
+        $where['c.status'] = 1;
         $fields = "c.id, c.parent_id, c.current_channel, c.typename, c.grade, count(s.id) as has_children, '' as children";
         $res = db('arctype')
             ->field($fields)
             ->alias('c')
             ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
-            ->where($map)
+            ->where($where)
             ->group('c.id')
             ->order('c.parent_id asc, c.sort_order asc, c.id')
             ->cache(true,EYOUCMS_CACHE_TIME,"arctype")

@@ -24,6 +24,15 @@ class Weapp extends Base
 {
     public $weappM;
     public $weappLogic;
+    public $plugins = array();
+
+    /*
+     * 前置操作
+     */
+    protected $beforeActionList = array(
+        'init'
+    );
+
 
     /*
      * 初始化操作
@@ -34,6 +43,24 @@ class Weapp extends Base
         $this->weappLogic = new WeappLogic();
         //  更新插件
         $this->weappLogic->insertWeapp();
+    }
+
+    public function init(){
+        /*权限控制 by 小虎哥*/
+        $role_id = session('admin_info.role_id');
+        if (-1 != $role_id) {
+            $auth_role_info = session('admin_info.auth_role_info');
+            if(! empty($auth_role_info)){
+                if(! empty($auth_role_info['permission']['plugins'])){
+                    foreach ($auth_role_info['permission']['plugins'] as $plugins){
+                        if(isset($plugins['code'])){
+                            $this->plugins[] = $plugins['code'];
+                        }
+                    }
+                }
+            }
+        }
+        /*--end*/
     }
 
     /*
@@ -57,6 +84,12 @@ class Weapp extends Base
             }
         }
 
+        /*权限控制 by 小虎哥*/
+        if(! empty($this->plugins)){
+            $condition['a.code'] = array('in', $this->plugins);
+        }
+        /*--end*/
+
         $weappArr = array(); // 插件标识数组
 
         /**
@@ -67,10 +100,14 @@ class Weapp extends Base
         $list = DB::name('weapp')
             ->field('a.*')
             ->alias('a')
+            ->where($condition)
             ->order('a.add_time desc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('id');
         foreach ($list as $key => $val) {
+            $config = include WEAPP_PATH.$val['code'].DS.'config.php';
+            $config['description'] = filter_line_return($config['description'], '<br/>');
+            $val['config'] = $config;
             $val['version'] = getWeappVersion($val['code']);
 
             switch ($val['status']) {
@@ -165,7 +202,8 @@ class Weapp extends Base
      */
     public function install(){
         $id       =   I('id');
-        $row      =   M('Weapp')->field('code,thorough,min_version')->find($id);
+        $row      =   M('Weapp')->field('code,thorough,config')->find($id);
+        $row['config'] = json_decode($row['config'], true);
         $class    =   get_weapp_class($row['code']);
         if (!class_exists($class)) {
             $this->error('插件不存在！');
@@ -175,12 +213,12 @@ class Weapp extends Base
             $this->error('插件config配置参数不全！');
         }
         $cms_version = getCmsVersion();
-        $min_version = $row['min_version'];
+        $min_version = $row['config']['min_version'];
         if ($cms_version < $min_version) {
             $this->error('当前CMS版本太低，该插件要求CMS版本 >= '.$min_version.'，请升级系统！');
         }
-        /*插件安装前的一些操作（可无）*/
-        $this->installBefore($weapp);
+        /*插件安装的前置操作（可无）*/
+        $this->beforeInstall($weapp);
         /*--end*/
 
         if (true) {
@@ -211,8 +249,9 @@ class Weapp extends Base
             if ($r) {
                 cache('hooks', null);
                 cache("hookexec_".$row['code'], null);
-                /*插件安装后的一些操作（可无）*/
-                $this->installAfter($weapp);
+                \think\Cache::clear('hooks');
+                /*插件安装的后置操作（可无）*/
+                $this->afterInstall($weapp);
                 /*--end*/
                 $this->success('安装成功', U('Weapp/index'));
                 exit;
@@ -235,8 +274,8 @@ class Weapp extends Base
         }
         $weapp  =   new $class;
 
-        // 插件卸载前的一些操作（可无）
-        $this->uninstallBefore($weapp);
+        // 插件卸载的前置操作（可无）
+        $this->beforeUninstall($weapp);
         /*--end*/
 
         if (true) {
@@ -272,8 +311,9 @@ class Weapp extends Base
 
                 cache('hooks', null);
                 cache("hookexec_".$row['code'], null);
-                /*插件安装后的一些操作（可无）*/
-                $this->uninstallAfter($weapp);
+                \think\Cache::clear('hooks');
+                /*插件卸载的后置操作（可无）*/
+                $this->afterUninstall($weapp);
                 /*--end*/
                 $this->success('卸载成功', U('Weapp/index'));
                 exit;
@@ -290,11 +330,23 @@ class Weapp extends Base
     {
         $id       =   I('param.id/d', 0);
         if (0 < $id) {
+            $row = M('weapp')->field('code')->find($id);
+            $class    =   get_weapp_class($row['code']);
+            if (!class_exists($class)) {
+                $this->error('插件不存在！');
+            }
+            $weapp  =   new $class;
+            /*插件启用的前置操作（可无）*/
+            $this->beforeEnable($weapp);
+            /*--end*/
             $r = M('weapp')->where('id',$id)->update(array('status'=>1,'update_time'=>getTime()));
             if ($r) {
-                $row = M('weapp')->field('code')->find($id);
+                /*插件启用的后置操作（可无）*/
+                $this->afterEnable($weapp);
+                /*--end*/
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
+                \think\Cache::clear('hooks');
                 $this->success('操作成功！', U('Weapp/index'));
                 exit;
             }
@@ -310,11 +362,23 @@ class Weapp extends Base
     {
         $id       =   I('param.id/d', 0);
         if (0 < $id) {
+            $row = M('weapp')->field('code')->find($id);
+            $class    =   get_weapp_class($row['code']);
+            if (!class_exists($class)) {
+                $this->error('插件不存在！');
+            }
+            $weapp  =   new $class;
+            /*插件禁用的前置操作（可无）*/
+            $this->beforeDisable($weapp);
+            /*--end*/
             $r = M('weapp')->where('id',$id)->update(array('status'=>-1,'update_time'=>getTime()));
             if ($r) {
-                $row = M('weapp')->field('code')->find($id);
+                /*插件禁用的后置操作（可无）*/
+                $this->afterDisable($weapp);
+                /*--end*/
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
+                \think\Cache::clear('hooks');
                 $this->success('操作成功！', U('Weapp/index'));
                 exit;
             }
@@ -346,8 +410,8 @@ class Weapp extends Base
                 if ($str1 != '#' && $str1 != '-')
                     $ret[$num] .= $query;
             }
-            if (!stristr($ret[$num], 'SET FOREIGN_KEY_CHECKS') && false === stripos($ret[$num], $tablepre.'weapp_')) {
-                $this->error('数据表前缀不符合插件规范（#@__weapp_）');
+            if ((!stristr($ret[$num], 'SET FOREIGN_KEY_CHECKS') && !stristr($ret[$num], 'SET NAMES')) && false === stripos($ret[$num], $tablepre.'weapp_')) {
+                $this->error('请删除不相干的SQL语句，或者数据表前缀是否符合插件规范（#@__weapp_）');
             }
             $num++;
         }
@@ -355,38 +419,74 @@ class Weapp extends Base
     }
 
     /**
-     * 插件安装前的一些操作（可无）
+     * 插件安装的前置操作（可无）
      */
-    public function installBefore($weappClass){
-        if (method_exists($weappClass, 'installBefore')) {
-            $weappClass->installBefore();
+    public function beforeInstall($weappClass){
+        if (method_exists($weappClass, 'beforeInstall')) {
+            $weappClass->beforeInstall();
         }
     }
 
     /**
-     * 插件安装后的一些操作（可无）
+     * 插件安装的后置操作（可无）
      */
-    public function installAfter($weappClass){
-        if (method_exists($weappClass, 'installAfter')) {
-            $weappClass->installAfter();
+    public function afterInstall($weappClass){
+        if (method_exists($weappClass, 'afterInstall')) {
+            $weappClass->afterInstall();
         }
     }
 
     /**
-     * 插件卸载前的一些操作（可无）
+     * 插件卸载的前置操作（可无）
      */
-    public function uninstallBefore($weappClass){
-        if (method_exists($weappClass, 'uninstallBefore')) {
-            $weappClass->uninstallBefore();
+    public function beforeUninstall($weappClass){
+        if (method_exists($weappClass, 'beforeUninstall')) {
+            $weappClass->beforeUninstall();
         }
     }
 
     /**
-     * 插件卸载后的一些操作（可无）
+     * 插件卸载的后置操作（可无）
      */
-    public function uninstallAfter($weappClass){
-        if (method_exists($weappClass, 'uninstallAfter')) {
-            $weappClass->uninstallAfter();
+    public function afterUninstall($weappClass){
+        if (method_exists($weappClass, 'afterUninstall')) {
+            $weappClass->afterUninstall();
+        }
+    }
+
+    /**
+     * 插件启用的前置操作（可无）
+     */
+    public function beforeEnable($weappClass){
+        if (method_exists($weappClass, 'beforeEnable')) {
+            $weappClass->beforeEnable();
+        }
+    }
+
+    /**
+     * 插件启用的后置操作（可无）
+     */
+    public function afterEnable($weappClass){
+        if (method_exists($weappClass, 'afterEnable')) {
+            $weappClass->afterEnable();
+        }
+    }
+
+    /**
+     * 插件禁用的前置操作（可无）
+     */
+    public function beforeDisable($weappClass){
+        if (method_exists($weappClass, 'beforeDisable')) {
+            $weappClass->beforeDisable();
+        }
+    }
+
+    /**
+     * 插件禁用的后置操作（可无）
+     */
+    public function afterDisable($weappClass){
+        if (method_exists($weappClass, 'afterDisable')) {
+            $weappClass->afterDisable();
         }
     }
 
@@ -497,6 +597,9 @@ class Weapp extends Base
      */
     public function create()
     {
+        $sample = 'Sample';
+        $srcPath = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$sample;
+
         if (IS_POST) {
             $post = I('post.');
             $code = trim($post['code']);
@@ -517,16 +620,9 @@ class Weapp extends Base
             }
 
             /*复制样本结构到插件目录下*/
-            $sample = 'Sample';
-            $srcPath = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$sample;
             $srcFiles = getDirFile($srcPath);
             $filetxt = '';
             foreach ($srcFiles as $key => $srcfile) {
-                /*排除common.php文件，兼容v1.1.7之前的版本*/
-                if (preg_match('/common\.php$/i', $srcfile)) {
-                    continue;
-                }
-                /*--end*/
                 $dstfile = str_replace($sample, $code, $srcfile);
                 $dstfile = str_replace(strtolower($sample), strtolower($code), $dstfile);
                 $filetxt .= $dstfile."\n\r";
@@ -566,6 +662,18 @@ class Weapp extends Base
 
             $this->success('初始化插件成功！', U('Weapp/index'));
         }
+
+        /*删除多余目录以及文件，兼容v1.1.7之后的版本*/
+        if (file_exists($srcPath.DS.'application'.DS.'weapp')) {
+            delFile($srcPath.DS.'application'.DS.'weapp', true);
+        }
+        if (file_exists($srcPath.DS.'template'.DS.'weapp')) {
+            delFile($srcPath.DS.'template'.DS.'weapp', true);
+        }
+        if (file_exists($srcPath.DS.'weapp'.DS.$sample.DS.'common.php')) {
+            @unlink($srcPath.DS.'weapp'.DS.$sample.DS.'common.php');
+        }
+        /*--end*/
 
         $assign_data = array();
         $assign_data['min_version'] = getCmsVersion();

@@ -62,7 +62,7 @@
             </div>
             <div class="tDiv">
                 <div class="tDiv2">
-                    {eq name="'System@region_add'|is_check_access" value="1"}
+                    {eq name="$Think.const.CONTROLLER_NAME.'@region_add'|is_check_access" value="1"}
                     <div class="fbutton">
                         <div class="add" title="新增数据">
                             <span onclick="add_region(1);"><i class="fa fa-plus"></i>新增数据</span>
@@ -88,11 +88,11 @@
                                 </td>
                                 <td class="handle" align="center">
                                     <div style="text-align: center; width: 150px;">
-                                        {eq name="'System@region_del'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@region_del'|is_check_access" value="1"}
                                         <a class="btn red" data-url="{:U('System/region_del',array('id'=>$vo['id']))}"  onclick="delRegion(this);"><i class="fa fa-trash-o"></i>删除</a>
                                         {/eq}
                                         <span class="btn"><em><i class="fa fa-cog"></i>设置 <i class="arrow"></i></em><ul>
-                                        {eq name="'System@region_add'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@region_add'|is_check_access" value="1"}
                                         <li><a href="{:U('System/region',array('op'=>'add','parent_id'=>$vo['id']))}">新增下级</a></li>
                                         {/eq}
                                         <li><a href="{:U('System/region',array('parent_id'=>$vo['id']))}">查看下级</a></li>
@@ -120,7 +120,7 @@
             <!--分页位置-->
         </div>
     </div>
-    {eq name="'System@region_add'|is_check_access" value="1"}
+    {eq name="$Think.const.CONTROLLER_NAME.'@region_add'|is_check_access" value="1"}
     <div id="add_region" style="display: none">
         <div class="page">
             <div class="fixed-bar">

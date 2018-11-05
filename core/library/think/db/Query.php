@@ -1734,13 +1734,14 @@ class Query
         $db         = $this->getConfig('database');
         if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
-                $schema = $db . '.' . $guid;
+                // $schema = $db . '.' . $guid;
+                $schema = $guid; // 以表名做为文件名 by 小虎哥
             } else {
                 $schema = $guid;
             }
             // 读取缓存
-            if (!App::$debug && is_file(RUNTIME_PATH . 'schema/' . $schema . '.php')) {
-                $info = include RUNTIME_PATH . 'schema/' . $schema . '.php';
+            if (!App::$debug && is_file(DATA_PATH . 'schema/' . $schema . '.php')) {
+                $info = include DATA_PATH . 'schema/' . $schema . '.php'; // 修改表字段文件路径  by 小虎哥
             } else {
                 $info = $this->connection->getFields($guid);
             }

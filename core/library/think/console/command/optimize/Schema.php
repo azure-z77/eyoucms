@@ -1,4 +1,5 @@
 <?php
+
 namespace think\console\command\optimize;
 
 use think\App;
@@ -25,8 +26,8 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        if (!is_dir(RUNTIME_PATH . 'schema')) {
-            @mkdir(RUNTIME_PATH . 'schema', 0755, true);
+        if (!is_dir(DATA_PATH . 'schema')) {
+            @mkdir(DATA_PATH . 'schema', 0755, true); // by 小虎哥
         }
         $config = [];
         if ($input->hasOption('config')) {
@@ -88,7 +89,7 @@ class Schema extends Command
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = $class::getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . '.' . $table . EXT, $content);
+            file_put_contents(DATA_PATH . 'schema' . DS . $table . EXT, $content); // by 小虎哥
         }
     }
 
@@ -103,7 +104,7 @@ class Schema extends Command
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = Db::connect($config)->getFields($db . $table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . $table . EXT, $content);
+            file_put_contents(DATA_PATH . 'schema' . DS . $table . EXT, $content); // by 小虎哥
         }
     }
 }

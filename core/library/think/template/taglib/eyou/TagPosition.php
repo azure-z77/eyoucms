@@ -45,9 +45,11 @@ class TagPosition extends Base
     {
         $typeid = !empty($typeid) ? $typeid : $this->tid;
 
-        $symbol = !empty($symbol) ? $symbol : tpCache('global.list_symbol');
+        $basicConfig = tpCache('basic');
+        $basic_indexname = !empty($basicConfig['basic_indexname']) ? $basicConfig['basic_indexname'] : '首页';
+        $symbol = !empty($symbol) ? $symbol : $basicConfig['list_symbol'];
         // $symbol = htmlspecialchars_decode($symbol);
-        $str = "<a href='".tpCache('global.core_cmsurl')."/' class='{$style}'>首页</a>";
+        $str = "<a href='".tpCache('global.core_cmsurl')."/' class='{$style}'>{$basic_indexname}</a>";
         $result = model('Arctype')->getAllPid($typeid);
         $i = 1;
         foreach ($result as $key => $val) {

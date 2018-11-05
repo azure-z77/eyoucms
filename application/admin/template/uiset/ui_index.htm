@@ -106,7 +106,7 @@
                             </td>
                             <td class="w120">
                                 <div class="tc">
-                                    {eq name="'Uiset@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0)" data-url="{:U('Uiset/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
@@ -125,7 +125,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Uiset@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Uiset/del')}">
                         <div class="add" title="批量删除">

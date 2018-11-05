@@ -215,7 +215,7 @@ class TagList extends Base
         }
 
         // 获取查询的表名
-        $channeltype_info = model('Channeltype')->getInfo($channeltype, 'id,table,ctl_name');
+        $channeltype_info = model('Channeltype')->getInfo($channeltype);
         $controller_name = $channeltype_info['ctl_name'];
         $channeltype_table = $channeltype_info['table'];
 

@@ -49,11 +49,10 @@ class UpgradeLogic extends Model
     public  function checkVersion() { 
         
         $ctl_act_list = array(
-            'index_index',
-            'index_welcome',
-            'upgrade_welcome',
+            'index@welcome',
+            'upgrade@welcome',
         );
-        $ctl_act_str = strtolower(CONTROLLER_NAME).'_'.strtolower(ACTION_NAME);
+        $ctl_act_str = strtolower(CONTROLLER_NAME).'@'.strtolower(ACTION_NAME);
         if(!in_array($ctl_act_str, $ctl_act_list))  
         {
             return false;
@@ -244,6 +243,7 @@ class UpgradeLogic extends Model
             }
         }
         /*--end*/
+        tpCache('system',['system_version'=>$serviceVersion['key_num']]); // 记录版本号
         // 清空缓存
         delFile(rtrim(RUNTIME_PATH, '/'));
         tpCache('global');
@@ -308,9 +308,9 @@ class UpgradeLogic extends Model
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);
-        if($md5File != md5_file($saveDir))
+        if(!eyPreventShell($saveDir) || !file_exists($saveDir) || $md5File != md5_file($saveDir))
         {
-            return "下载升级包不完整, 请重试!";
+            return "下载升级包不完整, 请检查根目录的权限以及用户组!";
         }
         return 1;
     }            

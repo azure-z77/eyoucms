@@ -42,7 +42,7 @@ class Base extends Controller {
         $upgradeLogic = new UpgradeLogic();
         $upgradeMsg = $upgradeLogic->checkVersion(); //升级包消息     
         $this->assign('upgradeMsg',$upgradeMsg);
-        tpversion();
+        // tpversion();
     }
     
     /*
@@ -56,7 +56,10 @@ class Base extends Controller {
         parent::_initialize();
 
         //过滤不需要登陆的行为
-        if(in_array(ACTION_NAME, config('filter_login_action')) || in_array(CONTROLLER_NAME, config('filter_login_controller'))){
+        $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
+        $ctl_all = CONTROLLER_NAME.'@*';
+        $filter_login_action = config('filter_login_action');
+        if (in_array($ctl_act, $filter_login_action) || in_array($ctl_all, $filter_login_action)) {
             //return;
         }else{
             if(session('admin_id') > 0 ){
@@ -72,34 +75,31 @@ class Base extends Controller {
     {
         $ctl = CONTROLLER_NAME;
         $act = ACTION_NAME;
-        $ctl_act = $ctl.config('POWER_OPERATOR').$act;
-        $act_list = session('admin_info.act_list');
-        //无需验证的控制器
-        $uneed_check_controller = config('uneed_check_controller');
+        $ctl_act = $ctl.'@'.$act;
+        $ctl_all = $ctl.'@*';
         //无需验证的操作
         $uneed_check_action = config('uneed_check_action');
         if (session('admin_info.role_id') == -1) {
             //超级管理员无需验证
             return true;
-        } elseif (in_array($ctl, $uneed_check_controller)) {
-            //在列表中的控制器不需要验证权限
-            return true;
-        } elseif (IS_AJAX || strpos($act,'ajax') !== false || in_array($ctl_act, $uneed_check_action)) {
-            //所有ajax请求不需要验证权限
-            return true;
         } else {
-            $role_right = array();
-            $right = M('auth_rule')->where("id", "in", $act_list)->cache(false)->getField('right',true);
-            $role_right = '';
-            foreach ($right as $val){
-                $role_right .= $val.',';
+            $bool = false;
+
+            /*检测是否有该权限*/
+            if (is_check_access($ctl_act)) {
+                $bool = true;
             }
-            $role_right = explode(',', trim($role_right, ','));
-            $role_right = array_unique($role_right);
-            
+            /*--end*/
+
+            /*在列表中的操作不需要验证权限*/
+            if (IS_AJAX || strpos($act,'ajax') !== false || in_array($ctl_act, $uneed_check_action) || in_array($ctl_all, $uneed_check_action)) {
+                $bool = true;
+            }
+            /*--end*/
+
             //检查是否拥有此操作权限
-            if (!in_array($ctl_act, $role_right)) {
-                $this->error('您没有操作权限['.($ctl_act).'],请联系超级管理员分配权限', U('Index/welcome'));
+            if (!$bool) {
+                $this->error('您没有操作权限，请联系超级管理员分配权限');
             }
         }
     }  

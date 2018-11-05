@@ -35,6 +35,31 @@ class Uiset extends Base
             array_push($this->templateArr, 'mobile');
         }
         /*--end*/
+
+        /*权限控制 by 小虎哥*/
+        $admin_info = session('admin_info');
+        if (-1 != $admin_info['role_id']) {
+            $auth_role_info = $admin_info['auth_role_info'];
+            $permission = $auth_role_info['permission'];
+            $auth_rule = get_auth_rule();
+            $all_auths = []; // 系统全部权限对应的菜单ID
+            $admin_auths = []; // 用户当前拥有权限对应的菜单ID
+            $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
+            foreach($auth_rule as $key => $val){
+                $all_auths = array_merge($all_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+                if (in_array($val['id'], $permission['rules'])) {
+                    $admin_auths = array_merge($admin_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+                }
+            }
+            $all_auths = array_unique($all_auths);
+            $admin_auths = array_unique($admin_auths);
+            $diff_auths = array_diff($all_auths, $admin_auths);
+
+            if(in_array(2002, $diff_auths)){
+                $this->error('您没有操作权限，请联系超级管理员分配权限');
+            }
+        }
+        /*--end*/
     }
 
     /**

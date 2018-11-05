@@ -4,9 +4,8 @@
     background:#FFFFDF;
   }
 </style>
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default;">
+<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; overflow-y: scroll;">
 <div class="page">
-  
   <form method="post">
     <div class="flexigrid">
       <div class="mDiv">
@@ -22,7 +21,6 @@
                   </div>
               </a>
         </div>
-
       </div>
       <div class="hDiv">
         <div class="hDivBox">
@@ -41,11 +39,10 @@
                 <th axis="col2" class="w100">
                   <div class="tc">所属模型</div>
                 </th>
-                
                 <th axis="col2" class="w60">
                   <div>隐藏</div>
                 </th>
-                <th axis="col1" class="w250">
+                <th axis="col1" class="w300">
                     <div class="tl" style="text-indent: 6px">操作</div>
                 </th>
                 <th axis="col2" class="w60">
@@ -98,8 +95,13 @@
                   {else /}
                   <img src="__SKIN__/images/tv-collapsable-last.gif" style="float: none;" fieldid="2" status="open" nc_type="flex">
                   {/gt}
-
-                  <a href="{:U('Arctype/edit',array('id'=>$vo['id']))}">{$vo.typename}</a>
+                  
+                  {if condition="$vo['current_channel'] == 6" /}
+                  <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
+                  {else /}
+                  <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
+                  <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
+                  {/if}
                 </div>
               </td>
               <td class="sort">
@@ -111,14 +113,21 @@
               <td align="center" class="">
                   <div class="w60">
                   {if condition='$vo.is_hidden eq 1'}
-                      <span class="yes" {eq name="'Arctype@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
+                      <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
                   {else /}
-                      <span class="no" {eq name="'Arctype@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                      <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
                   {/if}
                   </div>
               </td>
               <td>
-                  <div class="w250 tl pb0">
+                  <div class="w300 tl pb0">
+                      {eq name="'Archives@index'|is_check_access" value="1"}  
+                        {if condition="$vo['current_channel'] == 6" /}
+                        <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        {else /}
+                        <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        {/if}
+                      {/eq}
                       <a href="{:U('Arctype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                       {eq name="'Arctype@add'|is_check_access" value="1"}    
                         {if condition="$vo['grade'] < ($arctype_max_level - 1)"}           
@@ -127,10 +136,10 @@
                           <a class="btn blue" title="不支持增加四级栏目"><i class="fa fa-pencil-square-o"></i>不支持增加</a>
                         {/if}
                       {/eq}  
-                      <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>
                       {eq name="'Arctype@del'|is_check_access" value="1"}
                       <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                       {/eq}
+                      <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>
                   </div>
               </td>
               <td class="sort">
@@ -249,7 +258,7 @@
           $.ajax({
             type : 'post',
             url : $(obj).attr('data-url'),
-            data : {id:$(obj).attr('data-id')},
+            data : {del_id:$(obj).attr('data-id')},
             dataType : 'json',
             success : function(data){
               layer.closeAll();

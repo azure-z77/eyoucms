@@ -114,13 +114,24 @@ class Think
         $depr = $this->config['view_depr'];
         if (0 !== strpos($template, '/')) {
             $template   = str_replace(['/', ':'], $depr, $template);
-            $controller = Loader::parseName($request->controller());
-            if ($controller) {
+            if (in_array($request->module(), array('admin')) && 'weapp' == strtolower($request->controller()) && 'execute' == strtolower($request->action())) {
+                /*插件模板定位 by 小虎哥*/
                 if ('' == $template) {
                     // 如果模板文件名为空 按照默认规则定位
-                    $template = str_replace('.', DS, $controller) . $depr . $request->action();
+                    $template = (1 == $this->config['auto_rule'] ? Loader::parseName($request->action(true)) : $request->action());
                 } elseif (false === strpos($template, $depr)) {
-                    $template = str_replace('.', DS, $controller) . $depr . $template;
+                    $template = $template;
+                }
+                /*--end*/
+            } else {
+                $controller = Loader::parseName($request->controller());
+                if ($controller) {
+                    if ('' == $template) {
+                        // 如果模板文件名为空 按照默认规则定位
+                        $template = str_replace('.', DS, $controller) . $depr . $request->action();
+                    } elseif (false === strpos($template, $depr)) {
+                        $template = str_replace('.', DS, $controller) . $depr . $template;
+                    }
                 }
             }
         } else {

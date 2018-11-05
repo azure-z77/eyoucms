@@ -45,12 +45,11 @@ function adminLog($log_info){
 function getAdminInfo($admin_id = 0)
 {
     if ($admin_id > 0) {
-        $fields = 'a.*, b.role_id, c.name AS role_name';
+        $fields = 'a.*, b.name AS role_name';
         $admin_info = M('admin')
             ->field($fields)
             ->alias('a')
-            ->join('__AUTH_ROLE_ADMIN__ b', 'a.admin_id = b.admin_id', 'LEFT')
-            ->join('__AUTH_ROLE__ c', 'c.id = b.role_id', 'LEFT')
+            ->join('__AUTH_ROLE__ b', 'b.id = a.role_id', 'LEFT')
             ->where("a.admin_id", $admin_id)->find();
     } else {
         $admin_info = session('admin_info');
@@ -68,22 +67,56 @@ function get_conf($name = 'global')
 }
 
 /**
+ * 获取权限列表文件
+ */
+function get_auth_rule($where = [])
+{
+    $auth_rule = include APP_PATH.MODULE_NAME.'/conf/auth_rule.php';
+    if (!empty($where)) {
+        foreach ($auth_rule as $k1 => $rules) {
+            foreach ($where as $k2 => $v2) {
+                if ($rules[$k2] != $v2) {
+                    unset($auth_rule[$k1]);
+                }
+            }
+        }
+    }
+    return $auth_rule;
+}
+
+/**
  * 检测是否有该权限
  */
-function is_check_access($str = 'Index@index') {
+function is_check_access($str = 'Index@index') {  
     $bool_flag = 1;
     $role_id = session('admin_info.role_id');
-    $act_list = session('admin_info.act_list');
-    if ($role_id != '-1') {
-        $right = M('auth_rule')->where("id", "in", $act_list)->cache(false)->getField('right',true);
-        $role_right = '';
-        foreach ($right as $val){
-            $role_right .= $val.',';
+    if (-1 < intval($role_id)) {
+        $ctl_act = strtolower($str);
+        $arr = explode('@', $ctl_act);
+        $ctl = !empty($arr[0]) ? $arr[0] : '';
+        $act = !empty($arr[1]) ? $arr[1] : '';
+        $ctl_all = $ctl.'@*';
+
+        $auth_role_info = session('admin_info.auth_role_info');
+        $permission = $auth_role_info['permission'];
+        $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
+
+        $auth_rule = get_auth_rule();
+        $all_auths = []; // 系统全部权限对应的菜单ID
+        $admin_auths = []; // 用户当前拥有权限对应的菜单ID
+        $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
+        foreach($auth_rule as $key => $val){
+            $all_auths = array_merge($all_auths, explode(',', strtolower($val['auths'])));
+            if (in_array($val['id'], $permission_rules)) {
+                $admin_auths = array_merge($admin_auths, explode(',', strtolower($val['auths'])));
+            }
         }
-        $role_right = explode(',', trim($role_right, ','));
-        $role_right = array_unique($role_right);
-        if (!in_array($str, $role_right)) {
-            $bool_flag = 0;
+        $all_auths = array_unique($all_auths);
+        $admin_auths = array_unique($admin_auths);
+        $diff_auths = array_diff($all_auths, $admin_auths);
+
+        if (in_array($ctl_act, $diff_auths) || in_array($ctl_all, $diff_auths)) {
+            $bool_flag = false;
         }
     }
 
@@ -95,42 +128,49 @@ function is_check_access($str = 'Index@index') {
  */
 function getMenuList() {
     $menuArr = getAllMenu();
+    // return $menuArr;
 
     $role_id = session('admin_info.role_id');
-    $act_list = session('admin_info.act_list');
+    if (0 < intval($role_id)) {
+        $auth_role_info = session('admin_info.auth_role_info');
+        $permission = $auth_role_info['permission'];
+        $permission_rules = !empty($permission['rules']) ? $permission['rules'] : [];
 
-    if ($role_id != '-1') {
-        $right = M('auth_rule')->where("id", "in", $act_list)->cache(false)->getField('right',true);
-        $role_right = '';
-        foreach ($right as $val){
-            $role_right .= $val.',';
+        $auth_rule = get_auth_rule();
+        $all_auths = []; // 系统全部权限对应的菜单ID
+        $admin_auths = []; // 用户当前拥有权限对应的菜单ID
+        $diff_auths = []; // 用户没有被授权的权限对应的菜单ID
+        foreach($auth_rule as $key => $val){
+            $all_auths = array_merge($all_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+            if (in_array($val['id'], $permission_rules)) {
+                $admin_auths = array_merge($admin_auths, explode(',', $val['menu_id']), explode(',', $val['menu_id2']));
+            }
         }
-        $role_right = explode(',', trim($role_right, ','));
-        $role_right = array_unique($role_right);
+        $all_auths = array_unique($all_auths);
+        $admin_auths = array_unique($admin_auths);
+        $diff_auths = array_diff($all_auths, $admin_auths);
 
+        /*过滤三级数组菜单*/
         foreach($menuArr as $k=>$val){
             foreach ($val['child'] as $j=>$v){
                 foreach ($v['child'] as $s=>$son){
-                    if (!in_array($son['controller'].config('POWER_OPERATOR').$son['action'], $role_right)) {
+                    if (in_array($son['id'], $diff_auths)) {
                         unset($menuArr[$k]['child'][$j]['child'][$s]);//过滤菜单
                     }
                 }
             }
         }
+        /*--end*/
 
+        /*过滤二级数组菜单*/
         foreach ($menuArr as $mk=>$mr){
             foreach ($mr['child'] as $nk=>$nrr){
-                if(empty($nrr['child'])){
-                    unset($menuArr[$mk]['child'][$nk]);
+                if (in_array($nrr['id'], $diff_auths)) {
+                    unset($menuArr[$mk]['child'][$nk]);//过滤菜单
                 }
             }
         }
-
-        foreach ($menuArr as $mk=>$mr){
-            if(empty($mr['child'])){
-                unset($menuArr[$mk]);
-            }
-        }
+        /*--end*/
     }
 
     return $menuArr;
@@ -406,9 +446,10 @@ function get_typeurl($arctype_info = array())
     if ($result) {
         $ctl_name = $result[$arctype_info['current_channel']]['ctl_name'];
     }
-    $seo_pseudo = tpCache('seo.seo_pseudo');
-    $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-    $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, SITE_URL, $seo_pseudo);
+    $seoConfig = tpCache('seo');
+    $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+    $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+    $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, SITE_URL, $seo_pseudo, $seo_dynamic_format);
     // 自动隐藏index.php入口文件
     $typeurl = auto_hide_index($typeurl);
 
@@ -425,9 +466,10 @@ function get_arcurl($arcview_info = array())
     if ($result) {
         $ctl_name = $result[$arcview_info['channel']]['ctl_name'];
     }
-    $seo_pseudo = tpCache('seo.seo_pseudo');
-    $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-    $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, SITE_URL, $seo_pseudo);
+    $seoConfig = tpCache('seo');
+    $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+    $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+    $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, SITE_URL, $seo_pseudo, $seo_dynamic_format);
     // 自动隐藏index.php入口文件
     $arcurl = auto_hide_index($arcurl);
 
@@ -555,4 +597,64 @@ function auto_hide_index($url) {
         $url = str_replace('/index.php/', '/', $url);
     }
     return $url;
+}
+
+/*组装成层级下拉列表框*/
+function menu_select($selected = 0)
+{
+    $select_html = '';
+    $menuArr = getAllMenu();
+    if (!empty($menuArr)) {
+        foreach ($menuArr AS $key => $val)
+        {
+            $select_html .= '<option value="' . $val['id'] . '" data-grade="' . $val['grade'] . '"';
+            $select_html .= ($selected == $val['id']) ? ' selected="ture"' : '';
+            if (!empty($val['child'])) {
+                $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+            }
+            $select_html .= '>';
+            if ($val['grade'] > 0)
+            {
+                $select_html .= str_repeat('&nbsp;', $val['grade'] * 4);
+            }
+            $name = !empty($val['name']) ? $val['name'] : '默认';
+            $select_html .= htmlspecialchars(addslashes($name)) . '</option>';
+
+            if (empty($val['child'])) {
+                continue;
+            }
+            foreach ($menuArr[$key]['child'] as $key2 => $val2) {
+                $select_html .= '<option value="' . $val2['id'] . '" data-grade="' . $val2['grade'] . '"';
+                $select_html .= ($selected == $val2['id']) ? ' selected="ture"' : '';
+                if (!empty($val2['child'])) {
+                    $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                }
+                $select_html .= '>';
+                if ($val2['grade'] > 0)
+                {
+                    $select_html .= str_repeat('&nbsp;', $val2['grade'] * 4);
+                }
+                $select_html .= htmlspecialchars(addslashes($val2['name'])) . '</option>';
+
+                if (empty($val2['child'])) {
+                    continue;
+                }
+                foreach ($menuArr[$key]['child'][$key2]['child'] as $key3 => $val3) {
+                    $select_html .= '<option value="' . $val3['id'] . '" data-grade="' . $val3['grade'] . '"';
+                    $select_html .= ($selected == $val3['id']) ? ' selected="ture"' : '';
+                    if (!empty($val3['child'])) {
+                        $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                    }
+                    $select_html .= '>';
+                    if ($val3['grade'] > 0)
+                    {
+                        $select_html .= str_repeat('&nbsp;', $val3['grade'] * 4);
+                    }
+                    $select_html .= htmlspecialchars(addslashes($val3['name'])) . '</option>';
+                }
+            }
+        }
+    }
+
+    return $select_html;
 }

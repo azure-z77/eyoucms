@@ -1016,6 +1016,7 @@ class Eyou extends Taglib
         $parseStr .= '?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
         /*--end*/
 
         if (!empty($parseStr)) {

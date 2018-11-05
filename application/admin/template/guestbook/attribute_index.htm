@@ -84,7 +84,7 @@
                             </td>
                             <td style="width: 100%">
                                 <div style="text-align: left; padding-left: 10px;">
-                                    {eq name="'Guestbook@attribute_edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@attribute_edit'|is_check_access" value="1"}
                                     <a href="{:U('Guestbook/attribute_edit',array('id'=>$vo['attr_id']))}">{$vo.attr_name}</a>
                                     {else /}
                                     {$vo.attr_name}
@@ -111,10 +111,10 @@
                             </td>
                             <td>
                                 <div class="w180 tc">
-                                    {eq name="'Guestbook@attribute_edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@attribute_edit'|is_check_access" value="1"}
                                     <a href="{:U('Guestbook/attribute_edit',array('id'=>$vo['attr_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {eq name="'Guestbook@attribute_del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Guestbook/attribute_del')}" data-id="{$vo.attr_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo.fieldname}', '{$vo.attr_id}', {$vo.attr_input_type|default='0'})">标签调用</a>
@@ -134,7 +134,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Guestbook@attribute_del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Guestbook/attribute_del')}">
                         <div class="add" title="批量删除">
@@ -143,7 +143,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Guestbook@attribute_add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@attribute_add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Guestbook/attribute_add', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="新增表单">

@@ -95,13 +95,13 @@
                            
                             <td>
                                 <div class="w160 tc">
-                                    {eq name="'Tools@new_import'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@new_import'|is_check_access" value="1"}
                                     <a href="javascript:void(0);" data-url="{:U('Tools/new_import', array('time'=>$vo['time']))}" class="btn blue db-import"><i class="fa fa-repeat"></i>恢复</a>
                                     {/eq}
-                                    {eq name="'Tools@downFile'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@downFile'|is_check_access" value="1"}
                                     <a href="{:U('Tools/downFile',array('time'=>$vo['time']))}" class="btn green"><i class="fa fa-download"></i>下载</a>
                                     {/eq}
-                                    {eq name="'Tools@del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Tools/del')}" data-id="{$vo.time}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
@@ -120,7 +120,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="'Tools@del'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:U('Tools/del')}">
                         <div class="add" title="批量删除">
@@ -129,7 +129,7 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Tools@restoreUpload'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@restoreUpload'|is_check_access" value="1"}
                 <div class="fbutton">
                     <form class="navbar-form form-inline" action="{:U('Tools/restoreUpload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
                         <input type="file" class="btn fl w200" name="sqlfile" id="sqlfile">

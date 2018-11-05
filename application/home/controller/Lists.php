@@ -39,7 +39,7 @@ class Lists extends Base
             } else {
                 $map = array('a.id'=>$tid);
             }
-            $row = M('Arctype')->field('a.id, a.current_channel, b.nid')
+            $row = M('arctype')->field('a.id, a.current_channel, b.nid')
                 ->alias('a')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
                 ->where($map)

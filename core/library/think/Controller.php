@@ -64,7 +64,7 @@ class Controller
         !defined('MODULE_NAME') && define('MODULE_NAME',$this->request->module());  // 当前模块名称是
         !defined('CONTROLLER_NAME') && define('CONTROLLER_NAME',$this->request->controller()); // 当前控制器名称
         !defined('ACTION_NAME') && define('ACTION_NAME',$this->request->action()); // 当前操作名称是
-        !defined('PREFIX') && define('PREFIX',config('database.prefix')); // 数据库表前缀
+        !defined('PREFIX') && define('PREFIX',Config::get('database.prefix')); // 数据库表前缀
 
         // 自动判断手机端和PC，以及PC/手机自适应模板 by 小虎哥 2018-05-10
         $v = I('param.v/s', 'pc');
@@ -79,14 +79,18 @@ class Controller
             !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
         }
         if (in_array($this->request->module(), array('home'))) {
-            config('template.view_path', './template/'.THEME_STYLE.'/');
+            Config::set('template.view_path', './template/'.THEME_STYLE.'/');
+        } else if (in_array($this->request->module(), array('admin'))) {
+            if ('weapp' == strtolower($this->request->controller()) && 'execute' == strtolower($this->request->action())) {
+                Config::set('template.view_path', '.'.__ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->request->param('sm').'/template/');
+            }
         }
         // -------end
 
         $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
 
         $param = $this->request->param();
-        if (isset($param['clear']) || config('app_debug') === true) {
+        if (isset($param['clear']) || Config::get('app_debug') === true) {
 
         } else {
             read_html_cache(); // 尝试从缓存中读取
@@ -154,29 +158,56 @@ class Controller
      */
     protected function beforeAction($method, $options = [])
     {
-        if (isset($options['only'])) {
-            if (is_string($options['only'])) {
-                $options['only'] = explode(',', $options['only']);
+        if (in_array($this->request->module(), array('admin')) && 'Weapp' == $this->request->controller() && 'execute' == $this->request->action()) {
+            /*插件的前置操作*/
+            $sm = $this->request->param('sm');
+            $sc = $this->request->param('sc');
+            $sa = $this->request->param('sa');
+            if (isset($options['only'])) {
+                if (is_string($options['only'])) {
+                    $options['only'] = explode(',', $options['only']);
+                }
+
+                if (!in_array($sa, $options['only'])) {
+                    return;
+                }
+            } elseif (isset($options['except'])) {
+                if (is_string($options['except'])) {
+                    $options['except'] = explode(',', $options['except']);
+                }
+
+                if (in_array($sa, $options['except'])) {
+                    return;
+                }
             }
 
-            if (!in_array($this->request->action(), $options['only'])) {
-                return;
-            }
-        } elseif (isset($options['except'])) {
-            if (is_string($options['except'])) {
-                $options['except'] = explode(',', $options['except']);
+            call_user_func([$this, $method], $sm, $sc, $sa);
+            /*--end*/
+        } else {
+            if (isset($options['only'])) {
+                if (is_string($options['only'])) {
+                    $options['only'] = explode(',', $options['only']);
+                }
+
+                if (!in_array($this->request->action(), $options['only'])) {
+                    return;
+                }
+            } elseif (isset($options['except'])) {
+                if (is_string($options['except'])) {
+                    $options['except'] = explode(',', $options['except']);
+                }
+
+                if (in_array($this->request->action(), $options['except'])) {
+                    return;
+                }
             }
 
-            if (in_array($this->request->action(), $options['except'])) {
-                return;
-            }
+            call_user_func([$this, $method]);
         }
-
-        call_user_func([$this, $method]);
     }
 
     /**
-     * 检测是否存在模板文件
+     * 检测是否存在模板文件 by 小虎哥
      * @access public
      * @param string $template 模板文件或者模板规则
      * @return bool

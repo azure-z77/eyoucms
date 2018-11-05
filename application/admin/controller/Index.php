@@ -27,6 +27,7 @@ class Index extends Base
    
     public function welcome()
     {
+        /*百度分享*/
         $webConfig = tpCache('web');
         $share = array(
             'bdText'    => $webConfig['web_title'],
@@ -34,6 +35,8 @@ class Index extends Base
             'bdUrl'     => $webConfig['web_basehost'],
         );
         $this->assign('share',$share);
+        /*--end*/
+
         $this->assign('sys_info',$this->get_sys_info());
         $this->assign('web_show_popup_upgrade', tpCache('web.web_show_popup_upgrade'));
         return $this->fetch();

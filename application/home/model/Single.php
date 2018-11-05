@@ -34,16 +34,15 @@ class Single extends Model
      */
     public function getInfoByTypeid($typeid)
     {
-        $cacheKey = "home_model_single_getInfoByTypeid_{$typeid}";
+        $cacheKey = "home_model_Single_getInfoByTypeid_{$typeid}";
         $result = cache($cacheKey);
         if (empty($result)) {
             $field = 'c.*, b.*, a.*, b.aid, a.id as typeid';
-            $result = db('Arctype')->field($field)
+            $result = M('arctype')->field($field)
                 ->alias('a')
                 ->join('__ARCHIVES__ b', 'b.typeid = a.id', 'LEFT')
                 ->join('__SINGLE_CONTENT__ c', 'c.aid = b.aid', 'LEFT')
                 ->where('b.channel', 6)
-                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
                 ->find($typeid);
 
             cache($cacheKey, $result, null, 'arctype');

@@ -25,7 +25,7 @@
     </div>
     <form class="form-horizontal" id="cleanCache" method="post">
         <div class="ncap-form-default">
-            {eq name="'System@clearHtmlCache'|is_check_access" value="1"}
+            {eq name="$Think.const.CONTROLLER_NAME.'@clearHtmlCache'|is_check_access" value="1"}
             <dl class="row">
                 <dt class="tit">伪静态页面</dt>
                 <dd class="opt">
@@ -46,19 +46,19 @@
                 </dd>
             </dl>
             {/eq}
-            {eq name="'System@clearSystemCache'|is_check_access" value="1"}
+            {eq name="$Think.const.CONTROLLER_NAME.'@clearSystemCache'|is_check_access" value="1"}
             <dl class="row">
-                <dt class="tit">数据缓存</dt>
+                <dt class="tit">系统缓存</dt>
                 <dd class="opt">
                     <ul class="nc-row ncap-waybill-list">
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="cache" checked="checked">模板缓存(cache)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="cache" checked="checked">数据缓存(cache)</label>
                         </li>
                         <li>
                             <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="data" checked="checked">项目数据(data)</label>
                         </li>
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="logs" checked="checked">logs日志(logs)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="log" checked="checked">访问日志(log)</label>
                         </li>
                         <li>
                             <label class="label"><input class="check" type="checkbox" name="clearCache[]" value="temp" checked="checked">临时数据(temp)</label>
@@ -67,7 +67,7 @@
                 </dd>
             </dl>
             {/eq}
-            {eq name="'System@clearCache'|is_check_access" value="1"}
+            {eq name="$Think.const.CONTROLLER_NAME.'@clearCache'|is_check_access" value="1"}
             <dl class="row">
                 <dt class="tit"></dt>
                 <dd class="opt">

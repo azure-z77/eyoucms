@@ -18,9 +18,11 @@
     if(!function_exists('parse_file')){
         function parse_file($file, $line)
         {
+            /*提高体验 by 小虎哥*/
             $rootPath = realpath(dirname($_SERVER['SCRIPT_FILENAME']));
             $filestr = str_replace($rootPath, '', $file);
             return $filestr." 第 {$line} 行左右";
+            /*--end*/
         }
     }
 

@@ -83,13 +83,13 @@
                                 <div class="w120 tc">
                                   {eq name="$vo['filemine']" value='image'}
                                     {if condition="in_array($vo['filetype'], $replaceImgOpArr)"}
-                                        {eq name="'Filemanager@replace_img'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@replace_img'|is_check_access" value="1"}
                                         <a href="{:U('Filemanager/replace_img',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>替换</a>
                                         {/eq}
                                     {/if}
                                   {else /}
                                     {if condition="in_array($vo['filetype'], $editOpArr)"}
-                                        {eq name="'Filemanager@edit'|is_check_access" value="1"}
+                                        {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                         <a href="{:U('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                         {/eq}
                                     {/if}

@@ -2,6 +2,9 @@
 
 namespace weapp\Sample\behavior\admin;
 
+/**
+ * 行为扩展
+ */
 class SampleBehavior
 {
     protected static $actionName;

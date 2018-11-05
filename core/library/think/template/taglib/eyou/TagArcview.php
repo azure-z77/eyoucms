@@ -59,7 +59,7 @@ class TagArcview extends Base
         $result['litpic'] = get_default_pic($result['litpic']); // 默认封面图
 
         // 获取查询的控制器名
-        $channelInfo = model('Channeltype')->getInfo($result['channel'], 'id,table,ctl_name');
+        $channelInfo = model('Channeltype')->getInfo($result['channel']);
         $controller_name = $channelInfo['ctl_name'];
         $channeltype_table = $channelInfo['table'];
 

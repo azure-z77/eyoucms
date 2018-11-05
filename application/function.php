@@ -128,7 +128,7 @@ function delFile($path, $delDir = FALSE) {
         }
         closedir($handle);
         if ($delDir) {
-            return rmdir($path);
+            return @rmdir($path);
         }
     }else {
         if (file_exists($path)) {
@@ -184,7 +184,7 @@ function getDirFile($directory, $dir_name='', &$arr_file = array()) {
  * @param string $dir 路径
  * @return array
  */
-function ey_scandir($dir = '')
+function ey_scandir($dir, $type = 'all')
 {
     if(function_exists('scandir')){
         $files = scandir($dir);
@@ -197,8 +197,20 @@ function ey_scandir($dir = '')
         }
         $mydir->close();
     }
+    $arr_file = [];
+    foreach ($files as $key => $val) {
+        if(($val != ".") AND ($val != "..")){
+            if ('all' == $type) {
+                $arr_file[] = "$val";
+            } else if ('file' == $type && is_file($val)) {
+                $arr_file[] = "$val";
+            } else if ('dir' == $type && is_dir($val)) {
+                $arr_file[] = "$val";
+            }
+        }
+    }
 
-    return $files;
+    return $arr_file;
 }
 
 /**
@@ -1436,7 +1448,7 @@ function img_replace_url($content='', $imgurl = '')
  */
 function getCmsVersion()
 {
-    $ver = 'v1.0';
+    $ver = 'v1.1.8';
     $version_txt_path = ROOT_PATH.'data/conf/version.txt';
     if(file_exists($version_txt_path)) {
         $fp = fopen($version_txt_path, 'r');
@@ -1447,6 +1459,8 @@ function getCmsVersion()
         $r = tp_mkdir(dirname($version_txt_path));
         if ($r) {
             $fp = fopen($version_txt_path, "w+") or die("请设置".$version_txt_path."的权限为777");
+            $web_version = tpCache('system.system_version');
+            $ver = !empty($web_version) ? $web_version : $ver;
             if (fwrite($fp, $ver)) {
                 fclose($fp);
             }

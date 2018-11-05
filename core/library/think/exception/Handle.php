@@ -97,7 +97,7 @@ class Handle
         $status   = $e->getStatusCode();
         $template = Config::get('http_exception_template');
         // if (!App::$debug && !empty($template[$status])) {
-        if (!empty($template[$status])) { // 调试或者部署环境
+        if (!empty($template[$status])) { // 不管是调试模式 或 运营模式，都404页面跳转 by 小虎哥
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
             return $this->convertExceptionToResponse($e);

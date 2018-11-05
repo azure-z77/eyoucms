@@ -46,6 +46,19 @@ class ArctypeLogic extends Model
                 $where = array(
                     'status' => 1,
                 );
+
+                /*权限控制 by 小虎哥*/
+                $admin_info = session('admin_info');
+                if (0 < intval($admin_info['role_id'])) {
+                    $auth_role_info = $admin_info['auth_role_info'];
+                    if(! empty($auth_role_info)){
+                        if(! empty($auth_role_info['permission']['arctype'])){
+                            $where['id'] = array('IN', $auth_role_info['permission']['arctype']);
+                        }
+                    }
+                }
+                /*--end*/
+
                 if (!empty($map)) {
                     $where = array_merge($where, $map);
                 }
@@ -54,6 +67,7 @@ class ArctypeLogic extends Model
                     $where[$key_tmp] = $val;
                     unset($where[$key]);
                 }
+                
                 $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
                 $res = DB::name('arctype')
                     ->field($fields)

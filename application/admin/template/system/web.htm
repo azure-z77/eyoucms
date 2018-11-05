@@ -5,7 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="system/bar" /}
-    <form method="post" id="handlepost" action="{:U('System/handle')}" enctype="multipart/form-data" name="form1">
+    <form method="post" id="handlepost" action="{:U('System/web')}" enctype="multipart/form-data" name="form1">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
@@ -275,7 +275,6 @@
                 {/eq}
             </dl>
             <div class="bot">
-                <input type="hidden" name="inc_type" value="{$inc_type}">
                 <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a>
             </div>
         </div>
@@ -309,7 +308,7 @@
     function customvar(obj)
     {
         var id = $(obj).attr('data-id');
-        var url = "{:U('System/customvar', array('inc_type'=>$inc_type))}";
+        var url = "{:U('System/customvar', array('inc_type'=>'web'))}";
         if (url.indexOf('?') > -1) {
             url += '&';
         } else {

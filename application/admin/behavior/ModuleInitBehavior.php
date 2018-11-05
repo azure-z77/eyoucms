@@ -92,9 +92,12 @@ class ModuleInitBehavior {
             'System@clearCache',
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
-        if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method) {
+        $cacheKey = 'admin_ModuleInitBehavior_isset_checkInlet';
+        $cacheVal = cache($cacheKey);
+        if (!in_array($ctlActStr, $ctlActArr) || !empty($cacheVal)) {
             return false;
         }
+        cache($cacheKey, 1);
         /*--end*/
 
         $now_seo_inlet = 0; // 默认不隐藏入口
@@ -113,7 +116,7 @@ class ModuleInitBehavior {
             curl_close ($ch);  */
             if ('ok' == $response) {
                 $now_seo_inlet = 1;
-            } else {
+            } else if (!empty($response) && !stristr($response, 'not found')) {
                 /*解决部分空间file_get_contents获取不到自身网址数据的问题*/
                 $web_server = strtolower($_SERVER['SERVER_SOFTWARE']);
                 if (stristr($web_server, 'apache') && file_exists('.htaccess')) {

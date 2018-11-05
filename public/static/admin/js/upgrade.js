@@ -15,6 +15,7 @@ function btn_upgrade(obj, type)
     // v = v.replace(/\n/g,"<br/>");
     v = notice + intro + '<br/>' + v;
     var version = $(obj).data('version');
+    var max_version = $(obj).data('max_version');
     var title = '检测系统最新版本：'+version;
 
     if (0 == type) {
@@ -22,6 +23,15 @@ function btn_upgrade(obj, type)
     } else if (1 == type) {
         var btn = ['升级','忽略','不再提醒'];
     }
+
+    /*显示顶部导航更新提示*/
+    $("#textarea_filelist", window.parent.document).val($("#textarea_filelist").val());    
+    $("#textarea_intro", window.parent.document).val($("#textarea_intro").val());
+    $("#textarea_notice", window.parent.document).val($("#textarea_notice").val());
+    $('#a_upgrade', window.parent.document).attr('data-version',version)
+        .attr('data-max_version',max_version)
+        .show();
+    /*--end*/
 
     //询问框
     layer.confirm(v, {
@@ -55,12 +65,11 @@ function btn_upgrade(obj, type)
 }
 
 function upgrade(obj){
-    var url = $(obj).data('upgrade_url');
     var version = $(obj).data('version');
     var max_version = $(obj).data('max_version');
     $.ajax({
         type : "GET",
-        url  :  url,
+        url  :  $(obj).data('upgrade_url'),
         timeout : 360000, //超时时间设置，单位毫秒 设置了 1小时
         data : {},
         error: function(request) {
@@ -78,15 +87,23 @@ function upgrade(obj){
                 } else { // 升级版本是官方最新版本，将引导到备份新数据
                     var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
                     var btn = ['前往备份'];
+                    $('#a_upgrade', window.parent.document).hide(); // 隐藏顶部的更新提示
                 }
-                layer.alert(title, {
+                var full = layer.alert(title, {
                         title: '重要提示',
                         btn: btn //按钮
                     }, function(){
                         if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
                             top.location.reload();
                         } else { // 升级版本是官方最新版本，将引导到备份新数据
-                            window.location.href = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                            layer.close(full);
+                            var url = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                            var iframe = $(obj).data('iframe');
+                            if ('parent' == iframe) {
+                                workspace.window.location.href = url;
+                            } else {
+                                window.location.href = url;
+                            }
                         }
                     }
                 );

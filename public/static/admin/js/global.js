@@ -1,5 +1,6 @@
 
 //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
+window.UEDITOR_HOME_URL = "/public/plugins/Ueditor/";
 var ueditor_toolbars = [[
     'fullscreen', 'source', '|', 'undo', 'redo', '|',
     'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', '|',
@@ -8,7 +9,7 @@ var ueditor_toolbars = [[
     'directionalityltr', 'directionalityrtl', 'indent', '|',
     'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
     'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', '|',
-    'simpleupload', 'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map', 'insertframe', 'insertcode', 'pagebreak', 'background', '|',
+    'simpleupload', 'insertimage', 'emotion', 'scrawl', 'insertvideo', 'attachment', 'map', 'insertframe', 'insertcode', 'pagebreak', 'background', '|',
     'horizontal', 'spechars', '|',
     'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'charts', '|',
     'preview', 'searchreplace', 'drafts'
@@ -488,10 +489,27 @@ function getHsonLength(json){
     return jsonLength;
 }
 
+// post提交之前，切换编辑器从【源代码】到【设计】视图
+function ueditorHandle()
+{
+    try {
+        var funcStr = "";
+        $('textarea[class*="ckeditor"]').each(function(index, item){
+            var func = $(item).data('func');
+            if (undefined != func && func) {
+                funcStr += func+"();";
+            }
+        });
+        eval(funcStr);
+    }catch(e){}
+}
+
 /**
  * 封装的加载层
  */
 function layer_loading(msg){
+    ueditorHandle(); // post提交之前，切换编辑器从【源代码】到【设计】视图
+
     var loading = layer.msg(
     msg+'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请勿刷新页面', 
     {

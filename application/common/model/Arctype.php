@@ -73,8 +73,8 @@ class Arctype extends Model
                 /*--end*/
                 $result = array_merge($result, $parent_row);
             } else {
-                $parent_row = M('arctype')->where('id', $result['parent_id'])->find();
-                if (!empty($parent_row)) {
+                if (!empty($result['parent_id'])) {
+                    $parent_row = M('arctype')->where('id', $result['parent_id'])->cache(true,EYOUCMS_CACHE_TIME,"arctype")->find();
                     $ptypeurl = $this->getTypeUrl($parent_row);
                     $ptypename = $parent_row['typename'];
                     $pdirname = $parent_row['dirname'];
@@ -376,31 +376,45 @@ class Arctype extends Model
      */
     public function getAllPid($id)
     {
-        $typeid = $id;
-        $arr = array();
-        $arctype_list = M('Arctype')->field('*, id as typeid')->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getAllWithIndex('id');
-        if (isset($arctype_list[$typeid])) {
-            // 第一个先装起来
-            $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
-            $arr[$typeid] = $arctype_list[$typeid];
-        } else {
-            return $arr;
+        $cacheKey = array(
+            'common',
+            'model',
+            'Arctype',
+            'getAllPid',
+            $id,
+        );
+        $cacheKey = json_encode($cacheKey);
+        $data = cache($cacheKey);
+        if (empty($data)) {
+            $data = array();
+            $typeid = $id;
+            $arctype_list = M('Arctype')->field('*, id as typeid')->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getAllWithIndex('id');
+            if (isset($arctype_list[$typeid])) {
+                // 第一个先装起来
+                $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
+                $data[$typeid] = $arctype_list[$typeid];
+            } else {
+                return $data;
+            }
+
+            while (true)
+            {
+                $typeid = $arctype_list[$typeid]['parent_id'];
+                if($typeid > 0){
+                    if (isset($arctype_list[$typeid])) {
+                        $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
+                        $data[$typeid] = $arctype_list[$typeid];
+                    }
+                } else {
+                    break;
+                }
+            }
+            $data = array_reverse($data, true);
+
+            cache($cacheKey, $data, null, 'arctype');
         }
 
-        while (true)
-        {
-            $typeid = $arctype_list[$typeid]['parent_id'];
-            if($typeid > 0){
-                if (isset($arctype_list[$typeid])) {
-                    $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);
-                    $arr[$typeid] = $arctype_list[$typeid];
-                }
-            } else {
-                break;
-            }
-        }
-        $arr = array_reverse($arr, true);
-        return $arr;
+        return $data;
     }
 
     /**

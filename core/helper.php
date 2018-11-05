@@ -258,7 +258,17 @@ if (!function_exists('vendor')) {
      */
     function vendor($class, $ext = EXT)
     {
-        return Loader::import($class, VENDOR_PATH, $ext);
+        $request = Request::instance();
+        $sm = $request->param('sm');
+        $module = $request->module();
+        $controller = $request->controller();
+        $action = $request->action();
+        $mca = strtolower($module.'@'.$controller.'@'.$action);
+        if ('admin@weapp@execute' == $mca && !empty($sm)) { // 针对每个子插件的vendor第三方类库
+            return Loader::import($class, WEAPP_PATH.$sm.DS.'vendor'.DS, $ext);
+        } else {
+            return Loader::import($class, VENDOR_PATH, $ext);
+        }
     }
 }
 
@@ -283,10 +293,11 @@ if (!function_exists('url')) {
      * @param string|array  $vars 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
-     * @param bool          $seo_pseudo URL模式
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function url($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null)
+    function url($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
         $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
         $uiset = I('param.uiset/s', 'off');
@@ -313,10 +324,10 @@ if (!function_exists('url')) {
                 $vars .= "&".$str;
             }
 
-            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo);
+            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
 
         } else {
-            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo);
+            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
         return $url;
@@ -641,7 +652,7 @@ if (!function_exists('hookexec')) {
                 $row = M('weapp')->field('id,code')->where(array('code'=>$m,'status'=>1))->find();
                 $value = -1;
                 if (!empty($row)) {
-                    $configValue = include_once WEAPP_DIR_NAME.DS.$row['code'].DS.'config.php';
+                    $configValue = include WEAPP_DIR_NAME.DS.$row['code'].DS.'config.php';
                     $scene = intval($configValue['scene']);
                     if (0 == $scene) { // 场景：手机端+PC端
                         $value = 1;

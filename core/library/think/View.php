@@ -41,6 +41,8 @@ class View
             '__PUBLIC__' => $root . '/public',
             '__STATIC__' => $root . '/public/static',
             '__SKIN__'   => $root . '/public/static/'.$request->module(),
+            '__ADMIN_SKIN__'    => $root.'/public/static/admin',
+            '__WEAPP_PATH__'    => $root.'/'.WEAPP_DIR_NAME,
         ];
         $this->replace = array_merge($baseReplace, (array) $replace);
     }
@@ -130,7 +132,7 @@ class View
     }
 
     /**
-     * 检测是否存在模板文件
+     * 检测是否存在模板文件 by 小虎哥
      * @access public
      * @param string $template 模板文件或者模板规则
      * @return bool
@@ -153,7 +155,6 @@ class View
      */
     public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {
-        // file_put_contents ( DATA_PATH."log.txt", date ( "Y-m-d H:i:s" ) . "  " . var_export('view_fetch',true) . "\r\n", FILE_APPEND );
         // 模板变量
         $vars = array_merge(self::$var, $this->data, $vars);
 

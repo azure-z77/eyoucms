@@ -34,6 +34,7 @@ class ActionBeginBehavior {
     private function _initialize() {
         if ('POST' == self::$method) {
             $this->clearArchives();
+            $this->clearWeapp();
             $this->sitemap();
         }
     }
@@ -83,6 +84,23 @@ class ActionBeginBehavior {
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (in_array($ctlActStr, $ctlActArr)) {
             sitemap_auto();
+        }
+        /*--end*/
+    }
+
+    /**
+     * 插件每次post提交都清除插件相关缓存
+     * @access public
+     */
+    private function clearWeapp()
+    {
+        /*只有相应的控制器和操作名才执行，以便提高性能*/
+        $ctlActArr = array(
+            'weapp@*',
+        );
+        $ctlActStr = self::$controllerName.'@*';
+        if (in_array(strtolower($ctlActStr), $ctlActArr)) {
+            \think\Cache::clear('hooks');
         }
         /*--end*/
     }

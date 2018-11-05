@@ -4,9 +4,17 @@
 <div id="ajaxwaitid"></div>
 <div class="page atta">
     {include file="system/bar" /}
-    <form method="post" enctype="multipart/form-data" name="form1" id="handlepost" action="{:U('System/handle')}">
-        <input type="hidden" name="inc_type" value="{$inc_type}">
+    <form method="post" enctype="multipart/form-data" name="form1" id="handlepost" action="{:U('System/basic')}">
         <div class="ncap-form-default">
+            <dl class="row">
+                <dt class="tit">
+                    <label for="basic_indexname">主页链接名</label>
+                </dt>
+                <dd class="opt">
+                    <input id="basic_indexname" name="basic_indexname" value="{$config.basic_indexname|default='首页'}" class="input-txt" type="text" />
+                    <p class="notic"></p>
+                </dd>
+            </dl>
             <dl class="row">
                 <dt class="tit">
                     <label for="list_symbol">栏目位置的间隔符号</label>

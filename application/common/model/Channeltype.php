@@ -31,9 +31,9 @@ class Channeltype extends Model
      * 获取单条记录
      * @author 小虎哥 by 2018-4-16
      */
-    public function getInfo($id, $field = '*')
+    public function getInfo($id)
     {
-        $result = db('Channeltype')->field($field)->find($id);
+        $result = M('channeltype')->field('*')->cache(true,EYOUCMS_CACHE_TIME,"channeltype")->find($id);
 
         return $result;
     }
@@ -44,7 +44,7 @@ class Channeltype extends Model
      */
     public function getInfoByWhere($where, $field = '*')
     {
-        $result = db('Channeltype')->field($field)->where($where)->find();
+        $result = M('channeltype')->field($field)->where($where)->find();
 
         return $result;
     }
@@ -84,10 +84,9 @@ class Channeltype extends Model
         $cacheKey = json_encode($cacheKey);
         $result = cache($cacheKey);
         if (empty($result)) {
-            $result = db('Channeltype')->field($field)
+            $result = db('channeltype')->field($field)
                 ->where($map)
                 ->order('sort_order asc')
-                ->cache(true,EYOUCMS_CACHE_TIME,"channeltype")
                 ->select();
 
             if (!empty($index_key)) {

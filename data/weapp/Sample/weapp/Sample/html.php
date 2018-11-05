@@ -20,8 +20,8 @@
  *     cache : 页面缓存有效时间，单位是秒
  */
 return array(
-    array('mca'=>'weapp_Sample_index', 'filename'=>'channel/sample/index', 'cache'=>1),  
-    array('mca'=>'weapp_Sample_lists', 'filename'=>'articlelist/sample/list', 'p'=>array('tid','page'), 'cache'=>1), 
-    array('mca'=>'weapp_Sample_view', 'filename'=>'detail/sample/view', 'p'=>array('aid'), 'cache'=>1), 
+    // array('mca'=>'weapp_Sample_index', 'filename'=>'channel/sample/index', 'cache'=>1),  
+    // array('mca'=>'weapp_Sample_lists', 'filename'=>'articlelist/sample/list', 'p'=>array('tid','page'), 'cache'=>1), 
+    // array('mca'=>'weapp_Sample_view', 'filename'=>'detail/sample/view', 'p'=>array('aid'), 'cache'=>1), 
 );
 ?>

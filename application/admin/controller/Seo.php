@@ -58,7 +58,10 @@ class Seo extends Base
             /*检测是否开启pathinfo模式*/
             try {
                 if (3 == $param['seo_pseudo'] || (1 == $param['seo_pseudo'] && 2 == $param['seo_dynamic_format'])) {
-                    if (0 === ini_get('cgi.fix_pathinfo')) {
+                    $fix_pathinfo = ini_get('cgi.fix_pathinfo');
+                    if (stristr($_SERVER['HTTP_HOST'], '.mylightsite.com')) {
+                        $this->error('腾讯云空间不支持伪静态！');
+                    } else if ('' != $fix_pathinfo && 0 === $fix_pathinfo) {
                         $this->error('空间不支持伪静态，请开启pathinfo，或者在php.ini里修改cgi.fix_pathinfo=1');
                     }
                 }

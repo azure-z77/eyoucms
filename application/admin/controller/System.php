@@ -17,89 +17,20 @@ use think\Cache;
 
 class System extends Base
 {
-    /*
-     * 配置入口
-     */
     public function index()
     {
-        /*配置列表*/
-        $group_list = [
-            'web'       => '基本信息',
-            'web2'     => '核心设置',
-            'basic'     => '附件设置',
-            // 'sms'       => '短信设置',
-            // 'smtp'      => '邮件设置',
-            'water'     => '图片水印',
-            // 'oss'       => 'OSS对象存储'
-        ];      
-        $this->assign('group_list',$group_list);
-
-        $inc_type =  I('get.inc_type','web');
-        $this->assign('inc_type',$inc_type);
-
-        $config = tpCache($inc_type);
-        if ($inc_type == 'web') {
-            // 网站logo
-            if (is_http_url($config['web_logo'])) {
-                $config['web_logo_is_remote'] = 1;
-                $config['web_logo_remote'] = $config['web_logo'];
-            } else {
-                $config['web_logo_is_remote'] = 0;
-                $config['web_logo_local'] = $config['web_logo'];
-            }
-            
-            /*系统模式*/
-            $web_cmsmode = isset($config['web_cmsmode']) ? $config['web_cmsmode'] : 2;
-            $this->assign('web_cmsmode', $web_cmsmode);
-            /*--end*/
-
-            /*自定义变量*/
-            $eyou_row = M('config_attribute')->field('a.attr_id, a.attr_name, a.attr_var_name, a.attr_input_type, b.value, b.id, b.name')
-                ->alias('a')
-                ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
-                ->where('a.inc_type', $inc_type)
-                ->where('b.is_del', 0)
-                ->order('a.attr_id asc')
-                ->select();
-            $this->assign('eyou_row',$eyou_row);
-            /*--end*/
-
-        } elseif ($inc_type == 'web2') {
-            $config = tpCache('web');
-            //自定义后台路径名
-            $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : request()->baseFile();
-            $adminbasefile = preg_replace('/^\/(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
-            $this->assign('adminbasefile', $adminbasefile);
-            // 数据库备份目录
-            $sqlbackuppath = config('DATA_BACKUP_PATH');
-            $this->assign('sqlbackuppath', $sqlbackuppath);
-
-        } elseif ($inc_type == 'water') {
-            if (is_http_url($config['mark_img'])) {
-                $config['mark_img_is_remote'] = 1;
-                $config['mark_img_remote'] = $config['mark_img'];
-            } else {
-                $config['mark_img_is_remote'] = 0;
-                $config['mark_img_local'] = $config['mark_img'];
-            }
-        }
-                //config('TOKEN_ON',false);
-        $this->assign('config',$config);//当前配置项
-        return $this->fetch($inc_type);
+        $this->redirect(url('System/web'));
     }
-    
-    /*
-     * 新增修改配置
-     */
-    public function handle()
-    {
-        $param = I('post.');
-        $inc_type = $param['inc_type'];
-        $inc_type_old = '';
-        //unset($param['__hash__']);
-        unset($param['inc_type']);
 
-        if ($inc_type == 'web') {
+    /**
+     * 网站设置
+     */
+    public function web()
+    {
+        $inc_type =  'web';
+
+        if (IS_POST) {
+            $param = I('post.');
             $param['web_keywords'] = str_replace('，', ',', $param['web_keywords']);
             $param['web_description'] = filter_line_return($param['web_description']);
             
@@ -133,9 +64,52 @@ class System extends Base
                 }
             }
 
-        } elseif ($inc_type == 'web2') { // 该板块下的变量值保存到web板块下
-            $inc_type_old = $inc_type;
-            $inc_type = 'web'; // 保存的版块
+            tpCache($inc_type, $param);
+            write_global_params(); // 写入全局内置参数
+            $this->success('操作成功', U('System/web'));
+            exit;
+        }
+
+        $config = tpCache($inc_type);
+        // 网站logo
+        if (is_http_url($config['web_logo'])) {
+            $config['web_logo_is_remote'] = 1;
+            $config['web_logo_remote'] = $config['web_logo'];
+        } else {
+            $config['web_logo_is_remote'] = 0;
+            $config['web_logo_local'] = $config['web_logo'];
+        }
+        
+        /*系统模式*/
+        $web_cmsmode = isset($config['web_cmsmode']) ? $config['web_cmsmode'] : 2;
+        $this->assign('web_cmsmode', $web_cmsmode);
+        /*--end*/
+
+        /*自定义变量*/
+        $eyou_row = M('config_attribute')->field('a.attr_id, a.attr_name, a.attr_var_name, a.attr_input_type, b.value, b.id, b.name')
+            ->alias('a')
+            ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
+            ->where('a.inc_type', $inc_type)
+            ->where('b.is_del', 0)
+            ->order('a.attr_id asc')
+            ->select();
+        $this->assign('eyou_row',$eyou_row);
+        /*--end*/
+
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 核心设置
+     */
+    public function web2()
+    {
+        $inc_type = 'web';
+
+        if (IS_POST) {
+            $param = I('post.');
+
             /*EyouCMS安装目录*/
             $web_cmspath = trim($param['web_cmspath'], '/');
             $web_cmspath = !empty($web_cmspath) ? '/'.$web_cmspath : '';
@@ -158,22 +132,9 @@ class System extends Base
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
 
-        } elseif ($inc_type == 'water') {
-            $mark_img_is_remote = !empty($param['mark_img_is_remote']) ? $param['mark_img_is_remote'] : 0;
-            $mark_img = '';
-            if ($mark_img_is_remote == 1) {
-                $mark_img = $param['mark_img_remote'];
-            } else {
-                $mark_img = $param['mark_img_local'];
-            }
-            $param['mark_img'] = $mark_img;
-            unset($param['mark_img_is_remote']);
-            unset($param['mark_img_remote']);
-            unset($param['mark_img_local']);
-        }
-        tpCache($inc_type,$param);
-        write_global_params(); // 写入全局内置参数
-        if ($inc_type_old == 'web2') { // 保存该板块下的后续业务逻辑
+            tpCache($inc_type,$param);
+            write_global_params(); // 写入全局内置参数
+
             $refresh = false;
             $gourl = SITE_URL.'/'.$adminbasefile;
             /*更改自定义后台路径名*/
@@ -187,6 +148,7 @@ class System extends Base
                 }
             }
             /*--end*/
+
             /*更改插件入口*/
             if ($web_weapp_switch_old != $web_weapp_switch) {
                 $refresh = true;
@@ -198,10 +160,81 @@ class System extends Base
                 $this->success('操作成功', $gourl, '', 1, [], '_parent');
             }
             /*--end*/
+
+            $this->success('操作成功', U('System/web2'));
         }
-        $inc_type = I('post.inc_type/s');
-        $this->success('操作成功', U('System/index',array('inc_type'=>$inc_type)));
-    }  
+
+        $config = tpCache($inc_type);
+        //自定义后台路径名
+        $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : request()->baseFile();
+        $adminbasefile = preg_replace('/^\/(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
+        $this->assign('adminbasefile', $adminbasefile);
+        // 数据库备份目录
+        $sqlbackuppath = config('DATA_BACKUP_PATH');
+        $this->assign('sqlbackuppath', $sqlbackuppath);
+
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 附件设置
+     */
+    public function basic()
+    {
+        $inc_type =  'basic';
+
+        if (IS_POST) {
+            $param = I('post.');
+            tpCache($inc_type,$param);
+            write_global_params(); // 写入全局内置参数
+            $this->success('操作成功', U('System/basic'));
+        }
+
+        $config = tpCache($inc_type);
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 图片水印
+     */
+    public function water()
+    {
+        $inc_type =  'water';
+
+        if (IS_POST) {
+            $param = I('post.');
+
+            $mark_img_is_remote = !empty($param['mark_img_is_remote']) ? $param['mark_img_is_remote'] : 0;
+            $mark_img = '';
+            if ($mark_img_is_remote == 1) {
+                $mark_img = $param['mark_img_remote'];
+            } else {
+                $mark_img = $param['mark_img_local'];
+            }
+            $param['mark_img'] = $mark_img;
+            unset($param['mark_img_is_remote']);
+            unset($param['mark_img_remote']);
+            unset($param['mark_img_local']);
+
+            tpCache($inc_type,$param);
+            write_global_params(); // 写入全局内置参数
+            $this->success('操作成功', U('System/water'));
+        }
+
+        $config = tpCache($inc_type);
+        if (is_http_url($config['mark_img'])) {
+            $config['mark_img_is_remote'] = 1;
+            $config['mark_img_remote'] = $config['mark_img'];
+        } else {
+            $config['mark_img_is_remote'] = 0;
+            $config['mark_img_local'] = $config['mark_img'];
+        }
+
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
 
     /**
      * 清空缓存

@@ -81,7 +81,7 @@
                             <td style="width: 100%">
                                 <div style="">
                                 {if condition="empty($vo['ifsystem'])"}
-                                    {eq name="'Field@arctype_edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@arctype_edit'|is_check_access" value="1"}
                                     <a href="{:U('Field/arctype_edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
@@ -118,10 +118,10 @@
                             <td class="">
                                 <div class="w180 tc">
                                 {if condition="empty($vo['ifsystem'])"}
-                                    {eq name="'Field@arctype_edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@arctype_edit'|is_check_access" value="1"}
                                     <a href="{:U('Field/arctype_edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {eq name="'Field@arctype_del'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@arctype_del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Field/arctype_del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 {else /}
@@ -133,7 +133,7 @@
                             <td class="sort">
                                 <div class="w60 tc">
                                 {if condition="empty($vo['ifsystem'])"}
-                                    {eq name="'Field@arctype_edit'|is_check_access" value="1"}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@arctype_edit'|is_check_access" value="1"}
                                     <input style="text-align: left;" type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" onchange="changeTableVal('arctype_field','id','{$vo.id}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
                                     {else /}
                                     {$vo.sort_order}
@@ -154,7 +154,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
-                {eq name="'Field@arctype_add'|is_check_access" value="1"}
+                {eq name="$Think.const.CONTROLLER_NAME.'@arctype_add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Field/arctype_add')}">
                         <div class="add" title="新增字段">

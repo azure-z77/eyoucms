@@ -108,6 +108,7 @@ class Arctype extends Base
                     'current_channel' => $post['current_channel'],
                     'seo_keywords' => str_replace('，', ',', $post['seo_keywords']),
                     'seo_description' => $seo_description,
+                    'admin_id'  => session('admin_info.admin_id'),
                     'add_time'  => getTime(),
                     'update_time'  => getTime(),
                 );
@@ -118,31 +119,36 @@ class Arctype extends Base
                 if($insertId){
                     // --存储单页模型
                     if ($data['current_channel'] == 6) {
-                        $newData = array(
+                        $archivesData = array(
                             'title' => $data['typename'],
                             'typeid'=> $insertId,
                             'channel'   => $data['current_channel'],
                             'sort_order'    => 100,
                             'add_time'  => getTime(),
                         );
-                        $aid = M('archives')->insertGetId($newData);
+                        // $archivesData = array_merge($archivesData, $data);
+                        $aid = M('archives')->insertGetId($archivesData);
                         if ($aid) {
                             // ---------后置操作
                             if (!isset($post['addonFieldExt'])) {
                                 $post['addonFieldExt'] = array(
-                                    'typeid'    => $newData['typeid'],
+                                    'typeid'    => $archivesData['typeid'],
                                 );
                             } else {
-                                $post['addonFieldExt']['typeid'] = $newData['typeid'];
+                                $post['addonFieldExt']['typeid'] = $archivesData['typeid'];
                             }
                             $addData = array(
                                 'addonFieldExt' => $post['addonFieldExt'],
                             );
-                            $addData = array_merge($addData, $newData);
+                            $addData = array_merge($addData, $archivesData);
                             model('Single')->afterSave($aid, $addData, 'add');
                             // ---------end
                         }
                     }
+
+                    /*同步栏目ID到权限组，默认是赋予该栏目的权限*/
+                    $this->syn_auth_role($insertId);
+                    /*--end*/
 
                     \think\Cache::clear('arctype');
                     extra_cache('admin_all_menu', NULL);
@@ -298,28 +304,29 @@ class Arctype extends Base
                                 'update_time'        => getTime(),
                                 'grade'   =>  array('exp','grade+'.$minuendGrade),
                             );
-                             M('arctype')->where(array('id'=>array('eq', $val['id'])))->cache(true,null,"arctype")->fetchSql(false)->update($update_data);
+                            M('arctype')->where(array('id'=>array('eq', $val['id'])))->cache(true,null,"arctype")->fetchSql(false)->update($update_data);
                             ++$i;
                         }
                     }
 
                     // --存储单页模型
                     if ($data['current_channel'] == 6) {
-                        $newData = array(
+                        $archivesData = array(
                             'title' => $data['typename'],
                             'typeid'=> $data['id'],
                             'channel'   => $data['current_channel'],
                             'sort_order'    => 100,
                             'update_time'     => getTime(),
                         );
+                        // $archivesData = array_merge($archivesData, $data);
                         $aid = M('single_content')->where(array('typeid'=>$data['id']))->getField('aid');
                         if (empty($aid)) {
                             $opt = 'add';
-                            $newData['add_time'] = getTime();
-                            $up = $aid = M('archives')->insertGetId($newData);
+                            $archivesData['add_time'] = getTime();
+                            $up = $aid = M('archives')->insertGetId($archivesData);
                         } else {
                             $opt = 'edit';
-                            $up = M('archives')->where(array('aid'=>$aid))->update($newData);
+                            $up = M('archives')->where(array('aid'=>$aid))->update($archivesData);
                         }
                         if ($up) {
                             // ---------后置操作
@@ -333,7 +340,7 @@ class Arctype extends Base
                             $updateData = array(
                                 'addonFieldExt' => $post['addonFieldExt'],
                             );
-                            $updateData = array_merge($updateData, $newData);
+                            $updateData = array_merge($updateData, $archivesData);
                             model('Single')->afterSave($aid, $updateData, $opt);
                             // ---------end
                         }
@@ -452,13 +459,14 @@ class Arctype extends Base
     /**
      * 内容管理
      */
-    public function single()
+    public function single_edit()
     {
         if (IS_POST) {
             $post = I('post.');
-            if(!empty($post['id'])){
-                $info = M('arctype')->field('typename')->where(array('id'=>$post['id']))->find();
-                $aid = M('archives')->where(array('typeid'=>$post['id'], 'channel'=>6))->getField('aid');
+            $typeid = I('post.typeid/d', 0);
+            if(!empty($typeid)){
+                $info = M('arctype')->field('typename')->where(array('id'=>$typeid))->find();
+                $aid = M('archives')->where(array('typeid'=>$typeid, 'channel'=>6))->getField('aid');
                 if (!isset($post['addonFieldExt'])) {
                     $post['addonFieldExt'] = array();
                 }
@@ -470,7 +478,7 @@ class Arctype extends Base
 
                 \think\Cache::clear('arctype');
                 adminLog('编辑栏目：'.$info['typename']);
-                $this->success("操作成功!", U('Archives/index'));
+                $this->success("操作成功!", $post['gourl']);
                 exit;
             }
             $this->error("操作失败!");
@@ -479,8 +487,8 @@ class Arctype extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
-        $info = M('arctype')->where(array('id'=>$id))->find();
+        $typeid = I('typeid/d');
+        $info = M('arctype')->where(array('id'=>$typeid))->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -488,10 +496,18 @@ class Arctype extends Base
         $assign_data['info'] = $info;
 
         /*自定义字段*/
-        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList(6, 0, $id);
-        $assign_data['aid'] = $id;
+        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList(6, 0, $typeid);
+        $assign_data['aid'] = $typeid;
         $assign_data['channeltype'] = 6;
         $assign_data['nid'] = 'single';
+        /*--end*/
+
+        /*返回上一层*/
+        $gourl = I('param.gourl/s', '');
+        if (empty($gourl)) {
+            $gourl = U('Arctype/single_edit', array('typeid'=>$typeid));
+        }
+        $assign_data['gourl'] = $gourl;
         /*--end*/
 
         $this->assign($assign_data);
@@ -504,15 +520,15 @@ class Arctype extends Base
     public function del()
     {
         $post = I('post.');
-        $post['id'] = eyIntval($post['id']);
+        $post['del_id'] = eyIntval($post['del_id']);
 
         /*当前栏目信息*/
-        $row = M('arctype')->field('id, current_channel, typename')->find($post['id']);
+        $row = M('arctype')->field('id, current_channel, typename')->find($post['del_id']);
         
-        $r = model('arctype')->del($post['id']);
+        $r = model('arctype')->del($post['del_id']);
         if (false !== $r) {
             // ---------后置操作
-            model('arctype')->del($post['id']);
+            model('arctype')->del($post['del_id']);
             // ---------end
             adminLog('删除栏目：'.$row['typename']);
             respose(array('status'=>1, 'msg'=>'删除成功'));
@@ -524,7 +540,7 @@ class Arctype extends Base
     /**
      * 获取栏目的拼音，确保唯一性
      */
-    public function get_dirpinyin($typename = '', $dirname = '', $id = 0)
+    private function get_dirpinyin($typename = '', $dirname = '', $id = 0)
     {
         if (empty($dirname)) {
             $dirname = get_pinyin($typename);
@@ -616,7 +632,7 @@ class Arctype extends Base
         }
     }
 
-    public function getTemplateList($opt = 'add', $templist = '', $tempview = '')
+    private function getTemplateList($opt = 'add', $templist = '', $tempview = '')
     {   
         $planPath = ROOT_PATH.'template/pc';
         $dirRes   = opendir($planPath);
@@ -744,5 +760,43 @@ class Arctype extends Base
             'templisthtml'   => $templisthtml,
             'tempviewhtml'   => $tempviewhtml,
         ));
+    }
+
+    /**
+     * 同步栏目ID到权限组，默认是赋予该栏目的权限
+     * @param int $typeid
+     */
+    private function syn_auth_role($typeid = 0)
+    {
+        if (0 < intval($typeid)) {
+            $authRole = new \app\admin\model\AuthRole;
+            $roleRow = $authRole->getRoleAll();
+            if (!empty($roleRow)) {
+                $saveData = [];
+                foreach ($roleRow as $key => $val) {
+                    $permission = $val['permission'];
+                    $rules = !empty($permission['rules']) ? $permission['rules'] : [];
+                    if (!in_array(1, $rules)) {
+                        continue;
+                    }
+                    $arctype = !empty($permission['arctype']) ? $permission['arctype'] : [];
+                    if (!empty($arctype)) {
+                        array_push($arctype, $typeid);
+                        $permission['arctype'] = $arctype;
+                    }
+                    $saveData[] = array(
+                        'id'    => $val['id'],
+                        'permission'    => $permission,
+                    );
+                }
+                $r = $authRole->saveAll($saveData);
+                if (false != $r && -1 < session('admin_info.role_id')) {
+                    /*及时更新当前管理员权限*/
+                    $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
+                    session('admin_info.auth_role_info', $auth_role_info);
+                    /*--end*/
+                }
+            }
+        }
     }
 }

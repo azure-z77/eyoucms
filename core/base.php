@@ -21,6 +21,7 @@ defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
 defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 defined('DATA_NAME') or define('DATA_NAME', 'data');
+defined('DATA_PATH') or define('DATA_PATH', ROOT_PATH . DATA_NAME . DS);
 defined('WEAPP_DIR_NAME') or define('WEAPP_DIR_NAME', 'weapp');
 defined('WEAPP_PATH') or define('WEAPP_PATH', ROOT_PATH . WEAPP_DIR_NAME . DS);
 
@@ -58,7 +59,7 @@ if (is_file(ROOT_PATH . '.env')) {
 // 加载惯例配置文件
 \think\Config::set(include THINK_PATH . 'convention' . EXT);
 
-/*网站根目录*/
+/*网站根目录 by 小虎哥*/
 $_request = \think\Request::instance();
 $_root    = strpos($_request->root(), '.') ? ltrim(dirname($_request->root()), DS) : $_request->root();
 if ('' != $_root) {

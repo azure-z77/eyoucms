@@ -232,17 +232,23 @@ if (!function_exists('typeurl')) {
      * @param string|array  $param 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
-     * @param bool          $seo_pseudo URL模式
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function typeurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = null)
+    function typeurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
         $eyouUrl = '';
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
         $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-        $seo_dynamic_format = config('ey_config.seo_dynamic_format');
-        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_dynamic_format) {
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+
+        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_pseudo_format) {
             if (is_array($param)) {
                 $vars = array(
                     'tid'   => $param['id'],
@@ -251,7 +257,7 @@ if (!function_exists('typeurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo);
+            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
             $urlParam = parse_url($eyouUrl);
             $query_str = isset($urlParam['query']) ? $urlParam['query'] : '';
             if (empty($query_str)) {
@@ -263,7 +269,7 @@ if (!function_exists('typeurl')) {
         } elseif ('on' != $uiset && 2 == $seo_pseudo) {
             $vars = array();
             $url = $param['dirpath']."/";
-            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo);
+            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
         } elseif ('on' != $uiset && 3 == $seo_pseudo) {
             if (is_array($param)) {
                 $vars = array(
@@ -275,9 +281,9 @@ if (!function_exists('typeurl')) {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');
             if (1 == intval($seo_rewrite_format)) {
-                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo).'/';
+                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format).'/';
             } else {
-                $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo); // 兼容v1.1.6之前被搜索引擎收录的URL
+                $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format); // 兼容v1.1.6之前被搜索引擎收录的URL
             }
             /*--end*/
         } else {
@@ -288,7 +294,7 @@ if (!function_exists('typeurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo);
+            $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
         // $eyouUrl = auto_hide_index($eyouUrl);
@@ -304,17 +310,24 @@ if (!function_exists('arcurl')) {
      * @param string|array  $param 变量
      * @param bool|string   $suffix 生成的URL后缀
      * @param bool|string   $domain 域名
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
      * @return string
      */
-    function arcurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '')
+    function arcurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '', $seo_pseudo_format = null)
     {
         // \think\Url::root('/');
         $eyouUrl = '';
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
         $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-        $seo_dynamic_format = config('ey_config.seo_dynamic_format');
-        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_dynamic_format) {
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+        
+        if ('on' != $uiset && 1 == $seo_pseudo && 2 == $seo_pseudo_format) {
             if (is_array($param)) {
                 $vars = array(
                     'aid'   => $param['aid'],
@@ -323,7 +336,7 @@ if (!function_exists('arcurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo);
+            $eyouUrl = url($url, array(), $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
             $urlParam = parse_url($eyouUrl);
             $query_str = isset($urlParam['query']) ? $urlParam['query'] : '';
             if (empty($query_str)) {
@@ -336,7 +349,7 @@ if (!function_exists('arcurl')) {
             $vars = array();
             $aid = $param['aid'];
             $url = $param['dirpath']."/{$aid}.html";
-            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo);
+            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
         } elseif ($seo_pseudo == 3 && $uiset != 'on') {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');
@@ -358,7 +371,7 @@ if (!function_exists('arcurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo);
+            $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         } else {
             if (is_array($param)) {
                 $vars = array(
@@ -368,7 +381,7 @@ if (!function_exists('arcurl')) {
             } else {
                 $vars = $param;
             }
-            $eyouUrl = url('home/View/index', $vars, $suffix, $domain, $seo_pseudo);
+            $eyouUrl = url('home/View/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
         // $eyouUrl = auto_hide_index($eyouUrl);

@@ -68,10 +68,10 @@ class WeappLogic extends Model
             $data = array(
                 'code'          => $code,
                 'name'          => isset($v['name']) ? $v['name'] : '配置信息不完善',
-                'author'        => isset($v['author']) ? $v['author'] : '',
-                'description'   => isset($v['description']) ? $v['description'] : '插件制作不符合官方规范',
-                'scene'         => isset($v['scene']) ? $v['scene'] : '',
-                'min_version'         => !empty($v['min_version']) ? $v['min_version'] : 'v1.1.0',
+                // 'author'        => isset($v['author']) ? $v['author'] : '',
+                // 'description'   => isset($v['description']) ? $v['description'] : '插件制作不符合官方规范',
+                // 'scene'         => isset($v['scene']) ? $v['scene'] : '',
+                // 'min_version'         => !empty($v['min_version']) ? $v['min_version'] : 'v1.1.0',
                 'config'        => empty($v) ? '' : json_encode($v),
             );
             if(empty($row[$code])){ // 新增插件
