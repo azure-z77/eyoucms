@@ -50,7 +50,7 @@
                     <div class="input-file-show div_web_logo_local" {if condition="isset($config.web_logo_is_remote) AND $config.web_logo_is_remote == 1"}style="display: none;"{/if}>
                         <span class="show">
                             <a id="img_a_web_logo" class="nyroModal" rel="gal" href="{$config.web_logo_local|default='javascript:void(0);'}" target="_blank">
-                                <i id="img_i_web_logo" class="fa fa-picture-o" {notempty name="$config.web_logo_local"}onmouseover="layer_tips=layer.tips('<img src={$config.web_logo_local|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                <i id="img_i_web_logo" class="fa fa-picture-o" {notempty name="$config.web_logo_local"}onmouseover="layer_tips=layer.tips('<img src={$config.web_logo_local|imgEcho=###|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -80,7 +80,7 @@
                     <div class="input-file-show">
                         <span class="show">
                             <a id="img_a_web_ico" class="nyroModal" rel="gal" href="{$config.web_ico|default='javascript:void(0);'}?t={php}echo time();{/php}" target="_blank">
-                                <i id="img_i_web_ico" class="fa fa-picture-o" {notempty name="$config.web_ico"}onmouseover="layer_tips=layer.tips('<img src={$config.web_ico|default=''}?t={php}echo time();{/php} width=32 height=32>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                <i id="img_i_web_ico" class="fa fa-picture-o" {notempty name="$config.web_ico"}onmouseover="layer_tips=layer.tips('<img src={$config.web_ico|imgEcho=###|default=''}?t={php}echo time();{/php} width=32 height=32>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -207,7 +207,7 @@
                         <div class="input-file-show">
                             <span class="show">
                                 <a id="img_a_{$vo['attr_var_name']}" class="nyroModal" rel="gal" href="{$vo.value|default='javascript:void(0);'}" target="_blank">
-                                    <i id="img_i_{$vo['attr_var_name']}" class="fa fa-picture-o" {notempty name="$vo.value"}onmouseover="layer_tips=layer.tips('<img src={$vo.value|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                    <i id="img_i_{$vo['attr_var_name']}" class="fa fa-picture-o" {notempty name="$vo.value"}onmouseover="layer_tips=layer.tips('<img src={$vo.value|imgEcho=###|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                                 </a>
                             </span>
                             <span class="type-file-box">
@@ -221,7 +221,7 @@
                             {
                                 $("#{$vo['attr_var_name']}").val(fileurl_tmp);
                                 $("#img_a_{$vo['attr_var_name']}").attr('href', fileurl_tmp);
-                                $("#img_i_{$vo['attr_var_name']}").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+                                $("#img_i_{$vo['attr_var_name']}").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
                             }
                         </script>
                         {/case}
@@ -296,14 +296,14 @@
     {
         $("#web_logo_local").val(fileurl_tmp);
         $("#img_a_web_logo").attr('href', fileurl_tmp);
-        $("#img_i_web_logo").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+        $("#img_i_web_logo").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
     
     function web_ico_img_call_back(fileurl_tmp)
     {
         $("#web_ico").val(fileurl_tmp);
         $("#img_a_web_ico").attr('href', fileurl_tmp);
-        $("#img_i_web_ico").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" width=32 height=32>',this,{tips: [1, '#fff']});");
+        $("#img_i_web_ico").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" width=32 height=32>',this,{tips: [1, '#fff']});");
     }
 
     function customvar(obj)

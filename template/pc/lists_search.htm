@@ -43,7 +43,7 @@
          {eyou:list pagesize="10" titlelen="20" empty='<li class="media media-lg border-bottom1">没有数据了</li>'}
          <li class="media media-lg border-bottom1"> 
           <div class="media-left"> 
-           <a href="{$field.arcurl}" title="{$field.title}"> <img class="media-object" src="{$field.litpic}" alt="{$field.title}" height="100" /></a> 
+           <a href="{$field.arcurl}" title="{$field.title}"> <img class="media-object" src="{$field.litpic|imgEcho=###}" alt="{$field.title}" height="100" /></a> 
           </div> 
           <div class="media-body"> 
            <h4> <a href="{$field.arcurl}" title="{$field.title}" target="_self">{$field.title}</a> </h4> 

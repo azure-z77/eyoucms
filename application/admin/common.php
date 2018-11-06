@@ -408,7 +408,7 @@ function get_typeurl($arctype_info = array())
     }
     $seo_pseudo = tpCache('seo.seo_pseudo');
     $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-    $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, SITE_URL, $seo_pseudo);
+    $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, false, $seo_pseudo);
     // 自动隐藏index.php入口文件
     $typeurl = auto_hide_index($typeurl);
 
@@ -427,7 +427,7 @@ function get_arcurl($arcview_info = array())
     }
     $seo_pseudo = tpCache('seo.seo_pseudo');
     $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-    $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, SITE_URL, $seo_pseudo);
+    $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, false, $seo_pseudo);
     // 自动隐藏index.php入口文件
     $arcurl = auto_hide_index($arcurl);
 
@@ -549,7 +549,7 @@ function get_chown_pathinfo($path = '')
 function auto_hide_index($url) {
     $web_adminbasefile = tpCache('web.web_adminbasefile');
     $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : '/login.php';
-    $url = str_replace($web_adminbasefile, '/index.php', $url);
+    $url = str_replace($web_adminbasefile, __ROOT__.'/index.php', $url);
     $seo_inlet = config('ey_config.seo_inlet');
     if (1 == $seo_inlet) {
         $url = str_replace('/index.php/', '/', $url);

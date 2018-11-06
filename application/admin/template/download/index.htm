@@ -94,7 +94,7 @@
                             <td style="width: 100%;">
                                 <div class="tl" style="padding-left: 10px;">
                                     {notempty name="vo.litpic"}
-                                        <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
+                                        <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic|imgEcho=###} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
                                     {/notempty}
                                     {eq name="'Download@edit'|is_check_access" value="1"}
                                     <a href="{:U('Download/edit',array('id'=>$vo['aid']))}" title="{$vo.title}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>

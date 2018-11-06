@@ -74,8 +74,8 @@
         {eyou:volist name="$eyou.field.image_list"}
         <!--fngallery：启用lightGallery插件的类名--> 
         <div class="slick-slide"> 
-         <a href="{$field.image_url}" data-size="400x400" data-med="{$field.image_url}" data-med-size="400x400" class="lg-item-box" data-src="{$field.image_url}" data-exthumbimage="{$field.image_url}" data-sub-html="{$eyou.field.title}"> 
-          <!--类名lg-item-box之前为initPhotoSwipeFromDOM插件所用参数；之后为lightGallery插件所用参数，lg-item-box：lightGallery插件对应的类名--> <img src="{$field.image_url}" class="img-fluid" alt="{$eyou.field.title}" /> </a> 
+         <a href="{$field.image_url|imgEcho=###}" data-size="400x400" data-med="{$field.image_url|imgEcho=###}" data-med-size="400x400" class="lg-item-box" data-src="{$field.image_url|imgEcho=###}" data-exthumbimage="{$field.image_url|imgEcho=###}" data-sub-html="{$eyou.field.title}"> 
+          <!--类名lg-item-box之前为initPhotoSwipeFromDOM插件所用参数；之后为lightGallery插件所用参数，lg-item-box：lightGallery插件对应的类名--> <img src="{$field.image_url|imgEcho=###}" class="img-fluid" alt="{$eyou.field.title}" /> </a> 
         </div> 
         {/eyou:volist}
        </div> 
@@ -121,7 +121,7 @@
           <h3 class="m-0 font-size-16 font-weight-300">热门推荐</h3> 
           <ul class="blocks-2 blocks-md-3 blocks-lg-100 m-t-20 text-xs-center imagesize sidebar-piclist-ul" data-scale="x">
           {eyou:arclist row='3' titlelen='30' orderby="rand"}
-           <li class="masonry-child"> <a href="{$field.arcurl}" title="{$field.title}" class="block m-b-0" target="_blank"> <img data-original="{$field.litpic}" class="cover-image" alt="{$field.title}" height="100" src="{eyou:global name='web_templets_pc' /}/skin/images/ajax-loader.gif" /></a> <h4 class="m-t-10 m-b-0 font-size-14"> <a href="{$field.arcurl}" title="{$field.title}" target="_blank">{$field.title}</a> </h4> </li> 
+           <li class="masonry-child"> <a href="{$field.arcurl}" title="{$field.title}" class="block m-b-0" target="_blank"> <img data-original="{$field.litpic|imgEcho=###}" class="cover-image" alt="{$field.title}" height="100" src="{eyou:global name='web_templets_pc' /}/skin/images/ajax-loader.gif" /></a> <h4 class="m-t-10 m-b-0 font-size-14"> <a href="{$field.arcurl}" title="{$field.title}" target="_blank">{$field.title}</a> </h4> </li> 
           {/eyou:arclist}
           </ul> 
          </div> 

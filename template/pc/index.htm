@@ -46,7 +46,7 @@ font-family:;
    <div class="carousel-inner" role="listbox"> 
     {eyou:adv pid='1' currentstyle='active'}
     <div class="carousel-item eyou-edit {$field.currentstyle}" e-id="{$field.id}" e-type="adv">
-      <a href="{$field.links}" title="{$field.title}" {$field.target}><img class="w-full" src="{$field.litpic}" srcset="{$field.litpic} 767w,{$field.litpic}" sizes="(max-width: 767px) 767px" pch="0" adh="0" iph="0" /></a>
+      <a href="{$field.links}" title="{$field.title}" {$field.target}><img class="w-full" src="{$field.litpic|imgEcho=###}" srcset="{$field.litpic|imgEcho=###} 767w,{$field.litpic|imgEcho=###}" sizes="(max-width: 767px) 767px" pch="0" adh="0" iph="0" /></a>
     </div>
     {/eyou:adv}
     <a class="left carousel-control" href="#exampleCarouselDefault" role="button" data-slide="prev"> <span class="icon" aria-hidden="true">&lt;</span> <span class="sr-only">Previous</span> </a>
@@ -76,7 +76,7 @@ font-family:;
         <ul class="list m-0 clearfix ulstyle">
           {eyou:arclist row='3' titlelen='30' infolen='25'}
             <li class="item col-xs-12 col-md-6 col-lg-4 col-xxl-4 newpro">
-            <div class="content"> <a href="{$field.arcurl}" title="{$field.title}" target="_self"> <img data-original="{$field.litpic}" alt="{$field.title}" src="{$field.litpic}" class="" style="display: inline;">
+            <div class="content"> <a href="{$field.arcurl}" title="{$field.title}" target="_self"> <img data-original="{$field.litpic|imgEcho=###}" alt="{$field.title}" src="{$field.litpic|imgEcho=###}" class="" style="display: inline;">
               <h4>{$field.title}</h4>
               <p>{$field.seo_description}...</p>
               </a> </div>

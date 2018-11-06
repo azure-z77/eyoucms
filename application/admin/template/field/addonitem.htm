@@ -130,7 +130,7 @@
                         <div class="input-file-show div_{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" {neq name="$vo[$vo['name'].'_eyou_is_remote']" value="0"}style="display: none;"{/neq}>
                             <span class="show">
                                 <a id="img_a_{$vo.fieldArr}_{$vo.name|default=''}" target="_blank" class="nyroModal" rel="gal" href="javascript:void(0);">
-                                    <i id="img_i_{$vo.fieldArr}_{$vo.name|default=''}" class="fa fa-picture-o" {notempty name="$vo[$vo['name'].'_eyou_local']"}onmouseover="layer_tips=layer.tips('<img src={$vo[$vo['name'].'_eyou_local']} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                    <i id="img_i_{$vo.fieldArr}_{$vo.name|default=''}" class="fa fa-picture-o" {notempty name="$vo[$vo['name'].'_eyou_local']"}onmouseover="layer_tips=layer.tips('<img src={$vo[$vo['name'].'_eyou_local']|imgEcho=###} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                                 </a>
                             </span>
                             <span class="type-file-box">
@@ -152,7 +152,7 @@
                     {
                       $("#{$vo.fieldArr}_{$vo.name|default=''}_eyou_local").val(fileurl_tmp);
                       $("#img_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href', fileurl_tmp);
-                      $("#img_i_{$vo.fieldArr}_{$vo.name|default=''}").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+                      $("#img_i_{$vo.fieldArr}_{$vo.name|default=''}").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
                     }
                 </script>
                 <!-- 单张图 end -->

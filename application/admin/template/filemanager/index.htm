@@ -55,7 +55,7 @@
                                   <a href="{:url('Filemanager/index', array('activepath'=>replace_path($vo.filepath)))}"><img src="__SKIN__/images/{$vo.icon}" border="0" width="16" height="16" align="absmiddle">&nbsp;{$vo.filename}</a>
                                   {else /}
                                     {notempty name="$vo.icon"}
-                                    <img src="__SKIN__/images/{$vo.icon}" border="0" width="16" height="16" align="absmiddle" {if condition="!empty($vo.filepath) AND 'image' == $vo.filemine"}onmouseover="layer_tips=layer.tips('<img src={$vo.filepath}?v={php}echo time();{/php} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/if} onmouseout="layer.close(layer_tips);">
+                                    <img src="__SKIN__/images/{$vo.icon}" border="0" width="16" height="16" align="absmiddle" {if condition="!empty($vo.filepath) AND 'image' == $vo.filemine"}onmouseover="layer_tips=layer.tips('<img src={$vo.filepath|imgEcho=###}?v={php}echo time();{/php} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/if} onmouseout="layer.close(layer_tips);">
                                     {/notempty}
                                     &nbsp;
                                     {eq name="$vo['filemine']" value='image'}

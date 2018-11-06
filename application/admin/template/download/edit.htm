@@ -80,8 +80,8 @@
                 <dd class="opt">
                     <div class="input-file-show div_litpic_local" {neq name="$field.is_remote" value="0"}style="display: none;"{/neq}>
                         <span class="show">
-                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$field.litpic_local|default='javascript:void(0);'}">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.litpic_local"}onmouseover="layer_tips=layer.tips('<img src={$field.litpic_local} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$field.litpic_local|imgEcho=###|default='javascript:void(0);'}">
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.litpic_local"}onmouseover="layer_tips=layer.tips('<img src={$field.litpic_local|imgEcho=###} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -299,7 +299,7 @@
     {
       $("#litpic_local").val(fileurl_tmp);
       $("#img_a").attr('href', fileurl_tmp);
-      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
 </script>
 

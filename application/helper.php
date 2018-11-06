@@ -280,6 +280,7 @@ if (!function_exists('typeurl')) {
                 $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo); // 兼容v1.1.6之前被搜索引擎收录的URL
             }
             /*--end*/
+            //$eyouUrl = __ROOT__.$eyouUrl; // 支持子级目录 King超 2018-11-05
         } else {
             if (is_array($param)) {
                 $vars = array(
@@ -359,6 +360,7 @@ if (!function_exists('arcurl')) {
                 $vars = $param;
             }
             $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo);
+            //$eyouUrl = __ROOT__.$eyouUrl; // 支持子级目录 King超 2018-11-05
         } else {
             if (is_array($param)) {
                 $vars = array(
@@ -372,7 +374,6 @@ if (!function_exists('arcurl')) {
         }
 
         // $eyouUrl = auto_hide_index($eyouUrl);
-
         return $eyouUrl;
     }
 }
@@ -417,5 +418,22 @@ if (!function_exists('eyPreventShell')) {
         }
 
         return $data;
+    }
+}
+
+if (!function_exists('imgEcho')) {
+    /**
+     * 图片链接处理输出
+     * Author: King超 2018-11-05 
+     * @param mixed        $src 图片地址
+     * @return mixed
+     */
+    function imgEcho($src = '')
+    {
+        if(stristr($src,"http://") || stristr($src,"https://")){
+            return $src;
+        }
+
+        return __ROOT__.$src;
     }
 }

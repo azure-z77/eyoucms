@@ -48,7 +48,7 @@
                     <div class="input-file-show div_logo_local" {neq name="$info.is_remote" value="0"}style="display: none;"{/neq}>
                         <span class="show">
                             <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$info.logo_local|default='javascript:void(0);'}">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$info.logo_local"}onmouseover="layer_tips=layer.tips('<img src={$info.logo_local|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$info.logo_local"}onmouseover="layer_tips=layer.tips('<img src={$info.logo_local|imgEcho=###|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -147,7 +147,7 @@
     {
         $("#logo_local").val(fileurl_tmp);
         $("#img_a").attr('href', fileurl_tmp);
-        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
 
     $(function(){

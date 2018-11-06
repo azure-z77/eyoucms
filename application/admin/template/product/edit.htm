@@ -80,8 +80,8 @@
                 <dd class="opt">
                     <div class="input-file-show div_litpic_local" {neq name="$field.is_remote" value="0"}style="display: none;"{/neq}>
                         <span class="show">
-                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$field.litpic_local|default='javascript:void(0);'}">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.litpic_local"}onmouseover="layer_tips=layer.tips('<img src={$field.litpic_local|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$field.litpic_local|imgEcho=###|default='javascript:void(0);'}">
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.litpic_local"}onmouseover="layer_tips=layer.tips('<img src={$field.litpic_local|imgEcho=###|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -111,8 +111,8 @@
                                     {volist name="proimg_list" id="vo" key="k"}
                                     <div class="images_upload" style="display:inline-block;">
                                         <input type="hidden" name="proimg[]" value="{$vo['image_url']}">
-                                        <a href="{$vo['image_url']}" onclick="" class="upimg" target="_blank">
-                                            <img src="{$vo['image_url']}" width="100" height="100">
+                                        <a href="{$vo['image_url']|imgEcho=###}" onclick="" class="upimg" target="_blank">
+                                            <img src="{$vo['image_url']|imgEcho=###}" width="100" height="100">
                                         </a>
                                         <br>
                                         <a href="javascript:void(0)" onclick="ClearPicArr2(this,'{$vo['image_url']}')">删除</a>
@@ -353,7 +353,7 @@
     {
       $("#litpic_local").val(fileurl_tmp);
       $("#img_a").attr('href', fileurl_tmp);
-      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
 
     // 上传产品相册回调函数
@@ -364,8 +364,8 @@
         for (var i=0;i<paths.length ;i++ )
         {
             $(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
-            $(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
-            $(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
+            $(".images_upload:eq(0)").find('a:eq(0)').attr('href','__ROOT__'+paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
+            $(".images_upload:eq(0)").find('img').attr('src','__ROOT__'+paths[i]);// 修改他的图片路径
             $(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"ClearPicArr2(this,'"+paths[i]+"')").text('删除');
             $(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
         }            

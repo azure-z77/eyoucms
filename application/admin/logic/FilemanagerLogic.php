@@ -37,7 +37,8 @@ class FilemanagerLogic extends Model
      */
     function  __construct() {
         $this->globalTpCache = tpCache('global');
-        $this->baseDir = realpath(dirname($_SERVER['SCRIPT_FILENAME'])); // 服务器站点根目录绝对路径
+        //$this->baseDir = realpath(dirname($_SERVER['SCRIPT_FILENAME'])); // 服务器站点根目录绝对路径
+        $this->baseDir = $_SERVER['DOCUMENT_ROOT']; // 服务器站点根目录绝对路径 支持子级目录 King超 2018-11-05
         $this->maxDir = $this->globalTpCache['web_templets_dir']; // 默认文件管理的最大级别目录
         // 替换权限
         $this->replaceImgOpArr = array('gif','jpg','svg');

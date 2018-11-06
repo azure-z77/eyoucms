@@ -55,7 +55,7 @@
                     <div class="input-file-show div_value_local" {if condition="isset($field.is_remote) AND $field.is_remote == 1"}style="display: none;"{/if}>
                         <span class="show">
                             <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$field.value|default='javascript:void(0);'}" target="_blank">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.value"}onmouseover="layer_tips=layer.tips('<img src={$field.value|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$field.value"}onmouseover="layer_tips=layer.tips('<img src={$field.value|imgEcho=###|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -153,7 +153,7 @@
     {
       $("#value_local").val(fileurl_tmp);
       $("#img_a").attr('href', fileurl_tmp);
-      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
 
     /**

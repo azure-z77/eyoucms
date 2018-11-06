@@ -88,7 +88,7 @@
                     <div class="input-file-show div_mark_img_local" {if condition="isset($config.mark_img_is_remote) AND $config.mark_img_is_remote == 1"}style="display: none;"{/if}>
                         <span class="show">
                             <a id="img_a" class="nyroModal" rel="gal" href="{$config.mark_img_local|default='javascript:void(0);'}" target="_blank">
-                                <i id="img_i" class="fa fa-picture-o" {notempty name="$config.mark_img_local"}onmouseover="layer_tips=layer.tips('<img src={$config.mark_img_local|default=''}>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$config.mark_img_local"}onmouseover="layer_tips=layer.tips('<img src={$config.mark_img_local|imgEcho=###|default=''}>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                             </a>
                         </span>
                         <span class="type-file-box">
@@ -218,7 +218,7 @@
     function call_back(fileurl_tmp){
         $("#mark_img_local").val(fileurl_tmp);
         $("#img_a").attr('href', fileurl_tmp);
-        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+">',this,{tips: [1, '#fff']});");
+        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src=__ROOT__"+fileurl_tmp+">',this,{tips: [1, '#fff']});");
     }
 
     function setwarter(marktype){
