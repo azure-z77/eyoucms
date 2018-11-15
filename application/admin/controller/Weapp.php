@@ -626,11 +626,15 @@ class Weapp extends Base
                 $dstfile = str_replace($sample, $code, $srcfile);
                 $dstfile = str_replace(strtolower($sample), strtolower($code), $dstfile);
                 $filetxt .= $dstfile."\n\r";
-                if(true == tp_mkdir(dirname($dstfile))) {
+                if(tp_mkdir(dirname($dstfile))) {
                     $fileContent = file_get_contents($srcPath . DS . $srcfile);
-                    $fileContent = str_replace($sample, $code, $fileContent);
-                    $fileContent = str_replace(strtolower($sample), strtolower($code), $fileContent);
-                    $puts = file_put_contents($dstfile, $fileContent); //初始化插件文件列表   
+                    if (preg_match('/\.sql$/i', $dstfile)) {
+                        $fileContent = str_replace(strtolower($sample), uncamelize($code), $fileContent);
+                    } else {
+                        $fileContent = str_replace($sample, $code, $fileContent);
+                        $fileContent = str_replace(strtolower($sample), strtolower($code), $fileContent);
+                    }
+                    $puts = @file_put_contents($dstfile, $fileContent); //初始化插件文件列表   
                     if (!$puts) {
                         $this->error('写入文件内容 ' . $dstfile . ' 失败');
                         exit;
@@ -654,7 +658,7 @@ class Weapp extends Base
             $strConfig = str_replace('#DESCRIPTION#', $post['description'], $strConfig);
             $strConfig = str_replace('#SCENE#', $post['scene'], $strConfig);
             @chmod(WEAPP_DIR_NAME.DS.$code.DS.'config.php'); //配置文件的地址
-            $puts = file_put_contents(WEAPP_DIR_NAME.DS.$code.DS.'config.php', $strConfig); //配置文件的地址    
+            $puts = @file_put_contents(WEAPP_DIR_NAME.DS.$code.DS.'config.php', $strConfig); //配置文件的地址    
             if (!$puts) {
                 $this->error('替换插件信息失败，请设置目录权限为 755！');
             }
@@ -669,6 +673,9 @@ class Weapp extends Base
         }
         if (file_exists($srcPath.DS.'template'.DS.'weapp')) {
             delFile($srcPath.DS.'template'.DS.'weapp', true);
+        }
+        if (file_exists($srcPath.DS.'weapp'.DS.$sample.DS.'template'.DS.'skin'.DS.'font')) {
+            delFile($srcPath.DS.'weapp'.DS.$sample.DS.'template'.DS.'skin'.DS.'font', true);
         }
         if (file_exists($srcPath.DS.'weapp'.DS.$sample.DS.'common.php')) {
             @unlink($srcPath.DS.'weapp'.DS.$sample.DS.'common.php');
@@ -724,10 +731,10 @@ class Weapp extends Base
 
             /*压缩插件目录*/
             $zip = new \ZipArchive();//新建一个ZipArchive的对象
-            $filepath = WEAPP_DIR_NAME;
-            tp_mkdir(DATA_PATH.$filepath);
+            $filepath = DATA_PATH.WEAPP_DIR_NAME;
+            tp_mkdir($filepath);
             $zipName = $filepath.DS.$code.'.zip';//定义打包后的包名
-            if ($zip->open(DATA_PATH.$zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE)
+            if ($zip->open($zipName, \ZIPARCHIVE::OVERWRITE | \ZIPARCHIVE::CREATE) !== TRUE)
                 $this->error('插件压缩包打开失败！');
 
             /*打包插件标准结构涉及的文件与目录，并且打包zip*/

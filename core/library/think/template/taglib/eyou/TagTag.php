@@ -61,7 +61,7 @@ class TagTag extends Base
             $result = db('tagindex')
                 ->field('*, id AS tagid')
                 ->where($condition)
-                ->order($orderby)
+                ->orderRaw($orderby)
                 ->limit($row)
                 ->select();
         }

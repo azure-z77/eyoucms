@@ -56,11 +56,13 @@
                     <input type="text" name="username" autocomplete="off" class="form-control" value="" placeholder="用户名" required autofocus />
                     <label for="inputPassword" class="sr-only">密码</label>
                     <input type="password" name="password" autocomplete="off" class="form-control" value="" placeholder="密码" required />
+                    {eq name="$is_vertify" value="1"}
                     <div class="formText" style="position:relative">
                         <i class="icon icon-chick"></i>
                         <input type="text" name="vertify" autocomplete="off" class="form-control" value="" placeholder="验证码" />
                         <img src="{:U('Admin/vertify')}" class="chicuele" id="imgVerify" alt="" onclick="fleshVerify();" style="position:absolute; right: 3px;top: 3px;height: 36px;">
                     </div>
+                    {/eq}
                     <div class="clearfix text-right">
                         <a href="javascript:void(0);" class="help forget_pwd">忘记密码?</a>
                     </div>
@@ -110,12 +112,14 @@
                         return false;
                     }
 
+                    {eq name="$is_vertify" value="1"}
                     if($('#theForm input[name=vertify]').val() == ''){
                         layer.msg('验证码不能为空！', {time: 1000});
                         $('#theForm input[name=vertify]').focus();
                         vertify = false;
                         return false;
                     }
+                    {/eq}
 
                     if(vertify && $('#theForm input[name=username]').val() != '' && $('#theForm input[name=password]').val() != ''){
                         var url = "{:U('Admin/login')}";

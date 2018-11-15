@@ -42,7 +42,9 @@ class Cache
         }
 
         if (true === $name || !isset(self::$instance[$name])) {
-            $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
+            $class = false === strpos($type, '\\') ?
+            '\\think\\cache\\driver\\' . ucwords($type) :
+            $type;
 
             // 记录初始化信息
             App::$debug && Log::record('[ CACHE ] INIT ' . $type, 'info');
@@ -66,15 +68,15 @@ class Cache
     public static function init(array $options = [])
     {
         if (is_null(self::$handler)) {
-            // 自动初始化缓存
-            if (!empty($options)) {
-                $connect = self::connect($options);
-            } elseif ('complex' == Config::get('cache.type')) {
-                $connect = self::connect(Config::get('cache.default'));
-            } else {
-                $connect = self::connect(Config::get('cache'));
+            if (empty($options) && 'complex' == Config::get('cache.type')) {
+                $default = Config::get('cache.default');
+                // 获取默认缓存配置，并连接
+                $options = Config::get('cache.' . $default['type']) ?: $default;
+            } elseif (empty($options)) {
+                $options = Config::get('cache');
             }
-            self::$handler = $connect;
+
+            self::$handler = self::connect($options);
         }
 
         return self::$handler;

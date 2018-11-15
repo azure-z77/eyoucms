@@ -141,13 +141,13 @@ class Channeltype extends Base
         if(!empty($id_arr)){
             foreach ($id_arr as $key => $val) {
                 if (array_key_exists($val, $this->channeltype_system_id)) {
-                    respose(array('status'=>0, 'msg'=>'系统预定义，不能删除'));
+                    $this->error('系统预定义，不能删除');
                 }
             }
 
             $count = M('arctype')->where("channeltype",'IN',$id_arr)->count('id');
             if ($count > 0){
-                respose(array('status'=>0, 'msg'=>'该模型下有栏目，不允许删除，请先删除该模型下的栏目'));
+                $this->error('该模型下有栏目，不允许删除，请先删除该模型下的栏目');
             }  
 
             $result = M('channeltype')->field('title')->where("id",'IN',$id_arr)->select();
@@ -158,12 +158,12 @@ class Channeltype extends Base
                 // \think\Cache::clear('channeltype');
                 extra_cache('admin_channeltype_list_logic', NULL);
                 adminLog('删除模型：'.implode(',', $title_list));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             } else {
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

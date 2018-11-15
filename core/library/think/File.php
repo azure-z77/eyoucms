@@ -145,7 +145,7 @@ class File extends SplFileObject
             return true;
         }
 
-        $this->error = "目录 {$path} 创建失败！";
+        $this->error = ['目录 {:path} 创建失败', ['path' => $path]];
 
         return false;
     }
@@ -214,7 +214,7 @@ class File extends SplFileObject
             return false;
         }
 
-        /* 检查文件Mime类型 */
+        /* 检查文件 Mime 类型 */
         if (isset($rule['type']) && !$this->checkMime($rule['type'])) {
             $this->error = '上传文件MIME类型不允许！';
             return false;
@@ -341,11 +341,11 @@ class File extends SplFileObject
         $saveName = $this->buildSaveName($savename);
         $filename = $path . $saveName;
 
-        // 禁止上传php文件
+        // 禁止上传php文件 by 小虎哥
         $filename2 = strtolower($filename);
         if(strstr($filename2,'../') || strstr($filename2,'..\\') || strstr($filename2,'.php'))
         {
-            $this->error = '文件上传格式错误 error [core\library\think\File.php 311行]！';
+            $this->error = ['文件上传格式错误 error [{:filename} 311行]！', ['filename' => 'core\library\think\File.php']];
             return false;
         }
 
@@ -354,9 +354,9 @@ class File extends SplFileObject
             return false;
         }
 
-        /* 不覆盖同名文件 */
+        // 不覆盖同名文件
         if (!$replace && is_file($filename)) {
-            $this->error = '存在同名文件' . $filename;
+            $this->error = ['存在同名文件: {:filename}', ['filename' => $filename]];
             return false;
         }
 
@@ -370,8 +370,8 @@ class File extends SplFileObject
 
         // 返回 File 对象实例
         $file = new self($filename);
-        $file->setSaveName($saveName);
-        $file->setUploadInfo($this->info);
+        $file->setSaveName($saveName)->setUploadInfo($this->info);
+
         return $file;
     }
 

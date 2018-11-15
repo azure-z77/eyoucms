@@ -42,7 +42,9 @@ class Config
 
         if (empty($type)) $type = pathinfo($config, PATHINFO_EXTENSION);
 
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\config\\driver\\' . ucwords($type);
+        $class = false !== strpos($type, '\\') ?
+            $type :
+            '\\think\\config\\driver\\' . ucwords($type);
 
         return self::set((new $class())->parse($config), $name, $range);
     }
@@ -67,20 +69,23 @@ class Config
 
             if ('php' == $type) {
                 return self::set(include $file, $name, $range);
-            } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
-                return self::set(yaml_parse_file($file), $name, $range);
-            } else {
-                return self::parse($file, $type, $name, $range);
             }
-        } else {
-            return self::$config[$range];
+
+            if ('yaml' == $type && function_exists('yaml_parse_file')) {
+                return self::set(yaml_parse_file($file), $name, $range);
+            }
+
+            return self::parse($file, $type, $name, $range);
         }
+
+        return self::$config[$range];
     }
 
     /**
      * 检测配置是否存在
-     * @param string    $name 配置参数名（支持二级配置 .号分割）
-     * @param string    $range  作用域
+     * @access public
+     * @param  string $name 配置参数名（支持二级配置 . 号分割）
+     * @param  string $range  作用域
      * @return bool
      */
     public static function has($name, $range = '')
@@ -116,12 +121,23 @@ class Config
         if (!strpos($name, '.')) {
             $name = strtolower($name);
             return isset(self::$config[$range][$name]) ? self::$config[$range][$name] : null;
-        } else {
-            // 二维数组设置和获取支持
-            $name    = explode('.', $name, 2);
-            $name[0] = strtolower($name[0]);
-            return isset(self::$config[$range][$name[0]][$name[1]]) ? self::$config[$range][$name[0]][$name[1]] : null;
         }
+
+        // 二维数组设置和获取支持
+        $name    = explode('.', $name, 2);
+        $name[0] = strtolower($name[0]);
+
+        if (!isset(self::$config[$range][$name[0]])) {
+            // 动态载入额外配置
+            $module = Request::instance()->module();
+            $file   = CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . $name[0] . CONF_EXT;
+
+            is_file($file) && self::load($file, $name[0]);
+        }
+
+        return isset(self::$config[$range][$name[0]][$name[1]]) ?
+            self::$config[$range][$name[0]][$name[1]] :
+            null;
     }
 
     /**
@@ -148,21 +164,26 @@ class Config
                 self::$config[$range][strtolower($name[0])][$name[1]] = $value;
             }
 
-            return;
-        } elseif (is_array($name)) {
-            // 批量设置
+            return $value;
+        }
+
+        // 数组则表示批量设置
+        if (is_array($name)) {
             if (!empty($value)) {
                 self::$config[$range][$value] = isset(self::$config[$range][$value]) ?
-                array_merge(self::$config[$range][$value], $name) :
-                self::$config[$range][$value] = $name;
+                    array_merge(self::$config[$range][$value], $name) :
+                    $name;
+
                 return self::$config[$range][$value];
-            } else {
-                return self::$config[$range] = array_merge(self::$config[$range], array_change_key_case($name));
             }
-        } else {
-            // 为空直接返回 已有配置
-            return self::$config[$range];
+
+            return self::$config[$range] = array_merge(
+                self::$config[$range], array_change_key_case($name)
+            );
         }
+
+        // 为空直接返回已有配置
+        return self::$config[$range];
     }
 
     /**

@@ -46,7 +46,7 @@ $pattern = '/^([^.]+)\.([^\/]+)$/';
 $url_suffix = preg_replace($pattern, '$2', DOMAIN);
 define('ROOT_SITE_URL', '.'.$url_suffix);
 // 编辑器图片上传相对路径
-define('UPLOAD_PATH','public/upload/'); 
+define('UPLOAD_PATH','uploads/'); 
 // 缓存时间
 define('EYOUCMS_CACHE_TIME', 86400);
 // https主域名

@@ -28,7 +28,7 @@ class TagGlobal extends Base
      * 获取全局变量
      * @author wengxianhu by 2018-4-20
      */
-    public function getGlobal($name)
+    public function getGlobal($name = '')
     {
         if (empty($name)) {
             return '标签global报错：缺少属性 name 。';

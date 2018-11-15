@@ -130,8 +130,7 @@ class Driver
         $arrKey = array_join_string(array('fm','N','sa','WV','udF','9k','b2','1','h','a','W','5+'));
         $arrKey = msubstr($arrKey, 1, strlen($arrKey) - 2);
         /*--end*/
-        $web_basehost = tpCache('web.web_basehost');
-        $web_basehost = preg_replace('#(http://|https://)#i', '', $web_basehost);
+        $web_basehost = $_SERVER['HTTP_HOST'];
         $vaules = array(
             $arrKey => urldecode($web_basehost),
         );

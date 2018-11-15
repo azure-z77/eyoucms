@@ -54,9 +54,9 @@ class Error
      * @return void
      * @throws ErrorException
      */
-    public static function appError($errno, $errstr, $errfile = '', $errline = 0, $errcontext = [])
+    public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        $exception = new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
+        $exception = new ErrorException($errno, $errstr, $errfile, $errline);
 
         // 符合异常处理的则将错误信息托管至 think\exception\ErrorException
         if (error_reporting() & $errno) {
@@ -73,11 +73,11 @@ class Error
      */
     public static function appShutdown()
     {
+        // 将错误信息托管至 think\ErrorException
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
-            // 将错误信息托管至think\ErrorException
-            $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
-
-            self::appException($exception);
+            self::appException(new ErrorException(
+                $error['type'], $error['message'], $error['file'], $error['line']
+            ));
         }
 
         // 写入日志
@@ -108,7 +108,9 @@ class Error
             // 异常处理 handle
             $class = Config::get('exception_handle');
 
-            if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
+            if ($class && is_string($class) && class_exists($class) &&
+                is_subclass_of($class, "\\think\\exception\\Handle")
+            ) {
                 $handle = new $class;
             } else {
                 $handle = new Handle;

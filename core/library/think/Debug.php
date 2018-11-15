@@ -183,8 +183,7 @@ class Debug
 
         ob_start();
         var_dump($var);
-        $output = ob_get_clean();
-        $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
+        $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', ob_get_clean());
 
         if (IS_CLI) {
             $output = PHP_EOL . $label . $output . PHP_EOL;

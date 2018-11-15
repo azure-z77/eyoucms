@@ -66,17 +66,17 @@ class Minipro0001 extends Model
      */
     public function getValue($type)
     {
-        $cacheKey = 'model-'.$this->nid.'-getValue-'.$type;
-        $value = cache($cacheKey);
-        if (empty($value)) {
+        // $cacheKey = 'model-'.$this->nid.'-getValue-'.$type;
+        // $value = cache($cacheKey);
+        // if (empty($value)) {
             $map = array(
                 'type'  => $type,
             );
             $value = M('weapp_minipro0001')->where($map)->cache(true,EYOUCMS_CACHE_TIME,"minipro")->value('value');
             $value = (array)json_decode($value, true);
 
-            cache($cacheKey, $value, null, 'minipro');
-        }
+            // cache($cacheKey, $value, null, 'minipro');
+        // }
 
         return $value;
     }
@@ -112,9 +112,9 @@ class Minipro0001 extends Model
      */
     public function getSwipersList($aid = '')
     {
-        $cacheKey = 'model-'.$this->nid."-getSwipersList-{$aid}";
-        $result = cache($cacheKey);
-        if (empty($result)) {
+        // $cacheKey = 'model-'.$this->nid."-getSwipersList-{$aid}";
+        // $result = cache($cacheKey);
+        // if (empty($result)) {
             if (empty($aid)) {
                 $map = array(
                     'is_head'   => 1,
@@ -138,8 +138,8 @@ class Minipro0001 extends Model
                 $result[$key] = $val;
             }
 
-            cache($cacheKey, $result, null, 'minipro');
-        }
+            // cache($cacheKey, $result, null, 'minipro');
+        // }
 
         return $result;
     }
@@ -302,7 +302,7 @@ class Minipro0001 extends Model
                 ->where($condition)
                 ->where('channel != 6')
                 ->order('sort_order asc, aid desc')
-                ->cache(true,EYOUCMS_CACHE_TIME,"minipro")
+                // ->cache(true,EYOUCMS_CACHE_TIME,"minipro")
                 ->paginate($pagesize, false, $paginate);
 
             $list = array();
@@ -350,8 +350,8 @@ class Minipro0001 extends Model
             $msg = 'Request Error!';
             $row = array();
             if (0 < $aid) {
-                $archivesModel = new \app\home\model\Archives();
-                $row = $archivesModel->getViewInfo($aid);
+                $archivesModel = new \app\home\model\Archives;
+                $row = $archivesModel->getViewInfo($aid, true);
 
                 $status = 1;
                 if (0 > $row['status']) {
@@ -410,8 +410,8 @@ class Minipro0001 extends Model
             $msg = 'Request Error!';
             $row = array();
             if (0 < $typeid) {
-                $archivesModel = new \app\home\model\Archives();
-                $row = $archivesModel->getSingleInfo($typeid);
+                $archivesModel = new \app\home\model\Archives;
+                $row = $archivesModel->getSingleInfo($typeid, true);
 
                 $status = 1;
                 if (0 == $row['status']) {
@@ -482,9 +482,9 @@ class Minipro0001 extends Model
     public function getGuestbookForm($typeid)
     {
         $typeid = intval($typeid);
-        $cacheKey = "model-".$this->nid."-getGuestbookForm-{$typeid}";
-        $result = cache($cacheKey);
-        if (empty($result)) {
+        // $cacheKey = "model-".$this->nid."-getGuestbookForm-{$typeid}";
+        // $result = cache($cacheKey);
+        // if (empty($result)) {
             $list = array();
             $typename = '';
             if (0 < $typeid) {
@@ -509,8 +509,8 @@ class Minipro0001 extends Model
                 'row' => $list,
             );
 
-            cache($cacheKey, $result, null, 'minipro');
-        }
+            // cache($cacheKey, $result, null, 'minipro');
+        // }
 
         return $result;
     }

@@ -48,18 +48,18 @@ abstract class OneToOne extends Relation
      */
     public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
     {
-        $name  = Loader::parseName(basename(str_replace('\\', '/', $query->getModel())));
-        $alias = $name;
+        $name = Loader::parseName(basename(str_replace('\\', '/', get_class($query->getModel()))));
+
         if ($first) {
             $table = $query->getTable();
-            $query->table([$table => $alias]);
+            $query->table([$table => $name]);
             if ($query->getOptions('field')) {
                 $field = $query->getOptions('field');
                 $query->removeOption('field');
             } else {
                 $field = true;
             }
-            $query->field($field, false, $table, $alias);
+            $query->field($field, false, $table, $name);
             $field = null;
         }
 
@@ -69,9 +69,9 @@ abstract class OneToOne extends Relation
         $query->via($joinAlias);
 
         if ($this instanceof BelongsTo) {
-            $query->join($joinTable . ' ' . $joinAlias, $alias . '.' . $this->foreignKey . '=' . $joinAlias . '.' . $this->localKey, $this->joinType);
+            $query->join([$joinTable => $joinAlias], $name . '.' . $this->foreignKey . '=' . $joinAlias . '.' . $this->localKey, $this->joinType);
         } else {
-            $query->join($joinTable . ' ' . $joinAlias, $alias . '.' . $this->localKey . '=' . $joinAlias . '.' . $this->foreignKey, $this->joinType);
+            $query->join([$joinTable => $joinAlias], $name . '.' . $this->localKey . '=' . $joinAlias . '.' . $this->foreignKey, $this->joinType);
         }
 
         if ($closure) {
@@ -206,6 +206,16 @@ abstract class OneToOne extends Relation
     }
 
     /**
+     * 获取绑定属性
+     * @access public
+     * @return array
+     */
+    public function getBindAttr()
+    {
+        return $this->bindAttr;
+    }
+
+    /**
      * 关联统计
      * @access public
      * @param Model    $result  数据对象
@@ -267,7 +277,7 @@ abstract class OneToOne extends Relation
             if (isset($result->$key)) {
                 throw new Exception('bind attr has exists:' . $key);
             } else {
-                $result->setAttr($key, $model->$attr);
+                $result->setAttr($key, $model ? $model->$attr : null);
             }
         }
     }
@@ -285,6 +295,8 @@ abstract class OneToOne extends Relation
      */
     protected function eagerlyWhere($model, $where, $key, $relation, $subRelation = '', $closure = false)
     {
+        $this->baseQuery = true;
+
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
             call_user_func_array($closure, [ & $model]);
@@ -302,11 +314,4 @@ abstract class OneToOne extends Relation
         return $data;
     }
 
-    /**
-     * 执行基础查询（进执行一次）
-     * @access protected
-     * @return void
-     */
-    protected function baseQuery()
-    {}
 }

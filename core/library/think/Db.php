@@ -76,19 +76,34 @@ class Db
             if (empty($options['type'])) {
                 throw new \InvalidArgumentException('Undefined db type');
             }
-            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
+
+            $class = false !== strpos($options['type'], '\\') ?
+            $options['type'] :
+            '\\think\\db\\connector\\' . ucwords($options['type']);
+
             // 记录初始化信息
             if (App::$debug) {
                 Log::record('[ DB ] INIT ' . $options['type'], 'info');
             }
 
             if (true === $name) {
-                return new $class($options);
-            } else {
-                self::$instance[$name] = new $class($options);
+                $name = md5(serialize($config));
             }
+
+            self::$instance[$name] = new $class($options);
         }
+
         return self::$instance[$name];
+    }
+
+    /**
+     * 清除连接实例
+     * @access public
+     * @return void
+     */
+    public static function clear()
+    {
+        self::$instance = [];
     }
 
     /**

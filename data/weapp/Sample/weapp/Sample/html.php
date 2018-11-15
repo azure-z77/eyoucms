@@ -24,4 +24,3 @@ return array(
     // array('mca'=>'weapp_Sample_lists', 'filename'=>'articlelist/sample/list', 'p'=>array('tid','page'), 'cache'=>1), 
     // array('mca'=>'weapp_Sample_view', 'filename'=>'detail/sample/view', 'p'=>array('aid'), 'cache'=>1), 
 );
-?>

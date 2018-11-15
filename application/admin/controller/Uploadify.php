@@ -30,7 +30,7 @@ class Uploadify extends Base
     public function upload()
     {
         $func = I('func');
-        $path = I('path','temp');
+        $path = I('path','allimg');
         $num = I('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = I('size/d'); // 单位为kb
@@ -55,7 +55,7 @@ class Uploadify extends Base
     public function upload_frame()
     {
         $func = I('func');
-        $path = I('path','temp');
+        $path = I('path','allimg');
         $num = I('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = I('size/d'); // 单位为kb
@@ -81,7 +81,7 @@ class Uploadify extends Base
     {
         $aid = I('aid/d');
         $func = I('func');
-        $path = I('path','temp');
+        $path = I('path','allimg');
         $num = I('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = I('size/d'); // 单位为kb
@@ -107,7 +107,7 @@ class Uploadify extends Base
     public function upload_full()
     {
         $func = I('func');
-        $path = I('path','temp');
+        $path = I('path','allimg');
         $num = I('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = I('size/d'); // 单位为kb
@@ -181,7 +181,7 @@ class Uploadify extends Base
         $start = isset($_GET['start']) ? htmlspecialchars($_GET['start']) : 0;
         $end = $start + $size;
         
-        $path = I('path','temp');
+        $path = I('path','allimg');
         if (1 == preg_match('#\.#', $path)) {
             echo json_encode(array(
                     "state" => "路径不符合规范",

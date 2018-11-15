@@ -26,23 +26,29 @@ class Sqlsrv extends Builder
      */
     protected function parseOrder($order, $options = [])
     {
-        if (is_array($order)) {
-            $array = [];
-            foreach ($order as $key => $val) {
-                if (is_numeric($key)) {
-                    if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val, $options);
-                    } elseif ('[rand]' == $val) {
-                        $array[] = $this->parseRand();
-                    }
-                } else {
-                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($key, $options) . ' ' . $sort;
-                }
-            }
-            $order = implode(',', $array);
+        if (empty($order)) {
+            return ' ORDER BY rand()';
         }
-        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
+
+        $array = [];
+        foreach ($order as $key => $val) {
+            if ($val instanceof Expression) {
+                $array[] = $val->getValue();
+            } elseif (is_numeric($key)) {
+                if (false === strpos($val, '(')) {
+                    $array[] = $this->parseKey($val, $options);
+                } elseif ('[rand]' == $val) {
+                    $array[] = $this->parseRand();
+                } else {
+                    $array[] = $val;
+                }
+            } else {
+                $sort    = in_array(strtolower(trim($val)), ['asc', 'desc'], true) ? ' ' . $val : '';
+                $array[] = $this->parseKey($key, $options, true) . ' ' . $sort;
+            }
+        }
+
+        return ' ORDER BY ' . implode(',', $array);
     }
 
     /**
@@ -62,8 +68,13 @@ class Sqlsrv extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($key, $options = [], $strict = false)
     {
+        if (is_numeric($key)) {
+            return $key;
+        } elseif ($key instanceof Expression) {
+            return $key->getValue();
+        }
         $key = trim($key);
         if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
@@ -74,7 +85,11 @@ class Sqlsrv extends Builder
                 $table = $options['alias'][$table];
             }
         }
-        if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+
+        if ($strict && !preg_match('/^[\w\.\*]+$/', $key)) {
+            throw new Exception('not support data:' . $key);
+        }
+        if ('*' != $key && ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key))) {
             $key = '[' . $key . ']';
         }
         if (isset($table)) {

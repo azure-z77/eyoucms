@@ -275,20 +275,36 @@ return array(
     // | 验证码
     // +----------------------------------------------------------------------
     'captcha' => array(
-        // 验证码字符集合
-        'codeSet'  => '23456789ABCDEFGHJKLMNPQRTUVWXY', 
-        // 验证码字体大小(px)
-        'fontSize' => 16, 
-        // 是否画混淆曲线
-        'useCurve' => false, 
-        // 验证码图片高度
-        'imageH'   => 30,
-        // 验证码图片宽度
-        'imageW'   => 120, 
-        // 验证码位数
-        'length'   => 4, 
-        // 验证成功后是否重置        
-        'reset'    => true
+        'default'    => [
+            // 验证码字符集合
+            'codeSet'  => '2345678abcdefhijkmnpqrstuvwxyz', 
+            // 验证码字体大小(px)
+            'fontSize' => 35, 
+            // 是否画混淆曲线
+            'useCurve' => false, 
+            // 是否添加杂点
+            'useNoise' => false, 
+            // 验证码图片高度
+            'imageH'   => 0,
+            // 验证码图片宽度
+            'imageW'   => 0, 
+            // 验证码位数
+            'length'   => 4, 
+            // 验证成功后是否重置        
+            'reset'    => false,
+            // 验证码字体，不设置随机获取
+            'fontttf' => '4.ttf',
+        ],
+        // 登录验证码配置
+        'admin_login'   => [
+            'is_on' => 1, // 开关
+            'config' => [],
+        ],
+        // 表单提交验证码配置
+        'form_submit'   => [
+            'is_on' => 1, // 开关
+            'config' => [],
+        ],
     ),
 
     // +----------------------------------------------------------------------

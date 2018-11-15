@@ -158,24 +158,24 @@ class AdPosition extends Base
         if(!empty($id_arr)){
             foreach ($id_arr as $key => $val) {
                 if(array_key_exists($val, $this->ad_position_system_id)){
-                    respose(array('status'=>0, 'msg'=>'系统预定义，不能删除'));
+                    $this->error('系统预定义，不能删除');
                 }
             }
 
             $ad_count = M('ad')->where('pid','IN',$id_arr)->count();
             if ($ad_count > 0){
-                respose(array('status'=>0, 'msg'=>'该位置下有广告，不允许删除，请先删除该位置下的广告'));
+                $this->error('该位置下有广告，不允许删除，请先删除该位置下的广告');
             }  
 
             $r = M('ad_position')->where('id','IN',$id_arr)->delete();
             if ($r) {
                 adminLog('删除广告位-id：'.implode(',', $id_arr));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             } else {
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

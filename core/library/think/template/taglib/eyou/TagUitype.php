@@ -29,7 +29,7 @@ class TagUitype extends Base
      * 栏目编辑
      * @author wengxianhu by 2018-4-20
      */
-    public function getUitype($typeid, $e_id, $e_page)
+    public function getUitype($typeid = '', $e_id = '', $e_page = '')
     {
         if (empty($e_id) || empty($e_page)) {
             echo '标签uitype报错：缺少属性 e-id | e-page 。';

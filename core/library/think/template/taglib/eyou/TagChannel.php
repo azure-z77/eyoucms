@@ -51,7 +51,7 @@ class TagChannel extends Base
      * @param boolean $self 包括自己本身
      * @author wengxianhu by 2018-4-26
      */
-    public function getChannel($typeid, $type = 'top', $currentstyle = '')
+    public function getChannel($typeid = '', $type = 'top', $currentstyle = '')
     {
         $this->currentstyle = $currentstyle;
         $typeid  = !empty($typeid) ? $typeid : $this->tid;

@@ -195,12 +195,12 @@ class Other extends Base
                 // 不管是添加还是修改广告 都清除一下缓存
                 // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
                 adminLog('删除广告-id：'.implode(',', $id_arr));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             } else {
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 

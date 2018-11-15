@@ -9,12 +9,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <!-- Apple devices fullscreen -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link href="__WEAPP_TEMPLATE__/skin/css/main.css" rel="stylesheet" type="text/css">
-<link href="__WEAPP_TEMPLATE__/skin/css/page.css" rel="stylesheet" type="text/css">
-<link href="__WEAPP_TEMPLATE__/skin/font/css/font-awesome.min.css" rel="stylesheet" />
-<!--[if IE 7]>
-  <link rel="stylesheet" href="__WEAPP_TEMPLATE__/skin/font/css/font-awesome-ie7.min.css">
-<![endif]-->
+<link href="__WEAPP_TEMPLATE__/skin/css/main.css?v={$weappInfo.version|default='v1.0.0'}" rel="stylesheet" type="text/css">
+<link href="__WEAPP_TEMPLATE__/skin/css/page.css?v={$weappInfo.version|default='v1.0.0'}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://apps.bdimg.com/libs/fontawesome/4.2.0/css/font-awesome.min.css">
 <link href="__WEAPP_TEMPLATE__/skin/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
 <link href="__WEAPP_TEMPLATE__/skin/css/perfect-scrollbar.min.css" rel="stylesheet" type="text/css"/>
 <style type="text/css">html, body { overflow: visible;}</style>
@@ -25,8 +22,8 @@
 </script>  
 <script type="text/javascript" src="__WEAPP_TEMPLATE__/skin/js/jquery.js"></script>
 <script type="text/javascript" src="__WEAPP_TEMPLATE__/skin/js/jquery-ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
-<script type="text/javascript" src="__WEAPP_TEMPLATE__/skin/js/admin.js"></script>
+<script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js?v={$weappInfo.version|default='v1.0.0'}"></script>
+<script type="text/javascript" src="__WEAPP_TEMPLATE__/skin/js/admin.js?v={$weappInfo.version|default='v1.0.0'}"></script>
 <script type="text/javascript" src="__WEAPP_TEMPLATE__/skin/js/perfect-scrollbar.min.js"></script>
 <script src="__WEAPP_TEMPLATE__/skin/js/global.js?v={$weappInfo.version|default='v1.0.0'}"></script>
 </head>

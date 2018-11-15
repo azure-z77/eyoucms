@@ -37,11 +37,9 @@ class AppInitBehavior {
         if (!stristr(request()->baseFile(), 'index.php')) {
             if ('GET' == self::$method) {
                 $key = 'isset_saveSqlmode';
-                $value = cache($key);
                 $sessvalue = session($key);
-                if(!empty($value) && !empty($sessvalue))
+                if(!empty($sessvalue))
                     return false;
-                cache($key, 1);
                 session($key, 1);
 
                 $sql_mode = db()->query("SELECT @@global.sql_mode AS sql_mode");

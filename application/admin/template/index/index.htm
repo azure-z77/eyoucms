@@ -61,7 +61,7 @@
             </dl>
             <div class="btn-group pull-left met-tool">
               <a class="btn btn-default dropdown-toggle" target="_blank" href="{$Think.const.SITE_URL}">
-                <i class="fa fa-globe"></i>
+                <i class="fa fa-home"></i>
                 <span class="hidden-xs">网站首页</span>
               </a>
               {notempty name="$is_eyou_authortoken"}
@@ -101,10 +101,10 @@
               <div class="login-date"> <?php echo date('Y-m-d H:i:s',session('admin_info.last_login'));?> <span>(IP: <?php echo session('admin_info.last_ip');?> )</span> </div>
               <div class="title">
                 <h4>常用操作</h4>
-                <!-- <a href="javascript:void(0);" onClick="openItem('modular|Admin')" class="add-menu">新增菜单</a> -->
+                <!-- <a href="javascript:void(0);" onClick="openItem('Admin|modular')" class="add-menu">新增菜单</a> -->
               </div>
               <ul class="nc-row" tptype="quick_link">
-                  <li><a href="javascript:void(0);" onClick="openItem('web|System');" title="站点设置">站点设置</a></li>
+                  <li><a href="javascript:void(0);" onClick="openItem('System|web');" title="站点设置">站点设置</a></li>
                   <li><a href="{:U('Admin/logout')}" title="安全退出">安全退出</a></li>
               </ul>
             </div>

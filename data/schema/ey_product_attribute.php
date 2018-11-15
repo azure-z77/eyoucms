@@ -63,6 +63,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'lang' => 
+  array (
+    'name' => 'lang',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => 'cn',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'add_time' => 
   array (
     'name' => 'add_time',

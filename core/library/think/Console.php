@@ -69,10 +69,21 @@ class Console
         "think\\console\\command\\optimize\\Schema",
     ];
 
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    /**
+     * Console constructor.
+     * @access public
+     * @param  string     $name    名称
+     * @param  string     $version 版本
+     * @param null|string $user    执行用户
+     */
+    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $user = null)
     {
         $this->name    = $name;
         $this->version = $version;
+
+        if ($user) {
+            $this->setUser($user);
+        }
 
         $this->defaultCommand = 'list';
         $this->definition     = $this->getDefaultInputDefinition();
@@ -82,6 +93,18 @@ class Console
         }
     }
 
+    /**
+     * 设置执行用户
+     * @param $user
+     */
+    public function setUser($user)
+    {
+        $user = posix_getpwnam($user);
+        if ($user) {
+            posix_setuid($user['uid']);
+            posix_setgid($user['gid']);
+        }
+    }
 
     /**
      * 初始化 Console
@@ -94,27 +117,25 @@ class Console
         static $console;
 
         if (!$console) {
-            // 实例化console
-            $console = new self('Think Console', '0.1');
+            $config = Config::get('console');
+            // 实例化 console
+            $console = new self($config['name'], $config['version'], $config['user']);
+
             // 读取指令集
             if (is_file(CONF_PATH . 'command' . EXT)) {
                 $commands = include CONF_PATH . 'command' . EXT;
+
                 if (is_array($commands)) {
                     foreach ($commands as $command) {
-                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
-                            // 注册指令
-                            $console->add(new $command());
-                        }
+                        class_exists($command) &&
+                        is_subclass_of($command, "\\think\\console\\Command") &&
+                        $console->add(new $command());  // 注册指令
                     }
                 }
             }
         }
-        if ($run) {
-            // 运行
-            return $console->run();
-        } else {
-            return $console;
-        }
+
+        return $run ? $console->run() : $console;
     }
 
     /**
@@ -163,10 +184,7 @@ class Console
             $exitCode = $e->getCode();
 
             if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
-                if (0 === $exitCode) {
-                    $exitCode = 1;
-                }
+                $exitCode = ((int) $exitCode) ?: 1;
             } else {
                 $exitCode = 1;
             }
@@ -330,7 +348,11 @@ class Console
     public function getLongVersion()
     {
         if ('UNKNOWN' !== $this->getName() && 'UNKNOWN' !== $this->getVersion()) {
-            return sprintf('<info>%s</info> version <comment>%s</comment>', $this->getName(), $this->getVersion());
+            return sprintf(
+                '<info>%s</info> version <comment>%s</comment>',
+                $this->getName(),
+                $this->getVersion()
+            );
         }
 
         return '<info>Console Tool</info>';
@@ -355,9 +377,8 @@ class Console
      */
     public function addCommands(array $commands)
     {
-        foreach ($commands as $command) {
-            $this->add($command);
-        }
+        foreach ($commands as $command) $this->add($command);
+
         return $this;
     }
 
@@ -377,7 +398,9 @@ class Console
         $command->setConsole($this);
 
         if (null === $command->getDefinition()) {
-            throw new \LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
+            throw new \LogicException(
+                sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command))
+            );
         }
 
         $this->commands[$command->getName()] = $command;
@@ -399,7 +422,9 @@ class Console
     public function get($name)
     {
         if (!isset($this->commands[$name])) {
-            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
+            throw new \InvalidArgumentException(
+                sprintf('The command "%s" does not exist.', $name)
+            );
         }
 
         $command = $this->commands[$name];
@@ -438,10 +463,14 @@ class Console
         $namespaces = [];
 
         foreach ($this->commands as $command) {
-            $namespaces = array_merge($namespaces, $this->extractAllNamespaces($command->getName()));
+            $namespaces = array_merge(
+                $namespaces, $this->extractAllNamespaces($command->getName())
+            );
 
             foreach ($command->getAliases() as $alias) {
-                $namespaces = array_merge($namespaces, $this->extractAllNamespaces($alias));
+                $namespaces = array_merge(
+                    $namespaces, $this->extractAllNamespaces($alias)
+                );
             }
         }
 
@@ -465,7 +494,9 @@ class Console
         $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
-            $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
+            $message = sprintf(
+                'There are no commands defined in the "%s" namespace.', $namespace
+            );
 
             if ($alternatives = $this->findAlternatives($namespace, $allNamespaces)) {
                 if (1 == count($alternatives)) {
@@ -483,7 +514,12 @@ class Console
         $exact = in_array($namespace, $namespaces, true);
 
         if (count($namespaces) > 1 && !$exact) {
-            throw new \InvalidArgumentException(sprintf('The namespace "%s" is ambiguous (%s).', $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))));
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'The namespace "%s" is ambiguous (%s).',
+                    $namespace,
+                    $this->getAbbreviationSuggestions(array_values($namespaces)))
+            );
         }
 
         return $exact ? $namespace : reset($namespaces);
@@ -537,7 +573,9 @@ class Console
         if (count($commands) > 1 && !$exact) {
             $suggestions = $this->getAbbreviationSuggestions(array_values($commands));
 
-            throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
+            throw new \InvalidArgumentException(
+                sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions)
+            );
         }
 
         return $this->get($exact ? $name : reset($commands));
@@ -696,7 +734,12 @@ class Console
      */
     private function getAbbreviationSuggestions($abbrevs)
     {
-        return sprintf('%s, %s%s', $abbrevs[0], $abbrevs[1], count($abbrevs) > 2 ? sprintf(' and %d more', count($abbrevs) - 2) : '');
+        return sprintf(
+            '%s, %s%s',
+            $abbrevs[0],
+            $abbrevs[1],
+            count($abbrevs) > 2 ? sprintf(' and %d more', count($abbrevs) - 2) : ''
+        );
     }
 
     /**
@@ -743,8 +786,14 @@ class Console
                 }
 
                 $lev = levenshtein($subname, $parts[$i]);
-                if ($lev <= strlen($subname) / 3 || '' !== $subname && false !== strpos($parts[$i], $subname)) {
-                    $alternatives[$collectionName] = $exists ? $alternatives[$collectionName] + $lev : $lev;
+
+                if ($lev <= strlen($subname) / 3 ||
+                    '' !== $subname &&
+                    false !== strpos($parts[$i], $subname)
+                ) {
+                    $alternatives[$collectionName] = $exists ?
+                        $alternatives[$collectionName] + $lev :
+                        $lev;
                 } elseif ($exists) {
                     $alternatives[$collectionName] += $threshold;
                 }
@@ -753,8 +802,11 @@ class Console
 
         foreach ($collection as $item) {
             $lev = levenshtein($name, $item);
+
             if ($lev <= strlen($name) / 3 || false !== strpos($item, $name)) {
-                $alternatives[$item] = isset($alternatives[$item]) ? $alternatives[$item] - $lev : $lev;
+                $alternatives[$item] = isset($alternatives[$item]) ?
+                    $alternatives[$item] - $lev :
+                    $lev;
             }
         }
 
@@ -788,10 +840,9 @@ class Console
      */
     private function extractAllNamespaces($name)
     {
-        $parts      = explode(':', $name, -1);
         $namespaces = [];
 
-        foreach ($parts as $part) {
+        foreach (explode(':', $name, -1) as $part) {
             if (count($namespaces)) {
                 $namespaces[] = end($namespaces) . ':' . $part;
             } else {

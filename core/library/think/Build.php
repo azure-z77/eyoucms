@@ -75,7 +75,10 @@ class Build
 
             // 再创建文件
             if (!is_file(APP_PATH . $file)) {
-                file_put_contents(APP_PATH . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
+                file_put_contents(
+                    APP_PATH . $file,
+                    'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : ''
+                );
             }
         }
     }
@@ -91,15 +94,14 @@ class Build
      */
     public static function module($module = '', $list = [], $namespace = 'app', $suffix = false)
     {
-        $module = $module ? $module : '';
-        if (!is_dir(APP_PATH . $module)) {
-            // 创建模块目录
-            mkdir(APP_PATH . $module);
-        }
+        $module = $module ?: '';
+
+        // 创建模块目录
+        !is_dir(APP_PATH . $module) && mkdir(APP_PATH . $module);
+
+        // 如果不是 runtime 目录则需要创建配置文件和公共文件、创建模块的默认页面
         if (basename(RUNTIME_PATH) != $module) {
-            // 创建配置文件和公共文件
             self::buildCommon($module);
-            // 创建模块的默认页面
             self::buildHello($module, $namespace, $suffix);
         }
 
@@ -124,7 +126,10 @@ class Build
                 // 生成（空白）文件
                 foreach ($file as $name) {
                     if (!is_file($modulePath . $name)) {
-                        file_put_contents($modulePath . $name, 'php' == pathinfo($name, PATHINFO_EXTENSION) ? "<?php\n" : '');
+                        file_put_contents(
+                            $modulePath . $name,
+                            'php' == pathinfo($name, PATHINFO_EXTENSION) ? "<?php\n" : ''
+                        );
                     }
                 }
             } else {
@@ -170,10 +175,19 @@ class Build
      */
     protected static function buildHello($module, $namespace, $suffix = false)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . ($suffix ? 'Controller' : '') . EXT;
+        $filename = APP_PATH . ($module ? $module . DS : '') .
+            'controller' . DS . 'Index' .
+            ($suffix ? 'Controller' : '') . EXT;
+
         if (!is_file($filename)) {
-            $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
+            $module = $module ? $module . '\\' : '';
+            $suffix = $suffix ? 'Controller' : '';
+            $content = str_replace(
+                ['{$app}', '{$module}', '{layer}', '{$suffix}'],
+                [$namespace, $module, 'controller', $suffix],
+                file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl')
+            );
+
             self::checkDirBuild(dirname($filename));
             file_put_contents($filename, $content);
         }

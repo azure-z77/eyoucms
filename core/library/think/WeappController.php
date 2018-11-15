@@ -2,6 +2,7 @@
 
 namespace think;
 
+use think\Session;
 use think\exception\ValidateException;
 use traits\controller\Jump;
 
@@ -68,6 +69,11 @@ class WeappController
      */
     public function __construct(Request $request = null)
     {
+        if (!session_id()) {
+            Session::start();
+        }
+        header("Cache-control: private");  // history.back返回后输入框值丢失问题
+
         if (is_null($request)) {
             $request = Request::instance();
         }

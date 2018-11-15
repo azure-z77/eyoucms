@@ -136,7 +136,7 @@
                             <span class="type-file-box">
                                 <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
-                                <input class="type-file-file" onClick="GetUploadify(1,'','{$nid}','{$vo.fieldArr}_{$vo.name|default=''}_call_back')" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}"
+                                <input class="type-file-file" onClick="GetUploadify(1,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back')" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}"
                                      title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>
                         </div>
@@ -181,7 +181,7 @@
                                         </div>
                                         {/volist}
                                         <div class="fieldext_upload" style="display:inline-block;">
-                                            <a href="javascript:void(0);" onClick="GetUploadify(100,'','{$nid}','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="upimg">
+                                            <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="upimg">
                                             <i class="fa fa-upload"></i>
                                             上传
                                             </a>
@@ -344,7 +344,7 @@
                 </dl>
                 <script type="text/javascript">
                     UE.getEditor('{$vo.fieldArr}_{$vo.name|default=''}',{
-                        serverUrl :"{:U('Ueditor/index',array('savepath'=>$nid))}",
+                        serverUrl :"{:U('Ueditor/index',array('savepath'=>'ueditor'))}",
                         zIndex: 999,
                         initialFrameWidth: "100%", //初化宽度
                         initialFrameHeight: 450, //初化高度            
@@ -390,7 +390,7 @@
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:U('Ueditor/downFileUp',array('savepath'=>'{$nid}'))}";
+    var server_url="{:U('Ueditor/downFileUp',array('savepath'=>'soft'))}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script> -->
                 <!-- 多文件 end -->

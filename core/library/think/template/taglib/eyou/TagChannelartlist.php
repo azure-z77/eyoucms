@@ -50,7 +50,7 @@ class TagChannelartlist extends Base
      * @param boolean $self 包括自己本身
      * @author wengxianhu by 2018-4-26
      */
-    public function getChannelartlist($typeid, $type = 'self')
+    public function getChannelartlist($typeid = '', $type = 'self')
     {
         $typeid  = !empty($typeid) ? $typeid : $this->tid;
 

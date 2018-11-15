@@ -29,7 +29,7 @@ class TagUihtml extends Base
      * 富文本编辑
      * @author wengxianhu by 2018-4-20
      */
-    public function getUihtml($e_id, $e_page)
+    public function getUihtml($e_id = '', $e_page = '')
     {
         if (empty($e_id) || empty($e_page)) {
             echo '标签uihtml报错：缺少属性 e-id | e-page 。';

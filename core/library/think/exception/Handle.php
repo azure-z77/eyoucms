@@ -12,10 +12,15 @@ use think\Response;
 
 class Handle
 {
-
+    protected $render;
     protected $ignoreReport = [
         '\\think\\exception\\HttpException',
     ];
+
+    public function setRender($render)
+    {
+        $this->render = $render;
+    }
 
     /**
      * Report or log an exception.
@@ -69,6 +74,13 @@ class Handle
      */
     public function render(Exception $e)
     {
+        if ($this->render && $this->render instanceof \Closure) {
+            $result = call_user_func_array($this->render, [$e]);
+            if ($result) {
+                return $result;
+            }
+        }
+
         if ($e instanceof HttpException) {
             return $this->renderHttpException($e);
         } else {
@@ -167,10 +179,12 @@ class Handle
         ob_start();
         extract($data);
         
+        /*调试模式与运营模式的错误页面不同 by 小虎哥*/
         if(true == Config::get('app_debug'))
         include Config::get('exception_tmpl');
         else 
         include Config::get('error_tmpl');	
+        /*--end*/
         
         // 获取并清空缓存
         $content  = ob_get_clean();

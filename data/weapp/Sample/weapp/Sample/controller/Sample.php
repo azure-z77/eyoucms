@@ -14,6 +14,7 @@
 namespace weapp\Sample\controller;
 
 use think\Page;
+use think\Db;
 use app\common\controller\Weapp;
 use weapp\Sample\model\SampleModel;
 

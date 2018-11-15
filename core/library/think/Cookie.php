@@ -91,10 +91,15 @@ class Cookie
             $value = 'think:' . json_encode($value);
         }
 
-        $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
+        $expire = !empty($config['expire']) ?
+        $_SERVER['REQUEST_TIME'] + intval($config['expire']) :
+        0;
 
         if ($config['setcookie']) {
-            setcookie($name, $value, $expire, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+            setcookie(
+                $name, $value, $expire, $config['path'], $config['domain'],
+                $config['secure'], $config['httponly']
+            );
         }
 
         $_COOKIE[$name] = $value;
@@ -193,7 +198,10 @@ class Cookie
         $name   = $prefix . $name;
 
         if ($config['setcookie']) {
-            setcookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+            setcookie(
+                $name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'],
+                $config['domain'], $config['secure'], $config['httponly']
+            );
         }
 
         // 删除指定 cookie
@@ -224,7 +232,10 @@ class Cookie
             foreach ($_COOKIE as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
                     if ($config['setcookie']) {
-                        setcookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+                        setcookie(
+                            $key, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'],
+                            $config['domain'], $config['secure'], $config['httponly']
+                        );
                     }
 
                     unset($_COOKIE[$key]);

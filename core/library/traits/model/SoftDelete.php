@@ -32,9 +32,7 @@ trait SoftDelete
      */
     public static function withTrashed()
     {
-        $model = new static();
-        $field = $model->getDeleteTimeField(true);
-        return $model->getQuery();
+        return (new static )->getQuery();
     }
 
     /**
@@ -46,8 +44,12 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->getQuery()
-            ->useSoftDelete($field, ['not null', '']);
+
+        if ($field) {
+            return $model->getQuery()->useSoftDelete($field, ['not null', '']);
+        } else {
+            return $model->getQuery();
+        }
     }
 
     /**
@@ -69,11 +71,28 @@ trait SoftDelete
             $result            = $this->isUpdate()->save();
         } else {
             // 强制删除当前模型数据
-            $result = $this->getQuery()->delete($this->data);
+            $result = $this->getQuery()->where($this->getWhere())->delete();
         }
 
+        // 关联删除
+        if (!empty($this->relationWrite)) {
+            foreach ($this->relationWrite as $key => $name) {
+                $name   = is_numeric($key) ? $name : $key;
+                $result = $this->getRelation($name);
+                if ($result instanceof Model) {
+                    $result->delete();
+                } elseif ($result instanceof Collection || is_array($result)) {
+                    foreach ($result as $model) {
+                        $model->delete();
+                    }
+                }
+            }
+        }
 
         $this->trigger('after_delete', $this);
+
+        // 清空原始数据
+        $this->origin = [];
 
         return $result;
     }
@@ -101,9 +120,8 @@ trait SoftDelete
             $data = null;
         }
 
-        $resultSet = $query->select($data);
-        $count     = 0;
-        if ($resultSet) {
+        $count = 0;
+        if ($resultSet = $query->select($data)) {
             foreach ($resultSet as $data) {
                 $result = $data->delete($force);
                 $count += $result;
@@ -159,7 +177,9 @@ trait SoftDelete
      */
     protected function getDeleteTimeField($read = false)
     {
-        $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+        $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ?
+        $this->deleteTime :
+        'delete_time';
 
         if (false === $field) {
             return false;

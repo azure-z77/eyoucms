@@ -35,10 +35,10 @@ $(function() {
     if ($.cookie('workspaceParam') == null) {
         // 默认选择第一个菜单
         //$('.nc-module-menu').find('li:first > a').click();
-        openItem('welcome|Index');
+        openItem('Index|welcome');
     } else {
         // openItem($.cookie('workspaceParam'));
-        openItem('welcome|Index');
+        openItem('Index|welcome');
     }
 });
 
@@ -50,15 +50,25 @@ function openItem(param) {
     if ($('.admincp-container').hasClass('unfold')) {
         $this.parents('dd:first').show();
     }
-    $('li[data-param="' + data_str[1] + '"]').addClass('active');
+    $('li[data-param="' + data_str[0] + '"]').addClass('active');
     $this.parent().addClass('active').parents('dl:first').addClass('active').parents('div:first').show();
-    var src = eyou_basefile + '?m='+module_name+'&c=' + data_str[1] + '&a=' + data_str[0];
-    var lang = $.cookie('eyou_lang_var');
-    if ($.trim(lang) != '' && $.trim(lang) != 'zh-cn') {
+    var src = eyou_basefile + '?m='+module_name+'&c=' + data_str[0] + '&a=' + data_str[1];
+    if (data_str.length%2 == 0) {
+        for (var i = 2; i < data_str.length; i++) {
+            if (i%2 == 0) {
+                src = src + '&';
+            } else {
+                src = src + '=';
+            }
+            src = src + data_str[i];
+        }
+    }
+    var lang = $.cookie('admin_lang_var');
+    if (false != $.inArray('lang', data_str) && $.trim(lang) != '') {
         src = src + '&lang=' + lang;
     }
     $('#workspace').attr('src', src);
-    $.cookie('workspaceParam', data_str[0] + '|' + data_str[1], { expires: 1 ,path:"/"});
+    $.cookie('workspaceParam', data_str[1] + '|' + data_str[0], { expires: 1 ,path:"/"});
 }
 
 /* 显示Ajax表单 */

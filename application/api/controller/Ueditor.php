@@ -23,8 +23,8 @@ use think\Request;
  */
 class Ueditor extends Base
 {
-    private $sub_name = array('date', 'Y/m/d');
-    private $savePath = 'temp/';
+    private $sub_name = array('date', 'Ymd');
+    private $savePath = 'allimg/';
     private $fileExt = 'jpg,png,gif,jpeg,bmp,ico';
 
     public function __construct()
@@ -37,7 +37,7 @@ class Ueditor extends Base
         
         date_default_timezone_set("Asia/Shanghai");
         
-        $this->savePath = I('savepath','temp').'/';
+        $this->savePath = I('savepath','allimg').'/';
         
         error_reporting(E_ERROR | E_WARNING);
         
@@ -191,7 +191,7 @@ class Ueditor extends Base
             return json_encode($data);
         } else {
             // 移动到框架应用根目录/public/uploads/ 目录下
-            $this->savePath = $this->savePath.date('Y/m/d/');
+            $this->savePath = $this->savePath.date('Ymd/');
             // 使用自定义的文件保存规则
             $info = $file->rule(function ($file) {
                 return  md5(mt_rand());
@@ -355,7 +355,7 @@ class Ueditor extends Base
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/",$imgUrl,$m);
 
-        $dirname = './'.UPLOAD_PATH.'remote/'.date('Y/m/d').'/';
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd').'/';
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
@@ -403,7 +403,7 @@ class Ueditor extends Base
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //图片可选择存放在oss
-                $savePath = $this->savePath.date('Y/m/d/');
+                $savePath = $this->savePath.date('Ymd/');
                 $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
                 $getRealPath = ltrim($data['url'], '/');
                 $ossClient = new \app\common\logic\OssLogic;
@@ -429,7 +429,7 @@ class Ueditor extends Base
         $base64Data = $_POST[$fieldName];
         $img = base64_decode($base64Data);
 
-        $dirname = './'.UPLOAD_PATH.'scrawl/'.date('Y/m/d/');
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd/');
         $file['filesize'] = strlen($img);
         $file['oriName'] = $config['oriName'];
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
@@ -507,7 +507,7 @@ class Ueditor extends Base
         if (true !== $result || empty($file)) {            
             $state = "ERROR" . $result;
         } else {
-            $savePath = $this->savePath.date('Y/m/d/');
+            $savePath = $this->savePath.date('Ymd/');
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //商品图片可选择存放在oss
@@ -584,7 +584,7 @@ class Ueditor extends Base
     public function appFileUp()
     {      
         $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        $path = UPLOAD_PATH.'appfile/'.date('Y/m/d/');
+        $path = UPLOAD_PATH.'soft/'.date('Ymd/');
         if (!file_exists($path)) {
             mkdir($path);
         }

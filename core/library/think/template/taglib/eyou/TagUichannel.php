@@ -29,7 +29,7 @@ class TagUichannel extends Base
      * 栏目列表编辑
      * @author wengxianhu by 2018-4-20
      */
-    public function getUichannel($typeid, $e_id, $e_page)
+    public function getUichannel($typeid = '', $e_id = '', $e_page = '')
     {
         if (empty($e_id) || empty($e_page)) {
             echo '标签uichannel报错：缺少属性 e-id | e-page 。';

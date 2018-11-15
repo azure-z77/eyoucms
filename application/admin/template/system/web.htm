@@ -56,7 +56,7 @@
                         <span class="type-file-box">
                             <input type="text" id="web_logo_local" name="web_logo_local" value="{$config.web_logo_local|default=''}" class="type-file-text">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
-                            <input class="type-file-file" onClick="GetUploadify(1,'','system','web_logo_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
+                            <input class="type-file-file" onClick="GetUploadify(1,'','allimg','web_logo_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                         </span>
                     </div>
                     <input type="text" id="web_logo_remote" name="web_logo_remote" value="{$config.web_logo_remote|default=''}" placeholder="http://" class="input-txt" {if condition="!isset($config.web_logo_is_remote) OR empty($config.web_logo_is_remote)"}style="display: none;"{/if}>
@@ -86,7 +86,7 @@
                         <span class="type-file-box">
                             <input type="text" id="web_ico" name="web_ico" value="{$config.web_ico|default=''}" class="type-file-text">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
-                            <input class="type-file-file" onClick="GetUploadify(1,'','system','web_ico_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
+                            <input class="type-file-file" onClick="GetUploadify(1,'','allimg','web_ico_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                         </span>
                     </div>
                     <span class="err"></span>
@@ -213,7 +213,7 @@
                             <span class="type-file-box">
                                 <input type="text" id="{$vo['attr_var_name']}" name="{$vo['attr_var_name']}" value="{$vo.value|default=''}" class="type-file-text">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
-                                <input class="type-file-file" onClick="GetUploadify(1,'','system','{$vo['attr_var_name']}_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
+                                <input class="type-file-file" onClick="GetUploadify(1,'','allimg','{$vo['attr_var_name']}_img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>
                         </div>
                         <script type="text/javascript">

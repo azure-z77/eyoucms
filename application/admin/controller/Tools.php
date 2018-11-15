@@ -33,13 +33,15 @@ class Tools extends Base {
                 $total += $v['Data_length'] + $v['Index_length'];
             }
         }
-        if (session('?backup_config.path')) {
+        $path = tpCache('global.web_sqldatapath');
+        $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
+        @unlink(realpath(trim($path, '/')) . DS . 'backup.lock');
+        // if (session('?backup_config.path')) {
             //备份完成，清空缓存
-            @unlink(session('backup_config.path') . 'backup.lock');
             session('backup_tables', null);
             session('backup_file', null);
             session('backup_config', null);
-        }
+        // }
         $this->assign('list', $list);
         $this->assign('total', format_bytes($total));
         $this->assign('tableNum', count($list));
@@ -406,7 +408,7 @@ class Tools extends Base {
                     /*清除缓存*/
                     delFile(RUNTIME_PATH);
                     /*--end*/
-                    $this->success("操作成功！", U('Tools/restore'));
+                    $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
                 }else{
                     $this->error('操作失败！', U('Tools/restore'));
                 }
@@ -463,12 +465,12 @@ class Tools extends Base {
                 $path  = realpath($path) . DS . $name;
                 array_map("unlink", glob($path));
                 if(count(glob($path))){
-                    respose(array('status'=>0, 'msg'=>'备份文件删除失败，请检查目录权限！'));
+                    $this->error('备份文件删除失败，请检查目录权限！');
                 }
             }
-            respose(array('status'=>1, 'msg'=>'删除成功！'));
+            $this->success('删除成功！');
         } else {
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

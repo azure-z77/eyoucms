@@ -24,7 +24,7 @@ use think\Request;
 class Ueditor extends Base
 {
     private $sub_name = array('date', 'Ymd');
-    private $savePath = 'temp/';
+    private $savePath = 'allimg/';
     private $fileExt = 'jpg,png,gif,jpeg,bmp,ico';
     private $nowFileName = '';
 
@@ -37,7 +37,7 @@ class Ueditor extends Base
         
         date_default_timezone_set("Asia/Shanghai");
         
-        $this->savePath = I('savepath','temp').'/';
+        $this->savePath = I('savepath','allimg').'/';
 
         $this->nowFileName = I('nowfilename', '');
         if (empty($this->nowFileName)) {
@@ -369,7 +369,7 @@ class Ueditor extends Base
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/",$imgUrl,$m);
 
-        $dirname = './'.UPLOAD_PATH.'remote/'.date('Ymd/');
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd/');
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
@@ -443,7 +443,7 @@ class Ueditor extends Base
         $base64Data = $_POST[$fieldName];
         $img = base64_decode($base64Data);
 
-        $dirname = './'.UPLOAD_PATH.'scrawl/'.date('Ymd/');
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd/');
         $file['filesize'] = strlen($img);
         $file['oriName'] = $config['oriName'];
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
@@ -602,7 +602,7 @@ class Ueditor extends Base
     public function appFileUp()
     {      
         $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        $path = UPLOAD_PATH.'appfile/'.date('Ymd/');
+        $path = UPLOAD_PATH.'soft/'.date('Ymd/');
         if (!file_exists($path)) {
             mkdir($path);
         }
@@ -702,7 +702,7 @@ class Ueditor extends Base
         $fileMime = '';
         if (isset($_REQUEST["name"])) {
             $fileMime = $_REQUEST["type"]; // application/x-zip-compressed
-            $lastModifiedDate = strtotime($_REQUEST["lastModifiedDate"]); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
+            $lastModifiedDate = !empty($_REQUEST["lastModifiedDate"]) ? strtotime($_REQUEST["lastModifiedDate"]) : time(); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
             $fileSize = $_REQUEST["size"]; // 文件大小
             $fileName = $_REQUEST["name"]; // include_new.zip
         } elseif (!empty($_FILES)) {
@@ -918,7 +918,7 @@ class Ueditor extends Base
 
         // Settings
         // $targetDir = ini_get("upload_tmp_dir") . '/' . "plupload";
-        $targetDir = UPLOAD_PATH.trim($this->savePath, '/').'_tmp'.date('Ymd');
+        $targetDir = UPLOAD_PATH.trim($this->savePath, '/').'_tmp/'.date('Ymd');
         $uploadDir = UPLOAD_PATH.$this->savePath.date('Ymd');
 
         $cleanupTargetDir = true; // Remove old files
@@ -940,7 +940,7 @@ class Ueditor extends Base
         $fileMime = '';
         if (isset($_REQUEST["name"])) {
             $fileMime = $_REQUEST["type"]; // application/x-zip-compressed
-            $lastModifiedDate = strtotime($_REQUEST["lastModifiedDate"]); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
+            $lastModifiedDate = !empty($_REQUEST["lastModifiedDate"]) ? strtotime($_REQUEST["lastModifiedDate"]) : time(); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
             $fileSize = $_REQUEST["size"]; // 文件大小
             $fileName = $_REQUEST["name"]; // include_new.zip
         } elseif (!empty($_FILES)) {

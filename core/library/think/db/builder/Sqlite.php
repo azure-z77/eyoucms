@@ -47,8 +47,14 @@ class Sqlite extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($key, $options = [], $strict = false)
     {
+        if (is_numeric($key)) {
+            return $key;
+        } elseif ($key instanceof Expression) {
+            return $key->getValue();
+        }
+
         $key = trim($key);
         if (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);

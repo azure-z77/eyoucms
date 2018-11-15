@@ -439,6 +439,15 @@ XML;
  */
 function get_typeurl($arctype_info = array())
 {
+    /*兼容采集没有归属栏目的文档*/
+    if (empty($arctype_info['current_channel'])) {
+        $channelRow = \think\Db::name('channeltype')->field('id as channel')
+            ->where('id',1)
+            ->find();
+        $arctype_info = array_merge($arctype_info, $channelRow);
+    }
+    /*--end*/
+    
     $ctl_name = '';
     $result = model('Channeltype')->getAll('id, ctl_name', array(), 'id');
     if ($result) {
@@ -459,6 +468,15 @@ function get_typeurl($arctype_info = array())
  */
 function get_arcurl($arcview_info = array())
 {
+    /*兼容采集没有归属栏目的文档*/
+    if (empty($arcview_info['channel'])) {
+        $channelRow = \think\Db::name('channeltype')->field('id as channel')
+            ->where('id',1)
+            ->find();
+        $arcview_info = array_merge($arcview_info, $channelRow);
+    }
+    /*--end*/
+
     $ctl_name = '';
     $result = model('Channeltype')->getAll('id, ctl_name', array(), 'id');
     if ($result) {

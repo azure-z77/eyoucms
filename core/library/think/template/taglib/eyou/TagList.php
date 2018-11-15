@@ -282,7 +282,7 @@ class TagList extends Base
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                     ->where($where_str)
-                    ->order($orderby)
+                    ->orderRaw($orderby)
                     ->paginate($pagesize, false, $paginate);
                 // $cacheKey = strtolower('taglist_lastPage_'.$module_name_tmp.$ctl_name_tmp.$action_name_tmp.$this->tid);
                 // cache($cacheKey, $pages->lastPage()); // 用于静态页面的分页生成

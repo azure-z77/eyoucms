@@ -77,9 +77,13 @@ class ActionBeginBehavior {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
         $ctlActArr = array(
             'Article@add',
+            'Article@edit',
             'Product@add',
+            'Product@edit',
             'Images@add',
+            'Images@edit',
             'Download@add',
+            'Download@edit',
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (in_array($ctlActStr, $ctlActArr)) {

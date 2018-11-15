@@ -272,13 +272,23 @@
 
         conUrl = utils.unhtmlForUrl(conUrl);
 
-        $G("preview").innerHTML = '<div class="previewMsg"><span>'+lang.urlError+'</span></div>'+
-        '<embed class="previewVideo" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-            ' src="' + conUrl + '"' +
-            ' width="' + 420  + '"' +
-            ' height="' + 280  + '"' +
-            ' wmode="transparent" play="true" loop="false" menu="false" allowscriptaccess="never" allowfullscreen="true" >' +
-        '</embed>';
+        if(conUrl.indexOf(".swf") >= 0 ) {
+            $G("preview").innerHTML = '<div class="previewMsg"><span>'+lang.urlError+'</span></div>'+
+            '<embed class="previewVideo" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"' +
+                ' src="' + conUrl + '"' +
+                ' width="' + 420  + '"' +
+                ' height="' + 280  + '"' +
+                ' wmode="transparent" play="true" loop="false" menu="false" allowscriptaccess="never" allowfullscreen="true" >' +
+            '</embed>';
+        } else {
+            $G("preview").innerHTML = '<div class="previewMsg"><span>'+lang.urlError+'</span></div>'+
+            '<video controls="controls" autoplay="autoplay" '+
+                ' width="' + 420  + '"' +
+                ' height="' + 280  + '"' +
+                ' style="max-width:100%;">' +
+                ' <source src="' + conUrl + '"' + ' type="video/mp4" />' +
+            '</video>';
+        }
     }
 
 

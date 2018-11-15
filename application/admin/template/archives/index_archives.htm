@@ -104,7 +104,7 @@
                                         <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
                                     {/notempty}
                                     {eq name="'Archives@edit'|is_check_access" value="1"}
-                                    <a href="{:U('Archives/edit',array('id'=>$vo['aid']))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
+                                    <a href="{:U('Archives/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}

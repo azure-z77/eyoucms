@@ -148,12 +148,12 @@ class Uiset extends Base
                 \think\Cache::clear('ui_config');
                 delFile(RUNTIME_PATH.'ui/'.$this->theme_style);
                 adminLog('删除可视化数据 e-id：'.implode(array_keys($result)));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

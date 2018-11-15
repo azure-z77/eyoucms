@@ -83,6 +83,82 @@ class ModuleInitBehavior {
     }
 
     /**
+     * iis服务器自动追加URL重写，入口index.php被隐藏
+     */
+    private function iisInlet() {
+        /*不在以下相应的控制器和操作名里不往下执行，以便提高性能*/
+        $ctlActArr = array(
+            'Admin@login',
+            'System@clear_cache',
+        );
+        $ctlActStr = self::$controllerName.'@'.self::$actionName;
+        $seo_inlet = tpCache('seo.seo_inlet');
+        if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method || 1 == $seo_inlet) {
+            return false;
+        }
+        /*--end*/
+
+        $web_server = $_SERVER["SERVER_SOFTWARE"];
+        if (stristr($web_server, 'iis')) {
+
+            $indexRewrite = <<<EOF
+<rule name="Imported Rule 1" enabled="true" stopProcessing="true">
+                    <match url="^(.*)$" />
+                    <conditions logicalGrouping="MatchAll">
+                        <add input="{HTTP_HOST}" pattern="^(.*)$" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="index.php/{R:1}" />
+                </rule>
+EOF;
+            if (file_exists(ROOT_PATH.'web.config')) {
+                $webconfig = @file_get_contents(ROOT_PATH.'web.config');
+                if (!stristr($webconfig, 'index.php/{r:')) {
+                    if (stristr($webconfig, '<rules>')) {
+                        $rewrite = <<<EOF
+
+                {$indexRewrite}
+            </rules>
+EOF;
+                        $webconfig = str_replace('</rules>', $rewrite, $webconfig);
+                    } else {
+                        $rewrite = <<<EOF
+
+        <rewrite>
+            <rules>
+                {$indexRewrite}
+            </rules>
+        </rewrite>
+    </system.webServer>
+EOF;
+                        $webconfig = str_replace('</system.webServer>', $rewrite, $webconfig);
+                    }
+                }
+            } else {
+                $webconfig = <<<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <security>
+            <requestFiltering allowDoubleEscaping="true"/>
+        </security>
+
+        <rewrite>
+            <rules>
+                {$indexRewrite}
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+EOF;
+            }
+
+            @file_put_contents(ROOT_PATH . 'web.config', $webconfig);
+        }
+    }
+
+    /**
      * 检测url入口index.php是否被重写隐藏
      */
     private function checkInlet() {
@@ -144,6 +220,41 @@ class ModuleInitBehavior {
         $seo_inlet = tpCache('seo.seo_inlet');
         if ($seo_inlet != $now_seo_inlet) {
             tpCache('seo', array('seo_inlet'=>$now_seo_inlet));
+        }
+    }
+
+    /**
+     * 修改数据库配置文件
+     */
+    private function update_databasefile()
+    {
+        /*不在以下相应的控制器和操作名里不往下执行，以便提高性能*/
+        $ctlActArr = array(
+            'Index@welcome',
+            'Tools@index',
+        );
+        $ctlActStr = self::$controllerName.'@'.self::$actionName;
+        if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method) {
+            return false;
+        }
+        /*--end*/
+
+        //读取配置文件，并替换真实配置数据1
+        $databaseConf = include APP_PATH . 'database.php';
+        $sampleConf = include APP_PATH . 'database.php_read';
+        if ($databaseConf['break_reconnect'] != $sampleConf['break_reconnect']) {
+            $strConfig = @file_get_contents(APP_PATH . 'database.php_read');
+            if (false != $strConfig) {
+                $strConfig = str_replace('#DB_HOST#', $databaseConf['hostname'], $strConfig);
+                $strConfig = str_replace('#DB_NAME#', $databaseConf['database'], $strConfig);
+                $strConfig = str_replace('#DB_USER#', $databaseConf['username'], $strConfig);
+                $strConfig = str_replace('#DB_PWD#', $databaseConf['password'], $strConfig);
+                $strConfig = str_replace('#DB_PORT#', $databaseConf['hostport'], $strConfig);
+                $strConfig = str_replace('#DB_PREFIX#', $databaseConf['prefix'], $strConfig);
+                $strConfig = str_replace('#DB_CHARSET#', $databaseConf['charset'], $strConfig);
+                @chmod(APP_PATH . 'database.php',0777); //数据库配置文件的地址
+                @file_put_contents(APP_PATH . 'database.php', $strConfig); //数据库配置文件的地址
+            }
         }
     }
 

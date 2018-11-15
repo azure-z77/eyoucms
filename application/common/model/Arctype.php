@@ -13,6 +13,7 @@
 
 namespace app\common\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -316,7 +317,6 @@ class Arctype extends Model
                 ->where($where)
                 ->group('c.id')
                 ->order('c.parent_id asc, c.sort_order asc, c.id')
-                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
                 ->select();
 
             $result = arctype_options($id, $res, 'id', 'parent_id');
@@ -424,7 +424,9 @@ class Arctype extends Model
     {
         $childrenList = $this->getHasChildren($typeid); // 获取当前栏目以及所有子栏目
         $typeidArr = get_arr_column($childrenList, 'id'); // 获取栏目数组里的所有栏目ID作为新的数组
-        $sta = M('arctype')->where(array('id'=>array('IN', $typeidArr)))->cache(true,null,"arctype")->delete(); // 删除栏目
+        $sta = M('arctype')->where(array('id'=>array('IN', $typeidArr)))
+            ->cache(true,null,"arctype")
+            ->delete(); // 删除栏目
         if ($sta) {
             model('archives')->del($typeidArr); // 删除文档
             return true;

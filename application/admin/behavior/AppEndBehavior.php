@@ -32,7 +32,7 @@ class AppEndBehavior {
     }
 
     private function _initialize() {
-        $this->saveBaseFile();
+        $this->saveBaseFile(); // 存储后台入口文件路径
         $this->renameInstall(); // 重命名安装目录
         $this->resetAuthor(); // 临时处理授权问题
     }

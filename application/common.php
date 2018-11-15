@@ -11,6 +11,9 @@
  * Date: 2018-4-3
  */
 
+// 关闭所有PHP错误报告
+error_reporting(0);
+
 // 应用公共文件
 
 /**
@@ -376,6 +379,8 @@ function read_html_cache(){
 
 /**
  * 图片不存在，显示默认无图封面
+ * @param string $pic_url 图片路径
+ * @param string|boolean $domain 完整路径的域名
  */
 function get_default_pic($pic_url = '', $domain = false)
 {

@@ -20,8 +20,11 @@ use think\Db;
  * Class CatsLogic
  * @package admin\Logic
  */
+load_trait('controller/Jump');
 class ArchivesLogic extends Model
 {
+    use \traits\controller\Jump;
+    
     /**
      * 删除文档
      */
@@ -59,14 +62,14 @@ class ArchivesLogic extends Model
             }
 
             if (0 == $err) {
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             } else if ($err < count($data)) {
-                respose(array('status'=>1, 'msg'=>'删除部分成功'));
+                $this->success('删除部分成功');
             } else {
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

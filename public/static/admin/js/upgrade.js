@@ -12,6 +12,7 @@ function btn_upgrade(obj, type)
     var v = $("#textarea_filelist").val();    
     var intro = $("#textarea_intro").val();
     var notice = $("#textarea_notice").val();
+    intro += '<style type="text/css">.layui-layer-content{height:270px!important}</style>';
     // v = v.replace(/\n/g,"<br/>");
     v = notice + intro + '<br/>' + v;
     var version = $(obj).data('version');

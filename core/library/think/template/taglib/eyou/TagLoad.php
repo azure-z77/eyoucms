@@ -29,7 +29,7 @@ class TagLoad extends Base
      * 资源文件加载
      * @author wengxianhu by 2018-4-20
      */
-    public function getLoad($file, $ver = 'on')
+    public function getLoad($file = '', $ver = 'on')
     {
         if (empty($file)) {
             return '标签load报错：缺少属性 href 或 file 。';

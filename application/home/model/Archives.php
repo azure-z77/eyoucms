@@ -35,7 +35,7 @@ class Archives extends Model
      * 获取单条文档记录
      * @author wengxianhu by 2017-7-26
      */
-    public function getViewInfo($aid)
+    public function getViewInfo($aid, $litpic_remote = false)
     {
         $result = array();
         $row = db('archives')->field('*')->find($aid);
@@ -46,7 +46,7 @@ class Archives extends Model
             } else {
                 $row['is_litpic'] = 1; // 有封面图
             }
-            $row['litpic'] = get_default_pic($row['litpic']); // 默认封面图
+            $row['litpic'] = get_default_pic($row['litpic'], $litpic_remote); // 默认封面图
 
             /*文档基本信息*/
             if (1 == $row['channel']) { // 文章模型
@@ -63,7 +63,7 @@ class Archives extends Model
                 $productImgModel = new \app\home\model\ProductImg();
                 $image_list = $productImgModel->getProImg($aid);
                 foreach ($image_list as $key => $val) {
-                    $val['image_url'] = get_default_pic($val['image_url']);
+                    $val['image_url'] = get_default_pic($val['image_url'], $litpic_remote);
                     $image_list[$key] = $val;
                 }
                 $row['image_list'] = $image_list;
@@ -74,7 +74,7 @@ class Archives extends Model
                 $imagesUploadModel = new \app\home\model\ImagesUpload();
                 $image_list = $imagesUploadModel->getImgUpload($aid);
                 foreach ($image_list as $key => $val) {
-                    $val['image_url'] = get_default_pic($val['image_url']);
+                    $val['image_url'] = get_default_pic($val['image_url'], $litpic_remote);
                     $image_list[$key] = $val;
                 }
                 $row['image_list'] = $image_list;
@@ -95,7 +95,7 @@ class Archives extends Model
      * 获取单页栏目记录
      * @author wengxianhu by 2017-7-26
      */
-    public function getSingleInfo($typeid)
+    public function getSingleInfo($typeid, $litpic_remote = false)
     {
         $result = array();
         /*文档基本信息*/
@@ -109,7 +109,7 @@ class Archives extends Model
             } else {
                 $row['is_litpic'] = 1; // 有封面图
             }
-            $row['litpic'] = get_default_pic($row['litpic']); // 默认封面图
+            $row['litpic'] = get_default_pic($row['litpic'], $litpic_remote); // 默认封面图
             /*--end*/
 
             $row = $this->fieldLogic->getTableFieldList($row, config('global.arctype_channel_id')); // 自定义字段的数据格式处理

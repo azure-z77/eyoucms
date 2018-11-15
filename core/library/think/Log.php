@@ -129,10 +129,7 @@ class Log
      */
     public static function check($config)
     {
-        if (self::$key && !empty($config['allow_key']) && !in_array(self::$key, $config['allow_key'])) {
-            return false;
-        }
-        return true;
+        return !self::$key || empty($config['allow_key']) || in_array(self::$key, $config['allow_key']);
     }
 
     /**
@@ -142,43 +139,47 @@ class Log
      */
     public static function save()
     {
-        if (!empty(self::$log)) {
-            if (is_null(self::$driver)) {
-                self::init(Config::get('log'));
-            }
-
-            if(0 == self::$config['switch'])
-                return false;
-
-            if (!self::check(self::$config)) {
-                // 检测日志写入权限
-                return false;
-            }
-
-            if (empty(self::$config['level'])) {
-                // 获取全部日志
-                $log = self::$log;
-                if (!App::$debug && isset($log['debug'])) {
-                    unset($log['debug']);
-                }
-            } else {
-                // 记录允许级别
-                $log = [];
-                foreach (self::$config['level'] as $level) {
-                    if (isset(self::$log[$level])) {
-                        $log[$level] = self::$log[$level];
-                    }
-                }
-            }
-
-            $result = self::$driver->save($log);
-            if ($result) {
-                self::$log = [];
-            }
-            Hook::listen('log_write_done', $log);
-            return $result;
+        // 没有需要保存的记录则直接返回
+        if (empty(self::$log)) {
+            return true;
         }
-        return true;
+
+        is_null(self::$driver) && self::init(Config::get('log'));
+
+        /*是否开启日志记录 by 小虎哥*/
+        if(0 == self::$config['switch']){
+            return false;
+        }
+        /*--end*/
+        
+        // 检测日志写入权限
+        if (!self::check(self::$config)) {
+            return false;
+        }
+
+        if (empty(self::$config['level'])) {
+            // 获取全部日志
+            $log = self::$log;
+            if (!App::$debug && isset($log['debug'])) {
+                unset($log['debug']);
+            }
+        } else {
+            // 记录允许级别
+            $log = [];
+            foreach (self::$config['level'] as $level) {
+                if (isset(self::$log[$level])) {
+                    $log[$level] = self::$log[$level];
+                }
+            }
+        }
+
+        if ($result = self::$driver->save($log, true)) {
+            self::$log = [];
+        }
+
+        Hook::listen('log_write_done', $log);
+
+        return $result;
     }
 
     /**
@@ -192,23 +193,22 @@ class Log
     public static function write($msg, $type = 'log', $force = false)
     {
         $log = self::$log;
-        // 封装日志信息
-        if (true === $force || empty(self::$config['level'])) {
-            $log[$type][] = $msg;
-        } elseif (in_array($type, self::$config['level'])) {
-            $log[$type][] = $msg;
-        } else {
+
+        // 如果不是强制写入，而且信息类型不在可记录的类别中则直接返回 false 不做记录
+        if (true !== $force && !empty(self::$config['level']) && !in_array($type, self::$config['level'])) {
             return false;
         }
 
-        // 监听log_write
+        // 封装日志信息
+        $log[$type][] = $msg;
+
+        // 监听 log_write
         Hook::listen('log_write', $log);
-        if (is_null(self::$driver)) {
-            self::init(Config::get('log'));
-        }
+
+        is_null(self::$driver) && self::init(Config::get('log'));
+
         // 写入日志
-        $result = self::$driver->save($log);
-        if ($result) {
+        if ($result = self::$driver->save($log, false)) {
             self::$log = [];
         }
 
@@ -226,7 +226,8 @@ class Log
     {
         if (in_array($method, self::$type)) {
             array_push($args, $method);
-            return call_user_func_array('\\think\\Log::record', $args);
+
+            call_user_func_array('\\think\\Log::record', $args);
         }
     }
 

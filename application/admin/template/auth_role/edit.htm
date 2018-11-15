@@ -55,7 +55,7 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            <dl class="row">
+            <dl class="row" id="dl_only_oneself">
                 <dt class="tit">
                     <label for="name">文档权限</label>
                 </dt>
@@ -265,6 +265,7 @@
     function changeRole(value){
         if (-1 == value) {
             $('#postForm input[type="checkbox"]').attr("checked","checked");
+            $('#postForm input[name="only_oneself"]').removeAttr('checked');
             return;
         }
         $('#postForm input[type="checkbox"]').removeAttr('checked');

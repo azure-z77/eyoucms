@@ -212,28 +212,28 @@ class AuthRole extends Base {
 
             $count = M('auth_role')->where(['built_in'=>1,'id'=>['IN',$id_arr]])->count();
             if (!empty($count)) {
-                respose(array('status'=>0, 'msg'=>'系统内置不允许删除！'));
+                $this->error('系统内置不允许删除！');
             }
 
             $role = M('auth_role')->where("pid",'IN',$id_arr)->select();
             if ($role) {
-                respose(array('status'=>0, 'msg'=>'请先清空该权限组下的子权限组'));
+                $this->error('请先清空该权限组下的子权限组');
             }
 
             $role_admin = M('admin')->where("role_id",'IN',$id_arr)->select();
             if ($role_admin) {
-                respose(array('status'=>0, 'msg'=>'请先清空所属该权限组的管理员'));
+                $this->error('请先清空所属该权限组的管理员');
             } else {
                 $r = M('auth_role')->where("id",'IN',$id_arr)->delete();
                 if($r){
                     adminLog('删除权限组');
-                    respose(array('status'=>1, 'msg'=>'删除成功'));
+                    $this->success('删除成功');
                 }else{
-                    respose(array('status'=>0, 'msg'=>'删除失败'));
+                    $this->error('删除失败');
                 }
             }
         } else {
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

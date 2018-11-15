@@ -1242,7 +1242,7 @@ if ( ! function_exists('get_pinyin'))
         {
             unset($pinyins);
         }
-        return $restr;
+        return strtolower($restr);
     }
 }
 
@@ -1615,4 +1615,14 @@ function view_logic($aid, $channel, $result = array())
     }
 
     return $result;
+}
+
+/**
+ * 驼峰命名转下划线命名
+ * 思路:
+ * 小写和大写紧挨一起的地方,加上分隔符,然后全部转小写
+ */
+function uncamelize($camelCaps, $separator='_')
+{
+    return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . $separator . "$2", $camelCaps));
 }

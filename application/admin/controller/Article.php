@@ -333,6 +333,14 @@ class Article extends Base
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
+        /*兼容采集没有归属栏目的文档*/
+        if (empty($info['channel'])) {
+            $channelRow = Db::name('channeltype')->field('id as channel')
+                ->where('id',1)
+                ->find();
+            $info = array_merge($info, $channelRow);
+        }
+        /*--end*/
         $typeid = $info['typeid'];
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;

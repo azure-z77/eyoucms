@@ -66,7 +66,7 @@ class DownloadFile extends Model
         $fileupload = isset($post['fileupload']) ? $post['fileupload'] : array();
         if (!empty($fileupload)) {
 
-             $DownFileArr = M('DownloadFile')->where("aid = $aid")->getField('file_id,file_url'); // 查出所有已经存在的图片
+             $DownFileArr = M('DownloadFile')->where("aid = $aid")->getField('file_id,file_url'); // 查出所有已经存在的文件
 
              // 删除文件
              $file_ids = array();
@@ -114,6 +114,8 @@ class DownloadFile extends Model
             if (!empty($data)) {
                 M('DownloadFile')->insertAll($data);
             }
+        } else {
+            M('DownloadFile')->where('aid',$aid)->delete();
         }
     }
 }

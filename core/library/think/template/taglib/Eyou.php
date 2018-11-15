@@ -860,8 +860,18 @@ class Eyou extends Taglib
      */
     public function tagSearchurl($tag)
     {
-        $parseStr = '<?php echo url("home/Search/lists");?>';
-        return $parseStr;
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSearchurl = new \think\template\taglib\eyou\TagSearchurl;';
+        $parseStr .= ' $_result = $tagSearchurl->getSearchurl();';
+        $parseStr .= ' echo $_result';
+        $parseStr .= '?>';
+        
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
     }
 
     /**

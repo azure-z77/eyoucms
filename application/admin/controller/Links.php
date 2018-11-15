@@ -147,14 +147,14 @@ class Links extends Base
                 $r = M('links')->where("id",'IN',$id_arr)->cache(true,EYOUCMS_CACHE_TIME,"links")->delete();
                 if($r){
                     adminLog('删除友情链接：'.implode(',', $title_list));
-                    respose(array('status'=>1, 'msg'=>'删除成功'));
+                    $this->success('删除成功');
                 }else{
-                    respose(array('status'=>0, 'msg'=>'删除失败'));
+                    $this->error('删除失败');
                 }
             } else {
-                respose(array('status'=>0, 'msg'=>'参数有误'));
+                $this->error('参数有误');
             }
         }
-        respose(array('status'=>0, 'msg'=>'非法访问'));
+        $this->error('非法访问');
     }
 }

@@ -28,7 +28,6 @@ class View
         // 基础替换字符串
         $request = Request::instance();
         $base    = $request->root();
-      
         $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
         if ('' != $root) {
             $root = '/' . ltrim($root, '/');
@@ -163,18 +162,30 @@ class View
         ob_implicit_flush(0);
 
         // 渲染输出
-        $method = $renderContent ? 'display' : 'fetch';
-        $this->engine->$method($template, $vars, $config);
+        try {
+            $method = $renderContent ? 'display' : 'fetch';
+            // 允许用户自定义模板的字符串替换
+            // $replace = array_merge($this->replace, $replace, (array) $this->engine->config('tpl_replace_string'));
+            $replace = array_merge($this->replace, (array) $this->engine->config('tpl_replace_string'), $replace); // 解决一个页面上调用多个钩子的冲突问题 by 小虎哥
+            /*插件模板字符串替换，不能放在构造函数，毕竟构造函数只执行一次 by 小虎哥*/
+            // if ($this->__isset('weappInfo')) {
+            //     $weappInfo = $this->__get('weappInfo');
+            //     if (!empty($weappInfo['code'])) {
+            //         $replace['__WEAPP_TEMPLATE__'] = __ROOT__.'/'.WEAPP_DIR_NAME.'/'.$weappInfo['code'].'/template';
+            //     }
+            // }
+            /*--end*/
+            $this->engine->config('tpl_replace_string', $replace);
+            $this->engine->$method($template, $vars, $config);
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
 
         // 获取并清空缓存
         $content = ob_get_clean();
         // 内容过滤标签
         Hook::listen('view_filter', $content);
-        // 允许用户自定义模板的字符串替换
-        $replace = array_merge($this->replace, $replace);
-        if (!empty($replace)) {
-            $content = strtr($content, $replace);
-        }
 
         // $this->checkcopyr($content);
 

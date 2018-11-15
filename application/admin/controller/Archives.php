@@ -83,10 +83,11 @@ class Archives extends Base
             $ctl_name = $row['ctl_name'];
             $current_channel = $row['id'];
             if (6 == $current_channel) {
-                $gourl = U("Arctype/single_edit", array('typeid'=>$typeid));
+                $gourl = url('Arctype/single_edit', array('typeid'=>$typeid));
+                $gourl = url("Arctype/single_edit", array('typeid'=>$typeid,'gourl'=>$gourl));
                 $this->redirect($gourl);
             } else if (8 == $current_channel) {
-                $gourl = U("Guestbook/index", array('typeid'=>$typeid));
+                $gourl = url("Guestbook/index", array('typeid'=>$typeid));
                 $this->redirect($gourl);
             }
         }
@@ -145,8 +146,10 @@ class Archives extends Base
         }
         /*--end*/
 
-        // 模型ID
-        $condition['a.channel'] = array('neq', 6);
+        // 只显示允许发布文档的模型，且是开启状态
+        $channelIds = Db::name('channeltype')->where('status',0)
+            ->whereOr('id','IN',[6,8])->column('id');
+        $condition['a.channel'] = array('NOT IN', $channelIds);
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -260,6 +263,12 @@ class Archives extends Base
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
             ->where('a.aid', 'eq', $id)
             ->find();
+        if (empty($row['channel'])) {
+            $channelRow = Db::name('channeltype')->field('id as channel, ctl_name')
+                ->where('id',1)
+                ->find();
+            $row = array_merge($row, $channelRow);
+        }
         $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
         $jumpUrl = U("{$row['ctl_name']}/edit", array('id'=>$id,'gourl'=>$gourl));
         $this->redirect($jumpUrl);
@@ -302,9 +311,13 @@ class Archives extends Base
         }
 
         $typeid = I('param.typeid/d', 0);
-        $allowReleaseChannel = array(1);
 
         /*允许发布文档列表的栏目*/
+        $allowReleaseChannel = [];
+        if (!empty($typeid)) {
+            $channelId = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+            $allowReleaseChannel[] = $channelId;
+        }
         $arctype_html = allow_release_arctype($typeid, $allowReleaseChannel);
         $this->assign('arctype_html', $arctype_html);
         /*--end*/

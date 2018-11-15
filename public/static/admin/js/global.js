@@ -59,7 +59,7 @@ function batch_del(obj, name) {
             dataType: 'json',
             success: function (data) {
                 layer.closeAll();
-                if(data.status == 1){
+                if(data.code == 1){
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                     // layer.alert(data.msg, {
@@ -98,7 +98,7 @@ function delfun(obj) {
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
-                    if(data.status == 1){
+                    if(data.code == 1){
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                         // $(obj).parent().parent().parent().remove();

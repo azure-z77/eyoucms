@@ -215,7 +215,7 @@ class TagArclist extends Base
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                     ->where($where_str)
-                    ->order($orderby)
+                    ->orderRaw($orderby)
                     ->limit($limit)
                     ->select();
 

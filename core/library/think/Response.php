@@ -60,9 +60,7 @@ class Response
      */
     public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
     {
-        $type = empty($type) ? 'null' : strtolower($type);
-
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
         if (class_exists($class)) {
             $response = new $class($data, $code, $header, $options);
         } else {
@@ -97,7 +95,7 @@ class Response
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
                 $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
-                Cache::set($cache[0], [$data, $this->header], $cache[1]);
+                Cache::tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
             }
         }
 

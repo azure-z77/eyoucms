@@ -36,7 +36,7 @@
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="w250">
-                            <div class="">网站名称</div>
+                            <div class="tc">网站名称</div>
                         </th>
                         <th abbr="ac_id" axis="col4">
                             <div class="">链接地址</div>
@@ -80,7 +80,7 @@
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w250">
+                                <div class="w250 tc">
                                     <a href="{:weapp_url('Sample/Sample/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                 </div>
                             </td>
@@ -105,12 +105,8 @@
                             </td>
                             <td>
                                 <div class="w120 tc">
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:weapp_url('Sample/Sample/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
-                                    {/eq}
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0)" data-url="{:weapp_url('Sample/Sample/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
-                                    {/eq}
                                 </div>
                             </td>
                             <td class="sort">
@@ -131,7 +127,6 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:weapp_url('Sample/Sample/del')}">
                         <div class="add" title="批量删除">
@@ -139,8 +134,6 @@
                         </div>
                     </a>
                 </div>
-                {/eq}
-                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:weapp_url('Sample/Sample/add')}">
                         <div class="add" title="新增">
@@ -148,7 +141,6 @@
                         </div>
                     </a>
                 </div>
-                {/eq}
             </div>
             <div style="clear:both"></div>
         </div>
@@ -170,5 +162,3 @@
     });
 </script>
 {include file="footer.htm" /}
-</body>
-</html>

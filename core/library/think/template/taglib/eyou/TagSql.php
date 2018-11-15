@@ -29,7 +29,7 @@ class TagSql extends Base
      * 获取记录集
      * @author wengxianhu by 2018-4-20
      */
-    public function getSql($sql, $cachetime = '')
+    public function getSql($sql = '', $cachetime = '')
     {
         if (empty($sql)) {
             echo '标签sql报错：缺少属性 sql 值。';

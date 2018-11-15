@@ -29,7 +29,7 @@ class TagPagelist extends Base
      * 获取列表分页代码
      * @author wengxianhu by 2018-4-20
      */
-    public function getPagelist($pages, $listitem = '', $listsize = '')
+    public function getPagelist($pages = '', $listitem = '', $listsize = '')
     {
         if (empty($pages)) {
             echo '标签pagelist报错：只适用在标签list之后。';

@@ -18,8 +18,8 @@ use think\Request;
 
 class Uploadify extends Base
 {
-    private $sub_name = array('date', 'Y/m-d');
-    private $savePath = 'temp/';
+    private $sub_name = array('date', 'Ymd');
+    private $savePath = 'allimg/';
     private $image_type = '';
     
     public function __construct()
@@ -28,7 +28,7 @@ class Uploadify extends Base
         exit; // 目前没用到这个api接口
         
         date_default_timezone_set("Asia/Shanghai");
-        $this->savePath = I('savepath','temp').'/';
+        $this->savePath = I('savepath','allimg').'/';
         if (1 == preg_match('#\.#', $this->savePath)) {
             echo json_encode(array(
                     "state" => "路径不符合规范",
@@ -47,7 +47,7 @@ class Uploadify extends Base
     
     public function upload(){
         $func = I('func');
-        $path = I('path','temp');
+        $path = I('path','allimg');
         $num = I('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = I('size/d'); // 单位为kb
@@ -122,7 +122,7 @@ class Uploadify extends Base
         $start = isset($_GET['start']) ? htmlspecialchars($_GET['start']) : 0;
         $end = $start + $size;
 
-        $path = I('path','temp');
+        $path = I('path','allimg');
         if (1 == preg_match('#\.#', $path)) {
             echo json_encode(array(
                     "state" => "路径不符合规范",
@@ -336,7 +336,7 @@ class Uploadify extends Base
             return json_encode($data);
         } else {
             // 移动到框架应用根目录/public/uploads/ 目录下
-            $this->savePath = $this->savePath.date('Y/m/d/');
+            $this->savePath = $this->savePath.date('Ymd/');
             // 使用自定义的文件保存规则
             $info = $file->rule(function ($file) {
                 return  md5(mt_rand());
@@ -487,7 +487,7 @@ class Uploadify extends Base
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/",$imgUrl,$m);
 
-        $dirname = './'.UPLOAD_PATH.'remote/'.date('Y/m/d').'/';
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd/');
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
@@ -535,7 +535,7 @@ class Uploadify extends Base
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //图片可选择存放在oss
-                $savePath = $this->savePath.date('Y/m/d/');
+                $savePath = $this->savePath.date('Ymd/');
                 $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
                 $getRealPath = ltrim($data['url'], '/');
                 $ossClient = new \app\common\logic\OssLogic;
@@ -561,7 +561,7 @@ class Uploadify extends Base
         $base64Data = $_POST[$fieldName];
         $img = base64_decode($base64Data);
     
-        $dirname = UPLOAD_PATH.'scrawl/'.date('Y/m/d/');
+        $dirname = UPLOAD_PATH.'scrawl/'.date('Ymd/');
         $file['filesize'] = strlen($img);
         $file['oriName'] = $config['oriName'];
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));

@@ -63,7 +63,6 @@ class Hook
     public static function get($tag = '')
     {
         if (empty($tag)) {
-            //获取全部的插件信息
             return self::$tags;
         }
 
@@ -82,8 +81,8 @@ class Hook
     public static function listen($tag, &$params = null, $extra = null, $once = false)
     {
         $results = [];
-        $tags    = static::get($tag);
-        foreach ($tags as $key => $name) {
+
+        foreach (static::get($tag) as $key => $name) {
             $results[$key] = self::exec($name, $tag, $params, $extra);
 
             // 如果返回 false，或者仅获取一个有效返回则中断行为执行

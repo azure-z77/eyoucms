@@ -90,6 +90,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'lang' => 
+  array (
+    'name' => 'lang',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => 'cn',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'delete_time' => 
   array (
     'name' => 'delete_time',

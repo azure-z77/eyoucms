@@ -26,7 +26,7 @@ class Arctype extends Base
     // 允许发布文档的模型ID
     public $allowReleaseChannel = array();
     // 禁用的目录名称
-    public $disableDirname = array('application','core','data','extend','html','install','public','template','vendor','weapp','tags','search');
+    public $disableDirname = array('application','core','data','extend','html','install','public','plugins','upload','template','vendor','weapp','tags','search');
     
     public function _initialize() {
         parent::_initialize();
@@ -267,7 +267,7 @@ class Arctype extends Base
                 $seo_description = @msubstr($seo_description, 0, 500, false);
                 /*--end*/
                 // 获取当前栏目的所有子孙栏目（不包含当前栏目）
-                $allSonTypeidArr = model('Arctype')->getHasChildren($post['id'], $post['channeltype'], false);
+                $allSonTypeidArr = model('Arctype')->getHasChildren($post['id'], false);
 
                 /*处理自定义字段值*/
                 $addonField = array();
@@ -290,7 +290,7 @@ class Arctype extends Base
                 $data = array_merge($post, $newData, $addonField);
                 $r = M('arctype')->where(array('id'=>$data['id']))->cache(true,null,"arctype")->update($data);
                 if($r){
-                    // 批量更新所有子孙栏目的最顶级模型ID
+                    /*批量更新所有子孙栏目的最顶级模型ID*/
                     if (!empty($allSonTypeidArr)) {
                         $i = 1;
                         $minuendGrade = 0;
@@ -302,12 +302,13 @@ class Arctype extends Base
                             $update_data = array(
                                 'channeltype'        => $channeltype,
                                 'update_time'        => getTime(),
-                                'grade'   =>  array('exp','grade+'.$minuendGrade),
+                                'grade'   =>  Db::raw('grade+'.$minuendGrade),
                             );
                             M('arctype')->where(array('id'=>array('eq', $val['id'])))->cache(true,null,"arctype")->fetchSql(false)->update($update_data);
                             ++$i;
                         }
                     }
+                    /*--end*/
 
                     // --存储单页模型
                     if ($data['current_channel'] == 6) {
@@ -417,6 +418,12 @@ class Arctype extends Base
             'status'    => 1,
         );
         $channeltype_list = model('Channeltype')->getAll('id,title,nid,ctl_name', $map, 'id');
+        // 模型对应模板文件不存在报错
+        if (!isset($channeltype_list[$info['current_channel']])) {
+            $row = model('Channeltype')->getInfo($info['current_channel']);
+            $file = 'lists_'.$row['nid'].'.htm';
+            $this->error($row['title'].'缺少模板文件'.$file);
+        }
         // 选项卡内容的链接
         $ctl_name = $channeltype_list[$info['current_channel']]['ctl_name'];
         $list_url = U("{$ctl_name}/index")."?typeid={$id}";
@@ -505,7 +512,7 @@ class Arctype extends Base
         /*返回上一层*/
         $gourl = I('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Arctype/single_edit', array('typeid'=>$typeid));
+            $gourl = U('Arctype/index');
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -531,9 +538,9 @@ class Arctype extends Base
             model('arctype')->del($post['del_id']);
             // ---------end
             adminLog('删除栏目：'.$row['typename']);
-            respose(array('status'=>1, 'msg'=>'删除成功'));
+            $this->success('删除成功');
         } else {
-            respose(array('status'=>0, 'msg'=>'删除失败'));
+            $this->error('删除失败');
         }
     }
 

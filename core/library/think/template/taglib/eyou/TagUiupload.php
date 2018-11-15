@@ -29,7 +29,7 @@ class TagUiupload extends Base
      * 上传图片
      * @author wengxianhu by 2018-4-20
      */
-    public function getUiupload($e_id, $e_page)
+    public function getUiupload($e_id = '', $e_page = '')
     {
         if (empty($e_id) || empty($e_page)) {
             echo '标签uiupload报错：缺少属性 e-id | e-page 。';

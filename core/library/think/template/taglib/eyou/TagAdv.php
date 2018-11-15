@@ -29,7 +29,7 @@ class TagAdv extends Base
      * 获取广告
      * @author wengxianhu by 2018-4-20
      */
-    public function getAdv($pid, $where = '', $orderby = '')
+    public function getAdv($pid = '', $where = '', $orderby = '')
     {
         if (empty($pid)) {
             echo '标签adv报错：缺少属性 pid 。';
@@ -68,7 +68,7 @@ class TagAdv extends Base
                 break;
         }
 
-        $result = M("ad")->field("*")->where($where)->order($orderby)->cache(true,EYOUCMS_CACHE_TIME,"ad")->select();
+        $result = M("ad")->field("*")->where($where)->orderRaw($orderby)->cache(true,EYOUCMS_CACHE_TIME,"ad")->select();
         foreach ($result as $key => $val) {
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['intro'] = htmlspecialchars_decode($val['intro']);

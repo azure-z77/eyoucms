@@ -54,7 +54,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function toArray()
     {
         return array_map(function ($value) {
-            return ($value instanceof Model || $value instanceof self) ? $value->toArray() : $value;
+            return ($value instanceof Model || $value instanceof self) ?
+                $value->toArray() :
+                $value;
         }, $this->items);
     }
 
@@ -244,11 +246,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      */
     public function filter(callable $callback = null)
     {
-        if ($callback) {
-            return new static(array_filter($this->items, $callback));
-        }
-
-        return new static(array_filter($this->items));
+        return new static(array_filter($this->items, $callback ?: null));
     }
 
     /**
@@ -303,16 +301,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function sort(callable $callback = null)
     {
         $items = $this->items;
+        $callback = $callback ?: function ($a, $b) {
+            return $a == $b ? 0 : (($a < $b) ? -1 : 1);
+        };
 
-        $callback ? uasort($items, $callback) : uasort($items, function ($a, $b) {
-
-            if ($a == $b) {
-                return 0;
-            }
-
-            return ($a < $b) ? -1 : 1;
-        });
-
+        uasort($items, $callback);
         return new static($items);
     }
 

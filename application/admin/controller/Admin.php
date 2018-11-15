@@ -90,10 +90,19 @@ class Admin extends Base {
             $this->success("您已登录", $web_adminbasefile);
         }
       
+        // $gb_funcs = get_extension_funcs('gd');
+        $is_vertify = 1; // 默认开启验证码
+        $admin_login_captcha = config('captcha.admin_login');
+        if (!function_exists('imagettftext') || empty($admin_login_captcha['is_on'])) {
+            $is_vertify = 0; // 函数不存在，不符合开启的条件
+        }
+
         if (IS_POST) {
-            $verify = new Verify();
-            if (!$verify->check(I('post.vertify'), "admin_login")) {
-                exit(json_encode(array('status'=>0,'msg'=>'验证码错误')));
+            if (1 == $is_vertify) {
+                $verify = new Verify();
+                if (!$verify->check(I('post.vertify'), "admin_login")) {
+                    exit(json_encode(array('status'=>0,'msg'=>'验证码错误')));
+                }
             }
             $condition['user_name'] = I('post.username/s');
             $condition['password'] = I('post.password/s');
@@ -144,7 +153,8 @@ class Admin extends Base {
             }
         }
 
-       return $this->fetch();
+        $this->assign('is_vertify', $is_vertify);
+        return $this->fetch();
     }
 
     /**
@@ -152,15 +162,10 @@ class Admin extends Base {
      */
     public function vertify()
     {
-        $config = array(
-            'codeSet'   => '2345678abcdefhijkmnpqrstuvwxyz',
-            'fontSize' => 35,
-            'length' => 4,
-            'useCurve' => false,
-            'useNoise' => false,
-            'reset' => false,
-            'fontttf' => '4.ttf',
-        );    
+        /*验证码插件开关*/
+        $admin_login_captcha = config('captcha.admin_login');
+        $config = (!empty($admin_login_captcha['is_on']) && !empty($admin_login_captcha['config'])) ? $admin_login_captcha['config'] : config('captcha.default');
+        /*--end*/
         ob_clean(); // 清空缓存，才能显示验证码
         $Verify = new Verify($config);
         $Verify->entry('admin_login');
