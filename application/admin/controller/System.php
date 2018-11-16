@@ -556,12 +556,12 @@ class System extends Base
             if($r){
                 M('config_attribute')->where(array('attr_var_name'=>array('eq', $attr_var_name)))->update(array('update_time'=>getTime()));
                 adminLog('删除自定义变量：'.$attr_var_name);
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 

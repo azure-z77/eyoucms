@@ -406,14 +406,14 @@ class Admin extends Base {
             $id_arr = I('del_id/a');
             $id_arr = eyIntval($id_arr);
             if (in_array(session('admin_id'), $id_arr)) {
-                respose(array('status'=>0, 'msg'=>'禁止删除自己'));
+                $this->error('禁止删除自己');
             }
             if (!empty($id_arr)) {
                 if (-1 != session('admin_info.role_id') || !empty($parent_id) ) {
                     $count = M('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
                         ->count();
                     if (!empty($count)) {
-                        respose(array('status'=>0, 'msg'=>'禁止删除超级管理员'));
+                        $this->error('禁止删除超级管理员');
                     }
                 }
 
@@ -423,15 +423,15 @@ class Admin extends Base {
                 $r = M('admin')->where("admin_id",'IN',$id_arr)->delete();
                 if($r){
                     adminLog('删除管理员：'.implode(',', $user_names));
-                    respose(array('status'=>1, 'msg'=>'删除成功'));
+                    $this->success('删除成功');
                 }else{
-                    respose(array('status'=>0, 'msg'=>'删除失败'));
+                    $this->error('删除失败');
                 }
             }else{
-                respose(array('status'=>0, 'msg'=>'参数有误'));
+                $this->error('参数有误');
             }
         }
-        respose(array('status'=>0, 'msg'=>'非法操作'));
+        $this->error('非法操作');
     }
 
     /*

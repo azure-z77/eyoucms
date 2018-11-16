@@ -38,7 +38,15 @@ class Archives extends Base
         $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, array(), false);
         $zNodes = "[";
         foreach ($arctype_list as $key => $val) {
-            $typeurl = U('Archives/index_archives', array('typeid'=>$val['id']));
+            $current_channel = $val['current_channel'];
+            if (6 == $current_channel) {
+                $gourl = url('Arctype/single_edit', array('typeid'=>$val['id']));
+                $typeurl = url("Arctype/single_edit", array('typeid'=>$val['id'],'gourl'=>$gourl));
+            } else if (8 == $current_channel) {
+                $typeurl = url("Guestbook/index", array('typeid'=>$val['id']));
+            } else {
+                $typeurl = url('Archives/index_archives', array('typeid'=>$val['id']));
+            }
             $typename = $val['typename'];
             $zNodes .= "{"."id:{$val['id']}, pId:{$val['parent_id']}, name:\"{$typename}\", url:'{$typeurl}',target:'content_body'";
             /*默认展开一级栏目*/
@@ -146,10 +154,16 @@ class Archives extends Base
         }
         /*--end*/
 
-        // 只显示允许发布文档的模型，且是开启状态
-        $channelIds = Db::name('channeltype')->where('status',0)
-            ->whereOr('id','IN',[6,8])->column('id');
-        $condition['a.channel'] = array('NOT IN', $channelIds);
+        if (empty($typeid)) {
+            // 只显示允许发布文档的模型，且是开启状态
+            $channelIds = Db::name('channeltype')->where('status',0)
+                ->whereOr('id','IN',[6,8])->column('id');
+            $condition['a.channel'] = array('NOT IN', $channelIds);
+        } else {
+            // 只显示当前栏目对应模型下的文档
+            $current_channel = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+            $condition['a.channel'] = array('eq', $current_channel);
+        }
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -157,7 +171,7 @@ class Archives extends Base
         $count = DB::name('archives')->alias('a')->where($condition)->count('aid');// 查询满足要求的总记录数
         $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = DB::name('archives')
-            ->field("a.aid")
+            ->field("a.aid,a.channel")
             ->alias('a')
             ->where($condition)
             ->order('a.aid desc')
@@ -177,6 +191,15 @@ class Archives extends Base
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
                 ->where('a.aid', 'in', $aids)
                 ->getAllWithIndex('aid');
+
+            /*获取当页文档的所有模型*/
+            $channelIds = get_arr_column($list, 'channel');
+            $channelRow = Db::name('channeltype')->field('id, ctl_name')
+                ->where('id','IN',$channelIds)
+                ->getAllWithIndex('id');
+            $assign_data['channelRow'] = $channelRow;
+            /*--end*/
+
             foreach ($list as $key => $val) {
                 $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
                 $list[$key] = $row[$val['aid']];
@@ -199,6 +222,11 @@ class Archives extends Base
 
         /*允许发布文档列表的栏目*/
         $assign_data['arctype_html'] = allow_release_arctype($typeid, array());
+        /*--end*/
+        
+        /*返回上一层链接*/
+        $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
+        $assign_data['gourl'] = $gourl;
         /*--end*/
 
         $this->assign($assign_data);
@@ -253,7 +281,7 @@ class Archives extends Base
     /**
      * 编辑文档
      */
-    public function edit()
+/*    public function edit()
     {
         $id = I('param.id/d', 0);
         $typeid = I('param.typeid/d', 0);
@@ -272,7 +300,7 @@ class Archives extends Base
         $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
         $jumpUrl = U("{$row['ctl_name']}/edit", array('id'=>$id,'gourl'=>$gourl));
         $this->redirect($jumpUrl);
-    }
+    }*/
 
     /**
      * 删除文档

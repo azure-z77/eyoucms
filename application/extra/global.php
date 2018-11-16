@@ -52,7 +52,7 @@ return array(
     // 栏目自定义字段的channel_id值
     'arctype_channel_id' => -99,
     // 栏目表原始字段
-    'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','status','lang','admin_id','add_time','update_time'),
+    'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','status','lang','admin_id','is_del','add_time','update_time'),
     // 网络图片扩展名
     'image_ext' => 'jpg,jpeg,gif,bmp,ico,png',
 );

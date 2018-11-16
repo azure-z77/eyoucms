@@ -128,7 +128,7 @@
             data: $('#post_form').serialize(),
             success: function(res){
                 layer.closeAll();
-                if (res.status == 1) {
+                if (res.code == 1) {
                     parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
                         parent.window.location.reload();
                         parent.layer.close(parentObj);
@@ -169,7 +169,7 @@
                     dataType : 'json',
                     success : function(data){
                         layer.closeAll();
-                        if(data.status == 1){
+                        if(data.code == 1){
                             parent.layer.msg(data.msg, {shade: 0.3, time: 1000}, function(){
                                 parent.window.location.reload();
                                 parent.layer.close(parentObj);

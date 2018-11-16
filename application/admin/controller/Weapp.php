@@ -351,7 +351,7 @@ class Weapp extends Base
                 exit;
             }
         }
-        $this->success('操作失败！');
+        $this->error('操作失败！');
         exit;
     }
 
@@ -383,7 +383,7 @@ class Weapp extends Base
                 exit;
             }
         }
-        $this->success('操作失败！');
+        $this->error('操作失败！');
         exit;
     }
 

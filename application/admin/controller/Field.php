@@ -82,8 +82,8 @@ class Field extends Base
         $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
         /*--end*/
 
-        /*有栏目的模型列表*/
-        $channeltype_list = model('Channeltype')->getArctypeChannel();
+        /*有效的模型列表*/
+        $channeltype_list = model('Channeltype')->getAll('*', ['status'=>1], 'nid');
         foreach ($channeltype_list as $key => $val) {
             if ('guestbook' == $key) { // 排除留言模型
                 unset($channeltype_list[$key]);
@@ -343,14 +343,14 @@ class Field extends Base
                 }
                 /*--end*/
                 adminLog('删除'.$channel_title.'字段：'.implode(',', $name_list));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             }
 
             \think\Cache::clear('channelfield');
             respose(array('status'=>0, 'msg'=>$row['msg']));
 
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 
@@ -679,7 +679,7 @@ class Field extends Base
                 /*--end*/
 
                 adminLog('删除栏目字段：'.implode(',', $name_list));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             }
 
             \think\Cache::clear('channelfield');
@@ -687,7 +687,7 @@ class Field extends Base
             respose(array('status'=>0, 'msg'=>$row['msg']));
 
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }

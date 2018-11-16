@@ -341,7 +341,7 @@
                     dataType : 'json',
                     success : function(data){
                         layer.closeAll();
-                        if(data.status == 1){
+                        if(data.code == 1){
                             layer.msg(data.msg, {icon: 1});
                             window.location.reload();
                             // $('#dl_'+$(obj).attr('data-attr_var_name')).remove();

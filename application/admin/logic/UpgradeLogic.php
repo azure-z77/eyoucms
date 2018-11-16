@@ -310,7 +310,7 @@ class UpgradeLogic extends Model
         fclose($fp);
         if(!eyPreventShell($saveDir) || !file_exists($saveDir) || $md5File != md5_file($saveDir))
         {
-            return "下载保存升级包失败, 请检查所有目录的权限以及用户组, 请参考 http://www.eyoucms.com/bbs/3217.html";
+            return "下载保存升级包失败，请检查所有目录的权限以及用户组不能为root";
         }
         return 1;
     }            

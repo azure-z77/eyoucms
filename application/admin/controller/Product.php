@@ -663,12 +663,12 @@ class Product extends Base
             $r = M('ProductAttribute')->where("attr_id",'IN',$id_arr)->delete();
             if($r){
                 adminLog('删除产品参数-id：'.implode(',', $id_arr));
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 

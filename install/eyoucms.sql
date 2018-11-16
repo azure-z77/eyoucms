@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-11-06 15:00:34
+Date: 2018-11-16 14:40:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -37,6 +37,7 @@ CREATE TABLE `ey_ad` (
   `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1=显示，0=屏蔽',
   `sort_order` int(11) DEFAULT '0' COMMENT '排序',
   `target` varchar(50) DEFAULT '' COMMENT '是否开启浏览器新窗口',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '多语言',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -47,8 +48,8 @@ CREATE TABLE `ey_ad` (
 -- ----------------------------
 -- Records of ey_ad
 -- ----------------------------
-INSERT INTO `ey_ad` VALUES ('1', '1', '1', '共展蓝图', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/7fd4167b47cbe5eefb4249ae669c6f10.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '1524215652', '1527824535');
-INSERT INTO `ey_ad` VALUES ('2', '1', '1', '易优模板库', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/9f1b15b03aef06830f07a2591f5c7708.jpg', '0', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '1524214017', '1531724625');
+INSERT INTO `ey_ad` VALUES ('1', '1', '1', '共展蓝图', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/7fd4167b47cbe5eefb4249ae669c6f10.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', 'cn', '1524215652', '1527824535');
+INSERT INTO `ey_ad` VALUES ('2', '1', '1', '易优模板库', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/9f1b15b03aef06830f07a2591f5c7708.jpg', '0', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', 'cn', '1524214017', '1531724625');
 
 -- ----------------------------
 -- Table structure for ey_admin
@@ -114,6 +115,7 @@ CREATE TABLE `ey_ad_position` (
   `height` smallint(5) unsigned DEFAULT '0' COMMENT '广告位高度',
   `intro` text COMMENT '广告描述',
   `status` tinyint(1) DEFAULT '1' COMMENT '0关闭1开启',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '多语言',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
@@ -122,7 +124,7 @@ CREATE TABLE `ey_ad_position` (
 -- ----------------------------
 -- Records of ey_ad_position
 -- ----------------------------
-INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', '1524209276', '1524209365');
+INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '1524209276', '1524209365');
 
 -- ----------------------------
 -- Table structure for ey_archives
@@ -150,6 +152,7 @@ CREATE TABLE `ey_archives` (
   `seo_description` text COMMENT 'SEO描述',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(0=屏蔽，1=正常)',
   `sort_order` int(10) DEFAULT '0' COMMENT '排序号',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -160,33 +163,33 @@ CREATE TABLE `ey_archives` (
 -- ----------------------------
 -- Records of ey_archives
 -- ----------------------------
-INSERT INTO `ey_archives` VALUES ('1', '1', '6', '0', '关于我们', '', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '1', '100', '0', '1526539465', '1527836335');
-INSERT INTO `ey_archives` VALUES ('2', '8', '6', '0', '公司简介', '', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '1', '100', '0', '1526540452', '1527836706');
-INSERT INTO `ey_archives` VALUES ('3', '13', '6', '0', '单页面', '', '0', '0', '0', '0', '0', '', '4', '0', '', '0', '', '', '', '1', '100', '0', '1526540573', '1531710225');
-INSERT INTO `ey_archives` VALUES ('4', '11', '1', '1', 'seo是什么？', '/public/upload/remote/2018/05/17/5afd3acbd5c92.png', '0', '0', '0', '0', '0', '', '130', '0', '', '0', '', '', '在了解seo是什么意思之后，才能学习seo。什么是seo，从官方解释来看，seo=Search（搜索）Engine（引擎）Optimization（优化），即搜索引擎优化。使用过百度或其他搜索引擎，在', '1', '100', '0', '1526545072', '1531711714');
-INSERT INTO `ey_archives` VALUES ('39', '12', '1', '0', '回顾中国饮料40年发展史，总有一款是你儿时记忆的味道', '', '0', '0', '0', '0', '0', '', '177', '0', '', '0', '', '', '对于记忆来说，味道往往是最美的，儿时喝过的饮料，至今回想起来依然觉得津津有味。今天是六一儿童节，青山资本梳理了中国40年来饮料发展的简史，权当节日的小消遣，顺便看看能否找到你记忆深处的那个味道？第一阶段：国人味蕾的开启时代百事可乐在华第一家工厂开业1981年，可口可乐在中国第一条生产线正式投产，主要供应旅游饭店，卖给外国人收取外汇，百事可乐也在深圳建立了第一家罐装厂。1982年，国家把饮料纳入“国家计划管理产品”，可口可乐开始在北京市场进行内销。', '1', '100', '0', '1527824652', '1531709817');
-INSERT INTO `ey_archives` VALUES ('9', '10', '1', '0', '用户界面设计和体验设计的差别', '', '0', '0', '0', '0', '0', '', '168', '0', '', '0', '', '', '有时候我们需要获取图集中的第一张图片，下面给出解决办法： 第一步：修改include/extend.func.php 添加  // 提取图集第一张大图', '1', '100', '0', '1526552582', '1531711820');
-INSERT INTO `ey_archives` VALUES ('10', '10', '1', '0', '新手科普文！什么是用户界面和体验设计？', '', '0', '0', '0', '0', '0', '', '129', '0', '', '0', '', '', '在仿站时，我们常常会自定义很多字段，那么如何在首页调用呢，下面给出方法：一、指定channelid属性（channelid=\'17\' 17是指内容模型里面指定的模型ID) 二、指定要调用出来的字段ad', '1', '100', '0', '1526552685', '1531711845');
-INSERT INTO `ey_archives` VALUES ('12', '10', '1', '1', '一文读懂互联网女皇和她的报告：互联网领域的投资圣经、选股指南', '/public/upload/remote/2018/05/31/5b0fed15cd53d.png', '0', '0', '0', '0', '0', '', '266', '0', '', '0', '', '', '北京时间 5 月 31 日凌晨，有“互联网女皇”之称的玛丽·米克尔发布了 2018 年的互联网趋势报告，这也是她第 23 年公布互联网报告。\r\n每年的互联网女皇报告几乎都会成为每个互联网创业者的必读报告。那么，互联网女皇是谁?为什么她的报告会如此受关注呢?', '1', '100', '0', '1526552714', '1531709449');
-INSERT INTO `ey_archives` VALUES ('13', '12', '1', '0', '网站建设的五大核心要素', '/public/upload/article/2018/07/16/dba832d6114e6a85b7eb472bf8dc52ed.jpg', '0', '0', '0', '0', '0', '', '158', '0', '', '0', 'SEO标', 'O关键', 'SEO描述', '1', '100', '0', '1526608216', '1531709954');
-INSERT INTO `ey_archives` VALUES ('14', '10', '1', '0', '网站建设，静态页面和动态页面如何选择', '/public/upload/remote/2018/05/18/5afe365fa6716.png', '0', '0', '0', '0', '0', '', '148', '0', '', '0', '', '', '网站建设，静态页面和动态页面如何选择　　电商网站建设为什么要使用静态页面制作。我们都知道，网站制作有分为静态页面制作和动态网页制作，那么建设电商网站采用哪种网站设计技术更好呢?　　我们建设网站最终目的', '1', '100', '0', '1526609496', '1527770223');
-INSERT INTO `ey_archives` VALUES ('19', '12', '1', '0', '从三方面完美的体验企业网站的核心价值', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '', '144', '0', '', '0', '', '', '从三方面完美的体验企业网站的核心价值　　随着互联网的迅猛发展，一个企业的发展离不开互联网的发展，企业注重企业网站建设，那么必然会给其带来不错的效果。企业网站建设其核心价值直接体现在网站对于用户和商家而', '1', '100', '0', '1526610848', '1526610848');
-INSERT INTO `ey_archives` VALUES ('20', '11', '1', '0', 'CMS是如何应运而生的？', '', '0', '0', '0', '0', '0', '', '175', '0', '', '0', '', '', '随着网络应用的丰富和发展，很多网站往往不能迅速跟进大量信息衍生及业务模式变革的脚步，常常需要花费许多时间、人力和物力来处理信息更新和维护工作；遇到网站扩充的时候，整合内外网及分支网站的工作就变得更加复', '1', '100', '0', '1526611606', '1527557542');
-INSERT INTO `ey_archives` VALUES ('21', '11', '1', '0', '网站设计与SEO的关系，高手是从这4个维度分析的！', '', '0', '0', '0', '0', '0', '', '286', '0', '', '0', '', '', 'SEO（搜索引擎优化）和有效的网站设计是齐头并进的。好的网站设计是关于创建一个吸引目标受众的网站，并让他们采取某种行动。但是，如果该网站不遵循目前的SEO最佳做法，它的排名将会受到影响，从而会导致真正', '1', '100', '0', '1526611744', '1531709637');
-INSERT INTO `ey_archives` VALUES ('22', '23', '3', '0', '新闻模型下的图集', '/public/upload/images/2018/07/18/60a1a6f1760e1f8c22ca02980fd8374e.jpg', '0', '0', '0', '0', '0', '', '191', '0', '', '0', '', '', '新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型', '1', '100', '0', '1526612277', '1531877783');
-INSERT INTO `ey_archives` VALUES ('23', '23', '3', '0', '新闻模型下的图集二', '/public/upload/images/2018/07/18/aec51022b7fc0ae3ce67279161c6a0c2.jpg', '0', '0', '0', '0', '0', '', '286', '0', '', '0', '', '', '新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新', '1', '100', '0', '1526612316', '1531877859');
-INSERT INTO `ey_archives` VALUES ('27', '24', '2', '0', '华为HUAWEI NOTE 8', '/public/upload/product/2018/05/18/2b6cf3e6fdb8573d99024567c834d42c.jpg', '0', '0', '0', '0', '0', '', '289', '0', '', '0', '', '', '全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康全向录音/指向回放、定向免提、指关节手势、分屏多窗', '1', '100', '0', '1526613043', '1531727096');
-INSERT INTO `ey_archives` VALUES ('28', '26', '2', '0', '小米笔记本Air 13.3', '/public/upload/product/2018/05/18/7e04484a0e74d6dbbe24ba9cf81b62fd.jpg', '0', '0', '0', '0', '0', '', '149', '0', '', '0', '', '', '轻薄全金属机身/256GBSSD/第八代Intel酷睿i5处理器/FHD全贴合屏幕/指纹解锁/office激活不支持7天无理由退货...', '1', '100', '0', '1526613271', '1531730814');
-INSERT INTO `ey_archives` VALUES ('29', '27', '2', '0', ' 小米蓝牙项圈耳机', '/public/upload/product/2018/05/18/97714e2c8a418a4282063d9019134a86.jpg', '0', '0', '0', '0', '0', '', '211', '0', '', '0', '', '', '特性M3平板定制AKG品牌高保真耳机，配合M3平板享受HiFi音质...', '1', '100', '0', '1526613739', '1526613820');
-INSERT INTO `ey_archives` VALUES ('30', '5', '4', '0', '工程机械推土挖掘机类网站模板', '/public/upload/download/2018/07/16/cb1af02c061429dd8a99c69df4f07838.jpg', '0', '0', '0', '0', '0', '', '242', '0', '', '0', '', '', '宅男女神一号，多懂得...', '1', '100', '0', '1526614069', '1531888267');
-INSERT INTO `ey_archives` VALUES ('31', '5', '4', '0', '职业教育培训机构网站模板', '', '0', '0', '0', '0', '0', '', '167', '0', '', '0', '', '', '宅男女神二号种子，高手多是不懂的...', '1', '100', '0', '1526614168', '1531888375');
-INSERT INTO `ey_archives` VALUES ('40', '12', '1', '0', '社交媒体时代，如何对粉丝估值？', '/public/upload/article/2018/07/18/445c3092e834bb558044aac9530b5f47.jpg', '0', '0', '0', '0', '0', '', '173', '0', '', '0', '', '', '约翰·奎尔奇说，社交媒体有很多营销挑战，如何为粉丝来估值是一个大问题。从营销角度来思考，要关注强纽带和弱纽带。你可能以为，强纽带的密友产生最大的营销影响，研究发现不是这样的，产生更大的影响反而是跟你更疏远的人。演讲者｜约翰·奎尔奇（哈佛商学院教授，曾任伦敦商学院院长、中欧国际工商学院副院长）非常感谢大家在周日早上回来听我讲课。对于你们这些创业者，或者希望成为创业者的人，我今天准备了一个特别的讲座。很多创业者没有把最终愿景很好界定，所以每天都忙于灭火，忙于生存。创业营销，你必须做好规划今天将从创业营销这个话题开始，包括你如何生存和成功。创业营销包括四个关键领域，你必须很好地去规划：要有正确的目标客户和最终用户；要有正确的产品和服务要有一个非常好的人才团队，使得商业创意能够实现；要有好的合作伙伴，不是分销商，而是会计、律师等服务伙伴。那么，何为创业营销？？第一，这是从愿景到行动的逆向工程设计当星巴克只有5家店时，创始人就有一个愿景，让星巴克成为你生活中的第三空间。对创业者要从愿景开始，向后进行逆向工程的设计：看一下需要有什么样的行动，才能实现愿景。很多创业者没有把最终愿景很好界定，所以每天', '1', '100', '0', '1527824837', '1531876546');
-INSERT INTO `ey_archives` VALUES ('37', '24', '2', '0', 'Apple iPhone 6s 16GB 玫瑰金色 移动联通电信4G手机', '/public/upload/product/2018/05/28/22b1d3ab98046b377e795e70450a602f.jpg', '0', '0', '0', '0', '0', '', '300', '0', '', '0', '', '', '', '1', '100', '0', '1527507844', '1531726969');
-INSERT INTO `ey_archives` VALUES ('38', '11', '1', '0', '商梦网校：单页SEO站群技术，用10个网站优化排名！', 'http://www.eyoucms.com/uploads/allimg/180505/3-1P505101H3447.png', '0', '0', '0', '0', '0', '', '111', '0', '', '0', '', '', 'SEO很多伙伴都了解，就是搜索引擎排名优化，通过对网站内部和外部进行优化当用户搜索相应关键词时网站能够排名在搜索引擎前面，具体可以百度搜索“网络营销课程”查看商梦网校操作的案例！但单页SEO很多伙伴可能会有点陌生，单页SEO是将单页网站与内容内容结合为一体的SEO优化方案，主要是提升网站流量利用率让用户打开网站就能看到目标页面，转换更多订单，创造更多收益。单页SEO的操作理念也是由商梦网校提出，并一起推荐操作大家的模式。那什么又是单页SEO站群呢，因为操作SEO成功率并不是100%，也就是意味着你做了并不会绝对有排名。因为在任何时候搜索引擎，特别是百度的索引数据库里，只有60%的网页数量。也就是说，大量的网页它是没有收录进来，它本身的能力所限无法做到中文的所有几百亿个网页都收录进来。所以，对于大部分网站，都有被删除网页，没有排名，或被K的经历，或没有排名。处理办法：坦然面对这一切。一个网站的成本才多少钱？如果因此对SEO失去信心，那就是最大的失去了。不过我们也想到了一个更好的解决方案，这个方案在最早期我们开始操作，并且取得了非常不错的成绩就是“站群”，我们可以假设一个网站排名的机会为1', '1', '100', '0', '1527555069', '1531709578');
-INSERT INTO `ey_archives` VALUES ('41', '12', '1', '0', '《颠覆营销:大数据时代的商业革命》：大数据“多即少，少即多”', '', '0', '0', '0', '0', '0', '', '161', '0', '', '0', '', '', '各种行销手段早已令人眼花缭乱，但究其本质都是在研究客户（消费者），研究客户的所想、所需，使产品或服务有的放矢。大数据时代又给它赋予了新名词：精准营销。大数据最先应用的领域多为面对客户的行业，最先应用的情景也多为精准营销。“酒好也怕巷子深”，产品或服务的信息要送达客户才可能促成交易。一般认为，向客户传达产品或服务信息要靠广告。广告古已有之，“三碗不过岗”的酒幌子就是广告。没有互联网的时代，我们熟悉的是电视广告、广播广告、印刷品平面广告、户外广告牌等，当然，也包括吆喝叫卖。但过去的广告是千人一面、不区分受众的。后来商家对客户的信息有所采集就有了CRM，经过客户分类，可以更好地服务于不同的客户群体。互联网+大数据时代让CRM有了新的发展机遇，管理客户不再是简单的数字统计和没有个性的（或简单聚类的）直邮、定投。随着商家对客户知道更多、了解更深，便有机会为客户提供个性化的营销方案，进一步改善客户体验，成为了个性化营销或叫精准营销。大数据时代，让很多过去的不可能变为可能，营销活动也赢来了新的发展机遇。时代不同，商业经营的形式会变化，但本质就是两件事：开源，节流。开源是开拓新客户，发现新商机；节流是', '1', '100', '0', '1527825125', '1527825125');
-INSERT INTO `ey_archives` VALUES ('42', '4', '3', '0', '客户案例一', '/public/upload/images/2018/07/16/a6633714552fcccee2f49f2131f9d131.jpg', '0', '0', '0', '0', '0', '', '251', '0', '', '0', '', '', '', '1', '100', '0', '1531731387', '1531732448');
-INSERT INTO `ey_archives` VALUES ('43', '4', '3', '0', '客户案例二', '/public/upload/images/2018/07/16/2a97ea57a860f5ca2bfb007d06f0e47c.jpg', '0', '0', '0', '0', '0', '', '266', '0', '', '0', '', '', '', '1', '100', '0', '1531732591', '1531732691');
-INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '0', '0', '0', '0', '0', '', '281', '0', '', '0', '', '', '', '1', '100', '0', '1531732811', '1531732852');
+INSERT INTO `ey_archives` VALUES ('1', '1', '6', '0', '关于我们', '', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1526539465', '1527836335');
+INSERT INTO `ey_archives` VALUES ('2', '8', '6', '0', '公司简介', '', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1526540452', '1527836706');
+INSERT INTO `ey_archives` VALUES ('3', '13', '6', '0', '单页面', '', '0', '0', '0', '0', '0', '', '4', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1526540573', '1531710225');
+INSERT INTO `ey_archives` VALUES ('4', '11', '1', '1', 'seo是什么？', '/public/upload/remote/2018/05/17/5afd3acbd5c92.png', '0', '0', '0', '0', '0', '', '130', '0', '', '0', '', '', '在了解seo是什么意思之后，才能学习seo。什么是seo，从官方解释来看，seo=Search（搜索）Engine（引擎）Optimization（优化），即搜索引擎优化。使用过百度或其他搜索引擎，在', '1', '100', 'cn', '0', '1526545072', '1531711714');
+INSERT INTO `ey_archives` VALUES ('39', '12', '1', '0', '回顾中国饮料40年发展史，总有一款是你儿时记忆的味道', '', '0', '0', '0', '0', '0', '', '177', '0', '', '0', '', '', '对于记忆来说，味道往往是最美的，儿时喝过的饮料，至今回想起来依然觉得津津有味。今天是六一儿童节，青山资本梳理了中国40年来饮料发展的简史，权当节日的小消遣，顺便看看能否找到你记忆深处的那个味道？第一阶段：国人味蕾的开启时代百事可乐在华第一家工厂开业1981年，可口可乐在中国第一条生产线正式投产，主要供应旅游饭店，卖给外国人收取外汇，百事可乐也在深圳建立了第一家罐装厂。1982年，国家把饮料纳入“国家计划管理产品”，可口可乐开始在北京市场进行内销。', '1', '100', 'cn', '0', '1527824652', '1531709817');
+INSERT INTO `ey_archives` VALUES ('9', '10', '1', '0', '用户界面设计和体验设计的差别', '', '0', '0', '0', '0', '0', '', '168', '0', '', '0', '', '', '有时候我们需要获取图集中的第一张图片，下面给出解决办法： 第一步：修改include/extend.func.php 添加  // 提取图集第一张大图', '1', '100', 'cn', '0', '1526552582', '1531711820');
+INSERT INTO `ey_archives` VALUES ('10', '10', '1', '0', '新手科普文！什么是用户界面和体验设计？', '', '0', '0', '0', '0', '0', '', '129', '0', '', '0', '', '', '在仿站时，我们常常会自定义很多字段，那么如何在首页调用呢，下面给出方法：一、指定channelid属性（channelid=\'17\' 17是指内容模型里面指定的模型ID) 二、指定要调用出来的字段ad', '1', '100', 'cn', '0', '1526552685', '1531711845');
+INSERT INTO `ey_archives` VALUES ('12', '10', '1', '1', '一文读懂互联网女皇和她的报告：互联网领域的投资圣经、选股指南', '/public/upload/remote/2018/05/31/5b0fed15cd53d.png', '0', '0', '0', '0', '0', '', '266', '0', '', '0', '', '', '北京时间 5 月 31 日凌晨，有“互联网女皇”之称的玛丽·米克尔发布了 2018 年的互联网趋势报告，这也是她第 23 年公布互联网报告。\r\n每年的互联网女皇报告几乎都会成为每个互联网创业者的必读报告。那么，互联网女皇是谁?为什么她的报告会如此受关注呢?', '1', '100', 'cn', '0', '1526552714', '1531709449');
+INSERT INTO `ey_archives` VALUES ('13', '12', '1', '0', '网站建设的五大核心要素', '/public/upload/article/2018/07/16/dba832d6114e6a85b7eb472bf8dc52ed.jpg', '0', '0', '0', '0', '0', '', '158', '0', '', '0', 'SEO标', 'O关键', 'SEO描述', '1', '100', 'cn', '0', '1526608216', '1531709954');
+INSERT INTO `ey_archives` VALUES ('14', '10', '1', '0', '网站建设，静态页面和动态页面如何选择', '/public/upload/remote/2018/05/18/5afe365fa6716.png', '0', '0', '0', '0', '0', '', '148', '0', '', '0', '', '', '网站建设，静态页面和动态页面如何选择　　电商网站建设为什么要使用静态页面制作。我们都知道，网站制作有分为静态页面制作和动态网页制作，那么建设电商网站采用哪种网站设计技术更好呢?　　我们建设网站最终目的', '1', '100', 'cn', '0', '1526609496', '1527770223');
+INSERT INTO `ey_archives` VALUES ('19', '12', '1', '0', '从三方面完美的体验企业网站的核心价值', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '', '144', '0', '', '0', '', '', '从三方面完美的体验企业网站的核心价值　　随着互联网的迅猛发展，一个企业的发展离不开互联网的发展，企业注重企业网站建设，那么必然会给其带来不错的效果。企业网站建设其核心价值直接体现在网站对于用户和商家而', '1', '100', 'cn', '0', '1526610848', '1526610848');
+INSERT INTO `ey_archives` VALUES ('20', '11', '1', '0', 'CMS是如何应运而生的？', '', '0', '0', '0', '0', '0', '', '175', '0', '', '0', '', '', '随着网络应用的丰富和发展，很多网站往往不能迅速跟进大量信息衍生及业务模式变革的脚步，常常需要花费许多时间、人力和物力来处理信息更新和维护工作；遇到网站扩充的时候，整合内外网及分支网站的工作就变得更加复', '1', '100', 'cn', '0', '1526611606', '1527557542');
+INSERT INTO `ey_archives` VALUES ('21', '11', '1', '0', '网站设计与SEO的关系，高手是从这4个维度分析的！', '', '0', '0', '0', '0', '0', '', '286', '0', '', '0', '', '', 'SEO（搜索引擎优化）和有效的网站设计是齐头并进的。好的网站设计是关于创建一个吸引目标受众的网站，并让他们采取某种行动。但是，如果该网站不遵循目前的SEO最佳做法，它的排名将会受到影响，从而会导致真正', '1', '100', 'cn', '0', '1526611744', '1531709637');
+INSERT INTO `ey_archives` VALUES ('22', '23', '3', '0', '新闻模型下的图集', '/public/upload/images/2018/07/18/60a1a6f1760e1f8c22ca02980fd8374e.jpg', '0', '0', '0', '0', '0', '', '191', '0', '', '0', '', '', '新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型', '1', '100', 'cn', '0', '1526612277', '1531877783');
+INSERT INTO `ey_archives` VALUES ('23', '23', '3', '0', '新闻模型下的图集二', '/public/upload/images/2018/07/18/aec51022b7fc0ae3ce67279161c6a0c2.jpg', '0', '0', '0', '0', '0', '', '286', '0', '', '0', '', '', '新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新', '1', '100', 'cn', '0', '1526612316', '1531877859');
+INSERT INTO `ey_archives` VALUES ('27', '24', '2', '0', '华为HUAWEI NOTE 8', '/public/upload/product/2018/05/18/2b6cf3e6fdb8573d99024567c834d42c.jpg', '0', '0', '0', '0', '0', '', '289', '0', '', '0', '', '', '全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康全向录音/指向回放、定向免提、指关节手势、分屏多窗', '1', '100', 'cn', '0', '1526613043', '1531727096');
+INSERT INTO `ey_archives` VALUES ('28', '26', '2', '0', '小米笔记本Air 13.3', '/public/upload/product/2018/05/18/7e04484a0e74d6dbbe24ba9cf81b62fd.jpg', '0', '0', '0', '0', '0', '', '149', '0', '', '0', '', '', '轻薄全金属机身/256GBSSD/第八代Intel酷睿i5处理器/FHD全贴合屏幕/指纹解锁/office激活不支持7天无理由退货...', '1', '100', 'cn', '0', '1526613271', '1531730814');
+INSERT INTO `ey_archives` VALUES ('29', '27', '2', '0', ' 小米蓝牙项圈耳机', '/public/upload/product/2018/05/18/97714e2c8a418a4282063d9019134a86.jpg', '0', '0', '0', '0', '0', '', '211', '0', '', '0', '', '', '特性M3平板定制AKG品牌高保真耳机，配合M3平板享受HiFi音质...', '1', '100', 'cn', '0', '1526613739', '1526613820');
+INSERT INTO `ey_archives` VALUES ('30', '5', '4', '0', '工程机械推土挖掘机类网站模板', '/public/upload/download/2018/07/16/cb1af02c061429dd8a99c69df4f07838.jpg', '0', '0', '0', '0', '0', '', '242', '0', '', '0', '', '', '宅男女神一号，多懂得...', '1', '100', 'cn', '0', '1526614069', '1531888267');
+INSERT INTO `ey_archives` VALUES ('31', '5', '4', '0', '职业教育培训机构网站模板', '', '0', '0', '0', '0', '0', '', '167', '0', '', '0', '', '', '宅男女神二号种子，高手多是不懂的...', '1', '100', 'cn', '0', '1526614168', '1531888375');
+INSERT INTO `ey_archives` VALUES ('40', '12', '1', '0', '社交媒体时代，如何对粉丝估值？', '/public/upload/article/2018/07/18/445c3092e834bb558044aac9530b5f47.jpg', '0', '0', '0', '0', '0', '', '173', '0', '', '0', '', '', '约翰·奎尔奇说，社交媒体有很多营销挑战，如何为粉丝来估值是一个大问题。从营销角度来思考，要关注强纽带和弱纽带。你可能以为，强纽带的密友产生最大的营销影响，研究发现不是这样的，产生更大的影响反而是跟你更疏远的人。演讲者｜约翰·奎尔奇（哈佛商学院教授，曾任伦敦商学院院长、中欧国际工商学院副院长）非常感谢大家在周日早上回来听我讲课。对于你们这些创业者，或者希望成为创业者的人，我今天准备了一个特别的讲座。很多创业者没有把最终愿景很好界定，所以每天都忙于灭火，忙于生存。创业营销，你必须做好规划今天将从创业营销这个话题开始，包括你如何生存和成功。创业营销包括四个关键领域，你必须很好地去规划：要有正确的目标客户和最终用户；要有正确的产品和服务要有一个非常好的人才团队，使得商业创意能够实现；要有好的合作伙伴，不是分销商，而是会计、律师等服务伙伴。那么，何为创业营销？？第一，这是从愿景到行动的逆向工程设计当星巴克只有5家店时，创始人就有一个愿景，让星巴克成为你生活中的第三空间。对创业者要从愿景开始，向后进行逆向工程的设计：看一下需要有什么样的行动，才能实现愿景。很多创业者没有把最终愿景很好界定，所以每天', '1', '100', 'cn', '0', '1527824837', '1531876546');
+INSERT INTO `ey_archives` VALUES ('37', '24', '2', '0', 'Apple iPhone 6s 16GB 玫瑰金色 移动联通电信4G手机', '/public/upload/product/2018/05/28/22b1d3ab98046b377e795e70450a602f.jpg', '0', '0', '0', '0', '0', '', '300', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1527507844', '1531726969');
+INSERT INTO `ey_archives` VALUES ('38', '11', '1', '0', '商梦网校：单页SEO站群技术，用10个网站优化排名！', 'http://www.eyoucms.com/uploads/allimg/180505/3-1P505101H3447.png', '0', '0', '0', '0', '0', '', '111', '0', '', '0', '', '', 'SEO很多伙伴都了解，就是搜索引擎排名优化，通过对网站内部和外部进行优化当用户搜索相应关键词时网站能够排名在搜索引擎前面，具体可以百度搜索“网络营销课程”查看商梦网校操作的案例！但单页SEO很多伙伴可能会有点陌生，单页SEO是将单页网站与内容内容结合为一体的SEO优化方案，主要是提升网站流量利用率让用户打开网站就能看到目标页面，转换更多订单，创造更多收益。单页SEO的操作理念也是由商梦网校提出，并一起推荐操作大家的模式。那什么又是单页SEO站群呢，因为操作SEO成功率并不是100%，也就是意味着你做了并不会绝对有排名。因为在任何时候搜索引擎，特别是百度的索引数据库里，只有60%的网页数量。也就是说，大量的网页它是没有收录进来，它本身的能力所限无法做到中文的所有几百亿个网页都收录进来。所以，对于大部分网站，都有被删除网页，没有排名，或被K的经历，或没有排名。处理办法：坦然面对这一切。一个网站的成本才多少钱？如果因此对SEO失去信心，那就是最大的失去了。不过我们也想到了一个更好的解决方案，这个方案在最早期我们开始操作，并且取得了非常不错的成绩就是“站群”，我们可以假设一个网站排名的机会为1', '1', '100', 'cn', '0', '1527555069', '1531709578');
+INSERT INTO `ey_archives` VALUES ('41', '12', '1', '0', '《颠覆营销:大数据时代的商业革命》：大数据“多即少，少即多”', '', '0', '0', '0', '0', '0', '', '161', '0', '', '0', '', '', '各种行销手段早已令人眼花缭乱，但究其本质都是在研究客户（消费者），研究客户的所想、所需，使产品或服务有的放矢。大数据时代又给它赋予了新名词：精准营销。大数据最先应用的领域多为面对客户的行业，最先应用的情景也多为精准营销。“酒好也怕巷子深”，产品或服务的信息要送达客户才可能促成交易。一般认为，向客户传达产品或服务信息要靠广告。广告古已有之，“三碗不过岗”的酒幌子就是广告。没有互联网的时代，我们熟悉的是电视广告、广播广告、印刷品平面广告、户外广告牌等，当然，也包括吆喝叫卖。但过去的广告是千人一面、不区分受众的。后来商家对客户的信息有所采集就有了CRM，经过客户分类，可以更好地服务于不同的客户群体。互联网+大数据时代让CRM有了新的发展机遇，管理客户不再是简单的数字统计和没有个性的（或简单聚类的）直邮、定投。随着商家对客户知道更多、了解更深，便有机会为客户提供个性化的营销方案，进一步改善客户体验，成为了个性化营销或叫精准营销。大数据时代，让很多过去的不可能变为可能，营销活动也赢来了新的发展机遇。时代不同，商业经营的形式会变化，但本质就是两件事：开源，节流。开源是开拓新客户，发现新商机；节流是', '1', '100', 'cn', '0', '1527825125', '1527825125');
+INSERT INTO `ey_archives` VALUES ('42', '4', '3', '0', '客户案例一', '/public/upload/images/2018/07/16/a6633714552fcccee2f49f2131f9d131.jpg', '0', '0', '0', '0', '0', '', '251', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531731387', '1531732448');
+INSERT INTO `ey_archives` VALUES ('43', '4', '3', '0', '客户案例二', '/public/upload/images/2018/07/16/2a97ea57a860f5ca2bfb007d06f0e47c.jpg', '0', '0', '0', '0', '0', '', '266', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531732591', '1531732691');
+INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '0', '0', '0', '0', '0', '', '281', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531732811', '1531732852');
 
 -- ----------------------------
 -- Table structure for ey_arcrank
@@ -196,16 +199,17 @@ CREATE TABLE `ey_arcrank` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '权限ID',
   `rank` smallint(6) DEFAULT '0' COMMENT '权限值',
   `name` char(20) DEFAULT '' COMMENT '会员名称',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='文档阅读权限表';
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='文档阅读权限表';
 
 -- ----------------------------
 -- Records of ey_arcrank
 -- ----------------------------
-INSERT INTO `ey_arcrank` VALUES ('1', '0', '开放浏览', '0', '0');
-INSERT INTO `ey_arcrank` VALUES ('2', '-1', '待审核稿件', '0', '0');
+INSERT INTO `ey_arcrank` VALUES ('1', '0', '开放浏览', 'cn', '0', '0');
+INSERT INTO `ey_arcrank` VALUES ('2', '-1', '待审核稿件', 'cn', '0', '0');
 
 -- ----------------------------
 -- Table structure for ey_arctype
@@ -232,41 +236,42 @@ CREATE TABLE `ey_arctype` (
   `is_hidden` tinyint(1) DEFAULT '0' COMMENT '是否隐藏栏目：0=显示，1=隐藏',
   `is_part` tinyint(1) DEFAULT '0' COMMENT '栏目属性：0=内容栏目，1=外部链接',
   `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，1=是，0=否',
   `status` tinyint(1) DEFAULT '1' COMMENT '启用 (1=正常，0=屏蔽)',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `dirname` (`dirname`) USING BTREE,
-  UNIQUE KEY `dirpath` (`dirpath`,`id`) USING BTREE,
+  UNIQUE KEY `dirname` (`dirname`,`lang`) USING BTREE,
   KEY `parent_id` (`channeltype`,`parent_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
 
 -- ----------------------------
 -- Records of ey_arctype
 -- ----------------------------
-INSERT INTO `ey_arctype` VALUES ('1', '6', '6', '0', '关于我们', 'guanyuwomen', '/html/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '1', '1526539465', '1527836335');
-INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '新闻动态', 'xinwendongtai', '/html/xinwendongtai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526539487', '1526544623');
-INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '产品展示', 'chanpinzhanshi', '/html/chanpinzhanshi', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526539505', '1526539505');
-INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '客户案例', 'kehuanli', '/html/kehuanli', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526539517', '1526539517');
-INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '资料下载', 'ziliaoxiazai', '/html/ziliaoxiazai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526539530', '1526539530');
-INSERT INTO `ey_arctype` VALUES ('6', '8', '8', '0', '报名入口', 'baomingrukou', '/html/baomingrukou', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526539546', '1526539546');
-INSERT INTO `ey_arctype` VALUES ('8', '6', '6', '1', '公司简介', 'gongsijianjie', '/html/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '1', '1526540452', '1527836706');
-INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '公司荣誉', 'gsry', '/html/guanyuwomen', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '1', '1526540478', '1527836335');
-INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '媒体报道', 'meitibaodao', '/html/xinwendongtai/meitibaodao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526540530', '1526544623');
-INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', 'SEO优化', 'xingyezixun', '/html/xinwendongtai/xingyezixun', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526540543', '1526611564');
-INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '企业运营', 'qiyexinwen', '/html/xinwendongtai/qiyexinwen', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526540554', '1526608200');
-INSERT INTO `ey_arctype` VALUES ('13', '1', '6', '2', '单页面', 'xinwendanye', '/html/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '1', '1526540573', '1531710225');
-INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '手机', 'shouji', '/html/chanpinzhanshi/shouji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612114', '1526612114');
-INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '电脑', 'diannao', '/html/chanpinzhanshi/diannao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612188', '1526612188');
-INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '通用配件', 'tongyongpeijian', '/html/chanpinzhanshi/tongyongpeijian', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612218', '1526612218');
-INSERT INTO `ey_arctype` VALUES ('23', '1', '3', '2', '风景图集', 'fengjingtuji', '/html/xinwendongtai/fengjingtuji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612255', '1526612255');
-INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '智能手机', 'zhinenshouji', '/html/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612571', '1526612571');
-INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '畅玩手机', 'changwanshouji', '/html/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612606', '1526612606');
-INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '笔记本电脑', 'bijibendiannao', '/html/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612635', '1526612635');
-INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '耳机', 'erji', '/html/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612661', '1526612661');
-INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '音箱', 'yinxiang', '/html/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612678', '1526612678');
-INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '充电宝', 'chongdianbao', '/html/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '1', '1526612691', '1526612691');
-INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '1', '预约面试', 'yuyuemianshi', '/html/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '1', '1526634493', '1527836335');
+INSERT INTO `ey_arctype` VALUES ('1', '6', '6', '0', '关于我们', 'guanyuwomen', '/html/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539465', '1527836335');
+INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '新闻动态', 'xinwendongtai', '/html/xinwendongtai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539487', '1526544623');
+INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '产品展示', 'chanpinzhanshi', '/html/chanpinzhanshi', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539505', '1526539505');
+INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '客户案例', 'kehuanli', '/html/kehuanli', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539517', '1526539517');
+INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '资料下载', 'ziliaoxiazai', '/html/ziliaoxiazai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539530', '1526539530');
+INSERT INTO `ey_arctype` VALUES ('6', '8', '8', '0', '报名入口', 'baomingrukou', '/html/baomingrukou', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526539546', '1526539546');
+INSERT INTO `ey_arctype` VALUES ('8', '6', '6', '1', '公司简介', 'gongsijianjie', '/html/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540452', '1527836706');
+INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '公司荣誉', 'gsry', '/html/guanyuwomen', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540478', '1527836335');
+INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '媒体报道', 'meitibaodao', '/html/xinwendongtai/meitibaodao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540530', '1526544623');
+INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', 'SEO优化', 'xingyezixun', '/html/xinwendongtai/xingyezixun', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540543', '1526611564');
+INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '企业运营', 'qiyexinwen', '/html/xinwendongtai/qiyexinwen', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540554', '1526608200');
+INSERT INTO `ey_arctype` VALUES ('13', '1', '6', '2', '单页面', 'xinwendanye', '/html/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526540573', '1531710225');
+INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '手机', 'shouji', '/html/chanpinzhanshi/shouji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612114', '1526612114');
+INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '电脑', 'diannao', '/html/chanpinzhanshi/diannao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612188', '1526612188');
+INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '通用配件', 'tongyongpeijian', '/html/chanpinzhanshi/tongyongpeijian', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612218', '1526612218');
+INSERT INTO `ey_arctype` VALUES ('23', '1', '3', '2', '风景图集', 'fengjingtuji', '/html/xinwendongtai/fengjingtuji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612255', '1526612255');
+INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '智能手机', 'zhinenshouji', '/html/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612571', '1526612571');
+INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '畅玩手机', 'changwanshouji', '/html/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612606', '1526612606');
+INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '笔记本电脑', 'bijibendiannao', '/html/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612635', '1526612635');
+INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '耳机', 'erji', '/html/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612661', '1526612661');
+INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '音箱', 'yinxiang', '/html/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612678', '1526612678');
+INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '充电宝', 'chongdianbao', '/html/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526612691', '1526612691');
+INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '1', '预约面试', 'yuyuemianshi', '/html/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '0', '1', 'cn', '1526634493', '1527836335');
 
 -- ----------------------------
 -- Table structure for ey_article_content
@@ -450,88 +455,88 @@ CREATE TABLE `ey_config` (
   `value` text,
   `inc_type` varchar(64) DEFAULT '' COMMENT '配置分组',
   `desc` varchar(50) DEFAULT '' COMMENT '描述',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=90 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- ----------------------------
 -- Records of ey_config
 -- ----------------------------
-INSERT INTO `ey_config` VALUES ('1', 'is_mark', '0', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('2', 'mark_txt', '易优Cms', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('3', 'mark_img', '/public/upload/water/2018/05/08/93806077e5a4c4e12ceed30df5cde761.png', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('4', 'mark_width', '200', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('5', 'mark_height', '50', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('6', 'mark_degree', '54', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('7', 'mark_quality', '56', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('8', 'mark_sel', '9', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('9', 'sms_time_out', '120', 'sms', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('10', 'theme_style', '1', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('11', 'file_size', '500', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('12', 'image_type', 'jpg|gif|png|bmp|jpeg|ico', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('13', 'file_type', 'zip|gz|rar|iso|doc|xsl|ppt|wps', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('14', 'media_type', 'swf|mpg|mp3|rm|rmvb|wmv|wma|wav|mid|mov|mp4', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('15', 'web_keywords', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('17', 'sms_platform', '1', 'sms', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('18', 'seo_viewtitle_format', '2', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('19', 'smtp_server', 'smtp.qq.com', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('20', 'smtp_port', '465', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('21', 'smtp_user', 'xxxxxxxxx@qq.com', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('22', 'smtp_pwd', 'xxxxxxxxxxx', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('23', 'inc_type', 'smtp', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('24', 'mark_type', 'img', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('25', 'mark_txt_size', '30', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('26', 'mark_txt_color', '#000000', 'water', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('28', 'web_name', '易优Cms-演示站', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/public/upload/system/2018/05/24/8c675d3dae162ebc1936f3ab43d58960.png', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.4', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. 易优CMS 版权所有', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('34', 'web_thirdcode_pc', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('35', 'web_thirdcode_wap', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('39', 'seo_arcdir', '/html', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('40', 'seo_pseudo', '1', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('41', 'list_symbol', '&gt;', 'basic', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('42', 'sitemap_auto', '1', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('43', 'sitemap_not1', '0', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('44', 'sitemap_not2', '1', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('45', 'sitemap_xml', '1', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('46', 'sitemap_txt', '0', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优CMS -  Powered by Eyoucms.com', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('56', 'smtp_test_eamil', 'xxxxxxxx@qq.com', 'smtp', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('58', 'web_attr_3', '123456789', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('59', 'web_attr_2', '8888-88888888', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', 'http://www.weibo.com', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('61', 'web_attr_4', '/public/upload/system/2018/05/18/dfda33373cf1ba7baa39423036a5678a.jpg', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '1', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('64', 'web_sqldatapath', '/data/sqldata', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('65', 'web_cmsurl', '', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('66', 'web_templets_dir', '/template', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'y2k8B8MNcvrbLEmGcMsLstGD', 'php', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('84', 'web_htmlcache_expires_in', '7200', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('85', 'web_show_popup_upgrade', '1', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('86', 'web_weapp_switch', '-1', 'web', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', '0', '0');
-INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', '0', '0');
+INSERT INTO `ey_config` VALUES ('1', 'is_mark', '0', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('2', 'mark_txt', '易优Cms', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('3', 'mark_img', '/public/upload/water/2018/05/08/93806077e5a4c4e12ceed30df5cde761.png', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('4', 'mark_width', '200', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('5', 'mark_height', '50', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('6', 'mark_degree', '54', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('7', 'mark_quality', '56', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('8', 'mark_sel', '9', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('9', 'sms_time_out', '120', 'sms', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('10', 'theme_style', '1', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('11', 'file_size', '500', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('12', 'image_type', 'jpg|gif|png|bmp|jpeg|ico', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('13', 'file_type', 'zip|gz|rar|iso|doc|xsl|ppt|wps', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('14', 'media_type', 'swf|mpg|mp3|rm|rmvb|wmv|wma|wav|mid|mov|mp4', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('15', 'web_keywords', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('17', 'sms_platform', '1', 'sms', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('18', 'seo_viewtitle_format', '2', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('19', 'smtp_server', 'smtp.qq.com', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('20', 'smtp_port', '465', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('21', 'smtp_user', 'xxxxxxxxx@qq.com', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('22', 'smtp_pwd', 'xxxxxxxxxxx', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('23', 'inc_type', 'smtp', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('24', 'mark_type', 'img', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('25', 'mark_txt_size', '30', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('26', 'mark_txt_color', '#000000', 'water', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('28', 'web_name', '易优Cms-演示站', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/public/upload/system/2018/05/24/8c675d3dae162ebc1936f3ab43d58960.png', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.4', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. 易优CMS 版权所有', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('34', 'web_thirdcode_pc', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('35', 'web_thirdcode_wap', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('39', 'seo_arcdir', '/html', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('40', 'seo_pseudo', '1', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('41', 'list_symbol', '&gt;', 'basic', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('42', 'sitemap_auto', '1', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('43', 'sitemap_not1', '0', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('44', 'sitemap_not2', '1', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('45', 'sitemap_xml', '1', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('46', 'sitemap_txt', '0', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优CMS -  Powered by Eyoucms.com', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('56', 'smtp_test_eamil', 'xxxxxxxx@qq.com', 'smtp', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('58', 'web_attr_3', '123456789', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('59', 'web_attr_2', '8888-88888888', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', 'http://www.weibo.com', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('61', 'web_attr_4', '/public/upload/system/2018/05/18/dfda33373cf1ba7baa39423036a5678a.jpg', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '1', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('64', 'web_sqldatapath', '/data/sqldata', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('65', 'web_cmsurl', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('66', 'web_templets_dir', '/template', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'y2k8B8MNcvrbLEmGcMsLstGD', 'php', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('84', 'web_htmlcache_expires_in', '7200', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('85', 'web_show_popup_upgrade', '1', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('86', 'web_weapp_switch', '-1', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'cn', '0', '0');
 
 -- ----------------------------
 -- Table structure for ey_config_attribute
@@ -543,19 +548,19 @@ CREATE TABLE `ey_config_attribute` (
   `attr_name` varchar(60) DEFAULT '' COMMENT '变量标题',
   `attr_var_name` varchar(50) DEFAULT '' COMMENT '变量名',
   `attr_input_type` tinyint(1) unsigned DEFAULT '0' COMMENT ' 0=文本框，1=下拉框，2=多行文本框，3=上传图片',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`attr_id`),
-  KEY `attr_prefix` (`inc_type`,`attr_var_name`) USING BTREE
+  PRIMARY KEY (`attr_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='自定义变量表';
 
 -- ----------------------------
 -- Records of ey_config_attribute
 -- ----------------------------
-INSERT INTO `ey_config_attribute` VALUES ('1', 'web', '微博地址', 'web_attr_1', '0', '1525962574', '1526008818');
-INSERT INTO `ey_config_attribute` VALUES ('2', 'web', '手机/固话', 'web_attr_2', '0', '1525962600', '1525962600');
-INSERT INTO `ey_config_attribute` VALUES ('3', 'web', 'QQ号码', 'web_attr_3', '0', '1525962624', '1525962624');
-INSERT INTO `ey_config_attribute` VALUES ('4', 'web', '微信二维码', 'web_attr_4', '3', '1525999090', '1526008783');
+INSERT INTO `ey_config_attribute` VALUES ('1', 'web', '微博地址', 'web_attr_1', '0', 'cn', '1525962574', '1526008818');
+INSERT INTO `ey_config_attribute` VALUES ('2', 'web', '手机/固话', 'web_attr_2', '0', 'cn', '1525962600', '1525962600');
+INSERT INTO `ey_config_attribute` VALUES ('3', 'web', 'QQ号码', 'web_attr_3', '0', 'cn', '1525962624', '1525962624');
+INSERT INTO `ey_config_attribute` VALUES ('4', 'web', '微信二维码', 'web_attr_4', '3', 'cn', '1525999090', '1526008783');
 
 -- ----------------------------
 -- Table structure for ey_download_content
@@ -646,6 +651,7 @@ CREATE TABLE `ey_guestbook` (
   `typeid` int(11) DEFAULT '0' COMMENT '栏目ID',
   `channel` smallint(5) DEFAULT '0' COMMENT '模型ID',
   `ip` varchar(255) DEFAULT '' COMMENT 'ip地址',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`)
@@ -654,26 +660,26 @@ CREATE TABLE `ey_guestbook` (
 -- ----------------------------
 -- Records of ey_guestbook
 -- ----------------------------
-INSERT INTO `ey_guestbook` VALUES ('15', '30', '8', '127.0.0.1', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook` VALUES ('16', '30', '8', '127.0.0.1', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook` VALUES ('17', '6', '8', '127.0.0.1', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook` VALUES ('18', '6', '8', '127.0.0.1', '1526873194', '1526873194');
-INSERT INTO `ey_guestbook` VALUES ('19', '6', '8', '127.0.0.1', '1526873250', '1526873250');
-INSERT INTO `ey_guestbook` VALUES ('20', '6', '8', '127.0.0.1', '1526873289', '1526873289');
-INSERT INTO `ey_guestbook` VALUES ('21', '6', '8', '127.0.0.1', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook` VALUES ('22', '6', '8', '127.0.0.1', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook` VALUES ('23', '6', '8', '127.0.0.1', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook` VALUES ('24', '6', '8', '127.0.0.1', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook` VALUES ('25', '6', '8', '127.0.0.1', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook` VALUES ('26', '6', '8', '127.0.0.1', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook` VALUES ('27', '6', '8', '127.0.0.1', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook` VALUES ('28', '6', '8', '127.0.0.1', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook` VALUES ('29', '6', '8', '127.0.0.1', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook` VALUES ('30', '6', '8', '127.0.0.1', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook` VALUES ('31', '6', '8', '127.0.0.1', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook` VALUES ('32', '6', '8', '127.0.0.1', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook` VALUES ('33', '6', '8', '127.0.0.1', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook` VALUES ('34', '6', '8', '127.0.0.1', '1527156154', '1527156154');
+INSERT INTO `ey_guestbook` VALUES ('15', '30', '8', '127.0.0.1', 'cn', '1526616554', '1526616554');
+INSERT INTO `ey_guestbook` VALUES ('16', '30', '8', '127.0.0.1', 'cn', '1526616615', '1526616615');
+INSERT INTO `ey_guestbook` VALUES ('17', '6', '8', '127.0.0.1', 'cn', '1526872813', '1526872813');
+INSERT INTO `ey_guestbook` VALUES ('18', '6', '8', '127.0.0.1', 'cn', '1526873194', '1526873194');
+INSERT INTO `ey_guestbook` VALUES ('19', '6', '8', '127.0.0.1', 'cn', '1526873250', '1526873250');
+INSERT INTO `ey_guestbook` VALUES ('20', '6', '8', '127.0.0.1', 'cn', '1526873289', '1526873289');
+INSERT INTO `ey_guestbook` VALUES ('21', '6', '8', '127.0.0.1', 'cn', '1526873428', '1526873428');
+INSERT INTO `ey_guestbook` VALUES ('22', '6', '8', '127.0.0.1', 'cn', '1526873526', '1526873526');
+INSERT INTO `ey_guestbook` VALUES ('23', '6', '8', '127.0.0.1', 'cn', '1526873538', '1526873538');
+INSERT INTO `ey_guestbook` VALUES ('24', '6', '8', '127.0.0.1', 'cn', '1526873590', '1526873590');
+INSERT INTO `ey_guestbook` VALUES ('25', '6', '8', '127.0.0.1', 'cn', '1526873598', '1526873598');
+INSERT INTO `ey_guestbook` VALUES ('26', '6', '8', '127.0.0.1', 'cn', '1526873599', '1526873599');
+INSERT INTO `ey_guestbook` VALUES ('27', '6', '8', '127.0.0.1', 'cn', '1526874038', '1526874038');
+INSERT INTO `ey_guestbook` VALUES ('28', '6', '8', '127.0.0.1', 'cn', '1526874117', '1526874117');
+INSERT INTO `ey_guestbook` VALUES ('29', '6', '8', '127.0.0.1', 'cn', '1526874555', '1526874555');
+INSERT INTO `ey_guestbook` VALUES ('30', '6', '8', '127.0.0.1', 'cn', '1526876081', '1526876081');
+INSERT INTO `ey_guestbook` VALUES ('31', '6', '8', '127.0.0.1', 'cn', '1526876214', '1526876214');
+INSERT INTO `ey_guestbook` VALUES ('32', '6', '8', '127.0.0.1', 'cn', '1527060356', '1527060356');
+INSERT INTO `ey_guestbook` VALUES ('33', '6', '8', '127.0.0.1', 'cn', '1527060517', '1527060517');
+INSERT INTO `ey_guestbook` VALUES ('34', '6', '8', '127.0.0.1', 'cn', '1527156154', '1527156154');
 
 -- ----------------------------
 -- Table structure for ey_guestbook_attr
@@ -764,6 +770,7 @@ CREATE TABLE `ey_guestbook_attribute` (
   `attr_input_type` tinyint(1) unsigned DEFAULT '0' COMMENT ' 0=文本框，1=下拉框，2=多行文本框',
   `attr_values` text COMMENT '可选值列表',
   `sort_order` int(11) unsigned DEFAULT '0' COMMENT '表单排序',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
@@ -773,13 +780,13 @@ CREATE TABLE `ey_guestbook_attribute` (
 -- ----------------------------
 -- Records of ey_guestbook_attribute
 -- ----------------------------
-INSERT INTO `ey_guestbook_attribute` VALUES ('1', '姓名', '30', '0', '', '100', '1526616441', '1526616441');
-INSERT INTO `ey_guestbook_attribute` VALUES ('2', '手机号码', '30', '0', '', '100', '1526616453', '1526616453');
-INSERT INTO `ey_guestbook_attribute` VALUES ('3', '约谈对象', '30', '1', '隔壁老王\r\n前台美女\r\n扫地阿姨', '100', '1526616497', '1526616812');
-INSERT INTO `ey_guestbook_attribute` VALUES ('4', '姓名', '6', '0', '', '100', '1526634369', '1526874914');
-INSERT INTO `ey_guestbook_attribute` VALUES ('5', '联系方式', '6', '0', '', '100', '1526634383', '1526634383');
-INSERT INTO `ey_guestbook_attribute` VALUES ('6', '备注信息', '6', '2', '', '100', '1526634393', '1526875056');
-INSERT INTO `ey_guestbook_attribute` VALUES ('7', '模式', '6', '1', '个人\r\n团队', '100', '1526875483', '1526876172');
+INSERT INTO `ey_guestbook_attribute` VALUES ('1', '姓名', '30', '0', '', '100', 'cn', '1526616441', '1526616441');
+INSERT INTO `ey_guestbook_attribute` VALUES ('2', '手机号码', '30', '0', '', '100', 'cn', '1526616453', '1526616453');
+INSERT INTO `ey_guestbook_attribute` VALUES ('3', '约谈对象', '30', '1', '隔壁老王\r\n前台美女\r\n扫地阿姨', '100', 'cn', '1526616497', '1526616812');
+INSERT INTO `ey_guestbook_attribute` VALUES ('4', '姓名', '6', '0', '', '100', 'cn', '1526634369', '1526874914');
+INSERT INTO `ey_guestbook_attribute` VALUES ('5', '联系方式', '6', '0', '', '100', 'cn', '1526634383', '1526634383');
+INSERT INTO `ey_guestbook_attribute` VALUES ('6', '备注信息', '6', '2', '', '100', 'cn', '1526634393', '1526875056');
+INSERT INTO `ey_guestbook_attribute` VALUES ('7', '模式', '6', '1', '个人\r\n团队', '100', 'cn', '1526875483', '1526876172');
 
 -- ----------------------------
 -- Table structure for ey_hooks
@@ -871,6 +878,7 @@ CREATE TABLE `ey_links` (
   `email` varchar(50) DEFAULT NULL,
   `intro` text COMMENT '网站简况',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(1=显示，0=屏蔽)',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `delete_time` int(11) DEFAULT '0' COMMENT '软删除时间',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -880,11 +888,11 @@ CREATE TABLE `ey_links` (
 -- ----------------------------
 -- Records of ey_links
 -- ----------------------------
-INSERT INTO `ey_links` VALUES ('1', '1', '百度', 'http://www.baidu.com', '', '100', '1', '', '', '1', '0', '1524975826', '1537585074');
-INSERT INTO `ey_links` VALUES ('2', '1', '腾讯', 'http://www.qq.com', '', '100', '1', '', '', '1', '0', '1524976095', '1537585061');
-INSERT INTO `ey_links` VALUES ('3', '1', '新浪', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', '0', '1532414285', '1537585047');
-INSERT INTO `ey_links` VALUES ('4', '1', '小程序开发教程', 'http://www.yiyongtong.com', '', '100', '1', '', '', '1', '0', '1532414529', '1537585013');
-INSERT INTO `ey_links` VALUES ('5', '1', '素材58', 'http://www.sucai58.com', '', '100', '1', '', '', '1', '0', '1532414726', '1537585146');
+INSERT INTO `ey_links` VALUES ('1', '1', '百度', 'http://www.baidu.com', '', '100', '1', '', '', '1', 'cn', '0', '1524975826', '1537585074');
+INSERT INTO `ey_links` VALUES ('2', '1', '腾讯', 'http://www.qq.com', '', '100', '1', '', '', '1', 'cn', '0', '1524976095', '1537585061');
+INSERT INTO `ey_links` VALUES ('3', '1', '新浪', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', 'cn', '0', '1532414285', '1537585047');
+INSERT INTO `ey_links` VALUES ('4', '1', '小程序开发教程', 'http://www.yiyongtong.com', '', '100', '1', '', '', '1', 'cn', '0', '1532414529', '1537585013');
+INSERT INTO `ey_links` VALUES ('5', '1', '素材58', 'http://www.sucai58.com', '', '100', '1', '', '', '1', 'cn', '0', '1532414726', '1537585146');
 
 -- ----------------------------
 -- Table structure for ey_product_attr
@@ -931,6 +939,7 @@ CREATE TABLE `ey_product_attribute` (
   `attr_input_type` tinyint(1) unsigned DEFAULT '0' COMMENT ' 0=文本框，1=下拉框，2=多行文本框',
   `attr_values` text COMMENT '可选值列表',
   `sort_order` int(11) unsigned DEFAULT '0' COMMENT '属性排序',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
@@ -940,14 +949,14 @@ CREATE TABLE `ey_product_attribute` (
 -- ----------------------------
 -- Records of ey_product_attribute
 -- ----------------------------
-INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', '1526612774', '1526612774');
-INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', '1526612785', '1526612785');
-INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', '1526613004', '1526613004');
-INSERT INTO `ey_product_attribute` VALUES ('4', ' 型号', '24', '0', '0', '', '100', '1526613011', '1526613011');
-INSERT INTO `ey_product_attribute` VALUES ('5', '屏幕大小', '26', '0', '0', '', '100', '1526613252', '1526613252');
-INSERT INTO `ey_product_attribute` VALUES ('6', '重量', '26', '0', '0', '', '100', '1526613259', '1526613259');
-INSERT INTO `ey_product_attribute` VALUES ('7', '型号', '27', '0', '0', '', '100', '1526613668', '1526613668');
-INSERT INTO `ey_product_attribute` VALUES ('8', '支持蓝牙', '27', '0', '0', '', '100', '1526613732', '1526613732');
+INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', 'cn', '1526612774', '1526612774');
+INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', 'cn', '1526612785', '1526612785');
+INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', 'cn', '1526613004', '1526613004');
+INSERT INTO `ey_product_attribute` VALUES ('4', ' 型号', '24', '0', '0', '', '100', 'cn', '1526613011', '1526613011');
+INSERT INTO `ey_product_attribute` VALUES ('5', '屏幕大小', '26', '0', '0', '', '100', 'cn', '1526613252', '1526613252');
+INSERT INTO `ey_product_attribute` VALUES ('6', '重量', '26', '0', '0', '', '100', 'cn', '1526613259', '1526613259');
+INSERT INTO `ey_product_attribute` VALUES ('7', '型号', '27', '0', '0', '', '100', 'cn', '1526613668', '1526613668');
+INSERT INTO `ey_product_attribute` VALUES ('8', '支持蓝牙', '27', '0', '0', '', '100', 'cn', '1526613732', '1526613732');
 
 -- ----------------------------
 -- Table structure for ey_product_content
@@ -1040,6 +1049,7 @@ CREATE TABLE `ey_tagindex` (
   `monthcc` int(10) unsigned DEFAULT '0' COMMENT '月统计',
   `weekup` int(10) unsigned DEFAULT '0' COMMENT '每周更新',
   `monthup` int(10) unsigned DEFAULT '0' COMMENT '每月更新',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(10) unsigned DEFAULT '0' COMMENT '添加时间',
   PRIMARY KEY (`id`),
   KEY `typeid` (`typeid`) USING BTREE,
@@ -1050,20 +1060,20 @@ CREATE TABLE `ey_tagindex` (
 -- ----------------------------
 -- Records of ey_tagindex
 -- ----------------------------
-INSERT INTO `ey_tagindex` VALUES ('24', 'TAG标签', '10', '0', '0', '0', '0', '0', '0', '1526544706');
-INSERT INTO `ey_tagindex` VALUES ('25', '对的', '10', '0', '0', '0', '0', '0', '0', '1526544706');
-INSERT INTO `ey_tagindex` VALUES ('26', '替换稿件', '10', '0', '0', '0', '0', '0', '0', '1526544706');
-INSERT INTO `ey_tagindex` VALUES ('27', '杨靖宇', '10', '0', '0', '0', '0', '0', '0', '1526544706');
-INSERT INTO `ey_tagindex` VALUES ('28', '网站', '12', '0', '0', '0', '0', '0', '0', '1526608291');
-INSERT INTO `ey_tagindex` VALUES ('29', '建设', '12', '0', '0', '0', '0', '0', '0', '1526608291');
-INSERT INTO `ey_tagindex` VALUES ('30', '五大核心', '12', '0', '0', '0', '0', '0', '0', '1526608291');
-INSERT INTO `ey_tagindex` VALUES ('31', '要素', '12', '0', '0', '0', '0', '0', '0', '1526608291');
-INSERT INTO `ey_tagindex` VALUES ('32', '华为', '24', '0', '0', '0', '0', '0', '0', '1526613161');
-INSERT INTO `ey_tagindex` VALUES ('33', 'HUAWEI', '24', '0', '0', '0', '0', '0', '0', '1526613161');
-INSERT INTO `ey_tagindex` VALUES ('34', 'NOTE 8', '24', '0', '0', '0', '0', '0', '0', '1526613161');
-INSERT INTO `ey_tagindex` VALUES ('35', '宅男', '5', '0', '0', '0', '0', '0', '0', '1526614158');
-INSERT INTO `ey_tagindex` VALUES ('36', '女神', '5', '0', '0', '0', '0', '0', '0', '1526614158');
-INSERT INTO `ey_tagindex` VALUES ('37', '一号', '5', '0', '0', '0', '0', '0', '0', '1526614158');
+INSERT INTO `ey_tagindex` VALUES ('24', 'TAG标签', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
+INSERT INTO `ey_tagindex` VALUES ('25', '对的', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
+INSERT INTO `ey_tagindex` VALUES ('26', '替换稿件', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
+INSERT INTO `ey_tagindex` VALUES ('27', '杨靖宇', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
+INSERT INTO `ey_tagindex` VALUES ('28', '网站', '12', '0', '0', '0', '0', '0', '0', 'cn', '1526608291');
+INSERT INTO `ey_tagindex` VALUES ('29', '建设', '12', '0', '0', '0', '0', '0', '0', 'cn', '1526608291');
+INSERT INTO `ey_tagindex` VALUES ('30', '五大核心', '12', '0', '0', '0', '0', '0', '0', 'cn', '1526608291');
+INSERT INTO `ey_tagindex` VALUES ('31', '要素', '12', '0', '0', '0', '0', '0', '0', 'cn', '1526608291');
+INSERT INTO `ey_tagindex` VALUES ('32', '华为', '24', '0', '0', '0', '0', '0', '0', 'cn', '1526613161');
+INSERT INTO `ey_tagindex` VALUES ('33', 'HUAWEI', '24', '0', '0', '0', '0', '0', '0', 'cn', '1526613161');
+INSERT INTO `ey_tagindex` VALUES ('34', 'NOTE 8', '24', '0', '0', '0', '0', '0', '0', 'cn', '1526613161');
+INSERT INTO `ey_tagindex` VALUES ('35', '宅男', '5', '0', '0', '0', '0', '0', '0', 'cn', '1526614158');
+INSERT INTO `ey_tagindex` VALUES ('36', '女神', '5', '0', '0', '0', '0', '0', '0', 'cn', '1526614158');
+INSERT INTO `ey_tagindex` VALUES ('37', '一号', '5', '0', '0', '0', '0', '0', '0', 'cn', '1526614158');
 
 -- ----------------------------
 -- Table structure for ey_taglist
@@ -1075,6 +1085,7 @@ CREATE TABLE `ey_taglist` (
   `typeid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '栏目ID',
   `tag` varchar(50) DEFAULT '' COMMENT 'tag内容',
   `arcrank` tinyint(1) DEFAULT '0' COMMENT '阅读权限',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`tid`,`aid`),
@@ -1084,16 +1095,16 @@ CREATE TABLE `ey_taglist` (
 -- ----------------------------
 -- Records of ey_taglist
 -- ----------------------------
-INSERT INTO `ey_taglist` VALUES ('28', '13', '12', '网站', '0', '1531709955', '0');
-INSERT INTO `ey_taglist` VALUES ('29', '13', '12', '建设', '0', '1531709955', '0');
-INSERT INTO `ey_taglist` VALUES ('30', '13', '12', '五大核心', '0', '1531709955', '0');
-INSERT INTO `ey_taglist` VALUES ('32', '27', '24', '华为', '0', '1531727097', '0');
-INSERT INTO `ey_taglist` VALUES ('33', '27', '24', 'HUAWEI', '0', '1531727097', '0');
-INSERT INTO `ey_taglist` VALUES ('34', '27', '24', 'NOTE 8', '0', '1531727097', '0');
-INSERT INTO `ey_taglist` VALUES ('37', '30', '5', '一号', '0', '1531888268', '0');
-INSERT INTO `ey_taglist` VALUES ('36', '30', '5', '女神', '0', '1531888268', '0');
-INSERT INTO `ey_taglist` VALUES ('35', '30', '5', '宅男', '0', '1531888268', '0');
-INSERT INTO `ey_taglist` VALUES ('31', '13', '12', '要素', '0', '1531709955', '0');
+INSERT INTO `ey_taglist` VALUES ('28', '13', '12', '网站', '0', 'cn', '1531709955', '0');
+INSERT INTO `ey_taglist` VALUES ('29', '13', '12', '建设', '0', 'cn', '1531709955', '0');
+INSERT INTO `ey_taglist` VALUES ('30', '13', '12', '五大核心', '0', 'cn', '1531709955', '0');
+INSERT INTO `ey_taglist` VALUES ('32', '27', '24', '华为', '0', 'cn', '1531727097', '0');
+INSERT INTO `ey_taglist` VALUES ('33', '27', '24', 'HUAWEI', '0', 'cn', '1531727097', '0');
+INSERT INTO `ey_taglist` VALUES ('34', '27', '24', 'NOTE 8', '0', 'cn', '1531727097', '0');
+INSERT INTO `ey_taglist` VALUES ('37', '30', '5', '一号', '0', 'cn', '1531888268', '0');
+INSERT INTO `ey_taglist` VALUES ('36', '30', '5', '女神', '0', 'cn', '1531888268', '0');
+INSERT INTO `ey_taglist` VALUES ('35', '30', '5', '宅男', '0', 'cn', '1531888268', '0');
+INSERT INTO `ey_taglist` VALUES ('31', '13', '12', '要素', '0', 'cn', '1531709955', '0');
 
 -- ----------------------------
 -- Table structure for ey_ui_config
@@ -1107,6 +1118,7 @@ CREATE TABLE `ey_ui_config` (
   `type` varchar(50) DEFAULT '' COMMENT '编辑类型',
   `name` varchar(50) DEFAULT '' COMMENT '与页面的e-id对应',
   `value` text COMMENT '页面美化的val值',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -1126,7 +1138,7 @@ CREATE TABLE `ey_weapp` (
   `code` varchar(50) DEFAULT '' COMMENT '插件标识',
   `name` varchar(55) DEFAULT '' COMMENT '中文名字',
   `config` text COMMENT '配置信息',
-  `data` text COMMENT '额外存储数据，简单插件可以不创建表，存储这里即可',
+  `data` text COMMENT '额外序列化存储数据，简单插件可以不创建表，存储这里即可',
   `status` tinyint(1) DEFAULT '0' COMMENT '状态：0=未安装，1=启用，-1=禁用',
   `tag_weapp` tinyint(1) DEFAULT '1' COMMENT '1=自动绑定，2=手工调用。关联模板标签weapp，自动调用内置的show钩子方法',
   `thorough` tinyint(1) DEFAULT '0' COMMENT '彻底卸载：0=是，1=否',

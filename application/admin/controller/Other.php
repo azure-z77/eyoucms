@@ -228,15 +228,9 @@ class Other extends Base
             if ($r) {
                 \think\Cache::clear('ad');
                 adminLog('新增广告：'.$post['title']);
-                respose(array(
-                    'status'   => 1,
-                    'msg'    => '操作成功',
-                ));
+                $this->success('操作成功');
             } else {
-                respose(array(
-                    'status'   => 0,
-                    'msg'    => '操作失败',
-                ));
+                $this->error('操作失败');
             }
         }
 
@@ -273,16 +267,10 @@ class Other extends Base
                 $r = M('ad')->cache(true,null,'ad')->update($data);
                 if ($r) {
                     adminLog('编辑广告：'.$post['title']);
-                    respose(array(
-                        'status'   => 1,
-                        'msg'    => '操作成功',
-                    ));
+                    $this->success('操作成功');
                 }
             }
-            respose(array(
-                'status'   => 0,
-                'msg'    => '操作失败',
-            ));
+            $this->error('操作失败');
         }
 
         $assign_data = array();
@@ -323,12 +311,12 @@ class Other extends Base
                 // 不管是添加还是修改广告 都清除一下缓存
                 // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
                 adminLog('删除广告-id：'.$id);
-                respose(array('status'=>1, 'msg'=>'删除成功'));
+                $this->success('删除成功');
             } else {
-                respose(array('status'=>0, 'msg'=>'删除失败'));
+                $this->error('删除失败');
             }
         }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
+            $this->error('参数有误');
         }
     }
 }
