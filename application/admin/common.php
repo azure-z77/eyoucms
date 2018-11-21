@@ -90,7 +90,7 @@ function get_auth_rule($where = [])
 function is_check_access($str = 'Index@index') {  
     $bool_flag = 1;
     $role_id = session('admin_info.role_id');
-    if (-1 < intval($role_id)) {
+    if (0 < intval($role_id)) {
         $ctl_act = strtolower($str);
         $arr = explode('@', $ctl_act);
         $ctl = !empty($arr[0]) ? $arr[0] : '';

@@ -46,7 +46,7 @@ class AuthRoleBehavior
      */
     public function actionBegin(&$params)
     {
-        if (-1 != self::$admin_info['role_id']) {
+        if (0 < intval(self::$admin_info['role_id'])) {
             // 检测全局的增、改、删的权限——优先级最高
             $this->cud_access();
             // 检测每个小插件的权限
@@ -232,7 +232,7 @@ class AuthRoleBehavior
     private function is_check_arctype($typeids = []) {  
         $bool_flag = true;
         $admin_info = self::$admin_info;
-        if (-1 != $admin_info['role_id']) {
+        if (0 < intval($admin_info['role_id'])) {
             $auth_role_info = $admin_info['auth_role_info'];
             $permission = $auth_role_info['permission'];
 

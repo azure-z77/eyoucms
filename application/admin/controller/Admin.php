@@ -38,12 +38,12 @@ class Admin extends Base {
 
         /*权限控制 by 小虎哥*/
         $admin_info = session('admin_info');
-        if (-1 == $admin_info['role_id']) {
+        if (0 < intval($admin_info['role_id'])) {
+            $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
+        } else {
             if (!empty($admin_info['parent_id'])) {
                 $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
             }
-        } else {
-            $condition['a.admin_id|a.parent_id'] = $admin_info['admin_id'];
         }
         /*--end*/
 
@@ -61,7 +61,7 @@ class Admin extends Base {
             ->select();
 
         foreach ($list as $key => $val) {
-            if (-1 == intval($val['role_id'])) {
+            if (0 >= intval($val['role_id'])) {
                 $val['role_name'] = !empty($val['parent_id']) ? '超级管理员' : '创始人';
             }
             $list[$key] = $val;
@@ -242,7 +242,7 @@ class Admin extends Base {
         if (IS_POST) {
             $data = I('post.');
 
-            if (-1 != session('admin_info.role_id')) {
+            if (0 < intval(session('admin_info.role_id'))) {
                 $this->error("超级管理员才能操作！");
             }
 
@@ -316,7 +316,7 @@ class Admin extends Base {
 
             if ($id == session('admin_info.admin_id')) {
                 unset($data['role_id']); // 不能修改自己的权限组
-            } else if (-1 != session('admin_info.role_id') && session('admin_info.admin_id') != $id) {
+            } else if (0 < intval(session('admin_info.role_id')) && session('admin_info.admin_id') != $id) {
                 $this->error('禁止更改别人的信息！');
             }
 
@@ -336,7 +336,7 @@ class Admin extends Base {
 
             /*不允许修改自己的权限组*/
             if (isset($data['role_id'])) {
-                if (-1 != session('admin_info.role_id') && intval($data['role_id']) != session('admin_info.role_id')) {
+                if (0 < intval(session('admin_info.role_id')) && intval($data['role_id']) != session('admin_info.role_id')) {
                     $data['role_id'] = session('admin_info.role_id');
                 }
             }
@@ -409,7 +409,7 @@ class Admin extends Base {
                 $this->error('禁止删除自己');
             }
             if (!empty($id_arr)) {
-                if (-1 != session('admin_info.role_id') || !empty($parent_id) ) {
+                if (0 < intval(session('admin_info.role_id')) || !empty($parent_id) ) {
                     $count = M('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
                         ->count();
                     if (!empty($count)) {

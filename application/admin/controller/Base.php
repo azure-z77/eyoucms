@@ -79,7 +79,7 @@ class Base extends Controller {
         $ctl_all = $ctl.'@*';
         //无需验证的操作
         $uneed_check_action = config('uneed_check_action');
-        if (session('admin_info.role_id') == -1) {
+        if (0 >= intval(session('admin_info.role_id'))) {
             //超级管理员无需验证
             return true;
         } else {

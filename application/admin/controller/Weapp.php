@@ -47,8 +47,7 @@ class Weapp extends Base
 
     public function init(){
         /*权限控制 by 小虎哥*/
-        $role_id = session('admin_info.role_id');
-        if (-1 != $role_id) {
+        if (0 < intval(session('admin_info.role_id'))) {
             $auth_role_info = session('admin_info.auth_role_info');
             if(! empty($auth_role_info)){
                 if(! empty($auth_role_info['permission']['plugins'])){

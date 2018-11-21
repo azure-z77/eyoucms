@@ -156,16 +156,16 @@ class WeappLogic extends Model
         } else {
             $module = request()->param('sm');
             $module = $module ?: request()->param('sc');
-            $row = M('Weapp')->field('code, status')
+            $row = M('Weapp')->field('code, name, status')
                 ->where(array('code'=>$module))
                 ->find();
             if (empty($row)) {
-                $msg = "{$module}插件不存在！";
+                $msg = "插件【{$row['name']}】不存在";
             } else {
                 if ($row['status'] == -1) {
-                    $msg = "请先启用{$module}插件！";
+                    $msg = "请先启用插件【{$row['name']}】";
                 } else if (intval($row['status']) == 0) {
-                    $msg = "请先安装{$module}插件！";
+                    $msg = "请先安装插件【{$row['name']}】";
                 }
             }
         }

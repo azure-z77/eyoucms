@@ -53,7 +53,7 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            {if condition="$info.admin_id != $Think.session.admin_info.admin_id AND -1 == $Think.session.admin_info.role_id"}
+            {if condition="$info.admin_id != $Think.session.admin_info.admin_id AND 0 >= $Think.session.admin_info.role_id"}
             <dl class="row"><dt class="tit"><label><b>管理员权限设置</b></label></dt></dl>
             <dl class="row">
                 <dt class="tit">
@@ -215,7 +215,7 @@
         $('#postForm input[type="checkbox"]').attr("disabled","disabled");
 
         /*超级管理员默认全选复选框*/
-        if (-1 == {$info.role_id}) {
+        if (0 >= {$info.role_id}) {
             $('#postForm input[type="checkbox"]').attr('checked', 'checked');
             $('#postForm img.cboximg').attr('src', '__SKIN__/images/ok.png');
         }

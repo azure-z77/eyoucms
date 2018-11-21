@@ -758,7 +758,7 @@ function allow_release_arctype($selected = 0, $allow_release_channel = array(), 
 
     /*权限控制 by 小虎哥*/
     $admin_info = session('admin_info');
-    if (-1 != $admin_info['role_id']) {
+    if (0 < intval($admin_info['role_id'])) {
         $auth_role_info = $admin_info['auth_role_info'];
         if(! empty($auth_role_info)){
             if(! empty($auth_role_info['permission']['arctype'])){

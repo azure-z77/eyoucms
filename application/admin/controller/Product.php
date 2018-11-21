@@ -61,7 +61,7 @@ class Product extends Base
                     $typeids = get_arr_column($hasRow, 'id');
                     /*权限控制 by 小虎哥*/
                     $admin_info = session('admin_info');
-                    if (-1 != $admin_info['role_id']) {
+                    if (0 < intval($admin_info['role_id'])) {
                         $auth_role_info = $admin_info['auth_role_info'];
                         if(! empty($auth_role_info)){
                             if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){

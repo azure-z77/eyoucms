@@ -43,7 +43,7 @@ class TagUi extends Base
             /*权限控制 by 小虎哥*/
             $config = config('session');
             $admin_info = $_SESSION[$config['prefix']]['admin_info'];
-            if (-1 != $admin_info['role_id']) {
+            if (0 < intval($admin_info['role_id'])) {
                 if(empty($admin_info['auth_role_info'])){
                     return '';
                 }
