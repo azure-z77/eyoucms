@@ -788,7 +788,7 @@ function format_bytes($size, $delimiter = '') {
  */
 function is_http_url($url)
 {
-    preg_match("/^(http:\/\/|https:\/\/).*$/", $url, $match);
+    preg_match("/^(http:\/\/|https:\/\/|\/\/).*$/", $url, $match);
     if (empty($match)) {
         return false;
     } else {
@@ -835,7 +835,7 @@ function checkStrHtml($string){
     $string  = ($string);
 
     $string = strip_tags($string,""); //清除HTML如<br />等代码
-    $string = str_replace("\n", "", str_replace(" ", "", $string));//去掉空格和换行
+    // $string = str_replace("\n", "", str_replace(" ", "", $string));//去掉空格和换行
     $string = str_replace("\n", "", $string);//去掉空格和换行
     $string = str_replace("\t","",$string); //去掉制表符号
     $string = str_replace(PHP_EOL,"",$string); //去掉回车换行符号
