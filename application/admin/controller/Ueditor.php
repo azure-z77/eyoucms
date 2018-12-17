@@ -37,9 +37,9 @@ class Ueditor extends Base
         
         date_default_timezone_set("Asia/Shanghai");
         
-        $this->savePath = I('savepath','allimg').'/';
+        $this->savePath = input('savepath','allimg').'/';
 
-        $this->nowFileName = I('nowfilename', '');
+        $this->nowFileName = input('nowfilename', '');
         if (empty($this->nowFileName)) {
             $this->nowFileName = md5(time().uniqid(mt_rand(), TRUE));
         }
@@ -498,8 +498,8 @@ class Ueditor extends Base
     {       
         $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         // 上传图片框中的描述表单名称，
-        $pictitle = I('pictitle');
-        $dir = I('dir');
+        $pictitle = input('pictitle');
+        $dir = input('dir');
         $title = htmlspecialchars($pictitle , ENT_QUOTES);        
         $path = htmlspecialchars($dir, ENT_QUOTES);
         //$input_file ['upfile'] = $info['Filedata'];  一个是上传插件里面来的, 另外一个是 文章编辑器里面来的
@@ -518,8 +518,16 @@ class Ueditor extends Base
         } else {
             $result = true;
         }
+
+        /*验证图片一句话木马*/
+        $imgstr = @file_get_contents($file->getInfo('tmp_name'));
+        if (false !== $imgstr && preg_match('#<\?php#i', $imgstr)) {
+            $result = '上传图片不合格';
+        }
+        /*--end*/
+
         if (true !== $result || empty($file)) {
-            $state = "ERROR" . $result;
+            $state = "ERROR：" . $result;
         } else {
             if ('adminlogo/' == $this->savePath) {
                 $savePath = 'public/static/admin/logo/';
@@ -623,7 +631,7 @@ class Ueditor extends Base
             $state = "ERROR" . $result;
         } else {
             $info = $file->rule(function ($file) {    
-                return date('YmdHis_').I('Filename'); // 使用自定义的文件保存规则
+                return date('YmdHis_').input('Filename'); // 使用自定义的文件保存规则
             })->move($path);
             if ($info) {
                 $state = "SUCCESS";                         

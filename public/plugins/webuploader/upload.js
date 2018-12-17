@@ -341,7 +341,7 @@ $(function() {
 			if(data.state == 'SUCCESS'){
 				var sLi = "";
 				sLi += '<li class="img '+file.id+'">';
-				sLi += '<img src="' + data.url + '" width="100" height="100" onerror="this.src=\'__ROOT__/public/plugins/uploadify/nopic.png\'">';
+				sLi += '<img src="' + data.url + '" width="100" height="100" onerror="this.src=\'__ROOT_DIR__/public/plugins/uploadify/nopic.png\'">';
 				sLi += '<input type="hidden" name="fileurl_tmp[]" value="' + data.url + '">';
 				sLi += '<a href="javascript:void(0);">删除</a>';
 				sLi += '</li>';
@@ -954,7 +954,7 @@ $(function() {
 			var data = $file.data('file');
 			var sLi = "";
 			sLi += '<li class="img">';
-			sLi += '<img src="' + data.url + '" width="100" height="100" onerror="this.src=\'__ROOT__/public/plugins/uploadify/nopic.png\'">';
+			sLi += '<img src="' + data.url + '" width="100" height="100" onerror="this.src=\'__ROOT_DIR__/public/plugins/uploadify/nopic.png\'">';
 			sLi += '<input type="hidden" name="fileurl_tmp[]" value="' + data.url + '">';
 			sLi += '<a href="javascript:void(0);">删除</a>';
 			sLi += '</li>';

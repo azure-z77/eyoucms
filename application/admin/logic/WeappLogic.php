@@ -18,7 +18,7 @@ use think\Db;
  
 class WeappLogic extends Model
 {
-    public $app_path;
+    public $root_path;
     public $weapp_path;
     public $data_path;
     // public $config_path;
@@ -32,16 +32,16 @@ class WeappLogic extends Model
      * 析构函数
      */
     function  __construct() {
-        // $this->code = I('param.code/s', '');
+        // $this->code = input('param.code/s', '');
         // $this->curent_version = getWeappVersion($this->code);
         $this->service_ey = config('service_ey');
-        $this->app_path = ROOT_PATH; // 
+        $this->root_path = ROOT_PATH; // 
         $this->weapp_path = WEAPP_DIR_NAME.DS; // 
         $this->data_path = DATA_PATH; // 
         // $this->config_path = $this->weapp_path.$this->code.DS.'config.php'; // 版本配置文件路径
         // api_Weapp_checkVersion
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVdlYXBwJmE9Y2hlY2tWZXJzaW9u';
-        $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str).'&domain='.DOMAIN;
+        $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str).'&domain='.request()->host(true);
         // $this->upgrade_url = $this->service_url.'&code='.$this->code.'&v='.$this->curent_version;
     }
 
@@ -327,7 +327,7 @@ class WeappLogic extends Model
         $upgrade = $serviceVersion['upgrade'];
         if (!empty($upgrade) && is_array($upgrade)) {
             foreach ($upgrade as $key => $val) {
-                $source_file = $this->app_path.$val;
+                $source_file = $this->root_path.$val;
                 if (file_exists($source_file)) {
                     $destination_file = $this->data_path.'backup'.DS.$code.'-'.$curent_version.'_www'.DS.$val;
                     tp_mkdir(dirname($destination_file));
@@ -338,7 +338,10 @@ class WeappLogic extends Model
         /*--end*/
 
         // 递归复制文件夹
-        recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->app_path, DS));
+        $copy_bool = recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->root_path, DS));
+        if (true !== $copy_bool) {
+            return $copy_bool;
+        }
         /*升级的 sql文件*/
         if(!empty($serviceVersion['sql_file']))
         {
@@ -414,7 +417,7 @@ class WeappLogic extends Model
      * @return string 错误或成功提示
      */
     public function downloadFile($fileUrl,$md5File)
-    {                    
+    {
         $downFileName = explode('/', $fileUrl);    
         $downFileName = end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.$downFileName; // 保存目录
@@ -430,9 +433,9 @@ class WeappLogic extends Model
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);
-        if($md5File != md5_file($saveDir))
+        if(!eyPreventShell($saveDir) || !file_exists($saveDir) || $md5File != md5_file($saveDir))
         {
-            return "下载升级包不完整, 请重试!";    
+            return "下载保存升级包失败，请检查所有目录的权限以及用户组不能为root";
         }
         return 1;
     }            

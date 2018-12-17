@@ -20,14 +20,19 @@ use app\admin\logic\AuthRoleLogic;
 
 class AuthRole extends Base {
     
+    public function _initialize() {
+        parent::_initialize();
+        $this->language_access(); // 多语言功能操作权限
+    }
+    
     /**
      * 权限组管理
      */
     public function index()
     {   
         $map = array();
-        $pid = I('pid/d');
-        $keywords = I('keywords/s');
+        $pid = input('pid/d');
+        $keywords = input('keywords/s');
 
         if (!empty($keywords)) {
             $map['c.name'] = array('LIKE', "%{$keywords}%");
@@ -66,7 +71,7 @@ class AuthRole extends Base {
                 'name.require' => '权限组名称不能为空！',
             );
             $data = array(
-                'name' => trim(I('name/s')),
+                'name' => trim(input('name/s')),
             );
             $validate = new Validate($rule, $msg);
             $result   = $validate->check($data);
@@ -83,7 +88,7 @@ class AuthRole extends Base {
             if($role_id){
                 adminLog('新增权限组：'.$data['name']);
                 $admin_role_list = model('AuthRole')->getRoleAll();
-                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name'],'admin_role_list'=>json_encode($admin_role_list)]);
+                $this->success('操作成功', url('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name'],'admin_role_list'=>json_encode($admin_role_list)]);
             }else{
                 $this->error('操作失败');
             }
@@ -126,7 +131,7 @@ class AuthRole extends Base {
     
     public function edit()
     {
-        $id = I('id/d', 0);
+        $id = input('id/d', 0);
         if($id <= 0){
             $this->error('非法访问');
         }
@@ -139,7 +144,7 @@ class AuthRole extends Base {
                 'name.require' => '权限组名称不能为空！',
             );
             $data = array(
-                'name' => trim(I('name/s')),
+                'name' => trim(input('name/s')),
             );
             $validate = new Validate($rule, $msg);
             $result   = $validate->check($data);
@@ -157,7 +162,7 @@ class AuthRole extends Base {
             $role_id = $model->saveAuthRole(input(), true);
             if($role_id){
                 adminLog('编辑权限组：'.$data['name']);
-                $this->success('操作成功', U('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name']]);
+                $this->success('操作成功', url('AuthRole/index'), ['role_id'=>$role_id,'role_name'=>$data['name']]);
             }else{
                 $this->error('操作失败');
             }
@@ -206,7 +211,7 @@ class AuthRole extends Base {
     
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if (!empty($id_arr)) {
 

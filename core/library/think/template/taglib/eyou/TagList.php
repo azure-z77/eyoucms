@@ -46,7 +46,7 @@ class TagList extends Base
      * 获取分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '')
+    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = 'desc')
     {
         $module_name_tmp = strtolower(request()->module());
         $ctl_name_tmp = strtolower(request()->controller());
@@ -61,7 +61,20 @@ class TagList extends Base
         $result = false;
 
         $channeltype = !empty($param['channel']) ? $param['channel'] : '';
-        $typeid = $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
+        $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
+
+        /*多语言*/
+        if (!empty($param['typeid'])) {
+            $param['typeid'] = model('LanguageAttr')->getBindValue($param['typeid'], 'arctype');
+            if (empty($param['typeid'])) {
+                echo '标签list报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值。';
+                return false;
+            }
+        }
+        /*--end*/
+
+        $typeid = $param['typeid'];
+        
         /*不指定模型ID、栏目ID，默认显示所有可以发布文档的模型ID下的文档*/
         if (empty($channeltype) && empty($typeid)) {
             $allow_release_channel = config('global.allow_release_channel');
@@ -84,7 +97,7 @@ class TagList extends Base
                 $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : '';
 
                 /*获取当前栏目下的同模型所有子孙栏目*/
-                $arctype_list = model("Arctype")->getHasChildren($channel_info['id'], $channeltype);
+                $arctype_list = model("Arctype")->getHasChildren($channel_info['id']);
                 foreach ($arctype_list as $key => $val) {
                     if ($channeltype != $val['current_channel']) {
                         unset($arctype_list[$key]);
@@ -178,22 +191,27 @@ class TagList extends Base
         switch ($orderby) {
             case 'hot':
             case 'click':
-                $orderby = 'a.click desc';
+                $orderby = "a.click {$orderWay}";
                 break;
 
             case 'now':
             case 'aid':
-            case 'sortrank':
-            case 'pubdate':
-                $orderby = 'a.aid desc';
+                $orderby = "a.aid {$orderWay}";
                 break;
 
-            case 'scores':
+            case 'pubdate':
+            case 'add_time':
+                $orderby = "a.add_time {$orderWay}";
+                break;
+
+            case 'sortrank':
             case 'sort_order':
-                $orderby = 'a.sort_order asc';
+                $orderby = "a.sort_order {$orderWay}";
+                break;
                 
             case 'rand':
-                $orderby = 'rand()';
+                $orderby = "rand()";
+                break;
             
             default:
                 {
@@ -282,6 +300,7 @@ class TagList extends Base
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                     ->where($where_str)
+                    ->where('a.lang', $this->home_lang)
                     ->orderRaw($orderby)
                     ->paginate($pagesize, false, $paginate);
                 // $cacheKey = strtolower('taglist_lastPage_'.$module_name_tmp.$ctl_name_tmp.$action_name_tmp.$this->tid);
@@ -414,19 +433,50 @@ class TagList extends Base
         $condition['a.arcrank'] = array('gt', -1);
         $condition['a.status'] = array('eq', 1);
 
+
         // 给排序字段加上表别名
-        if (empty($orderby)) {
-            $orderby = 'a.sort_order asc, a.aid desc';
-        } else {
-            $orderbyArr = explode(',', $orderby);
-            foreach ($orderbyArr as $key => $val) {
-                $val = trim($val);
-                if (preg_match('/^([a-z]+)\./i', $val) == 0) {
-                    $val = 'a.'.$val;
-                    $orderbyArr[$key] = $val;
+        switch ($orderby) {
+            case 'hot':
+            case 'click':
+                $orderby = 'a.click desc';
+                break;
+
+            case 'now':
+            case 'aid':
+                $orderby = 'a.aid desc';
+                break;
+
+            case 'pubdate':
+            case 'add_time':
+                $orderby = 'a.add_time desc';
+                break;
+                
+            case 'sortrank':
+            case 'sort_order':
+                $orderby = 'a.sort_order asc';
+                break;
+                
+            case 'rand':
+                $orderby = 'rand()';
+                break;
+            
+            default:
+                {
+                    if (empty($orderby)) {
+                        $orderby = 'a.sort_order asc, a.aid desc';
+                    } elseif (trim($orderby) != 'rand()') {
+                        $orderbyArr = explode(',', $orderby);
+                        foreach ($orderbyArr as $key => $val) {
+                            $val = trim($val);
+                            if (preg_match('/^([a-z]+)\./i', $val) == 0) {
+                                $val = 'a.'.$val;
+                                $orderbyArr[$key] = $val;
+                            }
+                        }
+                        $orderby = implode(',', $orderbyArr);
+                    }
                 }
-            }
-            $orderby = implode(',', $orderbyArr);
+                break;
         }
 
         /**
@@ -447,7 +497,9 @@ class TagList extends Base
             ->field("a.aid")
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+            ->where('a.channel','NOT IN',[6]) // 排除单页
             ->where($condition)
+            ->where('a.lang', $this->home_lang)
             ->order($orderby)
             ->paginate($pagesize, false, $paginate);
 

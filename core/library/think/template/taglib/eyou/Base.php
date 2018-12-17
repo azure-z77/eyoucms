@@ -13,11 +13,24 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Config;
+use think\Cookie;
+
 /**
  * 基类
  */
 class Base
 {
+    /**
+     * 主体语言（语言列表中最早一条）
+     */
+    public $main_lang = 'cn';
+
+    /**
+     * 前台当前语言
+     */
+    public $home_lang = 'cn';
+
     //构造函数
     function __construct()
     {
@@ -28,7 +41,10 @@ class Base
     // 初始化
     protected function _initialize()
     {
-        
+        /*多语言*/
+        $this->main_lang = get_main_lang();
+        $this->home_lang = get_home_lang();
+        /*--end*/
     }
 
     /**
@@ -38,7 +54,11 @@ class Base
     {
         /*tid为目录名称的情况下*/
         if (!empty($typeid) && strval($typeid) != strval(intval($typeid))) {
-            $typeid = M('Arctype')->where(array('dirname'=>$typeid))->cache(true,EYOUCMS_CACHE_TIME,"arctype")->getField('id');
+            $typeid = M('Arctype')->where([
+                    'dirname'   => $typeid,
+                    'lang'  => $this->home_lang,
+                ])->cache(true,EYOUCMS_CACHE_TIME,"arctype")
+                ->getField('id');
         }
         /*--end*/
 

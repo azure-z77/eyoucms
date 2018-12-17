@@ -35,7 +35,20 @@ class TagAd extends Base
             return false;
         }
 
-        $result = M("ad")->cache(true,EYOUCMS_CACHE_TIME,"ad")->find($aid);
+        /*多语言*/
+        $aid = model('LanguageAttr')->getBindValue($aid, 'ad');
+        if (empty($aid)) {
+            echo '标签ad报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 aid 值。';
+            return false;
+        }
+        /*--end*/
+
+        $result = M("ad")->where([
+                'id'    => $aid,
+                'lang'  => $this->home_lang,
+            ])
+            ->cache(true,EYOUCMS_CACHE_TIME,"ad")
+            ->find();
         if (empty($result)) {
             echo '标签ad报错：该广告ID('.$aid.')不存在。';
             return false;

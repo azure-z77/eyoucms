@@ -41,10 +41,10 @@ class Guestbook extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $get = I('get.');
-        $typeid = I('typeid/d');
-        $begin = strtotime(I('add_time_begin'));
-        $end = strtotime(I('add_time_end'));
+        $get = input('get.');
+        $typeid = input('typeid/d');
+        $begin = strtotime(input('add_time_begin'));
+        $end = strtotime(input('add_time_end'));
 
         // 应用搜索条件
         foreach (['keywords','typeid'] as $key) {
@@ -69,6 +69,9 @@ class Guestbook extends Base
         } else if ($end > 0) {
             $condition['a.add_time'] = array('elt', $end);
         }
+        
+        // 多语言
+        $condition['a.lang'] = array('eq', get_admin_lang());
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -110,20 +113,6 @@ class Guestbook extends Base
         $assign_data['list'] = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
-        /*获取当前模型栏目*/
-/*        $selected = 0;
-        if ($typeid > 0) {
-            $selected = $typeid;
-        }
-        $arctypeLogic = new ArctypeLogic();
-        $map = array(
-            'channeltype'    => $this->channeltype,
-        );
-        $arctype_max_level = intval(config('global.arctype_max_level'));
-        $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);
-        $this->assign('select_html',$select_html);*/
-        /*--end*/
-
         // 栏目ID
         $assign_data['typeid'] = $typeid; // 栏目ID
         /*当前栏目信息*/
@@ -135,7 +124,7 @@ class Guestbook extends Base
         /*--end*/
 
         /*选项卡*/
-        $tab = I('param.tab/d', 3);
+        $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
 
@@ -148,10 +137,13 @@ class Guestbook extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
-            $r = M('guestbook')->where("aid",'IN',$id_arr)->delete();
+            $r = M('guestbook')->where([
+                    'aid'   => ['IN', $id_arr],
+                    'lang'  => get_admin_lang(),
+                ])->delete();
             if($r){
                 // ---------后置操作
                 model('Guestbook')->afterDel($id_arr);
@@ -174,8 +166,8 @@ class Guestbook extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $get = I('get.');
-        $typeid = I('typeid/d');
+        $get = input('get.');
+        $typeid = input('typeid/d');
 
         // 应用搜索条件
         foreach (['keywords','typeid'] as $key) {
@@ -189,6 +181,10 @@ class Guestbook extends Base
                 }
             }
         }
+
+        $condition['is_del'] = 0;
+        // 多语言
+        $condition['lang'] = get_admin_lang();
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -216,6 +212,11 @@ class Guestbook extends Base
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
                 ->where('a.attr_id', 'in', $attr_ida)
                 ->getAllWithIndex('attr_id');
+            
+            /*获取多语言关联绑定的值*/
+            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute'); // 多语言
+            /*--end*/
+
             foreach ($row as $key => $val) {
                 $val['fieldname'] = 'attr_'.$val['attr_id'];
                 $row[$key] = $val;
@@ -229,17 +230,6 @@ class Guestbook extends Base
         $assign_data['list'] = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
-        /*获取当前模型栏目*/
-/*        $selected = $typeid;
-        $arctypeLogic = new ArctypeLogic();
-        $map = array(
-            'channeltype'    => $this->channeltype,
-        );
-        $arctype_max_level = intval(config('global.arctype_max_level'));
-        $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);
-        $this->assign('select_html',$select_html);*/
-        /*--end*/
-
         // 栏目ID
         $assign_data['typeid'] = $typeid; // 栏目ID
         /*当前栏目信息*/
@@ -251,7 +241,7 @@ class Guestbook extends Base
         /*--end*/
 
         /*选项卡*/
-        $tab = I('param.tab/d', 3);
+        $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
 
@@ -265,15 +255,21 @@ class Guestbook extends Base
      */
     public function attribute_add()
     {
+        //防止php超时
+        function_exists('set_time_limit') && set_time_limit(0);
+        
+        $this->language_access(); // 多语言功能操作权限
+
         if(IS_AJAX && IS_POST)//ajax提交验证
         {
+            $admin_lang = get_admin_lang();
             $model = model('GuestbookAttribute');
 
-            $attr_values = str_replace('_', '', I('attr_values')); // 替换特殊字符
+            $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
             
-            $post_data = I('post.');
+            $post_data = input('post.');
             $post_data['attr_values'] = $attr_values;
 
             $savedata = array(
@@ -282,6 +278,7 @@ class Guestbook extends Base
                 'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
                 'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
                 'sort_order'    => 100,
+                'lang'  => $admin_lang,
                 'add_time'  => getTime(),
                 'update_time'   => getTime(),
             );
@@ -301,18 +298,23 @@ class Guestbook extends Base
             } else {
                 $model->data($savedata,true); // 收集数据
                 $model->save(); // 写入数据到数据库
-                $insert_id = $model->getLastInsID();
+                $insertId = $model->getLastInsID();
+
+                /*同步留言属性ID到多语言的模板变量里*/
+                $this->syn_add_language_attribute($insertId);
+                /*--end*/
+
                 $return_arr = array(
                      'status' => 1,
                      'msg'   => '操作成功',                        
-                     'data'  => array('url'=>U('Guestbook/attribute_index', array('typeid'=>$post_data['typeid']))),
+                     'data'  => array('url'=>url('Guestbook/attribute_index', array('typeid'=>$post_data['typeid']))),
                 );
                 adminLog('新增留言表单：'.$savedata['attr_name']);
                 respose($return_arr);
             }  
         }  
 
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         if ($typeid > 0) {
             $select_html = M('arctype')->where('id', $typeid)->getField('typename');
             $select_html = !empty($select_html) ? $select_html : '该栏目不存在';
@@ -340,11 +342,11 @@ class Guestbook extends Base
         {
             $model = model('GuestbookAttribute');
 
-            $attr_values = str_replace('_', '', I('attr_values')); // 替换特殊字符
+            $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
             
-            $post_data = I('post.');
+            $post_data = input('post.');
             $post_data['attr_values'] = $attr_values;
 
             $savedata = array(
@@ -370,11 +372,14 @@ class Guestbook extends Base
                 respose($return_arr);
             } else {
                 $model->data($savedata,true); // 收集数据
-                $model->isUpdate(true)->save(); // 写入数据到数据库     
+                $model->isUpdate(true, [
+                        'attr_id'   => $post_data['attr_id'],
+                        'lang'  => get_admin_lang(),
+                    ])->save(); // 写入数据到数据库     
                 $return_arr = array(
                      'status' => 1,
                      'msg'   => '操作成功',                        
-                     'data'  => array('url'=>U('Guestbook/attribute_index', array('typeid'=>$post_data['typeid']))),
+                     'data'  => array('url'=>url('Guestbook/attribute_index', array('typeid'=>$post_data['typeid']))),
                 );
                 adminLog('编辑留言表单：'.$savedata['attr_name']);
                 respose($return_arr);
@@ -383,8 +388,15 @@ class Guestbook extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
-        $info = M('GuestbookAttribute')->find($id);
+        $id = input('id/d');
+        /*获取多语言关联绑定的值*/
+        $new_id = model('LanguageAttr')->getBindValue($id, 'guestbook_attribute'); // 多语言
+        !empty($new_id) && $id = $new_id;
+        /*--end*/
+        $info = M('GuestbookAttribute')->where([
+                'attr_id'    => $id,
+                'lang'  => get_admin_lang(),
+            ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -405,10 +417,30 @@ class Guestbook extends Base
      */
     public function attribute_del()
     {
-        $id_arr = I('del_id/a');
+        $this->language_access(); // 多语言功能操作权限
+
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
-            $r = M('GuestbookAttribute')->where("attr_id",'IN',$id_arr)->delete();
+            /*多语言*/
+            if (is_language()) {
+                $attr_name_arr = [];
+                foreach ($id_arr as $key => $val) {
+                    $attr_name_arr[] = 'attr_'.$val;
+                }
+                $new_id_arr = Db::name('language_attr')->where([
+                        'attr_name' => ['IN', $attr_name_arr],
+                        'attr_group'    => 'guestbook_attribute',
+                    ])->column('attr_value');
+                !empty($new_id_arr) && $id_arr = $new_id_arr;
+            }
+            /*--end*/
+            $r = M('GuestbookAttribute')->where([
+                    'attr_id'   => ['IN', $id_arr],
+                ])->update([
+                    'is_del'    => 1,
+                    'update_time'   => getTime(),
+                ]);
             if($r){
                 adminLog('删除留言表单-id：'.implode(',', $id_arr));
                 $this->success('删除成功');
@@ -417,6 +449,67 @@ class Guestbook extends Base
             }
         }else{
             $this->error('参数有误');
+        }
+    }
+
+    /**
+     * 同步新增留言属性ID到多语言的模板变量里
+     */
+    private function syn_add_language_attribute($attr_id)
+    {
+        /*单语言情况下不执行多语言代码*/
+        if (!is_language()) {
+            return true;
+        }
+        /*--end*/
+
+        $attr_group = 'guestbook_attribute';
+        $admin_lang = get_admin_lang();
+        $main_lang = get_main_lang();
+        $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
+        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
+            $result = Db::name('guestbook_attribute')->find($attr_id);
+            $attr_name = 'attr_'.$attr_id;
+            $r = Db::name('language_attribute')->save([
+                'attr_title'    => $result['attr_name'],
+                'attr_name'     => $attr_name,
+                'attr_group'    => $attr_group,
+                'add_time'      => getTime(),
+                'update_time'   => getTime(),
+            ]);
+            if (false !== $r) {
+                $data = [];
+                foreach ($languageRow as $key => $val) {
+                    /*同步新留言属性到其他语言留言属性列表*/
+                    if ($val['mark'] != $admin_lang) {
+                        $addsaveData = $result;
+                        $addsaveData['lang'] = $val['mark'];
+                        $newTypeid = Db::name('language_attr')->where([
+                                'attr_name' => 'tid'.$result['typeid'],
+                                'attr_group'    => 'arctype',
+                                'lang'  => $val['mark'],
+                            ])->getField('attr_value');
+                        $addsaveData['typeid'] = $newTypeid;
+                        unset($addsaveData['attr_id']);
+                        $attr_id = Db::name('guestbook_attribute')->insertGetId($addsaveData);
+                    }
+                    /*--end*/
+                    
+                    /*所有语言绑定在主语言的ID容器里*/
+                    $data[] = [
+                        'attr_name' => $attr_name,
+                        'attr_value'    => $attr_id,
+                        'lang'  => $val['mark'],
+                        'attr_group'    => $attr_group,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ];
+                    /*--end*/
+                }
+                if (!empty($data)) {
+                    model('LanguageAttr')->saveAll($data);
+                }
+            }
         }
     }
 }

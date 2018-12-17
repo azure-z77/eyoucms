@@ -94,7 +94,7 @@ class Mobile extends Paginator
     protected function getTotalResult()
     {
         return sprintf(
-            '共<strong>%s</strong>页&nbsp;<strong>%s</strong>条',
+            lang('sys5'),
             $this->lastPage,
             $this->total
         );
@@ -163,19 +163,19 @@ class Mobile extends Paginator
 
             $pageArr = array();
             if (in_array('index', $listitemArr)) {
-                array_push($pageArr, $this->getFirstButton('首页'));
+                array_push($pageArr, $this->getFirstButton(lang('sys1')));
             }
             if (in_array('pre', $listitemArr)) {
-                array_push($pageArr, $this->getPreviousButton('上一页'));
+                array_push($pageArr, $this->getPreviousButton(lang('sys2')));
             }
             if (in_array('pageno', $listitemArr)) {
                 array_push($pageArr, $this->getLinks($listsize));
             }
             if (in_array('next', $listitemArr)) {
-                array_push($pageArr, $this->getNextButton('下一页'));
+                array_push($pageArr, $this->getNextButton(lang('sys3')));
             }
             if (in_array('end', $listitemArr)) {
-                array_push($pageArr, $this->getLastButton('末页'));
+                array_push($pageArr, $this->getLastButton(lang('sys4')));
             }
             if (in_array('info', $listitemArr)) {
                 array_push($pageArr, $this->getTotalResult());

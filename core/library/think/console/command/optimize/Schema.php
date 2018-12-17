@@ -102,7 +102,8 @@ class Schema extends Command
         }
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = Db::connect($config)->getFields($db . $table);
+            $info    = Db::connect($config)->getFields($table); // by 小虎哥
+            // $info    = Db::connect($config)->getFields($db . $table);
             $content .= var_export($info, true) . ';';
             file_put_contents(DATA_PATH . 'schema' . DS . $table . EXT, $content); // by 小虎哥
         }

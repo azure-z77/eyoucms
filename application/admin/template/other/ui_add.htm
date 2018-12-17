@@ -10,8 +10,8 @@
                 <h5></h5>
             </div>
             <ul class="tab-base nc-row">
-                <li><a href="{:U('Other/ui_edit', array('id'=>$edit_id))}" class="tab"><span>编辑</span></a></li>
-                <li><a href="javascript:void(0);" class="tab" data-url="{:U('Other/ui_del')}" data-id="{$edit_id}" onClick="ui_delfun(this);"><span>删除</span></a></li>
+                <li><a href="{:url('Other/ui_edit', array('id'=>$edit_id))}" class="tab"><span>编辑</span></a></li>
+                <li><a href="javascript:void(0);" class="tab" data-url="{:url('Other/ui_del')}" data-id="{$edit_id}" onClick="ui_delfun(this);"><span>删除</span></a></li>
                 <li><a href="javascript:void(0);" class="tab current"><span>新增</span></a></li>
             </ul>
         </div>
@@ -122,7 +122,7 @@
         layer_loading('正在处理');
 
         $.ajax({
-            url: "{:U('Other/ui_add')}",
+            url: "{:url('Other/ui_add')}",
             type: 'POST',
             dataType: 'JSON',
             data: $('#post_form').serialize(),

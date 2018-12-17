@@ -29,20 +29,20 @@ class Uploadify extends Base
 
     public function upload()
     {
-        $func = I('func');
-        $path = I('path','allimg');
-        $num = I('num/d', '1');
+        $func = input('func');
+        $path = input('path','allimg');
+        $num = input('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
-        $size = I('size/d'); // 单位为kb
+        $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
         $info = array(
             'num'=> $num,
             'title' => '',          
-            'upload' =>U('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
-            'fileList'=>U('Uploadify/fileList',array('path'=>$path)),
+            'upload' =>url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
+            'fileList'=>url('Uploadify/fileList',array('path'=>$path)),
             'size' => $size,
             'type' => $this->image_type,
-            'input' => I('input'),
+            'input' => input('input'),
             'func' => empty($func) ? 'undefined' : $func,
         );
         $this->assign('info',$info);
@@ -54,20 +54,20 @@ class Uploadify extends Base
      */
     public function upload_frame()
     {
-        $func = I('func');
-        $path = I('path','allimg');
-        $num = I('num/d', '1');
+        $func = input('func');
+        $path = input('path','allimg');
+        $num = input('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
-        $size = I('size/d'); // 单位为kb
+        $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
         $info = array(
             'num'=> $num,
             'title' => '',          
-            'upload' =>U('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
-            'fileList'=>U('Uploadify/fileList',array('path'=>$path)),
+            'upload' =>url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
+            'fileList'=>url('Uploadify/fileList',array('path'=>$path)),
             'size' => $size,
             'type' => $this->image_type,
-            'input' => I('input'),
+            'input' => input('input'),
             'func' => empty($func) ? 'undefined' : $func,
         );
         $this->assign('info',$info);
@@ -79,22 +79,22 @@ class Uploadify extends Base
      */
     public function upload_product()
     {
-        $aid = I('aid/d');
-        $func = I('func');
-        $path = I('path','allimg');
-        $num = I('num/d', '1');
+        $aid = input('aid/d');
+        $func = input('func');
+        $path = input('path','allimg');
+        $num = input('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
-        $size = I('size/d'); // 单位为kb
+        $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
         $field = array(
             'aid' => $aid,
             'num' => $num,
             'title' => '',          
-            'upload' => U('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
-            'fileList'=> U('Uploadify/fileList',array('path'=>$path)),
+            'upload' => url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
+            'fileList'=> url('Uploadify/fileList',array('path'=>$path)),
             'size' => $size,
             'type' => $this->image_type,
-            'input' => I('input'),
+            'input' => input('input'),
             'func' => empty($func) ? 'undefined' : $func,
         );
         $this->assign('field',$field);
@@ -106,20 +106,20 @@ class Uploadify extends Base
      */
     public function upload_full()
     {
-        $func = I('func');
-        $path = I('path','allimg');
-        $num = I('num/d', '1');
+        $func = input('func');
+        $path = input('path','allimg');
+        $num = input('num/d', '1');
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
-        $size = I('size/d'); // 单位为kb
+        $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
         $info = array(
             'num'=> $num,
             'title' => '',          
-            'upload' =>U('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
-            'fileList'=>U('Uploadify/fileList',array('path'=>$path)),
+            'upload' =>url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
+            'fileList'=>url('Uploadify/fileList',array('path'=>$path)),
             'size' => $size,
             'type' => $this->image_type,
-            'input' => I('input'),
+            'input' => input('input'),
             'func' => empty($func) ? 'undefined' : $func,
         );
         $this->assign('info',$info);
@@ -131,9 +131,9 @@ class Uploadify extends Base
      */
     public function delupload()
     {
-        $action = I('action','del');                
-        $filename= I('filename/s');
-        $filename= empty($filename) ? I('url') : $filename;
+        $action = input('action','del');                
+        $filename= input('filename/s');
+        $filename= empty($filename) ? input('url') : $filename;
         $filename= str_replace('../','',$filename);
         $filename= trim($filename,'.');
         $filename= trim($filename,'/');
@@ -156,7 +156,7 @@ class Uploadify extends Base
     
     public function fileList(){
         /* 判断类型 */
-        $type = I('type','Images');
+        $type = input('type','Images');
         switch ($type){
             /* 列出图片 */
             case 'Images' : $allowFiles = str_replace(',', '|', $this->image_type);break;
@@ -181,7 +181,7 @@ class Uploadify extends Base
         $start = isset($_GET['start']) ? htmlspecialchars($_GET['start']) : 0;
         $end = $start + $size;
         
-        $path = I('path','allimg');
+        $path = input('path','allimg');
         if (1 == preg_match('#\.#', $path)) {
             echo json_encode(array(
                     "state" => "路径不符合规范",

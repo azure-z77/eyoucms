@@ -229,11 +229,13 @@
             timeout : 360000, //超时时间设置，单位毫秒 设置了 1小时
             data : {code:code},
             error: function(request) {
+                layer.closeAll();
                 layer.alert("网络请求失败", {icon: 2}, function(){
                     window.location.reload();
                 });
             },
             success: function(v) {
+                layer.closeAll();
                 if(v=='1'){
                     layer.alert('已升级最新版本!', {icon: 1}, function(){
                         window.location.reload();

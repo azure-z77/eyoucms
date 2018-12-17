@@ -12,7 +12,7 @@ class Lang
     /**
      * @var string 语言作用域
      */
-    private static $range = 'zh-cn';
+    private static $range = 'cn';
 
     /**
      * @var string 语言自动侦测的变量
@@ -22,7 +22,7 @@ class Lang
     /**
      * @var string 语言 Cookie 变量
      */
-    protected static $langCookieVar = 'eyou_lang_var';
+    protected static $langCookieVar = 'home_lang';
 
     /**
      * @var int 语言 Cookie 的过期时间
@@ -37,7 +37,7 @@ class Lang
     /**
      * @var array Accept-Language 转义为对应语言包名称 系统默认配置
      */
-    protected static $acceptLanguage = ['zh-hans-cn' => 'zh-cn'];
+    protected static $acceptLanguage = ['zh-hans-cn' => 'cn'];
 
     /**
      * 设定当前的语言
@@ -147,7 +147,8 @@ class Lang
         }
 
         $key   = strtolower($name);
-        $value = isset(self::$lang[$range][$key]) ? self::$lang[$range][$key] : $name;
+        // $value = isset(self::$lang[$range][$key]) ? self::$lang[$range][$key] : $name;
+        $value = isset(self::$lang[$range][$key]) ? self::$lang[$range][$key] : ''; // 多语言 by 小虎哥
 
         // 变量解析
         if (!empty($vars) && is_array($vars)) {

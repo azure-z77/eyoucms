@@ -246,6 +246,17 @@ class Backup{
      * @return mixed
      */
     public static function parseSql($filename){
+
+        /*获取所有数据表名*/
+        $tableList = [];
+        $dbtables = Db::query('SHOW TABLE STATUS');
+        foreach ($dbtables as $k => $v) {
+            if (preg_match('/^'.config('database.prefix').'/i', $v['Name'])) {
+                $tableList[] = $v['Name'];
+            }
+        }
+        /*--end*/
+
         $lines=file($filename);
         $lines[0]=str_replace(chr(239).chr(187).chr(191),"",$lines[0]);//去除BOM头
         $flage = true;
@@ -273,8 +284,17 @@ class Backup{
                             $sql.=$line;
                             if(substr($line,-1)==";")
                             {
-                                if ("ey_" != config('database.prefix')) {
-                                    $sql = str_replace("ey_", config('database.prefix'), $sql);
+                                /*处理安装sql与备份sql里表前缀的兼容性*/
+                                $ey_prefix = 'ey_';
+                                foreach ($tableList as $k2 => $v2) {
+                                    if (stristr($sql, '`'.$v2.'`')) {
+                                        $ey_prefix = config('database.prefix');
+                                        break;
+                                    }
+                                }
+                                /*--end*/
+                                if ('ey_' != config('database.prefix')) {
+                                    $sql = str_replace("`{$ey_prefix}", '`'.config('database.prefix'), $sql);
                                 }
                                 $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
                                 $sqls[]=$sql;

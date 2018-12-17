@@ -99,4 +99,41 @@ class AuthRole extends Model{
         \think\Cache::clear('auth_role');
         return $rs;
     }
+
+    /**
+     * 同步栏目ID到权限组，默认是赋予该栏目的权限
+     * @param int $typeid
+     */
+    public function syn_auth_role($typeid = 0)
+    {
+        if (0 < intval($typeid)) {
+            $roleRow = $this->getRoleAll();
+            if (!empty($roleRow)) {
+                $saveData = [];
+                foreach ($roleRow as $key => $val) {
+                    $permission = $val['permission'];
+                    $rules = !empty($permission['rules']) ? $permission['rules'] : [];
+                    if (!in_array(1, $rules)) {
+                        continue;
+                    }
+                    $arctype = !empty($permission['arctype']) ? $permission['arctype'] : [];
+                    if (!empty($arctype)) {
+                        array_push($arctype, $typeid);
+                        $permission['arctype'] = $arctype;
+                    }
+                    $saveData[] = array(
+                        'id'    => $val['id'],
+                        'permission'    => $permission,
+                    );
+                }
+                $r = $this->saveAll($saveData);
+                if (false != $r && 0 < intval(session('admin_info.role_id'))) {
+                    /*及时更新当前管理员权限*/
+                    $auth_role_info = $this->getRole(array('id' => session('admin_info.role_id')));
+                    session('admin_info.auth_role_info', $auth_role_info);
+                    /*--end*/
+                }
+            }
+        }
+    }
 }

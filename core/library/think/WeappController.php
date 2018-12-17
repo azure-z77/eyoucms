@@ -63,6 +63,21 @@ class WeappController
     protected $weapp_action_name       =   '';
 
     /**
+     * 主体语言（语言列表中最早一条）
+     */
+    public $main_lang = 'cn';
+
+    /**
+     * 后台当前语言
+     */
+    public $admin_lang = 'cn';
+
+    /**
+     * 前台当前语言
+     */
+    public $home_lang = 'cn';
+
+    /**
      * 构造方法
      * @access public
      * @param Request $request Request 对象
@@ -84,14 +99,25 @@ class WeappController
         $this->weapp_module_name = $this->request->param('sm')?:$wmcArr[1]; // 当前插件模块名称
         $this->weapp_controller_name = $this->request->param('sc')?:$wmcArr[3]; // 当前插件控制器名称
         $this->weapp_action_name = $this->request->param('sa')?:'index'; // 当前插件操作名称是
+        !defined('SYSTEM_ADMIN_LANG') && define('SYSTEM_ADMIN_LANG', Config::get('global.admin_lang')); // 后台语言变量
+        !defined('SYSTEM_HOME_LANG') && define('SYSTEM_HOME_LANG', Config::get('global.home_lang')); // 前台语言变量
 
         // 模板路径
         $template = Config::get('template');
-        $template['view_path'] = '.'.__ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template/';
+        $template['view_path'] = '.'.ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template/';
         Config::set('template', $template);
 
         $this->view    = View::instance($template);
 
+        /*多语言*/
+        $this->home_lang = get_home_lang();
+        $this->admin_lang = get_admin_lang();
+        $this->main_lang = get_main_lang();
+        $this->assign('home_lang', $this->home_lang);
+        $this->assign('admin_lang', $this->admin_lang);
+        $this->assign('main_lang', $this->main_lang);
+        /*--end*/
+        
         $this->weapp_path   =   WEAPP_DIR_NAME.DS.$this->weapp_module_name.DS;
         if(is_file($this->weapp_path.'config.php')){
             $this->config_file = $this->weapp_path.'config.php';
@@ -235,7 +261,7 @@ class WeappController
             die("模板文件不存在:$template");
         }
         /*插件模板字符串替换，不能放在构造函数，毕竟构造函数只执行一次 by 小虎哥*/
-        $replace['__WEAPP_TEMPLATE__'] = __ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template';
+        $replace['__WEAPP_TEMPLATE__'] = ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template';
         /*--end*/
         $replace = array_merge(Config::get('view_replace_str'), $replace);
         $config = array_merge(Config::get('template'), $config);
@@ -406,6 +432,6 @@ class WeappController
      * 插件使用说明
      */
     public function doc(){
-        $this->success("该插件开发者未完善使用指南！");
+        $this->success("该插件开发者未完善使用指南！", null, '', 3);
     }
 }

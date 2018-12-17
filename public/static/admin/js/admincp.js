@@ -63,7 +63,7 @@ function openItem(param) {
             src = src + data_str[i];
         }
     }
-    var lang = $.cookie('admin_lang_var');
+    var lang = $.cookie('admin_lang');
     if (false != $.inArray('lang', data_str) && $.trim(lang) != '') {
         src = src + '&lang=' + lang;
     }

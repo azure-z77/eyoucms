@@ -44,14 +44,7 @@ class Channelfield extends Model
      */
     public function getInfoByWhere($where, $field = '*')
     {
-        $cacheKey = "common-Channelfield-getInfoByWhere-".json_encode($where)."-{$field}";
-        $result = cache($cacheKey);
-        if (!empty($result)) {
-            return $result;
-        }
-
         $result = db('Channelfield')->field($field)->where($where)->cache(true,EYOUCMS_CACHE_TIME,"channelfield")->find();
-        cache($cacheKey, $result, null, 'channelfield');
 
         return $result;
     }
@@ -62,24 +55,15 @@ class Channelfield extends Model
      */
     public function getListByWhere($map = array(), $field = '*', $index_key = '')
     {
-        $cacheKey = "common-Channelfield-getListByWhere-".json_encode($map)."-{$field}-{$index_key}";
-        $result = cache($cacheKey);
-        if (!empty($result)) {
-            return $result;
-        }
-
         $result = db('Channelfield')->field($field)
             ->where($map)
             ->order('sort_order asc, channel_id desc, id desc')
-            ->cache(true,EYOUCMS_CACHE_TIME,"channelfield")
             ->select();
 
         if (!empty($index_key)) {
             $result = convert_arr_key($result, $index_key);
         }
         
-        cache($cacheKey, $result, null, 'channelfield');
-
         return $result;
     }
 }

@@ -98,11 +98,13 @@
         foreach($folder as $dir){
             $is_write = false;
             $Testdir = SITEDIR.$dir;
-            if (file_exists($Testdir) && is_dir($Testdir)) {
-                dir_create($Testdir);
-                $is_write = TestWrite($Testdir);
-            } else if (file_exists($Testdir) && is_file($Testdir)) {
+            if (file_exists($Testdir) && is_file($Testdir)) {
                 $is_write = is_writable($Testdir);
+                !empty($is_write) && $is_write = is_readable($Testdir);
+            } else {
+                dir_create($Testdir);
+                $is_write = testwrite($Testdir);
+                !empty($is_write) && $is_write = is_readable($Testdir);
             }
             
             if($is_write){

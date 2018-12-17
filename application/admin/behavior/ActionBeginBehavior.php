@@ -33,39 +33,9 @@ class ActionBeginBehavior {
 
     private function _initialize() {
         if ('POST' == self::$method) {
-            $this->clearArchives();
             $this->clearWeapp();
             $this->sitemap();
         }
-    }
-
-    /**
-     * 清除小程序插件缓存
-     * @access public
-     */
-    private function clearArchives()
-    {
-        /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctlArr = array(
-            'Arctype',
-            'Article',
-            'Product',
-            'Images',
-            'Download',
-            'Guestbook',
-        );
-        $actArr = array(
-            'add',
-            'edit',
-            'del',
-            'attribute_add',
-            'attribute_edit',
-            'attribute_del',
-        );
-        if (in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
-            \think\Cache::clear('minipro');
-        }
-        /*--end*/
     }
 
     /**
@@ -100,10 +70,10 @@ class ActionBeginBehavior {
     {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
         $ctlActArr = array(
-            'weapp@*',
+            'Weapp@*',
         );
         $ctlActStr = self::$controllerName.'@*';
-        if (in_array(strtolower($ctlActStr), $ctlActArr)) {
+        if (in_array($ctlActStr, $ctlActArr)) {
             \think\Cache::clear('hooks');
         }
         /*--end*/

@@ -40,7 +40,10 @@ class TagArcclick extends Base
         }
 
         if (empty($value)) {
-            $value = M('archives')->where('aid', $aid)->getField('click');
+            $value = M('archives')->where([
+                    'aid'   => $aid,
+                    'lang'  => $this->home_lang,
+                ])->getField('click');
         }
 
         $web_cmspath = tpCache('global.web_cmspath');

@@ -50,6 +50,7 @@ class TagArcview extends Base
         $result = M("archives")->field('b.*, a.*')
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+            ->where('a.lang', $this->home_lang)
             ->find($aid);
         if (empty($result)) {
             echo '标签arcview报错：该文档ID('.$aid.')不存在。';

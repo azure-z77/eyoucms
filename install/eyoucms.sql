@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-11-16 14:40:21
+Date: 2018-12-17 17:45:38
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -37,19 +37,20 @@ CREATE TABLE `ey_ad` (
   `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1=显示，0=屏蔽',
   `sort_order` int(11) DEFAULT '0' COMMENT '排序',
   `target` varchar(50) DEFAULT '' COMMENT '是否开启浏览器新窗口',
+  `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '多语言',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `position_id` (`pid`) USING BTREE,
   KEY `status` (`status`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='广告表';
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='广告表';
 
 -- ----------------------------
 -- Records of ey_ad
 -- ----------------------------
-INSERT INTO `ey_ad` VALUES ('1', '1', '1', '共展蓝图', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/7fd4167b47cbe5eefb4249ae669c6f10.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', 'cn', '1524215652', '1527824535');
-INSERT INTO `ey_ad` VALUES ('2', '1', '1', '易优模板库', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/9f1b15b03aef06830f07a2591f5c7708.jpg', '0', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', 'cn', '1524214017', '1531724625');
+INSERT INTO `ey_ad` VALUES ('1', '1', '1', '共展蓝图', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/7fd4167b47cbe5eefb4249ae669c6f10.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '0', 'cn', '1524215652', '1527824535');
+INSERT INTO `ey_ad` VALUES ('2', '1', '1', '易优模板库', 'http://www.eyoucms.com', '/public/upload/other/2018/06/01/9f1b15b03aef06830f07a2591f5c7708.jpg', '0', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '0', 'cn', '1524214017', '1531724625');
 
 -- ----------------------------
 -- Table structure for ey_admin
@@ -58,6 +59,7 @@ DROP TABLE IF EXISTS `ey_admin`;
 CREATE TABLE `ey_admin` (
   `admin_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户id',
   `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
+  `pen_name` varchar(50) DEFAULT '' COMMENT '笔名（发布文章后显示责任编辑的名字）',
   `true_name` varchar(20) DEFAULT '' COMMENT '真实姓名',
   `mobile` varchar(11) DEFAULT '' COMMENT '手机号码',
   `email` varchar(60) DEFAULT '' COMMENT 'email',
@@ -68,6 +70,7 @@ CREATE TABLE `ey_admin` (
   `session_id` varchar(50) DEFAULT '' COMMENT 'session_id',
   `parent_id` int(10) DEFAULT '0' COMMENT '父管理员ID',
   `role_id` int(10) NOT NULL DEFAULT '-1' COMMENT '角色组ID（-1表示超级管理员）',
+  `mark_lang` varchar(50) DEFAULT 'cn' COMMENT '当前语言标识',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(0=屏蔽，1=正常)',
   `add_time` int(11) DEFAULT '0' COMMENT '添加时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -78,7 +81,7 @@ CREATE TABLE `ey_admin` (
 -- ----------------------------
 -- Records of ey_admin
 -- ----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1540970915', '127.0.0.1', '39', '5cunfv8qiotif8798aubfvmu01', '0', '-1', '1', '1531707001', '0');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1540970915', '127.0.0.1', '39', '5cunfv8qiotif8798aubfvmu01', '0', '-1', 'sq', '1', '1531707001', '1543802837');
 
 -- ----------------------------
 -- Table structure for ey_admin_log
@@ -93,7 +96,7 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(10) DEFAULT NULL COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=123 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
+) ENGINE=MyISAM AUTO_INCREMENT=128 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- ----------------------------
 -- Records of ey_admin_log
@@ -103,6 +106,11 @@ INSERT INTO `ey_admin_log` VALUES ('119', '1', '安全退出', '127.0.0.1', '/lo
 INSERT INTO `ey_admin_log` VALUES ('120', '1', '后台登录', '127.0.0.1', '/login.php', '1540968885');
 INSERT INTO `ey_admin_log` VALUES ('121', '1', '安全退出', '127.0.0.1', '/login.php', '1540970909');
 INSERT INTO `ey_admin_log` VALUES ('122', '1', '后台登录', '127.0.0.1', '/login.php', '1540970915');
+INSERT INTO `ey_admin_log` VALUES ('123', '1', '编辑图集：客户案例三', '127.0.0.1', '/login.php', '1543798501');
+INSERT INTO `ey_admin_log` VALUES ('124', '1', '录入商业授权', '127.0.0.1', '/login.php', '1543801473');
+INSERT INTO `ey_admin_log` VALUES ('125', '1', '录入商业授权', '127.0.0.1', '/login.php', '1543801503');
+INSERT INTO `ey_admin_log` VALUES ('126', '1', '新增多语言：Albanian', '127.0.0.1', '/login.php', '1543801522');
+INSERT INTO `ey_admin_log` VALUES ('127', '1', '删除多语言：Albanian', '127.0.0.1', '/login.php', '1543805286');
 
 -- ----------------------------
 -- Table structure for ey_ad_position
@@ -116,6 +124,7 @@ CREATE TABLE `ey_ad_position` (
   `intro` text COMMENT '广告描述',
   `status` tinyint(1) DEFAULT '1' COMMENT '0关闭1开启',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '多语言',
+  `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
@@ -124,7 +133,7 @@ CREATE TABLE `ey_ad_position` (
 -- ----------------------------
 -- Records of ey_ad_position
 -- ----------------------------
-INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '1524209276', '1524209365');
+INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '0', '1524209276', '1524209365');
 
 -- ----------------------------
 -- Table structure for ey_archives
@@ -158,7 +167,7 @@ CREATE TABLE `ey_archives` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`),
   KEY `aid` (`typeid`,`channel`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='文档主表';
+) ENGINE=MyISAM AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COMMENT='文档主表';
 
 -- ----------------------------
 -- Records of ey_archives
@@ -189,7 +198,7 @@ INSERT INTO `ey_archives` VALUES ('38', '11', '1', '0', '商梦网校：单页SE
 INSERT INTO `ey_archives` VALUES ('41', '12', '1', '0', '《颠覆营销:大数据时代的商业革命》：大数据“多即少，少即多”', '', '0', '0', '0', '0', '0', '', '161', '0', '', '0', '', '', '各种行销手段早已令人眼花缭乱，但究其本质都是在研究客户（消费者），研究客户的所想、所需，使产品或服务有的放矢。大数据时代又给它赋予了新名词：精准营销。大数据最先应用的领域多为面对客户的行业，最先应用的情景也多为精准营销。“酒好也怕巷子深”，产品或服务的信息要送达客户才可能促成交易。一般认为，向客户传达产品或服务信息要靠广告。广告古已有之，“三碗不过岗”的酒幌子就是广告。没有互联网的时代，我们熟悉的是电视广告、广播广告、印刷品平面广告、户外广告牌等，当然，也包括吆喝叫卖。但过去的广告是千人一面、不区分受众的。后来商家对客户的信息有所采集就有了CRM，经过客户分类，可以更好地服务于不同的客户群体。互联网+大数据时代让CRM有了新的发展机遇，管理客户不再是简单的数字统计和没有个性的（或简单聚类的）直邮、定投。随着商家对客户知道更多、了解更深，便有机会为客户提供个性化的营销方案，进一步改善客户体验，成为了个性化营销或叫精准营销。大数据时代，让很多过去的不可能变为可能，营销活动也赢来了新的发展机遇。时代不同，商业经营的形式会变化，但本质就是两件事：开源，节流。开源是开拓新客户，发现新商机；节流是', '1', '100', 'cn', '0', '1527825125', '1527825125');
 INSERT INTO `ey_archives` VALUES ('42', '4', '3', '0', '客户案例一', '/public/upload/images/2018/07/16/a6633714552fcccee2f49f2131f9d131.jpg', '0', '0', '0', '0', '0', '', '251', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531731387', '1531732448');
 INSERT INTO `ey_archives` VALUES ('43', '4', '3', '0', '客户案例二', '/public/upload/images/2018/07/16/2a97ea57a860f5ca2bfb007d06f0e47c.jpg', '0', '0', '0', '0', '0', '', '266', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531732591', '1531732691');
-INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '0', '0', '0', '0', '0', '', '281', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1531732811', '1531732852');
+INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '0', '0', '0', '0', '0', '', '281', '0', '', '0', '', '', '', '1', '100', 'cn', '0', '1532078411', '1543798501');
 
 -- ----------------------------
 -- Table structure for ey_arcrank
@@ -203,7 +212,7 @@ CREATE TABLE `ey_arcrank` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='文档阅读权限表';
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='文档阅读权限表';
 
 -- ----------------------------
 -- Records of ey_arcrank
@@ -244,7 +253,7 @@ CREATE TABLE `ey_arctype` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `dirname` (`dirname`,`lang`) USING BTREE,
   KEY `parent_id` (`channeltype`,`parent_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
+) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
 
 -- ----------------------------
 -- Records of ey_arctype
@@ -331,8 +340,8 @@ CREATE TABLE `ey_auth_role` (
 -- ----------------------------
 -- Records of ey_auth_role
 -- ----------------------------
-INSERT INTO `ey_auth_role` VALUES ('1', '优化推广员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:8:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"8\";i:4;s:1:\"9\";i:5;s:2:\"10\";i:6;s:2:\"14\";i:7;i:2;}s:7:\"arctype\";a:40:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";}}', '1', '100', '1', '0', '1541207843', '0');
-INSERT INTO `ey_auth_role` VALUES ('2', '内容管理员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:4:{i:0;s:1:\"1\";i:1;s:2:\"10\";i:2;s:2:\"14\";i:3;i:2;}s:7:\"arctype\";a:40:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";}}', '1', '100', '1', '0', '1541207846', '0');
+INSERT INTO `ey_auth_role` VALUES ('1', '优化推广员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:8:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"8\";i:4;s:1:\"9\";i:5;s:2:\"10\";i:6;s:2:\"14\";i:7;i:2;}s:7:\"arctype\";a:63:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";}}', '1', '100', '1', '0', '1541207843', '0');
+INSERT INTO `ey_auth_role` VALUES ('2', '内容管理员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:4:{i:0;s:1:\"1\";i:1;s:2:\"10\";i:2;s:2:\"14\";i:3;i:2;}s:7:\"arctype\";a:63:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";}}', '1', '100', '1', '0', '1541207846', '0');
 
 -- ----------------------------
 -- Table structure for ey_channelfield
@@ -438,12 +447,12 @@ CREATE TABLE `ey_channeltype` (
 -- ----------------------------
 -- Records of ey_channeltype
 -- ----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1540970915');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1540970915');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1540970915');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1540970915');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1540970915');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1540970915');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1543802839');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1543802839');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1543802839');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1543802839');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1543802839');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1543802839');
 
 -- ----------------------------
 -- Table structure for ey_config
@@ -459,7 +468,7 @@ CREATE TABLE `ey_config` (
   `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=90 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=166 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- ----------------------------
 -- Records of ey_config
@@ -511,7 +520,7 @@ INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '',
 INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优CMS -  Powered by Eyoucms.com', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('56', 'smtp_test_eamil', 'xxxxxxxx@qq.com', 'smtp', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', 'bbe78c0c1afa6adfa4f01d85196e08e4', 'web', '', 'cn', '0', '1543801473');
 INSERT INTO `ey_config` VALUES ('58', 'web_attr_3', '123456789', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('59', 'web_attr_2', '8888-88888888', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', 'http://www.weibo.com', 'web', '', 'cn', '0', '0');
@@ -525,10 +534,10 @@ INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '', 
 INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'y2k8B8MNcvrbLEmGcMsLstGD', 'php', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'nb7hx1rPHHjaq5qHcwSmu8B7', 'php', '', 'cn', '0', '1543802824');
 INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', 'cn', '0', '1543801504');
 INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '0');
@@ -537,6 +546,8 @@ INSERT INTO `ey_config` VALUES ('85', 'web_show_popup_upgrade', '1', 'web', '', 
 INSERT INTO `ey_config` VALUES ('86', 'web_weapp_switch', '-1', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('90', 'system_langnum', '1', 'system', '', 'cn', '0', '1543805286');
+INSERT INTO `ey_config` VALUES ('165', 'system_home_default_lang', 'cn', 'system', '', 'cn', '0', '0');
 
 -- ----------------------------
 -- Table structure for ey_config_attribute
@@ -552,7 +563,7 @@ CREATE TABLE `ey_config_attribute` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='自定义变量表';
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='自定义变量表';
 
 -- ----------------------------
 -- Records of ey_config_attribute
@@ -690,6 +701,7 @@ CREATE TABLE `ey_guestbook_attr` (
   `aid` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '留言id',
   `attr_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '表单id',
   `attr_value` text COMMENT '表单值',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`guest_attr_id`),
@@ -700,64 +712,64 @@ CREATE TABLE `ey_guestbook_attr` (
 -- ----------------------------
 -- Records of ey_guestbook_attr
 -- ----------------------------
-INSERT INTO `ey_guestbook_attr` VALUES ('1', '15', '1', '蓉蓉', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('2', '15', '2', '18800000000', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('3', '15', '3', '隔壁老王', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('4', '16', '1', '隔壁老王', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('5', '16', '2', '18800000000', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('6', '16', '3', '扫地阿姨', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('7', '17', '4', '姓名啊', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('8', '17', '5', '手机号啊', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('9', '17', '6', '备注啊', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('10', '20', '4', '77u', '1526873289', '1526873289');
-INSERT INTO `ey_guestbook_attr` VALUES ('11', '20', '5', '润体乳', '1526873290', '1526873290');
-INSERT INTO `ey_guestbook_attr` VALUES ('12', '20', '6', '投入人员让他', '1526873290', '1526873290');
-INSERT INTO `ey_guestbook_attr` VALUES ('13', '21', '4', '大声说地方', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('14', '21', '5', '多个梵蒂冈', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('15', '21', '6', '士大夫士大夫', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('16', '22', '4', '第三方', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('17', '22', '5', '非官方个', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('18', '22', '6', '阿大丰收', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('19', '23', '4', '打发斯蒂芬', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook_attr` VALUES ('20', '23', '6', '房东是个负担', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook_attr` VALUES ('21', '24', '4', '爱的色放的', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('22', '24', '5', '第三方', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('23', '24', '6', '第三方', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('24', '25', '4', '3423', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('25', '25', '5', '', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('26', '25', '6', '', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('27', '26', '4', '3423', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('28', '26', '5', '', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('29', '26', '6', '', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('30', '27', '4', 'ad', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('31', '27', '5', '辅导费', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('32', '27', '6', '第三方官方的', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('33', '28', '4', 'u7uym', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('34', '28', '5', '一颗', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('35', '28', '6', '个梵蒂冈', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('36', '29', '4', '突然有人头', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('37', '29', '5', '扔他', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('38', '29', '6', '儿童', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('39', '30', '4', '545', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('40', '30', '5', '天通苑', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('41', '30', '6', '个体户发过火', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('42', '30', '7', '个人', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('43', '31', '4', '234', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('44', '31', '5', '43534', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('45', '31', '6', '546546', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('46', '31', '7', '团队', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('47', '32', '4', '姓名', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('48', '32', '5', '联系方式', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('49', '32', '7', '无', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('50', '32', '6', '备注', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('51', '33', '4', '姓名', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('52', '33', '7', '个人', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('53', '33', '6', '备注', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('54', '33', '5', '联系方式', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('55', '34', '4', '343', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('56', '34', '5', '435435', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('57', '34', '6', '435345', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('58', '34', '7', '无', '1527156154', '1527156154');
+INSERT INTO `ey_guestbook_attr` VALUES ('1', '15', '1', '蓉蓉', 'cn', '1526616554', '1526616554');
+INSERT INTO `ey_guestbook_attr` VALUES ('2', '15', '2', '18800000000', 'cn', '1526616554', '1526616554');
+INSERT INTO `ey_guestbook_attr` VALUES ('3', '15', '3', '隔壁老王', 'cn', '1526616554', '1526616554');
+INSERT INTO `ey_guestbook_attr` VALUES ('4', '16', '1', '隔壁老王', 'cn', '1526616615', '1526616615');
+INSERT INTO `ey_guestbook_attr` VALUES ('5', '16', '2', '18800000000', 'cn', '1526616615', '1526616615');
+INSERT INTO `ey_guestbook_attr` VALUES ('6', '16', '3', '扫地阿姨', 'cn', '1526616615', '1526616615');
+INSERT INTO `ey_guestbook_attr` VALUES ('7', '17', '4', '姓名啊', 'cn', '1526872813', '1526872813');
+INSERT INTO `ey_guestbook_attr` VALUES ('8', '17', '5', '手机号啊', 'cn', '1526872813', '1526872813');
+INSERT INTO `ey_guestbook_attr` VALUES ('9', '17', '6', '备注啊', 'cn', '1526872813', '1526872813');
+INSERT INTO `ey_guestbook_attr` VALUES ('10', '20', '4', '77u', 'cn', '1526873289', '1526873289');
+INSERT INTO `ey_guestbook_attr` VALUES ('11', '20', '5', '润体乳', 'cn', '1526873290', '1526873290');
+INSERT INTO `ey_guestbook_attr` VALUES ('12', '20', '6', '投入人员让他', 'cn', '1526873290', '1526873290');
+INSERT INTO `ey_guestbook_attr` VALUES ('13', '21', '4', '大声说地方', 'cn', '1526873428', '1526873428');
+INSERT INTO `ey_guestbook_attr` VALUES ('14', '21', '5', '多个梵蒂冈', 'cn', '1526873428', '1526873428');
+INSERT INTO `ey_guestbook_attr` VALUES ('15', '21', '6', '士大夫士大夫', 'cn', '1526873428', '1526873428');
+INSERT INTO `ey_guestbook_attr` VALUES ('16', '22', '4', '第三方', 'cn', '1526873526', '1526873526');
+INSERT INTO `ey_guestbook_attr` VALUES ('17', '22', '5', '非官方个', 'cn', '1526873526', '1526873526');
+INSERT INTO `ey_guestbook_attr` VALUES ('18', '22', '6', '阿大丰收', 'cn', '1526873526', '1526873526');
+INSERT INTO `ey_guestbook_attr` VALUES ('19', '23', '4', '打发斯蒂芬', 'cn', '1526873538', '1526873538');
+INSERT INTO `ey_guestbook_attr` VALUES ('20', '23', '6', '房东是个负担', 'cn', '1526873538', '1526873538');
+INSERT INTO `ey_guestbook_attr` VALUES ('21', '24', '4', '爱的色放的', 'cn', '1526873590', '1526873590');
+INSERT INTO `ey_guestbook_attr` VALUES ('22', '24', '5', '第三方', 'cn', '1526873590', '1526873590');
+INSERT INTO `ey_guestbook_attr` VALUES ('23', '24', '6', '第三方', 'cn', '1526873590', '1526873590');
+INSERT INTO `ey_guestbook_attr` VALUES ('24', '25', '4', '3423', 'cn', '1526873598', '1526873598');
+INSERT INTO `ey_guestbook_attr` VALUES ('25', '25', '5', '', 'cn', '1526873598', '1526873598');
+INSERT INTO `ey_guestbook_attr` VALUES ('26', '25', '6', '', 'cn', '1526873598', '1526873598');
+INSERT INTO `ey_guestbook_attr` VALUES ('27', '26', '4', '3423', 'cn', '1526873599', '1526873599');
+INSERT INTO `ey_guestbook_attr` VALUES ('28', '26', '5', '', 'cn', '1526873599', '1526873599');
+INSERT INTO `ey_guestbook_attr` VALUES ('29', '26', '6', '', 'cn', '1526873599', '1526873599');
+INSERT INTO `ey_guestbook_attr` VALUES ('30', '27', '4', 'ad', 'cn', '1526874038', '1526874038');
+INSERT INTO `ey_guestbook_attr` VALUES ('31', '27', '5', '辅导费', 'cn', '1526874038', '1526874038');
+INSERT INTO `ey_guestbook_attr` VALUES ('32', '27', '6', '第三方官方的', 'cn', '1526874038', '1526874038');
+INSERT INTO `ey_guestbook_attr` VALUES ('33', '28', '4', 'u7uym', 'cn', '1526874117', '1526874117');
+INSERT INTO `ey_guestbook_attr` VALUES ('34', '28', '5', '一颗', 'cn', '1526874117', '1526874117');
+INSERT INTO `ey_guestbook_attr` VALUES ('35', '28', '6', '个梵蒂冈', 'cn', '1526874117', '1526874117');
+INSERT INTO `ey_guestbook_attr` VALUES ('36', '29', '4', '突然有人头', 'cn', '1526874555', '1526874555');
+INSERT INTO `ey_guestbook_attr` VALUES ('37', '29', '5', '扔他', 'cn', '1526874555', '1526874555');
+INSERT INTO `ey_guestbook_attr` VALUES ('38', '29', '6', '儿童', 'cn', '1526874555', '1526874555');
+INSERT INTO `ey_guestbook_attr` VALUES ('39', '30', '4', '545', 'cn', '1526876081', '1526876081');
+INSERT INTO `ey_guestbook_attr` VALUES ('40', '30', '5', '天通苑', 'cn', '1526876081', '1526876081');
+INSERT INTO `ey_guestbook_attr` VALUES ('41', '30', '6', '个体户发过火', 'cn', '1526876081', '1526876081');
+INSERT INTO `ey_guestbook_attr` VALUES ('42', '30', '7', '个人', 'cn', '1526876081', '1526876081');
+INSERT INTO `ey_guestbook_attr` VALUES ('43', '31', '4', '234', 'cn', '1526876214', '1526876214');
+INSERT INTO `ey_guestbook_attr` VALUES ('44', '31', '5', '43534', 'cn', '1526876214', '1526876214');
+INSERT INTO `ey_guestbook_attr` VALUES ('45', '31', '6', '546546', 'cn', '1526876214', '1526876214');
+INSERT INTO `ey_guestbook_attr` VALUES ('46', '31', '7', '团队', 'cn', '1526876214', '1526876214');
+INSERT INTO `ey_guestbook_attr` VALUES ('47', '32', '4', '姓名', 'cn', '1527060356', '1527060356');
+INSERT INTO `ey_guestbook_attr` VALUES ('48', '32', '5', '联系方式', 'cn', '1527060356', '1527060356');
+INSERT INTO `ey_guestbook_attr` VALUES ('49', '32', '7', '无', 'cn', '1527060356', '1527060356');
+INSERT INTO `ey_guestbook_attr` VALUES ('50', '32', '6', '备注', 'cn', '1527060356', '1527060356');
+INSERT INTO `ey_guestbook_attr` VALUES ('51', '33', '4', '姓名', 'cn', '1527060517', '1527060517');
+INSERT INTO `ey_guestbook_attr` VALUES ('52', '33', '7', '个人', 'cn', '1527060517', '1527060517');
+INSERT INTO `ey_guestbook_attr` VALUES ('53', '33', '6', '备注', 'cn', '1527060517', '1527060517');
+INSERT INTO `ey_guestbook_attr` VALUES ('54', '33', '5', '联系方式', 'cn', '1527060517', '1527060517');
+INSERT INTO `ey_guestbook_attr` VALUES ('55', '34', '4', '343', 'cn', '1527156154', '1527156154');
+INSERT INTO `ey_guestbook_attr` VALUES ('56', '34', '5', '435435', 'cn', '1527156154', '1527156154');
+INSERT INTO `ey_guestbook_attr` VALUES ('57', '34', '6', '435345', 'cn', '1527156154', '1527156154');
+INSERT INTO `ey_guestbook_attr` VALUES ('58', '34', '7', '无', 'cn', '1527156154', '1527156154');
 
 -- ----------------------------
 -- Table structure for ey_guestbook_attribute
@@ -771,22 +783,23 @@ CREATE TABLE `ey_guestbook_attribute` (
   `attr_values` text COMMENT '可选值列表',
   `sort_order` int(11) unsigned DEFAULT '0' COMMENT '表单排序',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
   KEY `guest_id` (`typeid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='留言表单属性';
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='留言表单属性';
 
 -- ----------------------------
 -- Records of ey_guestbook_attribute
 -- ----------------------------
-INSERT INTO `ey_guestbook_attribute` VALUES ('1', '姓名', '30', '0', '', '100', 'cn', '1526616441', '1526616441');
-INSERT INTO `ey_guestbook_attribute` VALUES ('2', '手机号码', '30', '0', '', '100', 'cn', '1526616453', '1526616453');
-INSERT INTO `ey_guestbook_attribute` VALUES ('3', '约谈对象', '30', '1', '隔壁老王\r\n前台美女\r\n扫地阿姨', '100', 'cn', '1526616497', '1526616812');
-INSERT INTO `ey_guestbook_attribute` VALUES ('4', '姓名', '6', '0', '', '100', 'cn', '1526634369', '1526874914');
-INSERT INTO `ey_guestbook_attribute` VALUES ('5', '联系方式', '6', '0', '', '100', 'cn', '1526634383', '1526634383');
-INSERT INTO `ey_guestbook_attribute` VALUES ('6', '备注信息', '6', '2', '', '100', 'cn', '1526634393', '1526875056');
-INSERT INTO `ey_guestbook_attribute` VALUES ('7', '模式', '6', '1', '个人\r\n团队', '100', 'cn', '1526875483', '1526876172');
+INSERT INTO `ey_guestbook_attribute` VALUES ('1', '姓名', '30', '0', '', '100', 'cn', '0', '1526616441', '1526616441');
+INSERT INTO `ey_guestbook_attribute` VALUES ('2', '手机号码', '30', '0', '', '100', 'cn', '0', '1526616453', '1526616453');
+INSERT INTO `ey_guestbook_attribute` VALUES ('3', '约谈对象', '30', '1', '隔壁老王\r\n前台美女\r\n扫地阿姨', '100', 'cn', '0', '1526616497', '1526616812');
+INSERT INTO `ey_guestbook_attribute` VALUES ('4', '姓名', '6', '0', '', '100', 'cn', '0', '1526634369', '1526874914');
+INSERT INTO `ey_guestbook_attribute` VALUES ('5', '联系方式', '6', '0', '', '100', 'cn', '0', '1526634383', '1526634383');
+INSERT INTO `ey_guestbook_attribute` VALUES ('6', '备注信息', '6', '2', '', '100', 'cn', '0', '1526634393', '1526875056');
+INSERT INTO `ey_guestbook_attribute` VALUES ('7', '模式', '6', '1', '个人\r\n团队', '100', 'cn', '0', '1526875483', '1526876172');
 
 -- ----------------------------
 -- Table structure for ey_hooks
@@ -829,7 +842,7 @@ INSERT INTO `ey_images_content` VALUES ('5', '22', '&lt;p&gt;新闻模型下的�
 INSERT INTO `ey_images_content` VALUES ('6', '23', '&lt;p&gt;新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二&lt;/p&gt;', '1526612316', '1531877859');
 INSERT INTO `ey_images_content` VALUES ('7', '42', '', '1531731387', '1531732448');
 INSERT INTO `ey_images_content` VALUES ('8', '43', '', '1531732591', '1531732691');
-INSERT INTO `ey_images_content` VALUES ('9', '44', '', '1531732811', '1531732852');
+INSERT INTO `ey_images_content` VALUES ('9', '44', '', '1543798501', '1543798501');
 
 -- ----------------------------
 -- Table structure for ey_images_upload
@@ -848,7 +861,7 @@ CREATE TABLE `ey_images_upload` (
   `add_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`img_id`),
   KEY `arcid` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='图集图片表';
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 COMMENT='图集图片表';
 
 -- ----------------------------
 -- Records of ey_images_upload
@@ -859,9 +872,245 @@ INSERT INTO `ey_images_upload` VALUES ('23', '23', '新闻模型下的图集二'
 INSERT INTO `ey_images_upload` VALUES ('14', '42', '客户案例一', '/public/upload/images/2018/07/16/a6633714552fcccee2f49f2131f9d131.jpg', '1000', '782', '0', 'image/jpeg', '1', '1531732449');
 INSERT INTO `ey_images_upload` VALUES ('15', '43', '客户案例二', '/public/upload/images/2018/07/16/2a97ea57a860f5ca2bfb007d06f0e47c.jpg', '1000', '782', '0', 'image/jpeg', '1', '1531732691');
 INSERT INTO `ey_images_upload` VALUES ('16', '43', '客户案例二', '/public/upload/images/2018/07/16/91fac63ec3cea10d9b98ae8aba61cac0.jpg', '1000', '782', '0', 'image/jpeg', '2', '1531732691');
-INSERT INTO `ey_images_upload` VALUES ('17', '44', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '1000', '782', '0', 'image/jpeg', '1', '1531732852');
-INSERT INTO `ey_images_upload` VALUES ('18', '44', '客户案例三', '/public/upload/images/2018/07/16/5f61e07e41840a8f171c47d003088380.jpg', '1000', '782', '0', 'image/jpeg', '2', '1531732852');
-INSERT INTO `ey_images_upload` VALUES ('19', '44', '客户案例三', '/public/upload/images/2018/07/16/924131b50a74c8aeed880b92c4bf2242.jpg', '1000', '782', '0', 'image/jpeg', '3', '1531732852');
+INSERT INTO `ey_images_upload` VALUES ('26', '44', '客户案例三', '/public/upload/images/2018/07/16/924131b50a74c8aeed880b92c4bf2242.jpg', '1000', '782', '0', 'image/jpeg', '3', '1543798501');
+INSERT INTO `ey_images_upload` VALUES ('25', '44', '客户案例三', '/public/upload/images/2018/07/16/5f61e07e41840a8f171c47d003088380.jpg', '1000', '782', '0', 'image/jpeg', '2', '1543798501');
+INSERT INTO `ey_images_upload` VALUES ('24', '44', '客户案例三', '/public/upload/images/2018/07/16/c8053c217ad5d3e0b77108f54ed1db52.jpg', '1000', '782', '0', 'image/jpeg', '1', '1543798501');
+
+-- ----------------------------
+-- Table structure for ey_language
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_language`;
+CREATE TABLE `ey_language` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
+  `title` varchar(100) NOT NULL DEFAULT '' COMMENT '语言名称',
+  `mark` varchar(50) NOT NULL DEFAULT '' COMMENT '语言标识（唯一）',
+  `url` varchar(200) NOT NULL DEFAULT '' COMMENT '单独域名(外部链接)',
+  `target` tinyint(1) NOT NULL DEFAULT '0' COMMENT '新窗口打开，0=否，1=是',
+  `is_home_default` tinyint(1) DEFAULT '0' COMMENT '默认前台语言，1=是，0=否',
+  `is_admin_default` tinyint(1) DEFAULT '0' COMMENT '默认后台语言，1=是，0=否',
+  `syn_pack_id` int(10) DEFAULT '0' COMMENT '最后一次同步官方语言包ID',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '语言状态，0=关闭，1=开启',
+  `sort_order` int(10) DEFAULT '0' COMMENT '排序号',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='多语言主表';
+
+-- ----------------------------
+-- Records of ey_language
+-- ----------------------------
+INSERT INTO `ey_language` VALUES ('1', '简体中文', 'cn', '', '0', '1', '1', '0', '1', '100', '1541583096', '1543890743');
+
+-- ----------------------------
+-- Table structure for ey_language_attr
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_language_attr`;
+CREATE TABLE `ey_language_attr` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
+  `attr_name` varchar(200) NOT NULL DEFAULT '' COMMENT '来自ey_weapp_language_attr表的attr_name',
+  `attr_value` text NOT NULL COMMENT '变量值',
+  `attr_group` varchar(50) DEFAULT '' COMMENT '分组，以表名划分（不含表前缀）',
+  `lang` varchar(50) NOT NULL DEFAULT '' COMMENT '所属语言',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `attr_value` (`attr_name`,`lang`)
+) ENGINE=MyISAM AUTO_INCREMENT=77 DEFAULT CHARSET=utf8 COMMENT='多语言模板变量关联绑定表';
+
+-- ----------------------------
+-- Records of ey_language_attr
+-- ----------------------------
+INSERT INTO `ey_language_attr` VALUES ('1', 'tid1', '1', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('2', 'tid2', '2', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('3', 'tid3', '3', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('4', 'tid4', '4', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('5', 'tid5', '5', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('6', 'tid6', '6', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('7', 'tid8', '8', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('8', 'tid9', '9', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('9', 'tid10', '10', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('10', 'tid11', '11', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('11', 'tid12', '12', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('12', 'tid13', '13', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('13', 'tid20', '20', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('14', 'tid21', '21', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('15', 'tid22', '22', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('16', 'tid23', '23', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('17', 'tid24', '24', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('18', 'tid25', '25', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('19', 'tid26', '26', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('20', 'tid27', '27', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('21', 'tid28', '28', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('22', 'tid29', '29', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('23', 'tid30', '30', 'arctype', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('24', 'attr_1', '1', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('25', 'attr_2', '2', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('26', 'attr_3', '3', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('27', 'attr_4', '4', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('28', 'attr_5', '5', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('29', 'attr_6', '6', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('30', 'attr_7', '7', 'guestbook_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('31', 'attr_1', '1', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('32', 'attr_2', '2', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('33', 'attr_3', '3', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('34', 'attr_4', '4', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('35', 'attr_5', '5', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('36', 'attr_6', '6', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('37', 'attr_7', '7', 'product_attribute', 'cn', '1543801511', '1543801511');
+INSERT INTO `ey_language_attr` VALUES ('38', 'attr_8', '8', 'product_attribute', 'cn', '1543801511', '1543801511');
+
+-- ----------------------------
+-- Table structure for ey_language_attribute
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_language_attribute`;
+CREATE TABLE `ey_language_attribute` (
+  `attr_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
+  `attr_title` varchar(200) NOT NULL DEFAULT '' COMMENT '变量标题',
+  `attr_name` varchar(200) NOT NULL DEFAULT '' COMMENT '变量名称',
+  `attr_group` varchar(50) DEFAULT '' COMMENT '分组，以表名划分（不含表前缀）',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，0=否，1=是',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`attr_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=utf8 COMMENT='多语言模板变量表';
+
+-- ----------------------------
+-- Records of ey_language_attribute
+-- ----------------------------
+INSERT INTO `ey_language_attribute` VALUES ('1', '关于我们', 'tid1', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('2', '新闻动态', 'tid2', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('3', '产品展示', 'tid3', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('4', '客户案例', 'tid4', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('5', '资料下载', 'tid5', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('6', '报名入口', 'tid6', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('7', '公司简介', 'tid8', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('8', '公司荣誉', 'tid9', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('9', '媒体报道', 'tid10', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('10', 'SEO优化', 'tid11', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('11', '企业运营', 'tid12', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('12', '单页面', 'tid13', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('13', '手机', 'tid20', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('14', '电脑', 'tid21', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('15', '通用配件', 'tid22', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('16', '风景图集', 'tid23', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('17', '智能手机', 'tid24', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('18', '畅玩手机', 'tid25', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('19', '笔记本电脑', 'tid26', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('20', '耳机', 'tid27', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('21', '音箱', 'tid28', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('22', '充电宝', 'tid29', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('23', '预约面试', 'tid30', 'arctype', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('24', '姓名', 'attr_1', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('25', '手机号码', 'attr_2', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('26', '约谈对象', 'attr_3', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('27', '姓名', 'attr_4', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('28', '联系方式', 'attr_5', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('29', '备注信息', 'attr_6', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('30', '模式', 'attr_7', 'guestbook_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('31', '用户界面', 'attr_1', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('32', '操作系统', 'attr_2', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('33', '键盘类型', 'attr_3', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('34', ' 型号', 'attr_4', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('35', '屏幕大小', 'attr_5', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('36', '重量', 'attr_6', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('37', '型号', 'attr_7', 'product_attribute', '0', '1543801511', '1543801511');
+INSERT INTO `ey_language_attribute` VALUES ('38', '支持蓝牙', 'attr_8', 'product_attribute', '0', '1543801511', '1543801511');
+
+-- ----------------------------
+-- Table structure for ey_language_mark
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_language_mark`;
+CREATE TABLE `ey_language_mark` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `title` varchar(50) NOT NULL DEFAULT '' COMMENT '国家语言名称',
+  `cn_title` varchar(50) NOT NULL DEFAULT '' COMMENT '中文名称',
+  `mark` varchar(50) DEFAULT '' COMMENT '多语言标识',
+  `pinyin` varchar(100) DEFAULT '' COMMENT '拼音',
+  `sort_order` int(10) NOT NULL DEFAULT '0' COMMENT '排序号',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=57 DEFAULT CHARSET=utf8 COMMENT='国家语言表';
+
+-- ----------------------------
+-- Records of ey_language_mark
+-- ----------------------------
+INSERT INTO `ey_language_mark` VALUES ('1', '简体中文', '简体中文', 'cn', 'zhongwenjianti', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('2', 'Vietnamese', '越南语', 'vi', 'yuenanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('3', '繁体中文', '繁体中文', 'zh', 'zhongwenfanti', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('4', 'English', '英语', 'en', 'yingyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('5', 'Indonesian', '印尼语', 'id', 'yinniyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('6', 'Urdu', '乌尔都语', 'ur', 'wuerduyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('7', 'Yiddish', '意第绪语', 'yi', 'yidixuyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('8', 'Italian', '意大利语', 'it', 'yidaliyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('9', 'Greek', '希腊语', 'el', 'xilayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('10', 'Spanish Basque', '西班牙的巴斯克语', 'eu', 'xibanyadebasikeyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('11', 'Spanish', '西班牙语', 'es', 'xibanyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('12', 'Hungarian', '匈牙利语', 'hu', 'xiongyaliyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('13', 'Hebrew', '希伯来语', 'iw', 'xibolaiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('14', 'Ukrainian', '乌克兰语', 'uk', 'wukelanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('15', 'Welsh', '威尔士语', 'cy', 'weiershiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('16', 'Thai', '泰语', 'th', 'taiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('17', 'Turkish', '土耳其语', 'tr', 'tuerqiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('18', 'Swahili', '斯瓦希里语', 'sw', 'siwaxiliyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('19', 'Japanese', '日语', 'ja', 'riyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('20', 'Swedish', '瑞典语', 'sv', 'ruidianyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('21', 'Serbian', '塞尔维亚语', 'sr', 'saierweiyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('22', 'Slovak', '斯洛伐克语', 'sk', 'siluofakeyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('23', 'Slovenian', '斯洛文尼亚语', 'sl', 'siluowenniyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('24', 'Portuguese', '葡萄牙语', 'pt', 'putaoyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('25', 'Norwegian', '挪威语', 'no', 'nuoweiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('26', 'Macedonian', '马其顿语', 'mk', 'maqidunyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('27', 'Malay', '马来语', 'ms', 'malaiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('28', 'Maltese', '马耳他语', 'mt', 'maertayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('29', 'Romanian', '罗马尼亚语', 'ro', 'luomaniyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('30', 'Lithuanian', '立陶宛语', 'lt', 'litaowanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('31', 'Latvian', '拉脱维亚语', 'lv', 'latuoweiyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('32', 'Latin', '拉丁语', 'la', 'ladingyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('33', 'Croatian', '克罗地亚语', 'hr', 'keluodiyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('34', 'Czech', '捷克语', 'cs', 'jiekeyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('35', 'Catalan', '加泰罗尼亚语', 'ca', 'jiatailuoniyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('36', 'Galician', '加利西亚语', 'gl', 'jialixiyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('37', 'Dutch', '荷兰语', 'nl', 'helanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('38', 'Korean', '韩语', 'ko', 'hanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('39', 'Haitian Creole', '海地克里奥尔语', 'ht', 'haidikeliaoeryu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('40', 'Finnish', '芬兰语', 'fi', 'fenlanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('41', 'Filipino', '菲律宾语', 'tl', 'feilvbinyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('42', 'Russian', '俄语', 'ru', 'eyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('43', 'Boolean (Afrikaans)', '布尔语(南非荷兰语)', 'af', 'bueryunanfeihelanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('44', 'French', '法语', 'fr', 'fayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('45', 'Danish', '丹麦语', 'da', 'danmaiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('46', 'German', '德语', 'de', 'deyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('47', 'Azerbaijani', '阿塞拜疆语', 'az', 'asaibaijiangyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('48', 'Irish', '爱尔兰语', 'ga', 'aierlanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('49', 'Estonian', '爱沙尼亚语', 'et', 'aishaniyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('50', 'Belarusian', '白俄罗斯语', 'be', 'baieluosiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('51', 'Bulgarian', '保加利亚语', 'bg', 'baojialiyayu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('52', 'Icelandic', '冰岛语', 'is', 'bingdaoyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('53', 'Polish', '波兰语', 'pl', 'bolanyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('54', 'Persian', '波斯语', 'fa', 'bosiyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('55', 'Arabic', '阿拉伯语', 'ar', 'alaboyu', '100', '0', '1541583096');
+INSERT INTO `ey_language_mark` VALUES ('56', 'Albanian', '阿尔巴尼亚语', 'sq', 'aerbaniyayu', '100', '0', '1541583096');
+
+-- ----------------------------
+-- Table structure for ey_language_pack
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_language_pack`;
+CREATE TABLE `ey_language_pack` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '变量名',
+  `value` text NOT NULL COMMENT '变量值',
+  `is_syn` tinyint(1) DEFAULT '0' COMMENT '同步官方语言包：0=否，1=是',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `sort_order` int(10) DEFAULT '0' COMMENT '排序号',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='模板语言包变量';
+
+-- ----------------------------
+-- Records of ey_language_pack
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for ey_links
@@ -883,7 +1132,7 @@ CREATE TABLE `ey_links` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='友情链接表';
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='友情链接表';
 
 -- ----------------------------
 -- Records of ey_links
@@ -940,23 +1189,24 @@ CREATE TABLE `ey_product_attribute` (
   `attr_values` text COMMENT '可选值列表',
   `sort_order` int(11) unsigned DEFAULT '0' COMMENT '属性排序',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`attr_id`),
   KEY `cat_id` (`typeid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='产品表单属性表';
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='产品表单属性表';
 
 -- ----------------------------
 -- Records of ey_product_attribute
 -- ----------------------------
-INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', 'cn', '1526612774', '1526612774');
-INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', 'cn', '1526612785', '1526612785');
-INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', 'cn', '1526613004', '1526613004');
-INSERT INTO `ey_product_attribute` VALUES ('4', ' 型号', '24', '0', '0', '', '100', 'cn', '1526613011', '1526613011');
-INSERT INTO `ey_product_attribute` VALUES ('5', '屏幕大小', '26', '0', '0', '', '100', 'cn', '1526613252', '1526613252');
-INSERT INTO `ey_product_attribute` VALUES ('6', '重量', '26', '0', '0', '', '100', 'cn', '1526613259', '1526613259');
-INSERT INTO `ey_product_attribute` VALUES ('7', '型号', '27', '0', '0', '', '100', 'cn', '1526613668', '1526613668');
-INSERT INTO `ey_product_attribute` VALUES ('8', '支持蓝牙', '27', '0', '0', '', '100', 'cn', '1526613732', '1526613732');
+INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', 'cn', '0', '1526612774', '1526612774');
+INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', 'cn', '0', '1526612785', '1526612785');
+INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', 'cn', '0', '1526613004', '1526613004');
+INSERT INTO `ey_product_attribute` VALUES ('4', ' 型号', '24', '0', '0', '', '100', 'cn', '0', '1526613011', '1526613011');
+INSERT INTO `ey_product_attribute` VALUES ('5', '屏幕大小', '26', '0', '0', '', '100', 'cn', '0', '1526613252', '1526613252');
+INSERT INTO `ey_product_attribute` VALUES ('6', '重量', '26', '0', '0', '', '100', 'cn', '0', '1526613259', '1526613259');
+INSERT INTO `ey_product_attribute` VALUES ('7', '型号', '27', '0', '0', '', '100', 'cn', '0', '1526613668', '1526613668');
+INSERT INTO `ey_product_attribute` VALUES ('8', '支持蓝牙', '27', '0', '0', '', '100', 'cn', '0', '1526613732', '1526613732');
 
 -- ----------------------------
 -- Table structure for ey_product_content
@@ -1026,7 +1276,7 @@ CREATE TABLE `ey_single_content` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `aid` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='单页附加表';
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='单页附加表';
 
 -- ----------------------------
 -- Records of ey_single_content

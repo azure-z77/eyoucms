@@ -1042,13 +1042,13 @@ span.err{color:#F00; display:none;}
 .metcms_cont_left a{ color:#fff;font-family: 微软雅黑;}
 .metcms_cont_left dl{ padding-bottom:18px; position:relative;}
 .metcms_cont_left dl dt{ padding:15px 25px 5px; color:#e7e7e7;}
-.metcms_cont_left dl dd a{ display:block; outline:none; padding-left:20px; height:40px; line-height:40px;transition:all .3s;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s  }
+.metcms_cont_left dl dd a{ display:block; overflow: hidden; outline:none; padding-left:20px; height:40px; line-height:40px;transition:all .3s;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s  }
 .metcms_cont_left dl dd a i,.metcms_cont_left dl.jslist dt i{ margin-right:8px; width:28px; text-align:center; color:#fff; position:relative; top:1px; font-size:16px; }
 .metcms_cont_left dl dd a:hover,.metcms_cont_left dl dd a.on,.metcms_cont_left dl dt.on{ background:#2189be;  }
 .metcms_cont_left dl.on{}
 .metcms_cont_left dl dd a:active{ background:#2189be; }
 .metcms_cont_left dl.jslist{ padding-bottom:0px;transition:all .3s;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s}
-.metcms_cont_left dl.jslist dt{ padding:0px; padding-left:20px; height:40px; line-height:40px; color:#fff; cursor:pointer; position:relative; }
+.metcms_cont_left dl.jslist dt{ padding:0px; padding-left:20px; height:40px; line-height:40px; color:#fff; cursor:pointer; position:relative;overflow: hidden; }
 .metcms_cont_left dl.jslist dt a{ display:block; }
 .metcms_cont_left dl.jslist dd{ display:none; position:absolute; left:200px; bottom: 0px; background:#3398cc; width:200px;}
 .metcms_cont_left dl:nth-child(2) dd dl.jslist dd{ top: 0px !important; bottom: auto !important; }

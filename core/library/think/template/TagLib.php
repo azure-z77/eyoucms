@@ -263,7 +263,10 @@ class TagLib
                 $result['expression'] = rtrim($result['expression'], '/');
                 $result['expression'] = trim($result['expression']);
             } elseif (empty($this->tags[$name]) || !empty($this->tags[$name]['attr'])) {
-                throw new Exception('tag error:' . $name);
+                // 手工开启所有PHP错误报告
+                if (\think\Config::get('ey_config.web_exception')) { // 模板标签错误友好提示 by 小虎哥
+                    throw new Exception('tag error:' . $name);
+                }
             }
         }
         return $result;

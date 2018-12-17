@@ -55,6 +55,11 @@ class Images extends Model
 
         // --处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
+
+        /*清除页面缓存*/
+        $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+        $htmlCacheLogic->clear_archives([$aid]);
+        /*--end*/
     }
 
     /**
@@ -65,7 +70,12 @@ class Images extends Model
     {
         $result = array();
         $field = !empty($field) ? $field : '*';
-        $result = db('archives')->field($field)->find($aid);
+        $result = db('archives')->field($field)
+            ->where([
+                'aid'   => $aid,
+                'lang'  => get_admin_lang(),
+            ])
+            ->find();
         if ($isshowbody) {
             $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = db($tableName.'_content')->where('aid',$aid)->find();

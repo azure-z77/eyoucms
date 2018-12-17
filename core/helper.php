@@ -109,7 +109,7 @@ if (!function_exists('input')) {
      * @param string    $filter 过滤方法
      * @return mixed
      */
-    function input($key = '', $default = null, $filter = '')
+    function input($key = '', $default = '', $filter = '')
     {
         if (0 === strpos($key, '?')) {
             $key = substr($key, 1);
@@ -300,35 +300,7 @@ if (!function_exists('url')) {
     function url($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
         $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
-        $uiset = I('param.uiset/s', 'off');
-        $uiset = trim($uiset, '/');
-        if ($uiset == 'on') {
-            // 如果是数组时，拼接为字符串
-            if (is_array($vars)) {
-                $vars = http_build_query($vars);
-            }
-            if (!empty($vars)) {
-                $vars .= "&";
-            }
-            $vars .= "uiset={$uiset}";
-            /*电脑版与手机版的切换*/
-            $v = I('param.v/s', '');
-            $v = trim($v, '/');
-            if (!empty($v)) {
-                $vars .= "&v=".$v;
-            }
-            /*--end*/
-            $urlParam = parse_url($url);
-            $str = isset($urlParam['query']) ? $urlParam['query'] : '';
-            if (!empty($str)) {
-                $vars .= "&".$str;
-            }
-
-            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
-
-        } else {
-            $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
-        }
+        $url = Url::build($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
 
         return $url;
     }
@@ -455,6 +427,13 @@ if (!function_exists('cache')) {
     function cache($name, $value = '', $options = null, $tag = null)
     {
         if (is_array($options)) {
+            /*可以自定义配置 by 小虎哥*/
+            if (!empty($options)) {
+                $cache_conf = config('cache');
+                $options = array_merge($cache_conf, $options);
+            }
+            /*--end*/
+            
             // 缓存操作的同时初始化
             $cache = Cache::connect($options);
         } elseif (is_array($name)) {
@@ -837,22 +816,6 @@ if (!function_exists('U')) {
        return url($url, $vars, $suffix, $domain, $seo_pseudo);
     }
 }
- 
-if (!function_exists('S')) {
-    /**
-     * 兼容以前3.2的单字母单数 S 
-    * @param mixed $name 缓存名称，如果为数组表示进行缓存设置
-    * @param mixed $value 缓存值
-    * @param mixed $options 缓存参数
-    * @return mixed
-    */
-   function S($name,$value='',$options=null) {
-       if(!empty($value))
-            Cache::set($name,$value,$options);
-       else
-           return Cache::get($name);
-   }
-}
 
 if (!function_exists('I')) {
     /**
@@ -887,22 +850,6 @@ if (!function_exists('I')) {
         }
         return $default;
     } 
-}
-    
-if (!function_exists('F')) {
-   /**
-    * 兼容以前3.2的单字母单数 F
-   * @param mixed $name 缓存名称，如果为数组表示进行缓存设置
-   * @param mixed $value 缓存值
-   * @param mixed $path 缓存参数
-   * @return mixed
-   */
-    function F($name,$value='',$path='') {
-        if(!empty($value))
-            return Cache::set($name,$value);
-        else
-            return Cache::get($name);
-    }
 }
     
 if (!function_exists('code_validate')) {

@@ -56,6 +56,16 @@ class TagChannel extends Base
         $this->currentstyle = $currentstyle;
         $typeid  = !empty($typeid) ? $typeid : $this->tid;
 
+        /*多语言*/
+        if (!empty($typeid)) {
+            $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
+            if (empty($typeid)) {
+                echo '标签channel报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值 。';
+                return false;
+            }
+        }
+        /*--end*/
+
         if (empty($typeid)) {
             /*应用于没有指定tid的列表，默认获取该控制器下的第一级栏目ID*/
             // http://demo.eyoucms.com/index.php/home/Article/lists.html
@@ -153,6 +163,7 @@ class TagChannel extends Base
             ->alias('c')
             ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
             ->where($map)
+            ->where('c.lang', $this->home_lang)
             ->group('c.id')
             ->order('c.parent_id asc, c.sort_order asc, c.id')
             ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
@@ -259,7 +270,11 @@ class TagChannel extends Base
             'is_hidden'   => 0,
             'status'  => 1,
         );
-        $res = M('arctype')->field('parent_id')->where($map)->group('parent_id')->select();
+        $res = M('arctype')->field('parent_id')
+            ->where($map)
+            ->where('lang', $this->home_lang)
+            ->group('parent_id')
+            ->select();
         /*--end*/
 
         /*获取上一级栏目ID对应下的子孙栏目*/

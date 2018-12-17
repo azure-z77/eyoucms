@@ -14,6 +14,7 @@
 namespace app\admin\controller;
 
 use think\Page;
+use think\Db;
 
 class Other extends Base
 {
@@ -36,9 +37,9 @@ class Other extends Base
     public function index()
     {
         $list = array();
-        $get = I('get.');
-        $pid = I('param.pid/d', 0);
-        $keywords = I('keywords/s');
+        $get = input('get.');
+        $pid = input('param.pid/d', 0);
+        $keywords = input('keywords/s');
         $condition = array();
         // 应用搜索条件
         foreach (['keywords', 'pid'] as $key) {
@@ -51,6 +52,9 @@ class Other extends Base
                 }
             }
         }
+
+        // 多语言
+        $condition['a.lang'] = array('eq', $this->admin_lang);
 
         $adM =  M('ad');
         $count = $adM->alias('a')->where($condition)->count();// 查询满足要求的总记录数
@@ -74,8 +78,10 @@ class Other extends Base
      */
     public function add()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
             $litpic = '';
             if ($is_remote == 1) {
@@ -85,25 +91,30 @@ class Other extends Base
             }
             $newData = array(
                 'litpic'            => $litpic,
+                'admin_id'  => session('admin_id'),
+                'lang'  => $this->admin_lang,
                 'add_time'           => getTime(),
                 'update_time'   => getTime(),
             );
             $data = array_merge($post, $newData);
-            $r = M('ad')->insert($data);
+            $insertId = M('ad')->insertGetId($data);
 
-            if ($r) {
-                // 不管是添加还是修改广告 都清除一下缓存
-                // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
+            if ($insertId) {
+
+                /*同步广告位置ID到多语言的模板变量里*/
+                $this->syn_add_language_attribute($insertId);
+                /*--end*/
+
                 \think\Cache::clear('ad');
                 adminLog('新增广告：'.$post['title']);
-                $this->success("操作成功", U('Other/index'));
+                $this->success("操作成功", url('Other/index'));
             } else {
                 $this->error("操作失败");
             }
             exit;
         }
 
-        $pid = I('param.pid/d', 0);
+        $pid = input('param.pid/d', 0);
         $this->assign('pid', $pid);
 
         $ad_position = model('AdPosition')->getAll('*', 'id');
@@ -122,7 +133,7 @@ class Other extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             if(!empty($post['id'])){
                 $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
                 $litpic = '';
@@ -136,14 +147,15 @@ class Other extends Base
                     'update_time'       => getTime(),
                 );
                 $data = array_merge($post, $newData);
-                $r = M('ad')->cache(true,null,'ad')->update($data);
+                $r = M('ad')->where([
+                        'id'    => $post['id'],
+                    ])
+                    ->cache(true,null,'ad')
+                    ->update($data);
             }
             if ($r) {
-                // 不管是添加还是修改广告 都清除一下缓存
-                // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
-                // \think\Cache::clear('ad'.$post['pid']);
                 adminLog('编辑广告');
-                $this->success("操作成功", U('Other/index'));
+                $this->success("操作成功", url('Other/index'));
             } else {
                 $this->error("操作失败");
             }
@@ -151,11 +163,10 @@ class Other extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
-        $field = M('ad')->field('a.*')
-            ->alias('a')
-            ->where(array('a.id'=>$id))
-            ->find();
+        $id = input('id/d');
+        $field = M('ad')->where([
+                'id'    => $id,
+            ])->find();
         if (empty($field)) {
             $this->error('广告不存在，请联系管理员！');
             exit;
@@ -182,18 +193,45 @@ class Other extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $this->language_access(); // 多语言功能操作权限
+
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
-            // $result = M('ad')->field('pid')->where("id in ($id)")->select();
-            // foreach ($result as $key => $val) {
-            //     \think\Cache::clear('ad'.$val['pid']);
-            // }
 
-            $r = M('ad')->where('id','IN',$id_arr)->cache(true,null,'ad')->delete();
+            /*多语言*/
+            $attr_name_arr = [];
+            foreach ($id_arr as $key => $val) {
+                $attr_name_arr[] = 'ad'.$val;
+            }
+            if (is_language()) {
+                $new_id_arr = Db::name('language_attr')->where([
+                        'attr_name' => ['IN', $attr_name_arr],
+                        'attr_group'    => 'ad',
+                    ])->column('attr_value');
+                !empty($new_id_arr) && $id_arr = $new_id_arr;
+            }
+            /*--end*/
+            $r = M('ad')->where([
+                    'id'    => ['IN', $id_arr],
+                ])
+                ->cache(true,null,'ad')
+                ->delete();
             if ($r) {
-                // 不管是添加还是修改广告 都清除一下缓存
-                // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
+
+                /*多语言*/
+                if (!empty($attr_name_arr)) {
+                    M('language_attr')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
+                    M('language_attribute')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
+                }
+                /*--end*/
+
                 adminLog('删除广告-id：'.implode(',', $id_arr));
                 $this->success('删除成功');
             } else {
@@ -209,8 +247,10 @@ class Other extends Base
      */
     public function ui_add()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
             $litpic = '';
             if ($is_remote == 1) {
@@ -219,13 +259,20 @@ class Other extends Base
                 $litpic = $post['litpic_local'];
             }
             $newData = array(
+                'media_type'    => 1,
                 'litpic'            => $litpic,
+                'lang'  => get_current_lang(),
                 'add_time'       => getTime(),
                 'update_time'       => getTime(),
             );
             $data = array_merge($post, $newData);
-            $r = M('ad')->insertGetId($data);
-            if ($r) {
+            $insertId = M('ad')->insertGetId($data);
+            if ($insertId) {
+
+                /*同步广告位置ID到多语言的模板变量里*/
+                $this->syn_add_language_attribute($insertId);
+                /*--end*/
+
                 \think\Cache::clear('ad');
                 adminLog('新增广告：'.$post['title']);
                 $this->success('操作成功');
@@ -234,8 +281,12 @@ class Other extends Base
             }
         }
 
-        $pid = I('param.pid/d', 0);
-        $edit_id = I('param.edit_id/d', 0);
+        $edit_id = input('param.edit_id/d', 0);
+        $pid = input('param.pid/d', 0);
+        /*多语言*/
+        $new_pid = model('LanguageAttr')->getBindValue($pid, 'ad_position');
+        !empty($new_pid) && $pid = $new_pid;
+        /*--end*/
         $assign_data = array();
         $assign_data['ad_position'] = model('AdPosition')->getInfo($pid);
         $assign_data['edit_id'] = $edit_id;
@@ -250,7 +301,7 @@ class Other extends Base
     public function ui_edit()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             if(!empty($post['id'])){
                 $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
                 $litpic = '';
@@ -264,7 +315,11 @@ class Other extends Base
                     'update_time'       => getTime(),
                 );
                 $data = array_merge($post, $newData);
-                $r = M('ad')->cache(true,null,'ad')->update($data);
+                $r = M('ad')->where([
+                        'id'    => $post['id'],
+                    ])
+                    ->cache(true,null,'ad')
+                    ->update($data);
                 if ($r) {
                     adminLog('编辑广告：'.$post['title']);
                     $this->success('操作成功');
@@ -275,11 +330,10 @@ class Other extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
-        $field = M('ad')->field('a.*')
-            ->alias('a')
-            ->where(array('a.id'=>$id))
-            ->find();
+        $id = input('id/d');
+        $field = M('ad')->where([
+                'id'    => $id,
+            ])->find();
         if (empty($field)) {
             $this->error('广告不存在，请联系管理员！');
             exit;
@@ -303,20 +357,115 @@ class Other extends Base
      */
     public function ui_del()
     {
-        $id = I('del_id/a');
-        $id = implode(',', eyIntval($id));
-        if(!empty($id)){
-            $r = M('ad')->where("id in ($id)")->cache(true,null,'ad')->delete();
+        $this->language_access(); // 多语言功能操作权限
+        
+        $id_arr = input('del_id/a');
+        $id_arr = eyIntval($id_arr);
+        if(!empty($id_arr)){
+
+            /*多语言*/
+            $attr_name_arr = [];
+            foreach ($id_arr as $key => $val) {
+                $attr_name_arr[] = 'ad'.$val;
+            }
+            if (is_language()) {
+                $new_id_arr = Db::name('language_attr')->where([
+                        'attr_name' => ['IN', $attr_name_arr],
+                        'attr_group'    => 'ad',
+                    ])->column('attr_value');
+                !empty($new_id_arr) && $id_arr = $new_id_arr;
+            }
+            /*--end*/
+
+            $r = M('ad')->where([
+                    'id'    => ['IN', $id_arr],
+                ])
+                ->cache(true,null,'ad')
+                ->delete();
             if ($r) {
-                // 不管是添加还是修改广告 都清除一下缓存
-                // delFile(HTML_PATH); // 先清除缓存, 否则不好预览
-                adminLog('删除广告-id：'.$id);
+
+                /*多语言*/
+                if (!empty($attr_name_arr)) {
+                    M('language_attr')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
+                    M('language_attribute')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
+                }
+                /*--end*/
+
+                adminLog('删除广告-id：'.implode(',', $id_arr));
                 $this->success('删除成功');
             } else {
                 $this->error('删除失败');
             }
         }else{
             $this->error('参数有误');
+        }
+    }
+
+    /**
+     * 同步新增广告ID到多语言的模板变量里
+     */
+    private function syn_add_language_attribute($ad_id)
+    {
+        /*单语言情况下不执行多语言代码*/
+        if (!is_language()) {
+            return true;
+        }
+        /*--end*/
+
+        $attr_group = 'ad';
+        $admin_lang = $this->admin_lang;
+        $main_lang = get_main_lang();
+        $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
+        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
+            $ad_db = Db::name('ad');
+            $result = $ad_db->find($ad_id);
+            $attr_name = 'ad'.$ad_id;
+            $r = Db::name('language_attribute')->save([
+                'attr_title'    => $result['title'],
+                'attr_name'     => $attr_name,
+                'attr_group'    => $attr_group,
+                'add_time'      => getTime(),
+                'update_time'   => getTime(),
+            ]);
+            if (false !== $r) {
+                $data = [];
+                foreach ($languageRow as $key => $val) {
+                    /*同步新广告到其他语言广告列表*/
+                    if ($val['mark'] != $admin_lang) {
+                        $addsaveData = $result;
+                        $addsaveData['lang'] = $val['mark'];
+                        $newPid = Db::name('language_attr')->where([
+                                'attr_name' => 'adp'.$result['pid'],
+                                'attr_group'    => 'ad_position',
+                                'lang'  => $val['mark'],
+                            ])->getField('attr_value');
+                        $addsaveData['pid'] = $newPid;
+                        unset($addsaveData['id']);
+                        $ad_id = $ad_db->insertGetId($addsaveData);
+                    }
+                    /*--end*/
+                    
+                    /*所有语言绑定在主语言的ID容器里*/
+                    $data[] = [
+                        'attr_name' => $attr_name,
+                        'attr_value'    => $ad_id,
+                        'lang'  => $val['mark'],
+                        'attr_group'    => $attr_group,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ];
+                    /*--end*/
+                }
+                if (!empty($data)) {
+                    model('LanguageAttr')->saveAll($data);
+                }
+            }
         }
     }
 }

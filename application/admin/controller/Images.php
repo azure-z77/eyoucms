@@ -40,11 +40,11 @@ class Images extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $param = I('param.');
-        $flag = I('flag/s');
-        $typeid = I('typeid/d', 0);
-        $begin = strtotime(I('add_time_begin'));
-        $end = strtotime(I('add_time_end'));
+        $param = input('param.');
+        $flag = input('flag/s');
+        $typeid = input('typeid/d', 0);
+        $begin = strtotime(input('add_time_begin'));
+        $end = strtotime(input('add_time_end'));
 
         // 应用搜索条件
         foreach (['keywords','typeid','flag'] as $key) {
@@ -91,6 +91,8 @@ class Images extends Base
 
         // 模型ID
         $condition['a.channel'] = array('eq', $this->channeltype);
+        // 多语言
+        $condition['a.lang'] = array('eq', get_admin_lang());
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -128,20 +130,6 @@ class Images extends Base
         $assign_data['list'] = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
-        /*获取当前模型栏目*/
-/*        $selected = 0;
-        if ($typeid > 0) {
-            $selected = $typeid;
-        }
-        $arctypeLogic = new ArctypeLogic();
-        $map = array(
-            'channeltype'    => $this->channeltype,
-        );
-        $arctype_max_level = intval(config('global.arctype_max_level'));
-        $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);
-        $this->assign('select_html',$select_html);*/
-        /*--end*/
-
         // 栏目ID
         $assign_data['typeid'] = $typeid; // 栏目ID
         /*当前栏目信息*/
@@ -153,7 +141,7 @@ class Images extends Base
         /*--end*/
 
         /*选项卡*/
-        $tab = I('param.tab/d', 3);
+        $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
 
@@ -167,8 +155,8 @@ class Images extends Base
     public function add()
     {
         if (IS_POST) {
-            $post = I('post.');
-            $content = I('post.addonFieldExt.content', '', null);
+            $post = input('post.');
+            $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
@@ -213,6 +201,7 @@ class Images extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
+                'lang'  => get_admin_lang(),
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'  => getTime(),
             );
@@ -233,7 +222,7 @@ class Images extends Base
             exit;
         }
         
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         $assign_data['typeid'] = $typeid; // 栏目ID
         
         /*允许发布文档列表的栏目*/
@@ -251,9 +240,9 @@ class Images extends Base
         $assign_data['arcrank_list'] = $arcrank_list;
 
         /*返回上一层*/
-        $gourl = I('param.gourl/s', '');
+        $gourl = input('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Images/index', array('typeid'=>$typeid));
+            $gourl = url('Images/index', array('typeid'=>$typeid));
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -269,8 +258,9 @@ class Images extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.');
-            $content = I('post.addonFieldExt.content', '', null);
+            $post = input('post.');
+            $typeid = input('post.typeid/d', 0);
+            $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
@@ -289,12 +279,7 @@ class Images extends Base
             $post['litpic'] = $litpic;
 
             // 描述
-            $seo_description = '';
-            if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 500, false);
-            } else {
-                $seo_description = $post['seo_description'];
-            }
+            $seo_description = $post['seo_description'];
 
             // --外部链接
             $jumplinks = '';
@@ -302,10 +287,12 @@ class Images extends Base
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+            // 同步栏目切换模型之后的文档模型
+            $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
             // --存储数据
             $newData = array(
-                'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
-                'channel'   => $this->channeltype,
+                'typeid'=> $typeid,
+                'channel'   => $channel,
                 'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
                 'is_head'      => empty($post['is_head']) ? 0 : $post['is_head'],
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
@@ -319,7 +306,10 @@ class Images extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where(array('aid'=>$data['aid']))->update($data);
+            $r = M('archives')->where([
+                    'aid'   => $data['aid'],
+                    'lang'  => get_admin_lang(),
+                ])->update($data);
             
             if ($r) {
             	// ---------后置操作
@@ -335,13 +325,14 @@ class Images extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
+        $id = input('id/d');
         $info = model('Images')->getInfo($id);
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
         $typeid = $info['typeid'];
+        $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
             $info['litpic_remote'] = $info['litpic'];
@@ -354,9 +345,9 @@ class Images extends Base
         // 图集相册
         $imgupload_list = model('ImagesUpload')->getImgUpload($id);
         $assign_data['imgupload_list'] = $imgupload_list;
-        
-        /*允许发布文档列表的栏目*/
-        $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
+
+        /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/
+        $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
 
@@ -370,9 +361,9 @@ class Images extends Base
         $assign_data['arcrank_list'] = $arcrank_list;
 
         /*返回上一层*/
-        $gourl = I('param.gourl/s', '');
+        $gourl = input('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Images/index', array('typeid'=>$typeid));
+            $gourl = url('Images/index', array('typeid'=>$typeid));
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -395,7 +386,7 @@ class Images extends Base
      */
     public function del_imgupload()
     {
-        $filename= I('filename/s');
+        $filename= input('filename/s');
         $filename= str_replace('../','',$filename);
         $filename= trim($filename,'.');
         $filename= trim($filename,'/');
@@ -409,60 +400,5 @@ class Images extends Base
             }
             M('images_upload')->where("image_url = '$filename'")->delete();
         }
-    }
-    
-    /**
-     * 移动
-     */
-    public function move()
-    {
-        if (IS_POST) {
-            $post = I('post.');
-            $typeid = !empty($post['typeid']) ? eyIntval($post['typeid']) : '';
-            $aids = !empty($post['aids']) ? eyIntval($post['aids']) : '';
-
-            if (empty($typeid) || empty($aids)) {
-                respose(array('status'=>0, 'msg'=>'参数有误'));
-            }
-
-            $update_data = array(
-                'typeid'    => $typeid,
-                'update_time'   => getTime(),
-            );
-            $r = M('archives')->where("aid in ($aids)")->update($update_data);
-            if($r){
-                adminLog('移动文档-id：'.$aids);
-                respose(array('status'=>1, 'msg'=>'操作成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'操作失败'));
-            }
-        }
-
-        $typeid = I('param.typeid/d', 0);
-        $allowReleaseChannel = array(3);
-
-        /*允许发布文档列表的栏目*/
-        $arctype_html = allow_release_arctype($typeid, $allowReleaseChannel);
-        $this->assign('arctype_html', $arctype_html);
-        /*--end*/
-
-        /*不允许发布文档的模型ID，用于JS判断*/
-        $js_allow_channel_arr = '[';
-        foreach ($allowReleaseChannel as $key => $val) {
-            if ($key > 0) {
-                $js_allow_channel_arr .= ',';
-            }
-            $js_allow_channel_arr .= $val;
-        }
-        $js_allow_channel_arr = $js_allow_channel_arr.']';
-        $this->assign('js_allow_channel_arr', $js_allow_channel_arr);
-        /*--end*/
-
-        /*表单提交URL*/
-        $form_action = url('Images/move');
-        $this->assign('form_action', $form_action);
-        /*--end*/
-
-        return $this->fetch('archives/move');
     }
 }

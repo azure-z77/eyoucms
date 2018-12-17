@@ -14,6 +14,7 @@
 namespace app\admin\controller;
 use think\Db;
 use think\Cache;
+use think\Request;
 
 class System extends Base
 {
@@ -30,7 +31,7 @@ class System extends Base
         $inc_type =  'web';
 
         if (IS_POST) {
-            $param = I('post.');
+            $param = input('post.');
             $param['web_keywords'] = str_replace('，', ',', $param['web_keywords']);
             $param['web_description'] = filter_line_return($param['web_description']);
             
@@ -88,9 +89,12 @@ class System extends Base
         /*自定义变量*/
         $eyou_row = M('config_attribute')->field('a.attr_id, a.attr_name, a.attr_var_name, a.attr_input_type, b.value, b.id, b.name')
             ->alias('a')
-            ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
-            ->where('a.inc_type', $inc_type)
-            ->where('b.is_del', 0)
+            ->join('__CONFIG__ b', 'b.name = a.attr_var_name AND b.lang = a.lang', 'LEFT')
+            ->where([
+                'b.lang'    => $this->admin_lang,
+                'a.inc_type'    => $inc_type,
+                'b.is_del'  => 0,
+            ])
             ->order('a.attr_id asc')
             ->select();
         $this->assign('eyou_row',$eyou_row);
@@ -105,10 +109,12 @@ class System extends Base
      */
     public function web2()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         $inc_type = 'web';
 
         if (IS_POST) {
-            $param = I('post.');
+            $param = input('post.');
 
             /*EyouCMS安装目录*/
             $web_cmspath = trim($param['web_cmspath'], '/');
@@ -132,11 +138,23 @@ class System extends Base
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
 
-            tpCache($inc_type,$param);
-            write_global_params(); // 写入全局内置参数
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type,$param,$val['mark']);
+                    write_global_params($val['mark']); // 写入全局内置参数
+                }
+            } else {
+                tpCache($inc_type,$param);
+                write_global_params(); // 写入全局内置参数
+            }
+            /*--end*/
 
             $refresh = false;
-            $gourl = SITE_URL.'/'.$adminbasefile;
+            $gourl = request()->domain().'/'.$adminbasefile;
             /*更改自定义后台路径名*/
             if ($adminbasefile_old != $adminbasefile && eyPreventShell($adminbasefile_old)) {
                 if (file_exists($adminbasefile_old)) {
@@ -185,9 +203,24 @@ class System extends Base
         $inc_type =  'basic';
 
         if (IS_POST) {
-            $param = I('post.');
-            tpCache($inc_type,$param);
-            write_global_params(); // 写入全局内置参数
+            $param = input('post.');
+            /*多语言*/
+            if (is_language()) {
+                $newParam['basic_indexname'] = $param['basic_indexname'];
+                tpCache($inc_type,$newParam);
+
+                $synLangParam = $param; // 同步更新多语言的数据
+                unset($synLangParam['basic_indexname']);
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $synLangParam, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            /*--end*/
             $this->success('操作成功', U('System/basic'));
         }
 
@@ -201,10 +234,12 @@ class System extends Base
      */
     public function water()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         $inc_type =  'water';
 
         if (IS_POST) {
-            $param = I('post.');
+            $param = input('post.');
 
             $mark_img_is_remote = !empty($param['mark_img_is_remote']) ? $param['mark_img_is_remote'] : 0;
             $mark_img = '';
@@ -218,8 +253,18 @@ class System extends Base
             unset($param['mark_img_remote']);
             unset($param['mark_img_local']);
 
-            tpCache($inc_type,$param);
-            write_global_params(); // 写入全局内置参数
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            /*--end*/
             $this->success('操作成功', U('System/water'));
         }
 
@@ -237,12 +282,24 @@ class System extends Base
     }
 
     /**
+     * 清空缓存 - 兼容升级没刷新后台，点击报错404，过1.2.5版本之后清除掉代码
+     */
+    public function clearCache()
+    {
+        return $this->clear_cache();
+    }
+
+    /**
      * 清空缓存
      */
-    public function clearCache($arr = array())
+    public function clear_cache()
     {
         if (IS_POST) {
-            $post = I('post.');
+            if (!function_exists('unlink')) {
+                $this->error('php.ini未开启unlink函数，请联系空间商处理！');
+            }
+
+            $post = input('post.');
 
             if (!empty($post['clearHtml'])) { // 清除页面缓存
                 $this->clearHtmlCache($post['clearHtml']);
@@ -280,7 +337,13 @@ class System extends Base
             }
             /*--end*/
 
-            $this->success('操作成功！', U('Index/welcome'));
+            $request = Request::instance();
+            $gourl = $request->baseFile();
+            $lang = $request->param('lang/s');
+            if (!empty($lang) && $lang != get_main_lang()) {
+                $gourl .= "?lang={$lang}";
+            }
+            $this->success('操作成功', $gourl, '', 1, [], '_parent');
         }
         
         return $this->fetch();
@@ -302,14 +365,25 @@ class System extends Base
     public function clearSystemCache($arr = array())
     {
         if (empty($arr)) {
-            delFile(rtrim(RUNTIME_PATH, '/'));
-            Cache::clear();
+            delFile(rtrim(RUNTIME_PATH, '/'), true);
         } else {
             foreach ($arr as $key => $val) {
-                delFile(RUNTIME_PATH.$val);
+                delFile(RUNTIME_PATH.$val, true);
             }
         }
-        tpCache('global');
+
+        /*多语言*/
+        if (is_language()) {
+            $langRow = Db::name('language')->order('id asc')
+                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                ->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('global', '', $val['mark']);
+            }
+        } else { // 单语言
+            tpCache('global');
+        }
+        /*--end*/
 
         return true;
     }
@@ -320,13 +394,17 @@ class System extends Base
     public function clearHtmlCache($arr = array())
     {
         if (empty($arr)) {
-            delFile(rtrim(HTML_ROOT, '/'));
+            delFile(rtrim(HTML_ROOT, '/'), true);
         } else {
             foreach ($arr as $key => $val) {
-                foreach (['http','https'] as $sk1 => $sv1) {
-                    foreach (['pc','mobile'] as $sk2 => $sv2) {
-                        delFile(HTML_ROOT."{$sv1}/{$sv2}/{$val}");
-                        delFile(HTML_ROOT."{$sv1}/{$sv2}/cache/{$val}");
+                $fileList = glob(HTML_ROOT.'http*/'.$val.'*');
+                if (!empty($fileList)) {
+                    foreach ($fileList as $k2 => $v2) {
+                        if (file_exists($v2) && is_dir($v2)) {
+                            delFile($v2, true);
+                        } else if (file_exists($v2) && is_file($v2)) {
+                            @unlink($v2);
+                        }
                     }
                 }
                 if ($val == 'index') {
@@ -340,108 +418,38 @@ class System extends Base
             }
         }
     }
-
-    /**
-     * 地区设置
-     */
-    public function region()
-    {
-        $parent_id = I('parent_id',0);
-        if($parent_id == 0){
-            $parent = array('id'=>0,'name'=>"中国省份地区",'level'=>0, 'parent_id'=>0);
-        }else{
-            $parent = M('region')->where("id" ,$parent_id)->find();
-        }
-        $names = $this->getParentRegionList($parent_id);
-        if(!empty($names)){
-            $names = array_reverse($names);
-            $parent_path = implode($names, '>');
-        }
-        $region = M('region')->where("parent_id" , $parent_id)->select();
-        $this->assign('parent',$parent);
-        $this->assign('parent_path',$parent_path);
-        $this->assign('region',$region);
-        return $this->fetch();
-    }
-
-    /**
-     * 寻找Region_id的父级字段, $column可自己指定
-     * @param $parent_id
-     * @return array
-     */
-    function getParentRegionList($parent_id)
-    {
-        $names = array();
-        $region =  M('region')->where(array('id'=>$parent_id))->find();
-        array_push($names,$region['name']);
-        if($region['parent_id'] != 0){
-            $nregion = $this->getParentRegionList($region['parent_id']);
-            if(!empty($nregion)){
-                $names = array_merge($names, $nregion);
-            }
-        }
-        return $names;
-    }
-    
-    /**
-     * 添加地区
-     */
-    public function region_add()
-    {
-        $data = I('post.');
-        $referurl =  isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : U("System/region");
-        $data['level'] = $data['level']+1;
-        if(empty($data['name'])){
-            $this->error("请填写地区名称", $referurl);
-        }else{
-            $res = M('region')->where("parent_id = ".$data['parent_id']." and name='".$data['name']."'")->find();
-            if(empty($res)){
-                // 清除一下缓存
-                \think\Cache::clear('region');
-                M('region')->add($data);
-                $this->success("操作成功", $referurl);
-            }else{
-                $this->error("该区域下已有该地区，请检查", $referurl);
-            }
-        }
-    }
-    
-    /**
-     * 删除地区
-     */
-    public function region_del()
-    {
-        $id = I('id/d', 0);
-        $referurl =  isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : U("System/region");
-        if ($id) {
-            M('region')->where("id=$id or parent_id=$id")->delete();
-            // 清除一下缓存
-            \think\Cache::clear('region');
-            $this->success("操作成功", $referurl);
-        } else {
-            $this->error("操作失败", $referurl);
-        }
-    }
       
     /**
      * 发送测试邮件
      */
     public function send_email()
     {
-        $param = I('post.');
+        $param = input('post.');
         $res = send_email($param['smtp_test_eamil'],'易优CMS','易优CMS验证码:'.mt_rand(1000,9999), 1);
+        exit(json_encode($res));
+    }
+      
+    /**
+     * 发送测试短信
+     */
+    public function send_mobile()
+    {
+        $param = input('post.');
+        $res = sendSms(4,$param['sms_test_mobile'],array('content'=>mt_rand(1000,9999)));
         exit(json_encode($res));
     }
 
     /**
      * 新增自定义变量
      */
-    public function customvar()
+    public function customvar_add()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
             $configAttributeM = model('ConfigAttribute');
 
-            $post_data = I('post.');
+            $post_data = input('post.');
             $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '';
 
             if ($attr_input_type == 3) {
@@ -455,7 +463,7 @@ class System extends Base
                 }
                 $attr_values = $litpic;
             } else {
-                $attr_values = I('attr_values');
+                $attr_values = input('attr_values');
                 // $attr_values = str_replace('_', '', $attr_values); // 替换特殊字符
                 // $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符
                 $attr_values = trim($attr_values);
@@ -476,68 +484,146 @@ class System extends Base
             {
                 $error = $validate->getError();
                 $error_msg = array_values($error);
-                $return_arr = array(
-                    'errcode'   => -1,
-                    'errmsg'    => $error_msg[0],
-                );
-                respose($return_arr);
+                $this->error($error_msg[0]);
             } else {
-                if (isset($post_data['id']) && $post_data['id'] > 0) {
-                    $savedata['attr_id'] = $post_data['attr_id'];
-                    $configAttributeM->data($savedata,true); // 收集数据
-                    $configAttributeM->isUpdate(true)->save(); // 写入数据到数据库  
-                    // 更新变量名
-                    $attr_var_name = $post_data['name'];
-                    adminLog('编辑自定义变量：'.$savedata['attr_name']);
-                } else {
+                $langRow = Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+
+                $attr_var_name = '';
+                foreach ($langRow as $key => $val) {
                     $savedata['add_time'] = getTime();
-                    $configAttributeM->data($savedata,true); // 收集数据
-                    $configAttributeM->save(); // 写入数据到数据库
-                    $insert_id = $configAttributeM->getLastInsID();
+                    $savedata['lang'] = $val['mark'];
+                    $insert_id = Db::name('config_attribute')->insertGetId($savedata);
                     // 更新变量名
-                    $attr_var_name = $post_data['inc_type'].'_attr_'.$insert_id;
-                    $map = array(
-                        'attr_id'   => $insert_id,
-                    );
-                    M('ConfigAttribute')->where($map)->update(array('attr_var_name'=>$attr_var_name));
-                    adminLog('新增自定义变量：'.$savedata['attr_name']);
+                    if (!empty($insert_id)) {
+                        if (0 == $key) {
+                            $attr_var_name = $post_data['inc_type'].'_attr_'.$insert_id;
+                        }
+                        Db::name('config_attribute')->where([
+                                'attr_id'   => $insert_id,
+                                'lang'  => $val['mark'],
+                            ])->update(array('attr_var_name'=>$attr_var_name));
+                    }
                 }
+                adminLog('新增自定义变量：'.$savedata['attr_name']);
 
                 // 保存到config表，更新缓存
                 $inc_type = $post_data['inc_type'];
                 $configData = array(
                     $attr_var_name  => $attr_values,
                 );
-                tpCache($inc_type, $configData);
 
-                $return_arr = array(
-                    'errcode'   => 0,
-                    'errmsg'    => '操作成功',
-                );
-                respose($return_arr);
+                // 多语言
+                if (is_language()) {
+                    foreach ($langRow as $key => $val) {
+                        tpCache($inc_type, $configData, $val['mark']);
+                    }
+                } else { // 单语言
+                    tpCache($inc_type, $configData);
+                }
+
+                $this->success('操作成功');
             }  
         }
 
-        $id = I('param.id/d', 0);
-        $field = array();
-        if ($id > 0) {
-            $field = M('config')->field('a.id, a.value, a.name, b.attr_id, b.attr_name, b.attr_input_type')
-                ->alias('a')
-                ->join('__CONFIG_ATTRIBUTE__ b', 'a.name = b.attr_var_name', 'LEFT')
-                ->find($id);
-            if ($field['attr_input_type'] == 3) {
-                if (is_http_url($field['value'])) {
-                    $field['is_remote'] = 1;
-                    $field['value_remote'] = $field['value'];
+        $inc_type = input('param.inc_type/s', '');
+        $this->assign('inc_type', $inc_type);
+
+        return $this->fetch();
+    }
+
+    /**
+     * 编辑自定义变量
+     */
+    public function customvar_edit()
+    {
+        if (IS_POST) {
+            $configAttributeM = model('ConfigAttribute');
+
+            $post_data = input('post.');
+            $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '';
+
+            if ($attr_input_type == 3) {
+                // 本地/远程图片上传的处理
+                $is_remote = !empty($post_data['is_remote']) ? $post_data['is_remote'] : 0;
+                $litpic = '';
+                if ($is_remote == 1) {
+                    $litpic = $post_data['value_remote'];
                 } else {
-                    $field['is_remote'] = 0;
-                    $field['value_local'] = $field['value'];
+                    $litpic = $post_data['value_local'];
                 }
+                $attr_values = $litpic;
+            } else {
+                $attr_values = input('attr_values');
+                // $attr_values = str_replace('_', '', $attr_values); // 替换特殊字符
+                // $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符
+                $attr_values = trim($attr_values);
+                $attr_values = isset($attr_values) ? $attr_values : '';
+            }
+
+            $savedata = array(
+                'inc_type'    => $post_data['inc_type'],
+                'attr_name' => $post_data['attr_name'],
+                'attr_input_type'   => $attr_input_type,
+                'attr_values'   => $attr_values,
+                'update_time'   => getTime(),
+            );
+
+            // 数据验证            
+            $validate = \think\Loader::validate('ConfigAttribute');
+            if(!$validate->batch()->check($savedata))
+            {
+                $error = $validate->getError();
+                $error_msg = array_values($error);
+                $this->error($error_msg[0]);
+            } else {
+                $langRow = Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+
+                $configAttributeM->data($savedata,true); // 收集数据
+                $configAttributeM->isUpdate(true, [
+                        'attr_id'   => $post_data['attr_id'],
+                        'lang'  => $this->admin_lang,
+                    ])->save(); // 写入数据到数据库  
+                // 更新变量名
+                $attr_var_name = $post_data['name'];
+                adminLog('编辑自定义变量：'.$savedata['attr_name']);
+
+                // 保存到config表，更新缓存
+                $inc_type = $post_data['inc_type'];
+                $configData = array(
+                    $attr_var_name  => $attr_values,
+                );
+
+                tpCache($inc_type, $configData);
+
+                $this->success('操作成功');
+            }  
+        }
+
+        $field = array();
+        $id = input('param.id/d', 0);
+        $field = M('config')->field('a.id, a.value, a.name, b.attr_id, b.attr_name, b.attr_input_type')
+            ->alias('a')
+            ->join('__CONFIG_ATTRIBUTE__ b', 'a.name=b.attr_var_name AND a.lang=b.lang', 'LEFT')
+            ->where([
+                'a.id'    => $id,
+                'a.lang'  => $this->admin_lang,
+            ])->find();
+        if ($field['attr_input_type'] == 3) {
+            if (is_http_url($field['value'])) {
+                $field['is_remote'] = 1;
+                $field['value_remote'] = $field['value'];
+            } else {
+                $field['is_remote'] = 0;
+                $field['value_local'] = $field['value'];
             }
         }
         $this->assign('field', $field);
 
-        $inc_type = I('param.inc_type/s', '');
+        $inc_type = input('param.inc_type/s', '');
         $this->assign('inc_type', $inc_type);
 
         return $this->fetch();
@@ -548,13 +634,18 @@ class System extends Base
      */
     public function customvar_del()
     {
-        $id = I('del_id/d');
-        if(!empty($id)){
-            $attr_var_name = M('config')->where("id = $id")->getField('name');
+        $this->language_access(); // 多语言功能操作权限
 
-            $r = M('config')->where("id = $id")->update(array('is_del'=>1, 'update_time'=>getTime()));
+        $id = input('del_id/d');
+        if(!empty($id)){
+            $attr_var_name = M('config')->where([
+                    'id'    => $id,
+                    'lang'  => $this->admin_lang,
+                ])->getField('name');
+
+            $r = M('config')->where('name', $attr_var_name)->update(array('is_del'=>1, 'update_time'=>getTime()));
             if($r){
-                M('config_attribute')->where(array('attr_var_name'=>array('eq', $attr_var_name)))->update(array('update_time'=>getTime()));
+                M('config_attribute')->where('attr_var_name', $attr_var_name)->update(array('update_time'=>getTime()));
                 adminLog('删除自定义变量：'.$attr_var_name);
                 $this->success('删除成功');
             }else{
@@ -570,11 +661,14 @@ class System extends Base
      */
     public function customvar_recovery()
     {
-        $id = I('del_id/d');
+        $id = input('del_id/d');
         if(!empty($id)){
-            $attr_var_name = M('config')->where("id = $id")->getField('name');
+            $attr_var_name = M('config')->where([
+                    'id'    => $id,
+                    'lang'  => $this->admin_lang,
+                ])->getField('name');
 
-            $r = M('config')->where("id = $id")->update(array('is_del'=>0, 'update_time'=>getTime()));
+            $r = M('config')->where('name', $attr_var_name)->update(array('is_del'=>0, 'update_time'=>getTime()));
             if($r){
                 adminLog('恢复自定义变量：'.$attr_var_name);
                 respose(array('status'=>1, 'msg'=>'删除成功'));
@@ -591,11 +685,17 @@ class System extends Base
      */
     public function customvar_recycle()
     {
+        $admin_lang = $this->admin_lang;
         $list = array();
         $condition = array();
         // 应用搜索条件
-        $attr_var_names = M('config')->field('name')->where('is_del',1)->getAllWithIndex('name');
+        $attr_var_names = M('config')->field('name')
+            ->where([
+                'is_del'    => 1,
+                'lang'  => $admin_lang,
+            ])->getAllWithIndex('name');
         $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
+        $condition['a.lang']    = $admin_lang;
 
         $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
         $Page = new \think\Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
@@ -620,14 +720,17 @@ class System extends Base
      */
     public function customvar_del_thorough()
     {
-        $id = I('del_id/d');
+        $id = input('del_id/d');
         if(!empty($id)){
-            $attr_var_name = M('config')->where("id = $id")->getField('name');
+            $attr_var_name = M('config')->where([
+                    'id'    => $id,
+                    'lang'  => $this->admin_lang,
+                ])->getField('name');
 
-            $r = M('config')->where("id = $id")->delete();
+            $r = M('config')->where('name',$attr_var_name)->delete();
             if($r){
                 // 同时删除
-                M('config_attribute')->where(array('attr_var_name'=>array('eq', $attr_var_name)))->delete();
+                M('config_attribute')->where('attr_var_name',$attr_var_name)->delete();
                 adminLog('彻底删除自定义变量：'.$attr_var_name);
                 respose(array('status'=>1, 'msg'=>'删除成功'));
             }else{

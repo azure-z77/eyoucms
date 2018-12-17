@@ -57,6 +57,16 @@ class TagChannelartlist extends Base
         if (empty($typeid)) {
             $type = 'top'; // 默认顶级栏目
         }
+        
+        /*多语言*/
+        if (!empty($typeid)) {
+            $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
+            if (empty($typeid)) {
+                echo '标签channelartlist报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值 。';
+                return false;
+            }
+        }
+        /*--end*/
 
         $result = $this->getSwitchType($typeid, $type);
 
@@ -132,6 +142,7 @@ class TagChannelartlist extends Base
         $map['status'] = 1;
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
+            ->where('lang', $this->home_lang)
             ->order('sort_order asc')
             ->select();
 
@@ -169,6 +180,7 @@ class TagChannelartlist extends Base
         );
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
+            ->where('lang', $this->home_lang)
             ->order('sort_order asc')
             ->select();
 
@@ -201,6 +213,7 @@ class TagChannelartlist extends Base
         );
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
+            ->where('lang', $this->home_lang)
             ->order('sort_order asc')
             ->select();
 

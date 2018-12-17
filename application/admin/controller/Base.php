@@ -31,6 +31,7 @@ class Base extends Controller {
         }
         header("Cache-control: private");  // history.back返回后输入框值丢失问题
         parent::__construct();
+
         $this->global_assign();
 
         /*---------*/
@@ -112,4 +113,15 @@ class Base extends Controller {
         $this->assign('version', getCmsVersion());
         $this->assign('global', tpCache('global'));
     } 
+    
+    /**
+     * 多语言功能操作权限
+     */
+    public function language_access()
+    {
+        if (is_language() && $this->main_lang != $this->admin_lang) {
+            $lang_title = model('Language')->where('mark',$this->main_lang)->value('title');
+            $this->error('当前语言没有此功能，请切换到【'.$lang_title.'】语言');
+        }
+    }
 }

@@ -43,15 +43,32 @@ class TagGuestbookform extends Base
             return false;
         }
 
+        /*多语言*/
+        if (!empty($typeid)) {
+            $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
+            if (empty($typeid)) {
+                echo '标签guestbookform报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值 。';
+                return false;
+            }
+        }
+        /*--end*/
+        
         $result = false;
 
         /*当前栏目下的表单属性*/
-        $row = M('guestbook_attribute')->where('typeid', $typeid)->order('sort_order asc, attr_id asc')->select();
+        $row = M('guestbook_attribute')->where('typeid', $typeid)
+            ->where('lang', $this->home_lang)
+            ->order('sort_order asc, attr_id asc')
+            ->select();
         /*--end*/
         if (empty($row)) {
             echo '标签guestbookform报错：该栏目下没有新增表单属性。';
             return false;
         } else {
+            /*获取多语言关联绑定的值*/
+            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute'); // 多语言
+            /*--end*/
+
             $newAttribute = array();
             $attr_input_type_1 = 1; // 兼容v1.1.6之前的版本
             foreach ($row as $key => $val) {
@@ -107,7 +124,10 @@ class TagGuestbookform extends Base
     public function getAttrInput($typeid)
     {
         header("Content-type: text/html; charset=utf-8");
-        $attributeList = M('GuestbookAttribute')->where("typeid = $typeid")->order('sort_order asc')->select();
+        $attributeList = M('GuestbookAttribute')->where("typeid = $typeid")
+            ->where('lang', $this->home_lang)
+            ->order('sort_order asc')
+            ->select();
         $form_arr = array();
         $i = 1;
         foreach($attributeList as $key => $val)

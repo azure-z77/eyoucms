@@ -35,7 +35,7 @@
                 </dt>
                 <dd class="opt">          
                     <label><input type="checkbox" name="sitemap_xml" value="1" {if condition="isset($config.sitemap_xml) && $config.sitemap_xml eq 1"}checked="checked"{/if}>Xml网站地图</label>&nbsp;
-                    <br/>适合谷歌和百度，地图网址 <a href="{php}echo SITE_URL;{/php}/sitemap.xml" target="_blank">{php}echo SITE_URL;{/php}/sitemap.xml</a>
+                    <br/>适合谷歌和百度，地图网址 <a href="__SITE_URL__/sitemap.xml" target="_blank">__SITE_URL__/sitemap.xml</a>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>

@@ -464,11 +464,11 @@ class File extends SplFileObject
     }
 
     /**
-     * 获取当前完整文件名 by 小虎哥
+     * 获取当前完整文件名，兼容部分iis环境 by 小虎哥
      * @access public
      * @return string
      */
-    public function getFilename()
+    public function ey_getFilename()
     {
         return $this->filename;
     }

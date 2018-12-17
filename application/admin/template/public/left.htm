@@ -1,9 +1,9 @@
 <div class="metcms_cont_left hidden-xs">
     <dl class="metlogo">
         {notempty name="$is_eyou_authortoken"}
-        <a href="javascript:void(0);" onclick="openItem('Index|welcome');" target="workspace"><img src="__SKIN__/images/logo_ey.png?v={php}echo time();{/php}" alt="{$global.web_name|default=''}" title="{$global.web_name|default=''}"></a>
+        <a href="{$Request.url}"><img src="__SKIN__/images/logo_ey.png?v={php}echo time();{/php}" alt="点击刷新" title="点击刷新"></a>
         {else /}
-        <a href="javascript:void(0);"><img src="__SKIN__/images/logo.png?v={php}echo time();{/php}" alt="{$global.web_name|default=''}" title="{$global.web_name|default=''}" onClick="GetUploadify(1,'','adminlogo','adminlogo_call_back','{:U('Uploadify/upload_full')}');" size="30" hidefocus="true"></a>
+        <a href="{$Request.url}"><img src="__SKIN__/images/logo.png?v={php}echo time();{/php}" alt="点击刷新" title="点击刷新"></a>
         {/notempty}
     </dl>
     {volist name="menu" id="vo"}
@@ -33,21 +33,3 @@
     </dl>
     {/volist}
 </div>
-
-<script type="text/javascript">
-    function adminlogo_call_back(fileurl_tmp)
-    {
-        layer_loading("正在处理");
-        var url = "{:U('Index/edit_adminlogo')}";
-        $.post(url, {savepath:'adminlogo' ,filename:fileurl_tmp},function(res){
-            if (1 == res.code) {
-                layer.msg(res.msg, {icon:6, time:1000}, function(){
-                    top.window.location.reload();
-                });
-            } else {
-                layer.closeAll();
-                layer.alert(res.msg, {icon:5});
-            }
-        });
-    }
-</script>

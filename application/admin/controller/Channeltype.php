@@ -22,8 +22,8 @@ class Channeltype extends Base
     public function index()
     {
         $list = array();
-        $get = I('get.');
-        $keywords = I('keywords/s');
+        $get = input('get.');
+        $keywords = input('keywords/s');
         $condition = array();
         // 应用搜索条件
         foreach (['keywords'] as $key) {
@@ -55,13 +55,13 @@ class Channeltype extends Base
     public function add()
     {
         if (IS_POST) {
-            $post = I('post.', null, 'trim');
+            $post = input('post.', null, 'trim');
 
             $map = array(
                 'nid' => strtolower($post['nid']),
             );
             if(M('channeltype')->where($map)->count('id') > 0){
-                $this->error('该模型标识已存在，请检查', U('Channeltype/index'));
+                $this->error('该模型标识已存在，请检查', url('Channeltype/index'));
             }
 
             $nowData = array(
@@ -76,7 +76,7 @@ class Channeltype extends Base
                 \think\Cache::clear('channeltype');
                 extra_cache('admin_channeltype_list_logic', NULL);
                 adminLog('新增模型：'.$post['title']);
-                $this->success("操作成功", U('Channeltype/index'));
+                $this->success("操作成功", url('Channeltype/index'));
             } else {
                 $this->error("操作失败");
             }
@@ -95,7 +95,7 @@ class Channeltype extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.', null, 'trim');
+            $post = input('post.', null, 'trim');
             if(!empty($post['id'])){
                 $nowData = array(
                     'update_time'       => getTime(),
@@ -106,7 +106,7 @@ class Channeltype extends Base
             if ($r) {
                 extra_cache('admin_channeltype_list_logic', NULL);
                 adminLog('编辑模型：'.$post['title']);
-                $this->success("操作成功", U('Channeltype/index'));
+                $this->success("操作成功", url('Channeltype/index'));
             } else {
                 $this->error("操作失败");
             }
@@ -114,7 +114,7 @@ class Channeltype extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
+        $id = input('id/d');
         $info = M('channeltype')->field('a.*')
             ->alias('a')
             ->where(array('a.id'=>$id))
@@ -136,7 +136,7 @@ class Channeltype extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
             foreach ($id_arr as $key => $val) {

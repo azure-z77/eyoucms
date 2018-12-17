@@ -44,12 +44,25 @@ class TagArclist extends Base
      * 获取多条记录
      * @author wengxianhu by 2018-4-20
      */
-    public function getArclist($param = array(),  $limit = 15, $orderby = '', $addfields = '')
+    public function getArclist($param = array(),  $limit = 15, $orderby = '', $addfields = '', $orderWay = 'desc')
     {
         $result = false;
 
         $channeltype = !empty($param['channel']) ? $param['channel'] : '';
-        $typeid = $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
+        $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
+
+        /*多语言*/
+        if (!empty($param['typeid'])) {
+            $param['typeid'] = model('LanguageAttr')->getBindValue($param['typeid'], 'arctype');
+            if (empty($param['typeid'])) {
+                echo '标签arclist报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值。';
+                return false;
+            }
+        }
+        /*--end*/
+
+        $typeid = $param['typeid'];
+
         /*不指定模型ID、栏目ID，默认显示所有可以发布文档的模型ID下的文档*/
         if (empty($channeltype) && empty($typeid)) {
             $allow_release_channel = config('global.allow_release_channel');
@@ -72,7 +85,7 @@ class TagArclist extends Base
                     $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : ''; // 当前栏目ID所属模型ID
 
                     /*获取当前栏目下的所有同模型的子孙栏目*/
-                    $arctype_list = model("Arctype")->getHasChildren($channel_info['id'], $channeltype);
+                    $arctype_list = model("Arctype")->getHasChildren($channel_info['id']);
                     foreach ($arctype_list as $key => $val) {
                         if ($channeltype != $val['current_channel']) {
                             unset($arctype_list[$key]);
@@ -160,27 +173,32 @@ class TagArclist extends Base
         switch ($orderby) {
             case 'hot':
             case 'click':
-                $orderby = 'a.click desc';
+                $orderby = "a.click {$orderWay}";
                 break;
 
             case 'now':
             case 'aid':
-            case 'sortrank':
-            case 'pubdate':
-                $orderby = 'a.aid desc';
+                $orderby = "a.aid {$orderWay}";
                 break;
 
-            case 'scores':
+            case 'pubdate':
+            case 'add_time':
+                $orderby = "a.add_time {$orderWay}";
+                break;
+                
+            case 'sortrank':
             case 'sort_order':
-                $orderby = 'a.sort_order asc';
-
+                $orderby = "a.sort_order {$orderWay}";
+                break;
+                
             case 'rand':
-                $orderby = 'rand()';
+                $orderby = "rand()";
+                break;
             
             default:
                 {
                     if (empty($orderby)) {
-                        $orderby = 'a.sort_order asc, a.aid desc';
+                        $orderby = "a.sort_order asc, a.aid desc";
                     } elseif (trim($orderby) != 'rand()') {
                         $orderbyArr = explode(',', $orderby);
                         foreach ($orderbyArr as $key => $val) {
@@ -215,6 +233,7 @@ class TagArclist extends Base
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                     ->where($where_str)
+                    ->where('a.lang', $this->home_lang)
                     ->orderRaw($orderby)
                     ->limit($limit)
                     ->select();

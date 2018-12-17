@@ -39,11 +39,8 @@ class Guestbook extends Model
         }
 
         // 同时删除属性内容
-        M('guestbook_attr')->where(
-                array(
-                    'aid'=>array('IN', $aidArr)
-                )
-            )
-            ->delete();
+        M('guestbook_attr')->where([
+                'aid'   => ['IN', $aidArr]
+            ])->delete();
     }
 }

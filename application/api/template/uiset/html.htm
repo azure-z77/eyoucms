@@ -57,6 +57,7 @@
 						<input type="hidden" name="type" value="{$field.type|default=''}">
 						<input type="hidden" name="page" value="{$field.page|default=''}">
                         <input type="hidden" name="v" value="{$v|default='pc'}">
+						<input type="hidden" name="lang" value="{$field.lang|default='cn'}">
 						<a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
 					</div>
 				</div>
@@ -65,7 +66,7 @@
 	  </div>
 	</div>
 	<script type="text/javascript">
-	    var url="{:U('Ueditor/index',array('savepath'=>'ui'))}";
+	    var url="{:url('Ueditor/index',array('savepath'=>'ui'))}";
 	    var ue = UE.getEditor('post_content',{
 	        serverUrl :url,
 	        zIndex: 999,
@@ -96,7 +97,7 @@
             
 	        layer_loading('正在处理');
 	        $.ajax({
-	        	url: "{:U('api/Uiset/submit')}",
+	        	url: "{:url('api/Uiset/submit')}",
 	        	type: 'POST',
 	        	dataType: 'JSON',
 	        	data: $('#post_form').serialize(),

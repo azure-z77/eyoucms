@@ -26,7 +26,7 @@ class AppInitBehavior {
     }
 
     private function _initialize() {
-        $this->saveSqlmode();
+        $this->saveSqlmode(); // 保存mysql的sql-mode模式参数
     }
 
     /**
@@ -44,7 +44,17 @@ class AppInitBehavior {
 
                 $sql_mode = db()->query("SELECT @@global.sql_mode AS sql_mode");
                 $system_sql_mode = isset($sql_mode[0]['sql_mode']) ? $sql_mode[0]['sql_mode'] : '';
-                tpCache('system', array('system_sql_mode'=>$system_sql_mode));
+                /*多语言*/
+                if (is_language()) {
+                    $langRow = \think\Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                        ->order('id asc')->select();
+                    foreach ($langRow as $key => $val) {
+                        tpCache('system', ['system_sql_mode'=>$system_sql_mode], $val['mark']);
+                    }
+                } else { // 单语言
+                    tpCache('system', ['system_sql_mode'=>$system_sql_mode]);
+                }
+                /*--end*/
             }
         }
         /*--end*/

@@ -12,6 +12,8 @@
  */
 
 return array(
+    // CMS根目录文件夹
+    'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
     // 一天的时间戳
     'one_day_time'  => 86400,
     // 发送短信默认有效时间
@@ -52,7 +54,13 @@ return array(
     // 栏目自定义字段的channel_id值
     'arctype_channel_id' => -99,
     // 栏目表原始字段
-    'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','status','lang','admin_id','is_del','add_time','update_time'),
+    'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','admin_id','is_del','status','lang','add_time','update_time'),
     // 网络图片扩展名
     'image_ext' => 'jpg,jpeg,gif,bmp,ico,png',
+    // 后台语言Cookie变量
+    'admin_lang' => 'admin_lang',
+    // 前台语言Cookie变量
+    'home_lang' => 'home_lang',
+    // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
+    'parse_url_param'   => ['uiset','v','lang'],
 );

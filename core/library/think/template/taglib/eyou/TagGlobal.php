@@ -13,6 +13,9 @@
 
 namespace think\template\taglib\eyou;
 
+use \think\Request;
+use \think\Config;
+
 /**
  * 全局变量
  */
@@ -58,13 +61,46 @@ class TagGlobal extends Base
                 case 'web_basehost':
                 case 'web_cmsurl':
                     {
-                        if ('on' == $uiset) {
-                            /*电脑版与手机版的切换*/
-                            $v = I('param.v/s', 'pc');
-                            $v = trim($v, '/');
-                            /*--end*/
-                            $value .= U('home/Index/index', array('uiset'=>'on','v'=>$v,'tmp'=>''));
+
+
+                        // if(empty($value)) {
+                        //     if (1 == $globalTpCache['seo_pseudo']) {
+                        //         $value = '/';
+                        //     }
+                        // } && $value = url('home/Index/index');
+
+                        /*URL全局参数（比如：可视化uiset、多模板v、多语言lang）*/
+                        $urlParam = Request::instance()->param();
+                        foreach ($urlParam as $key => $val) {
+                            if (in_array($key, Config::get('global.parse_url_param'))) {
+                                $urlParam[$key] = trim($val, '/');
+                            } else {
+                                unset($urlParam[$key]);
+                            }
                         }
+                        /*--end*/
+
+                        if ('on' == $uiset) {
+                            $value = url('home/Index/index', $urlParam);
+                        } else {
+                            $value = '/';
+                            if (1 == $globalTpCache['seo_pseudo'] && 1 == $globalTpCache['seo_dynamic_format']) {
+                                if (!empty($urlParam)) {
+                                    if (!stristr($value, '?')) {
+                                        $value .= '?';
+                                    } else {
+                                        $value .= '&';
+                                    }
+                                    $value .= http_build_query($urlParam);
+                                }
+                            } else {
+                                if (get_main_lang() != get_home_lang()) {
+                                    $value = rtrim(url('home/Index/index'), '/').'/';
+                                }
+                            }
+                        }
+
+                        $value .= '" data-tmp="'; // 兼容早期模板的网站首页斜杆(/)问题
                     }
                     break;
                 

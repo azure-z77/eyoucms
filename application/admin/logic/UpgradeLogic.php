@@ -18,7 +18,7 @@ use think\Db;
  
 class UpgradeLogic extends Model
 {
-    public $app_path;
+    public $root_path;
     public $data_path;
     public $version_txt_path;
     public $curent_version;    
@@ -32,14 +32,14 @@ class UpgradeLogic extends Model
     function  __construct() {
          
         $this->service_ey = config('service_ey');
-        $this->app_path = ROOT_PATH; // 
+        $this->root_path = ROOT_PATH; // 
         $this->data_path = DATA_PATH; // 
         $this->version_txt_path = $this->data_path.'conf'.DS.'version.txt'; // 版本文件路径
         $this->curent_version = getCmsVersion();
         // api_Service_checkVersion
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT1jaGVja1ZlcnNpb24=';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
-        $this->upgrade_url = $this->service_url . '&domain='.DOMAIN.'&v=' . $this->curent_version;
+        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->curent_version;
     }
 
     /**
@@ -191,30 +191,36 @@ class UpgradeLogic extends Model
         $upgrade = $serviceVersion['upgrade'];
         if (!empty($upgrade) && is_array($upgrade)) {
             foreach ($upgrade as $key => $val) {
-                $source_file = $this->app_path.$val;
+                $source_file = $this->root_path.$val;
                 if (file_exists($source_file)) {
                     $destination_file = $this->data_path.'backup'.DS.$this->curent_version.'_www'.DS.$val;
                     tp_mkdir(dirname($destination_file));
-                    copy($source_file, $destination_file);
+                    $copy_bool = @copy($source_file, $destination_file);
+                    if (false == $copy_bool) {
+                        return "更新前备份文件失败，请检查所有目录的权限以及用户组不能为root";
+                    }
                 }
             }
         }
         /*--end*/
 
         // 递归复制文件夹            
-        recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->app_path, DS));
+        $copy_bool = recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->root_path, DS));
+        if (true !== $copy_bool) {
+            return $copy_bool;
+        }
         /*覆盖自定义后台入口文件*/
         $login_php = 'login.php';
         $rootLoginFile = $this->data_path.'backup'.DS.$folderName.DS.'www'.DS.$login_php;
-        if (file_exists($rootLoginFile) && is_writable($rootLoginFile)) {
-            $adminbasefile = tpCache('web.web_adminbasefile');
-            $adminbasefile = trim($adminbasefile, '/');
-            if($login_php != $adminbasefile) {
-                @copy($rootLoginFile, $this->app_path.$adminbasefile);
-                @unlink($this->app_path.$login_php);
-            }
+        if (file_exists($rootLoginFile)) {
+            $adminbasefile = preg_replace('/^(.*)\/([^\/]+)$/i', '$2', request()->baseFile());
+            if ($login_php != $adminbasefile && is_writable($this->root_path.$adminbasefile)) {
+                @copy($rootLoginFile, $this->root_path.$adminbasefile);
+                @unlink($this->root_path.$login_php);
+            } 
         }
         /*--end*/
+        
         /*升级的 sql文件*/
         if(!empty($serviceVersion['sql_file']))
         {
@@ -243,7 +249,19 @@ class UpgradeLogic extends Model
             }
         }
         /*--end*/
-        tpCache('system',['system_version'=>$serviceVersion['key_num']]); // 记录版本号
+
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')
+                ->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('system',['system_version'=>$serviceVersion['key_num']], $val['mark']); // 记录版本号
+            }
+        } else { // 单语言
+            tpCache('system',['system_version'=>$serviceVersion['key_num']]); // 记录版本号
+        }
+        /*--end*/
+
         // 清空缓存
         delFile(rtrim(RUNTIME_PATH, '/'));
         tpCache('global');

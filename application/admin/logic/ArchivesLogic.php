@@ -31,7 +31,7 @@ class ArchivesLogic extends Model
     public function del($del_id = array())
     {
         if (empty($del_id)) {
-            $del_id = I('del_id/a');
+            $del_id = input('del_id/a');
         }
 
         $id_arr = eyIntval($del_id);
@@ -41,7 +41,10 @@ class ArchivesLogic extends Model
                 ->alias('a')
                 ->field('a.channel,a.aid,b.ctl_name')
                 ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
-                ->where('a.aid', 'IN', $id_arr)
+                ->where([
+                    'a.aid' => ['IN', $id_arr],
+                    'a.lang'    => get_admin_lang(),
+                ])
                 ->select();
             $data = array();
             foreach ($row as $key => $val) {

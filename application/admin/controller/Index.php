@@ -20,6 +20,36 @@ class Index extends Base
 {
     public function index()
     {
+        $language_db = Db::name('language');
+        /*多语言列表*/
+        $languages = $language_db->field('a.mark, a.title')
+            ->alias('a')
+            // ->join('__LANGUAGE_MARK__ b', 'a.mark=b.mark', 'LEFT')
+            ->where('a.status',1)
+            ->getAllWithIndex('mark');
+        $this->assign('languages', $languages);
+        /*--end*/
+
+        /*网站首页链接*/
+        $home_default_lang = config('ey_config.system_home_default_lang');
+        $admin_lang = get_admin_lang();
+        $home_url = request()->domain();
+        if ($home_default_lang != $admin_lang) {
+            $home_url = $language_db->where(['mark'=>$admin_lang])->getField('url');
+            if (empty($home_url)) {
+                $seoConfig = tpCache('seo');
+                $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+                $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+                if (1 == $seo_pseudo && 1 == $seo_dynamic_format) {
+                    $home_url = request()->domain().'/?lang='.$admin_lang;
+                } else {
+                    $home_url = request()->domain().'/'.$admin_lang.'/';
+                }
+            }
+        }
+        $this->assign('home_url', $home_url);
+        /*--end*/
+
         $this->assign('admin_info', getAdminInfo());
         $this->assign('menu',getMenuList());
         return $this->fetch();
@@ -31,7 +61,7 @@ class Index extends Base
         $webConfig = tpCache('web');
         $share = array(
             'bdText'    => $webConfig['web_title'],
-            'bdPic'     => is_http_url($webConfig['web_logo']) ? $webConfig['web_logo'] : SITE_URL.$webConfig['web_logo'],
+            'bdPic'     => is_http_url($webConfig['web_logo']) ? $webConfig['web_logo'] : request()->domain().$webConfig['web_logo'],
             'bdUrl'     => $webConfig['web_basehost'],
         );
         $this->assign('share',$share);
@@ -86,10 +116,26 @@ class Index extends Base
     {
         $inc_type = 'web';
         if (IS_POST) {
-            $web_authortoken = I('post.web_authortoken/s', '');
+            $web_authortoken = input('post.web_authortoken/s', '');
             $web_authortoken = trim($web_authortoken);
-            $result = tpCache($inc_type, array('web_authortoken'=>$web_authortoken));
+            $result = false;
+            /*多语言*/
+            if (is_language()) {
+                $langRow = Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->order('id asc')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    $result = tpCache($inc_type, ['web_authortoken'=>$web_authortoken], $val['mark']);
+                }
+            } else { // 单语言
+                $result = tpCache($inc_type, array('web_authortoken'=>$web_authortoken));
+            }
+            /*--end*/
             if ($result) {
+                $source = ROOT_PATH.'public/static/admin/images/logo_ey.png';
+                $destination = ROOT_PATH.'public/static/admin/images/logo.png';
+                @copy($source, $destination);
+
                 session('isset_author', null);
                 adminLog('录入商业授权');
                 $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
@@ -110,12 +156,16 @@ class Index extends Base
      */
     public function edit_adminlogo()
     {
-        $savepath = I('param.savepath/s', 'adminlogo');
-        $filename = I('param.filename/s', '');
+        $filename = input('param.filename/s', '');
         if (!empty($filename)) {
-            $source = ROOT_PATH.trim($filename, '/');
-            $destination = ROOT_PATH.'public/static/admin/images/logo.png';
-            if (copy($source, $destination)) {
+            $source = ROOT_PATH.$filename;
+            $web_is_authortoken = tpCache('web.web_is_authortoken');
+            if (empty($web_is_authortoken)) {
+                $destination = ROOT_PATH.'public/static/admin/images/logo.png';
+            } else {
+                $destination = ROOT_PATH.'public/static/admin/images/logo_ey.png';
+            }
+            if (@copy($source, $destination)) {
                 $this->success('操作成功');
             }
         }
@@ -137,11 +187,11 @@ class Index extends Base
      */
     public function changeTableVal()
     {  
-        $table = I('table'); // 表名
-        $id_name = I('id_name'); // 表主键id名
-        $id_value = I('id_value'); // 表主键id值
-        $field  = I('field'); // 修改哪个字段
-        $value  = I('value', '', null); // 修改字段值  
+        $table = input('table'); // 表名
+        $id_name = input('id_name'); // 表主键id名
+        $id_value = input('id_value'); // 表主键id值
+        $field  = input('field'); // 修改哪个字段
+        $value  = input('value', '', null); // 修改字段值  
         M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save(array($field=>$value)); // 根据条件保存修改的数据
 
         switch ($table) {
@@ -158,6 +208,11 @@ class Index extends Base
                 \think\Cache::clear($table);
                 break;
         }
+
+        /*清除页面缓存*/
+        $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+        $htmlCacheLogic->clear_archives();
+        /*--end*/
         
         $this->success('操作成功');
     }   

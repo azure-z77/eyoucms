@@ -52,6 +52,7 @@
                             <input type="hidden" name="type" value="{$field.type|default=''}">
                             <input type="hidden" name="page" value="{$field.page|default=''}">
                             <input type="hidden" name="v" value="{$v|default='pc'}">
+                            <input type="hidden" name="lang" value="{$field.lang|default='cn'}">
                             <label class="checkbox"><input type="button" class="btn" value="确认提交" onclick="check_submit();" /></label>
                         </div>
                     </div>
@@ -66,7 +67,7 @@
         {
             layer_loading('正在处理');
             $.ajax({
-                url: "{:U('api/Uiset/submit')}",
+                url: "{:url('api/Uiset/submit')}",
                 type: 'POST',
                 dataType: 'JSON',
                 data: $('#post_form').serialize(),

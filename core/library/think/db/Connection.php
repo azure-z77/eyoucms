@@ -125,7 +125,7 @@ abstract class Connection
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
-        $this->config['break_reconnect'] = true; // 开启断线重连 https://blog.csdn.net/weng_xianhu/article/details/84036909 by 小虎哥
+        // $this->config['break_reconnect'] = true; // 开启断线重连 https://blog.csdn.net/weng_xianhu/article/details/84036909 by 小虎哥
     }
 
     /**
@@ -337,7 +337,7 @@ abstract class Connection
      */
     public function query($sql, $bind = [], $master = false, $pdo = false)
     {
-        $sql = str_replace('__PREFIX__', config('database.prefix'), $sql); // 替换前缀 by 小虎哥
+        $sql = str_replace('__PREFIX__', $this->config['prefix'], $sql); // 替换前缀 by 小虎哥
         $this->initConnect($master);
         if (!$this->linkID) {
             return false;
@@ -407,7 +407,7 @@ abstract class Connection
      */
     public function execute($sql, $bind = [], Query $query = null)
     {
-        $sql = str_replace('__PREFIX__', config('database.prefix'), $sql); // 替换前缀 by 小虎哥
+        $sql = str_replace('__PREFIX__', $this->config['prefix'], $sql); // 替换前缀 by 小虎哥
         $this->initConnect(true);
         if (!$this->linkID) {
             return false;

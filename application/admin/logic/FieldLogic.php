@@ -173,7 +173,7 @@ class FieldLogic extends Model
     }
 
     /**
-     * 检测频道模型字段是否已存在，包括：主表和附加表
+     * 检测频道模型相关的表字段是否已存在，包括：主表和附加表
      *
      * @access    public
      * @param     string  $slave_table  附加表
@@ -190,7 +190,8 @@ class FieldLogic extends Model
         }
         $masterFieldArr = Db::getTableFields($master_table); // 主表字段
         $slaveFieldArr = Db::getTableFields($slave_table); // 附加表字段
-        $fieldArr = array_merge($slaveFieldArr, $masterFieldArr); // 合并字段
+        $addfields = ['pageurl','has_children','typelitpic','arcurl','typeurl']; // 额外与字段冲突的变量名
+        $fieldArr = array_merge($slaveFieldArr, $masterFieldArr, $addfields); // 合并字段
         if (!empty($fieldname)) {
             if (!empty($filter) && is_array($filter)) {
                 foreach ($filter as $key => $val) {
@@ -459,7 +460,7 @@ class FieldLogic extends Model
         /*--end*/
 
         \think\Cache::clear('channelfield');
-        \think\Cache::clear('arctype');
+        \think\Cache::clear("arctype");
 
         cache($cacheKey, 1, null, 'channelfield');
     }

@@ -25,6 +25,12 @@ $globalConfig = tpCache('global');
 // mysql的sql-mode模式参数
 $system_sql_mode = !empty($globalConfig['system_sql_mode']) ? $globalConfig['system_sql_mode'] : config('ey_config.system_sql_mode');
 config('ey_config.system_sql_mode', $system_sql_mode);
+// 多语言数量
+$system_langnum = !empty($globalConfig['system_langnum']) ? intval($globalConfig['system_langnum']) : config('ey_config.system_langnum');
+config('ey_config.system_langnum', $system_langnum);
+// 前台默认语言
+$system_home_default_lang = !empty($globalConfig['system_home_default_lang']) ? $globalConfig['system_home_default_lang'] : config('ey_config.system_home_default_lang');
+config('ey_config.system_home_default_lang', $system_home_default_lang);
 // URL模式
 $seo_pseudo = !empty($globalConfig['seo_pseudo']) ? intval($globalConfig['seo_pseudo']) : config('ey_config.seo_pseudo');
 
@@ -47,56 +53,81 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
     config('ey_config.seo_inlet', $seo_inlet);
 
     if (3 == $seo_pseudo) {
+        $lang_rewrite = [];
+        $lang_rewrite_str = '';
+        /*多语言*/
+        $lang = input('param.lang/s');
+        if (is_language()) {
+            if (!stristr($request->baseFile(), 'index.php')) {
+                if (!empty($lang) && $lang != $system_home_default_lang) {
+                    $lang_rewrite_str = '<lang>/';
+                    $lang_rewrite = [
+                        // 首页
+                        $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                    ];
+                }
+            } else {
+                if (get_current_lang() != get_default_lang()) {
+                    $lang_rewrite_str = '<lang>/';
+                    $lang_rewrite = [
+                        // 首页
+                        $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                    ];
+                }
+            }
+        }
+        /*--end*/
         if (1 == $seo_rewrite_format) { // 精简伪静态
             $home_rewrite = array(
                 // 列表页
-                '<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
                 // 内容页
-                '<dirname>/<aid>$' => array('home/View/index',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'<dirname>/<aid>$' => array('home/View/index',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 留言提交
-                'guestbook/submit$' => array('home/Lists/gbook_submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'guestbook/submit$' => array('home/Lists/gbook_submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
                 // 下载文件
-                'downfile/<id>/<uhash>$' => array('home/View/downfile',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'downfile/<id>/<uhash>$' => array('home/View/downfile',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 标签伪静态
-                'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 搜索伪静态
-                'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
             );
         } else {
             $home_rewrite = array(
                 // 文章模型伪静态
-                'article$' => array('home/Article/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'article/<tid>$' => array('home/Article/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'article/<dirname>/<aid>$' => array('home/Article/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'article$' => array('home/Article/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'article/<tid>$' => array('home/Article/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'article/<dirname>/<aid>$' => array('home/Article/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 产品模型伪静态
-                'product$' => array('home/Product/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'product/<tid>$' => array('home/Product/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'product/<dirname>/<aid>$' => array('home/Product/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'product$' => array('home/Product/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'product/<tid>$' => array('home/Product/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'product/<dirname>/<aid>$' => array('home/Product/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 图集模型伪静态
-                'images$' => array('home/Images/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'images/<tid>$' => array('home/Images/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'images/<dirname>/<aid>$' => array('home/Images/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'images$' => array('home/Images/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'images/<tid>$' => array('home/Images/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'images/<dirname>/<aid>$' => array('home/Images/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 下载模型伪静态
-                'download$' => array('home/Download/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'download/<tid>$' => array('home/Download/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'download/<dirname>/<aid>$' => array('home/Download/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
-                'downfile/<id>/<uhash>$' => array('home/View/downfile',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'download$' => array('home/Download/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'download/<tid>$' => array('home/Download/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'download/<dirname>/<aid>$' => array('home/Download/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'downfile/<id>/<uhash>$' => array('home/View/downfile',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 单页模型伪静态
-                'single$' => array('home/Single/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'single/<tid>$' => array('home/Single/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'single/<dirname>/<aid>$' => array('home/Single/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'single$' => array('home/Single/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'single/<tid>$' => array('home/Single/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'single/<dirname>/<aid>$' => array('home/Single/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 标签伪静态
-                'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 搜索伪静态
-                'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 留言模型
-                'guestbook$' => array('home/Guestbook/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                'guestbook/submit$' => array('home/View/submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'guestbook$' => array('home/Guestbook/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'guestbook/submit$' => array('home/View/submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
             );
         }
+        $home_rewrite = array_merge($lang_rewrite, $home_rewrite);
     }
 
     /*插件模块路由*/

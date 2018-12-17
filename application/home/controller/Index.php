@@ -35,14 +35,29 @@ class Index extends Base
         if(isset($_GET['clear']) || !file_exists($filename))
         {
             /*获取当前页面URL*/
-            $result['pageurl'] = request()->domain();
+            $result['pageurl'] = request()->url(true);
             /*--end*/
             $eyou = array(
                 'field' => $result,
             );
             $this->eyou = array_merge($this->eyou, $eyou);
             $this->assign('eyou', $this->eyou);
-            $html = $this->fetch(':index');
+            
+            /*模板文件*/
+            $viewfile = 'index';
+            /*--end*/
+
+            /*多语言内置模板文件名*/
+            $lang = get_home_lang();
+            if (!empty($lang)) {
+                $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+                if (file_exists($viewfilepath)) {
+                    $viewfile .= "_{$lang}";
+                }
+            }
+            /*--end*/
+
+            $html = $this->fetch(":{$viewfile}");
             // @file_put_contents($filename, $html);
             return $html;
         }

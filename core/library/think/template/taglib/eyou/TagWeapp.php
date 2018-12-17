@@ -39,7 +39,10 @@ class TagWeapp extends Base
             'tag_weapp' => array('eq',1),
             'status' => array('eq',1),
         );
-        $result = M('weapp')->field('code,config')->where($map)->cache(false, EYOUCMS_CACHE_TIME, 'hooks')->select();
+        $result = M('weapp')->field('code,config')
+            ->where($map)
+            // ->cache(true, EYOUCMS_CACHE_TIME, 'hooks')
+            ->select();
         foreach ($result as $key => $val) {
             $config = json_decode($val['config'], true);
             if (isMobile() && !in_array($config['scene'], [0,1])) {

@@ -27,6 +27,7 @@ class Field extends Base
 
     public function _initialize() {
         parent::_initialize();
+        $this->language_access(); // 多语言功能操作权限
         $this->fieldLogic = new FieldLogic();
         $this->arctype_channel_id = config('global.arctype_channel_id');
     }
@@ -36,11 +37,11 @@ class Field extends Base
      */
     public function channel_index()
     {
-        $channel_id = I('param.channel_id/d', 1);
+        $channel_id = input('param.channel_id/d', 1);
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $param = I('param.');
+        $param = input('param.');
 
         /*同步更新附加表字段到自定义模型字段表中*/
         if (empty($param['searchopt'])) {
@@ -105,13 +106,13 @@ class Field extends Base
      */
     public function channel_add()
     {
-        $channel_id = I('param.channel_id/d', 0);
+        $channel_id = input('param.channel_id/d', 0);
         if (empty($channel_id)) {
             $this->error('参数有误！');
         }
 
         if (IS_POST) {
-            $post = I('post.', '', 'trim');
+            $post = input('post.', '', 'trim');
 
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
@@ -181,7 +182,7 @@ class Field extends Base
                 /*--end*/
 
                 \think\Cache::clear('channelfield');
-                $this->success("操作成功！", U('Field/channel_index', array('channel_id'=>$channel_id)));
+                $this->success("操作成功！", url('Field/channel_index', array('channel_id'=>$channel_id)));
             }
             $this->error('操作失败');
         }
@@ -203,13 +204,13 @@ class Field extends Base
      */
     public function channel_edit()
     {
-        $channel_id = I('param.channel_id/d', 0);
+        $channel_id = input('param.channel_id/d', 0);
         if (empty($channel_id)) {
             $this->error('参数有误！');
         }
 
         if (IS_POST) {
-            $post = I('post.', '', 'trim');
+            $post = input('post.', '', 'trim');
 
             $info = model('Channelfield')->getInfo($post['id'], 'ifsystem');
             if (!empty($info['ifsystem'])) {
@@ -283,7 +284,7 @@ class Field extends Base
                 } catch (Exception $e) {}
                 /*--end*/
 
-                $this->success("操作成功！", U('Field/channel_index', array('channel_id'=>$post['channel_id'])));
+                $this->success("操作成功！", url('Field/channel_index', array('channel_id'=>$post['channel_id'])));
             } else {
                 $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
                 if (false === Db::execute($sql)) {
@@ -292,7 +293,7 @@ class Field extends Base
             }
         }
 
-        $id = I('param.id/d', 0);
+        $id = input('param.id/d', 0);
         $info = array();
         if (!empty($id)) {
             $info = model('Channelfield')->getInfo($id);
@@ -319,8 +320,8 @@ class Field extends Base
      */
     public function channel_del()
     {
-        $channel_id = I('channel_id/d', 0);
-        $id = I('del_id/d', 0);
+        $channel_id = input('channel_id/d', 0);
+        $id = input('del_id/d', 0);
         if(!empty($id)){
             /*删除表字段*/
             $row = $this->fieldLogic->delChannelField($id);
@@ -359,11 +360,11 @@ class Field extends Base
      */
     public function del_channelimgs()
     {
-        $aid = I('aid/d','0');
-        $channel = I('channel/d', ''); // 模型ID
+        $aid = input('aid/d','0');
+        $channel = input('channel/d', ''); // 模型ID
         if (!empty($aid) && !empty($channel)) {
-            $path = I('filename',''); // 图片路径
-            $fieldname = I('fieldname/s', ''); // 多图字段
+            $path = input('filename',''); // 图片路径
+            $fieldname = input('fieldname/s', ''); // 多图字段
 
             /*模型附加表*/
             $table = M('channeltype')->where('id',$channel)->getField('table');
@@ -393,7 +394,7 @@ class Field extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $param = I('param.');
+        $param = input('param.');
 
         /*同步更新栏目主表字段到自定义字段表中*/
         if (empty($param['searchopt'])) {
@@ -447,7 +448,7 @@ class Field extends Base
         }
 
         if (IS_POST) {
-            $post = I('post.', '', 'trim');
+            $post = input('post.', '', 'trim');
 
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
@@ -519,8 +520,8 @@ class Field extends Base
                 /*--end*/
 
                 \think\Cache::clear('channelfield');
-                \think\Cache::clear('arctype');
-                $this->success("操作成功！", U('Field/arctype_index'));
+                \think\Cache::clear("arctype");
+                $this->success("操作成功！", url('Field/arctype_index'));
             }
             $this->error('操作失败');
         }
@@ -548,7 +549,7 @@ class Field extends Base
         }
 
         if (IS_POST) {
-            $post = I('post.', '', 'trim');
+            $post = input('post.', '', 'trim');
 
             $info = model('Channelfield')->getInfo($post['id'], 'ifsystem');
             if (!empty($info['ifsystem'])) {
@@ -624,8 +625,8 @@ class Field extends Base
                 } catch (Exception $e) {}
                 /*--end*/
 
-                \think\Cache::clear('arctype');
-                $this->success("操作成功！", U('Field/arctype_index'));
+                \think\Cache::clear("arctype");
+                $this->success("操作成功！", url('Field/arctype_index'));
             } else {
                 $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
                 if (false === Db::execute($sql)) {
@@ -634,7 +635,7 @@ class Field extends Base
             }
         }
 
-        $id = I('param.id/d', 0);
+        $id = input('param.id/d', 0);
         $info = array();
         if (!empty($id)) {
             $info = model('Channelfield')->getInfo($id);
@@ -662,7 +663,7 @@ class Field extends Base
     public function arctype_del()
     {
         $channel_id = $this->arctype_channel_id;
-        $id = I('del_id/d', 0);
+        $id = input('del_id/d', 0);
         if(!empty($id)){
             /*删除表字段*/
             $row = $this->fieldLogic->delArctypeField($id);
@@ -683,7 +684,7 @@ class Field extends Base
             }
 
             \think\Cache::clear('channelfield');
-            \think\Cache::clear('arctype');
+            \think\Cache::clear("arctype");
             respose(array('status'=>0, 'msg'=>$row['msg']));
 
         }else{

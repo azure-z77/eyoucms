@@ -116,7 +116,7 @@ jQuery(function($){
             if( $.trim(text) != '' ) {
                 eyou_layer_loading('正在处理');
                 $.ajax({
-                    url: '/index.php?m=api&c=Uiset&a=submit'+'&v='+v,
+                    url: '/index.php?m=api&c=Uiset&a=submit'+'&v='+v+'&lang='+lang,
                     type: 'POST',
                     dataType: 'JSON',
                     data: {
@@ -125,6 +125,7 @@ jQuery(function($){
                         ,page: e_page
                         ,type: 'text'
                         ,oldhtml: oldhtml
+                        ,lang: lang
                     },
                     success: function(res) {
                         layer.closeAll();
@@ -166,7 +167,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
             area: ['700px', '550px'],
-            content: '/index.php?m=api&c=Uiset&a=html&id='+e_id+'&page='+e_page+'&v='+v
+            content: '/index.php?m=api&c=Uiset&a=html&id='+e_id+'&page='+e_page+'&v='+v+'&lang='+lang
         });
         // console.log(a)
     }
@@ -190,7 +191,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: false, //开启最大化最小化按钮
             area: ['350px', '200px'],
-            content: '/index.php?m=api&c=Uiset&a=type&id='+e_id+'&page='+e_page+'&v='+v
+            content: '/index.php?m=api&c=Uiset&a=type&id='+e_id+'&page='+e_page+'&v='+v+'&lang='+lang
         });
         // console.log(a)
     }
@@ -214,7 +215,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: false, //开启最大化最小化按钮
             area: ['350px', '200px'],
-            content: '/index.php?m=api&c=Uiset&a=arclist&id='+e_id+'&page='+e_page+'&v='+v
+            content: '/index.php?m=api&c=Uiset&a=arclist&id='+e_id+'&page='+e_page+'&v='+v+'&lang='+lang
         });
         // console.log(a)
     }
@@ -238,7 +239,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: false, //开启最大化最小化按钮
             area: ['350px', '200px'],
-            content: '/index.php?m=api&c=Uiset&a=channel&id='+e_id+'&page='+e_page+'&v='+v
+            content: '/index.php?m=api&c=Uiset&a=channel&id='+e_id+'&page='+e_page+'&v='+v+'&lang='+lang
         });
         // console.log(a)
     }
@@ -265,7 +266,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: false, //开启最大化最小化按钮
             area: ['400px', '280px'],
-            content: '/index.php?m=api&c=Uiset&a=upload&id='+e_id+'&page='+e_page+'&v='+v,
+            content: '/index.php?m=api&c=Uiset&a=upload&id='+e_id+'&page='+e_page+'&v='+v+'&lang='+lang,
             success: function(layero, index){
                 // layer.iframeAuto(index);
                 var body = layer.getChildFrame('body', index);
@@ -283,6 +284,7 @@ jQuery(function($){
     function eyou_adv(that)
     {
         var e_id = $(that).attr('e-id');
+        var url = admin_basefile+'?m='+admin_module_name+'&c=Other&a=ui_edit&id='+e_id+'&v='+v+'&lang='+lang;
         //iframe窗
         layer.open({
             type: 2,
@@ -292,7 +294,7 @@ jQuery(function($){
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
             area: ['800px', '500px'],
-            content: admin_basefile+'?m='+admin_module_name+'&c=Other&a=ui_edit&id='+e_id+'&v='+v
+            content: url
         });
         // console.log(a)
     }

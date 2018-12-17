@@ -39,9 +39,11 @@
                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
+                        {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
                             <div class="tc">选择</div>
                         </th>
+                        {/eq}
                         <th abbr="article_title" axis="col3" class="w40">
                             <div class="tc">ID</div>
                         </th>
@@ -85,9 +87,12 @@
                     {else/}
                         {foreach name="list" item="vo" key="k" }
                         <tr>
+                            {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign w40">
-                                <div class="tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                <div class="tc">
+                                    <input type="checkbox" name="ids[]" value="{$vo.id}"></div>
                             </td>
+                            {/eq}
                             <td class="sort w40">
                                 <div class="tc">
                                     {$vo.id}
@@ -133,8 +138,10 @@
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:U('Other/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
+                                    {eq name='$main_lang' value='$admin_lang'}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Other/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    {/eq}
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']})">标签调用</a>
                                 </div>
@@ -159,6 +166,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
+                {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
@@ -179,6 +187,7 @@
                         </div>
                     </a>
                 </div>
+                {/eq}
                 {/eq}
             </div>
             <div style="clear:both"></div>

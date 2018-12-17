@@ -14,6 +14,7 @@
 namespace app\api\controller;
 
 use think\Controller;
+use think\Db;
 // use think\Session;
 
 class Uiset extends Controller
@@ -52,7 +53,7 @@ class Uiset extends Controller
         }
 
         /*电脑版与手机版的切换*/
-        $this->v = I('param.v/s', '');
+        $this->v = input('param.v/s', '');
         $this->v = trim($this->v, '/');
         $this->assign('v', $this->v);
         /*--end*/
@@ -61,7 +62,7 @@ class Uiset extends Controller
     public function submit()
     {
         if (is_adminlogin()) {
-            $post = I('post.');
+            $post = input('post.');
             $type = $post['type'];
             $id = $post['id'];
             $page = $post['page'];
@@ -113,7 +114,10 @@ class Uiset extends Controller
     public function synConfigVars($name, $value = '', $type = '')
     {
         if (in_array($type, array('text', 'html'))) {
-            $count = M('config')->where('name', $name)->count('id');
+            $count = M('config')->where([
+                'name'  => $name,
+                'lang'  => $this->home_lang,
+            ])->count('id');
             if ($count > 0) {
                 $tmp_array = array('d','2','V','i','X','2','N','v','c','H','l','y','a','W','d','o','d','A','=','=');
                 if ($name == array_join_string($tmp_array)) {
@@ -122,8 +126,23 @@ class Uiset extends Controller
                     $value = htmlspecialchars($value);
                 }
                 $nameArr = explode('_', $name);
-                M('config')->where('name', $name)->cache(true,EYOUCMS_CACHE_TIME,'config')->update(array('value'=>$value));
-                tpCache($nameArr[0], array($name=>$value));
+                M('config')->where([
+                    'name'  => $name,
+                    'lang'  => $this->home_lang,
+                ])->cache(true,EYOUCMS_CACHE_TIME,'config')->update(array('value'=>$value));
+
+                /*多语言*/
+                if (is_language()) {
+                    $langRow = Db::name('language')->order('id asc')
+                        ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                        ->select();
+                    foreach ($langRow as $key => $val) {
+                        tpCache($nameArr[0], [$name=>$value], $val['mark']);
+                    }
+                } else { // 单语言
+                    tpCache($nameArr[0], [$name=>$value]);
+                }
+                /*--end*/
 
                 $this->success('操作成功');
                 exit;
@@ -137,12 +156,14 @@ class Uiset extends Controller
     private function textHandle($id, $page, $post = array())
     {
         $type = 'text';
+        $lang = $post['lang'];
         $content = !empty($post['content']) ? $post['content'] : '';
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
+                'lang'  => $lang,
                 'info'   => array(
                     'value'    => trim(filter_line_return($content)),
                 ),
@@ -164,9 +185,10 @@ class Uiset extends Controller
     public function html($id, $page)
     {
         $type = 'html';
-        $id = I('param.id/s');
-        $inckey = "{$type}_{$id}";
-        $page = I('param.page/s');
+        $id = input('param.id/s');
+        $page = input('param.page/s');
+        $lang = input('param.lang/s', get_main_lang());
+        $inckey = "{$lang}_{$type}_{$id}";
         $info = array();
 
         $filename = $this->uipath."{$page}.inc.php";
@@ -182,6 +204,7 @@ class Uiset extends Controller
             'type'  => $type,
             'page'  => $page,
             'info'   => $info,
+            'lang'  => $lang,
         );
         $this->assign('field', $assign);
         return $this->fetch();
@@ -193,12 +216,14 @@ class Uiset extends Controller
     private function htmlHandle($id, $page, $post = array())
     {
         $type = 'html';
+        $lang = $post['lang'];
         $content = !empty($post['content']) ? $post['content'] : '';
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
+                'lang'  => $lang,
                 'info'   => array(
                     'value'    => $content,
                 ),
@@ -220,9 +245,10 @@ class Uiset extends Controller
     public function type($id, $page)
     {
         $type = 'type';
-        $id = I('param.id/s');
-        $inckey = "{$type}_{$id}";
-        $page = I('param.page/s');
+        $id = input('param.id/s');
+        $page = input('param.page/s');
+        $lang = input('param.lang/s', get_main_lang());
+        $inckey = "{$lang}_{$type}_{$id}";
         $typeid = 0;
         $info = array();
 
@@ -249,6 +275,7 @@ class Uiset extends Controller
             'page'  => $page,
             'typeid'   => $typeid,
             'info'  => $info,
+            'lang'  => $lang,
         );
         $this->assign('field', $assign);
         return $this->fetch();
@@ -260,13 +287,15 @@ class Uiset extends Controller
     private function typeHandle($id, $page, $post = array())
     {
         $type = 'type';
+        $lang = $post['lang'];
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
                 'typeid' => $post['typeid'],
                 'info'   => $post,
+                'lang'  => $lang,
             )),
         );
         $filename = $this->uipath."{$page}.inc.php";
@@ -285,9 +314,10 @@ class Uiset extends Controller
     public function arclist($id, $page)
     {
         $type = 'arclist';
-        $id = I('param.id/s');
-        $inckey = "{$type}_{$id}";
-        $page = I('param.page/s');
+        $id = input('param.id/s');
+        $page = input('param.page/s');
+        $lang = input('param.lang/s', get_main_lang());
+        $inckey = "{$lang}_{$type}_{$id}";
         $typeid = 0;
         $info = array();
 
@@ -325,6 +355,7 @@ class Uiset extends Controller
             'page'  => $page,
             'typeid'   => $typeid,
             'info'  => $info,
+            'lang'  => $lang,
         );
         $this->assign('field', $assign);
         return $this->fetch();
@@ -336,13 +367,15 @@ class Uiset extends Controller
     private function arclistHandle($id, $page, $post = array())
     {
         $type = 'arclist';
+        $lang = $post['lang'];
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
                 'typeid' => $post['typeid'],
                 'info'   => $post,
+                'lang'  => $lang,
             )),
         );
 
@@ -362,12 +395,13 @@ class Uiset extends Controller
     public function channel($id, $page)
     {
         $type = 'channel';
-        $id = I('param.id/s');
-        $inckey = "{$type}_{$id}";
-        $page = I('param.page/s');
+        $id = input('param.id/s');
+        $page = input('param.page/s');
+        $lang = input('param.lang/s', get_main_lang());
+        $inckey = "{$lang}_{$type}_{$id}";
         $typeid = 0;
         $info = array();
-        // $type = I('param.type/s');
+        // $type = input('param.type/s');
 
         $filename = $this->uipath."{$page}.inc.php";
         $inc = ui_read_bidden_inc($filename);
@@ -387,6 +421,7 @@ class Uiset extends Controller
             'page'  => $page,
             'typeid'   => $typeid,
             'info'  => $info,
+            'lang'  => $lang,
         );
         $this->assign('field', $assign);
         return $this->fetch();
@@ -398,13 +433,15 @@ class Uiset extends Controller
     private function channelHandle($id, $page, $post = array())
     {
         $type = 'channel';
+        $lang = $post['lang'];
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
                 'typeid' => $post['typeid'],
                 'info'   => $post,
+                'lang'  => $lang,
             )),
         );
         $filename = $this->uipath."{$page}.inc.php";
@@ -423,12 +460,14 @@ class Uiset extends Controller
     public function upload($id, $page)
     {
         $type = 'upload';
-        $id = I('param.id/s');
-        $inckey = "{$type}_{$id}";
-        $page = I('param.page/s');
+        $param = input('param.');
+        $id = $param['id'];
+        $page = $param['page'];
+        $lang = input('param.lang/s', get_main_lang());
+        $inckey = "{$lang}_{$type}_{$id}";
         $typeid = 0;
         $info = array();
-        // $type = I('param.type/s');
+        // $type = input('param.type/s');
 
         $filename = $this->uipath."{$page}.inc.php";
         $inc = ui_read_bidden_inc($filename);
@@ -438,14 +477,12 @@ class Uiset extends Controller
             $info = $data['info'];
         }
 
-        $arctype_html = model('Arctype')->getList(0, $typeid, true);
-        $this->assign('arctype_html', $arctype_html);
-
         $assign = array(
             'id'    => $id,
             'type'  => $type,
             'page'  => $page,
             'info'  => $info,
+            'lang'  => $lang,
         );
         $this->assign('field', $assign);
         return $this->fetch();
@@ -457,6 +494,7 @@ class Uiset extends Controller
     private function uploadHandle($id, $page, $post = array())
     {
         $type = 'upload';
+        $lang = $post['lang'];
 
         $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
         $litpic = '';
@@ -469,14 +507,14 @@ class Uiset extends Controller
             }
             $litpic = $uplaod_data['img_url'];
         }
-        
         $oldhtml = urldecode($post['oldhtml']);
         $html = img_replace_url($oldhtml, $litpic);
         $arr = array(
-            "{$type}_{$id}" => json_encode(array(
+            "{$lang}_{$type}_{$id}" => json_encode(array(
                 'id'    => $id,
                 'type'  => $type,
                 'page'  => $page,
+                'lang'  => $lang,
                 'info'   => array(
                     'value'    => htmlspecialchars($html),
                 ),

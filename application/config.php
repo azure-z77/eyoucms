@@ -49,7 +49,7 @@ return array(
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => 'strip_sql,htmlspecialchars', // htmlspecialchars
     // 默认语言
-    'default_lang'           => 'zh-cn',
+    'default_lang'           => 'cn',
     // 应用类库后缀
     'class_suffix'           => false,
     // 控制器类后缀
@@ -321,8 +321,36 @@ return array(
      *就保存名字为 home_goods_goodsinfo_1.html     
      *配置成这样, 指定 模块 控制器 方法名 参数名
      */
-    'HTML_CACHE_STATUS' => true, // true 开启页面缓存
-    'HTML_CACHE_ARR'=> array(), // 缓存的页面，规则：模块 控制器 方法名 参数名
+    // true 开启页面缓存
+    'HTML_CACHE_STATUS' => true,
+    // 缓存的页面，规则：模块 控制器 方法名 参数名
+    'HTML_CACHE_ARR'    => [
+        // 首页
+        'home_Index_index'      => ['filename'=>'index', 'cache'=>7200],
+        // [普通伪静态]文章
+        'home_Article_index'    => ['filename'=>'channel', 'cache'=>7200],
+        'home_Article_lists'    => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        'home_Article_view'     => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        // [普通伪静态]产品
+        'home_Product_index'    => ['filename'=>'channel', 'cache'=>7200],
+        'home_Product_lists'    => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        'home_Product_view'     => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        // [普通伪静态]图集
+        'home_Images_index'     => ['filename'=>'channel', 'cache'=>7200],
+        'home_Images_lists'     => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        'home_Images_view'      => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        // [普通伪静态]下载
+        'home_Download_index'   => ['filename'=>'channel', 'cache'=>7200],
+        'home_Download_lists'   => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        'home_Download_view'    => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        // [普通伪静态]单页
+        'home_Single_index'     => ['filename'=>'channel', 'cache'=>7200],
+        'home_Single_lists'     => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        // [超短伪静态]列表页
+        'home_Lists_index'      => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        // [超短伪静态]内容页
+        'home_View_index'       => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+    ],
 
     // +----------------------------------------------------------------------
     // | 短信设置

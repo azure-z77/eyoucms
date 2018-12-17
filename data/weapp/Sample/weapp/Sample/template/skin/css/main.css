@@ -509,7 +509,7 @@ margin-left: 8px; *zoom:1/*IE7*/;
 }
 
 /*数据表格头*/
-.flexigrid .hDiv { background-color: #F5F6FA; clear: both; border:1px solid #e1e6eb; border-bottom: none; position: relative; z-index: 1; overflow: hidden; }
+.flexigrid .hDiv { background-color: #f7f7f7; clear: both; border:1px solid #f7f7f7; border-bottom: none; position: relative; z-index: 1; overflow: hidden; }
 .flexigrid .hDiv table { }
 .flexigrid .hDiv th div { }
 .flexigrid .hDivBox { float: none; }
@@ -532,14 +532,16 @@ margin-left: 8px; *zoom:1/*IE7*/;
 .flexigrid .cDrag div.dragging {
 filter:progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr='#19000000', endColorstr='#19000000'); background: rgba(0,0,0,0.1); border: solid #FFF; border-width: 0 1px; }
 /*批量操作条*/
-.flexigrid .tDiv { position: relative; z-index: 3; overflow: hidden;  background-color: #f5f6fa; border: 1px solid #e1e6eb; border-top: none;}
+.flexigrid .tDiv { position: relative; z-index: 3; overflow: hidden;  background-color: #f7f7f7; border: 1px solid #f7f7f7; border-top: none;}
 .flexigrid .tDiv2 { font-size: 0; *word-spacing:-1px/*IE6、7*/;
 padding: 6px 0 6px 6px; float: left; overflow: hidden; }
 .flexigrid .btnseparator { float: left; height: 22px; border-left: 1px solid #ccc; border-right: 1px solid #fff; margin: 1px; }
 .flexigrid .fbutton { vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;
 padding-right: 8px; margin-left: 8px; margin-right: -1px;  *zoom:1/*IE7*/;
 cursor: pointer; }
-.flexigrid .fbutton div { font-size: 12px; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #f7f7f7;padding: 8px 16px;}
+.flexigrid .fbutton div { font-size: 12px; font-family: 宋体; line-height: 20px; color: #333;border: 1px solid #ddd;background-color: #fdfdfd;padding: 3px 9px; border-radius: 5px;}
+
+.flexigrid .fbutton div.dx{ color: #ff0000; }
 .flexigrid .fbutton .add:hover,
 .flexigrid .fbutton.fbOver .add:hover {background: #fff;}
 .flexigrid .fbutton .del:hover,
@@ -547,14 +549,14 @@ cursor: pointer; }
 .flexigrid .fbutton .csv:hover,
 .flexigrid .fbutton.fbOver .csv:hover { color: #9C59B8; border-color: #9C59B8; }
 /*数据表格内容部分*/
-.flexigrid .bDiv { background: #fff; position: relative; z-index: 2; overflow: auto; border-left: 1px solid #e1e6eb; border-right: 1px solid #e1e6eb;}
+.flexigrid .bDiv { background: #fff; position: relative; z-index: 2; overflow: auto; border-left: 1px solid #f7f7f7; border-right: 1px solid #f7f7f7;}
 .flexigrid .bDiv table { width: 100%; }
 .flexigrid .bDiv td { color: #555; vertical-align: top; white-space: nowrap; padding: 0; margin: 0; border-bottom: 1px solid E6E6E6; }
 .flexigrid .bDiv td.name div{ white-space: nowrap;text-overflow:ellipsis; }
 .flexigrid .bDiv td.sign input,.flexigrid .hDiv th.sign input{ margin: 5px 8px; }
 .flexigrid .bDiv td div {}
 .flexigrid .bDiv a { color: #3b639f; }
-.flexigrid .bDiv a:hover { text-decoration: underline; color: #CD0200; }
+.flexigrid .bDiv a:hover { text-decoration: underline; color: #ff6600; }
 .flexigrid .bDiv td i.ico-check { background: url(../images/flexigrid_pic.png) no-repeat 0 0; display: inline-block; width: 20px; height: 20px; }
 .flexigrid .bDiv .trSelected td i.ico-check { background-position: -20px 0; }
 .flexigrid .bDiv td .on,
@@ -622,7 +624,7 @@ i.fa-external-link { color: #999 !important; font-size: 9px !important; margin-l
 .flexigrid .bDiv .handle-btn { }
 /*hDiv\bDiv\colCopy同步项*/
 .flexigrid .hDiv th,
-.flexigrid .bDiv td { vertical-align: top !important; text-align:left; font-size: 14px !important; overflow: visible;  border-bottom: 1px solid #e1e6eb;font-family: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans","wenquanyi micro hei","Hiragino Sans GB", "Hiragino Sans GB W3", Arial, sans-serif;}
+.flexigrid .bDiv td { vertical-align: top !important; text-align:left; font-size: 14px !important; overflow: visible;  border-bottom: 1px solid #f7f7f7;font-family: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans","wenquanyi micro hei","Hiragino Sans GB", "Hiragino Sans GB W3", Arial, sans-serif;}
 .flexigrid .bDiv td div img{ float: left; }
 .flexigrid .hDiv th div,
 .flexigrid .bDiv td div,
@@ -720,7 +722,7 @@ background: rgba(0,0,0,0.5); width: 100%; }
 .ncap-form-default .title { padding: 10px 0; border-bottom: solid 1px #C8C8C8; }
 .ncap-form-default .title h3 { font-size: 16px; line-height: 20px; color: #333; font-weight: normal; }
 .ncap-form-default dl.row { font-size: 0; color: #777; background-color: #FFF; *word-spacing:-1px/*IE6、7*/;
-padding: 12px 0; margin-top: -1px; border-style: solid; border-width: 1px 0; border-color: #F0F0F0; position: relative; z-index: 1; }
+padding: 12px 0; margin-top: -1px; border-style: solid; border-width: 1px 0; border-color: #f7f7f7; position: relative; z-index: 1; }
 .ncap-form-default dl.row:first-child { border-top-color: #FFF; }
 .ncap-form-default dl.row:nth-child(even) { background-color: #FDFDFD; }
 .ncap-form-default dt.tit,
@@ -1095,7 +1097,7 @@ select{ box-shadow: none; marign:0px !important; }
 .item-title a.back i { font-size: 28px; }
 
 .ncap-form-default dd.opt a.ui_tips{background: url(../images/ui_tip.png) no-repeat; opacity: 0.5; background-size: 100%; display: inline-block; text-indent: -999px; width: 15px; height: 21px; vertical-align: bottom; margin-left: 3px; }
-.checkboxall{ height: 38px; line-height: 50px; }
+.checkboxall{ height: 28px; line-height: 44px; }
 
 .ui-text .ui_tips,.ui-keyword .ui_tips,.zzbaidu .ui_tips  { display: none !important;; }
 .ui-text .notic,.ui-keyword .notic,.zzbaidu .notic{ display: block !important; }
@@ -1211,12 +1213,12 @@ img.layer_tips_img {
     max-height: 250px;
 }
 
-.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #d9534f;border-color: #d43f3a; border-radius: 3px;}
-.flexigrid .mDiv .fbutton div.add:hover{ background-color: #c9302c;border-color: #ac2925;}
+.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #ff6f06;border-color: #ff5606; border-radius: 3px;}
+.flexigrid .mDiv .fbutton div.add:hover{ background-color: #ff5606;border-color: #ff5606;}
 .flexigrid .mDiv .fbutton{ float: right; padding-right: 0px; margin-right: 0px;}
 div.addartbtn{ border:none !important; }
-.addartbtn input.btn{ color: #fff;background-color: #d9534f;border:1px solid #d9534f !important; height: 28px !important;} 
-.addartbtn input.btn:hover{background-color: #c9302c !important;}
+.addartbtn input.btn{ color: #fff;background-color: #ff6f06;border:1px solid #ff6f06 !important; height: 28px !important;} 
+.addartbtn input.btn:hover{background-color: #ff5606 !important;}
 .addartbtn input.btn.current{background: #e7e7e7;color: #000; border:none !important;}
 .addartbtn input.btn.current:hover{ background: #e7e7e7 !important; color:#000; cursor: default; }
 div.probtn{ float: left; margin-right: 6px; }
@@ -1234,7 +1236,7 @@ a.upimg:hover{background-color: #e6e6e6;border-color: #adadad;}
 .atta .ncap-form-default dt.tit{ width: 134px; padding-left: 0px; }
 
 .ad .flexigrid .bDiv td div img{ float: none; }
-.flexigrid .bDiv td div i.arctotal{font-size: 12px;font-family: 宋体;color: #777;}
+.flexigrid .bDiv td div i.arctotal{font-size: 12px;font-family: 宋体;color: #999;}
 .flexigrid .bDiv td div.pb0{ padding-bottom: 0px; }
 
 .form-horizontal .ncap-form-default div.bot{ padding-bottom: 128px; padding-top: 0px;}

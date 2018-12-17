@@ -197,10 +197,15 @@ if (!function_exists('html_cache')) {
         $new_conf = $options;
 
         if (!isset($options['path'])) {
-            if (isMobile()) {
-                $path = HTML_PATH."mobile/cache/";
+            if (!stristr(request()->baseFile(), 'index.php')) {
+                $lang = get_admin_lang();
             } else {
-                $path = HTML_PATH."default/cache/";
+                $lang = get_home_lang();
+            }
+            if (isMobile()) {
+                $path = HTML_PATH."other/{$lang}_mobile_cache/";
+            } else {
+                $path = HTML_PATH."other/{$lang}_pc_cache/";
             }
             $new_conf['path'] = $path;
         }
@@ -269,7 +274,7 @@ if (!function_exists('typeurl')) {
         } elseif ('on' != $uiset && 2 == $seo_pseudo) {
             $vars = array();
             $url = $param['dirpath']."/";
-            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
+            $eyouUrl = url($url, $vars, false, request()->domain(), $seo_pseudo, $seo_pseudo_format);
         } elseif ('on' != $uiset && 3 == $seo_pseudo) {
             if (is_array($param)) {
                 $vars = array(
@@ -349,7 +354,7 @@ if (!function_exists('arcurl')) {
             $vars = array();
             $aid = $param['aid'];
             $url = $param['dirpath']."/{$aid}.html";
-            $eyouUrl = url($url, $vars, false, SITE_URL, $seo_pseudo, $seo_pseudo_format);
+            $eyouUrl = url($url, $vars, false, request()->domain(), $seo_pseudo, $seo_pseudo_format);
         } elseif ($seo_pseudo == 3 && $uiset != 'on') {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');

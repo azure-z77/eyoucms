@@ -36,10 +36,17 @@ class Tags extends Base
         
         $tagid = isset($param['tagid']) ? $param['tagid'] : '';
         $tag = isset($param['tag']) ? trim($param['tag']) : '';
+        $home_lang = $this->home_lang;
         if (!empty($tag)) {
-            $tagindexInfo = M('tagindex')->where('tag', $tag)->find();
+            $tagindexInfo = M('tagindex')->where([
+                    'tag'   => $tag,
+                    'lang'  => $home_lang,
+                ])->find();
         } elseif (intval($tagid) > 0) {
-            $tagindexInfo = M('tagindex')->where('id', $tagid)->find();
+            $tagindexInfo = M('tagindex')->where([
+                    'id'   => $tagid,
+                    'lang'  => $home_lang,
+                ])->find();
         }
 
         if (!empty($tagindexInfo)) {
@@ -49,11 +56,14 @@ class Tags extends Base
             $map = array(
                 'tid'   => array('eq', $tagid),
                 'arcrank'   => array('gt', -1),
+                'lang'  => $home_lang,
             );
             $total = M('taglist')->where($map)
                 ->count('tid');
-            M('tagindex')->where(array('id'=>array('eq', $tagid)))
-                ->inc('count')
+            M('tagindex')->where([
+                    'id'    => $tagid,
+                    'lang'  => $home_lang,
+                ])->inc('count')
                 ->inc('weekcc')
                 ->inc('monthcc')
                 ->update(array('total'=>$total));
@@ -64,13 +74,19 @@ class Tags extends Base
             //周统计
             if(ceil( ($ntime - $tagindexInfo['weekup'])/$oneday ) > 7)
             {
-                M('tagindex')->where(array('id'=>array('eq', $tagid)))->update(array('weekcc'=>0, 'weekup'=>$ntime));
+                M('tagindex')->where([
+                        'id'    => $tagid,
+                        'lang'  => $home_lang,
+                    ])->update(array('weekcc'=>0, 'weekup'=>$ntime));
             }
 
             //月统计
             if(ceil( ($ntime - $tagindexInfo['monthup'])/$oneday ) > 30)
             {
-                M('tagindex')->where(array('id'=>array('eq', $tagid)))->update(array('monthcc'=>0, 'monthup'=>$ntime));
+                M('tagindex')->where([
+                        'id'    => $tagid,
+                        'lang'  => $home_lang,
+                    ])->update(array('monthcc'=>0, 'monthup'=>$ntime));
             }
         }
 
@@ -84,6 +100,20 @@ class Tags extends Base
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
 
-        return $this->fetch('template/'.$this->theme_style.'/lists_tags.'.$this->view_suffix);
+        /*模板文件*/
+        $viewfile = 'lists_tags';
+        /*--end*/
+
+        /*多语言内置模板文件名*/
+        $lang = get_home_lang();
+        if (!empty($lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+            if (file_exists($viewfilepath)) {
+                $viewfile .= "_{$lang}";
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 }

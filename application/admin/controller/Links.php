@@ -14,23 +14,27 @@
 namespace app\admin\controller;
 
 use think\Page;
+use think\Cache;
 
 class Links extends Base
 {
     public function index()
     {
         $list = array();
-        $keywords = I('keywords/s');
+        $keywords = input('keywords/s');
 
-        $map = array();
+        $condition = array();
         if (!empty($keywords)) {
-            $map['title'] = array('LIKE', "%{$keywords}%");
+            $condition['title'] = array('LIKE', "%{$keywords}%");
         }
 
+        // 多语言
+        $condition['lang'] = array('eq', get_admin_lang());
+
         $linksM =  M('links');
-        $count = $linksM->where($map)->count('id');// 查询满足要求的总记录数
+        $count = $linksM->where($condition)->count('id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $linksM->where($map)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        $list = $linksM->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
 
         $show = $Page->show();// 分页显示输出
         $this->assign('page',$show);// 赋值分页输出
@@ -45,7 +49,7 @@ class Links extends Base
     public function add()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
 
             // 处理LOGO
             $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
@@ -60,17 +64,18 @@ class Links extends Base
             $nowData = array(
                 'typeid'    => empty($post['typeid']) ? 1 : $post['typeid'],
                 'url'    => trim($post['url']),
+                'lang'  => get_admin_lang(),
                 'add_time'    => getTime(),
                 'update_time'    => getTime(),
             );
             $data = array_merge($post, $nowData);
             $insertId = M('links')->insertGetId($data);
-            if ($insertId) {
-                \think\Cache::clear('links');
+            if (false !== $insertId) {
+                Cache::clear('links');
                 adminLog('新增友情链接：'.$post['title']);
-                $this->success("操作成功!", U('Links/index'));
+                $this->success("操作成功!", url('Links/index'));
             }else{
-                $this->error("操作失败!", U('Links/index'));
+                $this->error("操作失败!", url('Links/index'));
             }
             exit;
         }
@@ -84,7 +89,7 @@ class Links extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $r = false;
             if(!empty($post['id'])){
                 // 处理LOGO
@@ -103,19 +108,27 @@ class Links extends Base
                     'update_time'    => getTime(),
                 );
                 $data = array_merge($post, $nowData);
-                $r = M('links')->where(array('id'=>$post['id']))->cache(true,EYOUCMS_CACHE_TIME,"links")->save($data);
+                $r = M('links')->where([
+                        'id'    => $post['id'],
+                        'lang'  => get_admin_lang(),
+                    ])
+                    ->cache(true, null, "links")
+                    ->update($data);
             }
-            if ($r) {
+            if (false !== $r) {
                 adminLog('编辑友情链接：'.$post['title']);
-                $this->success("操作成功!",U('Links/index'));
+                $this->success("操作成功!",url('Links/index'));
             }else{
-                $this->error("操作失败!",U('Links/index'));
+                $this->error("操作失败!",url('Links/index'));
             }
             exit;
         }
 
-        $id = I('id/d');
-        $info = M('links')->where(array('id'=>$id))->find();
+        $id = input('id/d');
+        $info = M('links')->where([
+                'id'    => $id,
+                'lang'  => get_admin_lang(),
+            ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -137,14 +150,23 @@ class Links extends Base
      */
     public function del()
     {
-        if (IS_AJAX_POST) {
-            $id_arr = I('del_id/a');
+        if (IS_POST) {
+            $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if(!empty($id_arr)){
-                $result = M('links')->field('title')->where("id",'IN',$id_arr)->select();
+                $result = M('links')->field('title')
+                    ->where([
+                        'id'    => ['IN', $id_arr],
+                        'lang'  => get_admin_lang(),
+                    ])->select();
                 $title_list = get_arr_column($result, 'title');
 
-                $r = M('links')->where("id",'IN',$id_arr)->cache(true,EYOUCMS_CACHE_TIME,"links")->delete();
+                $r = M('links')->where([
+                        'id'    => ['IN', $id_arr],
+                        'lang'  => get_admin_lang(),
+                    ])
+                    ->cache(true, null, "links")
+                    ->delete();
                 if($r){
                     adminLog('删除友情链接：'.implode(',', $title_list));
                     $this->success('删除成功');

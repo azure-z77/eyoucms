@@ -18,6 +18,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'pen_name' => 
+  array (
+    'name' => 'pen_name',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'true_name' => 
   array (
     'name' => 'true_name',
@@ -105,6 +114,15 @@ return array (
     'type' => 'int(10)',
     'notnull' => false,
     'default' => '-1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'mark_lang' => 
+  array (
+    'name' => 'mark_lang',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => 'cn',
     'primary' => false,
     'autoinc' => false,
   ),

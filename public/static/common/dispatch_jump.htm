@@ -38,7 +38,7 @@
         <?php } ?>
         <p class="detail"></p>
         <p class="jump">
-            页面自动 <a id="href" href="<?php echo($url);?>">跳转</a> 等待时间： <b id="wait"><?php echo($wait);?></b>
+            页面自动 <a id="href" href="<?php echo($url);?>">跳转</a> 等待时间： <b id="wait" data-data='<?php echo($data);?>'><?php echo($wait);?></b>
         </p>
     </div>
     <script type="text/javascript">
@@ -52,6 +52,20 @@
                     clearInterval(interval);
                 };
             }, 1000);
+
+            /*留言自动发送邮箱*/
+            var gbook_submit = document.getElementById('wait').getAttribute("data-data");
+            var data = gbook_submit.split("|");
+            if (data.length > 0 && data[0] == 'gbook_submit') {
+                $.ajax({
+                    type: "post",
+                    data: {tid: data[1],aid: data[2]},
+                    dataType: 'json',
+                    // timeout: 3000,
+                    url: "{:url('plugins/Smtpmail/send_email')}",
+                });
+            }
+            /*--end*/
         })();
     </script>
 </body>

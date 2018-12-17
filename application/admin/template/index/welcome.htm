@@ -204,4 +204,9 @@
         <b>{$global.web_copyright|htmlspecialchars_decode}</b>
     </p>
 </div>
+<script type="text/javascript">
+    $(function () {
+        $.get("{:url('Ajax/del_adminlog')}"); // 清除3个月之前的操作日志
+    });
+</script>
 {include file="public/footer" /}

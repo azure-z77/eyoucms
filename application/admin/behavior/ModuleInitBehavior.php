@@ -33,6 +33,7 @@ class ModuleInitBehavior {
 
     private function _initialize() {
         $this->setChanneltypeStatus();
+        $this->update_databasefile();
         $this->checkInlet();
     }
 
@@ -44,7 +45,7 @@ class ModuleInitBehavior {
         /*不在以下相应的控制器和操作名里不往下执行，以便提高性能*/
         $ctlActArr = array(
             'Index@index',
-            'System@clearCache',
+            'System@clear_cache',
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method) {
@@ -121,7 +122,7 @@ EOF;
                 {$indexRewrite}
             </rules>
 EOF;
-                        $webconfig = str_replace('</rules>', $rewrite, $webconfig);
+                        $webconfig = str_ireplace('</rules>', $rewrite, $webconfig);
                     } else {
                         $rewrite = <<<EOF
 
@@ -132,7 +133,7 @@ EOF;
         </rewrite>
     </system.webServer>
 EOF;
-                        $webconfig = str_replace('</system.webServer>', $rewrite, $webconfig);
+                        $webconfig = str_ireplace('</system.webServer>', $rewrite, $webconfig);
                     }
                 }
             } else {
@@ -165,7 +166,7 @@ EOF;
         /*不在以下相应的控制器和操作名里不往下执行，以便提高性能*/
         $ctlActArr = array(
             'Index@welcome',
-            'System@clearCache',
+            'System@clear_cache',
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         $cacheKey = 'admin_ModuleInitBehavior_isset_checkInlet';
@@ -181,8 +182,8 @@ EOF;
         /*检测是否支持URL重写隐藏应用的入口文件index.php*/
         try {
             $response = false;
-            $url = SITE_URL.'/api/Rewrite/testing.html';
-            $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+            $url = 'http://'.request()->host().'/api/Rewrite/testing.html';
+            $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
             $response = @file_get_contents($url,false,$context);
 /*            $ch = curl_init($url);            
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -219,7 +220,18 @@ EOF;
 
         $seo_inlet = tpCache('seo.seo_inlet');
         if ($seo_inlet != $now_seo_inlet) {
-            tpCache('seo', array('seo_inlet'=>$now_seo_inlet));
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('seo', ['seo_inlet'=>$now_seo_inlet], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('seo', ['seo_inlet'=>$now_seo_inlet]);
+            }
+            /*--end*/
         }
     }
 

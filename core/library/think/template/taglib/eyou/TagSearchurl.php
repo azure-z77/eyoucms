@@ -13,6 +13,8 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Request;
+
 /**
  * 搜索表单
  */
@@ -30,17 +32,21 @@ class TagSearchurl extends Base
      */
     public function getSearchurl()
     {
-		$url = url("home/Search/lists");
+        $url = url("home/Search/lists");
         $ey_config = config('ey_config'); // URL模式
         if (1 == $ey_config['seo_pseudo'] && 1 == $ey_config['seo_dynamic_format']) {
-        	$result = '';
+            $result = '';
             $result .= $url.'"><input type="hidden" name="m" value="home" />';
             $result .= '<input type="hidden" name="c" value="Search" />';
-            $result .= '<input type="hidden" name="a" value="lists';
+            $result .= '<input type="hidden" name="a" value="lists" />';
+            /*多语言*/
+            $lang = Request::instance()->param('lang/s');
+            !empty($lang) && $result .= '<input type="hidden" name="lang" value="'.$$lang;
+            /*--end*/
         } else {
-			$result = $url;
-		}
-		
+            $result = $url;
+        }
+        
         return $result;
     }
 }

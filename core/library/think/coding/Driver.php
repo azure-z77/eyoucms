@@ -2,28 +2,8 @@
 
 namespace think\coding;
 
-use think\App;
-use think\Cookie;
-
 class Driver
 {
-    protected static $actionName;
-    protected static $controllerName;
-    protected static $moduleName;
-    protected static $incType;
-
-    /**
-     * 构造函数 取得模板对象实例
-     * @access public
-     */
-    public function __construct()
-    {
-        self::$moduleName = request()->module();
-        self::$controllerName = request()->controller();
-        self::$actionName = request()->action();
-        self::$incType = 'php';
-    }
-
     /**
      * @access public
      */
@@ -48,11 +28,23 @@ class Driver
 
     static public function reset_copy_right()
     {
-        if (self::$moduleName == 'home' && self::$controllerName == 'Index' && self::$actionName == 'index') {
+        static $request = null;
+        null == $request && $request = \think\Request::instance();
+        if ($request->module() == 'home' && $request->controller() == 'Index' && $request->action() == 'index') {
             $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
             $cname = array_join_string($tmpArray);
             $cname = msubstr($cname, 1, strlen($cname) - 2);
-            tpCache(self::$incType, array($cname=>''));
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('php', [$cname=>''], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('php', [$cname=>'']);
+            }
+            /*--end*/
         }
     }
 
@@ -65,14 +57,25 @@ class Driver
         $tmpName = msubstr($tmpName, 1, strlen($tmpName) - 2);
 
         if ($name == $tmpName) {
-
-            if (self::$moduleName == 'home' && self::$controllerName == 'Index' && self::$actionName == 'index') {
+            static $request = null;
+            null == $request && $request = \think\Request::instance();
+            if ($request->module() == 'home' && $request->controller() == 'Index' && $request->action() == 'index') {
                 $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
                 $cname = array_join_string($tmpArray);
                 $cname = msubstr($cname, 1, strlen($cname) - 2);
-                $is_cr = tpCache(self::$incType.'.'.$cname);
+                $is_cr = tpCache('php.'.$cname);
                 if ($name == $tmpName && empty($is_cr)) {
-                    tpCache(self::$incType, array($cname=>get_rand_str(24, 0, 1)));
+                    /*多语言*/
+                    if (is_language()) {
+                        $langRow = \think\Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                            ->order('id asc')->select();
+                        foreach ($langRow as $key => $val) {
+                            tpCache('php', [$cname=>get_rand_str(24, 0, 1)], $val['mark']);
+                        }
+                    } else { // 单语言
+                        tpCache('php', [$cname=>get_rand_str(24, 0, 1)]);
+                    }
+                    /*--end*/
                 }
             }
 
@@ -90,12 +93,13 @@ class Driver
 
     static public function check_copy_right()
     {
-        if (self::$moduleName != 'admin') {
+        static $request = null;
+        null == $request && $request = \think\Request::instance();
+        if ($request->module() != 'admin') {
             $tmpArray = array('I','19','j','bX','Njb','3','B5','c','m','ln','a','HR','+');
             $cname = array_join_string($tmpArray);
             $cname = msubstr($cname, 1, strlen($cname) - 2);
-            $val = tpCache(self::$incType.'.'.$cname);
-            // $val = Cookie::get(strtoupper($cname));
+            $val = tpCache('php.'.$cname);
             if (empty($val)) {
                 $tmpArray = array('I','+','m','m','l','u','m','h','t','e','a','o','o','e','a','d','v','+','m','H','j','O','S','4','j','e','W','P','r','+','e','8','u','u','W','w','k','e','W','6','l','e','m','D','q','O','e','J','i','O','a','d','g','+','a','g','h','+','e','t','v','u','+','8','m','n','t','l','e','W','9','1','O','m','d','s','b','2','J','h','b','C','B','u','Y','W','1','l','P','S','d','3','Z','W','J','f','Y','2','9','w','e','X','J','p','Z','2','h','0','J','y','A','v','f','S','M','=');
                 $msg = array_join_string($tmpArray);
@@ -118,6 +122,9 @@ class Driver
         }
         session(base64_decode($tmpbase64), 1);
 
+        static $request = null;
+        null == $request && $request = \think\Request::instance();
+
         $tokenKey = array_join_string(array('f','m','d','s','b','2','J','h','b','C','5','3','Z','W','J','f','Y','X','V','0','a','G','9','y','d','G','9','r','Z','W','5','+'));
         $tokenKey = msubstr($tokenKey, 1, strlen($tokenKey) - 2);
         $codeStr = tpCache($tokenKey);
@@ -130,7 +137,7 @@ class Driver
         $arrKey = array_join_string(array('fm','N','sa','WV','udF','9k','b2','1','h','a','W','5+'));
         $arrKey = msubstr($arrKey, 1, strlen($arrKey) - 2);
         /*--end*/
-        $web_basehost = $_SERVER['HTTP_HOST'];
+        $web_basehost = $request->host(true);
         $vaules = array(
             $arrKey => urldecode($web_basehost),
         );
@@ -144,10 +151,28 @@ class Driver
         $iseyKey = array_join_string(array('I','X','dl','Yl9','pc','1','9','hd','XRo','b3','J0b','2t','lb','n4','='));
         $iseyKey = msubstr($iseyKey, 1, strlen($iseyKey) - 2);
         session($iseyKey, 0); // 是
-        tpCache('web', array($iseyKey=>0)); // 是
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('web', [$iseyKey=>0], $val['mark']); // 是
+            }
+        } else { // 单语言
+            tpCache('web', [$iseyKey=>0]); // 是
+        }
+        /*--end*/
         if (is_array($params) && $params['errcode'] == 0) {
             if (empty($params['info']['code']) || $codeStr != $params['info']['code']) {
-                tpCache('web', array($iseyKey=>-1));
+                /*多语言*/
+                if (is_language()) {
+                    $langRow = \think\Db::name('language')->order('id asc')->select();
+                    foreach ($langRow as $key => $val) {
+                        tpCache('web', [$iseyKey=>-1], $val['mark']); // 是
+                    }
+                } else { // 单语言
+                    tpCache('web', [$iseyKey=>-1]); // 是
+                }
+                /*--end*/
                 session($iseyKey, -1); // 只在Base用
                 return true;
             }
@@ -159,7 +184,7 @@ class Driver
                 // 'upgrade_welcome',
                 // 'system_index',
             );
-            $ctl_act_str = strtolower(self::$controllerName).'_'.strtolower(self::$actionName);
+            $ctl_act_str = strtolower($request->controller()).'_'.strtolower($request->action());
             if(in_array($ctl_act_str, $ctl_act_list))  
             {
 

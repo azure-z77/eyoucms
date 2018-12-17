@@ -41,6 +41,20 @@ class Search extends Base
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
 
-        return $this->fetch('template/'.$this->theme_style.'/lists_search.'.$this->view_suffix);
+        /*模板文件*/
+        $viewfile = 'lists_search';
+        /*--end*/
+
+        /*多语言内置模板文件名*/
+        $lang = get_home_lang();
+        if (!empty($lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+            if (file_exists($viewfilepath)) {
+                $viewfile .= "_{$lang}";
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 }

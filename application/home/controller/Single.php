@@ -35,6 +35,7 @@ class Single extends Base
                 'parent_id' => array('eq', 0),
                 'is_hidden' => 0,
                 'status'    => 1,
+                'lang'  => $this->home_lang,
             );
             $res = M('arctype')->where($map)->order('sort_order asc')->limit(1)->find();
             $typeurl = model('Arctype')->getTypeUrl($res);
@@ -46,6 +47,7 @@ class Single extends Base
             } else {
                 $map = array('id'=>$tid);
             }
+            $map['lang'] = $this->home_lang; // 多语言
             $row = M('arctype')->field('id,dirname')->where($map)->order('sort_order asc')->limit(1)->find();
             $tid = !empty($row['id']) ? intval($row['id']) : 0;
             $dirname = !empty($row['dirname']) ? $row['dirname'] : '';

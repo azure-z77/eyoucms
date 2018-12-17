@@ -33,8 +33,8 @@ class View
             $root = '/' . ltrim($root, '/');
         }
         $baseReplace = [
-            '__ROOT__'   => $root,
-            '__DOMAIN__'    => $_SERVER['HTTP_HOST'],
+            '__ROOT_DIR__'   => $root,
+            '__DOMAIN__'    => $request->host(),
             '__SITE_URL__'    => $request->domain(),
             '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
             '__PUBLIC__' => $root . '/public',
@@ -171,7 +171,7 @@ class View
             // if ($this->__isset('weappInfo')) {
             //     $weappInfo = $this->__get('weappInfo');
             //     if (!empty($weappInfo['code'])) {
-            //         $replace['__WEAPP_TEMPLATE__'] = __ROOT__.'/'.WEAPP_DIR_NAME.'/'.$weappInfo['code'].'/template';
+            //         $replace['__WEAPP_TEMPLATE__'] = ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$weappInfo['code'].'/template';
             //     }
             // }
             /*--end*/

@@ -36,6 +36,14 @@ class TagAdv extends Base
             return false;
         }
 
+        /*多语言*/
+        $pid = model('LanguageAttr')->getBindValue($pid, 'ad_position');
+        if (empty($pid)) {
+            echo '标签adv报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 pid 值。';
+            return false;
+        }
+        /*--end*/
+
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
         $times = time();
@@ -68,7 +76,12 @@ class TagAdv extends Base
                 break;
         }
 
-        $result = M("ad")->field("*")->where($where)->orderRaw($orderby)->cache(true,EYOUCMS_CACHE_TIME,"ad")->select();
+        $result = M("ad")->field("*")
+            ->where($where)
+            ->where('lang', $this->home_lang)
+            ->orderRaw($orderby)
+            ->cache(true,EYOUCMS_CACHE_TIME,"ad")
+            ->select();
         foreach ($result as $key => $val) {
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['intro'] = htmlspecialchars_decode($val['intro']);

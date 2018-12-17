@@ -13,6 +13,8 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Request;
+
 /**
  * 搜索表单
  */
@@ -30,7 +32,7 @@ class TagSearchform extends Base
      */
     public function getSearchform($typeid = '', $channel = '')
     {
-        $searchurl = U('home/Search/lists');
+        $searchurl = url('home/Search/lists');
 
         $hidden = '';
         $ey_config = config('ey_config'); // URL模式
@@ -38,6 +40,10 @@ class TagSearchform extends Base
             $hidden .= '<input type="hidden" name="m" value="home" />';
             $hidden .= '<input type="hidden" name="c" value="Search" />';
             $hidden .= '<input type="hidden" name="a" value="lists" />';
+            /*多语言*/
+            $lang = Request::instance()->param('lang/s');
+            !empty($lang) && $hidden .= '<input type="hidden" name="lang" value="'.$lang.'" />';
+            /*--end*/
         }
         $hidden .= '<input type="hidden" name="typeid" id="typeid" value="'.$typeid.'" />';
         $hidden .= '<input type="hidden" name="channel" id="channel" value="'.$channel.'" />';

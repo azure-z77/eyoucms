@@ -32,7 +32,7 @@ class TagLoad extends Base
     public function getLoad($file = '', $ver = 'on')
     {
         if (empty($file)) {
-            return '标签load报错：缺少属性 href 或 file 。';
+            return '标签load报错：缺少属性 file 或 href 。';
         }
 
         $parseStr = '';

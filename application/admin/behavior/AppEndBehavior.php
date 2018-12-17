@@ -70,7 +70,18 @@ class AppEndBehavior {
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (in_array($ctlActStr, $ctlActArr) && 'GET' == self::$method) {
             $baseFile = request()->baseFile();
-            tpCache('web', array('web_adminbasefile'=>$baseFile));
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('web', ['web_adminbasefile'=>$baseFile], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('web', ['web_adminbasefile'=>$baseFile]);
+            }
+            /*--end*/
         }
         /*--end*/
     }

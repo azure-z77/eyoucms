@@ -37,6 +37,21 @@ class Controller
     protected $beforeActionList = [];
 
     /**
+     * 主体语言（语言列表中最早一条）
+     */
+    public $main_lang = 'cn';
+
+    /**
+     * 后台当前语言
+     */
+    public $admin_lang = 'cn';
+
+    /**
+     * 前台当前语言
+     */
+    public $home_lang = 'cn';
+
+    /**
      * 构造方法
      * @access public
      * @param Request $request Request 对象
@@ -65,6 +80,8 @@ class Controller
         !defined('CONTROLLER_NAME') && define('CONTROLLER_NAME',$this->request->controller()); // 当前控制器名称
         !defined('ACTION_NAME') && define('ACTION_NAME',$this->request->action()); // 当前操作名称是
         !defined('PREFIX') && define('PREFIX',Config::get('database.prefix')); // 数据库表前缀
+        !defined('SYSTEM_ADMIN_LANG') && define('SYSTEM_ADMIN_LANG', Config::get('global.admin_lang')); // 后台语言变量
+        !defined('SYSTEM_HOME_LANG') && define('SYSTEM_HOME_LANG', Config::get('global.home_lang')); // 前台语言变量
 
         // 自动判断手机端和PC，以及PC/手机自适应模板 by 小虎哥 2018-05-10
         $v = I('param.v/s', 'pc');
@@ -82,13 +99,22 @@ class Controller
             Config::set('template.view_path', './template/'.THEME_STYLE.'/');
         } else if (in_array($this->request->module(), array('admin'))) {
             if ('weapp' == strtolower($this->request->controller()) && 'execute' == strtolower($this->request->action())) {
-                Config::set('template.view_path', '.'.__ROOT__.'/'.WEAPP_DIR_NAME.'/'.$this->request->param('sm').'/template/');
+                Config::set('template.view_path', '.'.ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->request->param('sm').'/template/');
             }
         }
         // -------end
 
         $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
 
+        /*多语言*/
+        $this->home_lang = get_home_lang();
+        $this->admin_lang = get_admin_lang();
+        $this->main_lang = get_main_lang();
+        $this->assign('home_lang', $this->home_lang);
+        $this->assign('admin_lang', $this->admin_lang);
+        $this->assign('main_lang', $this->main_lang);
+        /*--end*/
+        
         $param = $this->request->param();
         if (isset($param['clear']) || Config::get('app_debug') === true) {
 
@@ -117,17 +143,23 @@ class Controller
      */
     protected function _initialize()
     {
+        $request = request();
         $searchformhidden = '';
         /*纯动态URL模式下，必须要传参的分组、控制器、操作名*/
         if (1 == config('ey_config.seo_pseudo') && 1 == config('ey_config.seo_dynamic_format')) {
             $searchformhidden .= '<input type="hidden" name="m" value="'.MODULE_NAME.'">';
             $searchformhidden .= '<input type="hidden" name="c" value="'.CONTROLLER_NAME.'">';
             $searchformhidden .= '<input type="hidden" name="a" value="'.ACTION_NAME.'">';
-            if ('Weapp' == request()->get('c') && 'execute' == request()->get('a')) { // 插件的搜索
-                $searchformhidden .= '<input type="hidden" name="sm" value="'.request()->get('sm').'">';
-                $searchformhidden .= '<input type="hidden" name="sc" value="'.request()->get('sc').'">';
-                $searchformhidden .= '<input type="hidden" name="sa" value="'.request()->get('sa').'">';
+            if ('Weapp' == $request->get('c') && 'execute' == $request->get('a')) { // 插件的搜索
+                $searchformhidden .= '<input type="hidden" name="sm" value="'.$request->get('sm').'">';
+                $searchformhidden .= '<input type="hidden" name="sc" value="'.$request->get('sc').'">';
+                $searchformhidden .= '<input type="hidden" name="sa" value="'.$request->get('sa').'">';
             }
+            /*多语言*/
+            $lang = $request->param('lang/s');
+            empty($lang) && $lang = get_main_lang();
+            $searchformhidden .= '<input type="hidden" name="lang" value="'.$lang.'">';
+            /*--end*/
         }
         /*--end*/
         $searchform['hidden'] = $searchformhidden;

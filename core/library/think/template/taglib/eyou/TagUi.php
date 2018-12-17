@@ -73,11 +73,16 @@ class TagUi extends Base
             $webConfig = tpCache('web');
             $web_cmspath = !empty($webConfig['web_cmspath']) ? $webConfig['web_cmspath'] : ''; // CMS安装路径
             $web_adminbasefile = !empty($webConfig['web_adminbasefile']) ? $webConfig['web_adminbasefile'] : '/login.php'; // 后台入口文件路径
-            // $parseStr .= static_version($web_cmspath.'/public/plugins/layer-v3.1.0/layer.js');
-            $parseStr .= '<script type="text/javascript" src="'.$web_cmspath.'/public/plugins/layer-v3.1.0/layer.js"></script>';
+            $parseStr .= '<script type="text/javascript" src="'.$web_cmspath.'/public/plugins/layer-v3.1.0/layer.js?v='.$version.'"></script>';
             $parseStr .= '<link rel="stylesheet" type="text/css" href="'.$web_cmspath.'/public/static/common/css/eyou.css?v='.$version.'" />';
-            $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'";</script>';
+            $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'"; var lang = "'.$this->home_lang.'";</script>';
             $parseStr .= '<script type="text/javascript" src="'.$web_cmspath.'/public/static/common/js/eyou.js?v='.$version.'"></script>';
+/*
+            $parseStr .= static_version('/public/plugins/layer-v3.1.0/layer.js');
+            $parseStr .= static_version('/public/static/common/css/eyou.css');
+            $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'"; var lang = "'.$this->home_lang.'";</script>';
+            $parseStr .= static_version($web_cmspath.'/public/static/common/js/eyou.js');
+            */
         }
 
         return $parseStr;

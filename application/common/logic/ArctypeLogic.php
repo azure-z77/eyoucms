@@ -40,49 +40,46 @@ class ArctypeLogic extends Model
         
         if ($res === NULL)
         {
-            $data = false;
-            if ($data === false)
-            {
-                $where = array(
-                    'status' => 1,
-                );
+            $where = array(
+                'status' => 1,
+            );
 
-                /*权限控制 by 小虎哥*/
-                $admin_info = session('admin_info');
-                if (0 < intval($admin_info['role_id'])) {
-                    $auth_role_info = $admin_info['auth_role_info'];
-                    if(! empty($auth_role_info)){
-                        if(! empty($auth_role_info['permission']['arctype'])){
-                            $where['id'] = array('IN', $auth_role_info['permission']['arctype']);
-                        }
+            /*权限控制 by 小虎哥*/
+            $admin_info = session('admin_info');
+            if (0 < intval($admin_info['role_id'])) {
+                $auth_role_info = $admin_info['auth_role_info'];
+                if(! empty($auth_role_info)){
+                    if(! empty($auth_role_info['permission']['arctype'])){
+                        $where['id'] = array('IN', $auth_role_info['permission']['arctype']);
                     }
                 }
-                /*--end*/
+            }
+            /*--end*/
 
-                if (!empty($map)) {
-                    $where = array_merge($where, $map);
-                }
-                foreach ($where as $key => $val) {
-                    $key_tmp = 'c.'.$key;
-                    $where[$key_tmp] = $val;
-                    unset($where[$key]);
-                }
-                
-                $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
-                $res = DB::name('arctype')
-                    ->field($fields)
-                    ->alias('c')
-                    ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
-                    ->where($where)
-                    ->group('c.id')
-                    ->order('c.parent_id asc, c.sort_order asc, c.id')
-                    ->cache($is_cache,EYOUCMS_CACHE_TIME,"arctype")
-                    ->select();
+            /*多语言 by 小虎哥*/
+            if (empty($map['lang'])) {
+                $where['lang'] = get_current_lang();
             }
-            else
-            {
-                $res = $data;
+            /*--end*/
+
+            if (!empty($map)) {
+                $where = array_merge($where, $map);
             }
+            foreach ($where as $key => $val) {
+                $key_tmp = 'c.'.$key;
+                $where[$key_tmp] = $val;
+                unset($where[$key]);
+            }
+            $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
+            $res = DB::name('arctype')
+                ->field($fields)
+                ->alias('c')
+                ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
+                ->where($where)
+                ->group('c.id')
+                ->order('c.parent_id asc, c.sort_order asc, c.id')
+                ->cache($is_cache,EYOUCMS_CACHE_TIME,"arctype")
+                ->select();
         }
 
         if (empty($res) == true)

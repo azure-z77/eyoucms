@@ -424,6 +424,16 @@ body.met-navfixed { padding-top: 60px }
 }
 
 /*多语言*/
+.met-langlist img{margin-right:2px;position:relative;top:-1px}
+@media (max-width:767px){
+  #met-langlist-modal .modal-center{height:auto!important}
+}
+#met-langlist-modal .modal-content{border-radius:0px}
+#met-langlist-modal .modal-content .modal-body{padding:40px 40px 20px;position:relative}
+#met-langlist-modal .modal-content .modal-body .close{position:absolute;right:10px;top:0px;font-size:40px}
+#met-langlist-modal .modal-content a.btn{border:none;font-size:16px;text-align:left;color:#2a333c;height:50px;line-height:50px;padding:0px 15px}
+#met-langlist-modal .modal-content a.btn:hover{color:#aaa}
+#met-langlist-modal .modal-content a.btn span.flag-icon{font-size:30px;margin-top:10px;margin-right:8px}
 
 /*位置*/
 .met-crumbs{
@@ -1484,8 +1494,26 @@ max-width: 500px;
   .about_list_met_11_3 .content .btn-more { margin-top: 10px; }
 }
 
-
-
+/*多语言*/
+.met-langlist{display:inline-block}
+.met-langlist span{font-size:14px;cursor:pointer}
+#btn-convert{margin-top:6px}
+.metlang #btn-convert{margin-top:0px;cursor:pointer;display:inline-block}
+.met-head-user{font-size:0}
+.met_navbtn{color:#666}
+.met-head-user li a{padding:0 5px;font-size:14px}
+.met-head-user li a+a{border-left:1px solid #ccc}
+.met-nav #met-head-user-collapse a{color:#666}
+.border-left1{border-left:1px solid #ccc;padding:0 5px;cursor:pointer}
+@media (min-width:768px){
+  .met-nav #met-head-user-collapse a.navbar-avatar{height:60px;line-height:60px;display:block}
+  .metlang{height:60px;line-height:60px}
+}
+@media (max-width:767px){
+  .met-head-user .dropdown>a,
+  .metlang .met_navbtn{line-height: 40px;height: 40px;display: block}
+  .metlang{margin: 0 !important}
+}
 
 /*排序*/
 .order{padding:0;float:right;margin-bottom:10px !important;}

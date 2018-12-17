@@ -53,6 +53,14 @@ class TagType extends Base
             return false;
         }
 
+        if (!empty($typeid)) {
+            $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype'); // 多语言
+            if (empty($typeid)) {
+                echo '标签type报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值 。';
+                return false;
+            }
+        }
+
         $result = array();
 
         switch ($type) {

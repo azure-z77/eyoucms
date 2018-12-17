@@ -68,14 +68,6 @@
 
         function check_submit()
         {
-            var current_channel = $('#typeid').find('option:selected').attr('data-current_channel');
-            current_channel = parseInt(current_channel);
-            var js_allow_channel_arr = {$js_allow_channel_arr};
-            if ($.inArray(current_channel, js_allow_channel_arr) == -1) {
-                layer.msg('目标栏目不属于同一模型', {icon: 5});
-                return false;
-            }
-
             layer_loading('正在处理');
             $.ajax({
                 url: $('#post_form').attr('action'),
@@ -84,7 +76,7 @@
                 data: $('#post_form').serialize(),
                 success: function(res){
                     layer.closeAll();
-                    if (res.status == 1) {
+                    if (res.code == 1) {
                         parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
                             parent.window.location.reload();
                             parent.layer.close(parentObj);

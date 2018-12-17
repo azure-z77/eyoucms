@@ -9,7 +9,7 @@ var ueditor_toolbars = [[
     'directionalityltr', 'directionalityrtl', 'indent', '|',
     'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
     'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', '|',
-    'simpleupload', 'insertimage', 'emotion', 'scrawl', 'insertvideo', 'attachment', 'map', 'insertframe', 'insertcode', 'pagebreak', 'background', '|',
+    'simpleupload', 'insertimage', 'emotion', 'insertvideo', 'attachment', 'map', 'insertframe', 'insertcode', '|',
     'horizontal', 'spechars', '|',
     'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'charts', '|',
     'preview', 'searchreplace', 'drafts'

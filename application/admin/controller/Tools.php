@@ -17,17 +17,21 @@ use think\Backup;
 
 class Tools extends Base {
 
+    public function _initialize() {
+        parent::_initialize();
+        $this->language_access(); // 多语言功能操作权限
+    }
+    
     /**
      * 数据表列表
      */
     public function index()
     {
-        $dbtables = DB::query('SHOW TABLE STATUS');
+        $dbtables = Db::query('SHOW TABLE STATUS');
         $total = 0;
         $list = array();
         foreach ($dbtables as $k => $v) {
-            $name_arr = explode('_', $v['Name']);
-            if ($name_arr[0] == trim(PREFIX, '_')) {
+            if (preg_match('/^'.PREFIX.'/i', $v['Name'])) {
                 $v['size'] = format_bytes($v['Data_length'] + $v['Index_length']);
                 $list[$k] = $v;
                 $total += $v['Data_length'] + $v['Index_length'];
@@ -77,7 +81,7 @@ class Tools extends Base {
                 return json(array('info'=>'检测到有一个备份任务正在执行，请稍后再试！', 'status'=>0, 'url'=>''));
             } else {
                 //创建锁文件
-                file_put_contents($lock, NOW_TIME);
+                file_put_contents($lock, $_SERVER['REQUEST_TIME']);
             }
 
             //检查备份目录是否可写
@@ -128,7 +132,22 @@ class Tools extends Base {
                     if (is_dir($install_path) && file_exists($install_path)) {
                         $srcfile = session('backup_config.path').session('backup_file.name').'-'.session('backup_file.part').'-'.session('backup_file.version').'.sql';
                         $dstfile = $install_path.'/eyoucms.sql';
-                        @copy($srcfile, $dstfile);
+                        if(@copy($srcfile, $dstfile)){
+                            /*替换所有表的前缀为官方默认ey_，并重写安装数据包里*/
+                            $eyouDbStr = file_get_contents($dstfile);
+                            $dbtables = Db::query('SHOW TABLE STATUS');
+                            foreach ($dbtables as $k => $v) {
+                                $tableName = $v['Name'];
+                                if (preg_match('/^'.PREFIX.'/i', $tableName)) {
+                                    $eyTableName = preg_replace('/^'.PREFIX.'/i', 'ey_', $tableName);
+                                    $eyouDbStr = str_replace($tableName, $eyTableName, $eyouDbStr);
+                                }
+                            }
+                            @file_put_contents($dstfile, $eyouDbStr);
+                            /*--end*/
+                        } else {
+                            @unlink($dstfile); // 复制失败就删掉，避免安装错误的数据包
+                        }
                     }
                     /*--end*/
                     unlink(session('backup_config.path') . 'backup.lock');
@@ -154,12 +173,12 @@ class Tools extends Base {
      */
     public function optimize()
     {
-        $batchFlag = I('get.batchFlag', 0, 'intval');
+        $batchFlag = input('get.batchFlag', 0, 'intval');
         //批量删除
         if ($batchFlag) {
-            $table = I('key', array());
+            $table = input('key', array());
         }else {
-            $table[] = I('tablename' , '');
+            $table[] = input('tablename' , '');
         }
     
         if (empty($table)) {
@@ -179,12 +198,12 @@ class Tools extends Base {
      */
     public function repair()
     {
-        $batchFlag = I('get.batchFlag', 0, 'intval');
+        $batchFlag = input('get.batchFlag', 0, 'intval');
         //批量删除
         if ($batchFlag) {
-            $table = I('key', array());
+            $table = input('key', array());
         }else {
-            $table[] = I('tablename' , '');
+            $table[] = input('tablename' , '');
         }
     
         if (empty($table)) {
@@ -454,7 +473,7 @@ class Tools extends Base {
      */
     public function del()
     {
-        $time_arr = I('del_id/a');
+        $time_arr = input('del_id/a');
         $time_arr = eyIntval($time_arr);
         if(is_array($time_arr) && !empty($time_arr)){
             foreach ($time_arr as $key => $val) {

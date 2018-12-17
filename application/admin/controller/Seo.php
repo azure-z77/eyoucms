@@ -18,6 +18,12 @@ use app\common\logic\ArctypeLogic;
 
 class Seo extends Base
 {
+
+    public function _initialize() {
+        parent::_initialize();
+        $this->language_access(); // 多语言功能操作权限
+    }
+    
     /*
      * 配置入口
      */
@@ -31,7 +37,7 @@ class Seo extends Base
             'sitemap'      => 'Sitemp',
         ];      
         $this->assign('group_list',$group_list);
-        $inc_type =  I('get.inc_type','seo');
+        $inc_type =  input('get.inc_type','seo');
         $this->assign('inc_type',$inc_type);
         $config = tpCache($inc_type);
         if($inc_type == 'seo'){
@@ -48,11 +54,11 @@ class Seo extends Base
     }
     
     /*
-     * 新增修改配置
+     * 新增修改配置（同步数据到其他语言里）
      */
     public function handle()
     {
-        $param = I('post.');
+        $param = input('post.');
         $inc_type = $param['inc_type'];
         if ($inc_type == 'seo') {
             /*检测是否开启pathinfo模式*/
@@ -77,7 +83,18 @@ class Seo extends Base
             sitemap_all();
         }
         unset($param['inc_type']);
-        tpCache($inc_type,$param);
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')
+                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                ->select();
+            foreach ($langRow as $key => $val) {
+                tpCache($inc_type,$param,$val['mark']);
+            }
+        } else {
+            tpCache($inc_type,$param);
+        }
+        /*--end*/
         
         if ($inc_type == 'seo') {
             // 清空缓存
@@ -92,7 +109,7 @@ class Seo extends Base
      */
     public function htmlHandle()
     {
-        $param = I('param.');
+        $param = input('param.');
         $inc_type = $param['inc_type'];
         $typeid = isset($param['typeid']) ? $param['typeid'] : 0;
         $html_startid = isset($param['html_startid']) ? $param['html_startid'] : 0;
@@ -108,7 +125,7 @@ class Seo extends Base
      */
     public function bindHtml()
     {
-        $param = I('param.');
+        $param = input('param.');
         // $inc_type = $param['inc_type'];
         $typeid = isset($param['typeid']) ? $param['typeid'] : 0;
         $html_startid = isset($param['html_startid']) ? $param['html_startid'] : 0;
@@ -150,8 +167,8 @@ class Seo extends Base
         }
 
         return array(
-            'urls' => array(SITE_URL),
-            'nowurls' => array(SITE_URL),
+            'urls' => array(request()->domain()),
+            'nowurls' => array(request()->domain()),
         );
     }
 
@@ -187,8 +204,8 @@ class Seo extends Base
             $val = array_merge($arctypeList[$val['typeid']], $val);
 
             $ctl_name = $channelList[$val['channel']]['ctl_name'];
-            $nowarcurl = arcurl('home/'.$ctl_name.'/view', $val, true, SITE_URL, 2);
-            $arcurl = arcurl('home/'.$ctl_name.'/view', $val, true, SITE_URL, 1);
+            $nowarcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->domain(), 2);
+            $arcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->domain(), 1);
 
             array_push($url_arr, $arcurl);
             array_push($nowurl_arr, $nowarcurl);
@@ -222,13 +239,13 @@ class Seo extends Base
             $cacheKey = strtolower("taglist_lastPage_home{$ctl_name}lists".$val['id']);
             $lastPage = cache($cacheKey); // 用于静态页面的分页生成
             for ($i=1; $i <= $lastPage; $i++) { 
-                $nowtypeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, SITE_URL, 2);
+                $nowtypeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->domain(), 2);
                 if ($i == 1) {
                     $nowtypeurl .= 'index.html';
                 } else {
                     $nowtypeurl .= 'list_'.$val['id'].'_'.$i.'.html';
                 }
-                $typeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, SITE_URL, 1).'&page='.$i;
+                $typeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->domain(), 1).'&page='.$i;
 
                 array_push($url_arr, $typeurl);
                 array_push($nowurl_arr, $nowtypeurl); 

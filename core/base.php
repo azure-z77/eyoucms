@@ -24,6 +24,7 @@ defined('DATA_NAME') or define('DATA_NAME', 'data');
 defined('DATA_PATH') or define('DATA_PATH', ROOT_PATH . DATA_NAME . DS);
 defined('WEAPP_DIR_NAME') or define('WEAPP_DIR_NAME', 'weapp');
 defined('WEAPP_PATH') or define('WEAPP_PATH', ROOT_PATH . WEAPP_DIR_NAME . DS);
+defined('TEMPLATE_PATH') or define('TEMPLATE_PATH', ROOT_PATH . 'template' . DS);
 
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
@@ -59,13 +60,18 @@ if (is_file(ROOT_PATH . '.env')) {
 // 加载惯例配置文件
 \think\Config::set(include THINK_PATH . 'convention' . EXT);
 
-/*网站根目录 by 小虎哥*/
+/**
+ * 自定义常量 by 小虎哥
+ */
 $_request = \think\Request::instance();
+$http = $_request->scheme(); // 当前是http还是https协议
+// 网站根目录
 $_root    = strpos($_request->root(), '.') ? ltrim(dirname($_request->root()), DS) : $_request->root();
 if ('' != $_root) {
     $_root = '/' . ltrim($_root, '/');
 }
-if (!defined('__ROOT__')) {
-    define('__ROOT__', $_root);
-}
-/*--end*/
+define('ROOT_DIR', $_root);
+// 静态页面文件目录，存储静态页面文件
+define('HTML_ROOT', RUNTIME_PATH . 'html/'); 
+// 静态页面文件目录，存储静态页面文件
+define('HTML_PATH', HTML_ROOT . $http.'/'); 

@@ -132,7 +132,7 @@ return [
         'menu_id2' => 2004005,
         'name'  => '清除缓存',
         'is_modules'    => 1,
-        'auths' => 'System@clearCache',
+        'auths' => 'System@clear_cache',
     ],
     [
         'id' => 15,

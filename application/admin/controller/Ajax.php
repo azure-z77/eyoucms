@@ -13,10 +13,21 @@
 
 namespace app\admin\controller;
 use think\Controller;
+use think\Db;
 
 /**
  * 所有ajax请求或者不经过权限验证的方法全放在这里
  */
 class Ajax extends Controller {
     
+    /**
+     * 只保留最近三个月的操作日志
+     */
+    public function del_adminlog()
+    {
+        $mtime = strtotime("-3 month");
+        Db::name('admin_log')->where([
+            'log_time'  => ['lt', $mtime],
+            ])->delete();
+    }
 }

@@ -189,7 +189,15 @@
                 </dd>
                 {/eq}
             </dl>
-            <dl class="row"><dt class="tit" style="width: auto"><label><b>自定义变量</b></label>&nbsp;&nbsp;<a href="javascript:void(0);" onclick="customvar(this);" data-id="0">[新增]</a>&nbsp;&nbsp;<!-- <a href="javascript:void(0);" onclick="customvar_recycle(this);">[回收站]</a> --></dt></dl>
+            <dl class="row">
+                <dt class="tit" style="width: auto">
+                    <label><b>自定义变量</b></label>
+                    {eq name='$main_lang' value='$admin_lang'}
+                    &nbsp;&nbsp;<a href="javascript:void(0);" onclick="customvar_add(this);">[新增]</a>
+                    &nbsp;&nbsp;<!-- <a href="javascript:void(0);" onclick="customvar_recycle(this);">[回收站]</a> -->
+                    {/eq}
+                </dt>
+            </dl>
             {volist name="eyou_row" id="vo"}
             <dl class="row" id="dl_{$vo['attr_var_name']}">
                 <dt class="tit">
@@ -229,8 +237,10 @@
                         <input id="{$vo['attr_var_name']}" name="{$vo['attr_var_name']}" value="{$vo.value|default=''}" class="input-txt" type="text" />
                     {/switch}
                     &nbsp;
-                    <a href="javascript:void(0);" onclick="customvar(this);" data-id="{$vo.id}" class="ui-btn blue">编辑</a>
+                    <a href="javascript:void(0);" onclick="customvar_edit(this);" data-id="{$vo.id}" class="ui-btn blue">编辑</a>
+                    {eq name='$main_lang' value='$admin_lang'}
                     <a href="javascript:void(0);" onclick="customvar_del(this);" data-id="{$vo.id}" data-attr_var_name="{$vo['attr_var_name']}" class="ui-btn red">删除</a>
+                    {/eq}
                     {eq name="$web_cmsmode" value="1"}
                     <a href="javascript:void(0);" onclick="showtext('{$vo['attr_var_name']}');" class="ui-btn blue {$vo['attr_var_name']}" data-clipboard-text="{{php} echo 'eyou:global name=\'';{/php}{$vo['attr_var_name']}{php} echo '\' /';{/php}}">复制标签</a>
                     {/eq}
@@ -305,10 +315,26 @@
         $("#img_i_web_ico").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" width=32 height=32>',this,{tips: [1, '#fff']});");
     }
 
-    function customvar(obj)
+    function customvar_add(obj)
+    {
+        var url = "{:url('System/customvar_add', array('inc_type'=>'web'))}";
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: '自定义变量',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: false, //开启最大化最小化按钮
+            area: ['700px', '450px'],
+            content: url
+        });
+    }
+
+    function customvar_edit(obj)
     {
         var id = $(obj).attr('data-id');
-        var url = "{:U('System/customvar', array('inc_type'=>'web'))}";
+        var url = "{:url('System/customvar_edit', array('inc_type'=>'web'))}";
         if (url.indexOf('?') > -1) {
             url += '&';
         } else {

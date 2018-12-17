@@ -22,7 +22,9 @@ $icon_arr = array(
     'guestbook'  => 'fa fa-file-text-o',
     'feedback'  => 'fa fa-file-text-o',
 );
-
+$main_lang= get_main_lang();
+$admin_lang = get_admin_lang();
+$domain = request()->domain();
 $default_words = array();
 $default_addcontent = array();
 
@@ -50,21 +52,21 @@ foreach ($channel_list as $key => $val) {
 /*PC端可视编辑URl*/
 $uiset_pc_url = '';
 if (file_exists(ROOT_PATH.'template/pc/uiset.txt')) {
-    $uiset_pc_url = url('Uiset/pc', array(), true, SITE_URL);
+    $uiset_pc_url = url('Uiset/pc', array(), true, $domain);
 }
 /*--end*/
 
 /*手机端可视编辑URl*/
 $uiset_mobile_url = '';
 if (file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
-    $uiset_mobile_url = url('Uiset/mobile', array(), true, SITE_URL);
+    $uiset_mobile_url = url('Uiset/mobile', array(), true, $domain);
 }
 /*--end*/
 
 /*清理数据URl*/
 $uiset_data_url = '';
 if (!empty($uiset_pc_url) || !empty($uiset_mobile_url)) {
-    $uiset_data_url = url('Uiset/ui_index', array(), true, SITE_URL);
+    $uiset_data_url = url('Uiset/ui_index', array(), true, $domain);
 }
 /*--end*/
 
@@ -74,7 +76,40 @@ if (!empty($uiset_pc_url) || !empty($uiset_mobile_url)) {
     $uiset_index_arr = array(
         'controller' => 'Weapp',
         'action' => 'index',
-        'url' => url('Uiset/index', array(), true, SITE_URL),
+        'url' => url('Uiset/index', array(), true, $domain),
+    );
+}
+/*--end*/
+
+/*SEO优化URl*/
+$seo_index_arr = array();
+if ($main_lang == $admin_lang) {
+    $seo_index_arr = array(
+        'controller' => 'Seo',
+        'action' => 'index',
+        'url' => '',
+    );
+}
+/*--end*/
+
+/*备份还原URl*/
+$tools_index_arr = array();
+if ($main_lang == $admin_lang) {
+    $tools_index_arr = array(
+        'controller' => 'Tools',
+        'action' => 'index',
+        'url' => '',
+    );
+}
+/*--end*/
+
+/*字段管理URl*/
+$field_cindex_arr = array();
+if ($main_lang == $admin_lang) {
+    $field_cindex_arr = array(
+        'controller' => 'Field',
+        'action' => 'channel_index',
+        'url' => '',
     );
 }
 /*--end*/
@@ -97,8 +132,8 @@ if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
  *      id  主键ID
  *      parent_id   父ID
  *      name    模块名称
- *      action  操作名
  *      controller  控制器
+ *      action  操作名
  *      url     跳转链接(控制器与操作名为空时，才使用url)
  *      target  打开窗口方式
  *      icon    菜单图标
@@ -112,8 +147,8 @@ return  array(
         'id'=>1000,
         'parent_id'=>0,
         'name'=>'',
-        'action'=>'',
         'controller'=>'',
+        'action'=>'',
         'url'=>'',
         'target'=>'workspace',
         'grade'=>0,
@@ -124,8 +159,8 @@ return  array(
                 'id'=>1001,
                 'parent_id'=>1000,
                 'name' => '栏目管理',
-                'action'=>'index',
                 'controller'=>'Arctype',
+                'action'=>'index',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-sitemap',
@@ -138,8 +173,8 @@ return  array(
                 'id'=>1002,
                 'parent_id'=>1000,
                 'name' => '内容管理',
-                'action'=>'index',
                 'controller'=>'Archives',
+                'action'=>'index',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-list',
@@ -152,8 +187,8 @@ return  array(
                 'id'=>1003,
                 'parent_id'=>1000,
                 'name' => '广告管理',
-                'action'=>'index',
                 'controller'=>'Other',
+                'action'=>'index',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-image',
@@ -169,8 +204,8 @@ return  array(
         'id'=>2000,
         'parent_id'=>0,
         'name'=>'设置',
-        'action'=>'',
         'controller'=>'',
+        'action'=>'',
         'url'=>'', 
         'target'=>'workspace',
         'grade'=>0,
@@ -181,8 +216,8 @@ return  array(
                 'id'=>2001,
                 'parent_id'=>2000,
                 'name' => '基本信息',
-                'action'=>'web',
                 'controller'=>'System',
+                'action'=>'web',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-cog',
@@ -195,8 +230,8 @@ return  array(
                 'id'=>2002,
                 'parent_id'=>2000,
                 'name' => '可视编辑',
-                'action'=>isset($uiset_index_arr['action']) ? $uiset_index_arr['action'] : '',
                 'controller'=>isset($uiset_index_arr['controller']) ? $uiset_index_arr['controller'] : '',
+                'action'=>isset($uiset_index_arr['action']) ? $uiset_index_arr['action'] : '',
                 'url'=>isset($uiset_index_arr['url']) ? $uiset_index_arr['url'] : '',
                 'target'=>'workspace',
                 'icon'=>'fa fa-tachometer',
@@ -208,8 +243,8 @@ return  array(
                         'id'=>2002001,
                         'parent_id'=>2002,
                         'name' => '电脑版',
-                        'action'=>'',
                         'controller'=>'',
+                        'action'=>'',
                         'url'=>$uiset_pc_url, 
                         'target'=>'_blank',
                         'icon'=>'fa fa-desktop',
@@ -222,8 +257,8 @@ return  array(
                         'id'=>2002002,
                         'parent_id'=>2002,
                         'name' => '手机版',
-                        'action'=>'',
                         'controller'=>'',
+                        'action'=>'',
                         'url'=>$uiset_mobile_url, 
                         'target'=>'_blank',
                         'icon'=>'fa fa-mobile',
@@ -236,8 +271,8 @@ return  array(
                         'id'=>2002003,
                         'parent_id'=>2002,
                         'name' => '数据清理',
-                        'action'=>'ui_index',
                         'controller'=>'Uiset',
+                        'action'=>'ui_index',
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-undo',
@@ -252,8 +287,8 @@ return  array(
                 'id'=>2003,
                 'parent_id'=>2000,
                 'name' => '营销设置',
-                'action'=>'index',
                 'controller'=>'Other',
+                'action'=>'index',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-paper-plane',
@@ -265,9 +300,9 @@ return  array(
                         'id'=>2003001,
                         'parent_id'=>2003,
                         'name' => 'SEO优化', 
-                        'action'=>'index', 
-                        'controller'=>'Seo',
-                        'url'=>'', 
+                        'controller'=>isset($seo_index_arr['controller']) ? $seo_index_arr['controller'] : '',
+                        'action'=>isset($seo_index_arr['action']) ? $seo_index_arr['action'] : '',
+                        'url'=>isset($seo_index_arr['url']) ? $seo_index_arr['url'] : '',
                         'target'=>'workspace',
                         'icon'=>'fa fa-newspaper-o',
                         'grade'=>2,
@@ -279,8 +314,8 @@ return  array(
                         'id'=>2003002,
                         'parent_id'=>2003,
                         'name' => '友情链接', 
-                        'action'=>'index', 
                         'controller'=>'Links',
+                        'action'=>'index', 
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-link',
@@ -295,8 +330,8 @@ return  array(
                 'id'=>2004,
                 'parent_id'=>2000,
                 'name' => '高级选项',
-                'action'=>'',
                 'controller'=>'Senior',
+                'action'=>'',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-code',
@@ -308,11 +343,25 @@ return  array(
                         'id'=>2004001,
                         'parent_id'=>2004,
                         'name' => '管理员', 
-                        'action'=>'index', 
                         'controller'=>'Admin',
+                        'action'=>'index', 
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-user',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004006' => array(
+                        'id'=>2004006,
+                        'parent_id'=>2004,
+                        'name' => '多语言', 
+                        'controller'=>'Language',
+                        'action'=>'index', 
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-globe',
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
@@ -322,9 +371,9 @@ return  array(
                         'id'=>2004002,
                         'parent_id'=>2004,
                         'name' => '备份还原', 
-                        'action'=>'index', 
-                        'controller'=>'Tools',
-                        'url'=>'', 
+                        'controller'=>isset($tools_index_arr['controller']) ? $tools_index_arr['controller'] : '',
+                        'action'=>isset($tools_index_arr['action']) ? $tools_index_arr['action'] : '',
+                        'url'=>isset($tools_index_arr['url']) ? $tools_index_arr['url'] : '',
                         'target'=>'workspace',
                         'icon'=>'fa fa-database',
                         'grade'=>2,
@@ -336,8 +385,8 @@ return  array(
                         'id'=>2004003,
                         'parent_id'=>2004,
                         'name' => '模板管理', 
-                        'action'=>'index', 
                         'controller'=>'Filemanager',
+                        'action'=>'index', 
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-folder-open',
@@ -350,9 +399,9 @@ return  array(
                         'id'=>2004004,
                         'parent_id'=>2004,
                         'name' => '字段管理', 
-                        'action'=>'channel_index', 
-                        'controller'=>'Field',
-                        'url'=>'', 
+                        'controller'=>isset($field_cindex_arr['controller']) ? $field_cindex_arr['controller'] : '',
+                        'action'=>isset($field_cindex_arr['action']) ? $field_cindex_arr['action'] : '',
+                        'url'=>isset($field_cindex_arr['url']) ? $field_cindex_arr['url'] : '',
                         'target'=>'workspace',
                         'icon'=>'fa fa-cogs',
                         'grade'=>2,
@@ -364,8 +413,8 @@ return  array(
                         'id'=>2004005,
                         'parent_id'=>2004,
                         'name' => '清除缓存',
-                        'action'=>'clearCache', 
                         'controller'=>'System',
+                        'action'=>'clear_cache', 
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-undo',
@@ -380,8 +429,8 @@ return  array(
                 'id'=>2005,
                 'parent_id'=>2000,
                 'name' => '插件应用',
-                'action'=>isset($weapp_index_arr['action']) ? $weapp_index_arr['action'] : '',
                 'controller'=>isset($weapp_index_arr['controller']) ? $weapp_index_arr['controller'] : '',
+                'action'=>isset($weapp_index_arr['action']) ? $weapp_index_arr['action'] : '',
                 'url'=>isset($weapp_index_arr['url']) ? $weapp_index_arr['url'] : '',
                 'target'=>'workspace',
                 'icon'=>'fa fa-recycle',

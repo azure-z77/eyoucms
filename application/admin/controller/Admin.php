@@ -29,7 +29,7 @@ class Admin extends Base {
     public function index()
     {
         $list = array();
-        $keywords = I('keywords/s');
+        $keywords = input('keywords/s');
 
         $condition = array();
         if (!empty($keywords)) {
@@ -100,12 +100,12 @@ class Admin extends Base {
         if (IS_POST) {
             if (1 == $is_vertify) {
                 $verify = new Verify();
-                if (!$verify->check(I('post.vertify'), "admin_login")) {
+                if (!$verify->check(input('post.vertify'), "admin_login")) {
                     exit(json_encode(array('status'=>0,'msg'=>'验证码错误')));
                 }
             }
-            $condition['user_name'] = I('post.username/s');
-            $condition['password'] = I('post.password/s');
+            $condition['user_name'] = input('post.username/s');
+            $condition['password'] = input('post.password/s');
             if (!empty($condition['user_name']) && !empty($condition['password'])) {
                 $condition['password'] = func_encrypt($condition['password']);
                 $admin_info = M('admin')->where($condition)->find();
@@ -178,10 +178,10 @@ class Admin extends Base {
      */
     public function admin_pwd()
     {
-        $admin_id = I('admin_id/d',0);
-        $oldPwd = I('old_pw/s');
-        $newPwd = I('new_pw/s');
-        $new2Pwd = I('new_pw2/s');
+        $admin_id = input('admin_id/d',0);
+        $oldPwd = input('old_pw/s');
+        $newPwd = input('new_pw/s');
+        $new2Pwd = input('new_pw2/s');
        
         if(!$admin_id){
             $admin_id = session('admin_id');
@@ -239,8 +239,10 @@ class Admin extends Base {
      */
     public function admin_add()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
-            $data = I('post.');
+            $data = input('post.');
 
             if (0 < intval(session('admin_info.role_id'))) {
                 $this->error("超级管理员才能操作！");
@@ -259,12 +261,12 @@ class Admin extends Base {
             $data['parent_id'] = session('admin_info.admin_id');
             $data['add_time'] = getTime();
             if (M('admin')->where("user_name", $data['user_name'])->count()) {
-                $this->error("此用户名已被注册，请更换",U('Admin/admin_add'));
+                $this->error("此用户名已被注册，请更换",url('Admin/admin_add'));
             } else {
                 $admin_id = M('admin')->insertGetId($data);
                 if ($admin_id) {
                     adminLog('新增管理员：'.$data['user_name']);
-                    $this->success("操作成功", U('Admin/index'));
+                    $this->success("操作成功", url('Admin/index'));
                 } else {
                     $this->error("操作失败");
                 }
@@ -311,7 +313,7 @@ class Admin extends Base {
     public function admin_edit()
     {
         if (IS_POST) {
-            $data = I('post.');
+            $data = input('post.');
             $id = $data['admin_id'];
 
             if ($id == session('admin_info.admin_id')) {
@@ -345,13 +347,13 @@ class Admin extends Base {
             $r = M('admin')->where('admin_id', $id)->save($data);
             if ($r) {
                 adminLog('编辑管理员：'.$user_name);
-                $this->success("操作成功",U('Admin/index'));
+                $this->success("操作成功",url('Admin/index'));
             } else {
                 $this->error("操作失败");
             }
         }
 
-        $id = I('get.id/d', 0);
+        $id = input('get.id/d', 0);
         $info = M('admin')->field('a.*')
             ->alias('a')
             ->where("a.admin_id", $id)->find();
@@ -402,8 +404,10 @@ class Admin extends Base {
      */
     public function admin_del()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
-            $id_arr = I('del_id/a');
+            $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if (in_array(session('admin_id'), $id_arr)) {
                 $this->error('禁止删除自己');

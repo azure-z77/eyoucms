@@ -142,7 +142,7 @@ EOF;
         }            
                           
         // post 提交的属性  以 attr_id _ 和值的 组合为键名    
-        $post = I("post.");
+        $post = input("post.");
         foreach($post as $k => $v)
         {
             $attr_id = str_replace('attr_','',$k);

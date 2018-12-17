@@ -79,13 +79,16 @@ class Upgrade extends Controller {
     * 一键升级
     */
    public function OneKeyUpgrade(){
+      header('Content-Type:application/json; charset=utf-8');
+      function_exists('set_time_limit') && set_time_limit(0);
+
       /*权限控制 by 小虎哥*/
       $auth_role_info = session('admin_info.auth_role_info');
       if(0 < intval(session('admin_info.role_id')) && ! empty($auth_role_info) && intval($auth_role_info['online_update']) <= 0){
         return '您没有操作权限，请联系超级管理员分配权限';
       }
       /*--end*/
-      header('Content-Type:application/json; charset=utf-8');
+      
       $upgradeLogic = new \app\admin\logic\UpgradeLogic();
       $upgradeMsg = $upgradeLogic->OneKeyUpgrade(); //升级包消息
       respose($upgradeMsg);
@@ -96,7 +99,7 @@ class Upgrade extends Controller {
     */
    public function setPopupUpgrade()
    {
-      $show_popup_upgrade = I('param.show_popup_upgrade/s', '1');
+      $show_popup_upgrade = input('param.show_popup_upgrade/s', '1');
       $inc_type = 'web';
       tpCache($inc_type, array($inc_type.'_show_popup_upgrade'=>$show_popup_upgrade));
       respose(1);

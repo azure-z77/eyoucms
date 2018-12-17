@@ -44,11 +44,11 @@ class Product extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $param = I('param.');
-        $flag = I('flag/s');
-        $typeid = I('typeid/d', 0);
-        $begin = strtotime(I('add_time_begin'));
-        $end = strtotime(I('add_time_end'));
+        $param = input('param.');
+        $flag = input('flag/s');
+        $typeid = input('typeid/d', 0);
+        $begin = strtotime(input('add_time_begin'));
+        $end = strtotime(input('add_time_end'));
 
         // 应用搜索条件
         foreach (['keywords','typeid','flag'] as $key) {
@@ -95,6 +95,8 @@ class Product extends Base
 
         // 模型ID
         $condition['a.channel'] = array('eq', $this->channeltype);
+        // 多语言
+        $condition['a.lang'] = array('eq', get_admin_lang());
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -132,20 +134,6 @@ class Product extends Base
         $assign_data['list'] = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
-        /*获取当前模型栏目*/
-/*        $selected = 0;
-        if ($typeid > 0) {
-            $selected = $typeid;
-        }
-        $arctypeLogic = new ArctypeLogic();
-        $map = array(
-            'channeltype'    => $this->channeltype,
-        );
-        $arctype_max_level = intval(config('global.arctype_max_level'));
-        $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);
-        $this->assign('select_html',$select_html);*/
-        /*--end*/
-
         // 栏目ID
         $assign_data['typeid'] = $typeid; // 栏目ID
         /*当前栏目信息*/
@@ -157,7 +145,7 @@ class Product extends Base
         /*--end*/
         
         /*选项卡*/
-        $tab = I('param.tab/d', 3);
+        $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
 
@@ -171,8 +159,8 @@ class Product extends Base
     public function add()
     {
         if (IS_POST) {
-            $post = I('post.');
-            $content = I('post.addonFieldExt.content', '', null);
+            $post = input('post.');
+            $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
@@ -217,6 +205,7 @@ class Product extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
+                'lang'  => get_admin_lang(),
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'  => getTime(),
             );
@@ -225,9 +214,9 @@ class Product extends Base
             $aid = M('archives')->insertGetId($data);
             $_POST['aid'] = $aid;
             if ($aid) {
-            	// ---------后置操作
-            	model('Product')->afterSave($aid, $data, 'add');
-            	// ---------end
+                // ---------后置操作
+                model('Product')->afterSave($aid, $data, 'add');
+                // ---------end
                 adminLog('新增产品：'.$data['title']);
                 $this->success("操作成功!", $post['gourl']);
                 exit;
@@ -237,7 +226,7 @@ class Product extends Base
             exit;
         }
 
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         $assign_data['typeid'] = $typeid; // 栏目ID
         
         /*允许发布文档列表的栏目*/
@@ -259,9 +248,9 @@ class Product extends Base
         /*--end*/
 
         /*返回上一层*/
-        $gourl = I('param.gourl/s', '');
+        $gourl = input('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Product/index', array('typeid'=>$typeid));
+            $gourl = url('Product/index', array('typeid'=>$typeid));
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -276,8 +265,9 @@ class Product extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.');
-            $content = I('post.addonFieldExt.content', '', null);
+            $post = input('post.');
+            $typeid = input('post.typeid/d', 0);
+            $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
@@ -296,12 +286,7 @@ class Product extends Base
             $post['litpic'] = $litpic;
 
             // 描述
-            $seo_description = '';
-            if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 500, false);
-            } else {
-                $seo_description = $post['seo_description'];
-            }
+            $seo_description = $post['seo_description'];
 
             // --外部链接
             $jumplinks = '';
@@ -309,10 +294,12 @@ class Product extends Base
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+            // 同步栏目切换模型之后的文档模型
+            $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
             // --存储数据
             $newData = array(
-                'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
-                'channel'   => $this->channeltype,
+                'typeid'=> $typeid,
+                'channel'   => $channel,
                 'is_b'      => empty($post['is_b']) ? 0 : $post['is_b'],
                 'is_head'      => empty($post['is_head']) ? 0 : $post['is_head'],
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
@@ -326,12 +313,15 @@ class Product extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where(array('aid'=>$data['aid']))->update($data);
+            $r = M('archives')->where([
+                    'aid'   => $data['aid'],
+                    'lang'  => get_admin_lang(),
+                ])->update($data);
             
             if ($r) {
-            	// ---------后置操作
-            	model('Product')->afterSave($data['aid'], $data, 'edit');
-            	// ---------end
+                // ---------后置操作
+                model('Product')->afterSave($data['aid'], $data, 'edit');
+                // ---------end
                 adminLog('编辑产品：'.$data['title']);
                 $this->success("操作成功!", $post['gourl']);
                 exit;
@@ -343,13 +333,14 @@ class Product extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
+        $id = input('id/d');
         $info = model('Product')->getInfo($id);
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
         $typeid = $info['typeid'];
+        $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
             $info['litpic_remote'] = $info['litpic'];
@@ -362,9 +353,9 @@ class Product extends Base
         // 产品相册
         $proimg_list = model('ProductImg')->getProImg($id);
         $assign_data['proimg_list'] = $proimg_list;
-        
-        /*允许发布文档列表的栏目*/
-        $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
+
+        /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/
+        $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
 
@@ -382,9 +373,9 @@ class Product extends Base
         /*--end*/
 
         /*返回上一层*/
-        $gourl = I('param.gourl/s', '');
+        $gourl = input('param.gourl/s', '');
         if (empty($gourl)) {
-            $gourl = U('Product/index', array('typeid'=>$typeid));
+            $gourl = url('Product/index', array('typeid'=>$typeid));
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
@@ -407,7 +398,7 @@ class Product extends Base
      */
     public function del_proimg()
     {
-        $filename= I('filename/s');
+        $filename= input('filename/s');
         $filename= str_replace('../','',$filename);
         $filename= trim($filename,'.');
         $filename= trim($filename,'/');
@@ -431,8 +422,8 @@ class Product extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $get = I('get.');
-        $typeid = I('typeid/d', 0);
+        $get = input('get.');
+        $typeid = input('typeid/d', 0);
 
         // 应用搜索条件
         foreach (['keywords','typeid'] as $key) {
@@ -446,6 +437,10 @@ class Product extends Base
                 }
             }
         }
+
+        $condition['a.is_del'] = 0;
+        // 多语言
+        $condition['a.lang'] = get_admin_lang();
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -465,14 +460,19 @@ class Product extends Base
          * 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；
          */
         if ($list) {
-            $attr_ida = array_keys($list);
+            $attr_ids = array_keys($list);
             $fields = "b.*, a.*";
             $row = DB::name('product_attribute')
                 ->field($fields)
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
-                ->where('a.attr_id', 'in', $attr_ida)
+                ->where('a.attr_id', 'in', $attr_ids)
                 ->getAllWithIndex('attr_id');
+            
+            /*获取多语言关联绑定的值*/
+            $row = model('LanguageAttr')->getBindValue($row, 'product_attribute'); // 多语言
+            /*--end*/
+
             foreach ($row as $key => $val) {
                 $val['fieldname'] = 'attr_'.$val['attr_id'];
                 $row[$key] = $val;
@@ -508,7 +508,7 @@ class Product extends Base
         /*--end*/
         
         /*选项卡*/
-        $tab = I('param.tab/d', 3);
+        $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
         
@@ -523,26 +523,30 @@ class Product extends Base
      */
     public function attribute_add()
     {
+        //防止php超时
+        function_exists('set_time_limit') && set_time_limit(0);
+        
         if(IS_AJAX && IS_POST)//ajax提交验证
         {
-        	$model = model('ProductAttribute');
+            $model = model('ProductAttribute');
 
-            $attr_values = str_replace('_', '', I('attr_values')); // 替换特殊字符
+            $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
             
-            $post_data = I('post.');
+            $post_data = input('post.');
             $post_data['attr_values'] = $attr_values;
 
-        	$savedata = array(
-        		'attr_name'	=> $post_data['attr_name'],
-        		'typeid'	=> $post_data['typeid'],
-        		'attr_input_type'	=> isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
-        		'attr_values'	=> isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
-        		'sort_order'	=> $post_data['sort_order'],
-        		'add_time'	=> getTime(),
-        		'update_time'	=> getTime(),
-        	);
+            $savedata = array(
+                'attr_name' => $post_data['attr_name'],
+                'typeid'    => $post_data['typeid'],
+                'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
+                'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
+                'sort_order'    => $post_data['sort_order'],
+                'lang'  => get_admin_lang(),
+                'add_time'  => getTime(),
+                'update_time'   => getTime(),
+            );
 
             // 数据验证            
             $validate = \think\Loader::validate('ProductAttribute');
@@ -559,18 +563,23 @@ class Product extends Base
             } else {
                 $model->data($savedata,true); // 收集数据
                 $model->save(); // 写入数据到数据库
-                $insert_id = $model->getLastInsID();
+                $insertId = $model->getLastInsID();
+
+                /*同步产品属性ID到多语言的模板变量里*/
+                $this->syn_add_language_attribute($insertId);
+                /*--end*/
+
                 $return_arr = array(
                      'status' => 1,
                      'msg'   => '操作成功',                        
-                     'data'  => array('url'=>U('Product/attribute_index', array('typeid'=>$post_data['typeid']))),
+                     'data'  => array('url'=>url('Product/attribute_index', array('typeid'=>$post_data['typeid']))),
                 );
                 adminLog('新增产品参数：'.$savedata['attr_name']);
                 respose($return_arr);
             }  
         }
 
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         $assign_data = array();
 
         /*允许发布文档列表的栏目*/
@@ -589,24 +598,24 @@ class Product extends Base
     {
         if(IS_AJAX && IS_POST)//ajax提交验证
         {
-        	$model = model('ProductAttribute');
+            $model = model('ProductAttribute');
 
-            $attr_values = str_replace('_', '', I('attr_values')); // 替换特殊字符
+            $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
             
-            $post_data = I('post.');
+            $post_data = input('post.');
             $post_data['attr_values'] = $attr_values;
 
-        	$savedata = array(
-        		'attr_id'	=> $post_data['attr_id'],
-        		'attr_name'	=> $post_data['attr_name'],
-        		'typeid'	=> $post_data['typeid'],
-        		'attr_input_type'	=> isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
-        		'attr_values'	=> isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
-        		'sort_order'	=> $post_data['sort_order'],
-        		'update_time'	=> getTime(),
-        	);
+            $savedata = array(
+                'attr_id'   => $post_data['attr_id'],
+                'attr_name' => $post_data['attr_name'],
+                'typeid'    => $post_data['typeid'],
+                'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
+                'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
+                'sort_order'    => $post_data['sort_order'],
+                'update_time'   => getTime(),
+            );
 
             // 数据验证            
             $validate = \think\Loader::validate('ProductAttribute');
@@ -622,11 +631,14 @@ class Product extends Base
                 respose($return_arr);
             } else {
                 $model->data($savedata,true); // 收集数据
-                $model->isUpdate(true)->save(); // 写入数据到数据库     
+                $model->isUpdate(true, [
+                        'attr_id'   => $post_data['attr_id'],
+                        'lang'  => get_admin_lang(),
+                    ])->save(); // 写入数据到数据库     
                 $return_arr = array(
                      'status' => 1,
                      'msg'   => '操作成功',                        
-                     'data'  => array('url'=>U('Product/attribute_index', array('typeid'=>$post_data['typeid']))),
+                     'data'  => array('url'=>url('Product/attribute_index', array('typeid'=>$post_data['typeid']))),
                 );
                 adminLog('编辑产品参数：'.$savedata['attr_name']);
                 respose($return_arr);
@@ -635,8 +647,15 @@ class Product extends Base
 
         $assign_data = array();
 
-        $id = I('id/d');
-        $info = M('ProductAttribute')->find($id);
+        $id = input('id/d');
+        /*获取多语言关联绑定的值*/
+        $new_id = model('LanguageAttr')->getBindValue($id, 'product_attribute'); // 多语言
+        !empty($new_id) && $id = $new_id;
+        /*--end*/
+        $info = M('ProductAttribute')->where([
+                'attr_id'    => $id,
+                'lang'  => get_admin_lang(),
+            ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -657,10 +676,28 @@ class Product extends Base
      */
     public function attribute_del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
-            $r = M('ProductAttribute')->where("attr_id",'IN',$id_arr)->delete();
+            /*多语言*/
+            if (is_language()) {
+                $attr_name_arr = [];
+                foreach ($id_arr as $key => $val) {
+                    $attr_name_arr[] = 'attr_'.$val;
+                }
+                $new_id_arr = Db::name('language_attr')->where([
+                        'attr_name' => ['IN', $attr_name_arr],
+                        'attr_group'    => 'product_attribute',
+                    ])->column('attr_value');
+                !empty($new_id_arr) && $id_arr = $new_id_arr;
+            }
+            /*--end*/
+            $r = M('ProductAttribute')->where([
+                    'attr_id'   => ['IN', $id_arr],
+                ])->update([
+                    'is_del'    => 1,
+                    'update_time'   => getTime(),
+                ]);
             if($r){
                 adminLog('删除产品参数-id：'.implode(',', $id_arr));
                 $this->success('删除成功');
@@ -689,59 +726,65 @@ class Product extends Base
             return $str;
         }
     }
-    
+
     /**
-     * 移动
+     * 同步新增产品属性ID到多语言的模板变量里
      */
-    public function move()
+    private function syn_add_language_attribute($attr_id)
     {
-        if (IS_POST) {
-            $post = I('post.');
-            $typeid = !empty($post['typeid']) ? eyIntval($post['typeid']) : '';
-            $aids = !empty($post['aids']) ? eyIntval($post['aids']) : '';
-
-            if (empty($typeid) || empty($aids)) {
-                respose(array('status'=>0, 'msg'=>'参数有误'));
-            }
-
-            $update_data = array(
-                'typeid'    => $typeid,
+        /*单语言情况下不执行多语言代码*/
+        if (!is_language()) {
+            return true;
+        }
+        /*--end*/
+        
+        $attr_group = 'product_attribute';
+        $admin_lang = get_admin_lang();
+        $main_lang = get_main_lang();
+        $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
+        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
+            $result = Db::name('product_attribute')->find($attr_id);
+            $attr_name = 'attr_'.$attr_id;
+            $r = Db::name('language_attribute')->save([
+                'attr_title'    => $result['attr_name'],
+                'attr_name'     => $attr_name,
+                'attr_group'    => $attr_group,
+                'add_time'      => getTime(),
                 'update_time'   => getTime(),
-            );
-            $r = M('archives')->where("aid in ($aids)")->update($update_data);
-            if($r){
-                adminLog('移动文档-id：'.$aids);
-                respose(array('status'=>1, 'msg'=>'操作成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'操作失败'));
+            ]);
+            if (false !== $r) {
+                $data = [];
+                foreach ($languageRow as $key => $val) {
+                    /*同步新产品属性到其他语言产品属性列表*/
+                    if ($val['mark'] != $admin_lang) {
+                        $addsaveData = $result;
+                        $addsaveData['lang'] = $val['mark'];
+                        $newTypeid = Db::name('language_attr')->where([
+                                'attr_name' => 'tid'.$result['typeid'],
+                                'attr_group'    => 'arctype',
+                                'lang'  => $val['mark'],
+                            ])->getField('attr_value');
+                        $addsaveData['typeid'] = $newTypeid;
+                        unset($addsaveData['attr_id']);
+                        $attr_id = Db::name('product_attribute')->insertGetId($addsaveData);
+                    }
+                    /*--end*/
+                    
+                    /*所有语言绑定在主语言的ID容器里*/
+                    $data[] = [
+                        'attr_name' => $attr_name,
+                        'attr_value'    => $attr_id,
+                        'lang'  => $val['mark'],
+                        'attr_group'    => $attr_group,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ];
+                    /*--end*/
+                }
+                if (!empty($data)) {
+                    model('LanguageAttr')->saveAll($data);
+                }
             }
         }
-
-        $typeid = I('param.typeid/d', 0);
-        $allowReleaseChannel = array(2);
-
-        /*允许发布文档列表的栏目*/
-        $arctype_html = allow_release_arctype($typeid, $allowReleaseChannel);
-        $this->assign('arctype_html', $arctype_html);
-        /*--end*/
-
-        /*不允许发布文档的模型ID，用于JS判断*/
-        $js_allow_channel_arr = '[';
-        foreach ($allowReleaseChannel as $key => $val) {
-            if ($key > 0) {
-                $js_allow_channel_arr .= ',';
-            }
-            $js_allow_channel_arr .= $val;
-        }
-        $js_allow_channel_arr = $js_allow_channel_arr.']';
-        $this->assign('js_allow_channel_arr', $js_allow_channel_arr);
-        /*--end*/
-
-        /*表单提交URL*/
-        $form_action = url('Product/move');
-        $this->assign('form_action', $form_action);
-        /*--end*/
-
-        return $this->fetch('archives/move');
     }
 }

@@ -78,6 +78,7 @@
 							<input type="hidden" name="type" value="{$field.type|default=''}">
 							<input type="hidden" name="page" value="{$field.page|default=''}">
                             <input type="hidden" name="v" value="{$v|default='pc'}">
+							<input type="hidden" name="lang" value="{$field.lang|default='cn'}">
 							<label class="checkbox"><input type="button" class="btn" value="确认提交" onclick="check_submit();" /></label>
 						</div>
 					</div>
@@ -106,7 +107,7 @@
 
 			var formData = new FormData($("#post_form")[0]);
 	        $.ajax({
-				url: "{:U('api/Uiset/submit')}",
+				url: "{:url('api/Uiset/submit')}",
 				type: 'POST',  
 				data: formData,  
 				// async: false,  

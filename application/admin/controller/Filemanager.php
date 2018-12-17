@@ -35,8 +35,8 @@ class Filemanager extends Base
     public function index()
     {
         // 获取到所有GET参数
-        $param = I('param.', '', null);
-        $activepath = I('param.activepath', '', null);
+        $param = input('param.', '', null);
+        $activepath = input('param.activepath', '', null);
         $activepath = $this->filemanagerLogic->replace_path($activepath, ':', true);
 
         /*当前目录路径*/
@@ -82,7 +82,7 @@ class Filemanager extends Base
     public function replace_img()
     {
         if (IS_POST) {
-            $post = I('post.', '', null);
+            $post = input('post.', '', null);
             $activepath = !empty($post['activepath']) ? trim($post['activepath']) : '';
             if (empty($activepath)) {
                 $this->error('参数有误');
@@ -107,13 +107,13 @@ class Filemanager extends Base
             }
 
             $res = $this->filemanagerLogic->upload('upfile', $activepath, $post['filename']);
-            $this->success('操作成功！', U('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
+            $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
             exit;
         }
 
-        $filename = I('param.filename/s', '', null);
+        $filename = input('param.filename/s', '', null);
 
-        $activepath = I('param.activepath/s', '', null);
+        $activepath = input('param.activepath/s', '', null);
         $activepath = $this->filemanagerLogic->replace_path($activepath, ':', true);
         if ($activepath == "") $activepathname = "根目录";
         else $activepathname = $activepath;
@@ -133,8 +133,8 @@ class Filemanager extends Base
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.', '', null);
-            $content = I('post.content', '', null);
+            $post = input('post.', '', null);
+            $content = input('post.content', '', null);
             $filename = !empty($post['filename']) ? trim($post['filename']) : '';
             $content = !empty($content) ? $content : '';
             $activepath = !empty($post['activepath']) ? trim($post['activepath']) : '';
@@ -146,7 +146,7 @@ class Filemanager extends Base
 
             $r = $this->filemanagerLogic->editFile($filename, $activepath, $content);
             if ($r === true) {
-                $this->success('操作成功！', U('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
+                $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
                 exit;
             } else {
                 $this->error($r);
@@ -154,10 +154,10 @@ class Filemanager extends Base
             }
         }
 
-        $activepath = I('param.activepath/s', '', null);
+        $activepath = input('param.activepath/s', '', null);
         $activepath = $this->filemanagerLogic->replace_path($activepath, ':', true);
 
-        $filename = I('param.filename/s', '', null);
+        $filename = input('param.filename/s', '', null);
 
         $activepath = str_replace("..", "", $activepath);
         $filename = str_replace("..", "", $filename);
@@ -217,8 +217,8 @@ class Filemanager extends Base
     public function newfile()
     {
         if (IS_POST) {
-            $post = I('post.', '', null);
-            $content = I('post.content', '', null);
+            $post = input('post.', '', null);
+            $content = input('post.content', '', null);
             $filename = !empty($post['filename']) ? trim($post['filename']) : '';
             $content = !empty($content) ? $content : '';
             $activepath = !empty($post['activepath']) ? trim($post['activepath']) : '';
@@ -230,7 +230,7 @@ class Filemanager extends Base
 
             $r = $this->filemanagerLogic->editFile($filename, $activepath, $content);
             if ($r === true) {
-                $this->success('操作成功！', U('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
+                $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
                 exit;
             } else {
                 $this->error($r);
@@ -238,7 +238,7 @@ class Filemanager extends Base
             }
         }
 
-        $activepath = I('param.activepath/s', '', null);
+        $activepath = input('param.activepath/s', '', null);
         $activepath = $this->filemanagerLogic->replace_path($activepath, ':', true);
         $filename = 'newfile.txt';
         $content = "";

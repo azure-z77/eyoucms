@@ -15,6 +15,7 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
+            {eq name='$main_lang' value='$admin_lang'}
             <dl class="row">
                 <dt class="tit">
                     <label for="list_symbol">栏目位置的间隔符号</label>
@@ -71,6 +72,7 @@
                     <p class="notic">附件上传大小限制，如果空间不支持，请与空间商联系修改php.ini部分参数</p>
                 </dd>
             </dl>
+            {/eq}
             <div class="bot"><a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a></div>
         </div>
     </form>

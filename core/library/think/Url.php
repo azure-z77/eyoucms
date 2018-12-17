@@ -20,16 +20,68 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
     {
-        $request = Request::instance();
+        static $request = null;
+        if (null == $request) {
+            $request = Request::instance();
+        }
+        $module = $request->module();
 
         /*自动识别系统环境隐藏入口文件 by 小虎哥*/
         $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {
             $mca = !empty($url) ? explode($url, '/') : [];
-            if ('admin' != $request->module()) { // 排除后台分组模块
+            if ('admin' != $module) { // 排除后台分组模块
                 self::root('/');
             } else if (3 == count($mca) && 'admin' != $mca[0]) { // 排除url中带有admin分组模块
                 self::root('/');
+            }
+        }
+        /*--end*/
+
+        /*多语言*/
+        if (is_language()) {
+            if (empty($vars) || (is_array($vars) && empty($vars['lang'])) || (is_string($vars) && !stristr('&'.$vars, '&lang='))) {
+                $lang = $request->param('lang/s', '');
+                if ('admin' == $module) {
+                    $system_home_default_lang = config('ey_config.system_home_default_lang');
+                    if (!empty($lang) && $lang != $system_home_default_lang) {
+                        if (is_array($vars)) {
+                            $vars['lang']   = $lang;
+                        } else if (is_string($vars)) {
+                            $vars .= !empty($vars) ? '&' : '';
+                            $vars .= '&lang='.$lang;
+                        }
+                    }
+                } else {
+                    $lang = get_current_lang();
+                    $default_lang = get_default_lang();
+                    if ($default_lang != $lang) {
+                        if (is_array($vars)) {
+                            $vars['lang']   = $lang;
+                        } else if (is_string($vars)) {
+                            $vars .= !empty($vars) ? '&' : '';
+                            $vars .= '&lang='.$lang;
+                        }
+                    }
+                }
+            } else {
+                if (is_string($vars)) {
+                    $vars = parse_url_param($vars);
+                }
+                if (!empty($vars['lang']) && $vars['lang'] == get_default_lang()) {
+                    unset($vars['lang']);
+                }
+            }
+        } else { // 单语言
+            if ('admin' == $module) { // 排除后台分组模块
+                if (empty($vars) || (is_array($vars) && empty($vars['lang'])) || (is_string($vars) && !stristr('&'.$vars, '&lang='))) {
+                    if (is_array($vars)) {
+                        $vars['lang']   = get_main_lang();
+                    } else if (is_string($vars)) {
+                        $vars .= !empty($vars) ? '&' : '';
+                        $vars .= '&lang='.get_main_lang();
+                    }
+                }
             }
         }
         /*--end*/
@@ -159,14 +211,35 @@ class Url
             $domain = self::parseDomain($url, $domain);
             // URL组装
             $url = $domain . rtrim(self::$root ?: $request->root(), '/')."?m={$m}&c={$c}&a={$a}";
-            foreach ($vars as $key => $val) {
-                if (in_array($key, ['m','c','a'])) {
-                    unset($vars[$key]);
+            /*URL全局参数（比如：可视化uiset、多模板v、多语言lang）*/
+            $urlParam = $request->param();
+            !empty($vars['lang']) && !empty($urlParam['lang']) && $urlParam['lang'] = $vars['lang'];
+            foreach ($urlParam as $key => $val) {
+                if (in_array($key, Config::get('global.parse_url_param'))) {
+                    $urlParam[$key] = trim($val, '/');
+                } else {
+                    unset($urlParam[$key]);
                 }
             }
-            $vars = http_build_query($vars);
+            $vars = array_merge($vars, $urlParam);
+            /*--end*/
+            // 参数组装
             if (!empty($vars)) {
-                $url .= "&".$vars.$anchor;
+                /*过滤分组模块、控制器、操作方法，以及没有值的参数*/
+                foreach ($vars as $key => $val) {
+                    if (in_array($key, ['m','c','a']) || empty($val)) {
+                        unset($vars[$key]);
+                    }
+                }
+                /*--end*/
+                /*添加参数*/
+                $vars = http_build_query($vars);
+                if (!empty($vars)) {
+                    $url .= "&".$vars.$anchor;
+                }
+                /*--end*/
+            } else {
+                $url .= $anchor;
             }
             /*--end*/
         } else {

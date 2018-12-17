@@ -39,6 +39,7 @@ class Lists extends Base
             } else {
                 $map = array('a.id'=>$tid);
             }
+            $map['a.lang'] = $this->home_lang; // 多语言
             $row = M('arctype')->field('a.id, a.current_channel, b.nid')
                 ->alias('a')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
@@ -59,11 +60,22 @@ class Lists extends Base
         $this->assign('eyou', $this->eyou);
 
         /*模板文件*/
-        $templist = !empty($result['templist']) ? $result['templist'] : 'lists_'.$this->nid.'.'.$this->view_suffix;
+        $viewfile = !empty($result['templist'])
+        ? str_replace('.'.$this->view_suffix, '',$result['templist'])
+        : 'lists_'.$this->nid;
         /*--end*/
 
-        $fetch_tpl = 'template/'.$this->theme_style.'/'.$templist;
-        return $this->fetch($fetch_tpl);
+        /*多语言内置模板文件名*/
+        $lang = get_home_lang();
+        if (!empty($lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+            if (file_exists($viewfilepath)) {
+                $viewfile .= "_{$lang}";
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 
     /**
@@ -125,7 +137,7 @@ class Lists extends Base
         $result['seo_title'] = set_typeseotitle($result['typename'], $result['seo_title']);
 
         /*获取当前页面URL*/
-        $result['pageurl'] = request()->domain().request()->url();
+        $result['pageurl'] = request()->url(true);
         /*--end*/
 
         return $result;
@@ -203,8 +215,8 @@ class Lists extends Base
      */
     public function gbook_submit()
     {
-        $post = I('post.');
-        $typeid = I('post.typeid/d');
+        $post = input('post.');
+        $typeid = input('post.typeid/d');
         $ip = clientIP();
 
         if (!empty($typeid)) {
@@ -223,6 +235,7 @@ class Lists extends Base
                 'typeid'    => $typeid,
                 'channel'   => $this->channel,
                 'ip'    => $ip,
+                'lang'  => $this->home_lang,
                 'add_time'  => getTime(),
                 'update_time' => getTime(),
             );
@@ -241,7 +254,15 @@ class Lists extends Base
                 if ($aid > 0) {
                     $this->saveGuestbookAttr($aid, $typeid);
                 }
-                $this->success('操作成功！');
+                /*插件 - 邮箱发送*/
+                $data = [
+                    'gbook_submit',
+                    $typeid,
+                    $aid,
+                ];
+                $dataStr = implode('|', $data);
+                /*--end*/
+                $this->success('操作成功！', null, $dataStr, 3);
                 exit;
             }  
         }
@@ -258,7 +279,7 @@ class Lists extends Base
     private function saveGuestbookAttr($aid, $typeid)
     {  
         // post 提交的属性  以 attr_id _ 和值的 组合为键名    
-        $post = I("post.");
+        $post = input("post.");
         foreach($post as $k => $v)
         {
             $attr_id = str_replace('attr_','',$k);
@@ -272,6 +293,7 @@ class Lists extends Base
                 'aid'   => $aid,
                 'attr_id'   => $attr_id,
                 'attr_value'   => filter_line_return($v, '。'),
+                'lang'  => $this->home_lang,
                 'add_time'   => getTime(),
                 'update_time'   => getTime(),
             );

@@ -77,8 +77,8 @@ class Archives extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有URL参数
-        $param = I('param.');
-        $typeid = I('typeid/d', 0);
+        $param = input('param.');
+        $typeid = input('typeid/d', 0);
 
         /*跳转到指定栏目的文档列表*/
         if (0 < intval($typeid)) {
@@ -165,6 +165,10 @@ class Archives extends Base
             $condition['a.channel'] = array('eq', $current_channel);
         }
 
+        /*多语言*/
+        $condition['a.lang'] = array('eq', get_admin_lang());
+        /*--end*/
+
         /**
          * 数据查询，搜索出主键ID的值
          */
@@ -225,7 +229,7 @@ class Archives extends Base
         /*--end*/
         
         /*返回上一层链接*/
-        $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
+        $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
         $assign_data['gourl'] = $gourl;
         /*--end*/
 
@@ -262,7 +266,7 @@ class Archives extends Base
      */
     public function add()
     {
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         if (!empty($typeid)) {
             $row = db('arctype')
                 ->alias('a')
@@ -270,10 +274,10 @@ class Archives extends Base
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
                 ->where('a.id', 'eq', $typeid)
                 ->find();
-            $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
-            $jumpUrl = U("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
+            $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
+            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
         } else {
-            $jumpUrl = U("Archives/release");
+            $jumpUrl = url("Archives/release");
         }
         $this->redirect($jumpUrl);
     }
@@ -283,11 +287,11 @@ class Archives extends Base
      */
 /*    public function edit()
     {
-        $id = I('param.id/d', 0);
-        $typeid = I('param.typeid/d', 0);
+        $id = input('param.id/d', 0);
+        $typeid = input('param.typeid/d', 0);
         $row = db('archives')
             ->alias('a')
-            ->field('b.ctl_name,b.id')
+            ->field('a.channel,b.ctl_name,b.id')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
             ->where('a.aid', 'eq', $id)
             ->find();
@@ -297,8 +301,8 @@ class Archives extends Base
                 ->find();
             $row = array_merge($row, $channelRow);
         }
-        $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
-        $jumpUrl = U("{$row['ctl_name']}/edit", array('id'=>$id,'gourl'=>$gourl));
+        $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
+        $jumpUrl = url("{$row['ctl_name']}/edit", array('id'=>$id,'gourl'=>$gourl));
         $this->redirect($jumpUrl);
     }*/
 
@@ -317,28 +321,42 @@ class Archives extends Base
     public function move()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $typeid = !empty($post['typeid']) ? eyIntval($post['typeid']) : '';
             $aids = !empty($post['aids']) ? eyIntval($post['aids']) : '';
 
             if (empty($typeid) || empty($aids)) {
-                respose(array('status'=>0, 'msg'=>'参数有误'));
+                $this->error('参数有误，请联系技术支持');
             }
 
+            // 获取移动栏目的模型ID
+            $current_channel = Db::name('arctype')->where([
+                    'id'    => $typeid,
+                    'lang'  => get_admin_lang(),
+                ])->getField('current_channel');
+            // 抽取相符合模型ID的文档aid
+            $aids = Db::name('archives')->where([
+                    'aid'   =>  ['IN', $aids],
+                    'channel'   =>  $current_channel,
+                    'lang'  => get_admin_lang(),
+                ])->column('aid');
+            // 移动文档处理
             $update_data = array(
                 'typeid'    => $typeid,
                 'update_time'   => getTime(),
             );
-            $r = M('archives')->where("aid in ($aids)")->update($update_data);
+            $r = M('archives')->where([
+                    'aid' => ['IN', $aids],
+                ])->update($update_data);
             if($r){
                 adminLog('移动文档-id：'.$aids);
-                respose(array('status'=>1, 'msg'=>'操作成功'));
+                $this->success('操作成功');
             }else{
-                respose(array('status'=>0, 'msg'=>'操作失败'));
+                $this->error('操作失败');
             }
         }
 
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
 
         /*允许发布文档列表的栏目*/
         $allowReleaseChannel = [];
@@ -351,15 +369,18 @@ class Archives extends Base
         /*--end*/
 
         /*不允许发布文档的模型ID，用于JS判断*/
-        $js_allow_channel_arr = '[';
-        foreach ($allowReleaseChannel as $key => $val) {
-            if ($key > 0) {
-                $js_allow_channel_arr .= ',';
-            }
-            $js_allow_channel_arr .= $val;
-        }
-        $js_allow_channel_arr = $js_allow_channel_arr.']';
-        $this->assign('js_allow_channel_arr', $js_allow_channel_arr);
+        // $js_allow_channel_arr = '[]';
+        // if (!empty($allowReleaseChannel)) {
+        //     $js_allow_channel_arr = '[';
+        //     foreach ($allowReleaseChannel as $key => $val) {
+        //         if ($key > 0) {
+        //             $js_allow_channel_arr .= ',';
+        //         }
+        //         $js_allow_channel_arr .= $val;
+        //     }
+        //     $js_allow_channel_arr = $js_allow_channel_arr.']';
+        // }
+        // $this->assign('js_allow_channel_arr', $js_allow_channel_arr);
         /*--end*/
 
         /*表单提交URL*/
@@ -375,9 +396,9 @@ class Archives extends Base
      */
     public function release()
     {
-        $typeid = I('param.typeid/d', 0);
+        $typeid = input('param.typeid/d', 0);
         if (0 < $typeid) {
-            $param = I('param.');
+            $param = input('param.');
             $row = db('arctype')
                 ->field('b.ctl_name,b.id')
                 ->alias('a')
@@ -386,18 +407,18 @@ class Archives extends Base
                 ->find();
             /*针对不支持发布文档的模型*/
             if (!in_array($row['id'], $this->allowReleaseChannel)) {
-                $this->error('该栏目不支持发布文档！', U('Archives/release'));
+                $this->error('该栏目不支持发布文档！', url('Archives/release'));
                 exit;
             }
             /*-----end*/
 
-            $gourl = U('Archives/index_archives', array('typeid'=>$typeid));
-            $jumpUrl = U("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
+            $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
+            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
             header('Location: '.$jumpUrl);
             exit;
         }
 
-        $iframe = I('param.iframe/d',0);
+        $iframe = input('param.iframe/d',0);
 
         /*允许发布文档列表的栏目*/
         $select_html = allow_release_arctype();
@@ -424,7 +445,7 @@ class Archives extends Base
 
     public function ajax_get_arctype()
     {
-        $pid = I('pid/d');
+        $pid = input('pid/d');
         $html = '';
         $status = 0;
         if (0 < $pid) {

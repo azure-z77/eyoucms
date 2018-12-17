@@ -45,6 +45,7 @@ class AdPosition extends Model
     {
         $map = array(
             'id'   => array('IN', $ids),
+            'lang'  => get_admin_lang(),
         );
         $result = db('AdPosition')->field($field)
             ->where($map)
@@ -59,7 +60,10 @@ class AdPosition extends Model
      */
     public function getAll($field = '*', $index_key = '')
     {
-        $result = db('AdPosition')->field($field)->select();
+        $result = db('AdPosition')->field($field)
+            ->where([
+                'lang'  => get_admin_lang(),
+            ])->select();
 
         if (!empty($index_key)) {
             $result = convert_arr_key($result, $index_key);

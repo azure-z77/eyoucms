@@ -302,6 +302,12 @@ return [
         'seo_rewrite_format' => 1, // 1=精简伪静态，2=层次栏目伪静态
         'seo_inlet' => 0, // 0=保留入口文件，1=隐藏入口文件
         'system_sql_mode' => '', // mysql的sql-mode模式参数
+        'web_exception' => 0, // 关闭php所有错误
+        'main_lang' => 'cn', // 主体语言
+        'admin_lang' => 'cn', // 后台当前语言
+        'home_lang' => 'cn', // 前台当前语言
+        'system_langnum' => 1, // 多语言数量
+        'system_home_default_lang'  => 'cn', // 前台默认语言
     ],
 
 ];

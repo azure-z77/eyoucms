@@ -153,8 +153,8 @@ switch ($step) {
         
         $folder = array(
             'install',
+            'uploads',
             'data/runtime',
-            'public/upload',
             'application/admin/conf',
             'application/config.php',
             'application/database.php',

@@ -67,11 +67,8 @@ class Uiset extends Base
      */
     public function pc()
     {
-        $index_url = url('home/Index/index', array('uiset'=>'on', 'v'=>'pc'));
-        // 自动隐藏index.php入口文件
-        $index_url = auto_hide_index($index_url);
-        header('Location: '.$index_url);
-        exit;
+        $index_url = '/index.php?m=home&c=Index&a=index&uiset=on&v=pc&lang='.get_admin_lang();
+        $this->redirect($index_url);
     }
 
     /**
@@ -79,11 +76,8 @@ class Uiset extends Base
      */
     public function mobile()
     {
-        $index_url = url('home/Index/index', array('uiset'=>'on', 'v'=>'mobile'));
-        // 自动隐藏index.php入口文件
-        $index_url = auto_hide_index($index_url);
-        header('Location: '.$index_url);
-        exit;
+        $index_url = '/index.php?m=home&c=Index&a=index&uiset=on&v=mobile&lang='.get_admin_lang();
+        $this->redirect($index_url);
     }
 
     /**
@@ -101,9 +95,9 @@ class Uiset extends Base
     {
         $condition = array();
         // 获取到所有GET参数
-        $param = I('param.');
+        $param = input('param.');
         /*模板主题*/
-        $param['theme_style'] = $this->theme_style = I('param.theme_style/s', 'pc');
+        $param['theme_style'] = $this->theme_style = input('param.theme_style/s', 'pc');
         /*--end*/
 
         // 应用搜索条件
@@ -116,6 +110,10 @@ class Uiset extends Base
                 }
             }
         }
+
+        /*多语言*/
+        $condition['a.lang'] = get_admin_lang();
+        /*--end*/
 
         $list = array();
 
@@ -139,14 +137,14 @@ class Uiset extends Base
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
             $result = M('ui_config')->where("id",'IN',$id_arr)->getAllWithIndex('name');
             $r = M('ui_config')->where("id",'IN',$id_arr)->delete();
             if($r){
                 \think\Cache::clear('ui_config');
-                delFile(RUNTIME_PATH.'ui/'.$this->theme_style);
+                delFile(RUNTIME_PATH.'ui/'.$result['theme_style']);
                 adminLog('删除可视化数据 e-id：'.implode(array_keys($result)));
                 $this->success('删除成功');
             }else{

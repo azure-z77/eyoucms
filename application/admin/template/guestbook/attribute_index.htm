@@ -31,9 +31,11 @@
                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
+                        {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
                             <div class="tc">选择</div>
                         </th>
+                        {/eq}
                         <th abbr="article_title" axis="col3" class="w40">
                             <div class="tc">ID</div>
                         </th>
@@ -74,9 +76,14 @@
                     {else/}
                         {volist name="list" id="vo" key="k"}
                         <tr>
+                            {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign">
-                                <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.attr_id}"></div>
+                                <div class="tc w40">
+                                    <input type="checkbox" name="ids[]" value="{$vo.attr_id}">
+
+                                </div>
                             </td>
+                            {/eq}
                             <td class="sort">
                                 <div class="tc w40">
                                     {$vo.attr_id}
@@ -115,7 +122,9 @@
                                     <a href="{:U('Guestbook/attribute_edit',array('id'=>$vo['attr_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
+                                    {eq name='$main_lang' value='$admin_lang'}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Guestbook/attribute_del')}" data-id="{$vo.attr_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    {/eq}
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo.fieldname}', '{$vo.attr_id}', {$vo.attr_input_type|default='0'})">标签调用</a>
                                 </div>
@@ -131,6 +140,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
+                {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
@@ -151,6 +161,7 @@
                         </div>
                     </a>
                 </div>
+                {/eq}
                 {/eq}
             </div>
             <div style="clear:both"></div>

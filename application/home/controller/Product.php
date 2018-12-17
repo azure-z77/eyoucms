@@ -42,6 +42,7 @@ class Product extends Base
                 $map = array('id'=>$tid);
             }
         }
+        $map['lang'] = $this->home_lang; // 多语言
         $row = M('arctype')->field('id,dirname')->where($map)->order('sort_order asc')->limit(1)->find();
         $tid = !empty($row['id']) ? intval($row['id']) : 0;
         $dirname = !empty($row['dirname']) ? $row['dirname'] : '';

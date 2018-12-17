@@ -44,10 +44,17 @@ class TagTag extends Base
             $result = db('taglist')
                 ->field('*, tid AS tagid')
                 ->where($condition)
+                ->where('lang', $this->home_lang)
                 ->limit($row)
                 ->select();
 
         } else {
+            /*多语言*/
+            if (!empty($typeid)) {
+                $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
+            }
+            /*--end*/
+            
             if (!empty($typeid)) {
                 $condition['typeid'] = array('in', $typeid);
             }
@@ -61,6 +68,7 @@ class TagTag extends Base
             $result = db('tagindex')
                 ->field('*, id AS tagid')
                 ->where($condition)
+                ->where('lang', $this->home_lang)
                 ->orderRaw($orderby)
                 ->limit($row)
                 ->select();

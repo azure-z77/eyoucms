@@ -16,10 +16,10 @@
                         <input id="web_cmsmode1" onClick="set_cmsmode(1)" name="web_cmsmode"  value="1" {if condition="isset($config.web_cmsmode) && $config.web_cmsmode eq 1"}checked{/if} type="radio">
                     </div>
                     <br/>
-                    <p class="">开发模式：方便修改模板，及时预览前台效果，没缓存，一改便生效。<br/>运营模式：提高前台响应速度，利于收录；改模板及后台发布内容需执行【<a href="{:U('System/clearCache')}">更新缓存</a>】后才能在前台展示。</p>
+                    <p class="">开发模式：方便修改模板，及时预览前台效果，没缓存，一改便生效。<br/>运营模式：提高前台响应速度，利于收录；改模板及后台发布内容需执行【<a href="{:U('System/clear_cache')}">更新缓存</a>】后才能在前台展示。</p>
                 </dd>
             </dl>
-            <dl class="row {if condition="!isset($config.web_cmsmode) || $config.web_cmsmode neq 1"}none{/if}" id="dl_web_htmlcache_expires_in">
+            <!-- <dl class="row {if condition="!isset($config.web_cmsmode) || $config.web_cmsmode neq 1"}none{/if}" id="dl_web_htmlcache_expires_in">
                 <dt class="tit">
                     <label for="seo_expires_in">页面缓存时间</label>
                 </dt>
@@ -27,7 +27,7 @@
                     <input id="web_htmlcache_expires_in" name="web_htmlcache_expires_in" value="{$config.web_htmlcache_expires_in|default='7200'}" class="input-txt" type="text" />
                     <p class="">以秒为单位，数值越小，等待前台页面缓存自动刷新的时间越短。</p>
                 </dd>
-            </dl>
+            </dl> -->
             <dl class="row">
                 <dt class="tit">
                     <label for="site_url">升级弹窗提醒</label>
@@ -80,6 +80,19 @@
                 <dd class="opt">
                     <input id="web_sqldatapath" name="web_sqldatapath" value="{$config.web_sqldatapath|default=$sqlbackuppath}" class="input-txt" type="text" />
                     <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">模板错误提示</dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="web_exception1" class="cb-enable {if condition="isset($config.web_exception) && $config.web_exception eq 1"}selected{/if}" >开启</label>
+                        <label for="web_exception0" class="cb-disable {if condition="!isset($config.web_exception) || empty($config.web_exception)"}selected{/if}" >关闭</label>
+                        <input id="web_exception1" name="web_exception" value="1" {if condition="isset($config.web_exception) && $config.web_exception eq 1"}checked{/if} type="radio">
+                        <input id="web_exception0" name="web_exception"  value="0" {if condition="!isset($config.web_exception) || empty($config.web_exception)"}checked{/if} type="radio">
+                    </div>
+                    <br/>
+                    <p class="">开启之后，显示系统的报错信息，跟踪调试。</p>
                 </dd>
             </dl>
 <!--             <dl class="row">

@@ -14,6 +14,7 @@
 namespace app\common\controller;
 use think\Controller;
 use think\Session;
+use think\Db;
 class Common extends Controller {
 
     public $session_id;
@@ -57,7 +58,8 @@ class Common extends Controller {
         $this->global_assign(); // 获取网站全局变量值
         $this->view_suffix = config('template.view_suffix'); // 模板后缀htm
         $this->theme_style = THEME_STYLE; // 模板目录
-        $this->eyou['global'] = tpCache('global'); //全局变量
+        $global = tpCache('global'); //全局变量
+        $this->eyou['global'] = $global; //全局变量
 
         /*电脑版与手机版的切换*/
         $v = I('param.v/s', 'pc');

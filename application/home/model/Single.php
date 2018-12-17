@@ -45,7 +45,7 @@ class Single extends Model
                 ->where('b.channel', 6)
                 ->find($typeid);
 
-            cache($cacheKey, $result, null, 'arctype');
+            cache($cacheKey, $result, null, "arctype");
         }
 
         return $result;

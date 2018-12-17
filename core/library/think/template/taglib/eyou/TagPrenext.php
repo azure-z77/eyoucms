@@ -52,6 +52,7 @@ class TagPrenext extends Base
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                 ->where("a.typeid = {$typeid} AND a.aid > {$aid} AND a.channel = {$channel} AND a.status = 1")
+                ->where('a.lang', $this->home_lang)
                 ->order('a.aid asc')
                 ->find();
             if (!empty($result)) {
@@ -71,6 +72,7 @@ class TagPrenext extends Base
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                 ->where("a.typeid = {$typeid} AND a.aid < {$aid} AND a.channel = {$channel} AND a.status = 1")
+                ->where('a.lang', $this->home_lang)
                 ->order('a.aid desc')
                 ->find();
             if (!empty($result)) {

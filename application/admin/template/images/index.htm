@@ -12,7 +12,7 @@
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Images/index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('Images/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">  
@@ -27,7 +27,7 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Images/index', array("typeid"=>$Request.param.typeid))}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Images/index', array("typeid"=>$Request.param.typeid))}';">
                     </div>
                 </div>
             </form>
@@ -97,14 +97,14 @@
                                         <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
                                     {/notempty}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:U('Images/edit',array('id'=>$vo['aid']))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
+                                    <a href="{:url('Images/edit',array('id'=>$vo['aid']))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
                                 </div>
                             </td>
                             <td align="center" class="">
-                                <div class="w100 tc"><a href="{:U('Images/index', array('typeid'=>$vo['typeid'], 'tab'=>3))}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
+                                <div class="w100 tc"><a href="{:url('Images/index', array('typeid'=>$vo['typeid'], 'tab'=>3))}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
                             </td>
                             <td align="center" class="">
                                 <div class="tc w50">
@@ -128,10 +128,10 @@
                             <td>
                                 <div class="w180 tc">
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:U('Images/edit',array('id'=>$vo['aid']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Images/edit',array('id'=>$vo['aid']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Images/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Images/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     <a href="{$vo.arcurl}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>
                                     {/eq}
                                 </div>
@@ -161,16 +161,16 @@
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Images/del')}">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:url('Images/del')}">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>
                     </a>
                 </div>
                 {/eq}
-                {eq name="$Think.const.CONTROLLER_NAME.'@move'|is_check_access" value="1"}
+                {eq name="'Archives@move'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="func_move(this, 'ids');" data-url="{:U('Images/move', array('typeid'=>$Request.param.typeid))}">
+                    <a onclick="func_move(this, 'ids');" data-url="{:url('Archives/move', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="批量移动">
                             <span><i class="fa fa-hdd-o"></i>批量移动</span>
                         </div>
@@ -179,7 +179,7 @@
                 {/eq}
                 {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('Images/add', array('typeid'=>$Request.param.typeid))}">
+                    <a href="{:url('Images/add', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="新增图集">
                             <span class="red"><i class="fa fa-plus"></i>新增图集</span>
                         </div>

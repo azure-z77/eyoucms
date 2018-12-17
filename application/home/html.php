@@ -22,35 +22,7 @@ $app_debug = true;
 $web_htmlcache_expires_in = -1;
 if (1 == $web_cmsmode) { // 运营模式
     $app_debug = false;
-    $web_htmlcache_expires_in = isset($global['web_htmlcache_expires_in']) ? $global['web_htmlcache_expires_in'] : 7200;
-    $html_cache_arr = array(
-        // 首页
-        array('mca'=>'home_Index_index', 'filename'=>'index/index', 'cache'=>$web_htmlcache_expires_in),
-
-        // [普通伪静态]文章
-        array('mca'=>'home_Article_index', 'filename'=>'channel/article/index', 'cache'=>$web_htmlcache_expires_in),  
-        array('mca'=>'home_Article_lists', 'filename'=>'articlelist/article/list', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Article_view', 'filename'=>'detail/article/view', 'p'=>array('aid'), 'cache'=>$web_htmlcache_expires_in), 
-        // [普通伪静态]产品
-        array('mca'=>'home_Product_index', 'filename'=>'channel/product/index', 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Product_lists', 'filename'=>'articlelist/product/list', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Product_view', 'filename'=>'detail/product/view', 'p'=>array('aid'), 'cache'=>$web_htmlcache_expires_in),
-        // [普通伪静态]图集
-        array('mca'=>'home_Images_index', 'filename'=>'channel/images/index', 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Images_lists', 'filename'=>'articlelist/images/list', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Images_view', 'filename'=>'detail/images/view', 'p'=>array('aid'), 'cache'=>$web_htmlcache_expires_in),
-        // [普通伪静态]下载
-        array('mca'=>'home_Download_index', 'filename'=>'channel/download/index', 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Download_lists', 'filename'=>'articlelist/download/list', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Download_view', 'filename'=>'detail/download/view', 'p'=>array('aid'), 'cache'=>$web_htmlcache_expires_in),
-        // [普通伪静态]单页
-        array('mca'=>'home_Single_index', 'filename'=>'channel/single/index', 'cache'=>$web_htmlcache_expires_in), 
-        array('mca'=>'home_Single_lists', 'filename'=>'articlelist/single/list', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        // [超短伪静态]列表页
-        array('mca'=>'home_Lists_index', 'filename'=>'articlelist/lists/index', 'p'=>array('tid','page'), 'cache'=>$web_htmlcache_expires_in), 
-        // [超短伪静态]内容页
-        array('mca'=>'home_View_index', 'filename'=>'detail/view/index', 'p'=>array('aid'), 'cache'=>$web_htmlcache_expires_in), 
-    );
+    $html_cache_arr = config('HTML_CACHE_ARR');
 }
 /*--end*/
 

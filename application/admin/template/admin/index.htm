@@ -29,9 +29,11 @@
                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
+                        {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
                             <div class="tc">选择</div>
                         </th>
+                        {/eq}
                         <th abbr="article_title" axis="col3" class="w40">
                             <div class="tc">ID</div>
                         </th>
@@ -72,6 +74,7 @@
                     {else/}
                         {foreach name="list" item="vo" key="k" }
                         <tr>
+                            {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign">
                                 <div class="w40 tc">
                                     {if condition="$Think.session.admin_id != $vo.admin_id AND !empty($vo.parent_id)"}
@@ -79,6 +82,7 @@
                                     {/if}
                                 </div>
                             </td>
+                            {/eq}
                             <td class="sort">
                                 <div class="w40 tc">{$vo.admin_id}</div>
                             </td>
@@ -118,10 +122,12 @@
                                     {eq name="'Admin@admin_edit'|is_check_access" value="1"}
                                     <a href="{:U('Admin/admin_edit',array('id'=>$vo['admin_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
+                                    {eq name='$main_lang' value='$admin_lang'}
                                     {eq name="'Admin@admin_del'|is_check_access" value="1"}
                                         {if condition="$Think.session.admin_id != $vo.admin_id AND !empty($vo.parent_id)"}
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:U('Admin/admin_del')}" data-id="{$vo.admin_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                         {/if}
+                                    {/eq}
                                     {/eq}
                                 </div>
                             </td>
@@ -135,6 +141,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
+                {eq name='$main_lang' value='$admin_lang'}
                 {eq name="$Think.const.CONTROLLER_NAME.'@admin_del'|is_check_access" value="1"}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
@@ -155,6 +162,7 @@
                         </div>
                     </a>
                 </div>
+                {/eq}
                 {/eq}
             </div>
             <div style="clear:both"></div>

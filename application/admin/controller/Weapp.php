@@ -70,7 +70,7 @@ class Weapp extends Base
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数
-        $get = I('get.');
+        $get = input('get.');
 
         // 应用搜索条件
         foreach (['keywords'] as $key) {
@@ -200,7 +200,7 @@ class Weapp extends Base
      * 安装插件
      */
     public function install(){
-        $id       =   I('id');
+        $id       =   input('id');
         $row      =   M('Weapp')->field('code,thorough,config')->find($id);
         $row['config'] = json_decode($row['config'], true);
         $class    =   get_weapp_class($row['code']);
@@ -264,8 +264,8 @@ class Weapp extends Base
      * 卸载插件
      */
     public function uninstall(){
-        $id       =   I('param.id/d', 0);
-        $thorough = I('param.thorough/d', 0);
+        $id       =   input('param.id/d', 0);
+        $thorough = input('param.thorough/d', 0);
         $row      =   M('Weapp')->field('code')->find($id);
         $class    =   get_weapp_class($row['code']);
         if (!class_exists($class)) {
@@ -327,7 +327,7 @@ class Weapp extends Base
      */
     public function enable()
     {
-        $id       =   I('param.id/d', 0);
+        $id       =   input('param.id/d', 0);
         if (0 < $id) {
             $row = M('weapp')->field('code')->find($id);
             $class    =   get_weapp_class($row['code']);
@@ -359,7 +359,7 @@ class Weapp extends Base
      */
     public function disable()
     {
-        $id       =   I('param.id/d', 0);
+        $id       =   input('param.id/d', 0);
         if (0 < $id) {
             $row = M('weapp')->field('code')->find($id);
             $class    =   get_weapp_class($row['code']);
@@ -494,6 +494,9 @@ class Weapp extends Base
      */
     public function upload() 
     {
+        //防止php超时
+        function_exists('set_time_limit') && set_time_limit(0);
+        
         if (IS_POST) {
             $fileExt = 'zip';
             $savePath = UPLOAD_PATH.'tmp'.DS;
@@ -553,7 +556,10 @@ class Weapp extends Base
                     /*--end*/
 
                     // 递归复制文件夹            
-                    recurse_copy($savePath.$folderName, rtrim(ROOT_PATH, DS));
+                    $copy_bool = recurse_copy($savePath.$folderName, rtrim(ROOT_PATH, DS));
+                    if (true !== $copy_bool) {
+                        $this->error($copy_bool);
+                    }
 
                     /*删除上传的插件包*/
                     @unlink(realpath($savePath.$fileName));
@@ -575,7 +581,7 @@ class Weapp extends Base
     public function OneKeyUpgrade()
     {
         header('Content-Type:application/json; charset=utf-8');
-        $code = I('param.code/s', '');
+        $code = input('param.code/s', '');
         $upgradeMsg = $this->weappLogic->OneKeyUpgrade($code); //一键更新插件
         respose($upgradeMsg);
     }
@@ -600,7 +606,7 @@ class Weapp extends Base
         $srcPath = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$sample;
 
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $code = trim($post['code']);
             if (!preg_match('/^[A-Z]([a-zA-Z0-9]*)$/', $code)) {
                 $this->error('插件标识格式不正确！');
@@ -696,7 +702,7 @@ class Weapp extends Base
         if (IS_POST) {
             $packfiles = array(); // 打包的全部文件列表
 
-            $post = I('post.');
+            $post = input('post.');
             $code = $post['code'];
             $additional_file = $post['additional_file'];
 

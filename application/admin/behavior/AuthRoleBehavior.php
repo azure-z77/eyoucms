@@ -25,7 +25,7 @@ class AuthRoleBehavior
         !isset(self::$moduleName) && self::$moduleName = request()->module();
         !isset(self::$controllerName) && self::$controllerName = request()->controller();
         !isset(self::$actionName) && self::$actionName = request()->action();
-        !isset(self::$method) && self::$method = strtoupper(request()->method());
+        !isset(self::$method) && self::$method = request()->method();
         !isset(self::$admin_info) && self::$admin_info = session('admin_info');
     }
 

@@ -75,7 +75,7 @@ class View extends Base
         /*--end*/
         
         /*获取当前页面URL*/
-        $result['pageurl'] = request()->domain().request()->url();
+        $result['pageurl'] = request()->url(true);
         /*--end*/
 
         // seo
@@ -95,11 +95,22 @@ class View extends Base
         $this->assign('eyou', $this->eyou);
 
         /*模板文件*/
-        $tempview = !empty($result['tempview']) ? $result['tempview'] : 'view_'.$this->nid.'.'.$this->view_suffix;
+        $viewfile = !empty($result['tempview'])
+        ? str_replace('.'.$this->view_suffix, '',$result['tempview'])
+        : 'view_'.$this->nid;
         /*--end*/
 
-        $fetch_tpl = 'template/'.$this->theme_style.'/'.$tempview;
-        return $this->fetch($fetch_tpl);
+        /*多语言内置模板文件名*/
+        $lang = get_home_lang();
+        if (!empty($lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+            if (file_exists($viewfilepath)) {
+                $viewfile .= "_{$lang}";
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 
     /**

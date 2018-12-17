@@ -41,9 +41,15 @@ class TagPosition extends Base
      * 获取面包屑位置
      * @author wengxianhu by 2018-4-20
      */
-    public function getPosition($typeid, $symbol = '', $style = 'crumb')
+    public function getPosition($typeid = '', $symbol = '', $style = 'crumb')
     {
         $typeid = !empty($typeid) ? $typeid : $this->tid;
+
+        /*多语言*/
+        if (!empty($typeid)) {
+            $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
+        }
+        /*--end*/
 
         $basicConfig = tpCache('basic');
         $basic_indexname = !empty($basicConfig['basic_indexname']) ? $basicConfig['basic_indexname'] : '首页';

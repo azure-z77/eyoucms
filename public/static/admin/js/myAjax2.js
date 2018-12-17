@@ -50,50 +50,56 @@ function del_fun(del_url)
 
 // 修改指定表的指定字段值 包括有按钮点击切换是否 或者 排序 或者输入框文字
 function changeTableVal(table,id_name,id_value,field,obj)
-{	
-		var src = "";
-		 if($(obj).hasClass('no')) // 图片点击是否操作
-		 {          
-			//src = '/public/images/yes.png';
-			$(obj).removeClass('no').addClass('yes');
-			$(obj).html("<i class='fa fa-check-circle'></i>是");
-			var value = 1;
-            try {  
-                if ($(obj).attr('data-value')) {
-                    value = $(obj).attr('data-value');
-                }
-            } catch(e) {  
-                // 出现异常以后执行的代码  
-                // e:exception，用来捕获异常的信息  
-            } 
-				
-		 }else if($(obj).hasClass('yes')){ // 图片点击是否操作                     
-			$(obj).removeClass('yes').addClass('no');
-			$(obj).html("<i class='fa fa-ban'></i>否");
-			var value = 0;
-            try {  
-                if ($(obj).attr('data-value')) {
-                    value = $(obj).attr('data-value');
-                }
-            } catch(e) {  
-                // 出现异常以后执行的代码  
-                // e:exception，用来捕获异常的信息  
-            } 
-		 }else{ // 其他输入框操作
-			var value = $(obj).val();			 
-	     }      
-                                                   
-        $.ajax({
-            type:'POST',
-            url: eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value,         
-            success: function(data){
-                 if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
-                    layer.msg('更新成功', {icon: 1});  
-                 } else {
-                    if (0 == data.code) {
-                        layer.msg(data.msg, {icon: 2});  
-                    }
-                 }
+{   
+    var src = "";
+    if($(obj).hasClass('no')) // 图片点击是否操作
+    {          
+        //src = '/public/images/yes.png';
+        $(obj).removeClass('no').addClass('yes');
+        $(obj).html("<i class='fa fa-check-circle'></i>是");
+        var value = 1;
+        try {  
+            if ($(obj).attr('data-value')) {
+                value = $(obj).attr('data-value');
             }
-        });	
+        } catch(e) {  
+            // 出现异常以后执行的代码  
+            // e:exception，用来捕获异常的信息  
+        } 
+            
+    }else if($(obj).hasClass('yes')){ // 图片点击是否操作                     
+        $(obj).removeClass('yes').addClass('no');
+        $(obj).html("<i class='fa fa-ban'></i>否");
+        var value = 0;
+        try {  
+            if ($(obj).attr('data-value')) {
+                value = $(obj).attr('data-value');
+            }
+        } catch(e) {  
+            // 出现异常以后执行的代码  
+            // e:exception，用来捕获异常的信息  
+        } 
+    }else{ // 其他输入框操作
+        var value = $(obj).val();            
+    }
+
+    var url = eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value;
+    var lang = $.cookie('admin_lang');
+    if ($.trim(lang) != '') {
+        url = url + '&lang=' + lang;
+    }
+
+    $.ajax({
+        type:'POST',
+        url: url,         
+        success: function(data){
+             if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
+                layer.msg('更新成功', {icon: 1});  
+             } else {
+                if (0 == data.code) {
+                    layer.msg(data.msg, {icon: 2});  
+                }
+             }
+        }
+    }); 
 }

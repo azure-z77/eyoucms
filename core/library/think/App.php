@@ -85,6 +85,8 @@ class App
 
             $request->filter($config['default_filter']);
 
+            $config['lang_switch_on'] && self::switchLanguage(); // 多语言切换 by 小虎哥
+
             // 默认语言
             Lang::range($config['default_lang']);
             // 开启多语言机制 检测当前语言
@@ -605,6 +607,11 @@ class App
 
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $config['default_controller']);
+
+        if (!preg_match('/^[A-Za-z](\w|\.)*$/', $controller)) {
+            throw new HttpException(404, 'controller not exists:' . $controller);
+        }
+
         $controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
@@ -729,5 +736,16 @@ class App
     {
         self::$routeCheck = $route;
         self::$routeMust  = $must;
+    }
+
+    /**
+     * 多语言切换（默认中文）
+     *
+     * @param string $lang   语言变量值
+     * @return void
+     */
+    private static function switchLanguage() 
+    {
+        switch_language();
     }
 }

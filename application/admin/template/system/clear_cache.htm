@@ -37,10 +37,10 @@
                             <label class="label"><input class="check" type="checkbox" name="clearHtml[]" value="channel" checked="checked">频道页(channel)</label>
                         </li>
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearHtml[]" value="articlelist" checked="checked">列表页(articlelist)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearHtml[]" value="lists" checked="checked">列表页(lists)</label>
                         </li>
                         <li>
-                            <label class="label"><input class="check" type="checkbox" name="clearHtml[]" value="detail" checked="checked">内容页(detail)</label>
+                            <label class="label"><input class="check" type="checkbox" name="clearHtml[]" value="view" checked="checked">内容页(view)</label>
                         </li>
                     </ul>
                 </dd>
@@ -67,7 +67,7 @@
                 </dd>
             </dl>
             {/eq}
-            {eq name="'System@clearCache'|is_check_access" value="1"}
+            {eq name="'System@clear_cache'|is_check_access" value="1"}
             <dl class="row">
                 <dt class="tit"></dt>
                 <dd class="opt">
