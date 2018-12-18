@@ -258,17 +258,21 @@ if (!function_exists('vendor')) {
      */
     function vendor($class, $ext = EXT)
     {
-        $request = Request::instance();
-        $sm = $request->param('sm');
-        $module = $request->module();
-        $controller = $request->controller();
-        $action = $request->action();
-        $mca = strtolower($module.'@'.$controller.'@'.$action);
-        if ('admin@weapp@execute' == $mca && !empty($sm)) { // 针对每个子插件的vendor第三方类库
-            return Loader::import($class, WEAPP_PATH.$sm.DS.'vendor'.DS, $ext);
-        } else {
-            return Loader::import($class, VENDOR_PATH, $ext);
-        }
+        return Loader::import($class, VENDOR_PATH, $ext);
+    }
+}
+
+if (!function_exists('weapp_vendor')) {
+    /**
+     * [插件专属]快速导入第三方框架类库 所有第三方框架的类库文件统一放到 每个插件的Vendor目录下面
+     * @param string    $class 类库
+     * @param string    $code 插件标识
+     * @param string    $ext 类库后缀
+     * @return boolean
+     */
+    function weapp_vendor($class, $code, $ext = EXT)
+    {
+        return Loader::import($class, WEAPP_PATH.$code.DS.'vendor'.DS, $ext);
     }
 }
 

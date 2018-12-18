@@ -28,7 +28,7 @@ class TagLanguage extends Base
      * 获取多语言列表
      * @author 小虎哥 by 2018-4-20
      */
-    public function getLanguage($type = 'default', $row = 'null')
+    public function getLanguage($type = 'default', $limit = '')
     {
         $map = ['status'=>1];
         if ('default' == $type) {
@@ -36,7 +36,7 @@ class TagLanguage extends Base
         }
         $result = M("language")->where($map)
             ->order('sort_order asc')
-            ->limit($row)
+            ->limit($limit)
             // ->cache(true,EYOUCMS_CACHE_TIME,"language")
             ->select();
         foreach ($result as $key => $val) {

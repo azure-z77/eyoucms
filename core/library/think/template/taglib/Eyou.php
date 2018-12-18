@@ -1099,26 +1099,19 @@ class Eyou extends Taglib
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
-        $row = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 'null';
-        $offset = 0;
-        if (!empty($tag['limit'])) {
-            $limitArr = explode(',', $tag['limit']);
-            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
-            $row = !empty($limitArr[1]) ? intval($limitArr[1]) : 0;
+        $row = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit   = !empty($tag['limit']) ? $tag['limit'] : '';
+        if (empty($limit) && !empty($row)) {
+            $limit = "0,{$row}";
         }
 
         $parseStr = '<?php ';
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagFlink = new \think\template\taglib\eyou\TagFlink;';
-        $parseStr .= ' $_result = $tagFlink->getFlink("'.$type.'", '.$row.');';
+        $parseStr .= ' $_result = $tagFlink->getFlink("'.$type.'", "'.$limit.'");';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
-        // 设置了输出数组长度
-        if (0 != $offset || 'null' != $row) {
-            $parseStr .= '$__LIST__ = is_array($_result) ? array_slice($_result,' . $offset . ', $row, true) : $_result->slice(' . $offset . ', $row, true); ';
-        } else {
-            $parseStr .= ' $__LIST__ = $_result;';
-        }
+        $parseStr .= ' $__LIST__ = $_result;';
 
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
@@ -1156,26 +1149,19 @@ class Eyou extends Taglib
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
-        $row = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 'null';
-        $offset = 0;
-        if (!empty($tag['limit'])) {
-            $limitArr = explode(',', $tag['limit']);
-            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
-            $row = !empty($limitArr[1]) ? intval($limitArr[1]) : 0;
+        $row = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit   = !empty($tag['limit']) ? $tag['limit'] : '';
+        if (empty($limit) && !empty($row)) {
+            $limit = "0,{$row}";
         }
 
         $parseStr = '<?php ';
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagLanguage = new \think\template\taglib\eyou\TagLanguage;';
-        $parseStr .= ' $_result = $tagLanguage->getLanguage("'.$type.'", '.$row.');';
+        $parseStr .= ' $_result = $tagLanguage->getLanguage("'.$type.'", "'.$limit.'");';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
-        // 设置了输出数组长度
-        if (0 != $offset || 'null' != $row) {
-            $parseStr .= '$__LIST__ = is_array($_result) ? array_slice($_result,' . $offset . ', $row, true) : $_result->slice(' . $offset . ', $row, true); ';
-        } else {
-            $parseStr .= ' $__LIST__ = $_result;';
-        }
+        $parseStr .= ' $__LIST__ = $_result;';
 
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
@@ -1447,7 +1433,7 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr = '<?php ';
-        $parseStr .= ' $_value = $channelartlist["'.$name.'"];';
+        $parseStr .= ' $__value__ = $channelartlist["'.$name.'"];';
 
         if (1 < count($arr)) {
             $funcArr = explode('=', $arr[1]);
@@ -1457,18 +1443,18 @@ class Eyou extends Taglib
                 $funcParamStr = '';
                 foreach (explode(',', $funcParam) as $key => $val) {
                     if ('###' == $val) {
-                        $val = '$_value';
+                        $val = '$__value__';
                     }
                     if (0 < $key) {
                         $funcParamStr .= ', ';
                     }
                     $funcParamStr .= $val;
                 }
-                $parseStr .= '$_value = '.$funcName.'('.$funcParamStr.');';
+                $parseStr .= '$__value__ = '.$funcName.'('.$funcParamStr.');';
             }
         }
 
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' echo $__value__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {

@@ -29,7 +29,7 @@ class TagFlink extends Base
      * 获取友情链接
      * @author wengxianhu by 2018-4-20
      */
-    public function getFlink($type = 'text', $row = 'null')
+    public function getFlink($type = 'text', $limit = '')
     {
         if ($type == 'text') {
             $typeid = 1;
@@ -44,7 +44,7 @@ class TagFlink extends Base
         $result = M("links")->where($map)
             ->where('lang', $this->home_lang)
             ->order('sort_order asc')
-            ->limit($row)
+            ->limit($limit)
             ->cache(true,EYOUCMS_CACHE_TIME,"links")
             ->select();
         foreach ($result as $key => $val) {
