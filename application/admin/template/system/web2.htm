@@ -91,8 +91,21 @@
                         <input id="web_exception1" name="web_exception" value="1" {if condition="isset($config.web_exception) && $config.web_exception eq 1"}checked{/if} type="radio">
                         <input id="web_exception0" name="web_exception"  value="0" {if condition="!isset($config.web_exception) || empty($config.web_exception)"}checked{/if} type="radio">
                     </div>
-                    <br/>
-                    <p class="">开启之后，显示系统的报错信息，跟踪调试。</p>
+                    <p class="notic">开启之后，显示系统的报错信息，跟踪调试。</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="site_url">多语言入口</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="web_language_switch1" class="cb-enable {if condition='isset($config.web_language_switch) && $config.web_language_switch eq 1'}selected{/if}">开启</label>
+                        <label for="web_language_switch0" class="cb-disable {if condition='empty($config.web_language_switch)'}selected{/if}">关闭</label>
+                        <input id="web_language_switch1" name="web_language_switch" value="1" type="radio" {if condition="isset($config.web_language_switch) && $config.web_language_switch eq 1"} checked="checked"{/if}>
+                        <input id="web_language_switch0" name="web_language_switch" value="0" type="radio" {if condition="empty($config.web_language_switch)"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic">开启之后，顶部菜单会显示多语言入口</p>
                 </dd>
             </dl>
 <!--             <dl class="row">

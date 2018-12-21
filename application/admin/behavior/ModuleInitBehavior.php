@@ -183,14 +183,15 @@ EOF;
         try {
             $response = false;
             $url = 'http://'.request()->host().'/api/Rewrite/testing.html';
-            $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
-            $response = @file_get_contents($url,false,$context);
-/*            $ch = curl_init($url);            
+            // $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
+            // $response = @file_get_contents($url,false,$context);
+            $ch = curl_init($url);            
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 3); // 设置cURL允许执行的最长秒数
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 设置cURL允许执行的最长秒数
             $response = curl_exec ($ch);
-            curl_close ($ch);  */
+            curl_close ($ch);
+
             if ('ok' == $response) {
                 $now_seo_inlet = 1;
             } else if (!empty($response) && !stristr($response, 'not found')) {
@@ -251,8 +252,9 @@ EOF;
         }
         /*--end*/
 
-        //读取配置文件，并替换真实配置数据1
-        $databaseConf = include APP_PATH . 'database.php';
+        //读取配置文件，并替换真实配置数据
+        $filename = APP_PATH . 'database.php';
+        $databaseConf = include $filename;
         $sampleConf = include APP_PATH . 'database.php_read';
         if ($databaseConf['break_reconnect'] != $sampleConf['break_reconnect']) {
             $strConfig = @file_get_contents(APP_PATH . 'database.php_read');
@@ -264,8 +266,8 @@ EOF;
                 $strConfig = str_replace('#DB_PORT#', $databaseConf['hostport'], $strConfig);
                 $strConfig = str_replace('#DB_PREFIX#', $databaseConf['prefix'], $strConfig);
                 $strConfig = str_replace('#DB_CHARSET#', $databaseConf['charset'], $strConfig);
-                @chmod(APP_PATH . 'database.php',0777); //数据库配置文件的地址
-                @file_put_contents(APP_PATH . 'database.php', $strConfig); //数据库配置文件的地址
+                @chmod($filename,0777); //数据库配置文件的地址
+                is_writable($filename) && @file_put_contents($filename, $strConfig); //数据库配置文件的地址
             }
         }
     }

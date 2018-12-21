@@ -21,16 +21,26 @@ class Index extends Base
     public function index()
     {
         $language_db = Db::name('language');
+
         /*多语言列表*/
-        $languages = $language_db->field('a.mark, a.title')
-            ->alias('a')
-            // ->join('__LANGUAGE_MARK__ b', 'a.mark=b.mark', 'LEFT')
-            ->where('a.status',1)
-            ->getAllWithIndex('mark');
+        $web_language_switch = tpCache('web.web_language_switch');
+        $languages = [];
+        if (1 == intval($web_language_switch)) {
+            $languages = $language_db->field('a.mark, a.title')
+                ->alias('a')
+                ->where('a.status',1)
+                ->getAllWithIndex('mark');
+        }
         $this->assign('languages', $languages);
+        $this->assign('web_language_switch', $web_language_switch);
         /*--end*/
 
         /*网站首页链接*/
+        // 去掉入口文件
+        $inletStr = '/index.php';
+        $seo_inlet = config('ey_config.seo_inlet');
+        1 == intval($seo_inlet) && $inletStr = '';
+        // --end
         $home_default_lang = config('ey_config.system_home_default_lang');
         $admin_lang = get_admin_lang();
         $home_url = request()->domain();
@@ -40,10 +50,10 @@ class Index extends Base
                 $seoConfig = tpCache('seo');
                 $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                 $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-                if (1 == $seo_pseudo && 1 == $seo_dynamic_format) {
-                    $home_url = request()->domain().'/?lang='.$admin_lang;
+                if (1 == $seo_pseudo) {
+                    $home_url = request()->domain().$inletStr.'/?lang='.$admin_lang;
                 } else {
-                    $home_url = request()->domain().'/'.$admin_lang.'/';
+                    $home_url = request()->domain().$inletStr.'/'.$admin_lang.'/';
                 }
             }
         }

@@ -45,18 +45,9 @@ class ActionBeginBehavior {
     private function sitemap()
     {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctlActArr = array(
-            'Article@add',
-            'Article@edit',
-            'Product@add',
-            'Product@edit',
-            'Images@add',
-            'Images@edit',
-            'Download@add',
-            'Download@edit',
-        );
-        $ctlActStr = self::$controllerName.'@'.self::$actionName;
-        if (in_array($ctlActStr, $ctlActArr)) {
+        $ctlArr = ['Arctype','Article','Product','Images','Download'];
+        $actArr = ['add','edit'];
+        if (in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
             sitemap_auto();
         }
         /*--end*/

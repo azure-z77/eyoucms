@@ -162,7 +162,7 @@ class Driver
         }
         /*--end*/
         if (is_array($params) && $params['errcode'] == 0) {
-            if (empty($params['info']['code']) || $codeStr != $params['info']['code']) {
+            if (empty($params['info']['code']) || !stristr($params['info']['code'], $codeStr)) {
                 /*多语言*/
                 if (is_language()) {
                     $langRow = \think\Db::name('language')->order('id asc')->select();

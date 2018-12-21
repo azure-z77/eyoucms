@@ -39,6 +39,13 @@ class TagLanguage extends Base
             ->limit($limit)
             // ->cache(true,EYOUCMS_CACHE_TIME,"language")
             ->select();
+
+        /*去掉入口文件*/
+        $inletStr = '/index.php';
+        $seo_inlet = config('ey_config.seo_inlet');
+        1 == intval($seo_inlet) && $inletStr = '';
+        /*--end*/
+
         foreach ($result as $key => $val) {
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['logo'] = "/public/static/common/images/language/{$val['mark']}.gif";
@@ -52,10 +59,10 @@ class TagLanguage extends Base
                     $seoConfig = tpCache('seo', [], $val['mark']);
                     $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                     $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-                    if (1 == $seo_pseudo && 1 == $seo_dynamic_format) {
-                        $url = request()->domain().'/?lang='.$val['mark'];
+                    if (1 == $seo_pseudo) {
+                        $url = request()->domain().$inletStr.'/?lang='.$val['mark'];
                     } else {
-                        $url = '/'.$val['mark'].'/';
+                        $url = $inletStr.'/'.$val['mark'].'/';
                     }
                 }
             }

@@ -110,24 +110,27 @@
                             <td>
                                 <div class="w180 tc">
                                 {empty name="$vo.status"}
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@install'|is_check_access" value="1"}
+                                    {eq name="'Weapp@install'|is_check_access" value="1"}
                                     <a href="javascript:void(0);" onclick="install(this);" data-id="{$vo['id']}" class="btn blue"><i class="fa fa-check"></i>一键安装</a>
                                     {/eq}
+                                    {eq name="'Weapp@del'|is_check_access" value="1"}
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Weapp/del')}" data-id="{$vo.id}" data-name="{$vo.name}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    {/eq}
                                 {else /}
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@execute'|is_check_access" value="1"}
+                                    {eq name="'Weapp@execute'|is_check_access" value="1"}
                                     <a href="{:U('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>管理</a>
                                     {/eq}
                                     
                                         {neq name="$vo.status" value="1"}
-                                        {eq name="$Think.const.CONTROLLER_NAME.'@disable'|is_check_access" value="1"}
+                                        {eq name="'Weapp@disable'|is_check_access" value="1"}
                                         <a href="{:U('Weapp/enable',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>启用</a>
                                         {/eq}
                                         {else /}
-                                        {eq name="$Think.const.CONTROLLER_NAME.'@enable'|is_check_access" value="1"}
+                                        {eq name="'Weapp@enable'|is_check_access" value="1"}
                                         <a href="{:U('Weapp/disable',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>禁用</a>
                                         {/eq}
                                         {/neq}
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@uninstall'|is_check_access" value="1"}
+                                    {eq name="'Weapp@uninstall'|is_check_access" value="1"}
                                     <a href="javascript:void(0);" onclick="uninstall(this);" data-id="{$vo['id']}" class="btn red"><i class="fa fa-trash-o"></i>卸载</a>
                                     {/eq}
                                 {/empty}
@@ -143,7 +146,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
-                {eq name="$Think.const.CONTROLLER_NAME.'@upload'|is_check_access" value="1"}
+                {eq name="'Weapp@upload'|is_check_access" value="1"}
                 <div class="fbutton">
                     <form class="navbar-form form-inline" action="{:U('Weapp/upload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
                         <input type="file" class="btn fl w200" name="weappfile" id="weappfile">
@@ -323,6 +326,35 @@
         
         return false;
     }
+
+    function delfun(obj){
+        var name = $(obj).attr('data-name');
+        layer.confirm('<font color="#ff0000">将删除该插件相关文件</font>，确认删除？', {
+            title: name,
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            layer_loading('正在处理');
+            // 确定
+            $.ajax({
+                type : 'post',
+                url : $(obj).attr('data-url'),
+                data : {del_id:$(obj).attr('data-id')},
+                dataType : 'json',
+                success : function(data){
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        window.location.reload();
+                    }else{
+                        layer.alert(data.msg, {icon: 2});  //alert(data);
+                    }
+                }
+            })
+        }, function(index){
+            layer.close(index);
+        });
+        return false;
+    }  
 </script>
 
 {include file="public/footer" /}

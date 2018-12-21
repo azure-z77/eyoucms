@@ -1433,7 +1433,7 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr = '<?php ';
-        $parseStr .= ' $__value__ = $channelartlist["'.$name.'"];';
+        $parseStr .= ' $__value__ = isset($channelartlist["'.$name.'"]) ? $channelartlist["'.$name.'"] : "变量名不存在";';
 
         if (1 < count($arr)) {
             $funcArr = explode('=', $arr[1]);

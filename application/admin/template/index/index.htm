@@ -81,8 +81,8 @@
               <!-- 商业授权 -->   
               {/notempty}
 
-              {notempty name='languages'}
-              <!-- 多语言 -->   
+              {if condition='0 < intval($web_language_switch)'}
+              <!-- 多语言 -->
               <em class="eyou_tool em_lang" data-expanded="close">
                 <a class="btn btn-default dropdown-toggle" title="支持多语言切换" href="javascript:void(0);" onclick="valide(this);">
                   <i class="fa fa-globe"></i>
@@ -93,12 +93,12 @@
                     <li class="met-tool-list text-center lang"><a class="liaojie" href="?lang={$vo.mark}">{$vo.title}</a></li>
                   {/volist}
                     <li class="met-tool-list text-center" id="addlang">
-                      <button class="btn btn-primary" type="button" onclick="$('.em_lang').toggleClass('open');openItem('Language|add');" /><i class="fa fa-plus"></i>新增网站语言</button>
+                      <button class="btn btn-primary" type="button" onclick="$('.em_lang').toggleClass('open');openItem('Language|index');" /><i class="fa fa-globe"></i>&nbsp;多语言设置</button>
                     </li>
                 </ul>
                </em>
               <!-- 多语言 -->   
-              {/notempty}
+              {/if}
 
               <!-- 服务器升级 -->   
               <textarea id="textarea_filelist" style="display:none;"></textarea> 

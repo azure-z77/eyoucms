@@ -385,6 +385,58 @@ class Weapp extends Base
         $this->error('操作失败！');
         exit;
     }
+    
+    /**
+     * 删除插件以及文件
+     */
+    public function del()
+    {
+        if (IS_POST) {
+            $id_arr = input('del_id/a');
+            $id_arr = eyIntval($id_arr);
+            if(!empty($id_arr)){
+                $result = M('weapp')->field('id,name,code')
+                    ->where([
+                        'id'    => ['IN', $id_arr],
+                    ])->select();
+                $name_list = get_arr_column($result, 'name');
+
+                $r = M('weapp')->where([
+                        'id'    => ['IN', $id_arr],
+                    ])
+                    ->delete();
+                if($r){
+                    /*清理插件相关文件*/
+                    foreach ($result as $key => $val) {
+                        $filelist_path = WEAPP_DIR_NAME.DS.$val['code'].DS.'filelist.txt';
+                        if (file_exists($filelist_path)) {
+                            $filelistStr = file_get_contents($filelist_path);
+                            $filelist = explode("\n\r", $filelistStr);
+                            if (empty($filelist)) {
+                                continue;
+                            }
+                            delFile(WEAPP_DIR_NAME.DS.$val['code'], true);
+                            foreach ($filelist as $k2 => $v2) {
+                                if (!empty($v2) && !preg_match('/^'.WEAPP_DIR_NAME.'\/'.$val['code'].'/i', $v2)) {
+                                    if (file_exists($v2) && is_file($v2)) {
+                                        @unlink($v2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    /*--end*/
+                    adminLog('删除插件：'.implode(',', $name_list));
+                    $this->success('删除成功');
+                }else{
+                    $this->error('删除失败');
+                }
+            } else {
+                $this->error('参数有误');
+            }
+        }
+        $this->error('非法访问');
+    }
 
     /**
      * 分解SQL文件的语句
@@ -630,7 +682,9 @@ class Weapp extends Base
             foreach ($srcFiles as $key => $srcfile) {
                 $dstfile = str_replace($sample, $code, $srcfile);
                 $dstfile = str_replace(strtolower($sample), strtolower($code), $dstfile);
-                $filetxt .= $dstfile."\n\r";
+                if (!preg_match('/^'.WEAPP_DIR_NAME.'\/'.$code.'/i', $dstfile)) {
+                    $filetxt .= $dstfile."\n\r";
+                }
                 if(tp_mkdir(dirname($dstfile))) {
                     $fileContent = file_get_contents($srcPath . DS . $srcfile);
                     if (preg_match('/\.sql$/i', $dstfile)) {
@@ -646,6 +700,7 @@ class Weapp extends Base
                     }
                 }
             }
+            $filetxt .= WEAPP_DIR_NAME.'/'.$code;
             @file_put_contents(WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt', $filetxt); //初始化插件文件列表  
             /*--end*/
 

@@ -26,10 +26,14 @@ class Url
         }
         $module = $request->module();
 
+        $mca = !empty($url) ? explode('/', $url) : []; // by 小虎哥
+        static $main_lang = null;
+        null == $main_lang && $main_lang = get_main_lang(); // 主语言 by 小虎哥
+
         /*自动识别系统环境隐藏入口文件 by 小虎哥*/
+        self::root($request->baseFile().'/');
         $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {
-            $mca = !empty($url) ? explode($url, '/') : [];
             if ('admin' != $module) { // 排除后台分组模块
                 self::root('/');
             } else if (3 == count($mca) && 'admin' != $mca[0]) { // 排除url中带有admin分组模块
@@ -39,48 +43,35 @@ class Url
         /*--end*/
 
         /*多语言*/
+        // 解析参数 by 小虎哥
+        if (is_string($vars)) {
+            // aaa=1&bbb=2 转换成数组
+            parse_str($vars, $vars);
+        }
         if (is_language()) {
-            if (empty($vars) || (is_array($vars) && empty($vars['lang'])) || (is_string($vars) && !stristr('&'.$vars, '&lang='))) {
+            if (empty($vars['lang'])) {
                 $lang = $request->param('lang/s', '');
                 if ('admin' == $module) {
                     $system_home_default_lang = config('ey_config.system_home_default_lang');
                     if (!empty($lang) && $lang != $system_home_default_lang) {
-                        if (is_array($vars)) {
-                            $vars['lang']   = $lang;
-                        } else if (is_string($vars)) {
-                            $vars .= !empty($vars) ? '&' : '';
-                            $vars .= '&lang='.$lang;
-                        }
+                        $vars['lang']   = $lang;
                     }
                 } else {
                     $lang = get_current_lang();
                     $default_lang = get_default_lang();
                     if ($default_lang != $lang) {
-                        if (is_array($vars)) {
-                            $vars['lang']   = $lang;
-                        } else if (is_string($vars)) {
-                            $vars .= !empty($vars) ? '&' : '';
-                            $vars .= '&lang='.$lang;
-                        }
+                        $vars['lang']   = $lang;
                     }
                 }
             } else {
-                if (is_string($vars)) {
-                    $vars = parse_url_param($vars);
-                }
                 if (!empty($vars['lang']) && $vars['lang'] == get_default_lang()) {
                     unset($vars['lang']);
                 }
             }
         } else { // 单语言
             if ('admin' == $module) { // 排除后台分组模块
-                if (empty($vars) || (is_array($vars) && empty($vars['lang'])) || (is_string($vars) && !stristr('&'.$vars, '&lang='))) {
-                    if (is_array($vars)) {
-                        $vars['lang']   = get_main_lang();
-                    } else if (is_string($vars)) {
-                        $vars .= !empty($vars) ? '&' : '';
-                        $vars .= '&lang='.get_main_lang();
-                    }
+                if (empty($vars['lang'])) {
+                    $vars['lang']   = $main_lang;
                 }
             }
         }
@@ -223,6 +214,17 @@ class Url
             }
             $vars = array_merge($vars, $urlParam);
             /*--end*/
+
+            /*当前默认语言下，在后台的非后台模块链接将去掉lang参数，比如：地图sitemap.xml以及栏目、内容浏览*/
+            if ('admin' == $module) { // 后台分组模块
+                if (!empty($vars['lang']) && $vars['lang'] == $main_lang) {
+                    if (3 == count($mca) && 'admin' != $mca[0]) { // 排除带有admin分组模块
+                        unset($vars['lang']);
+                    }
+                }
+            }
+            /*--end*/
+
             // 参数组装
             if (!empty($vars)) {
                 /*过滤分组模块、控制器、操作方法，以及没有值的参数*/
@@ -243,6 +245,17 @@ class Url
             }
             /*--end*/
         } else {
+
+            /*当前默认语言下，在后台的非后台模块链接将去掉lang参数，比如：地图sitemap.xml以及栏目、内容浏览*/
+            if ('admin' == $module) { // 后台分组模块
+                if (!empty($vars['lang']) && $vars['lang'] == $main_lang) {
+                    if (3 == count($mca) && 'admin' != $mca[0]) { // 排除带有admin分组模块
+                        unset($vars['lang']);
+                    }
+                }
+            }
+            /*--end*/
+            
             // 参数组装
             if (!empty($vars)) {
                 // 添加参数

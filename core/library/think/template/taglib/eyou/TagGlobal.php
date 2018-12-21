@@ -84,7 +84,7 @@ class TagGlobal extends Base
                             $value = url('home/Index/index', $urlParam);
                         } else {
                             $value = '/';
-                            if (1 == $globalTpCache['seo_pseudo'] && 1 == $globalTpCache['seo_dynamic_format']) {
+                            if (1 == $globalTpCache['seo_pseudo']) {
                                 if (!empty($urlParam)) {
                                     if (!stristr($value, '?')) {
                                         $value .= '?';

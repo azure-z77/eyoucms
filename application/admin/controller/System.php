@@ -137,6 +137,10 @@ class System extends Base
             /*--end*/
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
+            /*多语言入口*/
+            $web_language_switch = $param['web_language_switch'];
+            $web_language_switch_old = tpCache('web.web_language_switch');
+            /*--end*/
 
             /*多语言*/
             if (is_language()) {
@@ -167,8 +171,8 @@ class System extends Base
             }
             /*--end*/
 
-            /*更改插件入口*/
-            if ($web_weapp_switch_old != $web_weapp_switch) {
+            /*更改之后，需要刷新后台的参数*/
+            if ($web_weapp_switch_old != $web_weapp_switch || $web_language_switch_old != $web_language_switch) {
                 $refresh = true;
             }
             /*--end*/

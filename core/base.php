@@ -70,8 +70,8 @@ $_root    = strpos($_request->root(), '.') ? ltrim(dirname($_request->root()), D
 if ('' != $_root) {
     $_root = '/' . ltrim($_root, '/');
 }
-define('ROOT_DIR', $_root);
+defined('ROOT_DIR') or define('ROOT_DIR', $_root);
 // 静态页面文件目录，存储静态页面文件
-define('HTML_ROOT', RUNTIME_PATH . 'html/'); 
+defined('HTML_ROOT') or define('HTML_ROOT', RUNTIME_PATH . 'html/'); 
 // 静态页面文件目录，存储静态页面文件
-define('HTML_PATH', HTML_ROOT . $http.'/'); 
+defined('HTML_PATH') or define('HTML_PATH', HTML_ROOT . $http.'/'); 

@@ -1149,7 +1149,7 @@ if (!function_exists('switch_language'))
         }
         \think\Lang::setLangCookieVar($langCookieVar);
 
-        /*至少两种语言才能往下执行*/
+        /*单语言执行代码*/
         $langRow = \think\Db::name('language')->field('mark')
             ->order('id asc')
             ->select();
@@ -1164,11 +1164,11 @@ if (!function_exists('switch_language'))
 
         $current_lang = '';
         /*兼容伪静态多语言切换*/
-        $s = trim($request->param('s'), '/');
-        if (!empty($s)) {
+        $pathinfo = $request->pathinfo();
+        if (!empty($pathinfo)) {
             // $seo_pseudo = tpCache('seo.seo_pseudo');
             // if (3 == $seo_pseudo) {
-                $s_arr = explode('/', $s);
+                $s_arr = explode('/', $pathinfo);
                 $count = $language_db->where(['mark'=>$s_arr[0]])->count();
                 if (!empty($count)) {
                     $current_lang = $s_arr[0];
@@ -1176,6 +1176,7 @@ if (!function_exists('switch_language'))
             // }
         }
         /*--end*/
+
         $lang = $request->param('lang/s', $current_lang);
         if (!empty($lang)) {
             // 处理访问不存在的语言

@@ -592,7 +592,6 @@ class Arctype extends Base
         $planPath = 'template/pc';
         $dirRes   = opendir($planPath);
         $view_suffix = config('template.view_suffix');
-        $admin_lang = $this->admin_lang;
 
         /*模板PC目录文件列表*/
         $templateArr = array();
@@ -603,6 +602,10 @@ class Arctype extends Base
             }
             array_push($templateArr, $filename);
         }
+        /*--end*/
+
+        /*多语言全部标识*/
+        $markArr = Db::name('language_mark')->column('mark');
         /*--end*/
 
         $templateList = array();
@@ -620,21 +623,24 @@ class Arctype extends Base
                     $selected = 1; // 默认选中状态
                 }
 
-                preg_match('/^(lists|view)_'.$v1['nid'].'(_(.*))?(_'.$admin_lang.')?\.'.$view_suffix.'/i', $v2, $matches);
-                $langtpl = preg_replace('/\.'.$view_suffix.'$/i', "_{$admin_lang}.{$view_suffix}", $v2);
+                preg_match('/^(lists|view)_'.$v1['nid'].'(_(.*))?(_'.$this->admin_lang.')?\.'.$view_suffix.'/i', $v2, $matches1);
+                $langtpl = preg_replace('/\.'.$view_suffix.'$/i', "_{$this->admin_lang}.{$view_suffix}", $v2);
                 if (file_exists(realpath($planPath.DS.$langtpl))) {
                     continue;
-                } else if (preg_match('/^(.*)_[a-zA-z]{2,2}\.'.$view_suffix.'$/i',$v2,$match) && $v2 != $match[1]."_{$admin_lang}.{$view_suffix}") {
-                    continue;
+                } else if (preg_match('/^(.*)_([a-zA-z]{2,2})\.'.$view_suffix.'$/i',$v2,$matches2)) {
+                    if (in_array($matches2[2], $markArr) && $matches2[2] != $this->admin_lang) {
+                        continue;
+                    }
                 }
-                if (!empty($matches)) {
+
+                if (!empty($matches1)) {
                     $selectefile = '';
-                    if ('lists' == $matches[1]) {
+                    if ('lists' == $matches1[1]) {
                         $lists .= '<option value="'.$v2.'" ';
                         $lists .= ($templist == $v2 || $selected == $l) ? " selected='true' " : '';
                         $lists .= '>'.$v2.'</option>';
                         $l++;
-                    } else if ('view' == $matches[1]) {
+                    } else if ('view' == $matches1[1]) {
                         $view .= '<option value="'.$v2.'" ';
                         $view .= ($tempview == $v2 || $selected == $v) ? " selected='true' " : '';
                         $view .= '>'.$v2.'</option>';
@@ -656,81 +662,6 @@ class Arctype extends Base
         }
 
         return $templateList;
-    }
-
-    public function ajax_get_template()
-    {
-        $id = input('param.id/d', 0);
-        $channel = input('param.channel/d', 0);
-        $selected_templist = input('param.sltd_templist/s', '');;
-        $selected_tempview = input('param.sltd_tempview/s', '');;
-
-        $status = 1;
-        $templisthtml = '<option value="">无</option>';
-        $tempviewhtml = '<option value="">无</option>';
-
-        if ($channel > 0) {
-            $nid = M('Channeltype')->where('id', $channel)->getField('nid');
-            if (!empty($nid)) {
-                $planPath = 'template/pc';
-                $planPath = realpath($planPath);
-                $dirRes   = opendir($planPath);
-                $view_suffix = config('template.view_suffix');
-                $admin_lang = $this->admin_lang;
-                if ($id > 0) { //编辑状态
-                    $selected = 1;
-                    $templisthtml = '<option value="">请选择模板…</option>';
-                    $tempviewhtml = '<option value="">请选择模板…</option>';
-                } else { // 新增状态
-                    $selected = 0;
-                    $templisthtml = '';
-                    $tempviewhtml = '';
-                }
-
-                $i = 1;
-                $j = 1;
-                while($filename = readdir($dirRes))
-                {
-                    $langtpl = preg_replace('/\.'.$view_suffix.'$/i', "_{$admin_lang}.{$view_suffix}", $v2);
-                    if (file_exists($planPath.DS.$langtpl)) {
-                        continue;
-                    } else if (preg_match('/^(.*)_[a-zA-z]{2,2}\.'.$view_suffix.'$/i',$v2,$match) && $v2 != $match[1]."_{$admin_lang}.{$view_suffix}") {
-                        continue;
-                    }
-
-                    if(preg_match('/^lists_'.$nid.'(_(.*))?(_'.$admin_lang.')?\.'.$view_suffix.'/i', $filename))
-                    {
-                        /*列表模板*/
-                        $templisthtml .= '<option value="'.$filename.'" ';
-                        $templisthtml .= ($selected_templist == $filename || $selected == $i) ? " selected='true' " : '';
-                        $templisthtml .= '>'.$filename.'</option>';
-                        /*--end*/
-                        $i++;
-                    } 
-                    elseif(preg_match('/^view_'.$nid.'(_(.*))?(_'.$admin_lang.')?\.'.$view_suffix.'/i', $filename)) 
-                    {
-                        /*文档模板*/
-                        $tempviewhtml .= '<option value="'.$filename.'" ';
-                        $tempviewhtml .= ($selected_tempview == $filename || $selected == $j) ? " selected='true' " : '';
-                        $tempviewhtml .= '>'.$filename.'</option>';
-                        /*--end*/
-                        $j++;
-                    }
-                }
-                if ($i == 1) {
-                    $templisthtml = '<option value="">无</option>';
-                }
-                if ($j == 1) {
-                    $tempviewhtml = '<option value="">无</option>';
-                }
-            }
-        }
-
-        respose(array(
-            'status'    => $status,
-            'templisthtml'   => $templisthtml,
-            'tempviewhtml'   => $tempviewhtml,
-        ));
     }
 
     /**

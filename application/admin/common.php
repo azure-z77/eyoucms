@@ -376,12 +376,16 @@ if (!function_exists('sitemap_xml'))
             }
         }
         $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, 'daily' AS changefreq, '1.0' AS priority")
-            ->where('status = 1')
+            ->where([
+                'status'    => 1,
+                'is_del'    => 0,
+            ])
             ->order('sort_order asc')
             ->getAllWithIndex('id');
 
         /* 文章列表(用于生成文章详情链接的sitemap) */
         $map = array(
+            'channel'   => ['IN', config('global.allow_release_channel')],
             'arcrank'   => array('gt', -1),
             'status'    => 1,
         );
