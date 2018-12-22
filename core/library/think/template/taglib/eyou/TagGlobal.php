@@ -44,21 +44,20 @@ class TagGlobal extends Base
         $uiset = I('param.uiset/s', 'off');
         $uiset = trim($uiset, '/');
 
-        if (isMobile()) {
-            if ($name == 'web_thirdcode_pc') {
-                $name = 'web_thirdcode_wap';
-            }
-        } else {
-            if ($name == 'web_thirdcode_wap') {
-                $name = 'web_thirdcode_pc';
-            }
+        /*PC端与手机端的变量名自适应，可彼此通用*/
+        if (in_array($name, ['web_templets_pc','web_templets_m'])) { // 模板路径
+            $name = 'web_templets_' . (isMobile() ? 'm' : 'pc');
+        } else if (in_array($name, ['web_thirdcode_pc','web_thirdcode_wap'])) { // 第三方代码
+            $name = 'web_thirdcode_' . (isMobile() ? 'wap' : 'pc');
         }
+        /*--end*/
+
         $globalTpCache = tpCache('global');
         if ($globalTpCache) {
             $value = \think\Coding::setcr($name, $globalTpCache);
 
             switch ($name) {
-                case 'web_basehost':
+                // case 'web_basehost':
                 case 'web_cmsurl':
                     {
 

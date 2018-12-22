@@ -36,7 +36,7 @@
                         <ul>
                             {eq name="'System@index'|is_check_access" value="1"}
                             <li>
-                                <a href="{:U('System/index', array('inc_type'=>'web'))}">
+                                <a href="{:url('System/index', array('inc_type'=>'web'))}">
                                     <i class="fa fa-newspaper-o"></i>
                                     基本信息
                                 </a>
@@ -45,7 +45,7 @@
                             {/eq}
                             {eq name="'Arctype@index'|is_check_access" value="1"}
                             <li>
-                                <a href="{:U('Arctype/index')}" >
+                                <a href="{:url('Arctype/index')}" >
                                     <i class="fa fa-sitemap"></i>
                                     栏目管理
                                 </a>
@@ -54,7 +54,7 @@
                             {/eq}
                             {eq name="'Filemanager@index'|is_check_access" value="1"}
                             <li>
-                                <a href="{:U('Filemanager/index')}">
+                                <a href="{:url('Filemanager/index')}">
                                     <i class="fa fa-folder-open"></i>
                                     模板管理
                                 </a>
@@ -63,7 +63,7 @@
                             {/eq}
                             {eq name="'Archives@release'|is_check_access" value="1"}
                             <li>
-                                <a href="{:U('Archives/release')}">
+                                <a href="{:url('Archives/release')}">
                                     <i class="fa fa-plus"></i>
                                     发布内容
                                 </a>
@@ -113,7 +113,7 @@
                                           <textarea id="textarea_filelist" style="display:none;">{$upgradeMsg['upgrade']}</textarea> 
                                           <textarea id="textarea_intro" style="display:none;">{$upgradeMsg['intro']}</textarea> 
                                           <textarea id="textarea_notice" style="display:none;">{$upgradeMsg['notice']}</textarea> 
-                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:U('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:U('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
+                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
                                           {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
                                           <script type="text/javascript">
                                             $(document).ready(function(){

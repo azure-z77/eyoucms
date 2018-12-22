@@ -204,8 +204,8 @@ class Seo extends Base
             $val = array_merge($arctypeList[$val['typeid']], $val);
 
             $ctl_name = $channelList[$val['channel']]['ctl_name'];
-            $nowarcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->domain(), 2);
-            $arcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->domain(), 1);
+            $nowarcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->host(), 2);
+            $arcurl = arcurl('home/'.$ctl_name.'/view', $val, true, request()->host(), 1);
 
             array_push($url_arr, $arcurl);
             array_push($nowurl_arr, $nowarcurl);
@@ -239,13 +239,13 @@ class Seo extends Base
             $cacheKey = strtolower("taglist_lastPage_home{$ctl_name}lists".$val['id']);
             $lastPage = cache($cacheKey); // 用于静态页面的分页生成
             for ($i=1; $i <= $lastPage; $i++) { 
-                $nowtypeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->domain(), 2);
+                $nowtypeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->host(), 2);
                 if ($i == 1) {
                     $nowtypeurl .= 'index.html';
                 } else {
                     $nowtypeurl .= 'list_'.$val['id'].'_'.$i.'.html';
                 }
-                $typeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->domain(), 1).'&page='.$i;
+                $typeurl = typeurl('home/'.$ctl_name.'/lists', $val, true, request()->host(), 1).'&page='.$i;
 
                 array_push($url_arr, $typeurl);
                 array_push($nowurl_arr, $nowtypeurl); 

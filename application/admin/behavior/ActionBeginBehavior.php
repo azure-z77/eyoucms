@@ -34,23 +34,7 @@ class ActionBeginBehavior {
     private function _initialize() {
         if ('POST' == self::$method) {
             $this->clearWeapp();
-            $this->sitemap();
         }
-    }
-
-    /**
-     * 自动生成sitemap
-     * @access public
-     */
-    private function sitemap()
-    {
-        /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctlArr = ['Arctype','Article','Product','Images','Download'];
-        $actArr = ['add','edit'];
-        if (in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
-            sitemap_auto();
-        }
-        /*--end*/
     }
 
     /**

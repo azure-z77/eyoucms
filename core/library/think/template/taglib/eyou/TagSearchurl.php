@@ -38,10 +38,10 @@ class TagSearchurl extends Base
             $result = '';
             $result .= $url.'"><input type="hidden" name="m" value="home" />';
             $result .= '<input type="hidden" name="c" value="Search" />';
-            $result .= '<input type="hidden" name="a" value="lists" />';
+            $result .= '<input type="hidden" name="a" value="lists';
             /*多语言*/
             $lang = Request::instance()->param('lang/s');
-            !empty($lang) && $result .= '<input type="hidden" name="lang" value="'.$$lang;
+            !empty($lang) && $result .= '" /><input type="hidden" name="lang" value="'.$lang;
             /*--end*/
         } else {
             $result = $url;

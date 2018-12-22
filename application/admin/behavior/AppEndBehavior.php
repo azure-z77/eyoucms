@@ -35,6 +35,22 @@ class AppEndBehavior {
         $this->saveBaseFile(); // 存储后台入口文件路径
         $this->renameInstall(); // 重命名安装目录
         $this->resetAuthor(); // 临时处理授权问题
+        $this->sitemap(); // 自动生成sitemap
+    }
+
+    /**
+     * 自动生成sitemap
+     * @access public
+     */
+    private function sitemap()
+    {
+        /*只有相应的控制器和操作名才执行，以便提高性能*/
+        $ctlArr = ['Arctype','Article','Product','Images','Download'];
+        $actArr = ['add','edit'];
+        if ('POST' == self::$method && in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
+            sitemap_auto();
+        }
+        /*--end*/
     }
 
     /**

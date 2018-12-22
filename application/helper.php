@@ -274,7 +274,7 @@ if (!function_exists('typeurl')) {
         } elseif ('on' != $uiset && 2 == $seo_pseudo) {
             $vars = array();
             $url = $param['dirpath']."/";
-            $eyouUrl = url($url, $vars, false, request()->domain(), $seo_pseudo, $seo_pseudo_format);
+            $eyouUrl = url($url, $vars, false, request()->host(), $seo_pseudo, $seo_pseudo_format);
         } elseif ('on' != $uiset && 3 == $seo_pseudo) {
             if (is_array($param)) {
                 $vars = array(
@@ -354,7 +354,7 @@ if (!function_exists('arcurl')) {
             $vars = array();
             $aid = $param['aid'];
             $url = $param['dirpath']."/{$aid}.html";
-            $eyouUrl = url($url, $vars, false, request()->domain(), $seo_pseudo, $seo_pseudo_format);
+            $eyouUrl = url($url, $vars, false, request()->host(), $seo_pseudo, $seo_pseudo_format);
         } elseif ($seo_pseudo == 3 && $uiset != 'on') {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');

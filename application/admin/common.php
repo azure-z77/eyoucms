@@ -411,7 +411,31 @@ XML;
 
         $xml = simplexml_load_string($xml_wrapper);
         // $xml = new SimpleXMLElement($xml_wrapper);
+
+        /*首页*/
+        $item = $xml->addChild('url'); //使用addChild添加节点
+        foreach (['loc','lastmod','changefreq','priority'] as $key) {
+            if ('loc' == $key) {
+                $row = request()->domain();
+            } else if ('lastmod' == $key) {
+                $row = date('Y-m-d');
+            } else if ('changefreq' == $key) {
+                $row = 'daily';
+            } else if ('priority' == $key) {
+                $row = '1.0';
+            }
+            try {
+                $node = $item->addChild($key, $row);
+            } catch (Exception $e) {}
+            if (isset($attribute_array[$key]) && is_array($attribute_array[$key])) {
+                foreach ($attribute_array[$key] as $akey => $aval) {//设置属性值，我这里为空
+                    $node->addAttribute($akey, $aval);
+                }
+            }
+        }
+        /*--end*/
          
+        /*所有栏目*/
         foreach ($result_arctype as $val) {
             $item = $xml->addChild('url'); //使用addChild添加节点
             if (is_array($val)) {
@@ -440,7 +464,9 @@ XML;
                 }
             }
         }
+        /*--end*/
 
+        /*所有文档*/
         foreach ($result_archives as $val) {
             $item = $xml->addChild('url'); //使用addChild添加节点
             if (is_array($val) && isset($result_arctype[$val['typeid']])) {
@@ -471,6 +497,7 @@ XML;
                 }
             }
         }
+        /*--end*/
 
         $content = $xml->asXML(); //用asXML方法输出xml，默认只构造不输出。
         @file_put_contents($filename, $content);
@@ -501,7 +528,7 @@ if (!function_exists('get_typeurl'))
         $seoConfig = tpCache('seo');
         $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
         $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-        $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+        $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->host(), $seo_pseudo, $seo_dynamic_format);
         // 自动隐藏index.php入口文件
         $typeurl = auto_hide_index($typeurl);
 
@@ -533,7 +560,7 @@ if (!function_exists('get_arcurl'))
         $seoConfig = tpCache('seo');
         $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
         $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-        $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+        $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->host(), $seo_pseudo, $seo_dynamic_format);
         // 自动隐藏index.php入口文件
         $arcurl = auto_hide_index($arcurl);
 

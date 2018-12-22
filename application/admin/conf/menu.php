@@ -24,7 +24,7 @@ $icon_arr = array(
 );
 $main_lang= get_main_lang();
 $admin_lang = get_admin_lang();
-$domain = request()->domain();
+$domain = request()->host();
 $default_words = array();
 $default_addcontent = array();
 

@@ -108,8 +108,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         }
 
         if (strpos($this->options['path'], '[PAGE]') === false) {
-            1 < $page && $parameters = [$this->options['var_page'] => $page]; // 第一页不带page码数 by 小虎哥
-            // $parameters = [$this->options['var_page'] => $page];
+            $parameters = [$this->options['var_page'] => $page];
             $path       = $this->options['path'];
         } else {
             $parameters = [];

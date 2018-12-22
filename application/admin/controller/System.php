@@ -188,7 +188,7 @@ class System extends Base
 
         $config = tpCache($inc_type);
         //自定义后台路径名
-        $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : request()->baseFile();
+        $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : $this->request->baseFile();
         $adminbasefile = preg_replace('/^\/(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
         $this->assign('adminbasefile', $adminbasefile);
         // 数据库备份目录
