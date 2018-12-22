@@ -44,12 +44,13 @@ class TagArclist extends Base
      * 获取多条记录
      * @author wengxianhu by 2018-4-20
      */
-    public function getArclist($param = array(),  $limit = 15, $orderby = '', $addfields = '', $orderWay = 'desc')
+    public function getArclist($param = array(),  $limit = 15, $orderby = '', $addfields = '', $orderWay = '')
     {
         $result = false;
 
         $channeltype = !empty($param['channel']) ? $param['channel'] : '';
         $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
+        empty($orderWay) && $orderWay = 'desc';
 
         /*多语言*/
         if (!empty($param['typeid'])) {

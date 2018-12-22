@@ -182,15 +182,18 @@ EOF;
         /*检测是否支持URL重写隐藏应用的入口文件index.php*/
         try {
             $response = false;
-            $url = 'http://'.request()->host().'/api/Rewrite/testing.html';
-            // $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
-            // $response = @file_get_contents($url,false,$context);
-            $ch = curl_init($url);            
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 设置cURL允许执行的最长秒数
-            $response = curl_exec ($ch);
-            curl_close ($ch);
+            $url = request()->domain().'/api/Rewrite/testing.html';
+            $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
+            $response = @file_get_contents($url,false,$context);
+
+            if (false == $response) {
+                $ch = curl_init($url);            
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 3); // 设置cURL允许执行的最长秒数
+                $response = curl_exec ($ch);
+                curl_close ($ch);
+            }
 
             if ('ok' == $response) {
                 $now_seo_inlet = 1;

@@ -615,7 +615,7 @@ class Eyou extends Taglib
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $orderby    = isset($tag['orderby']) ? $tag['orderby'] : '';
-        $orderWay    = isset($tag['orderWay']) ? $tag['orderWay'] : '';
+        $orderWay    = isset($tag['orderWay']) ? $tag['orderWay'] : 'desc';
         $flag    = isset($tag['flag']) ? $tag['flag'] : '';
         $noflag    = isset($tag['noflag']) ? $tag['noflag'] : '';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
@@ -728,7 +728,7 @@ class Eyou extends Taglib
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $pagesize = !empty($tag['pagesize']) && is_numeric($tag['pagesize']) ? intval($tag['pagesize']) : 10;
         $orderby    = isset($tag['orderby']) ? $tag['orderby'] : '';
-        $orderWay    = isset($tag['orderWay']) ? $tag['orderWay'] : '';
+        $orderWay    = isset($tag['orderWay']) ? $tag['orderWay'] : 'desc';
         $flag    = isset($tag['flag']) ? $tag['flag'] : '';
         $noflag    = isset($tag['noflag']) ? $tag['noflag'] : '';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;

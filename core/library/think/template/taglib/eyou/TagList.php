@@ -46,15 +46,16 @@ class TagList extends Base
      * 获取分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = 'desc')
+    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = '')
     {
         $module_name_tmp = strtolower(request()->module());
         $ctl_name_tmp = strtolower(request()->controller());
         $action_name_tmp = strtolower(request()->action());
+        empty($orderWay) && $orderWay = 'desc';
 
         /*搜索、标签搜索*/
         if (in_array($ctl_name_tmp, array('search','tags'))) {
-            return $this->getSearchList($pagesize, $orderby);
+            return $this->getSearchList($pagesize, $orderby, $addfields, $orderWay);
         }
         /*--end*/
 
@@ -392,9 +393,10 @@ class TagList extends Base
      * 获取搜索分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '')
+    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '', $orderWay = '')
     {
         $result = false;
+        empty($orderWay) && $orderWay = 'desc';
 
         $condition = array();
         // 获取到所有URL参数
@@ -438,26 +440,26 @@ class TagList extends Base
         switch ($orderby) {
             case 'hot':
             case 'click':
-                $orderby = 'a.click desc';
+                $orderby = "a.click {$orderWay}";
                 break;
 
             case 'now':
             case 'aid':
-                $orderby = 'a.aid desc';
+                $orderby = "a.aid {$orderWay}";
                 break;
 
             case 'pubdate':
             case 'add_time':
-                $orderby = 'a.add_time desc';
+                $orderby = "a.add_time {$orderWay}";
                 break;
-                
+
             case 'sortrank':
             case 'sort_order':
-                $orderby = 'a.sort_order asc';
+                $orderby = "a.sort_order {$orderWay}";
                 break;
                 
             case 'rand':
-                $orderby = 'rand()';
+                $orderby = "rand()";
                 break;
             
             default:
