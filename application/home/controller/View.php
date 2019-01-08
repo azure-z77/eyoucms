@@ -38,7 +38,7 @@ class View extends Base
             ->where('a.aid',$aid)
             ->find();
         if (empty($archivesInfo)) {
-            $this->error('文档不存在！');
+            $this->redirect('/public/static/errpage/404.html', 301);
         }
         $this->nid = $archivesInfo['nid'];
         $this->channel = $archivesInfo['channel'];

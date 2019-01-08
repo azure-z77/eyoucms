@@ -45,6 +45,9 @@ class Lists extends Base
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
                 ->where($map)
                 ->find();
+            if (empty($row)) {
+                abort(404,'页面不存在');
+            }
             $tid = $row['id'];
             $this->nid = $row['nid'];
             $this->channel = intval($row['current_channel']);

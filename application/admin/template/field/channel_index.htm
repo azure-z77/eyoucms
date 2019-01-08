@@ -251,7 +251,7 @@
             contentdiv += '<dd><textarea rows="4" cols="60" style="width:400px;height:60px;">' + liststr + '}</textarea></dd>'
 
         } else {
-            var liststr = "{eyou:arcview id='eyoav' addfields='"+fieldname+"'}\r\n    {$"+"eyoav."+fieldname+"}\r\n{/eyou:arcview";
+            var liststr = "{eyou:arcview aid='$field.aid' id='eyoav' addfields='"+fieldname+"'}\r\n    {$"+"eyoav."+fieldname+"}\r\n{/eyou:arcview";
             var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>内容页：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'eyou.field.'+fieldname+'}"></dd>'
             contentdiv += '<dd>标签 arclist / list 内调用：</dd>'

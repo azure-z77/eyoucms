@@ -46,7 +46,7 @@ class TagGlobal extends Base
 
         /*PC端与手机端的变量名自适应，可彼此通用*/
         if (in_array($name, ['web_templets_pc','web_templets_m'])) { // 模板路径
-            $name = 'web_templets_' . (isMobile() ? 'm' : 'pc');
+            // file_exists(TEMPLATE_PATH.'mobile') && $name = 'web_templets_' . (isMobile() ? 'm' : 'pc');
         } else if (in_array($name, ['web_thirdcode_pc','web_thirdcode_wap'])) { // 第三方代码
             $name = 'web_thirdcode_' . (isMobile() ? 'wap' : 'pc');
         }
@@ -60,7 +60,7 @@ class TagGlobal extends Base
                 // case 'web_basehost':
                 case 'web_cmsurl':
                     {
-
+                        $request = Request::instance();
 
                         // if(empty($value)) {
                         //     if (1 == $globalTpCache['seo_pseudo']) {
@@ -69,7 +69,7 @@ class TagGlobal extends Base
                         // } && $value = url('home/Index/index');
 
                         /*URL全局参数（比如：可视化uiset、多模板v、多语言lang）*/
-                        $urlParam = Request::instance()->param();
+                        $urlParam = $request->param();
                         foreach ($urlParam as $key => $val) {
                             if (in_array($key, Config::get('global.parse_url_param'))) {
                                 $urlParam[$key] = trim($val, '/');
@@ -81,10 +81,22 @@ class TagGlobal extends Base
 
                         if ('on' == $uiset) {
                             $value = url('home/Index/index', $urlParam);
+                            if (!stristr($value, '?')) {
+                                $value .= '?';
+                            } else {
+                                $value .= '&';
+                            }
+                            $value .= http_build_query(['tmp'=>'']);
                         } else {
-                            $value = '/';
+                            $value = $request->domain();
                             if (1 == $globalTpCache['seo_pseudo']) {
                                 if (!empty($urlParam)) {
+                                    /*是否隐藏小尾巴 index.php*/
+                                    $seo_inlet = config('ey_config.seo_inlet');
+                                    if (0 == intval($seo_inlet)) {
+                                        $value .= '/index.php';
+                                    }
+                                    /*--end*/
                                     if (!stristr($value, '?')) {
                                         $value .= '?';
                                     } else {
@@ -94,12 +106,10 @@ class TagGlobal extends Base
                                 }
                             } else {
                                 if (get_main_lang() != get_home_lang()) {
-                                    $value = rtrim(url('home/Index/index'), '/').'/';
+                                    $value = rtrim(url('home/Index/index'), '/');
                                 }
                             }
                         }
-
-                        $value .= '" data-tmp="'; // 兼容早期模板的网站首页斜杆(/)问题
                     }
                     break;
                 

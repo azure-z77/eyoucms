@@ -1,6 +1,5 @@
 #robots.txtforEyouCMS
 User-agent: *
-Disallow:
 Disallow: /*.php*
 Disallow: /*.js*
 Disallow: /*.css*

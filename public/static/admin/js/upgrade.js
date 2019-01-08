@@ -80,40 +80,42 @@ function upgrade(obj){
             });
         },
         success: function(v) {
-            layer.closeAll();
-            if(v=='1'){
-                if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
-                    var title = '已升级版本：'+version+'，官方最新版本：'+max_version+'。';
-                    var btn = ['开始检测'];
-                } else { // 升级版本是官方最新版本，将引导到备份新数据
-                    var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
-                    var btn = ['前往备份'];
-                    $('#a_upgrade', window.parent.document).hide(); // 隐藏顶部的更新提示
-                }
-                var full = layer.alert(title, {
-                        title: '重要提示',
-                        btn: btn //按钮
-                    }, function(){
-                        if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
-                            top.location.reload();
-                        } else { // 升级版本是官方最新版本，将引导到备份新数据
-                            layer.close(full);
-                            var url = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
-                            var iframe = $(obj).data('iframe');
-                            if ('parent' == iframe) {
-                                workspace.window.location.href = url;
-                            } else {
-                                window.location.href = url;
+            setTimeout(function(){
+                layer.closeAll();
+                if(v=='1'){
+                    if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
+                        var title = '已升级版本：'+version+'，官方最新版本：'+max_version+'。';
+                        var btn = ['开始检测'];
+                    } else { // 升级版本是官方最新版本，将引导到备份新数据
+                        var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
+                        var btn = ['前往备份'];
+                        $('#a_upgrade', window.parent.document).hide(); // 隐藏顶部的更新提示
+                    }
+                    var full = layer.alert(title, {
+                            title: '重要提示',
+                            btn: btn //按钮
+                        }, function(){
+                            if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
+                                top.location.reload();
+                            } else { // 升级版本是官方最新版本，将引导到备份新数据
+                                layer.close(full);
+                                var url = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
+                                var iframe = $(obj).data('iframe');
+                                if ('parent' == iframe) {
+                                    workspace.window.location.href = url;
+                                } else {
+                                    window.location.href = url;
+                                }
                             }
                         }
-                    }
-                );
-            }
-            else{
-                layer.alert(v, {icon: 2}, function(){
-                    top.location.reload();
-                });
-            }
+                    );
+                }
+                else{
+                    layer.alert(v, {icon: 2}, function(){
+                        top.location.reload();
+                    });
+                }
+            },60000); // 睡眠1分钟，让复制文件执行完
         }
     });                 
 }

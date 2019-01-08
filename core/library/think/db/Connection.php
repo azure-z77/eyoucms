@@ -452,10 +452,6 @@ abstract class Connection
             $this->numRows = $this->PDOStatement->rowCount();
             return $this->numRows;
         } catch (\PDOException $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind, $query);
-            }
-            // echo '错误语句:'. $sql;
             /*兼容删除的索引、字段不存在时，忽略报错 by 小虎哥*/
             foreach (['drop index','drop column'] as $key => $val) {
                 if (stristr($sql, $val)) {
@@ -463,13 +459,31 @@ abstract class Connection
                 }
             }
             /*--end*/
+            if ($this->isBreak($e)) {
+                return $this->close()->execute($sql, $bind, $query);
+            }
+            // echo '错误语句:'. $sql;
             throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Throwable $e) {
+            /*兼容删除的索引、字段不存在时，忽略报错 by 小虎哥*/
+            foreach (['drop index','drop column'] as $key => $val) {
+                if (stristr($sql, $val)) {
+                    return true;
+                }
+            }
+            /*--end*/
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind, $query);
             }
             throw $e;
         } catch (\Exception $e) {
+            /*兼容删除的索引、字段不存在时，忽略报错 by 小虎哥*/
+            foreach (['drop index','drop column'] as $key => $val) {
+                if (stristr($sql, $val)) {
+                    return true;
+                }
+            }
+            /*--end*/
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind, $query);
             }

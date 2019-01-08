@@ -51,9 +51,15 @@ class Index extends Base
                 $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                 $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                 if (1 == $seo_pseudo) {
-                    $home_url = request()->domain().$inletStr.'/?lang='.$admin_lang;
+                    $home_url = request()->domain().$inletStr;
+                    if (!empty($inletStr)) {
+                        $home_url .= '?';
+                    } else {
+                        $home_url .= '/?';
+                    }
+                    $home_url .= http_build_query(['lang'=>$admin_lang]);
                 } else {
-                    $home_url = request()->domain().$inletStr.'/'.$admin_lang.'/';
+                    $home_url = request()->domain().$inletStr.'/'.$admin_lang;
                 }
             }
         }

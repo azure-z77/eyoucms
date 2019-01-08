@@ -60,9 +60,15 @@ class TagLanguage extends Base
                     $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                     $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                     if (1 == $seo_pseudo) {
-                        $url = request()->domain().$inletStr.'/?lang='.$val['mark'];
+                        $url = request()->domain().$inletStr;
+                        if (!empty($inletStr)) {
+                            $url .= '?';
+                        } else {
+                            $url .= '/?';
+                        }
+                        $url .= http_build_query(['lang'=>$val['mark']]);
                     } else {
-                        $url = $inletStr.'/'.$val['mark'].'/';
+                        $url = $inletStr.'/'.$val['mark'];
                     }
                 }
             }

@@ -528,7 +528,7 @@ if (!function_exists('get_typeurl'))
         $seoConfig = tpCache('seo');
         $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
         $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-        $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->host(), $seo_pseudo, $seo_dynamic_format);
+        $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
         // 自动隐藏index.php入口文件
         $typeurl = auto_hide_index($typeurl);
 
@@ -560,7 +560,7 @@ if (!function_exists('get_arcurl'))
         $seoConfig = tpCache('seo');
         $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
         $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-        $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->host(), $seo_pseudo, $seo_dynamic_format);
+        $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
         // 自动隐藏index.php入口文件
         $arcurl = auto_hide_index($arcurl);
 

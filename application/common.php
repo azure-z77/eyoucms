@@ -1178,6 +1178,7 @@ if (!function_exists('switch_language'))
         /*--end*/
 
         $lang = $request->param('lang/s', $current_lang);
+        $lang = trim($lang, '/');
         if (!empty($lang)) {
             // 处理访问不存在的语言
             $lang = $language_db->where('mark',$lang)->getField('mark');
