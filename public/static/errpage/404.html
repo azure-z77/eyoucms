@@ -25,7 +25,7 @@
 <body>
 <div class="concenter-err">
   <div id="warpper" class="clearfix">
-    <script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8" homePageUrl="/" homePageName="回到网站主页"></script>
+    <script type="text/javascript" src="//mat1.gtimg.com/pingjs/ext2020/test2017/search_children3.js" charset="utf-8" homePageUrl="/" homePageName='回到网站主页'></script>
 <!--     <div class="error-page error-pic">
       <div class="error-page-txt error-page-mb37">
         <h3 class="error-page-pl48">抱歉！页面无法访问...</h3>
@@ -39,16 +39,28 @@
    </div> -->
 </div>
 <script type="text/javascript">
-    (function(){
-        var wait = document.getElementById('wait');
-        var interval = setInterval(function(){
-            var time = --wait.innerHTML;
-            if(time <= 0) {
-                history.go(-1);
-                clearInterval(interval);
-            };
-        }, 1000);
-    })();
+  var oSecs = 7;
+  var intervalCD;
+  function time(){
+       oSecs --;
+       if (oSecs < 0){
+          clearInterval(intervalCD);
+          return;
+       }
+      
+       if (oSecs == 0){
+          clearInterval(intervalCD);
+          window.location.href = '/';
+       }
+       document.getElementById('J_countdown').innerHTML = oSecs;
+  }
+ 
+ var intervalDomID = setInterval(function () {
+      if (document.getElementById('J_countdown')) {
+          clearInterval(intervalDomID);
+          intervalCD = setInterval(time, 1000);
+      }
+ }, 100);
 </script>
 </body>
 </html>

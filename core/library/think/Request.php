@@ -1339,7 +1339,8 @@ class Request
      */
     public function scheme()
     {
-        return $this->isSsl() ? 'https' : 'http';
+        // return $this->isSsl() ? 'https' : 'http';
+        return $this->isSsl() || Config::get('is_https') ? 'https' : 'http'; // by 小虎哥
     }
 
     /**

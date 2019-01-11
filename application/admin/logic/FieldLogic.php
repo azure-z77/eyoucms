@@ -258,7 +258,7 @@ class FieldLogic extends Model
                     /*重新生成数据表字段缓存文件*/
                     try {
                         schemaTable($table);
-                    } catch (Exception $e) {}
+                    } catch (\Exception $e) {}
                     /*--end*/
                     return array('code'=>1, 'msg'=>'删除成功！');
                 } else {
@@ -297,7 +297,7 @@ class FieldLogic extends Model
                     /*重新生成数据表字段缓存文件*/
                     try {
                         schemaTable($table);
-                    } catch (Exception $e) {}
+                    } catch (\Exception $e) {}
                     /*--end*/
                     return array('code'=>1, 'msg'=>'删除成功！');
                 } else {

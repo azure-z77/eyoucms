@@ -63,4 +63,76 @@ return array(
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
     'parse_url_param'   => ['uiset','v','lang'],
+    // 清理文件时，需要查询的数据表和字段
+    'get_tablearray' => array(
+        0 => array(
+            'table' => 'ad',
+            'field' => 'litpic',
+        ),
+        1 => array(
+            'table' => 'archives',
+            'field' => 'litpic',
+        ),
+        2 => array(
+            'table' => 'arctype',
+            'field' => 'litpic',
+        ),
+        3 => array(
+            'table' => 'images_upload',
+            'field' => 'image_url',
+        ),
+        4 => array(
+            'table' => 'links',
+            'field' => 'logo',
+        ),
+        5 => array(
+            'table' => 'product_img',
+            'field' => 'image_url',
+        ),
+        6 => array(
+            'table' => 'ad',
+            'field' => 'intro',
+        ),
+        7 => array(
+            'table' => 'article_content',
+            'field' => 'content',
+        ),
+        8 => array(
+            'table' => 'download_content',
+            'field' => 'content',
+        ),
+        9 => array(
+            'table' => 'images_content',
+            'field' => 'content',
+        ),
+        10 => array(
+            'table' => 'product_content',
+            'field' => 'content',
+        ),
+        11 => array(
+            'table' => 'single_content',
+            'field' => 'content',
+        ),
+        12 => array(
+            'table' => 'config',
+            'field' => 'value',
+        ),
+        13 => array(
+            'table' => 'ui_config',
+            'field' => 'value',
+        ),
+        14 => array(
+            'table' => 'download_file',
+            'field' => 'file_url',
+        ),
+        15 => array(
+            'table' => 'weapp_minipro0001',
+            'field' => 'value',
+        ),
+        16 => array(
+            'table' => 'weapp',
+            'field' => 'data',
+        ),
+        // 后续可持续添加数据表和字段，格式参照以上
+    ),
 );

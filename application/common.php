@@ -14,6 +14,8 @@
 // 关闭所有PHP错误报告
 error_reporting(0);
 
+include_once EXTEND_PATH."function.php";
+
 // 应用公共文件
 
 if (!function_exists('switch_exception')) 

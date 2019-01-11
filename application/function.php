@@ -141,7 +141,7 @@ if (!function_exists('recurse_copy'))
                     // if (file_exists($dst . DIRECTORY_SEPARATOR . $file)) {
                     //     @unlink($dst . DIRECTORY_SEPARATOR . $file);
                     // }
-                    $copyrt = copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+                    $copyrt = @copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
                     if (!$copyrt) {
                         // echo 'copy ' . $dst . DIRECTORY_SEPARATOR . $file . ' failed';
                         return '网站目录没有写入权限，请调整权限';

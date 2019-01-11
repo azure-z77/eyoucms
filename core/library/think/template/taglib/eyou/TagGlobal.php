@@ -105,7 +105,7 @@ class TagGlobal extends Base
                                     $value .= http_build_query($urlParam);
                                 }
                             } else {
-                                if (get_main_lang() != get_home_lang()) {
+                                if (get_default_lang() != get_home_lang()) {
                                     $value = rtrim(url('home/Index/index'), '/');
                                 }
                             }

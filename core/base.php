@@ -71,6 +71,8 @@ if ('' != $_root) {
     $_root = '/' . ltrim($_root, '/');
 }
 defined('ROOT_DIR') or define('ROOT_DIR', $_root);
+// 编辑器图片上传相对路径
+defined('UPLOAD_PATH') or define('UPLOAD_PATH', 'uploads/'); 
 // 静态页面文件目录，存储静态页面文件
 defined('HTML_ROOT') or define('HTML_ROOT', RUNTIME_PATH . 'html/'); 
 // 静态页面文件目录，存储静态页面文件

@@ -71,7 +71,7 @@ class Seo extends Base
                         $this->error('空间不支持伪静态，请开启pathinfo，或者在php.ini里修改cgi.fix_pathinfo=1');
                     }
                 }
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             /*--end*/
             // $param['seo_arcdir'] = rtrim($param['seo_arcdir'], '/');
         } elseif($inc_type == 'sitemap'){

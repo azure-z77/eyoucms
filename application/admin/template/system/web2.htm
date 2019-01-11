@@ -56,32 +56,6 @@
                     <p class="notic">开启之后，左侧菜单会显示插件应用入口</p>
                 </dd>
             </dl>
-            <dl class="row none">
-                <dt class="tit">
-                    <label for="web_cmspath">系统安装目录</label>
-                </dt>
-                <dd class="opt">
-                    <input id="web_cmspath" name="web_cmspath" value="{$config.web_cmspath|default=''}" class="input-txt" type="text" />
-                    <p class="notic">目录后面不要带 / 反斜杆，一般适用于EyouCms安装在子目录</p>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label for="adminbasefile">新后台地址</label>
-                </dt>
-                <dd class="opt">__SITE_URL__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
-                    <p class="notic">为了提高后台的安全性，请及时更改后台入口文件。</p>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label for="web_sqldatapath">数据库备份目录</label>
-                </dt>
-                <dd class="opt">
-                    <input id="web_sqldatapath" name="web_sqldatapath" value="{$config.web_sqldatapath|default=$sqlbackuppath}" class="input-txt" type="text" />
-                    <p class="notic"></p>
-                </dd>
-            </dl>
             <dl class="row">
                 <dt class="tit">模板错误提示</dt>
                 <dd class="opt">
@@ -106,6 +80,32 @@
                         <input id="web_language_switch0" name="web_language_switch" value="0" type="radio" {if condition="empty($config.web_language_switch)"} checked="checked"{/if}>
                     </div>
                     <p class="notic">开启之后，顶部菜单会显示多语言入口</p>
+                </dd>
+            </dl>
+            <dl class="row none">
+                <dt class="tit">
+                    <label for="web_cmspath">系统安装目录</label>
+                </dt>
+                <dd class="opt">
+                    <input id="web_cmspath" name="web_cmspath" value="{$config.web_cmspath|default=''}" class="input-txt" type="text" />
+                    <p class="notic">目录后面不要带 / 反斜杆，一般适用于EyouCms安装在子目录</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="adminbasefile">新后台地址</label>
+                </dt>
+                <dd class="opt">__SITE_URL__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
+                    <p class="notic">为了提高后台的安全性，请及时更改后台入口文件。</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="web_sqldatapath">数据库备份目录</label>
+                </dt>
+                <dd class="opt">
+                    <input id="web_sqldatapath" name="web_sqldatapath" value="{$config.web_sqldatapath|default=$sqlbackuppath}" class="input-txt" type="text" />
+                    <p class="notic"></p>
                 </dd>
             </dl>
 <!--             <dl class="row">

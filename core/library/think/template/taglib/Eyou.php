@@ -1050,11 +1050,13 @@ class Eyou extends Taglib
         /*typeid的优先级别从高到低：装修数据 -> 标签属性值 -> 外层标签channelartlist属性值*/
         $parseStr .= ' $typeid = '.$typeid.';';
         $parseStr .= ' if(empty($typeid) && isset($channelartlist["id"]) && !empty($channelartlist["id"])) : $typeid = intval($channelartlist["id"]); endif; ';
+        // 声明变量
+        $parseStr .= ' if(!isset($aid) || empty($aid)) : $aid = '.$aid.'; endif;';
         /*--end*/
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagTag = new \think\template\taglib\eyou\TagTag;';
-        $parseStr .= ' $_result = $tagTag->getTag('.$getall.', $typeid, '.$aid.', '.$row.', "'.$sort.'");';
+        $parseStr .= ' $_result = $tagTag->getTag('.$getall.', $typeid, $aid, '.$row.', "'.$sort.'");';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         // 设置了输出数组长度
         if ('null' != $row) {
@@ -1071,6 +1073,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
 
         if (!empty($parseStr)) {
             return $parseStr;

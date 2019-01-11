@@ -110,10 +110,10 @@
                                     <td class="gray_bg">系统更新：</td>
                                     <td>
                                         {notempty name="$upgradeMsg"}
-                                          <textarea id="textarea_filelist" style="display:none;">{$upgradeMsg['upgrade']}</textarea> 
-                                          <textarea id="textarea_intro" style="display:none;">{$upgradeMsg['intro']}</textarea> 
-                                          <textarea id="textarea_notice" style="display:none;">{$upgradeMsg['notice']}</textarea> 
-                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
+                                          <div id="upgrade_filelist" style="display:none;">{$upgradeMsg['upgrade']}</div> 
+                                          <div id="upgrade_intro" style="display:none;">{$upgradeMsg['intro']}</div> 
+                                          <div id="upgrade_notice" style="display:none;">{$upgradeMsg['notice']}</div> 
+                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
                                           {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
                                           <script type="text/javascript">
                                             $(document).ready(function(){

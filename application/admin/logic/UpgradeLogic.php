@@ -56,7 +56,7 @@ class UpgradeLogic extends Model
         if(!in_array($ctl_act_str, $ctl_act_list))  
         {
             return false;
-        }
+        }  
         //error_reporting(0);//关闭所有错误报告        
         $url = $this->upgrade_url; 
         $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
@@ -70,29 +70,29 @@ class UpgradeLogic extends Model
             foreach ($serviceVersionList as $key => $val) {
                 $upgrade = !empty($val['upgrade']) ? $val['upgrade'] : array();
                 $upgradeArr = array_merge($upgradeArr, $upgrade);
-                $introStr .= '<br/>'.filter_line_return($val['intro'], '<br/>');
+                $introStr .= '<br>'.filter_line_return($val['intro'], '<br>');
             }
             $upgradeArr = array_unique($upgradeArr);
-            $upgradeStr = implode('<br/>', $upgradeArr); // 升级提示需要覆盖哪些文件
+            $upgradeStr = implode('<br>', $upgradeArr); // 升级提示需要覆盖哪些文件
 
-            $introArr = explode('<br/>', $introStr);
+            $introArr = explode('<br>', $introStr);
             $introStr = '更新日志：';
             foreach ($introArr as $key => $val) {
                 if (empty($val)) {
                     continue;
                 }
-                $introStr .= "<br/>{$key}、".$val;
+                $introStr .= "<br>{$key}、".$val;
             }
 
             $lastupgrade = $serviceVersionList[count($serviceVersionList) - 1];
             if (!empty($lastupgrade['upgrade_title'])) {
-                $introStr .= '<br/>'.$lastupgrade['upgrade_title'];
+                $introStr .= '<br>'.$lastupgrade['upgrade_title'];
             }
-            $lastupgrade['intro'] = $introStr;
-            $lastupgrade['upgrade'] = $upgradeStr; // 升级提示需要覆盖哪些文件
+            $lastupgrade['intro'] = htmlspecialchars_decode($introStr);
+            $lastupgrade['upgrade'] = htmlspecialchars_decode($upgradeStr); // 升级提示需要覆盖哪些文件
             /*升级公告*/
             if (!empty($lastupgrade['notice'])) {
-                $lastupgrade['notice'] .= '<br/>';
+                $lastupgrade['notice'] = htmlspecialchars_decode($lastupgrade['notice']) . '<br>';
             }
             /*--end*/
 
@@ -107,23 +107,27 @@ class UpgradeLogic extends Model
     public function OneKeyUpgrade(){
         error_reporting(0);//关闭所有错误报告
         $allow_url_fopen = ini_get('allow_url_fopen');
-        if(!$allow_url_fopen)        
-            return "请开启 php.ini allow_url_fopen = 1";
+        if (!$allow_url_fopen) {
+            return ['code' => 0, 'msg' => "请开启 php.ini allow_url_fopen = 1"];
+        }     
                
-        if (!extension_loaded('zip')) 
-            return "请开启 php.ini 中的php-zip扩展";
+        if (!extension_loaded('zip')) {
+            return ['code' => 0, 'msg' => "请开启 php.ini 中的php-zip扩展"];
+        }
 
         $serviceVersionList = file_get_contents($this->upgrade_url);
         $serviceVersionList = json_decode($serviceVersionList,true);
-        if(empty($serviceVersionList))
-            return "没找到升级信息";
+        if (empty($serviceVersionList)) {
+            return ['code' => 0, 'msg' => "没找到升级信息"];
+        }
         
         clearstatcache(); // 清除文件夹权限缓存
         /*$quanxuan = substr(base_convert(@fileperms($this->data_path),10,8),-4);
         if(!in_array($quanxuan,array('0777','0755','0666','0662','0622','0222')))
             return "网站根目录不可写，无法升级.";*/
-        if(!is_writeable($this->version_txt_path))         
-            return '文件'.$this->version_txt_path.' 不可写，不能升级!!!';
+        if (!is_writeable($this->version_txt_path)) {
+            return ['code' => 0, 'msg' => '文件'.$this->version_txt_path.' 不可写，不能升级!!!'];
+        }
         /*最新更新版本信息*/
         $lastServiceVersion = $serviceVersionList[count($serviceVersionList) - 1];
         /*--end*/
@@ -134,7 +138,9 @@ class UpgradeLogic extends Model
         foreach ($serviceVersionList as $key => $val) {
             // 下载更新包
             $result = $this->downloadFile($val['down_url'], $val['file_md5']);
-            if($result != 1) return $result;
+            if (!isset($result['code']) || $result['code'] != 1) {
+                return $result;
+            }
 
             /*第一个循环执行的业务*/
             if ($key == 0) {
@@ -155,17 +161,20 @@ class UpgradeLogic extends Model
 
             /*解压文件*/
             $zip = new \ZipArchive();//新建一个ZipArchive的对象
-            if($zip->open($this->data_path.'backup'.DS.$downFileName) != true)
-                return "升级包读取失败!";
+            if ($zip->open($this->data_path.'backup'.DS.$downFileName) != true) {
+                return ['code' => 0, 'msg' => "升级包读取失败!"];
+            }
             $zip->extractTo($this->data_path.'backup'.DS.$folderName.DS);//假设解压缩到在当前路径下backup文件夹内
             $zip->close();//关闭处理的zip文件
             /*--end*/
             
-            if(!file_exists($this->data_path.'backup'.DS.$folderName.DS.'www'.DS.'data'.DS.'conf'.DS.'version.txt'))
-                return "缺少version.txt文件,请联系客服";    
+            if (!file_exists($this->data_path.'backup'.DS.$folderName.DS.'www'.DS.'data'.DS.'conf'.DS.'version.txt')) {
+                return ['code' => 0, 'msg' => "缺少version.txt文件，请联系客服"];
+            }
 
-            if(file_exists($this->data_path.'backup'.DS.$folderName.DS.'www'.DS.'application'.DS.'database.php'))
-                return "不得修改数据库配置文件,请联系客服";
+            if (file_exists($this->data_path.'backup'.DS.$folderName.DS.'www'.DS.'application'.DS.'database.php')) {
+                return ['code' => 0, 'msg' => "不得修改数据库配置文件，请联系客服"];
+            }
 
             /*更新的文件列表*/
             $upgrade = !empty($val['upgrade']) ? $val['upgrade'] : array();
@@ -187,7 +196,7 @@ class UpgradeLogic extends Model
         $serviceVersion['sql_file'] = $sqlfileArr;
         /*--end*/
 
-        /*覆盖之前，备份原文件*/
+        /*升级之前，备份涉及的源文件*/
         $upgrade = $serviceVersion['upgrade'];
         if (!empty($upgrade) && is_array($upgrade)) {
             foreach ($upgrade as $key => $val) {
@@ -197,30 +206,13 @@ class UpgradeLogic extends Model
                     tp_mkdir(dirname($destination_file));
                     $copy_bool = @copy($source_file, $destination_file);
                     if (false == $copy_bool) {
-                        return "更新前备份文件失败，请检查所有目录的权限以及用户组不能为root";
+                        return ['code' => 0, 'msg' => "更新前备份文件失败，请检查所有目录是否有读写权限"];
                     }
                 }
             }
         }
         /*--end*/
 
-        // 递归复制文件夹            
-        $copy_bool = recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->root_path, DS));
-        if (true !== $copy_bool) {
-            return $copy_bool;
-        }
-        /*覆盖自定义后台入口文件*/
-        $login_php = 'login.php';
-        $rootLoginFile = $this->data_path.'backup'.DS.$folderName.DS.'www'.DS.$login_php;
-        if (file_exists($rootLoginFile)) {
-            $adminbasefile = preg_replace('/^(.*)\/([^\/]+)$/i', '$2', request()->baseFile());
-            if ($login_php != $adminbasefile && is_writable($this->root_path.$adminbasefile)) {
-                @copy($rootLoginFile, $this->root_path.$adminbasefile);
-                @unlink($this->root_path.$login_php);
-            } 
-        }
-        /*--end*/
-        
         /*升级的 sql文件*/
         if(!empty($serviceVersion['sql_file']))
         {
@@ -233,20 +225,41 @@ class UpgradeLogic extends Model
                 /**
                  * 执行SQL语句
                  */
-                $counts = count($sqlFormat);
+                try {
+                    $counts = count($sqlFormat);
 
-                for ($i = 0; $i < $counts; $i++) {
-                    $sql = trim($sqlFormat[$i]);
+                    for ($i = 0; $i < $counts; $i++) {
+                        $sql = trim($sqlFormat[$i]);
 
-                    if (strstr($sql, 'CREATE TABLE')) {
-                        Db::execute($sql);
-                    } else {
-                        if(trim($sql) == '')
-                           continue;
-                        Db::execute($sql);
+                        if (stristr($sql, 'CREATE TABLE')) {
+                            Db::execute($sql);
+                        } else {
+                            if(trim($sql) == '')
+                               continue;
+                            Db::execute($sql);
+                        }
                     }
+                } catch (\Exception $e) {
+                    return ['code' => 0, 'msg' => "数据库执行中途失败，请第一时间请求技术支持，否则将影响后续的版本升级！"];
                 }
             }
+        }
+        /*--end*/
+
+        // 递归复制文件夹
+        $copy_data = $this->recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->root_path, DS), $folderName);
+
+        /*覆盖自定义后台入口文件*/
+        $login_php = 'login.php';
+        $rootLoginFile = $this->data_path.'backup'.DS.$folderName.DS.'www'.DS.$login_php;
+        if (file_exists($rootLoginFile)) {
+            $adminbasefile = preg_replace('/^(.*)\/([^\/]+)$/i', '$2', request()->baseFile());
+            if ($login_php != $adminbasefile && is_writable($this->root_path.$adminbasefile)) {
+                if (!@copy($rootLoginFile, $this->root_path.$adminbasefile)) {
+                    return ['code' => 0, 'msg' => "更新入口文件失败，请第一时间请求技术支持，否则将影响部分功能的使用！"];
+                }
+                @unlink($this->root_path.$login_php);
+            } 
         }
         /*--end*/
 
@@ -267,7 +280,6 @@ class UpgradeLogic extends Model
         tpCache('global');
 
         /*删除下载的升级包*/
-        @delFile($this->data_path.'backup'.DS.$folderName, true);
         $ziplist = glob($this->data_path.'backup'.DS.'*.zip');
         @array_map('unlink', $ziplist);
         /*--end*/
@@ -275,10 +287,58 @@ class UpgradeLogic extends Model
         // 推送回服务器  记录升级成功
         $this->UpgradeLog($serviceVersion['key_num']);
         
-        return 1; 
+        return ['code' => $copy_data['code'], 'msg' => "升级成功{$copy_data['msg']}"];
     }
 
-    public function sql_split($sql, $tablepre) {
+    /**
+     * 自定义函数递归的复制带有多级子目录的目录
+     * 递归复制文件夹
+     *
+     * @param string $src 原目录
+     * @param string $dst 复制到的目录
+     * @param string $folderName 存放升级包目录名称
+     * @return string
+     */                        
+    //参数说明：            
+    //自定义函数递归的复制带有多级子目录的目录
+    private function recurse_copy($src, $dst, $folderName)
+    {
+        $badcp = 0;
+        $now = getTime();
+        $dir = opendir($src);
+        tp_mkdir($dst);
+        while (false !== $file = readdir($dir)) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file, $folderName);
+                }
+                else {
+                    if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {
+                        $rs = @copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+                        if($rs) {
+                            @unlink($src . DIRECTORY_SEPARATOR . $file);
+                        }
+                        else {
+                            $badcp++;
+                        }
+                    }
+                }
+            }
+        }
+        closedir($dir);
+
+        $code = 1;
+        $msg = '！';
+        if($badcp > 0)
+        {
+            $code = 2;
+            $msg = "，其中失败 <font color='red'>{$badcp}</font> 个文件，<br />请从升级包目录[<font color='red'>data/backup/{$folderName}/www</font>]中的取出全部文件覆盖到根目录，完成手工升级。";
+        }
+
+        return ['code'=>$code, 'msg'=>$msg];
+    }
+
+    private function sql_split($sql, $tablepre) {
 
         if ($tablepre != "ey_")
             $sql = str_replace("ey_", $tablepre, $sql);
@@ -309,14 +369,14 @@ class UpgradeLogic extends Model
      * @param type $md5File 文件MD5 加密值 用于对比下载是否完整
      * @return string 错误或成功提示
      */
-    public function downloadFile($fileUrl,$md5File)
+    private function downloadFile($fileUrl,$md5File)
     {                    
         $downFileName = explode('/', $fileUrl);    
         $downFileName = end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.$downFileName; // 保存目录
         tp_mkdir(dirname($saveDir));
         if(!file_get_contents($fileUrl, 0, null, 0, 1)){
-            return "下载升级包不存在"; // 文件存在直接退出
+            return ['code' => 0, 'msg' => '官方升级包不存在']; // 文件存在直接退出
         }
         $ch = curl_init($fileUrl);            
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -328,13 +388,13 @@ class UpgradeLogic extends Model
         fclose($fp);
         if(!eyPreventShell($saveDir) || !file_exists($saveDir) || $md5File != md5_file($saveDir))
         {
-            return "下载保存升级包失败，请检查所有目录的权限以及用户组不能为root";
+            return ['code' => 0, 'msg' => '下载保存升级包失败，请检查所有目录的权限以及用户组不能为root'];
         }
-        return 1;
+        return ['code' => 1, 'msg' => '下载成功'];
     }            
     
     // 升级记录 log 日志
-    public  function UpgradeLog($to_key_num){
+    private  function UpgradeLog($to_key_num){
         $serial_number = DEFAULT_SERIALNUMBER;
 
         $constsant_path = APP_PATH.MODULE_NAME.'/conf/constant.php';

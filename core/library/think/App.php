@@ -316,7 +316,7 @@ class App
                         if (is_file($file)) {
                             try {
                                 Hook::import(include $file);
-                            } catch (Exception $e) {
+                            } catch (\Exception $e) {
                                 throw new \Exception("插件行为扩展文件语法出错：{$file}");
                             }
                         }

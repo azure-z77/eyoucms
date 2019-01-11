@@ -426,7 +426,7 @@ XML;
             }
             try {
                 $node = $item->addChild($key, $row);
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             if (isset($attribute_array[$key]) && is_array($attribute_array[$key])) {
                 foreach ($attribute_array[$key] as $akey => $aval) {//设置属性值，我这里为空
                     $node->addAttribute($akey, $aval);
@@ -454,7 +454,7 @@ XML;
                         }
                         try {
                             $node = $item->addChild($key, $row);
-                        } catch (Exception $e) {}
+                        } catch (\Exception $e) {}
                         if (isset($attribute_array[$key]) && is_array($attribute_array[$key])) {
                             foreach ($attribute_array[$key] as $akey => $aval) {//设置属性值，我这里为空
                                 $node->addAttribute($akey, $aval);
@@ -487,7 +487,7 @@ XML;
                         }
                         try {
                             $node = $item->addChild($key, $row);
-                        } catch (Exception $e) {}
+                        } catch (\Exception $e) {}
                         if (isset($attribute_array[$key]) && is_array($attribute_array[$key])) {
                             foreach ($attribute_array[$key] as $akey => $aval) {//设置属性值，我这里为空
                                 $node->addAttribute($akey, $aval);

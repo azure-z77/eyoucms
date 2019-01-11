@@ -55,17 +55,28 @@ class LanguageAttr extends Model
                 case 'arctype':
                     {
                         if (!is_array($bind_value)) { // 获取关联绑定的栏目ID
-                            $attr_name = Db::name('language_attr')->where([
-                                    'attr_value'    => $bind_value,
+                            $typeidArr = explode(',', $bind_value);
+                            $row = Db::name('language_attr')->field('attr_name')
+                                ->where([
+                                    'attr_value'    => ['IN', $typeidArr],
                                     'attr_group' => $attr_group,
-                                ])->getField('attr_name');
-                            if (!empty($attr_name)) {
-                                $bind_value = Db::name('language_attr')->where([
-                                        'attr_name' => $attr_name,
+                                ])->select();
+                            if (!empty($row)) {
+                                $row2 = Db::name('language_attr')->field('attr_name,attr_value')
+                                    ->where([
+                                        'attr_name' => ['IN', get_arr_column($row, 'attr_name')],
                                         'lang'  => $lang,
                                         'attr_group' => $attr_group,
-                                    ])->getField('attr_value');
-                                empty($bind_value) && $bind_value = '';
+                                    ])->select();
+                                if (1 < count($typeidArr)) {
+                                    $bind_value = implode(',', get_arr_column($row2, 'attr_value'));
+                                } else {
+                                    if(empty($row2)) {
+                                         $bind_value = '';  
+                                    } else {
+                                         $bind_value = $row2[0]['attr_value'];  
+                                    }
+                                }
                             }
                         }
                     }

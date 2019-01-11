@@ -214,6 +214,13 @@ class Arctype extends Base
         if (IS_POST) {
             $post = input('post.');
             if(!empty($post['id'])){
+
+                /*自己的上级不能是自己*/
+                if (intval($post['id']) == intval($post['parent_id'])) {
+                    $this->error('自己不能成为自己的上级栏目');
+                }
+                /*--end*/
+
                 /*目录名称*/
                 $dirname = $this->get_dirpinyin($post['typename'], $post['dirname'], $post['id']);
                 $dirname = preg_replace('/(\s)+/', '_', $dirname);
@@ -330,6 +337,7 @@ class Arctype extends Base
             {
                 $select_html .= '<option value="' . $var['id'] . '" data-grade="' . $var['grade'] . '" data-dirpath="'.$var['dirpath'].'"';
                 $select_html .= ($selected == $var['id']) ? "selected='ture'" : '';
+                $select_html .= ($id == $var['id']) ? "disabled='ture' style='background-color:#f5f5f5;' " : '';
                 $select_html .= '>';
                 if ($var['level'] > 0)
                 {

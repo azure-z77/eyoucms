@@ -64,8 +64,13 @@ class Language extends Base
      */
     public function index()
     {
-        /*同步数据到模板变量*/
         function_exists('set_time_limit') && set_time_limit(0); //防止备份数据过程超时
+        
+        /*修复多语言之前的坑，删除索引，兼容多语言的重名变量*/
+        Db::execute('ALTER TABLE `ey_config` DROP INDEX `name`');
+        /*--end*/
+
+        /*同步数据到模板变量*/
         $this->syn_langattr();
         /*--end*/
 

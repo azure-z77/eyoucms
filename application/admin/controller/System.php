@@ -316,28 +316,39 @@ class System extends Base
             /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
             try {
                 schemaTable('arctype');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             try {
                 schemaTable('article_content');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             try {
                 schemaTable('download_content');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             try {
                 schemaTable('images_content');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             try {
                 schemaTable('product_content');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             try {
                 schemaTable('single_content');
-            } catch (Exception $e) {}
+            } catch (\Exception $e) {}
             /*--end*/
 
-            /*清除旧升级备份包，保留最后一个*/
+            /*清除旧升级备份包，保留最后一个备份文件*/
             $backupArr = glob(DATA_PATH.'backup/v*_www');
             for ($i=0; $i < count($backupArr) - 1; $i++) { 
                 delFile($backupArr[$i], true);
+            }
+
+            $backupArr = glob(DATA_PATH.'backup/*');
+            foreach ($backupArr as $key => $filepath) {
+                if (file_exists($filepath) && !stristr($filepath, '.htaccess') && !stristr($filepath, '_www')) {
+                    if (is_dir($filepath)) {
+                        delFile($filepath, true);
+                    } else if (is_file($filepath)) {
+                        @unlink($filepath);
+                    }
+                }
             }
             /*--end*/
 

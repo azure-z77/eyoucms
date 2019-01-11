@@ -178,7 +178,7 @@ class Field extends Base
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
-                } catch (Exception $e) {}
+                } catch (\Exception $e) {}
                 /*--end*/
 
                 \think\Cache::clear('channelfield');
@@ -281,7 +281,7 @@ class Field extends Base
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
-                } catch (Exception $e) {}
+                } catch (\Exception $e) {}
                 /*--end*/
 
                 $this->success("操作成功！", url('Field/channel_index', array('channel_id'=>$post['channel_id'])));
@@ -516,7 +516,7 @@ class Field extends Base
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
-                } catch (Exception $e) {}
+                } catch (\Exception $e) {}
                 /*--end*/
 
                 \think\Cache::clear('channelfield');
@@ -622,7 +622,7 @@ class Field extends Base
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
-                } catch (Exception $e) {}
+                } catch (\Exception $e) {}
                 /*--end*/
 
                 \think\Cache::clear("arctype");

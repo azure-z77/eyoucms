@@ -219,7 +219,7 @@ EOF;
                 }
                 /*--end*/
             }
-        } catch (Exception $e) {}
+        } catch (\Exception $e) {}
         /*--end*/
 
         $seo_inlet = tpCache('seo.seo_inlet');

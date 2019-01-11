@@ -432,9 +432,10 @@ class TagList extends Base
                 }
             }
         }
+        $condition['a.lang'] = array('eq', $this->home_lang);
         $condition['a.arcrank'] = array('gt', -1);
         $condition['a.status'] = array('eq', 1);
-
+        $condition['b.is_hidden'] = array('eq', 0);
 
         // 给排序字段加上表别名
         switch ($orderby) {
@@ -501,7 +502,6 @@ class TagList extends Base
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
             ->where('a.channel','NOT IN',[6]) // 排除单页
             ->where($condition)
-            ->where('a.lang', $this->home_lang)
             ->order($orderby)
             ->paginate($pagesize, false, $paginate);
 
