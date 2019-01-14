@@ -127,8 +127,8 @@ class TagGlobal extends Base
                 default:
                     /*支持子目录*/
                     if (!empty($this->root_dir)) {
-                        $value = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $value);
-                        $value = preg_replace('#^(/public/upload/|/uploads/)#i', $this->root_dir.'$1', $value);
+                        $value = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$this->root_dir.'$4$5', $value);
+                        $value = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $this->root_dir.'$2', $value);
                     }
                     /*--end*/
                     break;

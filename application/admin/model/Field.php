@@ -228,7 +228,7 @@ class Field extends Model
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
                         /*支持子目录*/
                         if (!empty($root_dir)) {
-                            $val['dfvalue'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val['dfvalue']);
+                            $val['dfvalue'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val['dfvalue']);
                         }
                         /*--end*/
                         break;
@@ -240,8 +240,8 @@ class Field extends Model
                         /*支持子目录*/
                         if (!empty($root_dir)) {
                             if (is_string($val['dfvalue'])) {
-                                $val['dfvalue'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val['dfvalue']);
-                                $val['dfvalue'] = preg_replace('#^(/public/upload/|/uploads/)#i', $root_dir.'$1', $val['dfvalue']);
+                                $val['dfvalue'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val['dfvalue']);
+                                $val['dfvalue'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $val['dfvalue']);
                             }
                         }
                         /*--end*/

@@ -88,7 +88,7 @@ class TagAdv extends Base
             $val['intro'] = htmlspecialchars_decode($val['intro']);
             /*支持子目录*/
             if (!empty($this->root_dir)) {
-                $val['intro'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $val['intro']);
+                $val['intro'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$this->root_dir.'$4$5', $val['intro']);
             }
             /*--end*/
             if ($uiset == 'on') {

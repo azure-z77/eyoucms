@@ -29,6 +29,7 @@ class System extends Base
     public function web()
     {
         $inc_type =  'web';
+        $root_dir = ROOT_DIR; // 支持子目录
 
         if (IS_POST) {
             $param = input('post.');
@@ -57,10 +58,10 @@ class System extends Base
 
             // 浏览器地址图标
             if (!empty($param['web_ico']) && !is_http_url($param['web_ico'])) {
-                $source = realpath(preg_replace('#^'.ROOT_DIR.'/#i', '', $param['web_ico'])); // 支持子目录
+                $source = realpath(preg_replace('#^'.$root_dir.'/#i', '', $param['web_ico']));
                 $destination = realpath('favicon.ico');
                 if (file_exists($source) && @copy($source, $destination)) {
-                    $param['web_ico'] = ROOT_DIR.'/favicon.ico'; // 支持子目录
+                    $param['web_ico'] = $root_dir.'/favicon.ico';
                 }
             }
 
@@ -78,6 +79,10 @@ class System extends Base
         } else {
             $config['web_logo_is_remote'] = 0;
             $config['web_logo_local'] = handle_subdir_pic($config['web_logo']);
+        }
+
+        if (!empty($root_dir)) {
+            $config['web_ico'] = preg_replace('#^(/[/\w]+)?(/)#i', $root_dir.'$2', $config['web_ico']); // 支持子目录
         }
         
         /*系统模式*/
@@ -97,11 +102,11 @@ class System extends Base
             ->order('a.attr_id asc')
             ->select();
         // 支持子目录
-        $root_dir = ROOT_DIR;
         if (!empty($root_dir)) {
             foreach ($eyou_row as $key => $val) {
-                $eyou_row[$key]['value'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.ROOT_DIR.'$2', $val['value']);
-                $eyou_row[$key]['value'] = preg_replace('#^(/public/upload/|/uploads/)#i', ROOT_DIR.'$1', $val['value']);
+                $val['value'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val['value']);
+                $val['value'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $val['value']);
+                $eyou_row[$key] = $val;
             }
         }
         $this->assign('eyou_row',$eyou_row);
@@ -124,6 +129,7 @@ class System extends Base
             $param = input('post.');
 
             /*EyouCMS安装目录*/
+            empty($param['web_cmspath']) && $param['web_cmspath'] = ROOT_DIR; // 支持子目录
             $web_cmspath = trim($param['web_cmspath'], '/');
             $web_cmspath = !empty($web_cmspath) ? '/'.$web_cmspath : '';
             $param['web_cmspath'] = $web_cmspath;

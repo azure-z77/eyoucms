@@ -188,7 +188,7 @@ class Other extends Base
         /*支持子目录*/
         $root_dir = ROOT_DIR;
         if (!empty($root_dir)) {
-            $field['intro'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.ROOT_DIR.'$2', $field['intro']);
+            $field['intro'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $field['intro']);
         }
         /*--end*/
 

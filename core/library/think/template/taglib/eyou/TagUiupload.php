@@ -55,7 +55,7 @@ class TagUiupload extends Base
             $value = htmlspecialchars_decode($value);
             /*支持子目录*/
             if (!empty($this->root_dir)) {
-                $value = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $value);
+                $value = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$this->root_dir.'$4$5', $value);
             }
             /*--end*/
         }

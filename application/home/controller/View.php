@@ -84,7 +84,7 @@ class View extends Base
         /*支持子目录*/
         $root_dir = ROOT_DIR;
         if (!empty($root_dir)) {
-            $result['litpic'] = preg_replace('#^(/public/upload/|/uploads/)#i', $root_dir.'$1', $result['litpic']);
+            $result['litpic'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $result['litpic']);
         }
         /*--end*/
 
