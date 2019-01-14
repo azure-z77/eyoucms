@@ -57,11 +57,10 @@ class System extends Base
 
             // 浏览器地址图标
             if (!empty($param['web_ico']) && !is_http_url($param['web_ico'])) {
-                $web_ico = trim($param['web_ico'], '/');
-                $source = ROOT_PATH.$web_ico;
-                $destination = ROOT_PATH.'favicon.ico';
-                if (file_exists($source) && copy($source, $destination)) {
-                    $param['web_ico'] = '/favicon.ico';
+                $source = realpath(preg_replace('#^'.ROOT_DIR.'/#i', '', $param['web_ico'])); // 支持子目录
+                $destination = realpath('favicon.ico');
+                if (file_exists($source) && @copy($source, $destination)) {
+                    $param['web_ico'] = ROOT_DIR.'/favicon.ico'; // 支持子目录
                 }
             }
 
@@ -75,10 +74,10 @@ class System extends Base
         // 网站logo
         if (is_http_url($config['web_logo'])) {
             $config['web_logo_is_remote'] = 1;
-            $config['web_logo_remote'] = $config['web_logo'];
+            $config['web_logo_remote'] = handle_subdir_pic($config['web_logo']);
         } else {
             $config['web_logo_is_remote'] = 0;
-            $config['web_logo_local'] = $config['web_logo'];
+            $config['web_logo_local'] = handle_subdir_pic($config['web_logo']);
         }
         
         /*系统模式*/
@@ -97,6 +96,14 @@ class System extends Base
             ])
             ->order('a.attr_id asc')
             ->select();
+        // 支持子目录
+        $root_dir = ROOT_DIR;
+        if (!empty($root_dir)) {
+            foreach ($eyou_row as $key => $val) {
+                $eyou_row[$key]['value'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.ROOT_DIR.'$2', $val['value']);
+                $eyou_row[$key]['value'] = preg_replace('#^(/public/upload/|/uploads/)#i', ROOT_DIR.'$1', $val['value']);
+            }
+        }
         $this->assign('eyou_row',$eyou_row);
         /*--end*/
 
@@ -127,7 +134,7 @@ class System extends Base
             /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
-            $param['web_adminbasefile'] = '/'.$adminbasefile;
+            $param['web_adminbasefile'] = ROOT_DIR.'/'.$adminbasefile; // 支持子目录
             $adminbasefile_old = trim($param['adminbasefile_old']).'.php'; // 旧的文件名
             unset($param['adminbasefile']);
             unset($param['adminbasefile_old']);
@@ -158,7 +165,7 @@ class System extends Base
             /*--end*/
 
             $refresh = false;
-            $gourl = request()->domain().'/'.$adminbasefile;
+            $gourl = request()->domain().ROOT_DIR.'/'.$adminbasefile; // 支持子目录
             /*更改自定义后台路径名*/
             if ($adminbasefile_old != $adminbasefile && eyPreventShell($adminbasefile_old)) {
                 if (file_exists($adminbasefile_old)) {
@@ -188,8 +195,9 @@ class System extends Base
 
         $config = tpCache($inc_type);
         //自定义后台路径名
-        $web_adminbasefile = !empty($config['web_adminbasefile']) ? $config['web_adminbasefile'] : $this->request->baseFile();
-        $adminbasefile = preg_replace('/^\/(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
+        $baseFile = explode('/', $this->request->baseFile());
+        $web_adminbasefile = end($baseFile);
+        $adminbasefile = preg_replace('/^(.*)\.([^\.]+)$/i', '$1', $web_adminbasefile);
         $this->assign('adminbasefile', $adminbasefile);
         // 数据库备份目录
         $sqlbackuppath = config('DATA_BACKUP_PATH');
@@ -275,10 +283,10 @@ class System extends Base
         $config = tpCache($inc_type);
         if (is_http_url($config['mark_img'])) {
             $config['mark_img_is_remote'] = 1;
-            $config['mark_img_remote'] = $config['mark_img'];
+            $config['mark_img_remote'] = handle_subdir_pic($config['mark_img']);
         } else {
             $config['mark_img_is_remote'] = 0;
-            $config['mark_img_local'] = $config['mark_img'];
+            $config['mark_img_local'] = handle_subdir_pic($config['mark_img']);
         }
 
         $this->assign('config',$config);//当前配置项

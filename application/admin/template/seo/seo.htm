@@ -38,9 +38,9 @@
                     <label>动态格式</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="radio" name="seo_dynamic_format" value="1" {if condition="!isset($config.seo_dynamic_format) OR $config.seo_dynamic_format eq 1"}checked="checked"{/if}>完全兼容（如：http://127.0.0.1/index.php?m=home&amp;c=Lists&amp;a=index&amp;tid=1）</label>&nbsp;
+                    <label><input type="radio" name="seo_dynamic_format" value="1" {if condition="!isset($config.seo_dynamic_format) OR $config.seo_dynamic_format eq 1"}checked="checked"{/if}>完全兼容（如：http://127.0.0.1__ROOT_DIR__/index.php?m=home&amp;c=Lists&amp;a=index&amp;tid=1）</label>&nbsp;
                     <br/>
-                    <label><input type="radio" name="seo_dynamic_format" value="2" {if condition="isset($config.seo_dynamic_format) AND $config.seo_dynamic_format eq 2"}checked="checked"{/if}>部分兼容&nbsp;<font color="red">[部分空间不支持]</font>（如：http://127.0.0.1/home/Lists/index.html?tid=1）</label>&nbsp;
+                    <label><input type="radio" name="seo_dynamic_format" value="2" {if condition="isset($config.seo_dynamic_format) AND $config.seo_dynamic_format eq 2"}checked="checked"{/if}>部分兼容&nbsp;<font color="red">[部分空间不支持]</font>（如：http://127.0.0.1__ROOT_DIR__/home/Lists/index.html?tid=1）</label>&nbsp;
                     <br/>
                     <span class="err"></span>
                     <p class="notic"></p>
@@ -51,9 +51,9 @@
                     <label>伪静态格式</label>
                 </dt>
                 <dd class="opt">
-                    <label><input type="radio" name="seo_rewrite_format" value="1" {if condition="!isset($config.seo_rewrite_format) OR $config.seo_rewrite_format eq 1"}checked="checked"{/if}>目录名称（如：http://127.0.0.1/about/）</label>&nbsp;
+                    <label><input type="radio" name="seo_rewrite_format" value="1" {if condition="!isset($config.seo_rewrite_format) OR $config.seo_rewrite_format eq 1"}checked="checked"{/if}>目录名称（如：http://127.0.0.1__ROOT_DIR__/about/）</label>&nbsp;
                     <br/>
-                    <label><input type="radio" name="seo_rewrite_format" value="2" {if condition="isset($config.seo_rewrite_format) AND $config.seo_rewrite_format eq 2"}checked="checked"{/if}>模型标识/目录名称.html（如：http://127.0.0.1/single/about.html）</label>&nbsp;
+                    <label><input type="radio" name="seo_rewrite_format" value="2" {if condition="isset($config.seo_rewrite_format) AND $config.seo_rewrite_format eq 2"}checked="checked"{/if}>模型标识/目录名称.html（如：http://127.0.0.1__ROOT_DIR__/single/about.html）</label>&nbsp;
                     <br/>
                     <span class="err"></span>
                     <p class="notic"></p>

@@ -40,14 +40,16 @@ class Seo extends Base
         $inc_type =  input('get.inc_type','seo');
         $this->assign('inc_type',$inc_type);
         $config = tpCache($inc_type);
-        if($inc_type == 'seo'){
+        if('seo' == $inc_type){
             $seo_pseudo_list = get_seo_pseudo_list();
             $this->assign('seo_pseudo_list', $seo_pseudo_list);
-        } elseif ($inc_type == 'html') {
+        } elseif ('html' == $inc_type) {
             // 栏目列表
             $arctypeLogic = new ArctypeLogic();
             $select_html = $arctypeLogic->arctype_list(0, 0, true, config('global.arctype_max_level'));
             $this->assign('select_html',$select_html);
+        } else if ('rewrite' == $inc_type) {
+            $this->assign('root_dir', ROOT_DIR); // 支持子目录
         }
         $this->assign('config',$config);//当前配置项
         return $this->fetch($inc_type);

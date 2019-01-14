@@ -31,7 +31,7 @@ class ProductLogic extends Model
     {
         header("Content-type: text/html; charset=utf-8");
         $productAttribute = model('ProductAttribute');
-        $attributeList = $productAttribute->where("typeid = $typeid")->order('sort_order asc, attr_id asc')->select();
+        $attributeList = $productAttribute->where(['typeid'=>$typeid, 'is_del'=>0])->order('sort_order asc, attr_id asc')->select();
         $str = '';
         foreach($attributeList as $key => $val)
         {

@@ -1,6 +1,6 @@
 
 //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
-window.UEDITOR_HOME_URL = "/public/plugins/Ueditor/";
+window.UEDITOR_HOME_URL = __root_dir__+"/public/plugins/Ueditor/";
 var ueditor_toolbars = [[
     'fullscreen', 'source', '|', 'undo', 'redo', '|',
     'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', '|',

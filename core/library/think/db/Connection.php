@@ -294,7 +294,8 @@ abstract class Connection
                     Log::record($e->getMessage(), 'error');
                     return $this->connect($autoConnection, $linkNum);
                 } else {
-                    throw $e;
+                    // throw $e;
+                    throw new PDOException($e, $config, ''); // 数据库不存在 by 小虎哥
                 }
             }
         }

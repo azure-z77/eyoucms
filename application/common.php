@@ -444,12 +444,32 @@ if (!function_exists('get_default_pic'))
                 $domain = '';
             }
             
+            $pic_url = preg_replace('#^'.ROOT_DIR.'/#i', '/', $pic_url); // 支持子目录
             $realpath = realpath(trim($pic_url, '/'));
             if ( is_file($realpath) && file_exists($realpath) ) {
-                $pic_url = $domain . $pic_url;
+                $pic_url = str_replace(ROOT_DIR, '', $pic_url); // 支持子目录
+                $pic_url = $domain . ROOT_DIR . $pic_url;
             } else {
-                $pic_url = $domain . '/public/static/common/images/not_adv.jpg';
+                $pic_url = $domain . ROOT_DIR . '/public/static/common/images/not_adv.jpg';
             }
+        }
+
+        return $pic_url;
+    }
+}
+
+if (!function_exists('handle_subdir_pic')) 
+{
+    /**
+     * 处理子目录与根目录的图片平缓切换
+     * @param string $pic_url 图片路径
+     */
+    function handle_subdir_pic($pic_url = '')
+    {
+        if (!is_http_url($pic_url) && !empty($pic_url)) {
+            $pic_url = preg_replace('#^'.ROOT_DIR.'/#i', '/', $pic_url);
+            $pic_url = str_replace(ROOT_DIR, '', $pic_url);
+            $pic_url = ROOT_DIR . $pic_url;
         }
 
         return $pic_url;

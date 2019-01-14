@@ -48,19 +48,19 @@ class TagLanguage extends Base
 
         foreach ($result as $key => $val) {
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
-            $val['logo'] = "/public/static/common/images/language/{$val['mark']}.gif";
+            $val['logo'] = get_default_pic("/public/static/common/images/language/{$val['mark']}.gif");
 
             /*单独域名*/
             $url = $val['url'];
             if (empty($url)) {
                 if (1 == $val['is_home_default']) {
-                    $url = '/';
+                    $url = $this->root_dir.'/'; // 支持子目录
                 } else {
                     $seoConfig = tpCache('seo', [], $val['mark']);
                     $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                     $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                     if (1 == $seo_pseudo) {
-                        $url = request()->domain().$inletStr;
+                        $url = request()->domain().$this->root_dir.$inletStr; // 支持子目录
                         if (!empty($inletStr)) {
                             $url .= '?';
                         } else {
@@ -68,7 +68,7 @@ class TagLanguage extends Base
                         }
                         $url .= http_build_query(['lang'=>$val['mark']]);
                     } else {
-                        $url = $inletStr.'/'.$val['mark'];
+                        $url = $this->root_dir.$inletStr.'/'.$val['mark']; // 支持子目录
                     }
                 }
             }

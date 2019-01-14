@@ -1759,6 +1759,15 @@ if (!function_exists('view_logic'))
             {
                 /*产品相册*/
                 $image_list = model('ProductImg')->getProImg($aid);
+
+                // 支持子目录
+                $root_dir = ROOT_DIR;
+                if (!empty($root_dir)) {
+                    foreach ($image_list as $k1 => $v1) {
+                        $image_list[$k1]['image_url'] = handle_subdir_pic($v1['image_url']);
+                    }
+                }
+                
                 $result['image_list'] = $image_list;
                 /*--end*/
 
@@ -1774,6 +1783,15 @@ if (!function_exists('view_logic'))
             {
                 /*图集相册*/
                 $image_list = model('ImagesUpload')->getImgUpload($aid);
+                
+                // 支持子目录
+                $root_dir = ROOT_DIR;
+                if (!empty($root_dir)) {
+                    foreach ($image_list as $k1 => $v1) {
+                        $image_list[$k1]['image_url'] = handle_subdir_pic($v1['image_url']);
+                    }
+                }
+
                 $result['image_list'] = $image_list;
                 /*--end*/
                 break;
@@ -1783,6 +1801,15 @@ if (!function_exists('view_logic'))
             {
                 /*下载资料列表*/
                 $file_list = model('DownloadFile')->getDownFile($aid);
+                
+                // 支持子目录
+                $root_dir = ROOT_DIR;
+                if (!empty($root_dir)) {
+                    foreach ($file_list as $k1 => $v1) {
+                        $file_list[$k1]['file_url'] = handle_subdir_pic($v1['file_url']);
+                    }
+                }
+
                 $result['file_list'] = $file_list;
                 /*--end*/
                 break;

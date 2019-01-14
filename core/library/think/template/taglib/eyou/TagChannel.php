@@ -189,6 +189,9 @@ class TagChannel extends Base
                 }
                 /*--end*/
 
+                // 封面图
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
+
                 $res[$key] = $val;
             }
         }
@@ -330,6 +333,9 @@ class TagChannel extends Base
                     $val['currentstyle'] = '';
                 }
                 /*--end*/
+
+                // 封面图
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
 
                 $res[$key] = $val;
             }

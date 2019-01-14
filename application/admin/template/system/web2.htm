@@ -95,7 +95,8 @@
                 <dt class="tit">
                     <label for="adminbasefile">新后台地址</label>
                 </dt>
-                <dd class="opt">__SITE_URL__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
+                <dd class="opt">
+                    __SITE_URL____ROOT_DIR__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
                     <p class="notic">为了提高后台的安全性，请及时更改后台入口文件。</p>
                 </dd>
             </dl>
@@ -104,7 +105,7 @@
                     <label for="web_sqldatapath">数据库备份目录</label>
                 </dt>
                 <dd class="opt">
-                    <input id="web_sqldatapath" name="web_sqldatapath" value="{$config.web_sqldatapath|default=$sqlbackuppath}" class="input-txt" type="text" />
+                    __ROOT_DIR__<input id="web_sqldatapath" name="web_sqldatapath" value="{$config.web_sqldatapath|default=$sqlbackuppath}" class="input-txt" type="text" />
                     <p class="notic"></p>
                 </dd>
             </dl>
@@ -140,7 +141,7 @@
         if(adminbasefile_oldObj.val() != adminbasefileObj.val()){
             var flag = false;
             var site_url = adminbasefileObj.data('site_url');
-            layer.confirm('新后台地址：<font color="red">'+site_url+'/'+adminbasefileObj.val()+'.php</font>，确认更改？', {
+            layer.confirm('新后台地址：<font color="red">'+site_url+'__ROOT_DIR__/'+adminbasefileObj.val()+'.php</font>，确认更改？', {
                     btn: ['继续更改','取消'] //按钮
                 }, function(){
                     layer_loading('正在处理');

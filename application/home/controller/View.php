@@ -81,6 +81,13 @@ class View extends Base
         // seo
         $result['seo_title'] = set_arcseotitle($result['title'], $result['seo_title'], $result['typename']);
 
+        /*支持子目录*/
+        $root_dir = ROOT_DIR;
+        if (!empty($root_dir)) {
+            $result['litpic'] = preg_replace('#^(/public/upload/|/uploads/)#i', $root_dir.'$1', $result['litpic']);
+        }
+        /*--end*/
+
         $result = view_logic($aid, $this->channel, $result); // 模型对应逻辑
 
         /*自定义字段的数据格式处理*/
@@ -132,19 +139,27 @@ class View extends Base
         );
         $result = M('download_file')->where($map)->find();
         $filename = isset($result['file_url']) ? trim($result['file_url'], '/') : '';
-        $filename = ROOT_PATH.$filename;
         clearstatcache();
-        if (empty($result) || !is_file($filename)) {
+        if (empty($result) || !is_file(realpath($filename))) {
             $this->error('下载文件不存在！');
             exit;
         }
-        $file_url = is_http_url($result['file_url']) ? $result['file_url'] : ROOT_PATH.trim($result['file_url'], '/');
+        $file_url = is_http_url($result['file_url']) ? $result['file_url'] : realpath($filename);
         if (md5_file($file_url) != $result['md5file']) {
             $this->error('下载文件包不完整！');
             exit;
         }
         
-        header('Location: '. $result['file_url']);
+        $downUrl = $result['file_url'];
+
+        /*支持子目录*/
+        $root_dir = ROOT_DIR;
+        if (!empty($root_dir)) {
+            $downUrl = handle_subdir_pic($result['file_url']);
+        }
+        /*--end*/
+
+        header('Location: '. $downUrl);
         exit;
     }
 }

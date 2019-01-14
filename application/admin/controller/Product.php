@@ -126,6 +126,7 @@ class Product extends Base
                 ->getAllWithIndex('aid');
             foreach ($list as $key => $val) {
                 $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
+                $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']); // 支持子目录
                 $list[$key] = $row[$val['aid']];
             }
         }
@@ -343,15 +344,18 @@ class Product extends Base
         $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
-            $info['litpic_remote'] = $info['litpic'];
+            $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
         } else {
             $info['is_remote'] = 0;
-            $info['litpic_local'] = $info['litpic'];
+            $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
         $assign_data['field'] = $info;
 
         // 产品相册
         $proimg_list = model('ProductImg')->getProImg($id);
+        foreach ($proimg_list as $key => $val) {
+            $proimg_list[$key]['image_url'] = handle_subdir_pic($val['image_url']); // 支持子目录
+        }
         $assign_data['proimg_list'] = $proimg_list;
 
         /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/

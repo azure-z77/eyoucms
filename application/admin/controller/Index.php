@@ -43,7 +43,7 @@ class Index extends Base
         // --end
         $home_default_lang = config('ey_config.system_home_default_lang');
         $admin_lang = get_admin_lang();
-        $home_url = request()->domain();
+        $home_url = request()->domain().ROOT_DIR.'/';  // 支持子目录
         if ($home_default_lang != $admin_lang) {
             $home_url = $language_db->where(['mark'=>$admin_lang])->getField('url');
             if (empty($home_url)) {
@@ -51,7 +51,7 @@ class Index extends Base
                 $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                 $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                 if (1 == $seo_pseudo) {
-                    $home_url = request()->domain().$inletStr;
+                    $home_url = request()->domain().ROOT_DIR.$inletStr; // 支持子目录
                     if (!empty($inletStr)) {
                         $home_url .= '?';
                     } else {
@@ -59,7 +59,7 @@ class Index extends Base
                     }
                     $home_url .= http_build_query(['lang'=>$admin_lang]);
                 } else {
-                    $home_url = request()->domain().$inletStr.'/'.$admin_lang;
+                    $home_url = request()->domain().ROOT_DIR.$inletStr.'/'.$admin_lang; // 支持子目录
                 }
             }
         }
@@ -148,8 +148,8 @@ class Index extends Base
             }
             /*--end*/
             if ($result) {
-                $source = ROOT_PATH.'public/static/admin/images/logo_ey.png';
-                $destination = ROOT_PATH.'public/static/admin/images/logo.png';
+                $source = realpath('public/static/admin/images/logo_ey.png');
+                $destination = realpath('public/static/admin/images/logo.png');
                 @copy($source, $destination);
 
                 session('isset_author', null);
@@ -174,12 +174,12 @@ class Index extends Base
     {
         $filename = input('param.filename/s', '');
         if (!empty($filename)) {
-            $source = ROOT_PATH.$filename;
+            $source = realpath(preg_replace('#^'.ROOT_DIR.'/#i', '', $filename)); // 支持子目录
             $web_is_authortoken = tpCache('web.web_is_authortoken');
             if (empty($web_is_authortoken)) {
-                $destination = ROOT_PATH.'public/static/admin/images/logo.png';
+                $destination = realpath('public/static/admin/images/logo.png');
             } else {
-                $destination = ROOT_PATH.'public/static/admin/images/logo_ey.png';
+                $destination = realpath('public/static/admin/images/logo_ey.png');
             }
             if (@copy($source, $destination)) {
                 $this->success('操作成功');

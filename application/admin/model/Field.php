@@ -124,6 +124,7 @@ class Field extends Model
     public function showViewFormData($list, $formFieldStr, $addonRow = array())
     {
         if (!empty($list)) {
+            $root_dir = ROOT_DIR;
             foreach ($list as $key => $val) {
                 $val['fieldArr'] = $formFieldStr;
                 switch ($val['dtype']) {
@@ -190,10 +191,10 @@ class Field extends Model
                         if (isset($addonRow[$val['name']])) {
                             if (is_http_url($addonRow[$val['name']])) {
                                 $val[$val['name'].'_eyou_is_remote'] = 1;
-                                $val[$val['name'].'_eyou_remote'] = $addonRow[$val['name']];
+                                $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
                             } else {
                                 $val[$val['name'].'_eyou_is_remote'] = 0;
-                                $val[$val['name'].'_eyou_local'] = $addonRow[$val['name']];
+                                $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
                             }
                         }
                         break;
@@ -203,7 +204,15 @@ class Field extends Model
                     {
                         $val[$val['name'].'_eyou_imgupload_list'] = array();
                         if (isset($addonRow[$val['name']]) && !empty($addonRow[$val['name']])) {
-                            $val[$val['name'].'_eyou_imgupload_list'] = explode(',', $addonRow[$val['name']]);
+                            $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
+                            /*支持子目录*/
+                            if (!empty($root_dir)) {
+                                foreach ($eyou_imgupload_list as $k1 => $v1) {
+                                    $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
+                                }
+                            }
+                            /*--end*/
+                            $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
                         }
                         break;
                     }
@@ -213,10 +222,29 @@ class Field extends Model
                         $val['dfvalue'] = !empty($addonRow[$val['name']]) ? date('Y-m-d H:i:s', $addonRow[$val['name']]) : date('Y-m-d H:i:s');
                         break;
                     }
+
+                    case 'htmltext':
+                    {
+                        $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
+                        /*支持子目录*/
+                        if (!empty($root_dir)) {
+                            $val['dfvalue'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val['dfvalue']);
+                        }
+                        /*--end*/
+                        break;
+                    }
                     
                     default:
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
+                        /*支持子目录*/
+                        if (!empty($root_dir)) {
+                            if (is_string($val['dfvalue'])) {
+                                $val['dfvalue'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val['dfvalue']);
+                                $val['dfvalue'] = preg_replace('#^(/public/upload/|/uploads/)#i', $root_dir.'$1', $val['dfvalue']);
+                            }
+                        }
+                        /*--end*/
                         break;
                     }
                 }

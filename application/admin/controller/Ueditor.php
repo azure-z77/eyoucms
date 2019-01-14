@@ -242,6 +242,12 @@ class Ueditor extends Base
                                 $return_data['mark_txt'] = $water['mark_txt'];
                             }
                         }else{
+                            /*支持子目录*/
+                            $root_dir = ROOT_DIR;
+                            if (!empty($root_dir)) {
+                                $water['mark_img'] = preg_replace('#^'.ROOT_DIR.'(/public/upload/|/uploads/)#i', '$1', $water['mark_img']);
+                            }
+                            /*--end*/
                             //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                             $waterPath = "." . $water['mark_img'];
                             if (eyPreventShell($waterPath) && file_exists($waterPath)) {
@@ -255,6 +261,8 @@ class Ueditor extends Base
                     }
                 }
             }
+
+            $data['url'] = ROOT_DIR.$data['url']; // 支持子目录
         }else{
             $data = array('state' => 'ERROR'.$info->getError());
         }
@@ -407,7 +415,7 @@ class Ueditor extends Base
         }else{ //移动成功
             $data=array(
                 'state' => 'SUCCESS',
-                'url' => substr($file['fullName'],1),
+                'url' => ROOT_DIR.substr($file['fullName'],1), // 支持子目录
                 'title' => $file['name'],
                 'original' => $file['oriName'],
                 'type' => $file['ext'],
@@ -559,7 +567,7 @@ class Ueditor extends Base
                 }
                 $return_url = '/'.$savePath.$info->getSaveName();
             }
-            $return_data['url'] = $return_url;
+            $return_data['url'] = ROOT_DIR.$return_url; // 支持子目录
         }
         
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
@@ -584,6 +592,12 @@ class Ueditor extends Base
                             $return_data['mark_txt'] = $water['mark_txt'];
                         }
                     }else{
+                        /*支持子目录*/
+                        $root_dir = ROOT_DIR;
+                        if (!empty($root_dir)) {
+                            $water['mark_img'] = preg_replace('#^'.ROOT_DIR.'(/public/upload/|/uploads/)#i', '$1', $water['mark_img']);
+                        }
+                        /*--end*/
                         //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                         $waterPath = "." . $water['mark_img'];
                         if (eyPreventShell($waterPath) && file_exists($waterPath)) {

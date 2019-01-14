@@ -305,10 +305,10 @@ class Arctype extends Base
         // 栏目图片处理
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
-            $info['litpic_remote'] = $info['litpic'];
+            $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
         } else {
             $info['is_remote'] = 0;
-            $info['litpic_local'] = $info['litpic'];
+            $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
         $this->assign('field',$info);
 

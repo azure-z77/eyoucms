@@ -35,9 +35,9 @@ class Url
         $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {
             if ('admin' != $module) { // 排除后台分组模块
-                self::root('/');
+                self::root(ROOT_DIR.'/');
             } else if (3 == count($mca) && 'admin' != $mca[0]) { // 排除url中带有admin分组模块
-                self::root('/');
+                self::root(ROOT_DIR.'/');
             }
         }
         /*--end*/
@@ -201,7 +201,11 @@ class Url
             // 检测域名
             $domain = self::parseDomain($url, $domain);
             // URL组装
-            $url = $domain . rtrim(self::$root ?: $request->root(), '/')."?m={$m}&c={$c}&a={$a}";
+            $url = $domain . rtrim(self::$root ?: $request->root(), '/');
+            if (1 == $seo_inlet && stristr($url, 'index.php')) {
+                $url .= "/";
+            }
+            $url .= "?m={$m}&c={$c}&a={$a}";
             /*URL全局参数（比如：可视化uiset、多模板v、多语言lang）*/
             $urlParam = $request->param();
             !empty($vars['lang']) && !empty($urlParam['lang']) && $urlParam['lang'] = $vars['lang'];

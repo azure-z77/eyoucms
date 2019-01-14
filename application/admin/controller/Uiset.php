@@ -67,7 +67,8 @@ class Uiset extends Base
      */
     public function pc()
     {
-        $index_url = '/index.php?m=home&c=Index&a=index&uiset=on&v=pc&lang='.get_admin_lang();
+        // 支持子目录
+        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=pc&lang='.get_admin_lang();
         $this->redirect($index_url);
     }
 
@@ -76,7 +77,8 @@ class Uiset extends Base
      */
     public function mobile()
     {
-        $index_url = '/index.php?m=home&c=Index&a=index&uiset=on&v=mobile&lang='.get_admin_lang();
+        // 支持子目录
+        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=mobile&lang='.get_admin_lang();
         $this->redirect($index_url);
     }
 

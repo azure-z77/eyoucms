@@ -80,7 +80,7 @@ class TagStatic extends Base
                 
             } else {
                 if (!preg_match('/^\//i',$file)) {
-                    $file = ROOT_DIR.'/template/'.THEME_STYLE.'/'.$file;
+                    $file = '/template/'.THEME_STYLE.'/'.$file;
                 }
                 /*多语言内置静态资源文件名*/
                 if (!empty($paramlang)) {
@@ -93,7 +93,7 @@ class TagStatic extends Base
                 if (!file_exists(ltrim($file, '/'))) {
                     continue;
                 }
-                $http_url = $request->domain().$file;
+                $http_url = $request->domain().$this->root_dir.$file; // 支持子目录
             }
             // -------------end---------------
 
@@ -114,6 +114,7 @@ class TagStatic extends Base
     private function toHtml($file = '', $update_time = '')
     {
         $parseStr = '';
+        $file = $this->root_dir.$file; // 支持子目录
         $update_time_str = !empty($update_time) ? '?t='.$update_time : '';
         $type = strtolower(substr(strrchr($file, '.'), 1));
         switch ($type) {

@@ -135,10 +135,10 @@ class Links extends Base
         }
         if (is_http_url($info['logo'])) {
             $info['is_remote'] = 1;
-            $info['logo_remote'] = $info['logo'];
+            $info['logo_remote'] = handle_subdir_pic($info['logo']);
         } else {
             $info['is_remote'] = 0;
-            $info['logo_local'] = $info['logo'];
+            $info['logo_local'] = handle_subdir_pic($info['logo']);
         }
         $this->assign('info',$info);
 

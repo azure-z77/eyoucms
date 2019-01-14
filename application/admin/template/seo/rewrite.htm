@@ -18,21 +18,21 @@
             <dl class="row">
                 <dt class="tit">首页</dt>
                 <dd class="opt">
-                    index.html（如：index.html）
+                    {notempty name='$root_dir'}子目录名称/{/notempty}index.html（如：__ROOT_DIR__index.html）
                     <p class="notic"></p>
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="tit">列表页</dt>
                 <dd class="opt">
-                    目录名称.html（如：http://127.0.0.1/about/）
+                    {notempty name='$root_dir'}子目录名称/{/notempty}目录名称.html（如：http://127.0.0.1__ROOT_DIR__/about/）
                     <p class="notic"></p>
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="tit">内容页</dt>
                 <dd class="opt">
-                    目录名称/ID.html（如：http://127.0.0.1/about/250.html）
+                    {notempty name='$root_dir'}子目录名称/{/notempty}目录名称/ID.html（如：http://127.0.0.1__ROOT_DIR__/about/250.html）
                     <p class="notic"></p>
                 </dd>
             </dl>

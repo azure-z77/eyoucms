@@ -122,6 +122,7 @@ class Article extends Base
                 ->getAllWithIndex('aid');
             foreach ($list as $key => $val) {
                 $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
+                $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']); // 支持子目录
                 $list[$key] = $row[$val['aid']];
             }
         }
@@ -349,10 +350,10 @@ class Article extends Base
         $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
-            $info['litpic_remote'] = $info['litpic'];
+            $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
         } else {
             $info['is_remote'] = 0;
-            $info['litpic_local'] = $info['litpic'];
+            $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
         $assign_data['field'] = $info;
 

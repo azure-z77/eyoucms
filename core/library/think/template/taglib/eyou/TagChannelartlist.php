@@ -149,13 +149,19 @@ class TagChannelartlist extends Base
         if ($result) {
             $ctl_name_list = model('Channeltype')->getAll('id,ctl_name', array(), 'id');
             foreach ($result as $key => $val) {
+                // 获取指定路由模式下的URL
                 if ($val['is_part'] == 1) {
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
                     $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
                 }
-                $result[$key]['typeurl'] = $typeurl;
+                $val['typeurl'] = $typeurl;
+
+                // 封面图
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
+
+                $result[$key] = $val;
             }
         }
 
@@ -187,13 +193,19 @@ class TagChannelartlist extends Base
         if ($result) {
             $ctl_name_list = model('Channeltype')->getAll('id,ctl_name', array(), 'id');
             foreach ($result as $key => $val) {
+                // 获取指定路由模式下的URL
                 if ($val['is_part'] == 1) {
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
                     $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
                 }
-                $result[$key]['typeurl'] = $typeurl;
+                $val['typeurl'] = $typeurl;
+
+                // 封面图
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
+                
+                $result[$key] = $val;
             }
         }
 
@@ -220,13 +232,19 @@ class TagChannelartlist extends Base
         if ($result) {
             $ctl_name_list = model('Channeltype')->getAll('id,ctl_name', array(), 'id');
             foreach ($result as $key => $val) {
+                // 获取指定路由模式下的URL
                 if ($val['is_part'] == 1) {
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
                     $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
                 }
-                $result[$key]['typeurl'] = $typeurl;
+                $val['typeurl'] = $typeurl;
+
+                // 封面图
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
+                
+                $result[$key] = $val;
             }
         }
         

@@ -43,7 +43,7 @@
         {eyou:uitext e-id='304' e-page="footer"}
           {$field.value}
         {eyou:else /}
-          联系热线
+          {eyou:lang name='yybl4' /}
         {/eyou:uitext}
         </a></p> 
        <p class="eyou-edit" e-id="web_attr_2" e-type="text">
@@ -91,13 +91,13 @@
    {eyou:global name='web_thirdcode_pc' /}
   </footer>
   <input type="hidden" name="met_lazyloadbg" value="{eyou:global name='web_templets_pc' /}/skin/images/loading.gif" /> 
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/jquery.min.js"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/tether.min.js"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/bootstrap.min.js"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/breakpoints.min.js"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/webui-popover.js" type="text/javascript"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/common.js" type="text/javascript"></script>
-  <script src="{eyou:global name='web_templets_pc' /}/skin/js/jquery-s2t.js" type="text/javascript"></script>
+  {eyou:static file="skin/js/jquery.min.js" /}
+  {eyou:static file="skin/js/tether.min.js" /}
+  {eyou:static file="skin/js/bootstrap.min.js" /}
+  {eyou:static file="skin/js/breakpoints.min.js" /}
+  {eyou:static file="skin/js/webui-popover.js" /}
+  {eyou:static file="skin/js/common.js" /}
+  {eyou:static file="skin/js/jquery-s2t.js" /}
   <!-- 应用插件标签 start -->
   {eyou:weapp type='default' /}
   <!-- 应用插件标签 end -->

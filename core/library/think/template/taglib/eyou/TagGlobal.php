@@ -45,9 +45,7 @@ class TagGlobal extends Base
         $uiset = trim($uiset, '/');
 
         /*PC端与手机端的变量名自适应，可彼此通用*/
-        if (in_array($name, ['web_templets_pc','web_templets_m'])) { // 模板路径
-            // file_exists(TEMPLATE_PATH.'mobile') && $name = 'web_templets_' . (isMobile() ? 'm' : 'pc');
-        } else if (in_array($name, ['web_thirdcode_pc','web_thirdcode_wap'])) { // 第三方代码
+        if (in_array($name, ['web_thirdcode_pc','web_thirdcode_wap'])) { // 第三方代码
             $name = 'web_thirdcode_' . (isMobile() ? 'wap' : 'pc');
         }
         /*--end*/
@@ -88,13 +86,15 @@ class TagGlobal extends Base
                             }
                             $value .= http_build_query(['tmp'=>'']);
                         } else {
-                            $value = $request->domain();
+                            $value = $request->domain().$this->root_dir;
                             if (1 == $globalTpCache['seo_pseudo']) {
                                 if (!empty($urlParam)) {
                                     /*是否隐藏小尾巴 index.php*/
                                     $seo_inlet = config('ey_config.seo_inlet');
                                     if (0 == intval($seo_inlet)) {
                                         $value .= '/index.php';
+                                    } else {
+                                        $value .= '/';
                                     }
                                     /*--end*/
                                     if (!stristr($value, '?')) {
@@ -119,8 +119,18 @@ class TagGlobal extends Base
                     }
                     break;
 
+                case 'web_templets_pc':
+                case 'web_templets_m':
+                    $value = $this->root_dir.$value;
+                    break;
+
                 default:
-                    # code...
+                    /*支持子目录*/
+                    if (!empty($this->root_dir)) {
+                        $value = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $value);
+                        $value = preg_replace('#^(/public/upload/|/uploads/)#i', $this->root_dir.'$1', $value);
+                    }
+                    /*--end*/
                     break;
             }
 

@@ -83,8 +83,14 @@ class TagAdv extends Base
             ->cache(true,EYOUCMS_CACHE_TIME,"ad")
             ->select();
         foreach ($result as $key => $val) {
+            $val['litpic'] = get_default_pic($val['litpic']); // 默认无图封面
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['intro'] = htmlspecialchars_decode($val['intro']);
+            /*支持子目录*/
+            if (!empty($this->root_dir)) {
+                $val['intro'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $val['intro']);
+            }
+            /*--end*/
             if ($uiset == 'on') {
                 $val['links'] = "javascript:void(0);";
             }

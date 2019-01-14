@@ -57,6 +57,12 @@ class TagAd extends Base
         $result['litpic'] = get_default_pic($result['litpic']); // 默认无图封面
         $result['intro'] = htmlspecialchars_decode($result['intro']); // 解码内容
 
+        /*支持子目录*/
+        if (!empty($this->root_dir)) {
+            $result['intro'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$this->root_dir.'$2', $result['intro']);
+        }
+        /*--end*/
+
         return $result;
     }
 }

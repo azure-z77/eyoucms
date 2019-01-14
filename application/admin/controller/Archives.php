@@ -206,6 +206,7 @@ class Archives extends Base
 
             foreach ($list as $key => $val) {
                 $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
+                $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']); // 支持子目录
                 $list[$key] = $row[$val['aid']];
             }
         }

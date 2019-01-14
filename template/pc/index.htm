@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>{eyou:global name='web_title' /}</title>
   <meta name="renderer" content="webkit" />
+  <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0,minimal-ui" />
   <meta name="description" content="{eyou:global name='web_description' /}" />
@@ -20,7 +20,7 @@ font-family:;
 }
 </style>
   <!--[if lte IE 9]>
-    <script src="{eyou:global name='web_templets_pc' /}/skin/js/lteie9.js"></script>
+    {eyou:static file="skin/js/lteie9.js" /}
     <![endif]-->
   </head>
   <!--[if lte IE 8]>
@@ -63,7 +63,7 @@ font-family:;
           </div>
             <ul class="tabs ulstyle">
             <li class="active newpro"> <a href="{eyou:field name='typeurl' /}" title="{eyou:field name='typename' /}" target="_self">
-              <h3>全部</h3>
+              <h3>{eyou:lang name='yybl2' /}</h3>
               </a> </li>
             {eyou:channel row="100" type ='son'}
             <li class="newpro"> <a href="{$field.typeurl}" title="{$field.typename}" target="_self">
@@ -82,7 +82,7 @@ font-family:;
           </li>
           {/eyou:arclist}
       </ul>
-        <a href="{eyou:field name='typeurl' /}" title="{eyou:field name='typename' /}" target="_self" class="btn-more">查看更多<i class="fa fa-angle-right"></i> </a> </div>
+        <a href="{eyou:field name='typeurl' /}" title="{eyou:field name='typename' /}" target="_self" class="btn-more">{eyou:lang name='yybl3' /}<i class="fa fa-angle-right"></i> </a> </div>
       </section>
     {/eyou:channelartlist}
 
@@ -121,7 +121,7 @@ font-family:;
                   {$field.content|html_msubstr=###,0,135}...
                 {/eyou:type}
                </span>
-                <a href="{eyou:field name='typeurl' /}" title="{eyou:field name='typename' /}" class="btn-more" target="_blank">查看更多<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                <a href="{eyou:field name='typeurl' /}" title="{eyou:field name='typename' /}" class="btn-more" target="_blank">{eyou:lang name='yybl3' /}<i class="fa fa-angle-right" aria-hidden="true"></i></a>
                 </p>
               </div>
             </div>
@@ -195,7 +195,8 @@ font-family:;
 <!--footer-s--> 
 {eyou:include file="footer.htm" /} 
 <!--footer-e--> 
-<script type="text/javascript" src="{eyou:global name='web_templets_pc' /}/skin/js/Swiper.js"></script>
+
+{eyou:static file="skin/js/Swiper.js" /}
 {eyou:ui open='off' /}
 </body>
 </html>

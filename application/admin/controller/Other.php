@@ -60,6 +60,12 @@ class Other extends Base
         $count = $adM->alias('a')->where($condition)->count();// 查询满足要求的总记录数
         $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $adM->alias('a')->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        /*支持子目录*/
+        foreach ($list as $key => $val) {
+            $val['litpic'] = handle_subdir_pic($val['litpic']);
+            $list[$key] = $val;
+        }
+        /*--end*/
 
         $show = $Page->show();// 分页显示输出
         $this->assign('page',$show);// 赋值分页输出
@@ -173,11 +179,18 @@ class Other extends Base
         }
         if (is_http_url($field['litpic'])) {
             $field['is_remote'] = 1;
-            $field['litpic_remote'] = $field['litpic'];
+            $field['litpic_remote'] = handle_subdir_pic($field['litpic']);
         } else {
             $field['is_remote'] = 0;
-            $field['litpic_local'] = $field['litpic'];
+            $field['litpic_local'] = handle_subdir_pic($field['litpic']);
         }
+        
+        /*支持子目录*/
+        $root_dir = ROOT_DIR;
+        if (!empty($root_dir)) {
+            $field['intro'] = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.ROOT_DIR.'$2', $field['intro']);
+        }
+        /*--end*/
 
         $assign_data['field'] = $field;
         $assign_data['ad_position'] = model('AdPosition')->getAll('*', 'id');

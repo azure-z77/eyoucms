@@ -104,7 +104,7 @@ class WeappController
 
         // 模板路径
         $template = Config::get('template');
-        $template['view_path'] = '.'.ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template/';
+        $template['view_path'] = './'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template/';
         Config::set('template', $template);
 
         $this->view    = View::instance($template);
@@ -261,7 +261,7 @@ class WeappController
             die("模板文件不存在:$template");
         }
         /*插件模板字符串替换，不能放在构造函数，毕竟构造函数只执行一次 by 小虎哥*/
-        $replace['__WEAPP_TEMPLATE__'] = ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template';
+        $replace['__WEAPP_TEMPLATE__'] = './'.WEAPP_DIR_NAME.'/'.$this->weapp_module_name.'/template';
         /*--end*/
         $replace = array_merge(Config::get('view_replace_str'), $replace);
         $config = array_merge(Config::get('template'), $config);

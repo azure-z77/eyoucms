@@ -18,7 +18,7 @@ class PDOException extends DbException
     public function __construct(\PDOException $exception, array $config, $sql, $code = 10501)
     {
         $error = $exception->errorInfo;
-        $code0 = $error[0];
+        $code0 = $exception->getCode();
         $code1 = isset($error[1]) ? $error[1] : 0;
         $code2 = isset($error[2]) ? $error[2] : '';
 

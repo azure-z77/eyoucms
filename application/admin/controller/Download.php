@@ -110,6 +110,7 @@ class Download extends Base
             ->getAllWithIndex('aid');
         foreach ($list as $key => $val) {
             $val['arcurl'] = get_arcurl($val);
+            $val['litpic'] = handle_subdir_pic($val['litpic']); // 支持子目录
             $list[$key] = $val;
         }
         $show = $Page->show(); // 分页显示输出
@@ -329,10 +330,10 @@ class Download extends Base
         $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
-            $info['litpic_remote'] = $info['litpic'];
+            $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
         } else {
             $info['is_remote'] = 0;
-            $info['litpic_local'] = $info['litpic'];
+            $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
         $assign_data['field'] = $info;
 

@@ -71,17 +71,16 @@ class TagUi extends Base
             
             $version = getCmsVersion();
             $webConfig = tpCache('web');
-            $web_cmspath = !empty($webConfig['web_cmspath']) ? $webConfig['web_cmspath'] : ''; // CMS安装路径
-            $web_adminbasefile = !empty($webConfig['web_adminbasefile']) ? $webConfig['web_adminbasefile'] : '/login.php'; // 后台入口文件路径
-            $parseStr .= '<script type="text/javascript" src="'.$web_cmspath.'/public/plugins/layer-v3.1.0/layer.js?v='.$version.'"></script>';
-            $parseStr .= '<link rel="stylesheet" type="text/css" href="'.$web_cmspath.'/public/static/common/css/eyou.css?v='.$version.'" />';
-            $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'"; var lang = "'.$this->home_lang.'";</script>';
-            $parseStr .= '<script type="text/javascript" src="'.$web_cmspath.'/public/static/common/js/eyou.js?v='.$version.'"></script>';
+            $web_adminbasefile = !empty($webConfig['web_adminbasefile']) ? $webConfig['web_adminbasefile'] : $this->root_dir.'/login.php'; // 后台入口文件路径
+            $parseStr .= '<script type="text/javascript" src="'.$this->root_dir.'/public/plugins/layer-v3.1.0/layer.js?v='.$version.'"></script>';
+            $parseStr .= '<link rel="stylesheet" type="text/css" href="'.$this->root_dir.'/public/static/common/css/eyou.css?v='.$version.'" />';
+            $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'"; var lang = "'.$this->home_lang.'"; var root_dir = "'.$this->root_dir.'";</script>';
+            $parseStr .= '<script type="text/javascript" src="'.$this->root_dir.'/public/static/common/js/eyou.js?v='.$version.'"></script>';
 /*
             $parseStr .= static_version('/public/plugins/layer-v3.1.0/layer.js');
             $parseStr .= static_version('/public/static/common/css/eyou.css');
             $parseStr .= '<script type="text/javascript">var admin_basefile = "'.$web_adminbasefile.'"; var admin_module_name = "admin"; var v = "'.$v.'"; var lang = "'.$this->home_lang.'";</script>';
-            $parseStr .= static_version($web_cmspath.'/public/static/common/js/eyou.js');
+            $parseStr .= static_version($this->root_dir.'/public/static/common/js/eyou.js');
             */
         }
 

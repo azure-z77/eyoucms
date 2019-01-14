@@ -36,7 +36,10 @@ class ProductAttr extends Model
         $result = db('ProductAttribute')->field($field)
             ->alias('a')
             ->join('__PRODUCT_ATTR__ b', 'b.attr_id = a.attr_id', 'LEFT')
-            ->where('b.aid', $aid)
+            ->where([
+                'b.aid' => $aid,
+                'a.is_del' => 0,
+            ])
             ->order('a.sort_order asc, a.attr_id asc')
             ->select();
 

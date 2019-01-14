@@ -244,7 +244,7 @@ class Uploadify extends Base
                 } else {
                     if (preg_match("/\.(".$allowFiles.")$/i", $file) && preg_match("/.*". $key .".*/i", $file)) {
                         $files[] = array(
-                            'url'=> '/'.$path2,
+                            'url'=> ROOT_DIR.'/'.$path2, // 支持子目录
                             'name'=> $file,
                             'mtime'=> filemtime($path2)
                         );

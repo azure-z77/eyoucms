@@ -66,8 +66,12 @@
         function check_submit()
         {
             layer_loading('正在处理');
+            var url = "{:url('api/Uiset/submit')}";
+            if (url.indexOf('__ROOT_DIR__?') > -1) {
+                url = url.replace('__ROOT_DIR__?', '__ROOT_DIR__/index.php?');
+            }
             $.ajax({
-                url: "{:url('api/Uiset/submit')}",
+                url: url,
                 type: 'POST',
                 dataType: 'JSON',
                 data: $('#post_form').serialize(),

@@ -31,6 +31,11 @@ class Base
      */
     public $home_lang = 'cn';
 
+    /**
+     * 子目录
+     */
+    public $root_dir = '';
+
     //构造函数
     function __construct()
     {
@@ -45,6 +50,8 @@ class Base
         $this->main_lang = get_main_lang();
         $this->home_lang = get_home_lang();
         /*--end*/
+        // 子目录安装路径
+        $this->root_dir = ROOT_DIR;
     }
 
     /**

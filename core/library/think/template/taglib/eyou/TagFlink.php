@@ -48,6 +48,7 @@ class TagFlink extends Base
             ->cache(true,EYOUCMS_CACHE_TIME,"links")
             ->select();
         foreach ($result as $key => $val) {
+            $val['logo'] = get_default_pic($val['logo']);
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $result[$key] = $val;
         }

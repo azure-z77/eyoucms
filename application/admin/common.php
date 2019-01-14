@@ -682,8 +682,8 @@ if (!function_exists('auto_hide_index'))
      */
     function auto_hide_index($url) {
         $web_adminbasefile = tpCache('web.web_adminbasefile');
-        $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : '/login.php';
-        $url = str_replace($web_adminbasefile, '/index.php', $url);
+        $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : ROOT_DIR.'/login.php'; // 支持子目录
+        $url = str_replace($web_adminbasefile, ROOT_DIR.'/index.php', $url); // 支持子目录
         $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {
             $url = str_replace('/index.php/', '/', $url);

@@ -505,7 +505,7 @@ class Uiset extends Controller
             if ($uplaod_data['errcode'] > 0) {
                 return $uplaod_data;
             }
-            $litpic = $uplaod_data['img_url'];
+            $litpic = handle_subdir_pic($uplaod_data['img_url']);
         }
         $oldhtml = urldecode($post['oldhtml']);
         $html = img_replace_url($oldhtml, $litpic);

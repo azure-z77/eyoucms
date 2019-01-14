@@ -84,6 +84,7 @@ class FieldLogic extends Model
         }
 
         if (!empty($data) && !empty($fieldInfo)) {
+            $root_dir = ROOT_DIR;
             foreach ($data as $key => $val) {
                 $dtype = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dtype'] : '';
                 $dfvalue_unit = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dfvalue_unit'] : '';
@@ -102,12 +103,24 @@ class FieldLogic extends Model
                     case 'files':
                     {
                         $val = !empty($val) ? explode(',', $val) : array();
+                        /*支持子目录*/
+                        if (!empty($root_dir)) {
+                            foreach ($val as $k1 => $v1) {
+                                $val[$k1] = handle_subdir_pic($v1);
+                            }
+                        }
+                        /*--end*/
                         break;
                     }
 
                     case 'htmltext':
                     {
                         $val = htmlspecialchars_decode($val);
+                        /*支持子目录*/
+                        if (!empty($root_dir)) {
+                            $val = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val);
+                        }
+                        /*--end*/
                         break;
                     }
 
@@ -119,6 +132,14 @@ class FieldLogic extends Model
                     
                     default:
                     {
+                        /*支持子目录*/
+                        if (!empty($root_dir)) {
+                            if (is_string($val)) {
+                                $val = preg_replace('#(\#39;|&quot;|"|\')(/public/upload/|/uploads/)#i', '$1'.$root_dir.'$2', $val);
+                                $val = preg_replace('#^(/public/upload/|/uploads/)#i', $root_dir.'$1', $val);
+                            }
+                        }
+                        /*--end*/
                         break;
                     }
                 }

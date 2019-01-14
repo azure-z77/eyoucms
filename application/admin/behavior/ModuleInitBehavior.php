@@ -182,7 +182,7 @@ EOF;
         /*检测是否支持URL重写隐藏应用的入口文件index.php*/
         try {
             $response = false;
-            $url = request()->domain().'/api/Rewrite/testing.html';
+            $url = request()->domain().ROOT_DIR.'/api/Rewrite/testing.html';
             $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
             $response = @file_get_contents($url,false,$context);
 
