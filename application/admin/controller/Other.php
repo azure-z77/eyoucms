@@ -186,10 +186,7 @@ class Other extends Base
         }
         
         /*支持子目录*/
-        $root_dir = ROOT_DIR;
-        if (!empty($root_dir)) {
-            $field['intro'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $field['intro']);
-        }
+        $field['intro'] = handle_subdir_pic($field['intro'], 'html');
         /*--end*/
 
         $assign_data['field'] = $field;

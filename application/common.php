@@ -461,18 +461,34 @@ if (!function_exists('handle_subdir_pic'))
 {
     /**
      * 处理子目录与根目录的图片平缓切换
-     * @param string $pic_url 图片路径
+     * @param string $str 图片路径或html代码
      */
-    function handle_subdir_pic($pic_url = '')
+    function handle_subdir_pic($str = '', $type = 'img')
     {
-        if (!is_http_url($pic_url) && !empty($pic_url)) {
-            $root_dir = ROOT_DIR;
-            if (!empty($root_dir)) {
-                $pic_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $pic_url);
-            }
+        $root_dir = ROOT_DIR;
+        switch ($type) {
+            case 'img':
+                if (!empty($root_dir)) {
+                    if (!is_http_url($str) && !empty($str)) {
+                        if (!empty($root_dir)) {
+                            $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
+                        }
+                    }
+                }
+                break;
+
+            case 'html':
+                if (!empty($root_dir)) {
+                    $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
+                }
+                break;
+            
+            default:
+                # code...
+                break;
         }
 
-        return $pic_url;
+        return $str;
     }
 }
 

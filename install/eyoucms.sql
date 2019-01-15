@@ -4,11 +4,11 @@
 -- Server         : 127.0.0.1_3306
 -- Server Version : 5.5.53
 -- Host           : 127.0.0.1:3306
--- Database       : e6
+-- Database       : e11
 -- 
 -- Part : #1
 -- Version : #v1.2.6
--- Date : 2019-01-14 21:45:07
+-- Date : 2019-01-15 09:47:29
 -- -----------------------------------------
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -106,7 +106,7 @@ CREATE TABLE `ey_admin` (
 -- -----------------------------
 -- Records of `ey_admin`
 -- -----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1547473292', '127.0.0.1', '2', '8rukejsuhfd5jmvv4b1n0usn55', '0', '-1', 'cn', '1', '1547473274', '1547473464');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1547516770', '127.0.0.1', '2', 'acaq9gj36i24mci04lfbbtceh5', '0', '-1', 'cn', '1', '1547516761', '0');
 
 -- -----------------------------
 -- Table structure for `ey_admin_log`
@@ -121,7 +121,7 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(10) DEFAULT NULL COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=257 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
+) ENGINE=MyISAM AUTO_INCREMENT=259 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- -----------------------------
 -- Records of `ey_admin_log`
@@ -259,6 +259,8 @@ INSERT INTO `ey_admin_log` VALUES ('247', '1', '编辑文章：Website construct
 INSERT INTO `ey_admin_log` VALUES ('248', '1', '编辑文章：Five Core Elements of Website Construction', '127.0.0.1', '/login.php', '1547463745');
 INSERT INTO `ey_admin_log` VALUES ('249', '1', '编辑下载：Construction machinery bulldozer website template', '127.0.0.1', '/login.php', '1547463855');
 INSERT INTO `ey_admin_log` VALUES ('250', '1', '编辑下载：工程机械推土挖掘机类网站模板', '127.0.0.1', '/login.php', '1547463959');
+INSERT INTO `ey_admin_log` VALUES ('257', '1', '后台登录', '127.0.0.1', '/login.php/', '1547516770');
+INSERT INTO `ey_admin_log` VALUES ('258', '1', '编辑模板语言变量：yybl13', '127.0.0.1', '/login.php/', '1547516837');
 
 -- -----------------------------
 -- Table structure for `ey_archives`
@@ -637,12 +639,12 @@ CREATE TABLE `ey_channeltype` (
 -- -----------------------------
 -- Records of `ey_channeltype`
 -- -----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1547473464');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1547473464');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1547473464');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1547473464');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1547473464');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1547473464');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1547516782');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '4', '0', '1547516782');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '2', '0', '1547516782');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '8', '1509197711', '1547516782');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '6', '1523091961', '1547516782');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '3', '1523929121', '1547516782');
 
 -- -----------------------------
 -- Table structure for `ey_config`
@@ -692,7 +694,7 @@ INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', 'cn', '0', '
 INSERT INTO `ey_config` VALUES ('28', 'web_name', '易优Cms-演示站', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/uploads/allimg/20190114/ba52bdcbb075530e33454279df374aba.png', 'web', '', 'cn', '0', '1547463501');
 INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.6', 'web', '', 'cn', '0', '0');
+INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.11', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. 易优CMS 版权所有', 'web', '', 'cn', '0', '0');
@@ -724,10 +726,10 @@ INSERT INTO `ey_config` VALUES ('67', 'web_templeturl', '/template', 'web', '', 
 INSERT INTO `ey_config` VALUES ('68', 'web_templets_pc', '/template/pc', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('69', 'web_templets_m', '/template/mobile', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', '1iSPLLttotxgQliKEfaKtlfh', 'php', '', 'cn', '0', '1547473432');
+INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'ixl1k9pam52FEF2mNJoSCyNT', 'php', '', 'cn', '0', '1547516791');
 INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1547473277');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1547516764');
 INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '0');
@@ -768,7 +770,7 @@ INSERT INTO `ey_config` VALUES ('118', 'oss_switch', '0', 'oss', '', 'en', '0', 
 INSERT INTO `ey_config` VALUES ('119', 'web_name', 'en易优Cms-演示站', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('120', 'web_logo', '/uploads/allimg/20190114/ba52bdcbb075530e33454279df374aba.png', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('121', 'web_ico', '/favicon.ico', 'web', '', 'en', '0', '0');
-INSERT INTO `ey_config` VALUES ('122', 'web_basehost', 'http://127.0.0.6', 'web', '', 'en', '0', '0');
+INSERT INTO `ey_config` VALUES ('122', 'web_basehost', 'http://127.0.0.11', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('123', 'web_description', '', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('124', 'web_copyright', 'Copyright © 2012-2018 EYOUCMS. EYOU CMS All rights reserved', 'web', '', 'en', '0', '1545272727');
 INSERT INTO `ey_config` VALUES ('125', 'web_thirdcode_pc', '', 'web', '', 'en', '0', '0');
@@ -801,9 +803,9 @@ INSERT INTO `ey_config` VALUES ('151', 'web_templets_m', '/template/mobile', 'we
 INSERT INTO `ey_config` VALUES ('152', 'web_eyoucms', 'http://www.eyoucms.com', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('153', 'seo_liststitle_format', '2', 'seo', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('154', 'web_status', '0', 'web', '', 'en', '0', '0');
-INSERT INTO `ey_config` VALUES ('155', '_cmscopyright', 'PNE4s643Sw21jwhjmhfFeaKg', 'php', '', 'en', '0', '1547473432');
+INSERT INTO `ey_config` VALUES ('155', '_cmscopyright', 'kLc4bGnE8fgrSTlbQNTKMB2z', 'php', '', 'en', '0', '1547516791');
 INSERT INTO `ey_config` VALUES ('156', 'web_recordnum', 'Qiong ICP Prepares xxxxxxx Number', 'web', '', 'en', '0', '1545272757');
-INSERT INTO `ey_config` VALUES ('157', 'web_is_authortoken', '-1', 'web', '', 'en', '0', '1547473277');
+INSERT INTO `ey_config` VALUES ('157', 'web_is_authortoken', '-1', 'web', '', 'en', '0', '1547516764');
 INSERT INTO `ey_config` VALUES ('158', 'web_adminbasefile', '/login.php', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('159', 'seo_rewrite_format', '1', 'seo', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('160', 'web_cmsmode', '2', 'web', '', 'en', '0', '0');
@@ -1503,8 +1505,8 @@ INSERT INTO `ey_language_pack` VALUES ('45', 'yybl11', '文件附件列表', '0'
 INSERT INTO `ey_language_pack` VALUES ('46', 'yybl11', 'List of file attachments', '0', 'en', '100', '1545273655', '1545273655');
 INSERT INTO `ey_language_pack` VALUES ('47', 'yybl12', '结果', '0', 'cn', '100', '1545274437', '1545274437');
 INSERT INTO `ey_language_pack` VALUES ('48', 'yybl12', 'Result', '0', 'en', '100', '1545274437', '1545274437');
-INSERT INTO `ey_language_pack` VALUES ('49', 'yybl13', '没有数据了', '0', 'cn', '100', '1545274472', '1546477350');
-INSERT INTO `ey_language_pack` VALUES ('50', 'yybl13', 'No data.', '0', 'en', '100', '1545274472', '1546477350');
+INSERT INTO `ey_language_pack` VALUES ('49', 'yybl13', '没有数据了', '0', 'cn', '100', '1545274472', '1547516837');
+INSERT INTO `ey_language_pack` VALUES ('50', 'yybl13', 'No data.', '0', 'en', '100', '1545274472', '1547516837');
 
 -- -----------------------------
 -- Table structure for `ey_links`

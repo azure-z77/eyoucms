@@ -58,9 +58,7 @@ class TagAd extends Base
         $result['intro'] = htmlspecialchars_decode($result['intro']); // 解码内容
 
         /*支持子目录*/
-        if (!empty($this->root_dir)) {
-            $result['intro'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$this->root_dir.'$4$5', $result['intro']);
-        }
+        $result['intro'] = handle_subdir_pic($result['intro'], 'html');
         /*--end*/
 
         return $result;

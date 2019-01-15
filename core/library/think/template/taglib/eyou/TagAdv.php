@@ -87,9 +87,7 @@ class TagAdv extends Base
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['intro'] = htmlspecialchars_decode($val['intro']);
             /*支持子目录*/
-            if (!empty($this->root_dir)) {
-                $val['intro'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$this->root_dir.'$4$5', $val['intro']);
-            }
+            $val['intro'] = handle_subdir_pic($val['intro'], 'html');
             /*--end*/
             if ($uiset == 'on') {
                 $val['links'] = "javascript:void(0);";

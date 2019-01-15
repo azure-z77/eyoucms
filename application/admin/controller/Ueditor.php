@@ -243,10 +243,7 @@ class Ueditor extends Base
                             }
                         }else{
                             /*支持子目录*/
-                            $root_dir = ROOT_DIR;
-                            if (!empty($root_dir)) {
-                                $water['mark_img'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $water['mark_img']);
-                            }
+                            $water['mark_img'] = handle_subdir_pic($water['mark_img'], 'html');
                             /*--end*/
                             //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                             $waterPath = "." . $water['mark_img'];
@@ -593,10 +590,7 @@ class Ueditor extends Base
                         }
                     }else{
                         /*支持子目录*/
-                        $root_dir = ROOT_DIR;
-                        if (!empty($root_dir)) {
-                            $water['mark_img'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $water['mark_img']);
-                        }
+                        $water['mark_img'] = handle_subdir_pic($water['mark_img'], 'html');
                         /*--end*/
                         //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                         $waterPath = "." . $water['mark_img'];

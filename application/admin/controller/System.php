@@ -104,8 +104,8 @@ class System extends Base
         // 支持子目录
         if (!empty($root_dir)) {
             foreach ($eyou_row as $key => $val) {
-                $val['value'] = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val['value']);
-                $val['value'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $val['value']);
+                $val['value'] = handle_subdir_pic($val['value'], 'html');
+                $val['value'] = handle_subdir_pic($val['value']);
                 $eyou_row[$key] = $val;
             }
         }

@@ -202,7 +202,7 @@ class Url
             $domain = self::parseDomain($url, $domain);
             // URL组装
             $url = $domain . rtrim(self::$root ?: $request->root(), '/');
-            if (1 == $seo_inlet && stristr($url, 'index.php')) {
+            if (1 == $seo_inlet) {
                 $url .= "/";
             }
             $url .= "?m={$m}&c={$c}&a={$a}";

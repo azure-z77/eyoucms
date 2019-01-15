@@ -82,10 +82,7 @@ class View extends Base
         $result['seo_title'] = set_arcseotitle($result['title'], $result['seo_title'], $result['typename']);
 
         /*支持子目录*/
-        $root_dir = ROOT_DIR;
-        if (!empty($root_dir)) {
-            $result['litpic'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $result['litpic']);
-        }
+        $result['litpic'] = handle_subdir_pic($result['litpic']);
         /*--end*/
 
         $result = view_logic($aid, $this->channel, $result); // 模型对应逻辑
@@ -153,10 +150,7 @@ class View extends Base
         $downUrl = $result['file_url'];
 
         /*支持子目录*/
-        $root_dir = ROOT_DIR;
-        if (!empty($root_dir)) {
-            $downUrl = handle_subdir_pic($result['file_url']);
-        }
+        $downUrl = handle_subdir_pic($result['file_url']);
         /*--end*/
 
         header('Location: '. $downUrl);

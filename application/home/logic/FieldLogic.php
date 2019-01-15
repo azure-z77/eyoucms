@@ -117,9 +117,7 @@ class FieldLogic extends Model
                     {
                         $val = htmlspecialchars_decode($val);
                         /*支持子目录*/
-                        if (!empty($root_dir)) {
-                            $val = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val);
-                        }
+                        $val = handle_subdir_pic($val, 'html');
                         /*--end*/
                         break;
                     }
@@ -135,8 +133,8 @@ class FieldLogic extends Model
                         /*支持子目录*/
                         if (!empty($root_dir)) {
                             if (is_string($val)) {
-                                $val = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $val);
-                                $val = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $val);
+                                $val = handle_subdir_pic($val, 'html');
+                                $val = handle_subdir_pic($val);
                             }
                         }
                         /*--end*/
