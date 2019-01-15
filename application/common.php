@@ -468,18 +468,20 @@ if (!function_exists('handle_subdir_pic'))
         $root_dir = ROOT_DIR;
         switch ($type) {
             case 'img':
-                if (!empty($root_dir)) {
-                    if (!is_http_url($str) && !empty($str)) {
-                        if (!empty($root_dir)) {
-                            $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
-                        }
+                if (!is_http_url($str) && !empty($str)) {
+                    if (!empty($root_dir)) { // 子目录之间切换
+                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
+                    } else { // 子目录与根目录切换
+                        // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
                     }
                 }
                 break;
 
             case 'html':
-                if (!empty($root_dir)) {
+                if (!empty($root_dir)) { // 子目录之间切换
                     $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
+                } else { // 子目录与根目录切换
+                    // $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
                 }
                 break;
             
