@@ -49,7 +49,6 @@ class Index extends Base
             if (empty($home_url)) {
                 $seoConfig = tpCache('seo');
                 $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
-                $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                 if (1 == $seo_pseudo) {
                     $home_url = request()->domain().ROOT_DIR.$inletStr; // 支持子目录
                     if (!empty($inletStr)) {

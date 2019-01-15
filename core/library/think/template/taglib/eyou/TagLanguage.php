@@ -58,7 +58,6 @@ class TagLanguage extends Base
                 } else {
                     $seoConfig = tpCache('seo', [], $val['mark']);
                     $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
-                    $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
                     if (1 == $seo_pseudo) {
                         $url = request()->domain().$this->root_dir.$inletStr; // 支持子目录
                         if (!empty($inletStr)) {

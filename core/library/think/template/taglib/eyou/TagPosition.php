@@ -54,8 +54,34 @@ class TagPosition extends Base
         $basicConfig = tpCache('basic');
         $basic_indexname = !empty($basicConfig['basic_indexname']) ? $basicConfig['basic_indexname'] : '首页';
         $symbol = !empty($symbol) ? $symbol : $basicConfig['list_symbol'];
+
+        /*首页链接*/
+        $inletStr = '/index.php';
+        $seo_inlet = config('ey_config.seo_inlet');
+        1 == intval($seo_inlet) && $inletStr = '';
+
+        $lang = input('param.lang/s', '');
+        if (empty($lang)) {
+            $home_url = $this->root_dir.'/'; // 支持子目录
+        } else {
+            $seoConfig = tpCache('seo', [], $lang);
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            if (1 == $seo_pseudo) {
+                $home_url = request()->domain().$this->root_dir.$inletStr; // 支持子目录
+                if (!empty($inletStr)) {
+                    $home_url .= '?';
+                } else {
+                    $home_url .= '/?';
+                }
+                $home_url .= http_build_query(['lang'=>$lang]);
+            } else {
+                $home_url = $this->root_dir.$inletStr.'/'.$lang; // 支持子目录
+            }
+        }
+        /*--end*/
+
         // $symbol = htmlspecialchars_decode($symbol);
-        $str = "<a href='".tpCache('global.core_cmsurl')."/' class='{$style}'>{$basic_indexname}</a>";
+        $str = "<a href='{$home_url}' class='{$style}'>{$basic_indexname}</a>";
         $result = model('Arctype')->getAllPid($typeid);
         $i = 1;
         foreach ($result as $key => $val) {
