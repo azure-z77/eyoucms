@@ -479,9 +479,9 @@ if (!function_exists('handle_subdir_pic'))
 
             case 'html':
                 if (!empty($root_dir)) { // 子目录之间切换
-                    $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
+                    $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
                 } else { // 子目录与根目录切换
-                    // $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
+                    // $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
                 }
                 break;
             
@@ -1032,7 +1032,7 @@ if (!function_exists('gettoptype'))
         $parent_list = model('Arctype')->getAllPid($typeid); // 获取当前栏目的所有父级栏目
         $result = current($parent_list); // 第一级栏目
         if (isset($result[$field]) && !empty($result[$field])) {
-            return $result[$field];
+            return handle_subdir_pic($result[$field]); // 支持子目录
         } else {
             return '';
         }
