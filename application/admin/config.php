@@ -26,6 +26,8 @@ $admin_config = array(
     'paginate'      => array(
         'list_rows' => 15,
     ),
+    // 默认全局过滤方法 用逗号分隔多个
+    'default_filter'         => 'htmlspecialchars', // htmlspecialchars
 
     // +----------------------------------------------------------------------
     // | 异常及错误设置
