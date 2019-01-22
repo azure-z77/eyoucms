@@ -303,8 +303,9 @@ class UpgradeLogic extends Model
     //自定义函数递归的复制带有多级子目录的目录
     private function recurse_copy($src, $dst, $folderName)
     {
-        $badcp = 0;
-        $now = getTime();
+        static $badcp = 0; // 累计覆盖失败的文件总数
+        static $n = 0; // 累计执行覆盖的文件总数
+        static $total = 0; // 累计更新的文件总数
         $dir = opendir($src);
         tp_mkdir($dst);
         while (false !== $file = readdir($dir)) {
@@ -316,12 +317,16 @@ class UpgradeLogic extends Model
                     if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {
                         $rs = @copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
                         if($rs) {
+                            $n++;
                             @unlink($src . DIRECTORY_SEPARATOR . $file);
-                        }
-                        else {
+                        } else {
+                            $n++;
                             $badcp++;
                         }
+                    } else {
+                        $n++;
                     }
+                    $total++;
                 }
             }
         }
@@ -336,6 +341,22 @@ class UpgradeLogic extends Model
         }
 
         return ['code'=>$code, 'msg'=>$msg];
+    }
+
+    /**
+     * 复制文件进度
+     */
+    private function copy_speed($n, $total)
+    {
+        $data = false;
+
+        if ($n < $total) {
+            $this->copy_speed($n, $total);
+        } else {
+            $data = true;
+        }
+        
+        return $data;
     }
 
     private function sql_split($sql, $tablepre) {
