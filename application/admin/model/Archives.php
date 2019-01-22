@@ -86,6 +86,7 @@ class Archives extends Model
         // 伪删除文档
         M('archives')->where([
                 'typeid'    => ['IN', $typeidArr],
+                'is_del'    => 0,
             ])
             ->update([
                 'is_del'    => 1,

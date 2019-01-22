@@ -35,15 +35,15 @@ class Arctype extends Base
         $this->arctype_channel_id = config('global.arctype_channel_id');
 
         /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
-        try {
-            $arctypeFieldInfo = include DATA_PATH.'schema/'.PREFIX.'arctype.php';
-            foreach (['del_method'] as $key => $val) {
-                if (!isset($arctypeFieldInfo[$val])) {
+        $arctypeFieldInfo = include DATA_PATH.'schema/'.PREFIX.'arctype.php';
+        foreach (['del_method'] as $key => $val) {
+            if (!isset($arctypeFieldInfo[$val])) {
+                try {
                     schemaTable('arctype');
-                    break;
-                }
+                } catch (\Exception $e) {}
+                break;
             }
-        } catch (\Exception $e) {}
+        }
         /*--end*/
     }
 

@@ -138,7 +138,7 @@
                                     <a href="{:U($channelRow[$vo['channel']]['ctl_name'].'/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid,'gourl'=>$gourl))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="'Archives@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Archives/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Archives/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
                                     {/eq}
                                 </div>
@@ -168,7 +168,7 @@
                 </div>
                 {eq name="'Archives@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Archives/del')}">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Archives/del')}" data-deltype="pseudo">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>

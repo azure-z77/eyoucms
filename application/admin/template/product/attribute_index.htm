@@ -126,7 +126,7 @@
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                                     {eq name='$main_lang' value='$admin_lang'}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Product/attribute_del')}" data-id="{$vo.attr_id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Product/attribute_del')}" data-id="{$vo.attr_id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     {/eq}
                                 </div>
@@ -157,7 +157,7 @@
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Product/attribute_del')}">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Product/attribute_del')}" data-deltype="pseudo">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>

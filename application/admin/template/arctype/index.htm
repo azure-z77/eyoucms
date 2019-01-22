@@ -142,7 +142,7 @@
                       {/eq}
                       {eq name="'Arctype@pseudo_del'|is_check_access" value="1"}
                       {eq name='$main_lang' value='$admin_lang'}
-                      <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                      <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                       {/eq}
                       {/eq}
                       <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>

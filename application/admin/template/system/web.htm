@@ -5,7 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="system/bar" /}
-    <form method="post" id="handlepost" action="{:U('System/web')}" enctype="multipart/form-data" name="form1">
+    <form method="post" id="handlepost" action="{:url('System/web')}" enctype="multipart/form-data" name="form1">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
@@ -355,14 +355,14 @@
     }
 
     function customvar_del(obj) {
-        layer.confirm('模板数据将不完整，确认删除？', {
+        layer.confirm('删除到回收站，确认删除？', {
               btn: ['确定','取消'] //按钮
             }, function(){
                 // 确定
                 layer_loading('正在处理');
                 $.ajax({
                     type : 'post',
-                    url : "{:U('System/customvar_del')}",
+                    url : "{:url('System/customvar_del')}",
                     data : {del_id:$(obj).attr('data-id')},
                     dataType : 'json',
                     success : function(data){
@@ -385,7 +385,7 @@
 
     // function customvar_recycle(obj)
     // {
-    //     var url = "{:U('System/customvar_recycle')}";
+    //     var url = "{:url('System/customvar_recycle')}";
     //     //iframe窗
     //     layer.open({
     //         type: 2,

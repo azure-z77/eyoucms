@@ -47,8 +47,16 @@ function batch_del(obj, name) {
         layer.alert('请至少选择一项', {icon: 2});
         return;
     }
+
+    var deltype = $(obj).attr('data-deltype');
+    if ('pseudo' == deltype) {
+        title = '删除到回收站，确认批量删除？';
+    } else {
+        title = '此操作不可逆，确认批量删除？';
+    }
+
     // 删除按钮
-    layer.confirm('此操作不可逆，确认批量删除？', {
+    layer.confirm(title, {
         btn: ['确定', '取消'] //按钮
     }, function () {
         layer_loading('正在处理');
@@ -86,7 +94,14 @@ function batch_del(obj, name) {
  * 单个删除
  */
 function delfun(obj) {
-    layer.confirm('此操作不可逆，确认删除？', {
+    var deltype = $(obj).attr('data-deltype');
+    if ('pseudo' == deltype) {
+        title = '删除到回收站，确认删除？';
+    } else {
+        title = '此操作不可逆，确认删除？';
+    }
+
+    layer.confirm(title, {
           btn: ['确定','取消'] //按钮
         }, function(){
             // 确定

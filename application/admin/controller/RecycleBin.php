@@ -171,7 +171,10 @@ class RecycleBin extends Base
 
                     $this->arctype->where($where)->update($data);
 
-                    $where1 .= $value['id'].',';
+                    // 还原父级栏目，不还原主动删除的子栏目下的文档
+                    if (in_array($value['id'], $id_arr) || 2 == intval($value['del_method'])) {
+                        $where1 .= $value['id'].',';
+                    }
                 }
                 $where1 = rtrim($where1,',');
                 $where1 .= ') and del_method=2';
@@ -204,7 +207,7 @@ class RecycleBin extends Base
                     }
                 }
 
-                // 内容数据更新
+                // 内容数据更新 -  还原父级栏目，不还原主动删除的子栏目下的文档
                 $r = $this->archives->where($where1)->update($data);
 
                 if (false !== $r) {
