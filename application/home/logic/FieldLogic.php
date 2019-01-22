@@ -84,7 +84,6 @@ class FieldLogic extends Model
         }
 
         if (!empty($data) && !empty($fieldInfo)) {
-            $root_dir = ROOT_DIR;
             foreach ($data as $key => $val) {
                 $dtype = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dtype'] : '';
                 $dfvalue_unit = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dfvalue_unit'] : '';
@@ -104,10 +103,8 @@ class FieldLogic extends Model
                     {
                         $val = !empty($val) ? explode(',', $val) : array();
                         /*支持子目录*/
-                        if (!empty($root_dir)) {
-                            foreach ($val as $k1 => $v1) {
-                                $val[$k1] = handle_subdir_pic($v1);
-                            }
+                        foreach ($val as $k1 => $v1) {
+                            $val[$k1] = handle_subdir_pic($v1);
                         }
                         /*--end*/
                         break;
@@ -131,11 +128,9 @@ class FieldLogic extends Model
                     default:
                     {
                         /*支持子目录*/
-                        if (!empty($root_dir)) {
-                            if (is_string($val)) {
-                                $val = handle_subdir_pic($val, 'html');
-                                $val = handle_subdir_pic($val);
-                            }
+                        if (is_string($val)) {
+                            $val = handle_subdir_pic($val, 'html');
+                            $val = handle_subdir_pic($val);
                         }
                         /*--end*/
                         break;

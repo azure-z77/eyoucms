@@ -26,13 +26,25 @@ class Arctype extends Base
     // 允许发布文档的模型ID
     public $allowReleaseChannel = array();
     // 禁用的目录名称
-    public $disableDirname = array('application','core','data','extend','html','install','public','plugins','upload','template','vendor','weapp','tags','search');
+    public $disableDirname = array('application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search');
     
     public function _initialize() {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
         $this->allowReleaseChannel = config('global.allow_release_channel');
         $this->arctype_channel_id = config('global.arctype_channel_id');
+
+        /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
+        try {
+            $arctypeFieldInfo = include DATA_PATH.'schema/'.PREFIX.'arctype.php';
+            foreach (['del_method'] as $key => $val) {
+                if (!isset($arctypeFieldInfo[$val])) {
+                    schemaTable('arctype');
+                    break;
+                }
+            }
+        } catch (\Exception $e) {}
+        /*--end*/
     }
 
     public function index()
@@ -40,7 +52,8 @@ class Arctype extends Base
         $arctype_list = array();
         // 目录列表
         $arctypeLogic = new ArctypeLogic(); 
-        $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, array(), false);
+        $where['is_del'] = '0'; // 回收站功能
+        $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
         $this->assign('arctype_list', $arctype_list);
 
         // 模型列表
@@ -469,7 +482,38 @@ class Arctype extends Base
     }
     
     /**
-     * 删除
+     * 伪删除
+     */
+    public function pseudo_del()
+    {
+        if (IS_POST) {
+            $this->language_access(); // 多语言功能操作权限
+            
+            $post = input('post.');
+            $post['del_id'] = eyIntval($post['del_id']);
+
+            /*当前栏目信息*/
+            $row = M('arctype')->field('id, current_channel, typename')
+                ->where([
+                    'id'    => $post['del_id'],
+                    'lang'  => $this->admin_lang,
+                ])
+                ->find();
+            
+            $r = model('arctype')->pseudo_del($post['del_id']);
+            if (false !== $r) {
+                adminLog('伪删除栏目：'.$row['typename']);
+                $this->success('删除成功');
+            } else {
+                $this->error('删除失败');
+            }
+        }
+
+        $this->error('非法访问');
+    }
+
+    /**
+     * 删除[1.2.7之后废弃]
      */
     public function del()
     {
@@ -488,9 +532,6 @@ class Arctype extends Base
         
         $r = model('arctype')->del($post['del_id']);
         if (false !== $r) {
-            // ---------后置操作
-            // model('arctype')->del($post['del_id']);
-            // ---------end
             adminLog('删除栏目：'.$row['typename']);
             $this->success('删除成功');
         } else {

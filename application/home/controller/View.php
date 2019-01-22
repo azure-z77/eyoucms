@@ -35,10 +35,14 @@ class View extends Base
         $archivesInfo = M('archives')->field('a.typeid, a.channel, b.nid, b.ctl_name')
             ->alias('a')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
-            ->where('a.aid',$aid)
+            ->where([
+                'a.aid'     => $aid,
+                'a.is_del'      => 0,
+            ])
             ->find();
         if (empty($archivesInfo)) {
-            $this->redirect('/public/static/errpage/404.html', 301);
+            abort(404,'页面不存在');
+            // $this->redirect('/public/static/errpage/404.html', 301);
         }
         $this->nid = $archivesInfo['nid'];
         $this->channel = $archivesInfo['channel'];

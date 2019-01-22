@@ -126,10 +126,8 @@ class TagGlobal extends Base
 
                 default:
                     /*支持子目录*/
-                    if (!empty($this->root_dir)) {
-                        $value = handle_subdir_pic($value, 'html');
-                        $value = handle_subdir_pic($value);
-                    }
+                    $value = handle_subdir_pic($value, 'html');
+                    $value = handle_subdir_pic($value);
                     /*--end*/
                     break;
             }

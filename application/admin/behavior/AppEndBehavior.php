@@ -32,9 +32,8 @@ class AppEndBehavior {
     }
 
     private function _initialize() {
-        $this->saveBaseFile(); // 存储后台入口文件路径
-        $this->renameInstall(); // 重命名安装目录
         $this->resetAuthor(); // 临时处理授权问题
+        $this->clearHtmlCache(); // 变动数据之后，清除页面缓存和数据
         $this->sitemap(); // 自动生成sitemap
     }
 
@@ -65,7 +64,7 @@ class AppEndBehavior {
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (in_array($ctlActStr, $ctlActArr) && 'GET' == self::$method) {
             if(!empty($_SESSION['isset_resetAuthor']))
-                return false;
+                return true;
             $_SESSION['isset_resetAuthor'] = 1;
 
             session('isset_author', null);
@@ -74,70 +73,19 @@ class AppEndBehavior {
     }
 
     /**
-     * 存储后台入口文件路径，比如：/login.php
+     * 数据变动之后，清理页面和数据缓存
      */
-    private function saveBaseFile()
+    private function clearHtmlCache()
     {
         /*在以下相应的控制器和操作名里执行，以便提高性能*/
-        $ctlActArr = array(
-            'Admin@login',
-            'Index@index',
-        );
-        $ctlActStr = self::$controllerName.'@'.self::$actionName;
-        if (in_array($ctlActStr, $ctlActArr) && 'GET' == self::$method) {
-            $baseFile = request()->baseFile();
-            /*多语言*/
-            if (is_language()) {
-                $langRow = \think\Db::name('language')->order('id asc')
-                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                    ->select();
-                foreach ($langRow as $key => $val) {
-                    tpCache('web', ['web_adminbasefile'=>$baseFile], $val['mark']);
-                }
-            } else { // 单语言
-                tpCache('web', ['web_adminbasefile'=>$baseFile]);
-            }
-            /*--end*/
-        }
-        /*--end*/
-    }
-
-    /**
-     * 重命名安装目录，提高网站安全性
-     */
-    private function renameInstall()
-    {
-        /*在以下相应的控制器和操作名里执行，以便提高性能*/
-        $ctlActArr = array(
-            'Admin@login',
-            'Index@index',
-        );
-        $ctlActStr = self::$controllerName.'@'.self::$actionName;
-        if (in_array($ctlActStr, $ctlActArr) && 'GET' == self::$method) {
-            $install_path = ROOT_PATH.'install';
-            if (is_dir($install_path) && file_exists($install_path)) {
-                $install_time = DEFAULT_INSTALL_DATE;
-                $constsant_path = APP_PATH.'admin/conf/constant.php';
-                if (file_exists($constsant_path)) {
-                    require_once($constsant_path);
-                    defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
-                }
-                $new_path = ROOT_PATH.'install_'.$install_time;
-                @rename($install_path, $new_path);
-            } else { // 修补v1.1.6版本删除的安装文件 install.lock
-                if(!empty($_SESSION['isset_install_lock']))
-                    return false;
-                $_SESSION['isset_install_lock'] = 1;
-
-                $install_time = DEFAULT_INSTALL_DATE;
-                $constsant_path = APP_PATH.'admin/conf/constant.php';
-                if (file_exists($constsant_path)) {
-                    require_once($constsant_path);
-                    defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
-                }
-                $filename = ROOT_PATH.'install_'.$install_time.DS.'install.lock';
-                if (!file_exists($filename)) {
-                    @file_put_contents($filename, '');
+        $actArr = ['add','edit','del','recovery','changeTableVal'];
+        if ('POST' == self::$method) {
+            foreach ($actArr as $key => $val) {
+                if (preg_match('/^((.*)_)?('.$val.')$/i', self::$actionName)) {
+                    foreach ([HTML_ROOT,CACHE_PATH] as $k2 => $v2) {
+                        delFile($v2);
+                    }
+                    break;
                 }
             }
         }

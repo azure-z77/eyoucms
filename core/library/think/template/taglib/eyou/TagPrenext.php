@@ -51,8 +51,15 @@ class TagPrenext extends Base
             $result = M('archives')->field('b.*, a.*')
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                ->where("a.typeid = {$typeid} AND a.aid > {$aid} AND a.channel = {$channel} AND a.status = 1")
-                ->where('a.lang', $this->home_lang)
+                ->where([
+                    'a.typeid'  => $typeid,
+                    'a.aid'     => ['GT', $aid],
+                    'a.channel' => $channel,
+                    'a.status'  => 1,
+                    'a.lang'    => $this->home_lang,
+                    'a.is_del'  => 0,
+                    'a.arcrank' => ['EGT', 0],
+                ])
                 ->order('a.aid asc')
                 ->find();
             if (!empty($result)) {
@@ -71,8 +78,15 @@ class TagPrenext extends Base
             $result = M('archives')->field('b.*, a.*')
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                ->where("a.typeid = {$typeid} AND a.aid < {$aid} AND a.channel = {$channel} AND a.status = 1")
-                ->where('a.lang', $this->home_lang)
+                ->where([
+                    'a.typeid'  => $typeid,
+                    'a.aid'     => ['LT', $aid],
+                    'a.channel' => $channel,
+                    'a.status'  => 1,
+                    'a.lang'    => $this->home_lang,
+                    'a.is_del'  => 0,
+                    'a.arcrank' => ['EGT', 0],
+                ])
                 ->order('a.aid desc')
                 ->find();
             if (!empty($result)) {

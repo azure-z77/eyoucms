@@ -114,6 +114,17 @@ if ($main_lang == $admin_lang) {
 }
 /*--end*/
 
+/*回收站URl*/
+$recyclebin_index_arr = array();
+if ($main_lang == $admin_lang) {
+    $recyclebin_index_arr = array(
+        'controller' => 'RecycleBin',
+        'action' => 'arctype_index',
+        'url' => '',
+    );
+}
+/*--end*/
+
 /*插件应用URl*/
 $weapp_index_arr = array();
 // $weappDirList = glob(ROOT_PATH.'weapp/*');
@@ -353,20 +364,6 @@ return  array(
                         'is_modules'=>0,
                         'child' => array(),
                     ),
-                    // '2004006' => array(
-                    //     'id'=>2004006,
-                    //     'parent_id'=>2004,
-                    //     'name' => '多语言', 
-                    //     'controller'=>'Language',
-                    //     'action'=>'index', 
-                    //     'url'=>'', 
-                    //     'target'=>'workspace',
-                    //     'icon'=>'fa fa-globe',
-                    //     'grade'=>2,
-                    //     'is_menu'=>1,
-                    //     'is_modules'=>0,
-                    //     'child' => array(),
-                    // ),
                     '2004002' => array(
                         'id'=>2004002,
                         'parent_id'=>2004,
@@ -423,6 +420,20 @@ return  array(
                         'is_modules'=>0,
                         'child' => array(),
                     ),
+                    '2004006' => array(
+                        'id'=>2004006,
+                        'parent_id'=>2004,
+                        'name' => '回收站',
+                        'controller'=>isset($recyclebin_index_arr['controller']) ? $recyclebin_index_arr['controller'] : '',
+                        'action'=>isset($recyclebin_index_arr['action']) ? $recyclebin_index_arr['action'] : '',
+                        'url'=>isset($recyclebin_index_arr['url']) ? $recyclebin_index_arr['url'] : '',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-recycle',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
                 ),
             ),
             '2005' => array(
@@ -433,7 +444,7 @@ return  array(
                 'action'=>isset($weapp_index_arr['action']) ? $weapp_index_arr['action'] : '',
                 'url'=>isset($weapp_index_arr['url']) ? $weapp_index_arr['url'] : '',
                 'target'=>'workspace',
-                'icon'=>'fa fa-recycle',
+                'icon'=>'fa fa-futbol-o',
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>0,

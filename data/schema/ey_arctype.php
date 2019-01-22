@@ -189,6 +189,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'del_method' => 
+  array (
+    'name' => 'del_method',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'status' => 
   array (
     'name' => 'status',

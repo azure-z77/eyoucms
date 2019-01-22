@@ -56,8 +56,8 @@ class Product extends Model
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
 
         /*清除页面缓存*/
-        $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-        $htmlCacheLogic->clear_archives([$aid]);
+        // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+        // $htmlCacheLogic->clear_archives([$aid]);
         /*--end*/
     }
 

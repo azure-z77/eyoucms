@@ -173,9 +173,9 @@ class AuthRoleBehavior
         if (in_array($ctl_all, $ctlArr)) {
             $typeids = [];
             if (in_array(strtolower(self::$actionName), ['edit','del'])) {
-                $typeids[] = I('id/d', 0);
+                $typeids[] = input('id/d', 0);
             } else if (in_array(strtolower(self::$actionName), ['add'])) {
-                $typeids[] = I('parent_id/d', 0);
+                $typeids[] = input('parent_id/d', 0);
             }
             if (!$this->is_check_arctype($typeids)) {
                 $this->error('您没有操作权限，请联系超级管理员分配权限');
@@ -202,11 +202,11 @@ class AuthRoleBehavior
                 $aids = [];
                 switch ($act) {
                     case 'edit':
-                        $aids = I('id/a', []);
+                        $aids = input('id/a', []);
                         break;
 
                     case 'del':
-                        $aids = I('del_id/a', []);
+                        $aids = input('del_id/a', []);
                         break;
                     
                     default:
@@ -217,7 +217,7 @@ class AuthRoleBehavior
                     $typeids = M('archives')->where('aid','IN',$aids)->column('typeid');
                 }
             } else {
-                $typeids[] = I('typeid/d', 0);
+                $typeids[] = input('typeid/d', 0);
             }
             if (!$this->is_check_arctype($typeids)) {
                 $this->error('您没有操作权限，请联系超级管理员分配权限');

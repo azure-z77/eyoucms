@@ -33,6 +33,9 @@ $system_home_default_lang = !empty($globalConfig['system_home_default_lang']) ? 
 config('ey_config.system_home_default_lang', $system_home_default_lang);
 // URL模式
 $seo_pseudo = !empty($globalConfig['seo_pseudo']) ? intval($globalConfig['seo_pseudo']) : config('ey_config.seo_pseudo');
+// 是否https链接
+$is_https = !empty($globalConfig['web_is_https']) ? true : config('is_https');
+config('is_https', $is_https);
 
 $uiset = I('param.uiset/s', 'off');
 if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
@@ -79,10 +82,6 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
         /*--end*/
         if (1 == $seo_rewrite_format) { // 精简伪静态
             $home_rewrite = array(
-                // 列表页
-                $lang_rewrite_str.'<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                // 内容页
-                $lang_rewrite_str.'<dirname>/<aid>$' => array('home/View/index',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
                 // 留言提交
                 $lang_rewrite_str.'guestbook/submit$' => array('home/Lists/gbook_submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
                 // 下载文件
@@ -92,6 +91,10 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 搜索伪静态
                 $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                // 列表页
+                $lang_rewrite_str.'<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                // 内容页
+                $lang_rewrite_str.'<dirname>/<aid>$' => array('home/View/index',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
             );
         } else {
             $home_rewrite = array(

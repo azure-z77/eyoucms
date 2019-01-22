@@ -53,11 +53,16 @@ class ArchivesLogic extends Model
             }
             /*--end*/
 
+            $info['is_del']     = '1'; // 伪删除状态
+            $info['update_time']= getTime(); // 更新修改时间
+            $info['del_method'] = '1'; // 恢复删除方式为默认
+
             $err = 0;
             foreach ($data as $key => $val) {
-                $r = M('archives')->where('aid','IN',$val['aid'])->delete();
+                // $r = M('archives')->where('aid','IN',$val['aid'])->delete();
+                $r = M('archives')->where('aid','IN',$val['aid'])->update($info);
                 if ($r) {
-                    model($val['ctl_name'])->afterDel($val['aid']);
+                    // model($val['ctl_name'])->afterDel($val['aid']);
                     adminLog('删除文档-id：'.implode(',', $val['aid']));
                 } else {
                     $err++;

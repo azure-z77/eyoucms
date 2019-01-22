@@ -28,7 +28,7 @@ return [
         'menu_id2' => 0,
         'name'  => '栏目管理',
         'is_modules'    => 1,
-        'auths' => 'Arctype@index,Arctype@add,Arctype@edit,Arctype@del',
+        'auths' => 'Arctype@index,Arctype@add,Arctype@edit,Arctype@del,Arctype@pseudo_del',
     ],
     [
         'id' => 2,
@@ -165,5 +165,13 @@ return [
         'name'  => '权限组',
         'is_modules'    => 0,
         'auths' => 'Admin@admin_add,Admin@admin_del,AuthRole@*',
+    ],
+    [
+        'id' => 19,
+        'menu_id' => 2004,
+        'menu_id2' => 2004006,
+        'name'  => '回收站',
+        'is_modules'    => 1,
+        'auths' => 'RecycleBin@*',
     ],
 ];

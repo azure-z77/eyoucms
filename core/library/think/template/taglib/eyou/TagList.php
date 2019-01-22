@@ -105,6 +105,7 @@ class TagList extends Base
                     }
                 }
                 $typeids = get_arr_column($arctype_list, "id");
+                $typeids[] = $param['typeid'];
                 $typeid = implode(",", $typeids);
                 /*--end*/
             } elseif (count($typeidArr) > 1) {
@@ -183,6 +184,8 @@ class TagList extends Base
         }
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
+        array_push($condition, "a.is_del = 0"); // 回收站功能
+        
         $where_str = "";
         if (0 < count($condition)) {
             $where_str = implode(" AND ", $condition);
@@ -435,6 +438,7 @@ class TagList extends Base
         $condition['a.lang'] = array('eq', $this->home_lang);
         $condition['a.arcrank'] = array('gt', -1);
         $condition['a.status'] = array('eq', 1);
+        $condition['a.is_del'] = array('eq', 0); // 回收站功能
         $condition['b.is_hidden'] = array('eq', 0);
 
         // 给排序字段加上表别名

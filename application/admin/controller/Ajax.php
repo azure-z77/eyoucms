@@ -30,4 +30,59 @@ class Ajax extends Controller {
             'log_time'  => ['lt', $mtime],
             ])->delete();
     }
+
+    /**
+     * 重命名安装目录，提高网站安全性
+     * 在 Admin@login 和 Index@index 操作下
+     */
+    public function renameInstall()
+    {
+        $install_path = ROOT_PATH.'install';
+        if (is_dir($install_path) && file_exists($install_path)) {
+            $install_time = DEFAULT_INSTALL_DATE;
+            $constsant_path = APP_PATH.'admin/conf/constant.php';
+            if (file_exists($constsant_path)) {
+                require_once($constsant_path);
+                defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
+            }
+            $new_path = ROOT_PATH.'install_'.$install_time;
+            @rename($install_path, $new_path);
+        } else { // 修补v1.1.6版本删除的安装文件 install.lock
+            if(!empty($_SESSION['isset_install_lock']))
+                return true;
+            $_SESSION['isset_install_lock'] = 1;
+
+            $install_time = DEFAULT_INSTALL_DATE;
+            $constsant_path = APP_PATH.'admin/conf/constant.php';
+            if (file_exists($constsant_path)) {
+                require_once($constsant_path);
+                defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
+            }
+            $filename = ROOT_PATH.'install_'.$install_time.DS.'install.lock';
+            if (!file_exists($filename)) {
+                @file_put_contents($filename, '');
+            }
+        }
+    }
+
+    /**
+     * 存储后台入口文件路径，比如：/login.php
+     * 在 Admin@login 和 Index@index 操作下
+     */
+    public function saveBaseFile()
+    {
+        $baseFile = request()->baseFile();
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')
+                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                ->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('web', ['web_adminbasefile'=>$baseFile], $val['mark']);
+            }
+        } else { // 单语言
+            tpCache('web', ['web_adminbasefile'=>$baseFile]);
+        }
+        /*--end*/
+    }
 }

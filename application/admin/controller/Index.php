@@ -209,6 +209,7 @@ class Index extends Base
         $value  = input('value', '', null); // 修改字段值  
         M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save(array($field=>$value)); // 根据条件保存修改的数据
 
+        // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
         switch ($table) {
             case 'auth_modular':
                 extra_cache('admin_auth_modular_list_logic', null);
@@ -225,8 +226,8 @@ class Index extends Base
         }
 
         /*清除页面缓存*/
-        $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-        $htmlCacheLogic->clear_archives();
+        // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+        // $htmlCacheLogic->clear_archives();
         /*--end*/
         
         $this->success('操作成功');

@@ -69,12 +69,12 @@ function batch_del(obj, name) {
                     //     window.location.reload();
                     // });
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络请求失败', {icon: 2,time: 3000});
+                layer.alert('网络请求失败', {icon: 2});
             }
         });
     }, function (index) {
@@ -103,12 +103,12 @@ function delfun(obj) {
                         window.location.reload();
                         // $(obj).parent().parent().parent().remove();
                     }else{
-                        layer.msg(data.msg, {icon: 2,time: 2000});
+                        layer.alert(data.msg, {icon: 2});
                     }
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络请求失败', {icon: 2,time: 3000});
+                    layer.alert('网络请求失败', {icon: 2});
                 }
             })
         }, function(index){
@@ -170,12 +170,12 @@ function batch_move(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络请求失败', {icon: 2,time: 3000});
+                layer.alert('网络请求失败', {icon: 2});
             }
         });
     }, function (index) {

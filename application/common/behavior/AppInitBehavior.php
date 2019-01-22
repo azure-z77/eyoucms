@@ -39,7 +39,7 @@ class AppInitBehavior {
                 $key = 'isset_saveSqlmode';
                 $sessvalue = session($key);
                 if(!empty($sessvalue))
-                    return false;
+                    return true;
                 session($key, 1);
 
                 $sql_mode = db()->query("SELECT @@global.sql_mode AS sql_mode");

@@ -584,6 +584,7 @@ if (!function_exists('get_total_arc'))
             $map = array(
                 'typeid'    => array('IN', $typeidArr),
                 'channel'    => array('eq', $current_channel),
+                'is_del'    => 0, // 回收站功能
             );
             $total = M('archives')->where($map)->count();
         } elseif ($current_channel == 8) { // 留言模型

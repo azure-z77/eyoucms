@@ -207,6 +207,24 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'is_del' => 
+  array (
+    'name' => 'is_del',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'del_method' => 
+  array (
+    'name' => 'del_method',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'add_time' => 
   array (
     'name' => 'add_time',

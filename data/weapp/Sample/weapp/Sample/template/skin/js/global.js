@@ -62,12 +62,12 @@ function batch_del(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络异常', {icon: 2,time: 3000});
+                layer.alert('网络异常', {icon: 2});
             }
         });
     }, function (index) {
@@ -95,7 +95,7 @@ function delfun(obj) {
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.msg(data.msg, {icon: 2,time: 2000});
+                        layer.alert(data.msg, {icon: 2});
                     }
                 }
             })
@@ -158,12 +158,12 @@ function batch_move(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络异常', {icon: 2,time: 3000});
+                layer.alert('网络异常', {icon: 2});
             }
         });
     }, function (index) {

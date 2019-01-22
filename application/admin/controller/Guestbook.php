@@ -71,7 +71,7 @@ class Guestbook extends Base
         }
         
         // 多语言
-        $condition['a.lang'] = array('eq', get_admin_lang());
+        $condition['a.lang'] = array('eq', $this->admin_lang);
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -142,7 +142,7 @@ class Guestbook extends Base
         if(!empty($id_arr)){
             $r = M('guestbook')->where([
                     'aid'   => ['IN', $id_arr],
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->delete();
             if($r){
                 // ---------后置操作
@@ -184,7 +184,7 @@ class Guestbook extends Base
 
         $condition['is_del'] = 0;
         // 多语言
-        $condition['lang'] = get_admin_lang();
+        $condition['lang'] = $this->admin_lang;
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -262,7 +262,6 @@ class Guestbook extends Base
 
         if(IS_AJAX && IS_POST)//ajax提交验证
         {
-            $admin_lang = get_admin_lang();
             $model = model('GuestbookAttribute');
 
             $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
@@ -278,7 +277,7 @@ class Guestbook extends Base
                 'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
                 'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
                 'sort_order'    => 100,
-                'lang'  => $admin_lang,
+                'lang'  => $this->admin_lang,
                 'add_time'  => getTime(),
                 'update_time'   => getTime(),
             );
@@ -374,7 +373,7 @@ class Guestbook extends Base
                 $model->data($savedata,true); // 收集数据
                 $model->isUpdate(true, [
                         'attr_id'   => $post_data['attr_id'],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])->save(); // 写入数据到数据库     
                 $return_arr = array(
                      'status' => 1,
@@ -395,7 +394,7 @@ class Guestbook extends Base
         /*--end*/
         $info = M('GuestbookAttribute')->where([
                 'attr_id'    => $id,
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
             ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
@@ -464,10 +463,8 @@ class Guestbook extends Base
         /*--end*/
 
         $attr_group = 'guestbook_attribute';
-        $admin_lang = get_admin_lang();
-        $main_lang = get_main_lang();
         $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
-        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
+        if (!empty($languageRow) && $this->admin_lang == $this->main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
             $result = Db::name('guestbook_attribute')->find($attr_id);
             $attr_name = 'attr_'.$attr_id;
             $r = Db::name('language_attribute')->save([
@@ -481,7 +478,7 @@ class Guestbook extends Base
                 $data = [];
                 foreach ($languageRow as $key => $val) {
                     /*同步新留言属性到其他语言留言属性列表*/
-                    if ($val['mark'] != $admin_lang) {
+                    if ($val['mark'] != $this->admin_lang) {
                         $addsaveData = $result;
                         $addsaveData['lang'] = $val['mark'];
                         $newTypeid = Db::name('language_attr')->where([

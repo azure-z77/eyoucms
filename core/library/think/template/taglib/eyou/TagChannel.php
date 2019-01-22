@@ -307,8 +307,9 @@ class TagChannel extends Base
         $arctypeLogic = new \app\common\logic\ArctypeLogic();
         $arctype_max_level = intval(config('global.arctype_max_level'));
         $map = array(
-            'is_hidden'   => 0,
-            'status'  => 1,
+            'is_hidden' => 0,
+            'is_del'    => 0, // 回收站功能
+            'status'    => 1,
         );
         $res = $arctypeLogic->arctype_list(0, 0, false, $arctype_max_level, $map);
         /*--end*/

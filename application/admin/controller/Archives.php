@@ -35,7 +35,8 @@ class Archives extends Base
         $arctype_list = array();
         // 目录列表
         $arctypeLogic = new ArctypeLogic(); 
-        $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, array(), false);
+        $where['is_del'] = '0'; // 回收站功能
+        $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
         $zNodes = "[";
         foreach ($arctype_list as $key => $val) {
             $current_channel = $val['current_channel'];
@@ -167,6 +168,10 @@ class Archives extends Base
 
         /*多语言*/
         $condition['a.lang'] = array('eq', get_admin_lang());
+        /*--end*/
+
+        /*回收站数据不显示*/
+        $condition['a.is_del'] = array('eq', 0);
         /*--end*/
 
         /**

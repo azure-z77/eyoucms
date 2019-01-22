@@ -7,7 +7,7 @@
     <div class="fixed-bar">
         <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
             <div class="subject">
-                <h3>编辑留言表单</h3>
+                <h3>编辑留言属性</h3>
                 <h5></h5>
             </div>
         </div>
@@ -27,7 +27,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="ac_name"><em>*</em>表单名称</label>
+                    <label for="ac_name"><em>*</em>属性名称</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="attr_name" value="{$field.attr_name}" id="attr_name" class="input-txt">
@@ -37,7 +37,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="attr_input_type"><em>*</em>表单类型</label>
+                    <label for="attr_input_type"><em>*</em>属性类型</label>
                 </dt>
                 <dd class="opt">
                     <label><input type="radio" value="0" name="attr_input_type" {eq name="field.attr_input_type" value="0"}checked="checked"{/eq} />单行文本</label>
@@ -76,7 +76,7 @@
     });
 
     /**
-    * ajax 提交表单 到后台去验证然后回到前台提示错误
+    * ajax 提交属性 到后台去验证然后回到前台提示错误
     * 验证通过后,再通过 form 自动提交
     */
     function check_submit(form_id,submit_url)
@@ -87,12 +87,12 @@
             return false;
         }
         if($.trim($('input[name=attr_name]').val()) == ''){
-            showErrorMsg('表单名称不能为空！');
+            showErrorMsg('属性名称不能为空！');
             $('input[name=attr_name]').focus();
             return false;
         }
         if ($('input[name=attr_input_type]').is(':checked') == false) {
-            showErrorMsg('请选择表单类型！');
+            showErrorMsg('请选择属性类型！');
             $($('input[name=attr_input_type]')[0]).focus();
             return false;
         }

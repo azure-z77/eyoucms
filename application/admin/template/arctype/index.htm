@@ -140,9 +140,9 @@
                         {/if}
                       {/eq}
                       {/eq}
-                      {eq name="'Arctype@del'|is_check_access" value="1"}
+                      {eq name="'Arctype@pseudo_del'|is_check_access" value="1"}
                       {eq name='$main_lang' value='$admin_lang'}
-                      <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                      <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                       {/eq}
                       {/eq}
                       <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>
@@ -254,34 +254,33 @@
     }
   
     function delfun(obj){
-      var title = $(obj).attr('data-typename');
-      layer.confirm('<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除？', {
-          title: title,
-          btn: ['确定','取消'] //按钮
+        var title = $(obj).attr('data-typename');
+        layer.confirm('<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除到回收站？', {
+            title: title,
+            btn: ['确定','取消'] //按钮
         }, function(){
-          layer_loading('正在处理');
-        // 确定
-          $.ajax({
-            type : 'post',
-            url : $(obj).attr('data-url'),
-            data : {del_id:$(obj).attr('data-id')},
-            dataType : 'json',
-            success : function(data){
-              layer.closeAll();
-              if(data.code == 1){
-                layer.msg(data.msg, {icon: 1});
-                window.location.reload();
-                // $('tr[data-id="'+$(obj).attr('data-id')+'"]').remove();
-              }else{
-                layer.alert(data.msg, {icon: 2});  //alert(data);
-              }
-            }
-          })
+            layer_loading('正在处理');
+            // 确定
+            $.ajax({
+                type : 'post',
+                url : $(obj).attr('data-url'),
+                data : {del_id:$(obj).attr('data-id')},
+                dataType : 'json',
+                success : function(data){
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        window.location.reload();
+                        // $('tr[data-id="'+$(obj).attr('data-id')+'"]').remove();
+                    }else{
+                        layer.alert(data.msg, {icon: 2});  //alert(data);
+                    }
+                }
+            })
         }, function(index){
-          layer.close(index);
-        }
-      );
-      return false;
+            layer.close(index);
+        });
+        return false;
     }  
   </script>
 </div>

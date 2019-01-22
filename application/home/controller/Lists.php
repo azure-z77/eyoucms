@@ -39,6 +39,7 @@ class Lists extends Base
             } else {
                 $map = array('a.id'=>$tid);
             }
+            $map['a.is_del'] = 0; // 回收站功能
             $map['a.lang'] = $this->home_lang; // 多语言
             $row = M('arctype')->field('a.id, a.current_channel, b.nid')
                 ->alias('a')

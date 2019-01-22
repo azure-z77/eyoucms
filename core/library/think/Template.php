@@ -481,8 +481,7 @@ class Template
                     if (preg_match('/^([^\\/]+)\.'.$this->config['view_suffix'].'$/i', $file) === 1) {
                         $file = str_replace('.'.$this->config['view_suffix'], '', $file);
                     } else if (stristr($file, '.'.$this->config['view_suffix']) && (stristr($file, '/') || stristr($file, '\\'))) {
-                        $web_cmspath = tpCache('global.web_cmspath');
-                        $file  = '.'.$web_cmspath.$file;
+                        $file  = '.'.$file;
                     }
                     unset($array['file']);
                     // 分析模板文件名并读取内容
@@ -524,8 +523,7 @@ class Template
                     if (preg_match('/^([^\\/]+)\.'.$this->config['view_suffix'].'$/i', $file) === 1) {
                         $file = str_replace('.'.$this->config['view_suffix'], '', $file);
                     } else if (stristr($file, '.'.$this->config['view_suffix']) && (stristr($file, '/') || stristr($file, '\\'))) {
-                        $web_cmspath = tpCache('global.web_cmspath');
-                        $file  = '.'.$web_cmspath.$file;
+                        $file  = '.'.$file;
                     }
                     /*--end*/
                     unset($array['file']);

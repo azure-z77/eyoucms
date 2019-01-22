@@ -867,9 +867,8 @@ if (!function_exists('allow_release_arctype'))
     {
         $where = [];
 
-        /*多语言 by 小虎哥*/
-        $where['c.lang'] = get_current_lang();
-        /*--end*/
+        $where['c.lang']   = get_current_lang(); // 多语言 by 小虎哥
+        $where['c.is_del'] = 0; // 回收站功能
 
         /*权限控制 by 小虎哥*/
         $admin_info = session('admin_info');

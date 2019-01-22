@@ -49,14 +49,14 @@ class ModuleInitBehavior {
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method) {
-            return false;
+            return true;
         }
         /*--end*/
         
         $planPath = 'template/pc';
         $planPath = realpath($planPath);
         if (!file_exists($planPath)) {
-            return false;
+            return true;
         }
         $ctl_name_arr = array();
         $dirRes   = opendir($planPath);
@@ -95,7 +95,7 @@ class ModuleInitBehavior {
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         $seo_inlet = tpCache('seo.seo_inlet');
         if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method || 1 == $seo_inlet) {
-            return false;
+            return true;
         }
         /*--end*/
 
@@ -172,7 +172,7 @@ EOF;
         $cacheKey = 'admin_ModuleInitBehavior_isset_checkInlet';
         $cacheVal = cache($cacheKey);
         if (!in_array($ctlActStr, $ctlActArr) || !empty($cacheVal)) {
-            return false;
+            return true;
         }
         cache($cacheKey, 1);
         /*--end*/
@@ -251,7 +251,7 @@ EOF;
         );
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         if (!in_array($ctlActStr, $ctlActArr) || 'GET' != self::$method) {
-            return false;
+            return true;
         }
         /*--end*/
 
@@ -278,11 +278,11 @@ EOF;
     /**
      * 根据IP判断是否本地局域网访问
      */
-    private function is_local($ip){
+    /*private function is_local($ip){
         if(preg_match('/^(localhost|127\.|192\.)/', $ip) === 1){  
             return true;      
         }else{  
             return false;     
         }     
-    }
+    }*/
 }

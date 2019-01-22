@@ -79,6 +79,24 @@ class Archives extends Model
     }
 
     /**
+     * 伪删除栏目下所有文档
+     */
+    public function pseudo_del($typeidArr)
+    {
+        // 伪删除文档
+        M('archives')->where([
+                'typeid'    => ['IN', $typeidArr],
+            ])
+            ->update([
+                'is_del'    => 1,
+                'del_method'    => 2,
+                'update_time'   => getTime(),
+            ]);
+
+        return true;
+    }
+
+    /**
      * 删除栏目下所有文档
      */
     public function del($typeidArr)

@@ -193,6 +193,7 @@ class Arctype extends Model
         $map = array(
             'is_hidden'   => 0,
             'status'  => 1,
+            'is_del'  => 0, // 回收站功能
         );
         $res = $arctypeLogic->arctype_list($id, 0, false, $arctype_max_level, $map);
 
@@ -234,6 +235,7 @@ class Arctype extends Model
             'id'   => $id,
             'is_hidden'   => 0,
             'status'  => 1,
+            'is_del'  => 0, // 回收站功能
         );
         $res = M('arctype')->field('parent_id')->where($map)->find();
 
@@ -275,6 +277,7 @@ class Arctype extends Model
         $map = array(
             'is_hidden'   => 0,
             'status'  => 1,
+            'is_del'  => 0, // 回收站功能
         );
         $res = $arctypeLogic->arctype_list(0, 0, false, $arctype_max_level, $map);
 
@@ -303,16 +306,17 @@ class Arctype extends Model
      * @param boolean $self 包括自己本身
      * @author wengxianhu by 2017-7-26
      */
-    public function getHasChildren($id, $self = true)
+    public function getHasChildren($id, $self = true, $is_del = 0)
     {
         $lang = get_current_lang(); // 多语言
-        $cacheKey = "common_model_Arctype_getHasChildren_{$id}_{$self}_{$lang}";
+        $cacheKey = "common_model_Arctype_getHasChildren_{$id}_{$self}_{$is_del}_{$lang}";
         $result = cache($cacheKey);
         if (empty($result)) {
             $where = array(
                 'c.status'  => 1,
                 'c.lang'    => $lang,
             );
+            null != $is_del && $where['c.is_del'] = $is_del; // 回收站功能
             $fields = "c.*, count(s.id) as has_children";
             $res = db('arctype')
                 ->field($fields)
@@ -424,11 +428,92 @@ class Arctype extends Model
     }
 
     /**
+     * 伪删除指定栏目（包括子栏目、所有相关文档）
+     */
+    public function pseudo_del($typeid)
+    {
+        $childrenList = $this->getHasChildren($typeid); // 获取当前栏目以及所有子栏目
+        $typeidArr = get_arr_column($childrenList, 'id'); // 获取栏目数组里的所有栏目ID作为新的数组
+        $typeidArr2 = $typeidArr;
+
+        /*多语言*/
+        $attr_name_arr = [];
+        foreach ($typeidArr as $key => $val) {
+            $attr_name = 'tid'.$val;
+            $attr_name_arr[$key] = $attr_name;
+        }
+        $attr_values = Db::name('language_attr')->where([
+                'attr_name'    => ['IN', $attr_name_arr],
+                'attr_group'    => 'arctype',
+            ])->column('attr_value');
+        !empty($attr_values) && $typeidArr = $attr_values;
+        /*--end*/
+
+        /*标记当前栏目以及子栏目为被动伪删除*/
+        $sta1 = Db::name('arctype')
+            ->where([
+                'id'    => ['IN', $typeidArr],
+                'is_del'    => 0,
+                'del_method' => 0,
+            ])
+            ->cache(true,null,"arctype")
+            ->update([
+                'is_del'    => 1,
+                'del_method'    => 2, // 1为主动删除，2为跟随上级栏目被动删除
+                'update_time'   => getTime(),
+            ]); // 伪删除栏目
+        /*--end*/
+
+        /*标记当前栏目为主动伪删除*/
+        // 多语言
+        $attr_values = Db::name('language_attr')->where([
+                'attr_name'    => 'tid'.$typeid,
+                'attr_group'    => 'arctype',
+            ])->column('attr_value');
+        !empty($attr_values) && $typeidArr2 = $attr_values;
+        // --end
+        $sta2 = Db::name('arctype')
+            ->where([
+                'id'    => ['IN', $typeidArr2],
+            ])
+            ->cache(true,null,"arctype")
+            ->update([
+                'is_del'    => 1,
+                'del_method'    => 1, // 1为主动删除，2为跟随上级栏目被动删除
+                'update_time'   => getTime(),
+            ]); // 伪删除栏目
+        /*--end*/
+
+        if ($sta1 && $sta2) {
+            model('Archives')->pseudo_del($typeidArr); // 删除文档
+            // 删除多语言栏目关联绑定
+            if (!empty($attr_name_arr)) {
+                Db::name('language_attribute')->where([
+                    'attr_name'     => ['IN',$attr_name_arr],
+                ])->update([
+                    'is_del'    => 1,
+                    'update_time'   => getTime(),
+                ]);
+            }
+            /*--end*/
+
+            /*清除页面缓存*/
+            // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+            // $htmlCacheLogic->clear_arctype();
+            /*--end*/
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 删除指定栏目（包括子栏目、所有相关文档）
      */
     public function del($typeid)
     {
-        $childrenList = $this->getHasChildren($typeid); // 获取当前栏目以及所有子栏目
+        $childrenList = $this->getHasChildren($typeid, true, 1); // 获取当前栏目以及所有子栏目
         $typeidArr = get_arr_column($childrenList, 'id'); // 获取栏目数组里的所有栏目ID作为新的数组
         /*多语言*/
         $attr_name_arr = [];
@@ -462,8 +547,8 @@ class Arctype extends Model
             /*--end*/
 
             /*清除页面缓存*/
-            $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-            $htmlCacheLogic->clear_arctype();
+            // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+            // $htmlCacheLogic->clear_arctype();
             /*--end*/
 
             return true;
@@ -557,13 +642,13 @@ class Arctype extends Model
                 /*--end*/
 
                 /*清除页面缓存*/
-                $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-                $htmlCacheLogic->clear_arctype();
+                // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+                // $htmlCacheLogic->clear_arctype();
                 /*--end*/
 
-                \think\Cache::clear("arctype");
-                extra_cache('admin_all_menu', NULL);
-                \think\Cache::clear('admin_archives_release');
+                // \think\Cache::clear("arctype");
+                // extra_cache('admin_all_menu', NULL);
+                // \think\Cache::clear('admin_archives_release');
             }
         }
         return $insertId;
@@ -673,13 +758,13 @@ class Arctype extends Model
                 /*--end*/
 
                 /*清除页面缓存*/
-                $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-                $htmlCacheLogic->clear_arctype();
+                // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+                // $htmlCacheLogic->clear_arctype();
                 /*--end*/
 
-                \think\Cache::clear("arctype");
-                extra_cache('admin_all_menu', NULL);
-                \think\Cache::clear('admin_archives_release');
+                // \think\Cache::clear("arctype");
+                // extra_cache('admin_all_menu', NULL);
+                // \think\Cache::clear('admin_archives_release');
             }
         }
         return $bool;

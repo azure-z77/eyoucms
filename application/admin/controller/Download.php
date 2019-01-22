@@ -93,6 +93,8 @@ class Download extends Base
         $condition['a.channel'] = array('eq', $this->channeltype);
         // 多语言
         $condition['a.lang'] = array('eq', get_admin_lang());
+        // 回收站
+        $condition['a.is_del'] = array('eq', 0);
 
         /**
          * 数据查询，搜索出主键ID的值

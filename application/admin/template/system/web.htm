@@ -383,24 +383,24 @@
         );
     }
 
-    function customvar_recycle(obj)
-    {
-        var url = "{:U('System/customvar_recycle')}";
-        //iframe窗
-        layer.open({
-            type: 2,
-            title: '自定义变量-回收站列表',
-            fixed: true, //不固定
-            shadeClose: false,
-            shade: 0.3,
-            maxmin: false, //开启最大化最小化按钮
-            area: ['700px', '450px'],
-            content: url,
-            end: function(){ //结束弹窗之后的处理
-                window.location.reload();
-            }
-        });
-    }
+    // function customvar_recycle(obj)
+    // {
+    //     var url = "{:U('System/customvar_recycle')}";
+    //     //iframe窗
+    //     layer.open({
+    //         type: 2,
+    //         title: '自定义变量-回收站列表',
+    //         fixed: true, //不固定
+    //         shadeClose: false,
+    //         shade: 0.3,
+    //         maxmin: false, //开启最大化最小化按钮
+    //         area: ['700px', '450px'],
+    //         content: url,
+    //         end: function(){ //结束弹窗之后的处理
+    //             window.location.reload();
+    //         }
+    //     });
+    // }
 
     function showtext(classname){
         var clipboard1 = new Clipboard("."+classname);clipboard1.on("success", function(e) {layer.msg("复制成功");});clipboard1.on("error", function(e) {layer.msg("复制失败！请手动复制", {icon:2});}); 

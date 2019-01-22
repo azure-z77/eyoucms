@@ -82,6 +82,21 @@
                     <p class="notic">开启之后，顶部菜单会显示多语言入口</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="site_url">使用https链接</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="web_is_https1" class="cb-enable {if condition='isset($config.web_is_https) && $config.web_is_https eq 1'}selected{/if}">开启</label>
+                        <label for="web_is_https0" class="cb-disable {if condition='empty($config.web_is_https)'}selected{/if}">关闭</label>
+                        <input id="web_is_https1" name="web_is_https" value="1" type="radio" {if condition="isset($config.web_is_https) && $config.web_is_https eq 1"} checked="checked"{/if}>
+                        <input id="web_is_https0" name="web_is_https" value="0" type="radio" {if condition="empty($config.web_is_https)"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic">开启之后，sitemap.xml地图以及全站URL将带有https头协议</p>
+                    <p class="red">兼容部分空间在https协议下ssl证书不能被识别的问题</p>
+                </dd>
+            </dl>
             <dl class="row none">
                 <dt class="tit">
                     <label for="web_cmspath">系统安装目录</label>

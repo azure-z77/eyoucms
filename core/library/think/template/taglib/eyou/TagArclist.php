@@ -93,6 +93,7 @@ class TagArclist extends Base
                         }
                     }
                     $typeids = get_arr_column($arctype_list, "id");
+                    $typeids[] = $param['typeid'];
                     $typeid = implode(",", $typeids);
                     /*--end*/
                 } elseif (count($typeidArr) > 1) {
@@ -165,6 +166,7 @@ class TagArclist extends Base
         }
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
+        array_push($condition, "a.is_del = 0"); // 回收站功能
         $where_str = "";
         if (0 < count($condition)) {
             $where_str = implode(" AND ", $condition);

@@ -40,13 +40,13 @@
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; padding-left: 10px;" class="">表单提示文字</div>
+                            <div style="text-align: left; padding-left: 10px;" class="">属性提示文字</div>
                         </th>
                         <th abbr="article_title" axis="col3"  class="w100">
                             <div class="tc">字段名称</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
-                            <div class="tc">表单类型</div>
+                            <div class="tc">属性类型</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">所属栏目</div>
@@ -156,8 +156,8 @@
                 {eq name="$Think.const.CONTROLLER_NAME.'@attribute_add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:U('Guestbook/attribute_add', array('typeid'=>$Request.param.typeid))}">
-                        <div class="add" title="新增表单">
-                            <span class="red"><i class="fa fa-plus"></i>新增表单</span>
+                        <div class="add" title="新增属性">
+                            <span class="red"><i class="fa fa-plus"></i>新增属性</span>
                         </div>
                     </a>
                 </div>
@@ -192,14 +192,14 @@
     function copyToClipBoard(fieldname, attr_id, attr_input_type) {
         if (1 == attr_input_type) {
             var liststr = "<select name='{$"+"field."+fieldname+"}' id='"+fieldname+"'>\r\n    <option value='无'>无</option>\r\n    {eyou:volist name='$"+"field.options_"+attr_id+"' id='vo'}\r\n        <option value='{$"+"vo.value}'>{$"+"vo.value}</option>\r\n    {/eyou:volist"+"}\r\n</select>";
-            var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>表单提示文字：</dd>'
+            var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>属性提示文字：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.itemname_'+attr_id+'}"></dd>'
             contentdiv += '<dd>下列框列表：</dd>'
             contentdiv += '<dd><textarea rows="4" cols="60" style="width:400px;height:110px;">' + liststr + '</textarea></dd>'
             height = '230px';
 
         } else {
-            var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>表单提示文字：</dd>'
+            var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>属性提示文字：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.itemname_'+attr_id+'}"></dd>'
             contentdiv += '<dd>字段名称：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.'+fieldname+'}"></dd>'

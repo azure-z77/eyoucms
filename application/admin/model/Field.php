@@ -124,7 +124,6 @@ class Field extends Model
     public function showViewFormData($list, $formFieldStr, $addonRow = array())
     {
         if (!empty($list)) {
-            $root_dir = ROOT_DIR;
             foreach ($list as $key => $val) {
                 $val['fieldArr'] = $formFieldStr;
                 switch ($val['dtype']) {
@@ -206,10 +205,8 @@ class Field extends Model
                         if (isset($addonRow[$val['name']]) && !empty($addonRow[$val['name']])) {
                             $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
                             /*支持子目录*/
-                            if (!empty($root_dir)) {
-                                foreach ($eyou_imgupload_list as $k1 => $v1) {
-                                    $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
-                                }
+                            foreach ($eyou_imgupload_list as $k1 => $v1) {
+                                $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
                             }
                             /*--end*/
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
@@ -236,11 +233,9 @@ class Field extends Model
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
                         /*支持子目录*/
-                        if (!empty($root_dir)) {
-                            if (is_string($val['dfvalue'])) {
-                                $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');
-                                $val['dfvalue'] = handle_subdir_pic($val['dfvalue']);
-                            }
+                        if (is_string($val['dfvalue'])) {
+                            $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');
+                            $val['dfvalue'] = handle_subdir_pic($val['dfvalue']);
                         }
                         /*--end*/
                         break;

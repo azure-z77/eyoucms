@@ -81,9 +81,7 @@ class System extends Base
             $config['web_logo_local'] = handle_subdir_pic($config['web_logo']);
         }
 
-        if (!empty($root_dir)) {
-            $config['web_ico'] = preg_replace('#^(/[/\w]+)?(/)#i', $root_dir.'$2', $config['web_ico']); // 支持子目录
-        }
+        $config['web_ico'] = preg_replace('#^(/[/\w]+)?(/)#i', $root_dir.'$2', $config['web_ico']); // 支持子目录
         
         /*系统模式*/
         $web_cmsmode = isset($config['web_cmsmode']) ? $config['web_cmsmode'] : 2;
@@ -101,13 +99,10 @@ class System extends Base
             ])
             ->order('a.attr_id asc')
             ->select();
-        // 支持子目录
-        if (!empty($root_dir)) {
-            foreach ($eyou_row as $key => $val) {
-                $val['value'] = handle_subdir_pic($val['value'], 'html');
-                $val['value'] = handle_subdir_pic($val['value']);
-                $eyou_row[$key] = $val;
-            }
+        foreach ($eyou_row as $key => $val) {
+            $val['value'] = handle_subdir_pic($val['value'], 'html'); // 支持子目录
+            $val['value'] = handle_subdir_pic($val['value']); // 支持子目录
+            $eyou_row[$key] = $val;
         }
         $this->assign('eyou_row',$eyou_row);
         /*--end*/
@@ -682,91 +677,6 @@ class System extends Base
             }
         }else{
             $this->error('参数有误');
-        }
-    }
-
-    /**
-     * 恢复自定义变量
-     */
-    public function customvar_recovery()
-    {
-        $id = input('del_id/d');
-        if(!empty($id)){
-            $attr_var_name = M('config')->where([
-                    'id'    => $id,
-                    'lang'  => $this->admin_lang,
-                ])->getField('name');
-
-            $r = M('config')->where('name', $attr_var_name)->update(array('is_del'=>0, 'update_time'=>getTime()));
-            if($r){
-                adminLog('恢复自定义变量：'.$attr_var_name);
-                respose(array('status'=>1, 'msg'=>'删除成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
-            }
-        }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
-        }
-    }
-
-    /**
-     * 自定义变量回收站列表
-     */
-    public function customvar_recycle()
-    {
-        $admin_lang = $this->admin_lang;
-        $list = array();
-        $condition = array();
-        // 应用搜索条件
-        $attr_var_names = M('config')->field('name')
-            ->where([
-                'is_del'    => 1,
-                'lang'  => $admin_lang,
-            ])->getAllWithIndex('name');
-        $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
-        $condition['a.lang']    = $admin_lang;
-
-        $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
-        $Page = new \think\Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = M('config_attribute')->alias('a')
-            ->field('a.*, b.id')
-            ->join('__CONFIG__ b', 'b.name = a.attr_var_name', 'LEFT')
-            ->where($condition)
-            ->order('a.update_time desc')
-            ->limit($Page->firstRow.','.$Page->listRows)
-            ->select();
-
-        $show = $Page->show();// 分页显示输出
-        $this->assign('page',$show);// 赋值分页输出
-        $this->assign('list',$list);// 赋值数据集
-        $this->assign('pager',$Page);// 赋值分页对象
-
-        return $this->fetch();
-    }
-
-    /**
-     * 彻底删除自定义变量
-     */
-    public function customvar_del_thorough()
-    {
-        $id = input('del_id/d');
-        if(!empty($id)){
-            $attr_var_name = M('config')->where([
-                    'id'    => $id,
-                    'lang'  => $this->admin_lang,
-                ])->getField('name');
-
-            $r = M('config')->where('name',$attr_var_name)->delete();
-            if($r){
-                // 同时删除
-                M('config_attribute')->where('attr_var_name',$attr_var_name)->delete();
-                adminLog('彻底删除自定义变量：'.$attr_var_name);
-                respose(array('status'=>1, 'msg'=>'删除成功'));
-            }else{
-                respose(array('status'=>0, 'msg'=>'删除失败'));
-            }
-        }else{
-            respose(array('status'=>0, 'msg'=>'参数有误'));
         }
     }
 }
