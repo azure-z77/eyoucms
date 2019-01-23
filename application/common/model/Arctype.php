@@ -306,17 +306,17 @@ class Arctype extends Model
      * @param boolean $self 包括自己本身
      * @author wengxianhu by 2017-7-26
      */
-    public function getHasChildren($id, $self = true, $is_del = 0)
+    public function getHasChildren($id, $self = true)
     {
         $lang = get_current_lang(); // 多语言
-        $cacheKey = "common_model_Arctype_getHasChildren_{$id}_{$self}_{$is_del}_{$lang}";
+        $cacheKey = "common_model_Arctype_getHasChildren_{$id}_{$self}_{$lang}";
         $result = cache($cacheKey);
         if (empty($result)) {
             $where = array(
                 'c.status'  => 1,
                 'c.lang'    => $lang,
+                'c.is_del'  => 0,
             );
-            null != $is_del && $where['c.is_del'] = $is_del; // 回收站功能
             $fields = "c.*, count(s.id) as has_children";
             $res = db('arctype')
                 ->field($fields)
@@ -513,7 +513,7 @@ class Arctype extends Model
      */
     public function del($typeid)
     {
-        $childrenList = $this->getHasChildren($typeid, true, 1); // 获取当前栏目以及所有子栏目
+        $childrenList = $this->getHasChildren($typeid); // 获取当前栏目以及所有子栏目
         $typeidArr = get_arr_column($childrenList, 'id'); // 获取栏目数组里的所有栏目ID作为新的数组
         /*多语言*/
         $attr_name_arr = [];
