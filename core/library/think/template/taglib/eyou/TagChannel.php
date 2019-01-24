@@ -156,6 +156,7 @@ class TagChannel extends Base
         $map = array(
             'c.is_hidden'   => 0,
             'c.status'  => 1,
+            'c.is_del'    => 0, // 回收站功能
         );
         $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
         $res = db('arctype')
@@ -272,6 +273,7 @@ class TagChannel extends Base
             'id'   => array('in', $typeid),
             'is_hidden'   => 0,
             'status'  => 1,
+            'is_del'    => 0, // 回收站功能
         );
         $res = M('arctype')->field('parent_id')
             ->where($map)
