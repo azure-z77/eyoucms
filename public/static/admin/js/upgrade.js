@@ -13,7 +13,7 @@ function btn_upgrade(obj, type)
     var filelist = $("#upgrade_filelist").html();
     if (undefined == filelist || !filelist) {
         layer.closeAll();
-        var alert1 = layer.alert("请先清除缓存，再尝试升级！", {icon: 7}, function(){
+        var alert1 = layer.alert("请清除后台缓存以及Ctrl+F5强制刷新页面，再尝试升级！", {icon: 7}, function(){
             layer.close(alert1);
             var url = eyou_basefile + "?m="+module_name+"&c=System&a=clear_cache";
             var iframe = $(obj).data('iframe');

@@ -60,13 +60,11 @@ class Download extends Base
         $param = I('param.');
         $aid = !empty($param['aid']) ? intval($param['aid']) : '';
         if (empty($aid)) {
-            $this->redirect('/404');
-            exit;
+            abort(404,'页面不存在');
         }
         $result = model('Download')->getInfo($aid);
         if (empty($result)) {
-            $this->error('页面不存在！');
-            exit;
+            abort(404,'页面不存在');
         } elseif ($result['arcrank'] == -1) {
             $this->success('待审核稿件，你没有权限阅读！');
             exit;

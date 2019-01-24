@@ -21,5 +21,6 @@ return array(
         'HY000:1045' => "数据库配置参数不对，请仔细检查核对。",
         'HY000:2002' => "你的主机不支持 localhost 连接数据，导致报错\n请按照教程进行配置：<a href='http://www.eyoucms.com/bbs/5711.html' target='_blank'>http://www.eyoucms.com/bbs/5711.html</a>",
         'HY000:1030' => "磁盘临时空间不够导致，请联系空间服务商，进行清空/tmp目录，或者修改my.cnf中的tmpdir参数，指向具有足够空间的目录。",
+        'HY000:2013' => "可能MySQL服务器不支持127.0.0.1连接\n请按照教程尝试解决：<a href='http://www.eyoucms.com/bbs/5950.html' target='_blank'>http://www.eyoucms.com/bbs/5950.html</a>",
     ),
 );
