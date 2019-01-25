@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>自定义模板详情页</title>
+    </head>
+    <body>
+        这是一个自定义模板详情页，请根据需求添加合适的模板详情。
+    </body>
+</html>

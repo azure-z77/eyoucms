@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>自定义模板列表页</title>
+    </head>
+    <body>
+        这是一个自定义模板列表页，请根据需求添加合适的模板列表。
+    </body>
+</html>
