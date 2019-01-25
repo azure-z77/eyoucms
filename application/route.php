@@ -129,6 +129,26 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 $lang_rewrite_str.'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 $lang_rewrite_str.'guestbook/submit$' => array('home/View/submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
             );
+
+            /*自定义模型*/
+            $cacheKey = "application_route_channeltype";
+            $channeltype_row = \think\Cache::get($cacheKey);
+            if (empty($channeltype_row)) {
+                $channeltype_row = \think\Db::name('channeltype')->field('nid,ctl_name')
+                    ->where([
+                        'ifsystem' => 0,
+                    ])
+                    ->select();
+                \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
+            }
+            foreach ($channeltype_row as $value) {
+                $home_rewrite += array(
+                    $lang_rewrite_str.$value['nid'].'$' => array('home/'.$value['ctl_name'].'/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                    $lang_rewrite_str.$value['nid'].'/<tid>$' => array('home/'.$value['ctl_name'].'/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                    $lang_rewrite_str.$value['nid'].'/<dirname>/<aid>$' => array('home/'.$value['ctl_name'].'/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                );
+            }
+            /*--end*/
         }
         $home_rewrite = array_merge($lang_rewrite, $home_rewrite);
     }

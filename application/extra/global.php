@@ -11,6 +11,27 @@
  * Date: 2018-4-3
  */
 
+$cacheKey = "extra_global_channeltype";
+$channeltype_row = \think\Cache::get($cacheKey);
+if (empty($channeltype_row)) {
+    $channeltype_row = \think\Db::name('channeltype')->field('id,nid')
+        ->where([
+            'status' => 1,
+        ])
+        ->order('id asc')
+        ->select();
+    \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
+}
+
+$channeltype_list = [];
+$allow_release_channel = [];
+foreach ($channeltype_row as $key => $val) {
+    $channeltype_list[$val['nid']] = $val['id'];
+    if (!in_array($val['nid'], ['guestbook','single'])) {
+        array_push($allow_release_channel, $val['id']);
+    }
+}
+
 return array(
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
@@ -23,22 +44,9 @@ return array(
     // 栏目最多级别
     'arctype_max_level' => 3,
     // 模型标识
-    'channeltype_list' => array(
-        // 文章模型标识
-        'article' => 1,
-        // 产品模型标识
-        'product' => 2,
-        // 图片集模型
-        'images'    => 3,
-        // 下载模型标识
-        'download' => 4,
-        // 单页模型标识
-        'single' => 6,
-        // 留言模型标识
-        'guestbook' => 8,
-    ),
+    'channeltype_list' => $channeltype_list,
     // 发布文档的模型ID
-    'allow_release_channel' => array(1,2,3,4),
+    'allow_release_channel' => $allow_release_channel,
     // 广告类型
     'ad_media_type' => array(
         1   => '图片',

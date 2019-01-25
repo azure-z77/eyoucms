@@ -323,24 +323,19 @@ class System extends Base
             }
 
             /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
-            try {
-                schemaTable('arctype');
-            } catch (\Exception $e) {}
-            try {
-                schemaTable('article_content');
-            } catch (\Exception $e) {}
-            try {
-                schemaTable('download_content');
-            } catch (\Exception $e) {}
-            try {
-                schemaTable('images_content');
-            } catch (\Exception $e) {}
-            try {
-                schemaTable('product_content');
-            } catch (\Exception $e) {}
-            try {
-                schemaTable('single_content');
-            } catch (\Exception $e) {}
+            $systemTables = ['arctype'];
+            $data = Db::name('channeltype')
+                ->where('nid','NEQ','guestbook')
+                ->column('table');
+            $tables = array_merge($systemTables, $data);
+            foreach ($tables as $key => $table) {
+                if ('arctype' != $table) {
+                    $table = $table.'_content';
+                }
+                try {
+                    schemaTable($table);
+                } catch (\Exception $e) {}
+            }
             /*--end*/
 
             /*清除旧升级备份包，保留最后一个备份文件*/

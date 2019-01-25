@@ -86,7 +86,7 @@ class Channeltype extends Model
         if (empty($result)) {
             $result = db('channeltype')->field($field)
                 ->where($map)
-                ->order('sort_order asc')
+                ->order('sort_order asc, id asc')
                 ->select();
 
             if (!empty($index_key)) {

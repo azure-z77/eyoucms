@@ -114,6 +114,17 @@ if ($main_lang == $admin_lang) {
 }
 /*--end*/
 
+/*模型管理URl*/
+$channeltype_index_arr = array();
+if ($main_lang == $admin_lang) {
+    $channeltype_index_arr = array(
+        'controller' => 'Channeltype',
+        'action' => 'index',
+        'url' => '',
+    );
+}
+/*--end*/
+
 /*回收站URl*/
 $recyclebin_index_arr = array();
 if ($main_lang == $admin_lang) {
@@ -402,6 +413,34 @@ return  array(
                         'target'=>'workspace',
                         'icon'=>'fa fa-cogs',
                         'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004006' => array(
+                        'id'=>2004006,
+                        'parent_id'=>2004,
+                        'name' => '回收站',
+                        'controller'=>isset($recyclebin_index_arr['controller']) ? $recyclebin_index_arr['controller'] : '',
+                        'action'=>isset($recyclebin_index_arr['action']) ? $recyclebin_index_arr['action'] : '',
+                        'url'=>isset($recyclebin_index_arr['url']) ? $recyclebin_index_arr['url'] : '',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-recycle',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004007' => array(
+                        'id'=>2004007,
+                        'parent_id'=>2004,
+                        'name' => '模型管理',
+                        'controller'=>isset($channeltype_index_arr['controller']) ? $channeltype_index_arr['controller'] : '',
+                        'action'=>isset($channeltype_index_arr['action']) ? $channeltype_index_arr['action'] : '',
+                        'url'=>isset($channeltype_index_arr['url']) ? $channeltype_index_arr['url'] : '',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-cube',
+                        'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
                         'child' => array(),
@@ -417,20 +456,6 @@ return  array(
                         'icon'=>'fa fa-undo',
                         'grade'=>2,
                         'is_menu'=>1,
-                        'is_modules'=>0,
-                        'child' => array(),
-                    ),
-                    '2004006' => array(
-                        'id'=>2004006,
-                        'parent_id'=>2004,
-                        'name' => '回收站',
-                        'controller'=>isset($recyclebin_index_arr['controller']) ? $recyclebin_index_arr['controller'] : '',
-                        'action'=>isset($recyclebin_index_arr['action']) ? $recyclebin_index_arr['action'] : '',
-                        'url'=>isset($recyclebin_index_arr['url']) ? $recyclebin_index_arr['url'] : '',
-                        'target'=>'workspace',
-                        'icon'=>'fa fa-recycle',
-                        'grade'=>2,
-                        'is_menu'=>0,
                         'is_modules'=>0,
                         'child' => array(),
                     ),

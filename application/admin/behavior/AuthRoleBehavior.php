@@ -155,7 +155,7 @@ class AuthRoleBehavior
                 }
             }
             if (!$bool) {
-                $this->error('您没有操dd作权限，请联系超级管理员分配权限');
+                $this->error('您没有操作权限，请联系超级管理员分配权限');
             }
         }
         /*--end*/
@@ -195,7 +195,14 @@ class AuthRoleBehavior
         $act = strtolower(self::$actionName);
         $ctl_act = $ctl.'@'.$act;
         $ctl_all = $ctl.'@*';
-        $ctlArr = ['arctype@single','archives@*','article@*','product@*','images@*','download@*','guestbook@*'];
+
+        $ctlArr= ['arctype@single','archives@*'];
+        $row = \think\Db::name('channeltype')
+            ->where('nid','NOTIN', ['single'])
+            ->column('ctl_name');
+        foreach ($row as $key => $val) {
+            array_push($ctlArr, strtolower($val).'@*');
+        }
         if (in_array($ctl_act, $ctlArr) || in_array($ctl_all, $ctlArr)) {
             $typeids = [];
             if (in_array($act, ['add','edit','del'])) {

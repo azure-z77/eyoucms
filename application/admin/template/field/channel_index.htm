@@ -4,7 +4,7 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="field/bar" /}
+    {include file="field/channel_bar" /}
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
@@ -13,7 +13,7 @@
                         {volist name="$channeltype_list" id="vo"}
                         <option value="{$vo.id}" {eq name="$Request.param.channel_id" value="$vo.id"}selected{/eq}>{$vo.title}</option>
                         {/volist}
-                    </select>&nbsp;字段列表
+                    </select>&nbsp;字段管理
                 </h3>
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>

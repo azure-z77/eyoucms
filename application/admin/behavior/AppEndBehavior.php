@@ -44,7 +44,11 @@ class AppEndBehavior {
     private function sitemap()
     {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctlArr = ['Arctype','Article','Product','Images','Download'];
+        $systemCtl= ['Arctype'];
+        $ctlArr = \think\Db::name('channeltype')
+            ->where('nid','NOTIN', ['guestbook','single'])
+            ->column('ctl_name');
+        $ctlArr = array_merge($systemCtl, $ctlArr);
         $actArr = ['add','edit'];
         if ('POST' == self::$method && in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
             sitemap_auto();

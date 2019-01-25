@@ -15,7 +15,6 @@ namespace app\admin\controller;
 
 use think\Page;
 use think\Db;
-use app\common\logic\ArctypeLogic;
 
 class Download extends Base
 {

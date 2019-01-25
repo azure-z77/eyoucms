@@ -7,8 +7,8 @@
 -- Database       : eyoucms_release
 -- 
 -- Part : #1
--- Version : #v1.2.7
--- Date : 2019-01-22 16:20:08
+-- Version : #v1.2.8
+-- Date : 2019-01-25 10:36:29
 -- -----------------------------------------
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -108,7 +108,7 @@ CREATE TABLE `ey_admin` (
 -- -----------------------------
 -- Records of `ey_admin`
 -- -----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1548122258', '127.0.0.1', '4', '988hjk65temngp3v4df4m2pts2', '0', '-1', 'cn', '1', '1547516761', '0');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '1548383780', '127.0.0.1', '5', '988hjk65temngp3v4df4m2pts2', '0', '-1', 'cn', '1', '1547516761', '0');
 
 -- -----------------------------
 -- Table structure for `ey_admin_log`
@@ -123,148 +123,12 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(10) DEFAULT NULL COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=261 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
+) ENGINE=MyISAM AUTO_INCREMENT=262 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- -----------------------------
 -- Records of `ey_admin_log`
 -- -----------------------------
-INSERT INTO `ey_admin_log` VALUES ('118', '1', '后台登录', '127.0.0.1', '/login.php', '1540962138');
-INSERT INTO `ey_admin_log` VALUES ('119', '1', '安全退出', '127.0.0.1', '/login.php', '1540968879');
-INSERT INTO `ey_admin_log` VALUES ('120', '1', '后台登录', '127.0.0.1', '/login.php', '1540968885');
-INSERT INTO `ey_admin_log` VALUES ('121', '1', '安全退出', '127.0.0.1', '/login.php', '1540970909');
-INSERT INTO `ey_admin_log` VALUES ('122', '1', '后台登录', '127.0.0.1', '/login.php', '1540970915');
-INSERT INTO `ey_admin_log` VALUES ('123', '1', '后台登录', '127.0.0.1', '/login.php', '1545267359');
-INSERT INTO `ey_admin_log` VALUES ('124', '1', '新增多语言：English', '127.0.0.1', '/login.php', '1545267532');
-INSERT INTO `ey_admin_log` VALUES ('125', '1', '编辑留言表单：Name', '127.0.0.1', '/login.php', '1545267932');
-INSERT INTO `ey_admin_log` VALUES ('126', '1', '编辑留言表单：Tel', '127.0.0.1', '/login.php', '1545267998');
-INSERT INTO `ey_admin_log` VALUES ('127', '1', '编辑留言表单：Remarks', '127.0.0.1', '/login.php', '1545268014');
-INSERT INTO `ey_admin_log` VALUES ('128', '1', '编辑留言表单：Pattern', '127.0.0.1', '/login.php', '1545268028');
-INSERT INTO `ey_admin_log` VALUES ('129', '1', '编辑栏目：Entry entry', '127.0.0.1', '/login.php', '1545268049');
-INSERT INTO `ey_admin_log` VALUES ('130', '1', '新增下载：工程机械推土挖掘机类网站模板', '127.0.0.1', '/login.php', '1545268125');
-INSERT INTO `ey_admin_log` VALUES ('131', '1', '编辑下载：工程机械推土挖掘机类网站模板', '127.0.0.1', '/login.php', '1545268147');
-INSERT INTO `ey_admin_log` VALUES ('132', '1', '新增下载：Website Template of Vocational Education and Training Institutions', '127.0.0.1', '/login.php', '1545268233');
-INSERT INTO `ey_admin_log` VALUES ('133', '1', '编辑下载：Construction machinery bulldozer website template', '127.0.0.1', '/login.php', '1545268293');
-INSERT INTO `ey_admin_log` VALUES ('134', '1', '编辑下载：Website Template of Vocational Education and Training Institutions', '127.0.0.1', '/login.php', '1545268305');
-INSERT INTO `ey_admin_log` VALUES ('135', '1', '编辑栏目：Data download', '127.0.0.1', '/login.php', '1545268321');
-INSERT INTO `ey_admin_log` VALUES ('136', '1', '新增图集：Customer Case I', '127.0.0.1', '/login.php', '1545268371');
-INSERT INTO `ey_admin_log` VALUES ('137', '1', '编辑图集：Customer Case I', '127.0.0.1', '/login.php', '1545268402');
-INSERT INTO `ey_admin_log` VALUES ('138', '1', '编辑图集：Customer Case I', '127.0.0.1', '/login.php', '1545268427');
-INSERT INTO `ey_admin_log` VALUES ('139', '1', '编辑图集：Customer Case I', '127.0.0.1', '/login.php', '1545268466');
-INSERT INTO `ey_admin_log` VALUES ('140', '1', '新增图集：Customer Case II', '127.0.0.1', '/login.php', '1545268514');
-INSERT INTO `ey_admin_log` VALUES ('141', '1', '新增图集：Customer Case III', '127.0.0.1', '/login.php', '1545268563');
-INSERT INTO `ey_admin_log` VALUES ('142', '1', '编辑栏目：Case', '127.0.0.1', '/login.php', '1545268599');
-INSERT INTO `ey_admin_log` VALUES ('143', '1', '新增产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545268778');
-INSERT INTO `ey_admin_log` VALUES ('144', '1', '编辑产品参数：Model', '127.0.0.1', '/login.php', '1545268934');
-INSERT INTO `ey_admin_log` VALUES ('145', '1', '编辑产品参数：Support Bluetooth', '127.0.0.1', '/login.php', '1545268951');
-INSERT INTO `ey_admin_log` VALUES ('146', '1', '移动文档-id：Array', '127.0.0.1', '/login.php', '1545268967');
-INSERT INTO `ey_admin_log` VALUES ('147', '1', '编辑产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545268991');
-INSERT INTO `ey_admin_log` VALUES ('148', '1', '编辑栏目：Portable battery', '127.0.0.1', '/login.php', '1545269115');
-INSERT INTO `ey_admin_log` VALUES ('149', '1', '编辑栏目：Loudspeaker box', '127.0.0.1', '/login.php', '1545269134');
-INSERT INTO `ey_admin_log` VALUES ('150', '1', '编辑栏目：Headset', '127.0.0.1', '/login.php', '1545269149');
-INSERT INTO `ey_admin_log` VALUES ('151', '1', '编辑栏目：General accessories', '127.0.0.1', '/login.php', '1545269166');
-INSERT INTO `ey_admin_log` VALUES ('152', '1', '编辑产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545269236');
-INSERT INTO `ey_admin_log` VALUES ('153', '1', '编辑产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545269540');
-INSERT INTO `ey_admin_log` VALUES ('154', '1', '编辑产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545269805');
-INSERT INTO `ey_admin_log` VALUES ('155', '1', '编辑产品：Millet Bluetooth Necklace Headset', '127.0.0.1', '/login.php', '1545270012');
-INSERT INTO `ey_admin_log` VALUES ('156', '1', '新增产品：Millet notebook Air 13.3', '127.0.0.1', '/login.php', '1545270139');
-INSERT INTO `ey_admin_log` VALUES ('157', '1', '编辑产品参数：Screen size', '127.0.0.1', '/login.php', '1545270158');
-INSERT INTO `ey_admin_log` VALUES ('158', '1', '编辑产品参数：Weight', '127.0.0.1', '/login.php', '1545270171');
-INSERT INTO `ey_admin_log` VALUES ('159', '1', '编辑栏目：Notebook computer', '127.0.0.1', '/login.php', '1545270191');
-INSERT INTO `ey_admin_log` VALUES ('160', '1', '编辑栏目：Computer', '127.0.0.1', '/login.php', '1545270214');
-INSERT INTO `ey_admin_log` VALUES ('161', '1', '新增产品：HUAWEI NOTE 8', '127.0.0.1', '/login.php', '1545270361');
-INSERT INTO `ey_admin_log` VALUES ('162', '1', '新增产品：Apple iPhone 6s 16GB  Rose Gold Mobile Unicom 4G Mobile Phone', '127.0.0.1', '/login.php', '1545270634');
-INSERT INTO `ey_admin_log` VALUES ('163', '1', '编辑产品：Apple iPhone 6s 16GB ', '127.0.0.1', '/login.php', '1545270643');
-INSERT INTO `ey_admin_log` VALUES ('164', '1', '编辑栏目：Play your mobile phone', '127.0.0.1', '/login.php', '1545270668');
-INSERT INTO `ey_admin_log` VALUES ('165', '1', '编辑栏目：Smartphone', '127.0.0.1', '/login.php', '1545270702');
-INSERT INTO `ey_admin_log` VALUES ('166', '1', '编辑栏目：Phone', '127.0.0.1', '/login.php', '1545270715');
-INSERT INTO `ey_admin_log` VALUES ('167', '1', '编辑栏目： Product', '127.0.0.1', '/login.php', '1545270730');
-INSERT INTO `ey_admin_log` VALUES ('168', '1', '新增图集：Atlas under News Model', '127.0.0.1', '/login.php', '1545270783');
-INSERT INTO `ey_admin_log` VALUES ('169', '1', '新增图集：Atlas II under News Model', '127.0.0.1', '/login.php', '1545270816');
-INSERT INTO `ey_admin_log` VALUES ('170', '1', '编辑栏目：Landscape Atlas', '127.0.0.1', '/login.php', '1545270830');
-INSERT INTO `ey_admin_log` VALUES ('171', '1', '编辑栏目：en单页面', '127.0.0.1', '/login.php', '1545270865');
-INSERT INTO `ey_admin_log` VALUES ('172', '1', '编辑栏目：Single page', '127.0.0.1', '/login.php', '1545270877');
-INSERT INTO `ey_admin_log` VALUES ('173', '1', '新增文章：Five Core Elements of Website Construction', '127.0.0.1', '/login.php', '1545270962');
-INSERT INTO `ey_admin_log` VALUES ('174', '1', '新增文章：Experience the Core Value of Enterprise Website Perfectly from Three Aspects', '127.0.0.1', '/login.php', '1545271034');
-INSERT INTO `ey_admin_log` VALUES ('175', '1', '新增文章：Looking back on the 40-year history of beverages in China, there is always a taste of your childhood', '127.0.0.1', '/login.php', '1545271068');
-INSERT INTO `ey_admin_log` VALUES ('176', '1', '新增文章：How to value fans in the age of social media?', '127.0.0.1', '/login.php', '1545271106');
-INSERT INTO `ey_admin_log` VALUES ('177', '1', '新增文章：&quot;Subversive Marketing: Business Revolution in the Big Data Age&quot;: Big Data &quot;More Is Less, Less Is Mor', '127.0.0.1', '/login.php', '1545271237');
-INSERT INTO `ey_admin_log` VALUES ('178', '1', '编辑栏目：Enterprise operation', '127.0.0.1', '/login.php', '1545271263');
-INSERT INTO `ey_admin_log` VALUES ('179', '1', '新增文章：What is seo?', '127.0.0.1', '/login.php', '1545271307');
-INSERT INTO `ey_admin_log` VALUES ('180', '1', '新增文章：How did CMS come into being?', '127.0.0.1', '/login.php', '1545272018');
-INSERT INTO `ey_admin_log` VALUES ('181', '1', '新增文章：The relationship between website design and SEO, the master is analyzed from these four dimensions!', '127.0.0.1', '/login.php', '1545272054');
-INSERT INTO `ey_admin_log` VALUES ('182', '1', '新增文章：Shangmeng.com: Single-page SEO station group technology, with 10 websites to optimize the ranking!', '127.0.0.1', '/login.php', '1545272097');
-INSERT INTO `ey_admin_log` VALUES ('183', '1', '编辑栏目：SEO optimization', '127.0.0.1', '/login.php', '1545272114');
-INSERT INTO `ey_admin_log` VALUES ('184', '1', '编辑栏目：Media coverage', '127.0.0.1', '/login.php', '1545272127');
-INSERT INTO `ey_admin_log` VALUES ('185', '1', '新增文章：Differences in user interface design and experience design', '127.0.0.1', '/login.php', '1545272159');
-INSERT INTO `ey_admin_log` VALUES ('186', '1', '新增文章：Novice science! What is the user interface and experience design?', '127.0.0.1', '/login.php', '1545272218');
-INSERT INTO `ey_admin_log` VALUES ('187', '1', '新增文章：Read the Internet Queen and her report: Investment in the Internet, Bible, stock selection guide', '127.0.0.1', '/login.php', '1545272280');
-INSERT INTO `ey_admin_log` VALUES ('188', '1', '新增文章：Website construction, static pages and dynamic pages how to choose', '127.0.0.1', '/login.php', '1545272334');
-INSERT INTO `ey_admin_log` VALUES ('189', '1', '编辑栏目：News', '127.0.0.1', '/login.php', '1545272354');
-INSERT INTO `ey_admin_log` VALUES ('190', '1', '编辑留言表单：Name', '127.0.0.1', '/login.php', '1545272376');
-INSERT INTO `ey_admin_log` VALUES ('191', '1', '编辑留言表单：Telephone', '127.0.0.1', '/login.php', '1545272410');
-INSERT INTO `ey_admin_log` VALUES ('192', '1', '编辑留言表单：Object of negotiation', '127.0.0.1', '/login.php', '1545272446');
-INSERT INTO `ey_admin_log` VALUES ('193', '1', '编辑留言表单：Pattern', '127.0.0.1', '/login.php', '1545272477');
-INSERT INTO `ey_admin_log` VALUES ('194', '1', '编辑栏目：Appointment interview', '127.0.0.1', '/login.php', '1545272506');
-INSERT INTO `ey_admin_log` VALUES ('195', '1', '编辑栏目：en公司简介', '127.0.0.1', '/login.php', '1545272535');
-INSERT INTO `ey_admin_log` VALUES ('196', '1', '编辑栏目：Honor', '127.0.0.1', '/login.php', '1545272547');
-INSERT INTO `ey_admin_log` VALUES ('197', '1', '编辑栏目：Company Profile', '127.0.0.1', '/login.php', '1545272565');
-INSERT INTO `ey_admin_log` VALUES ('198', '1', '编辑栏目：About Us', '127.0.0.1', '/login.php', '1545272580');
-INSERT INTO `ey_admin_log` VALUES ('199', '1', '编辑友情链接：百度', '127.0.0.1', '/login.php', '1545272660');
-INSERT INTO `ey_admin_log` VALUES ('200', '1', '编辑友情链接：腾讯', '127.0.0.1', '/login.php', '1545272665');
-INSERT INTO `ey_admin_log` VALUES ('201', '1', '编辑友情链接：新浪', '127.0.0.1', '/login.php', '1545272669');
-INSERT INTO `ey_admin_log` VALUES ('202', '1', '编辑友情链接：小程序开发教程', '127.0.0.1', '/login.php', '1545272673');
-INSERT INTO `ey_admin_log` VALUES ('203', '1', '编辑友情链接：素材58', '127.0.0.1', '/login.php', '1545272677');
-INSERT INTO `ey_admin_log` VALUES ('204', '1', '新增模板语言变量：yybl1', '127.0.0.1', '/login.php', '1545272835');
-INSERT INTO `ey_admin_log` VALUES ('205', '1', '新增模板语言变量：yybl2', '127.0.0.1', '/login.php', '1545272897');
-INSERT INTO `ey_admin_log` VALUES ('206', '1', '新增模板语言变量：yybl3', '127.0.0.1', '/login.php', '1545272961');
-INSERT INTO `ey_admin_log` VALUES ('207', '1', '新增模板语言变量：yybl4', '127.0.0.1', '/login.php', '1545273023');
-INSERT INTO `ey_admin_log` VALUES ('208', '1', '新增模板语言变量：yybl5', '127.0.0.1', '/login.php', '1545273158');
-INSERT INTO `ey_admin_log` VALUES ('209', '1', '新增模板语言变量：yybl6', '127.0.0.1', '/login.php', '1545273239');
-INSERT INTO `ey_admin_log` VALUES ('210', '1', '新增模板语言变量：yybl7', '127.0.0.1', '/login.php', '1545273292');
-INSERT INTO `ey_admin_log` VALUES ('211', '1', '新增模板语言变量：yybl8', '127.0.0.1', '/login.php', '1545273376');
-INSERT INTO `ey_admin_log` VALUES ('212', '1', '新增模板语言变量：yybl9', '127.0.0.1', '/login.php', '1545273418');
-INSERT INTO `ey_admin_log` VALUES ('213', '1', '编辑下载：Construction machinery bulldozer website template', '127.0.0.1', '/login.php', '1545273531');
-INSERT INTO `ey_admin_log` VALUES ('214', '1', '新增模板语言变量：yybl10', '127.0.0.1', '/login.php', '1545273596');
-INSERT INTO `ey_admin_log` VALUES ('215', '1', '新增模板语言变量：yybl11', '127.0.0.1', '/login.php', '1545273655');
-INSERT INTO `ey_admin_log` VALUES ('216', '1', '编辑产品参数：operating system', '127.0.0.1', '/login.php', '1545273990');
-INSERT INTO `ey_admin_log` VALUES ('217', '1', '编辑产品参数：User Interface', '127.0.0.1', '/login.php', '1545274001');
-INSERT INTO `ey_admin_log` VALUES ('218', '1', '编辑产品参数：Keyboard type', '127.0.0.1', '/login.php', '1545274014');
-INSERT INTO `ey_admin_log` VALUES ('219', '1', '编辑产品参数：model', '127.0.0.1', '/login.php', '1545274025');
-INSERT INTO `ey_admin_log` VALUES ('220', '1', '新增模板语言变量：yybl12', '127.0.0.1', '/login.php', '1545274437');
-INSERT INTO `ey_admin_log` VALUES ('221', '1', '新增模板语言变量：yybl13', '127.0.0.1', '/login.php', '1545274472');
-INSERT INTO `ey_admin_log` VALUES ('222', '1', '后台登录', '127.0.0.1', '/login.php', '1545354383');
-INSERT INTO `ey_admin_log` VALUES ('223', '1', '后台登录', '127.0.0.1', '/login.php', '1545357676');
-INSERT INTO `ey_admin_log` VALUES ('224', '1', '后台登录', '127.0.0.1', '/login.php', '1546477007');
-INSERT INTO `ey_admin_log` VALUES ('225', '1', '安全退出', '127.0.0.1', '/login.php', '1546477294');
-INSERT INTO `ey_admin_log` VALUES ('226', '1', '后台登录', '127.0.0.1', '/login.php', '1546477299');
-INSERT INTO `ey_admin_log` VALUES ('227', '1', '编辑模板语言变量：yybl13', '127.0.0.1', '/login.php', '1546477350');
-INSERT INTO `ey_admin_log` VALUES ('228', '1', '后台登录', '127.0.0.1', '/login.php', '1547460414');
-INSERT INTO `ey_admin_log` VALUES ('229', '1', '编辑广告', '127.0.0.1', '/login.php', '1547460879');
-INSERT INTO `ey_admin_log` VALUES ('230', '1', '编辑广告', '127.0.0.1', '/login.php', '1547460894');
-INSERT INTO `ey_admin_log` VALUES ('231', '1', '编辑产品：Apple iPhone 6s 16GB 玫瑰金色 移动联通电信4G手机', '127.0.0.1', '/login.php', '1547461970');
-INSERT INTO `ey_admin_log` VALUES ('232', '1', '编辑产品： 小米蓝牙项圈耳机', '127.0.0.1', '/login.php', '1547462018');
-INSERT INTO `ey_admin_log` VALUES ('233', '1', '编辑产品：小米笔记本Air 13.3', '127.0.0.1', '/login.php', '1547462162');
-INSERT INTO `ey_admin_log` VALUES ('234', '1', '编辑产品：华为HUAWEI NOTE 8', '127.0.0.1', '/login.php', '1547462188');
-INSERT INTO `ey_admin_log` VALUES ('235', '1', '编辑文章：网站建设，静态页面和动态页面如何选择', '127.0.0.1', '/login.php', '1547462449');
-INSERT INTO `ey_admin_log` VALUES ('236', '1', '编辑文章：一文读懂互联网女皇和她的报告：互联网领域的投资圣经、选股指南', '127.0.0.1', '/login.php', '1547462473');
-INSERT INTO `ey_admin_log` VALUES ('237', '1', '编辑文章：seo是什么？', '127.0.0.1', '/login.php', '1547462542');
-INSERT INTO `ey_admin_log` VALUES ('238', '1', '编辑文章：社交媒体时代，如何对粉丝估值？', '127.0.0.1', '/login.php', '1547462596');
-INSERT INTO `ey_admin_log` VALUES ('239', '1', '编辑文章：网站建设的五大核心要素', '127.0.0.1', '/login.php', '1547462639');
-INSERT INTO `ey_admin_log` VALUES ('240', '1', '编辑图集：新闻模型下的图集二', '127.0.0.1', '/login.php', '1547462702');
-INSERT INTO `ey_admin_log` VALUES ('241', '1', '编辑图集：新闻模型下的图集', '127.0.0.1', '/login.php', '1547462752');
-INSERT INTO `ey_admin_log` VALUES ('242', '1', '编辑图集：客户案例三', '127.0.0.1', '/login.php', '1547462806');
-INSERT INTO `ey_admin_log` VALUES ('243', '1', '编辑图集：客户案例二', '127.0.0.1', '/login.php', '1547462830');
-INSERT INTO `ey_admin_log` VALUES ('244', '1', '编辑图集：客户案例一', '127.0.0.1', '/login.php', '1547462847');
-INSERT INTO `ey_admin_log` VALUES ('245', '1', '编辑下载：职业教育培训机构网站模板', '127.0.0.1', '/login.php', '1547463404');
-INSERT INTO `ey_admin_log` VALUES ('246', '1', '编辑下载：工程机械推土挖掘机类网站模板', '127.0.0.1', '/login.php', '1547463434');
-INSERT INTO `ey_admin_log` VALUES ('247', '1', '编辑文章：Website construction, static pages and dynamic pages how to choose', '127.0.0.1', '/login.php', '1547463681');
-INSERT INTO `ey_admin_log` VALUES ('248', '1', '编辑文章：Five Core Elements of Website Construction', '127.0.0.1', '/login.php', '1547463745');
-INSERT INTO `ey_admin_log` VALUES ('249', '1', '编辑下载：Construction machinery bulldozer website template', '127.0.0.1', '/login.php', '1547463855');
-INSERT INTO `ey_admin_log` VALUES ('250', '1', '编辑下载：工程机械推土挖掘机类网站模板', '127.0.0.1', '/login.php', '1547463959');
-INSERT INTO `ey_admin_log` VALUES ('257', '1', '后台登录', '127.0.0.1', '/login.php/', '1547516770');
-INSERT INTO `ey_admin_log` VALUES ('258', '1', '编辑模板语言变量：yybl13', '127.0.0.1', '/login.php/', '1547516837');
-INSERT INTO `ey_admin_log` VALUES ('259', '1', '后台登录', '127.0.0.1', '/login.php', '1547690656');
-INSERT INTO `ey_admin_log` VALUES ('260', '1', '后台登录', '127.0.0.1', '/login.php', '1548122258');
+INSERT INTO `ey_admin_log` VALUES ('261', '1', '后台登录', '127.0.0.1', '/login.php', '1548383780');
 
 -- -----------------------------
 -- Table structure for `ey_archives`
@@ -651,12 +515,12 @@ CREATE TABLE `ey_channeltype` (
 -- -----------------------------
 -- Records of `ey_channeltype`
 -- -----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1', '0', '1548145203');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '0', '4', '0', '1548145203');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '0', '2', '0', '1548145203');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '0', '8', '1509197711', '1548145203');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '0', '6', '1523091961', '1548145203');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '0', '3', '1523929121', '1548145203');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1', '0', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '0', '4', '0', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '0', '2', '0', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '0', '8', '1509197711', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '0', '6', '1523091961', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '0', '3', '1523929121', '1548383781');
 
 -- -----------------------------
 -- Table structure for `ey_config`
@@ -741,7 +605,7 @@ INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', '
 INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'M3Pueve6CAhEhr6PDKoumG31', 'php', '', 'cn', '0', '1547690674');
 INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1548122243');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1548383774');
 INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '0');
@@ -817,7 +681,7 @@ INSERT INTO `ey_config` VALUES ('153', 'seo_liststitle_format', '2', 'seo', '', 
 INSERT INTO `ey_config` VALUES ('154', 'web_status', '0', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('155', '_cmscopyright', 'Fnhno2mTfg4yEvqaHrfTEJqG', 'php', '', 'en', '0', '1547690674');
 INSERT INTO `ey_config` VALUES ('156', 'web_recordnum', 'Qiong ICP Prepares xxxxxxx Number', 'web', '', 'en', '0', '1545272757');
-INSERT INTO `ey_config` VALUES ('157', 'web_is_authortoken', '-1', 'web', '', 'en', '0', '1548122243');
+INSERT INTO `ey_config` VALUES ('157', 'web_is_authortoken', '-1', 'web', '', 'en', '0', '1548383774');
 INSERT INTO `ey_config` VALUES ('158', 'web_adminbasefile', '/login.php', 'web', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('159', 'seo_rewrite_format', '1', 'seo', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('160', 'web_cmsmode', '2', 'web', '', 'en', '0', '0');
@@ -1555,6 +1419,53 @@ INSERT INTO `ey_links` VALUES ('7', '1', 'qq', 'http://www.qq.com', '', '100', '
 INSERT INTO `ey_links` VALUES ('8', '1', 'sina', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', 'en', '0', '1532414285', '1547473376');
 INSERT INTO `ey_links` VALUES ('9', '1', 'yiyongtong', 'http://www.yiyongtong.com', '', '100', '1', '', '', '1', 'en', '0', '1532414529', '1547473365');
 INSERT INTO `ey_links` VALUES ('10', '1', 'sucai58', 'http://www.sucai58.com', '', '100', '1', '', '', '1', 'en', '0', '1532414726', '1547473355');
+
+-- -----------------------------
+-- Table structure for `ey_modelfield`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_modelfield`;
+CREATE TABLE `ey_modelfield` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `name` varchar(32) NOT NULL DEFAULT '' COMMENT '字段名称',
+  `model_id` int(10) NOT NULL DEFAULT '0' COMMENT '所属模型id',
+  `title` varchar(32) NOT NULL DEFAULT '' COMMENT '字段标题',
+  `ifeditable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否在编辑页显示，1为显示，0为不显示',
+  `ifsystem` tinyint(1) NOT NULL DEFAULT '0' COMMENT '字段分类，1=系统(不可修改)，0=自定义',
+  `ifmain` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主表字段，1为主表，0为附表',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，控制该条数据是否允许被控制，1为不允许控制，0为允许控制',
+  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COMMENT='自定义模型文档表单控制表';
+
+-- -----------------------------
+-- Records of `ey_modelfield`
+-- -----------------------------
+INSERT INTO `ey_modelfield` VALUES ('1', 'add_time', '0', '新增时间', '0', '1', '1', '1', '1533091575', '1533091575');
+INSERT INTO `ey_modelfield` VALUES ('2', 'update_time', '0', '更新时间', '0', '1', '1', '1', '1533091601', '1533091601');
+INSERT INTO `ey_modelfield` VALUES ('3', 'aid', '0', '文档ID', '0', '1', '1', '1', '1533091624', '1533091624');
+INSERT INTO `ey_modelfield` VALUES ('4', 'typeid', '0', '当前栏目ID', '0', '1', '1', '1', '1533091930', '1533091930');
+INSERT INTO `ey_modelfield` VALUES ('5', 'channel', '0', '模型ID', '0', '1', '1', '1', '1533092214', '1533092214');
+INSERT INTO `ey_modelfield` VALUES ('6', 'is_b', '0', '是否加粗', '1', '1', '1', '0', '1533092246', '1533092246');
+INSERT INTO `ey_modelfield` VALUES ('7', 'title', '0', '文档标题', '0', '1', '1', '1', '1533092381', '1533092381');
+INSERT INTO `ey_modelfield` VALUES ('8', 'litpic', '0', '封面图', '1', '1', '1', '0', '1533092398', '1533092398');
+INSERT INTO `ey_modelfield` VALUES ('9', 'is_head', '0', '是否头条', '1', '1', '1', '0', '1533092420', '1533092420');
+INSERT INTO `ey_modelfield` VALUES ('10', 'is_special', '0', '是否特荐', '1', '1', '1', '0', '1533092439', '1533092439');
+INSERT INTO `ey_modelfield` VALUES ('11', 'is_top', '0', '是否置顶', '1', '1', '1', '0', '1533092454', '1533092454');
+INSERT INTO `ey_modelfield` VALUES ('12', 'is_recom', '0', '是否推荐', '1', '1', '1', '0', '1533092468', '1533092468');
+INSERT INTO `ey_modelfield` VALUES ('13', 'is_jump', '0', '是否跳转', '1', '1', '1', '0', '1533092484', '1533092484');
+INSERT INTO `ey_modelfield` VALUES ('14', 'author', '0', '编辑者', '1', '1', '1', '0', '1533092498', '1533092498');
+INSERT INTO `ey_modelfield` VALUES ('15', 'click', '0', '浏览量', '0', '1', '1', '1', '1533092512', '1533092512');
+INSERT INTO `ey_modelfield` VALUES ('16', 'arcrank', '0', '阅读权限', '0', '1', '1', '1', '1533092534', '1533092534');
+INSERT INTO `ey_modelfield` VALUES ('17', 'jumplinks', '0', '跳转链接', '0', '1', '1', '1', '1533092553', '1533092553');
+INSERT INTO `ey_modelfield` VALUES ('18', 'ismake', '0', '是否静态页面', '0', '1', '1', '1', '1533092698', '1533092698');
+INSERT INTO `ey_modelfield` VALUES ('19', 'seo_title', '0', 'SEO标题', '0', '1', '1', '1', '1533092713', '1533092713');
+INSERT INTO `ey_modelfield` VALUES ('20', 'seo_keywords', '0', 'SEO关键词', '0', '1', '1', '1', '1533092725', '1533092725');
+INSERT INTO `ey_modelfield` VALUES ('21', 'seo_description', '0', 'SEO描述', '0', '1', '1', '1', '1533092739', '1533092739');
+INSERT INTO `ey_modelfield` VALUES ('22', 'status', '0', '状态', '0', '1', '1', '1', '1533092753', '1533092753');
+INSERT INTO `ey_modelfield` VALUES ('23', 'sort_order', '0', '排序号', '0', '1', '1', '1', '1533092766', '1533092766');
+INSERT INTO `ey_modelfield` VALUES ('24', 'is_del', '0', '伪删除，1=是，0=否', '0', '1', '1', '1', '1533092766', '1533092766');
+INSERT INTO `ey_modelfield` VALUES ('25', 'del_method', '0', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', '0', '1', '1', '1', '1533092766', '1533092766');
 
 -- -----------------------------
 -- Table structure for `ey_product_attr`

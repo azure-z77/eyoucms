@@ -388,6 +388,7 @@ if (!function_exists('sitemap_xml'))
             'channel'   => ['IN', config('global.allow_release_channel')],
             'arcrank'   => array('gt', -1),
             'status'    => 1,
+            'is_del'    => 0,
         );
         if (is_array($sitemap_config)) {
             // 过滤外部模块

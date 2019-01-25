@@ -20,18 +20,11 @@ use think\Model;
  */
 class Article extends Model
 {
-    // 模型标识
-    public $nid = 'article';
-    // 模型ID
-    public $channeltype = '';
-    
     //初始化
     protected function initialize()
     {
         // 需要调用`Model`的`initialize`方法
         parent::initialize();
-        $channeltype_list = config('global.channeltype_list');
-        $this->channeltype = $channeltype_list[$this->nid];
     }
 
     /**

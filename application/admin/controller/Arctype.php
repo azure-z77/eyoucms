@@ -666,6 +666,8 @@ class Arctype extends Base
             $view = ''; // 销毁文档模板
             $templateList[$v1['id']] = array();
             foreach ($templateArr as $k2 => $v2) {
+                $v2 = iconv('GB2312', 'UTF-8', $v2);
+
                 if ('add' == $opt) {
                     $selected = 0; // 默认选中状态
                 } else {
@@ -745,6 +747,7 @@ class Arctype extends Base
                     if ($val['mark'] != $admin_lang) {
                         $addsaveData = $arctypeRow;
                         $addsaveData['lang'] = $val['mark'];
+                        $addsaveData['typename'] = $val['mark'].$addsaveData['typename']; // 临时测试
                         $parent_id = Db::name('language_attr')->where([
                                 'attr_name' => 'tid'.$arctypeRow['parent_id'],
                                 'lang'  => $val['mark'],

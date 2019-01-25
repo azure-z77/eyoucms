@@ -340,6 +340,8 @@ class UpgradeLogic extends Model
             $msg = "，其中失败 <font color='red'>{$badcp}</font> 个文件，<br />请从升级包目录[<font color='red'>data/backup/{$folderName}/www</font>]中的取出全部文件覆盖到根目录，完成手工升级。";
         }
 
+        // $this->copy_speed($n, $total);
+
         return ['code'=>$code, 'msg'=>$msg];
     }
 

@@ -1,4 +1,5 @@
 {include file="public/layout" /}
+
 <body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -8,10 +9,10 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>模型列表</h3>
-                <h5>(共{$pager->totalRows}条记录)</h5>
+                <h5>(共{$pageObj->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Channeltype/index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('Channeltype/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
@@ -19,48 +20,36 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Channeltype/index')}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Channeltype/index')}';">
                     </div>
                 </div>
             </form>
         </div>
         <div class="hDiv">
             <div class="hDivBox">
-                <table cellspacing="0" cellpadding="0">
+                <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
-                        <th class="sign" axis="col0">
-                            <div style="text-align: left; width: 24px;" class="">选择</div>
+                        <th class="sign w40" axis="col0">
+                            <div class="tc">选择</div>
                         </th>
-                        <th align="left" abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; width: 50px;" class="">ID</div>
+                        <th abbr="article_title" axis="col3" class="w40">
+                            <div class="tc">ID</div>
                         </th>
-                        <th align="left" abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; width: 100px;" class="">模型名称</div>
+                        <th abbr="article_title" axis="col3" class="">
+                            <div style="text-align: left; padding-left: 10px;" class="">模型名称</div>
                         </th>
-                        <th align="center" abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; width: 100px;" class="">模型标识</div>
+                        <th abbr="article_time" axis="col6" class="w120">
+                            <div class="tc">模型标识</div>
                         </th>
-                        <th align="center" abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; width: 100px;" class="">数据表名</div>
+                        <th abbr="article_time" axis="col6" class="w60">
+                            <div class="tc">启用</div>
                         </th>
-                        <th align="center" abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; width: 100px;" class="">控制器名</div>
+                        <th abbr="article_time" axis="col6" class="w100">
+                            <div class="tc">更新时间</div>
                         </th>
-                        <th align="center" abbr="article_time" axis="col6" class="">
-                            <div style="text-align: left; width: 50px;" class="">启用</div>
-                        </th>
-                        <th align="center" abbr="article_time" axis="col6" class="">
-                            <div style="text-align: left; width: 120px;" class="">更新时间</div>
-                        </th>
-                        <th align="center" axis="col1" class="">
-                            <div style="text-align: left; width: 120px;">操作</div>
-                        </th>
-                        <th align="center" abbr="article_show" axis="col5" class="">
-                            <div style="text-align: left; width: 50px;" class="">排序</div>
-                        </th>
-                        <th style="width:100%" axis="col7">
-                            <div></div>
+                        <th axis="col1" class="w250">
+                            <div class="tc">操作</div>
                         </th>
                     </tr>
                     </thead>
@@ -69,7 +58,7 @@
         </div>
         <div class="bDiv" style="height: auto;">
             <div id="flexigrid" cellpadding="0" cellspacing="0" border="0">
-                <table>
+                <table style="width: 100%;">
                     <tbody>
                     {empty name="list"}
                         <tr>
@@ -81,64 +70,67 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="sign">
-                                <div style="width: 24px;"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
-                            </td>
-                            <td align="left" class="">
-                                <div style="text-align: left; width: 50px;">
-                                    {$vo.id}
-                                </div>
-                            </td>
-                            <td align="left" class="">
-                                <div style="text-align: left; width: 100px;">
-                                    {$vo.title}
-                                </div>
-                            </td>
-                            <td align="center" class="">
-                                <div style="text-align: left; width: 100px;">
-                                    {$vo.nid}
-                                </div>
-                            </td>
-                            <td align="left" class="">
-                                <div style="text-align: left; width: 100px;">
-                                    {$vo.table}
-                                </div>
-                            </td>
-                            <td align="center" class="">
-                                <div style="text-align: left; width: 100px;">
-                                    {$vo.ctl_name}
-                                </div>
-                            </td>
-                            <td align="center" class="">
-                                <div style="text-align: left; width: 50px;">
-                                    {if condition="$vo['status'] eq 1"}
-                                    <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('channeltype','id','{$vo.id}','status',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
-                                    {else /}
-                                    <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('channeltype','id','{$vo.id}','status',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
-                                    {/if}
-                                </div>
-                            </td>
-                            <td align="center" class="">
-                                <div style="text-align: left; width: 120px;">
-                                    {$vo.update_time|date='Y-m-d',###}
-                                </div>
-                            </td>
-                            <td align="center" class="">
-                                <div style="text-align: left; width: 120px; max-width:170px;">
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:U('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
-                                    {/eq}
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <!-- <a class="btn red"  href="javascript:void(0)" data-url="{:U('Channeltype/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a> -->
-                                    {/eq}
+                                <div class="tc w40">
+                                    {empty name="$vo.ifsystem"}
+                                    <input type="checkbox" name="ids[]" value="{$vo.id}">
+                                    {/empty}
                                 </div>
                             </td>
                             <td class="sort">
-                                <div style="text-align: left; width: 50px;">
-                                    {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <input style="text-align: left;" type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'');" onchange="changeTableVal('channeltype','id','{$vo.id}','sort_order',this);" size="4"  value="{$vo.sort_order}" />
+                                <div class="tc w40">
+                                    {$vo.id}
+                                </div>
+                            </td>
+                            <td class="" style="width: 100%;">
+                                <div class="tl" style="padding-left: 10px;">
+                                    {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                    <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
-                                    {$vo.sort_order}
+                                    {$vo.title}
                                     {/eq}
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w120 tc">{$vo.nid}</div>
+                            </td>
+                            <td>
+                                <div class="tc w50">
+                                    {if condition="$vo['status'] eq 1"}
+                                        是
+                                    {else /}
+                                        <font color="red">否</font>
+                                    {/if}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="w100 tc">
+                                    {$vo.update_time|date='Y-m-d',###}
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w250 tc" style="text-align: left;">
+                                    {eq name="'Channeltype@field_management'|is_check_access" value="1"}
+                                    {notin name="$vo.nid" value="guestbook"}
+                                    <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>字段管理</a>
+                                    {else /}
+                                     —————
+                                    {/notin}
+                                    {/eq}
+                                    {empty name="$vo.ifsystem"}
+                                        {eq name="'Channeltype@field_management'|is_check_access" value="1"}
+                                        <a href="{:url('Channeltype/field_management',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>表单控制</a>
+                                        {/eq}
+                                    {/empty}
+                                    {empty name="$vo.ifsystem"}
+                                        {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                        <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                        {/eq}
+                                    {/empty}
+                                    {empty name="$vo.ifsystem"}
+                                        {eq name="'Channeltype@del'|is_check_access" value="1"}
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                        {/eq}
+                                    {/empty}
                                 </div>
                             </td>
                             <td align="" class="" style="width: 100%;">
@@ -157,20 +149,20 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
-                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
+                {eq name="'Channeltype@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('Channeltype/add')}">
-                        <div class="add" title="新增模型">
-                            <span><i class="fa fa-plus"></i>新增模型</span>
+                    <a onclick="batch_del(this, 'ids');" data-url="{:url('Channeltype/del')}">
+                        <div class="add" title="批量删除">
+                            <span><i class="fa fa-close"></i>批量删除</span>
                         </div>
                     </a>
                 </div>
                 {/eq}
-                {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
+                {eq name="'Channeltype@add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Channeltype/del')}">
-                        <div class="add" title="批量删除">
-                            <span><i class="fa fa-close"></i>批量删除</span>
+                    <a href="{:url('Channeltype/add')}">
+                        <div class="add" title="新增模型">
+                            <span class="red"><i class="fa fa-plus"></i>新增模型</span>
                         </div>
                     </a>
                 </div>
@@ -179,7 +171,7 @@
             <div style="clear:both"></div>
         </div>
         <!--分页位置-->
-        {$page}
+        {$pageStr}
     </div>
 </div>
 <script>
@@ -194,6 +186,35 @@
             location.href = location.href;
         });
     });
+
+    function delfun(obj){
+        var title = '<font color="#ff0000">重要提示！</font>';
+        layer.confirm('<font color="#ff0000">此操作将会删除与该模型所有相关的数据且不可恢复，请谨慎操作！</font>是否确认删除？', {
+            title: title,
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            layer_loading('正在处理');
+            // 确定
+            $.ajax({
+                type : 'post',
+                url : $(obj).attr('data-url'),
+                data : {del_id:$(obj).attr('data-id')},
+                dataType : 'json',
+                success : function(data){
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        window.location.reload();
+                    }else{
+                        layer.alert(data.msg, {icon: 2});  //alert(data);
+                    }
+                }
+            })
+        }, function(index){
+          layer.close(index);
+        });
+      return false;
+    }
 </script>
 
 {include file="public/footer" /}

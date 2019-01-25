@@ -118,14 +118,14 @@ return [
         'is_modules'    => 1,
         'auths' => 'Filemanager@*',
     ],
-    [
-        'id' => 13,
-        'menu_id' => 2004,
-        'menu_id2' => 2004004,
-        'name'  => '字段管理',
-        'is_modules'    => 1,
-        'auths' => 'Field@*',
-    ],
+    // [
+    //     'id' => 13,
+    //     'menu_id' => 2004,
+    //     'menu_id2' => 2004004,
+    //     'name'  => '字段管理',
+    //     'is_modules'    => 0,
+    //     'auths' => 'Field@*',
+    // ],
     [
         'id' => 14,
         'menu_id' => 2004,
@@ -173,5 +173,13 @@ return [
         'name'  => '回收站',
         'is_modules'    => 1,
         'auths' => 'RecycleBin@*',
+    ],
+    [
+        'id' => 20,
+        'menu_id' => 2004,
+        'menu_id2' => 2004007,
+        'name'  => '模型管理',
+        'is_modules'    => 1,
+        'auths' => 'Channeltype@*,Field@*',
     ],
 ];
