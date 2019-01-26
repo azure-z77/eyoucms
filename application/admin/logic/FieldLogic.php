@@ -319,11 +319,13 @@ class FieldLogic extends Model
      */
     public function synChannelTableColumns($channel_id)
     {
-        $cacheKey = "admin-FieldLogic-synChannelTableColumns-{$channel_id}";
-        $cacheValue = cache($cacheKey);
-        if (!empty($cacheValue)) {
-            return true;
-        }
+        $this->synArchivesTableColumns($channel_id);
+
+        // $cacheKey = "admin-FieldLogic-synChannelTableColumns-{$channel_id}";
+        // $cacheValue = cache($cacheKey);
+        // if (!empty($cacheValue)) {
+        //     return true;
+        // }
 
         $channelfieldArr = M('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
 
@@ -361,6 +363,7 @@ class FieldLogic extends Model
                     'ifeditable'    => 1,
                     'ifsystem'  => $ifsystem,
                     'ifmain'    => 0,
+                    'ifcontrol' => 0,
                     'add_time'  => getTime(),
                     'update_time'  => getTime(),
                 );
@@ -375,6 +378,7 @@ class FieldLogic extends Model
             if (!in_array($k, $new_arr)) {
                 $map = array(
                     'channel_id'    => $channel_id,
+                    'ifmain'    => 0,
                     'name'  => $v['name'],
                 );
                 M('channelfield')->where($map)->delete();
@@ -384,7 +388,72 @@ class FieldLogic extends Model
 
         \think\Cache::clear('channelfield');
 
-        cache($cacheKey, 1, null, 'channelfield');
+        // cache($cacheKey, 1, null, 'channelfield');
+    }
+
+    /**
+     * 同步文档主表的字段记录到指定模型
+     * @author 小虎哥 by 2018-4-16
+     */
+    public function synArchivesTableColumns($channel_id = '')
+    {
+        $channelfieldArr = M('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
+
+        $new_arr = array(); // 表字段数组
+        $addData = array(); // 数据存储变量
+
+        $controlFields = ['litpic','author'];
+
+        $table = PREFIX.'archives';
+        $row = Db::query("SHOW FULL COLUMNS FROM {$table}");
+        $row = array_reverse($row);
+        foreach ($row as $key => $val) {
+            $fieldname = $val['Field'];
+            $new_arr[] = $fieldname;
+            // 对比字段记录 表字段有 字段新增记录没有
+            if (empty($channelfieldArr[$fieldname])) {
+                $dtype = $this->toDtype($val['Type']);
+                $dfvalue = $this->toDefault($val['Type'], $val['Default']);
+                if (in_array($fieldname, $controlFields)) {
+                    $ifcontrol = 0;
+                } else {
+                    $ifcontrol = 1;
+                }
+                $maxlength = preg_replace('/^([^\(]+)\(([^\)]+)\)(.*)/i', '$2', $val['Type']);
+                $maxlength = intval($maxlength);
+                $addData[] = array(
+                    'name'  => $fieldname,
+                    'channel_id'  => $channel_id,
+                    'title'  => !empty($val['Comment']) ? $val['Comment'] : $fieldname,
+                    'dtype' => $dtype,
+                    'define'    => $val['Type'],
+                    'maxlength' => $maxlength,
+                    'dfvalue'   => $dfvalue,
+                    'ifeditable'    => 1,
+                    'ifsystem' => 1,
+                    'ifmain'    => 1,
+                    'ifcontrol' => $ifcontrol,
+                    'add_time'  => getTime(),
+                    'update_time'  => getTime(),
+                );
+            }
+        }
+        if (!empty($addData)) {
+            M('channelfield')->insertAll($addData);
+        }
+
+        /*字段新增记录有，表字段没有*/
+        foreach($channelfieldArr as $k => $v){
+            if (!in_array($k, $new_arr)) {
+                $map = array(
+                    'channel_id'  => $channel_id,
+                    'ifmain'    => 1,
+                    'name'  => $v['name'],
+                );
+                M('channelfield')->where($map)->delete();
+            }
+        }
+        /*--end*/
     }
 
     /**
@@ -434,6 +503,7 @@ class FieldLogic extends Model
                     'ifeditable'    => 1,
                     'ifsystem' => $ifsystem,
                     'ifmain'    => 1,
+                    'ifcontrol' => 1,
                     'add_time'  => getTime(),
                     'update_time'  => getTime(),
                 );

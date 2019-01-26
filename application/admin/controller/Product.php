@@ -407,16 +407,18 @@ class Product extends Base
         $filename= input('filename/s');
         $filename= str_replace('../','',$filename);
         $filename= trim($filename,'.');
-        $filename= trim($filename,'/');
-        if(eyPreventShell($filename) && !empty($filename) && file_exists($filename)){
+        if(eyPreventShell($filename) && !empty($filename)){
+            $filename_new = trim($filename,'/');
             $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
             $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-            $size = getimagesize($filename);
+            $size = getimagesize($filename_new);
             $fileInfo = explode('/',$size['mime']);
-            if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+            if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
                 exit;
             }
-            M('product_img')->where("image_url = '$filename'")->delete();
+            if (!empty($filename)) {
+                M('product_img')->where("image_url = '$filename'")->delete();
+            }
         }
     }
 

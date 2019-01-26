@@ -53,26 +53,42 @@ class Field extends Base
         foreach (['keywords'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    $condition['name'] = array('LIKE', "%{$param[$key]}%");
+                    $condition['a.name'] = array('LIKE', "%{$param[$key]}%");
                     // 过滤指定字段
                     // $banFields = ['id'];
-                    // $condition['name'] = array(
+                    // $condition['a.name'] = array(
                     //     array('LIKE', "%{$param[$key]}%"),
                     //     array('notin', $banFields),
                     // );
                 } else {
-                    $condition[$key] = array('eq', $param[$key]);
+                    $condition['a.'.$key] = array('eq', $param[$key]);
                 }
             }
         }
 
         /*显示主表与附加表*/
-        $condition['channel_id'] = array('eq', $channel_id);
+        $condition['a.channel_id'] = array('IN', [$channel_id]);
+
+        /*模型列表*/
+        $channeltype_list = model('Channeltype')->getAll('*', [], 'id');
+        $assign_data['channeltype_list'] = $channeltype_list;
+        /*--end*/
+
+        if (1 == $channeltype_list[$channel_id]['ifsystem']) {
+            $condition['a.ifmain'] = 0;
+        } else {
+            $condition['a.ifcontrol'] = 0;
+        }
 
         $cfieldM =  M('channelfield');
-        $count = $cfieldM->where($condition)->count('id');// 查询满足要求的总记录数
+        $count = $cfieldM->alias('a')->where($condition)->count('a.id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $cfieldM->where($condition)->order('sort_order asc, channel_id desc, id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        $list = $cfieldM->field('a.*')
+            ->alias('a')
+            ->where($condition)
+            ->order('a.sort_order asc, a.ifmain asc, a.ifcontrol asc, a.id desc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
 
         $show = $Page->show();// 分页显示输出
         $assign_data['page'] = $show; // 赋值分页输出
@@ -81,16 +97,6 @@ class Field extends Base
 
         /*字段类型列表*/
         $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
-        /*--end*/
-
-        /*有效的模型列表*/
-        $channeltype_list = model('Channeltype')->getAll('*', ['status'=>1], 'id');
-        foreach ($channeltype_list as $key => $val) {
-            if ('guestbook' == $val['nid']) { // 排除留言模型
-                unset($channeltype_list[$key]);
-            }
-        }
-        $assign_data['channeltype_list'] = $channeltype_list;
         /*--end*/
 
         /*模型ID*/
@@ -168,6 +174,7 @@ class Field extends Base
                     'dfvalue'   => $dfvalue,
                     'maxlength' => $maxlength,
                     'define'  => $buideType,
+                    'ifcontrol' => 0,
                     'add_time' => getTime(),
                     'update_time' => getTime(),
                 );
@@ -176,13 +183,13 @@ class Field extends Base
                 /*--end*/
 
                 // 同步数据到表单控制表modelfield
-                M('modelfield')->insert([
-                    'name'        => $post['name'],
-                    'model_id'    => $post['channel_id'],
-                    'title'       => $post['title'],
-                    'add_time'    => getTime(),
-                    'update_time' => getTime(),
-                ]);
+                // M('modelfield')->insert([
+                //     'name'        => $post['name'],
+                //     'model_id'    => $post['channel_id'],
+                //     'title'       => $post['title'],
+                //     'add_time'    => getTime(),
+                //     'update_time' => getTime(),
+                // ]);
                 
                 /*重新生成数据表字段缓存文件*/
                 try {
@@ -288,15 +295,15 @@ class Field extends Base
                 /*--end*/
 
                 // 同步数据到表单控制表modelfield
-                $modelfield_id = M('modelfield')->where('name',$old_name)->getField('id');
-                if (!empty($modelfield_id)) {
-                    M('modelfield')->where('id', intval($modelfield_id))
-                        ->save([
-                            'name'        => $post['name'],
-                            'title'       => $post['title'],
-                            'update_time' => getTime(),
-                        ]);
-                }
+                // $modelfield_id = M('modelfield')->where('name',$old_name)->getField('id');
+                // if (!empty($modelfield_id)) {
+                //     M('modelfield')->where('id', intval($modelfield_id))
+                //         ->save([
+                //             'name'        => $post['name'],
+                //             'title'       => $post['title'],
+                //             'update_time' => getTime(),
+                //         ]);
+                // }
                 
                 /*重新生成数据表字段缓存文件*/
                 try {
@@ -358,10 +365,10 @@ class Field extends Base
                 /*--end*/
 
                 /*同步数据到表单控制表modelfield*/
-                M('modelfield')->where([
-                        'name'      => ['IN', $name_list],
-                        'model_id'  => $channel_id,
-                    ])->delete();
+                // M('modelfield')->where([
+                //         'name'      => ['IN', $name_list],
+                //         'model_id'  => $channel_id,
+                //     ])->delete();
                 /*--end*/
 
                 /*获取模型标题*/
@@ -410,6 +417,40 @@ class Field extends Base
             M($tableExt)->where('aid', $aid)->update(array($fieldname=>$value, 'update_time'=>getTime()));
             /*--end*/
         }
+    }
+
+    /**
+     * 显示与隐藏
+     */
+    public function ajax_channel_show()
+    {
+        if (IS_POST) {
+            $id = input('id/d');
+            $ifeditable = input('ifeditable/d');
+            if(!empty($id)){
+                $row = Db::name('channelfield')->where([
+                        'id'    => $id,
+                    ])->find();
+                if (!empty($row) && 1 == intval($row['ifcontrol'])) {
+                    $this->error('系统内置表单，禁止操作！');
+                }
+                $r = Db::name('channelfield')->where([
+                        'id'    => $id,
+                    ])->update([
+                        'ifeditable'    => $ifeditable,
+                        'update_time'   => getTime(),
+                    ]);
+                if($r){
+                    adminLog('操作自定义模型表单：'.$row['name']);
+                    $this->success('操作成功');
+                }else{
+                    $this->error('操作失败');
+                }
+            } else {
+                $this->error('参数有误');
+            }
+        }
+        $this->error('非法访问');
     }
 
     /**

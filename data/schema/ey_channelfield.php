@@ -126,6 +126,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'ifcontrol' => 
+  array (
+    'name' => 'ifcontrol',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'sort_order' => 
   array (
     'name' => 'sort_order',

@@ -12,7 +12,7 @@
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Field/arctype_index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('Field/arctype_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
@@ -21,7 +21,7 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Field/arctype_index')}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Field/arctype_index')}';">
                     </div>
                 </div>
             </form>
@@ -82,7 +82,7 @@
                                 <div style="">
                                 {if condition="empty($vo['ifsystem'])"}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@arctype_edit'|is_check_access" value="1"}
-                                    <a href="{:U('Field/arctype_edit',array('id'=>$vo['id']))}">{$vo.title}</a>
+                                    <a href="{:url('Field/arctype_edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
@@ -119,10 +119,10 @@
                                 <div class="w180 tc">
                                 {if condition="empty($vo['ifsystem'])"}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@arctype_edit'|is_check_access" value="1"}
-                                    <a href="{:U('Field/arctype_edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Field/arctype_edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@arctype_del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Field/arctype_del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Field/arctype_del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 {else /}
                                     ——————
@@ -156,7 +156,7 @@
             <div class="tDiv2">
                 {eq name="$Think.const.CONTROLLER_NAME.'@arctype_add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('Field/arctype_add')}">
+                    <a href="{:url('Field/arctype_add')}">
                         <div class="add" title="新增字段">
                             <span class="red"><i class="fa fa-plus"></i>新增字段</span>
                         </div>

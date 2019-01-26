@@ -4,7 +4,17 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="channeltype/bar" /}
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>模型管理</h3>
+                <h5></h5>
+            </div>
+            <ul class="tab-base nc-row">
+                <li><a href="{:url('Channeltype/index')}" class="tab {eq name='$Request.controller' value='Channeltype'}current{/eq}"><span>模型列表</span></a></li>
+            </ul>
+        </div>
+    </div>
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
@@ -15,6 +25,15 @@
             <form class="navbar-form form-inline" action="{:url('Channeltype/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
+                    {eq name="'Field@arctype_index'|is_check_access" value="1"}
+                        <div class="fbutton" style="float: none;">
+                              <a href="{:url('Field/arctype_index')}">
+                                  <div class="add">
+                                      <span><i class="fa fa-cogs"></i>栏目字段管理</span>
+                                  </div>
+                              </a>
+                        </div>
+                    {/eq}
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
                         <input type="submit" class="btn" value="搜索">
@@ -48,7 +67,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
                         </th>
-                        <th axis="col1" class="w250">
+                        <th axis="col1" class="w100">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -108,24 +127,10 @@
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w250 tc" style="text-align: left;">
-                                    {eq name="'Channeltype@field_management'|is_check_access" value="1"}
-                                    {notin name="$vo.nid" value="guestbook"}
-                                    <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>字段管理</a>
-                                    {else /}
-                                     —————
-                                    {/notin}
+                                <div class="w100 tc" style="text-align: left;">
+                                    {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                    <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
-                                    {empty name="$vo.ifsystem"}
-                                        {eq name="'Channeltype@field_management'|is_check_access" value="1"}
-                                        <a href="{:url('Channeltype/field_management',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>表单控制</a>
-                                        {/eq}
-                                    {/empty}
-                                    {empty name="$vo.ifsystem"}
-                                        {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                        <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
-                                        {/eq}
-                                    {/empty}
                                     {empty name="$vo.ifsystem"}
                                         {eq name="'Channeltype@del'|is_check_access" value="1"}
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>

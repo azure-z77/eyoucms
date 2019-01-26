@@ -4,7 +4,19 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="channeltype/bar" /}
+    <div class="fixed-bar">
+        <div class="item-title">
+            <a class="back" href="{:url('Channeltype/index')}" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
+            <div class="subject">
+                <h3>模型管理</h3>
+                <h5></h5>
+            </div>
+            <ul class="tab-base nc-row">
+                <li><a href="{:url('Channeltype/index')}" class="tab {eq name='$Request.controller' value='Channeltype'}current{/eq}"><span>模型列表</span></a></li>
+                <li><a href="{:url('Field/channel_index', array('channel_id'=>$field.id))}" class="tab {eq name='$Request.controller' value='Field'}current{/eq}"><span>字段管理</span></a></li>
+            </ul>
+        </div>
+    </div>
     <form class="form-horizontal" id="post_form" action="{:url('Channeltype/edit')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
@@ -12,7 +24,11 @@
                     <label for="title"><em>*</em>模型名称</label>
                 </dt>
                 <dd class="opt">
+                    {eq name="$field.ifsystem" value="1"}
+                    {$field.title|default=''}
+                    {else /}
                     <input type="text" name="title" value="{$field.title|default=''}" id="title" class="input-txt">
+                    {/eq}
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -25,20 +41,7 @@
                     {$field.nid}
                     <input type="hidden" name="nid" value="{$field.nid|default=''}">
                     <span class="err"></span>
-                    <p class="notic">不可更改，避免影响功能使用以及SEO收录的死链</p>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label>启用</label>
-                </dt>
-                <dd class="opt">
-                    {eq name='$field.status' value='1'}
-                        是
-                    {else /}
-                        否
-                    {/eq}
-                    <p class="notic">模型跟随前台模板文件的存在而自动开启或关闭</p>
+                    <p class="">与文档的模板相关连，建议由小写字母、数字组成，因为部份Unix系统无法识别中文文件。<br/>列表模板是：lists_模型标识.htm<br/>文档模板是：view_模型标识.htm</p>
                 </dd>
             </dl>
             <div class="bot">
@@ -51,12 +54,13 @@
 <script type="text/javascript">
     // 判断输入框是否为空
     function checkForm(){
+        {neq name="$field.ifsystem" value="1"}
         if($.trim($('input[name=title]').val()) == ''){
             showErrorMsg('模型名称不能为空！');
             $('input[name=title]').focus();
             return false;
         }
-        
+        {/neq}
         layer_loading('正在处理');
         $('#post_form').submit();
     }

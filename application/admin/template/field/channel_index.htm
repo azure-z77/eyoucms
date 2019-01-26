@@ -9,16 +9,12 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>
-                    <select id="select_channel" style="height: 26px;">
-                        {volist name="$channeltype_list" id="vo"}
-                        <option value="{$vo.id}" {eq name="$Request.param.channel_id" value="$vo.id"}selected{/eq}>{$vo.title}</option>
-                        {/volist}
-                    </select>&nbsp;字段管理
+                    {$channeltype_list[$channel_id]['title']} - 字段列表
                 </h3>
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Field/channel_index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('Field/channel_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
@@ -28,7 +24,7 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Field/channel_index', array("channel_id"=>$channel_id))}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Field/channel_index', array("channel_id"=>$channel_id))}';">
                     </div>
                 </div>
             </form>
@@ -53,10 +49,13 @@
                         <th abbr="article_time" axis="col6" class="w70">
                             <div class="tc">字段分类</div>
                         </th>
+                        <th abbr="article_time" axis="col6" class="w70">
+                            <div class="tc">表单显示</div>
+                        </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
                         </th>
-                        <th axis="col1" class="w180">
+                        <th axis="col1" class="w250">
                             <div class="tc">操作</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w60">
@@ -91,7 +90,7 @@
                                     {$vo.title}
                                 {else /}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_edit'|is_check_access" value="1"}
-                                    <a href="{:U('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}">{$vo.title}</a>
+                                    <a href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
@@ -118,23 +117,39 @@
                                 </div>
                             </td>
                             <td>
+                                <div class="tc w70">
+                                    {if condition="$vo['ifeditable'] eq 1"}
+                                        是
+                                    {else /}
+                                        <font color="red">否</font>
+                                    {/if}
+                                </div>
+                            </td>
+                            <td>
                                 <div class="w100 tc">
                                     {$vo.update_time|date='Y-m-d',###}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w180 tc">
+                                <div class="w250 tc">
+                                {eq name="'Field@ajax_channel_show'|is_check_access" value="1"}
+                                {if condition="$vo['ifcontrol'] eq 1"}
+                                ———
+                                {else /}
+                                <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Field/ajax_channel_show')}" data-id="{$vo.id}" data-ifeditable="{eq name='$vo.ifeditable' value='1'}0{else /}1{/eq}" onClick="handleShow(this);"><i class="fa fa-trash-o"></i>{if condition="$vo['ifeditable'] eq 1"}隐藏{else /}显示{/if}</a>
+                                {/if}
+                                {/eq}
                                 {if condition="($vo['ifsystem'] eq 1) OR (1 eq $vo['ifmain'])"}
                                     ——————
                                 {else /}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_edit'|is_check_access" value="1"}
-                                    <a href="{:U('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Field/channel_del', array('channel_id'=>$channel_id))}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Field/channel_del', array('channel_id'=>$channel_id))}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 {/if}
-                                <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo['name']}', {$channel_id|default='0'})">标签调用</a>
+                                <a class="btn blue" href="javascript:void(0);" data-name="{$vo.name}" data-channel_id="{$channel_id|default='0'}" data-ifmain="{$vo.ifmain|default='0'}" onclick="copyToClipBoard(this)">标签调用</a>
                                 </div>
                             </td>
                             <td class="sort">
@@ -163,7 +178,7 @@
             <div class="tDiv2">
                 {eq name="$Think.const.CONTROLLER_NAME.'@channel_add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('Field/channel_add', array('channel_id'=>$channel_id))}">
+                    <a href="{:url('Field/channel_add', array('channel_id'=>$channel_id))}">
                         <div class="add" title="新增字段">
                             <span class="red"><i class="fa fa-plus"></i>新增字段</span>
                         </div>
@@ -193,7 +208,7 @@
         /*模型下拉框跳转*/
         $('#select_channel').change(function(){
             var channel_id = $(this).val();
-            var url = "{:U('Field/channel_index')}";
+            var url = "{:url('Field/channel_index')}";
             if (url.indexOf('?') > -1) {
                 url += '&';
             } else {
@@ -242,7 +257,11 @@
      * @param string  fieldname 字段名称
      * @param intval  channel_id 模型ID
      */
-    function copyToClipBoard(fieldname, channel_id) {
+    function copyToClipBoard(obj) {
+        var fieldname = $(obj).attr('data-name');
+        var channel_id = $(obj).attr('data-channel_id');
+        var ifmain = $(obj).attr('data-ifmain');
+        var height = '280px';
         if (6 == channel_id) {
             var liststr = "{eyou:type typeid='栏目ID' addfields='"+fieldname+"'}\r\n    {$"+"field."+fieldname+"}\r\n{/eyou:type";
             var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>列表/内容页：</dd>'
@@ -254,16 +273,38 @@
             var liststr = "{eyou:arcview aid='$field.aid' id='eyoav' addfields='"+fieldname+"'}\r\n    {$"+"eyoav."+fieldname+"}\r\n{/eyou:arcview";
             var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>内容页：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'eyou.field.'+fieldname+'}"></dd>'
-            contentdiv += '<dd>标签 arclist / list 内调用：</dd>'
-            contentdiv += '<dd><textarea rows="4" cols="60" style="width:400px;height:60px;">' + liststr + '}</textarea></dd>'
+            if (1 == ifmain) {
+                height = '180px';
+            } else {
+                contentdiv += '<dd>标签 arclist / list 内调用：</dd>'
+                contentdiv += '<dd><textarea rows="4" cols="60" style="width:400px;height:60px;">' + liststr + '}</textarea></dd>'
+            }
         }
         contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将相应标签复制并粘贴到对应模板文件中！</dd></dl></div>'
         layer.open({
             title: '标签调用',
             type: 1,
             skin: 'layui-layer-demo',
-            area: ['480px', '280px'], //宽高
+            area: ['480px', height], //宽高
             content: contentdiv
+        });
+    }
+
+    function handleShow(obj){
+        $.ajax({
+            type : 'post',
+            url : $(obj).attr('data-url'),
+            data : {id:$(obj).attr('data-id'),ifeditable:$(obj).attr('data-ifeditable')},
+            dataType : 'json',
+            success : function(data){
+                layer.closeAll();
+                if(data.code == 1){
+                    layer.msg(data.msg, {icon: 1});
+                    window.location.reload();
+                }else{
+                    layer.alert(data.msg, {icon: 2});
+                }
+            }
         });
     }
 </script>

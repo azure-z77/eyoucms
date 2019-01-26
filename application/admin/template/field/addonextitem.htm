@@ -228,21 +228,19 @@
                      */
                     function {$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(obj,path)
                     {
-                        $.ajax({
-                            type:'GET',
-                            url:"{:U('Uploadify/delupload')}",
-                            data:{action:"del", filename:path},
-                            success:function(){
-                                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片                
-                            }
-                        });
                         // 删除数据库记录
                         $.ajax({
                             type:'GET',
-                            url:"{:U('Field/del_channelimgs')}",
+                            url:"{:url('Field/del_channelimgs')}",
                             data:{filename:path,channel:"{$channeltype|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
                             success:function(){
-                                //         
+                                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
+                                $.ajax({
+                                    type:'GET',
+                                    url:"{:url('Uploadify/delupload')}",
+                                    data:{action:"del", filename:path},
+                                    success:function(){}
+                                });
                             }
                         });    
                     }
@@ -344,7 +342,7 @@
                 </dl>
                 <script type="text/javascript">
                     UE.getEditor('{$vo.fieldArr}_{$vo.name|default=''}',{
-                        serverUrl :"{:U('Ueditor/index',array('savepath'=>'ueditor'))}",
+                        serverUrl :"{:url('Ueditor/index',array('savepath'=>'ueditor'))}",
                         zIndex: 999,
                         initialFrameWidth: "100%", //初化宽度
                         initialFrameHeight: 450, //初化高度            
@@ -390,7 +388,7 @@
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:U('Ueditor/downFileUp',array('savepath'=>'soft'))}";
+    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft'))}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script> -->
                 <!-- 多文件 end -->

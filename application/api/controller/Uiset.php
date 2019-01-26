@@ -263,6 +263,7 @@ class Uiset extends Controller
 
         /*所有栏目列表*/
         $map = array(
+            'is_del'    => 0, // 回收站功能
             'status'   => 1,
         );
         $arctype_html = model('Arctype')->getList(0, $typeid, true, $map);
@@ -412,8 +413,14 @@ class Uiset extends Controller
             $info = $data['info'];
         }
 
-        $arctype_html = model('Arctype')->getList(0, $typeid, true);
+        /*所有栏目列表*/
+        $map = array(
+            'is_del'    => 0, // 回收站功能
+            'status'   => 1,
+        );
+        $arctype_html = model('Arctype')->getList(0, $typeid, true, $map);
         $this->assign('arctype_html', $arctype_html);
+        /*--end*/
 
         $assign = array(
             'id'    => $id,

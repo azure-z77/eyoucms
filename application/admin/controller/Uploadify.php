@@ -145,7 +145,7 @@ class Uploadify extends Base
             if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
                 exit;
             }
-            if(unlink($filename)){
+            if(@unlink($filename)){
                 echo 1;
             }else{
                 echo 0;

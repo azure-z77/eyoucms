@@ -1,10 +1,9 @@
 
 {volist name="$addonFieldExtList" id="vo"}
-    {if !isset($vo.ifeditable) || $vo.ifeditable}
+    {if isset($vo.ifeditable) && $vo.ifeditable == 1}
         {switch name="vo.dtype"}
             {case value="hidden"}
                 <!-- 隐藏域 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row" style="display: none;">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -15,13 +14,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 隐藏域 start -->
             {/case}
 
             {case value="text"}
                 <!-- 单行文本框 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -32,13 +29,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 单行文本框 end -->
             {/case}
 
             {case value="multitext"}
                 <!-- 多行文本框 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -49,13 +44,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 多行文本框 end -->
             {/case}
 
             {case value="checkbox"}
                 <!-- 复选框 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -68,13 +61,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 复选框 end -->
             {/case}
 
             {case value="radio"}
                 <!-- 单选项 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -87,13 +78,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 单选项 end -->
             {/case}
 
             {case value="switch"}
                 <!-- 开关 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -109,13 +98,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 开关 end -->
             {/case}
 
             {case value="select"}
                 <!-- 下拉框 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -130,13 +117,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 下拉框 end -->
             {/case}
 
             {case value="img"}
                 <!-- 单张图 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -170,13 +155,11 @@
                       $("#img_i_{$vo.fieldArr}_{$vo.name|default=''}").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
                     }
                 </script>
-                {/if}
                 <!-- 单张图 end -->
             {/case}
 
             {case value="imgs"}
                 <!-- 多张图 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row" id="dl_{$vo.fieldArr}_{$vo.name|default=''}">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -245,21 +228,19 @@
                      */
                     function {$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(obj,path)
                     {
-                        $.ajax({
-                            type:'GET',
-                            url:"{:U('Uploadify/delupload')}",
-                            data:{action:"del", filename:path},
-                            success:function(){
-                                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片                
-                            }
-                        });
                         // 删除数据库记录
                         $.ajax({
                             type:'GET',
-                            url:"{:U('Field/del_channelimgs')}",
+                            url:"{:url('Field/del_channelimgs')}",
                             data:{filename:path,channel:"{$channeltype|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
                             success:function(){
-                                //         
+                                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
+                                $.ajax({
+                                    type:'GET',
+                                    url:"{:url('Uploadify/delupload')}",
+                                    data:{action:"del", filename:path},
+                                    success:function(){}
+                                });
                             }
                         });    
                     }
@@ -276,13 +257,11 @@
                     });
                     $( ".sort-list-{$vo.fieldArr}_{$vo.name|default=''}" ).disableSelection();
                 </script>
-                {/if}
                 <!-- 多张图 end -->
             {/case}
 
             {case value="int"}
                 <!-- 整数类型 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -293,13 +272,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 整数类型 end -->
             {/case}
 
             {case value="float"}
                 <!-- 小数类型 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -310,13 +287,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 小数类型 end -->
             {/case}
 
             {case value="decimal"}
                 <!-- 金额类型 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -327,13 +302,11 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
-                {/if}
                 <!-- 金额类型 end -->
             {/case}
 
             {case value="datetime"}
                 <!-- 日期和时间 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -352,13 +325,11 @@
                         $('#{$vo.fieldArr}_{$vo.name|default=''}').layDate();   
                     });
                 </script>
-                {/if}
                 <!-- 日期和时间 end -->
             {/case}
 
             {case value="htmltext"}
                 <!-- HTML文本 start -->
-                {if condition="isset($modelfieldRow[$vo['name']]['ifeditable']) && $modelfieldRow[$vo['name']]['ifeditable'] == 1"}
                 <dl class="row">
                     <dt class="tit">
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
@@ -371,7 +342,7 @@
                 </dl>
                 <script type="text/javascript">
                     UE.getEditor('{$vo.fieldArr}_{$vo.name|default=''}',{
-                        serverUrl :"{:U('Ueditor/index',array('savepath'=>'ueditor'))}",
+                        serverUrl :"{:url('Ueditor/index',array('savepath'=>'ueditor'))}",
                         zIndex: 999,
                         initialFrameWidth: "100%", //初化宽度
                         initialFrameHeight: 450, //初化高度            
@@ -391,7 +362,6 @@
                         }
                     }
                 </script>
-                {/if}
                 <!-- HTML文本 end -->
             {/case}
 
@@ -418,7 +388,7 @@
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:U('Ueditor/downFileUp',array('savepath'=>'soft'))}";
+    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft'))}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script> -->
                 <!-- 多文件 end -->

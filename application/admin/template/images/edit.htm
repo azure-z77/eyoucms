@@ -23,7 +23,7 @@
             </ul>
         </div>
     </div>
-    <form class="form-horizontal" id="post_form" action="{:U('Images/edit')}" method="post">
+    <form class="form-horizontal" id="post_form" action="{:url('Images/edit')}" method="post">
         <!-- 常规信息 -->
         <div class="ncap-form-default tab_div_1">
             <dl class="row">
@@ -165,7 +165,7 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" value="{$field.seo_title}" name="seo_title" id="seo_title" class="input-txt">
-                    <p class="notic">为空则系统自动构成，可以到 <a href="{:U('Seo/index', array('inc_type'=>'seo'))}">SEO设置 - SEO基础</a> 中设置构成规则。</p>
+                    <p class="notic">为空则系统自动构成，可以到 <a href="{:url('Seo/index', array('inc_type'=>'seo'))}">SEO设置 - SEO基础</a> 中设置构成规则。</p>
                 </dd>
             </dl>
             <dl class="row">
@@ -338,21 +338,19 @@
      */
     function ClearPicArr2(obj,path)
     {
-        $.ajax({
-            type:'GET',
-            url:"{:U('Uploadify/delupload')}",
-            data:{action:"del", filename:path},
-            success:function(){
-                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片                
-            }
-        });
         // 删除数据库记录
         $.ajax({
             type:'GET',
-            url:"{:U('Images/del_imgupload')}",
+            url:"{:url('Images/del_imgupload')}",
             data:{filename:path},
             success:function(){
-                //         
+                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片  
+                $.ajax({
+                    type:'GET',
+                    url:"{:url('Uploadify/delupload')}",
+                    data:{action:"del", filename:path},
+                    success:function(){}
+                });     
             }
         });     
     }
@@ -364,7 +362,7 @@
         
         }
         ,stop: function( event, ui ) {
-            // var rdata = '', url="{:U('Images/ajax_sort_imgupload')}";
+            // var rdata = '', url="{:url('Images/ajax_sort_imgupload')}";
             // var container = $(ui.item).closest("TB");
             // var LIs = $(container).find("DIV");
             // $(LIs).each(function(){

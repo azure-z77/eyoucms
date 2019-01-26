@@ -11,8 +11,8 @@
                 <h5></h5>
             </div>
             <ul class="tab-base nc-row">
-                <li><a href="{:url('Channeltype/index')}" class="tab current"><span>模型列表</span></a></li>
-                <li><a href="{:U('Field/arctype_index', array('typeid'=>$Request.param.typeid))}" data-index='2' class="tab"><span>栏目字段管理</span></a></li>
+                <li><a href="{:url('Channeltype/edit', array('id'=>$channel_id))}" class="tab"><span>模型列表</span></a></li>
+                <li><a href="{:url('Field/channel_index', array('channel_id'=>$channel_id))}" class="tab current"><span>字段管理</span></a></li>
             </ul>
         </div>
     </div>

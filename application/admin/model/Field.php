@@ -62,6 +62,7 @@ class Field extends Model
         $map = array(
             'channel_id'    => array('eq', $channel_id),
             'name'          => array('notin', $hideField),
+            'ifmain'        => 0,
         );
         if (false !== $ifmain) {
             $map['ifmain'] = $ifmain;

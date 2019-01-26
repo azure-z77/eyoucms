@@ -151,25 +151,25 @@ class Channeltype extends Base
     {
         $id = input('id/d');
 
-        if (array_key_exists($id, $this->channeltype_system_id)) {
-            $this->error('系统内置模型，禁止更改！');
-        }
-
         if (IS_POST) {
             $post = input('post.');
             if(!empty($post['id'])){
                 $post['title'] = trim($post['title']);
 
-                if (empty($post['title'])) {
-                    $this->error('模型名称不能为空！');
-                }
+                if (in_array($post['id'], $this->channeltype_system_id)) {
+                    unset($post['title']);
+                } else {
+                    if (empty($post['title'])) {
+                        $this->error('模型名称不能为空！');
+                    }
 
-                $map = array(
-                    'id'    => ['NEQ', $post['id']],
-                    'nid' => strtolower($post['nid']),
-                );
-                if($this->channeltype_db->where($map)->count('id') > 0){
-                    $this->error('该模型标识已存在，请检查', url('Channeltype/index'));
+                    $map = array(
+                        'id'    => ['NEQ', $post['id']],
+                        'nid' => strtolower($post['nid']),
+                    );
+                    if($this->channeltype_db->where($map)->count('id') > 0){
+                        $this->error('该模型标识已存在，请检查', url('Channeltype/index'));
+                    }
                 }
 
                 $nowData = array(
