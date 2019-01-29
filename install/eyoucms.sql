@@ -140,13 +140,13 @@ CREATE TABLE `ey_archives` (
   `channel` int(10) NOT NULL DEFAULT '0' COMMENT '模型ID',
   `is_b` tinyint(1) DEFAULT '0' COMMENT '加粗',
   `title` varchar(200) DEFAULT '' COMMENT '标题',
-  `litpic` varchar(250) DEFAULT '' COMMENT '封面图',
+  `litpic` varchar(250) DEFAULT '' COMMENT '封面图片',
   `is_head` tinyint(1) DEFAULT '0' COMMENT '头条（0=否，1=是）',
   `is_special` tinyint(1) DEFAULT '0' COMMENT '特荐（0=否，1=是）',
   `is_top` tinyint(1) DEFAULT '0' COMMENT '置顶（0=否，1=是）',
   `is_recom` tinyint(1) DEFAULT '0' COMMENT '推荐（0=否，1=是）',
   `is_jump` tinyint(1) DEFAULT '0' COMMENT '跳转链接（0=否，1=是）',
-  `author` varchar(200) DEFAULT '' COMMENT '编辑者',
+  `author` varchar(200) DEFAULT '' COMMENT '作者',
   `click` int(10) DEFAULT '0' COMMENT '浏览量',
   `arcrank` tinyint(1) DEFAULT '0' COMMENT '阅读权限：0=开放浏览，-1=待审核稿件',
   `jumplinks` varchar(200) DEFAULT '' COMMENT '外链跳转',
@@ -425,6 +425,7 @@ CREATE TABLE `ey_channelfield` (
   `ifrequire` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否必填',
   `ifsystem` tinyint(1) NOT NULL DEFAULT '0' COMMENT '字段分类，1=系统(不可修改)，0=自定义',
   `ifmain` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主表字段',
+  `ifcontrol` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态，控制该条数据是否允许被控制，1为不允许控制，0为允许控制',
   `sort_order` int(5) NOT NULL DEFAULT '100' COMMENT '排序',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态',
   `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -436,59 +437,59 @@ CREATE TABLE `ey_channelfield` (
 -- -----------------------------
 -- Records of `ey_channelfield`
 -- -----------------------------
-INSERT INTO `ey_channelfield` VALUES ('1', 'add_time', '0', '新增时间', 'datetime', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533091575', '1533091575');
-INSERT INTO `ey_channelfield` VALUES ('2', 'update_time', '0', '更新时间', 'datetime', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533091601', '1533091601');
-INSERT INTO `ey_channelfield` VALUES ('3', 'aid', '0', '文档ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533091624', '1533091624');
-INSERT INTO `ey_channelfield` VALUES ('4', 'typeid', '0', '当前栏目ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533091930', '1533091930');
-INSERT INTO `ey_channelfield` VALUES ('5', 'channel', '0', '模型ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092214', '1533092214');
-INSERT INTO `ey_channelfield` VALUES ('6', 'is_b', '0', '是否加粗', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092246', '1533092246');
-INSERT INTO `ey_channelfield` VALUES ('7', 'title', '0', '文档标题', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092381', '1533092381');
-INSERT INTO `ey_channelfield` VALUES ('8', 'litpic', '0', '封面图', 'img', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092398', '1533092398');
-INSERT INTO `ey_channelfield` VALUES ('9', 'is_head', '0', '是否头条', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092420', '1533092420');
-INSERT INTO `ey_channelfield` VALUES ('10', 'is_special', '0', '是否特荐', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092439', '1533092439');
-INSERT INTO `ey_channelfield` VALUES ('11', 'is_top', '0', '是否置顶', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092454', '1533092454');
-INSERT INTO `ey_channelfield` VALUES ('12', 'is_recom', '0', '是否推荐', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092468', '1533092468');
-INSERT INTO `ey_channelfield` VALUES ('13', 'is_jump', '0', '是否跳转', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092484', '1533092484');
-INSERT INTO `ey_channelfield` VALUES ('14', 'author', '0', '编辑者', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092498', '1533092498');
-INSERT INTO `ey_channelfield` VALUES ('15', 'click', '0', '浏览量', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092512', '1533092512');
-INSERT INTO `ey_channelfield` VALUES ('16', 'arcrank', '0', '阅读权限', 'select', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092534', '1533092534');
-INSERT INTO `ey_channelfield` VALUES ('17', 'jumplinks', '0', '跳转链接', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092553', '1533092553');
-INSERT INTO `ey_channelfield` VALUES ('18', 'ismake', '0', '是否静态页面', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092698', '1533092698');
-INSERT INTO `ey_channelfield` VALUES ('19', 'seo_title', '0', 'SEO标题', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092713', '1533092713');
-INSERT INTO `ey_channelfield` VALUES ('20', 'seo_keywords', '0', 'SEO关键词', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092725', '1533092725');
-INSERT INTO `ey_channelfield` VALUES ('21', 'seo_description', '0', 'SEO描述', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092739', '1533092739');
-INSERT INTO `ey_channelfield` VALUES ('22', 'status', '0', '状态', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092753', '1533092753');
-INSERT INTO `ey_channelfield` VALUES ('23', 'sort_order', '0', '排序号', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533092766', '1533092766');
-INSERT INTO `ey_channelfield` VALUES ('24', 'content', '2', '内容', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '100', '1', '1533359739', '1533359739');
-INSERT INTO `ey_channelfield` VALUES ('25', 'content', '3', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '100', '1', '1533359588', '1533359588');
-INSERT INTO `ey_channelfield` VALUES ('26', 'content', '4', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '100', '1', '1533359752', '1533359752');
-INSERT INTO `ey_channelfield` VALUES ('27', 'content', '6', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '100', '1', '1533464715', '1533464715');
-INSERT INTO `ey_channelfield` VALUES ('29', 'content', '1', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '100', '1', '1533464713', '1533464713');
-INSERT INTO `ey_channelfield` VALUES ('30', 'update_time', '-99', '更新时间', 'datetime', 'int(11)', '11', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('31', 'add_time', '-99', '新增时间', 'datetime', 'int(11)', '11', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('32', 'status', '-99', '启用 (1=正常，0=屏蔽)', 'switch', 'tinyint(1)', '1', '1', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('33', 'is_part', '-99', '栏目属性：0=内容栏目，1=外部链接', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('34', 'is_hidden', '-99', '是否隐藏栏目：0=显示，1=隐藏', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('35', 'sort_order', '-99', '排序号', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('36', 'seo_description', '-99', 'seo描述', 'multitext', 'text', '0', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('37', 'seo_keywords', '-99', 'seo关键字', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('38', 'seo_title', '-99', 'SEO标题', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('39', 'tempview', '-99', '文档模板文件名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('40', 'templist', '-99', '列表模板文件名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('41', 'litpic', '-99', '栏目图片', 'img', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('42', 'typelink', '-99', '栏目链接', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('43', 'grade', '-99', '栏目等级', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('44', 'englist_name', '-99', '栏目英文名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('45', 'dirpath', '-99', '目录存放HTML路径', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('46', 'dirname', '-99', '目录英文名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('47', 'typename', '-99', '栏目名称', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('48', 'parent_id', '-99', '栏目上级ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('49', 'current_channel', '-99', '栏目当前模型ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('50', 'channeltype', '-99', '栏目顶级模型ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('51', 'id', '-99', '栏目ID', 'int', 'int(10)', '10', '', '', '', '1', '0', '1', '1', '100', '1', '1533524780', '1533524780');
-INSERT INTO `ey_channelfield` VALUES ('52', 'del_method', '-99', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '100', '1', '1547890773', '1547890773');
-INSERT INTO `ey_channelfield` VALUES ('53', 'is_del', '0', '是否伪删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1547890773', '1547890773');
-INSERT INTO `ey_channelfield` VALUES ('54', 'del_method', '0', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '100', '1', '1547890773', '1547890773');
+INSERT INTO `ey_channelfield` VALUES ('1', 'add_time', '0', '新增时间', 'datetime', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533091575', '1533091575');
+INSERT INTO `ey_channelfield` VALUES ('2', 'update_time', '0', '更新时间', 'datetime', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533091601', '1533091601');
+INSERT INTO `ey_channelfield` VALUES ('3', 'aid', '0', '文档ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533091624', '1533091624');
+INSERT INTO `ey_channelfield` VALUES ('4', 'typeid', '0', '当前栏目ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533091930', '1533091930');
+INSERT INTO `ey_channelfield` VALUES ('5', 'channel', '0', '模型ID', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092214', '1533092214');
+INSERT INTO `ey_channelfield` VALUES ('6', 'is_b', '0', '是否加粗', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092246', '1533092246');
+INSERT INTO `ey_channelfield` VALUES ('7', 'title', '0', '文档标题', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092381', '1533092381');
+INSERT INTO `ey_channelfield` VALUES ('8', 'litpic', '0', '封面图', 'img', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092398', '1533092398');
+INSERT INTO `ey_channelfield` VALUES ('9', 'is_head', '0', '是否头条', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092420', '1533092420');
+INSERT INTO `ey_channelfield` VALUES ('10', 'is_special', '0', '是否特荐', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092439', '1533092439');
+INSERT INTO `ey_channelfield` VALUES ('11', 'is_top', '0', '是否置顶', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092454', '1533092454');
+INSERT INTO `ey_channelfield` VALUES ('12', 'is_recom', '0', '是否推荐', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092468', '1533092468');
+INSERT INTO `ey_channelfield` VALUES ('13', 'is_jump', '0', '是否跳转', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092484', '1533092484');
+INSERT INTO `ey_channelfield` VALUES ('14', 'author', '0', '编辑者', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092498', '1533092498');
+INSERT INTO `ey_channelfield` VALUES ('15', 'click', '0', '浏览量', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092512', '1533092512');
+INSERT INTO `ey_channelfield` VALUES ('16', 'arcrank', '0', '阅读权限', 'select', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092534', '1533092534');
+INSERT INTO `ey_channelfield` VALUES ('17', 'jumplinks', '0', '跳转链接', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092553', '1533092553');
+INSERT INTO `ey_channelfield` VALUES ('18', 'ismake', '0', '是否静态页面', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092698', '1533092698');
+INSERT INTO `ey_channelfield` VALUES ('19', 'seo_title', '0', 'SEO标题', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092713', '1533092713');
+INSERT INTO `ey_channelfield` VALUES ('20', 'seo_keywords', '0', 'SEO关键词', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092725', '1533092725');
+INSERT INTO `ey_channelfield` VALUES ('21', 'seo_description', '0', 'SEO描述', 'text', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092739', '1533092739');
+INSERT INTO `ey_channelfield` VALUES ('22', 'status', '0', '状态', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092753', '1533092753');
+INSERT INTO `ey_channelfield` VALUES ('23', 'sort_order', '0', '排序号', 'int', 'int(11)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533092766', '1533092766');
+INSERT INTO `ey_channelfield` VALUES ('24', 'content', '2', '内容', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '0', '100', '1', '1533359739', '1533359739');
+INSERT INTO `ey_channelfield` VALUES ('25', 'content', '3', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '0', '100', '1', '1533359588', '1533359588');
+INSERT INTO `ey_channelfield` VALUES ('26', 'content', '4', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '0', '100', '1', '1533359752', '1533359752');
+INSERT INTO `ey_channelfield` VALUES ('27', 'content', '6', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '0', '100', '1', '1533464715', '1533464715');
+INSERT INTO `ey_channelfield` VALUES ('29', 'content', '1', '内容详情', 'htmltext', 'longtext', '250', '', '', '', '1', '0', '1', '0', '0', '100', '1', '1533464713', '1533464713');
+INSERT INTO `ey_channelfield` VALUES ('30', 'update_time', '-99', '更新时间', 'datetime', 'int(11)', '11', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('31', 'add_time', '-99', '新增时间', 'datetime', 'int(11)', '11', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('32', 'status', '-99', '启用 (1=正常，0=屏蔽)', 'switch', 'tinyint(1)', '1', '1', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('33', 'is_part', '-99', '栏目属性：0=内容栏目，1=外部链接', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('34', 'is_hidden', '-99', '是否隐藏栏目：0=显示，1=隐藏', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('35', 'sort_order', '-99', '排序号', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('36', 'seo_description', '-99', 'seo描述', 'multitext', 'text', '0', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('37', 'seo_keywords', '-99', 'seo关键字', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('38', 'seo_title', '-99', 'SEO标题', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('39', 'tempview', '-99', '文档模板文件名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('40', 'templist', '-99', '列表模板文件名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('41', 'litpic', '-99', '栏目图片', 'img', 'varchar(250)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('42', 'typelink', '-99', '栏目链接', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('43', 'grade', '-99', '栏目等级', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('44', 'englist_name', '-99', '栏目英文名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('45', 'dirpath', '-99', '目录存放HTML路径', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('46', 'dirname', '-99', '目录英文名', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('47', 'typename', '-99', '栏目名称', 'text', 'varchar(200)', '200', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('48', 'parent_id', '-99', '栏目上级ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('49', 'current_channel', '-99', '栏目当前模型ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('50', 'channeltype', '-99', '栏目顶级模型ID', 'int', 'int(10)', '10', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('51', 'id', '-99', '栏目ID', 'int', 'int(10)', '10', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1533524780', '1533524780');
+INSERT INTO `ey_channelfield` VALUES ('52', 'del_method', '-99', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
+INSERT INTO `ey_channelfield` VALUES ('53', 'is_del', '0', '是否伪删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
+INSERT INTO `ey_channelfield` VALUES ('54', 'del_method', '0', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
 
 -- -----------------------------
 -- Table structure for `ey_channeltype`
@@ -1419,53 +1420,6 @@ INSERT INTO `ey_links` VALUES ('7', '1', 'qq', 'http://www.qq.com', '', '100', '
 INSERT INTO `ey_links` VALUES ('8', '1', 'sina', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', 'en', '0', '1532414285', '1547473376');
 INSERT INTO `ey_links` VALUES ('9', '1', 'yiyongtong', 'http://www.yiyongtong.com', '', '100', '1', '', '', '1', 'en', '0', '1532414529', '1547473365');
 INSERT INTO `ey_links` VALUES ('10', '1', 'sucai58', 'http://www.sucai58.com', '', '100', '1', '', '', '1', 'en', '0', '1532414726', '1547473355');
-
--- -----------------------------
--- Table structure for `ey_modelfield`
--- -----------------------------
-DROP TABLE IF EXISTS `ey_modelfield`;
-CREATE TABLE `ey_modelfield` (
-  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
-  `name` varchar(32) NOT NULL DEFAULT '' COMMENT '字段名称',
-  `model_id` int(10) NOT NULL DEFAULT '0' COMMENT '所属模型id',
-  `title` varchar(32) NOT NULL DEFAULT '' COMMENT '字段标题',
-  `ifeditable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否在编辑页显示，1为显示，0为不显示',
-  `ifsystem` tinyint(1) NOT NULL DEFAULT '0' COMMENT '字段分类，1=系统(不可修改)，0=自定义',
-  `ifmain` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主表字段，1为主表，0为附表',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，控制该条数据是否允许被控制，1为不允许控制，0为允许控制',
-  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
-  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COMMENT='自定义模型文档表单控制表';
-
--- -----------------------------
--- Records of `ey_modelfield`
--- -----------------------------
-INSERT INTO `ey_modelfield` VALUES ('1', 'add_time', '0', '新增时间', '0', '1', '1', '1', '1533091575', '1533091575');
-INSERT INTO `ey_modelfield` VALUES ('2', 'update_time', '0', '更新时间', '0', '1', '1', '1', '1533091601', '1533091601');
-INSERT INTO `ey_modelfield` VALUES ('3', 'aid', '0', '文档ID', '0', '1', '1', '1', '1533091624', '1533091624');
-INSERT INTO `ey_modelfield` VALUES ('4', 'typeid', '0', '当前栏目ID', '0', '1', '1', '1', '1533091930', '1533091930');
-INSERT INTO `ey_modelfield` VALUES ('5', 'channel', '0', '模型ID', '0', '1', '1', '1', '1533092214', '1533092214');
-INSERT INTO `ey_modelfield` VALUES ('6', 'is_b', '0', '是否加粗', '1', '1', '1', '0', '1533092246', '1533092246');
-INSERT INTO `ey_modelfield` VALUES ('7', 'title', '0', '文档标题', '0', '1', '1', '1', '1533092381', '1533092381');
-INSERT INTO `ey_modelfield` VALUES ('8', 'litpic', '0', '封面图', '1', '1', '1', '0', '1533092398', '1533092398');
-INSERT INTO `ey_modelfield` VALUES ('9', 'is_head', '0', '是否头条', '1', '1', '1', '0', '1533092420', '1533092420');
-INSERT INTO `ey_modelfield` VALUES ('10', 'is_special', '0', '是否特荐', '1', '1', '1', '0', '1533092439', '1533092439');
-INSERT INTO `ey_modelfield` VALUES ('11', 'is_top', '0', '是否置顶', '1', '1', '1', '0', '1533092454', '1533092454');
-INSERT INTO `ey_modelfield` VALUES ('12', 'is_recom', '0', '是否推荐', '1', '1', '1', '0', '1533092468', '1533092468');
-INSERT INTO `ey_modelfield` VALUES ('13', 'is_jump', '0', '是否跳转', '1', '1', '1', '0', '1533092484', '1533092484');
-INSERT INTO `ey_modelfield` VALUES ('14', 'author', '0', '编辑者', '1', '1', '1', '0', '1533092498', '1533092498');
-INSERT INTO `ey_modelfield` VALUES ('15', 'click', '0', '浏览量', '0', '1', '1', '1', '1533092512', '1533092512');
-INSERT INTO `ey_modelfield` VALUES ('16', 'arcrank', '0', '阅读权限', '0', '1', '1', '1', '1533092534', '1533092534');
-INSERT INTO `ey_modelfield` VALUES ('17', 'jumplinks', '0', '跳转链接', '0', '1', '1', '1', '1533092553', '1533092553');
-INSERT INTO `ey_modelfield` VALUES ('18', 'ismake', '0', '是否静态页面', '0', '1', '1', '1', '1533092698', '1533092698');
-INSERT INTO `ey_modelfield` VALUES ('19', 'seo_title', '0', 'SEO标题', '0', '1', '1', '1', '1533092713', '1533092713');
-INSERT INTO `ey_modelfield` VALUES ('20', 'seo_keywords', '0', 'SEO关键词', '0', '1', '1', '1', '1533092725', '1533092725');
-INSERT INTO `ey_modelfield` VALUES ('21', 'seo_description', '0', 'SEO描述', '0', '1', '1', '1', '1533092739', '1533092739');
-INSERT INTO `ey_modelfield` VALUES ('22', 'status', '0', '状态', '0', '1', '1', '1', '1533092753', '1533092753');
-INSERT INTO `ey_modelfield` VALUES ('23', 'sort_order', '0', '排序号', '0', '1', '1', '1', '1533092766', '1533092766');
-INSERT INTO `ey_modelfield` VALUES ('24', 'is_del', '0', '伪删除，1=是，0=否', '0', '1', '1', '1', '1533092766', '1533092766');
-INSERT INTO `ey_modelfield` VALUES ('25', 'del_method', '0', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', '0', '1', '1', '1', '1533092766', '1533092766');
 
 -- -----------------------------
 -- Table structure for `ey_product_attr`
