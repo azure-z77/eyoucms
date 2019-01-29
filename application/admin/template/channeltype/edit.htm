@@ -13,7 +13,9 @@
             </div>
             <ul class="tab-base nc-row">
                 <li><a href="{:url('Channeltype/index')}" class="tab {eq name='$Request.controller' value='Channeltype'}current{/eq}"><span>模型列表</span></a></li>
+                {notin name="$field.nid" value="guestbook"}
                 <li><a href="{:url('Field/channel_index', array('channel_id'=>$field.id))}" class="tab {eq name='$Request.controller' value='Field'}current{/eq}"><span>字段管理</span></a></li>
+                {/notin}
             </ul>
         </div>
     </div>
@@ -44,10 +46,12 @@
                     <p class="">与文档的模板相关连，建议由小写字母、数字组成，因为部份Unix系统无法识别中文文件。<br/>列表模板是：lists_模型标识.htm<br/>文档模板是：view_模型标识.htm</p>
                 </dd>
             </dl>
+            {neq name="$field.ifsystem" value="1"}
             <div class="bot">
                 <input type="hidden" name="id" value="{$field.id}">
                 <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
+            {/neq}
         </div>
     </form>
 </div>

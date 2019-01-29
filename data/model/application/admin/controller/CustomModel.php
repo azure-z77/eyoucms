@@ -243,12 +243,6 @@ class CustomModel extends Base
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
 
-        /*显示自定义字段的表单元素*/
-        $assign_data['modelfieldRow'] = Db::name('modelfield')->field('name,ifeditable')->where([
-                'model_id'  => $this->channeltype,
-            ])->getAllWithIndex('name');
-        /*--end*/
-
         /*自定义字段*/
         $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($this->channeltype);
         $assign_data['aid'] = 0;
@@ -259,25 +253,10 @@ class CustomModel extends Base
         $assign_data['arcrank_list'] = $arcrank_list;
         
         /*获取可显示的系统字段*/
-        $model_id = M('channeltype')->where(['ctl_name'=>CONTROLLER_NAME])->getField('id');
-        if (!empty($model_id)) {
-            $modelfield_mod =  M('modelfield');
-            // 可控制表单元素
-            $condition['status'] = 0;
-            $condition['model_id'] = $model_id;
-            $list = $modelfield_mod->where($condition)->field('name,ifeditable')->select();
-            $assign_data['list'] = $list;
-
-            /*文档属性控制*/
-            $name = array('is_jump','is_recom','is_special','is_head','is_b');
-            $condition['name'] = array('IN', $name);
-            $condition['ifeditable'] = 0;
-            $info = $modelfield_mod->where($condition)->count();
-            $assign_data['listData'] = 1;
-            if ($info == count($name)) {
-                $assign_data['listData'] = '';
-            }
-        }
+        $condition['ifcontrol'] = 0;
+        $condition['channel_id'] = $this->channeltype;
+        $channelfield_row = Db::name('channelfield')->where($condition)->field('name,ifeditable')->getAllWithIndex('name');
+        $assign_data['channelfield_row'] = $channelfield_row;
         /*--end*/
 
         /*返回上一层*/
@@ -399,37 +378,17 @@ class CustomModel extends Base
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
 
-        /*显示自定义字段的表单元素*/
-        $assign_data['modelfieldRow'] = Db::name('modelfield')->field('name,ifeditable')->where([
-                'model_id'  => $this->channeltype,
-            ])->getAllWithIndex('name');
-        /*--end*/
-
         /*自定义字段*/
         $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($info['channel'], 0, $id);
         $assign_data['aid'] = $id;
         /*--end*/
 
-        // 获取可显示的系统字段
-        $c = input('param.c');
-        $channeltype =  M('channeltype');
-        $where['ctl_name'] = $c;
-        $data = $channeltype->where($where)->field('id')->find();
-
-        $modelfield =  M('modelfield');
-        $condition['status'] = 0;
-        $condition['model_id'] = $data['id'];
-        $list = $modelfield->where($condition)->field('name,ifeditable')->select();
-        $assign_data['list'] = $list;
-
-        $name = array('is_jump','is_recom','is_special','is_head','is_b');
-        $condition['name'] = array('IN', $name);
-        $condition['ifeditable'] = 0;
-        $info = $modelfield->where($condition)->count();
-        $assign_data['listData'] = '1';
-        if ($info > 5) {
-            $assign_data['listData'] = '';
-        }
+        /*获取可显示的系统字段*/
+        $condition['ifcontrol'] = 0;
+        $condition['channel_id'] = $this->channeltype;
+        $channelfield_row = Db::name('channelfield')->where($condition)->field('name,ifeditable')->getAllWithIndex('name');
+        $assign_data['channelfield_row'] = $channelfield_row;
+        /*--end*/
 
         // 阅读权限
         $arcrank_list = get_arcrank_list();

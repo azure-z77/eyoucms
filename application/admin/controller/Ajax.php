@@ -74,14 +74,29 @@ class Ajax extends Controller {
         $baseFile = request()->baseFile();
         /*多语言*/
         if (is_language()) {
-            $langRow = \think\Db::name('language')->order('id asc')
-                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                ->select();
+            $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
             foreach ($langRow as $key => $val) {
                 tpCache('web', ['web_adminbasefile'=>$baseFile], $val['mark']);
             }
         } else { // 单语言
             tpCache('web', ['web_adminbasefile'=>$baseFile]);
+        }
+        /*--end*/
+    }
+
+    /**
+     * 隐藏后台欢迎页的系统提示
+     */
+    public function explanation_welcome()
+    {
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('system', ['system_explanation_welcome'=>1], $val['mark']);
+            }
+        } else { // 单语言
+            tpCache('system', ['system_explanation_welcome'=>1]);
         }
         /*--end*/
     }

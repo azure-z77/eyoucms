@@ -154,4 +154,39 @@ class Channeltype extends Model
 
         return $result;
     }
+
+    /**
+     * 根据前端模板自动开启系统模型
+     */
+    public function setChanneltypeStatus()
+    {
+        $planPath = 'template/pc';
+        $planPath = realpath($planPath);
+        if (!file_exists($planPath)) {
+            return true;
+        }
+        $ctl_name_arr = array();
+        $dirRes   = opendir($planPath);
+        $view_suffix = config('template.view_suffix');
+        while($filename = readdir($dirRes))
+        {
+            if(preg_match('/^(lists|view)?_/i', $filename) == 1)
+            {
+                $tplname = preg_replace('/([^_]+)?_([^\.]+)\.'.$view_suffix.'$/i', '${2}', $filename);
+                $ctl_name_arr[] = ucwords($tplname);
+            } elseif (preg_match('/\.'.$view_suffix.'$/i', $filename) == 1) {
+                $tplname = preg_replace('/\.'.$view_suffix.'$/i', '', $filename);
+                $ctl_name_arr[] = ucwords($tplname);
+            }
+        }
+        $ctl_name_arr = array_unique($ctl_name_arr);
+
+        if (!empty($ctl_name_arr)) {
+            \think\Db::name('Channeltype')->where('id > 0')->cache(true,null,"channeltype")->update(array('status'=>0, 'update_time'=>getTime()));
+            $map = array(
+                'ctl_name'  => array('IN', $ctl_name_arr),
+            );
+            \think\Db::name('Channeltype')->where($map)->cache(true,null,"channeltype")->update(array('status'=>1, 'update_time'=>getTime()));
+        } 
+    }
 }

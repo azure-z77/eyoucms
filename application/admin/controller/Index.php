@@ -72,18 +72,29 @@ class Index extends Base
    
     public function welcome()
     {
+        $globalConfig = tpCache('global');
         /*百度分享*/
-        $webConfig = tpCache('web');
         $share = array(
-            'bdText'    => $webConfig['web_title'],
-            'bdPic'     => is_http_url($webConfig['web_logo']) ? $webConfig['web_logo'] : request()->domain().$webConfig['web_logo'],
-            'bdUrl'     => $webConfig['web_basehost'],
+            'bdText'    => $globalConfig['web_title'],
+            'bdPic'     => is_http_url($globalConfig['web_logo']) ? $globalConfig['web_logo'] : request()->domain().$globalConfig['web_logo'],
+            'bdUrl'     => $globalConfig['web_basehost'],
         );
         $this->assign('share',$share);
         /*--end*/
 
+        /*系统提示*/
+        $system_explanation_welcome = $globalConfig['system_explanation_welcome'];
+        $sqlfiles = glob(DATA_PATH.'sqldata/*');
+        foreach ($sqlfiles as $file) {
+            if(stristr($file, getCmsVersion())){
+                $system_explanation_welcome = 1;
+            }
+        }
+        $this->assign('system_explanation_welcome', $system_explanation_welcome);
+        /*--end*/
+
         $this->assign('sys_info',$this->get_sys_info());
-        $this->assign('web_show_popup_upgrade', tpCache('web.web_show_popup_upgrade'));
+        $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
         return $this->fetch();
     }
     

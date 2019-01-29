@@ -390,7 +390,31 @@ class Field extends Base
     }
 
     /**
-     * 删除多图字段的图集
+     * 栏目字段 - 删除多图字段的图集
+     */
+    public function del_arctypeimgs()
+    {
+        $typeid = input('typeid/d','0');
+        if (!empty($typeid)) {
+            $path = input('filename',''); // 图片路径
+            $fieldname = input('fieldname/s', ''); // 多图字段
+
+            /*除去多图字段值中的图片*/
+            $info = M('arctype')->field("{$fieldname}")->where("id", $typeid)->find();
+            $valueArr = explode(',', $info[$fieldname]);
+            foreach ($valueArr as $key => $val) {
+                if ($path == $val) {
+                    unset($valueArr[$key]);
+                }
+            }
+            $value = implode(',', $valueArr);
+            M('arctype')->where('id', $typeid)->update(array($fieldname=>$value, 'update_time'=>getTime()));
+            /*--end*/
+        }
+    }
+
+    /**
+     * 模型字段 - 删除多图字段的图集
      */
     public function del_channelimgs()
     {

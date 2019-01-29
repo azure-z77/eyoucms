@@ -154,12 +154,15 @@ function upgrade(obj){
                             var title = '已升级版本：'+version+'，官方最新版本：'+max_version+'。';
                             var btn = ['开始检测'];
                         } else { // 升级版本是官方最新版本，将引导到备份新数据
-                            var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
-                            var btn = ['前往备份'];
-                            $(obj, window.parent.document).hide(); // 隐藏顶部的更新提示
+                            // var title = '已升级最新版本，请备份新数据。<font color="red"><br/>提示：之前备份不兼容新版本。</font>';
+                            var title = '已升级最新版本！';
+                            var btn = ['关闭'];
+                            $('#a_upgrade', window.parent.document).hide(); // 隐藏顶部的更新提示
                         }
                         var full = layer.alert(title, {
                                 title: '重要提示',
+                                icon: 1,
+                                closeBtn: 0,
                                 btn: btn //按钮
                             }, function(){
                                 if (version < max_version) { // 当前升级之后的版本还不是官方最新版本，将继续连续更新
@@ -169,9 +172,11 @@ function upgrade(obj){
                                     var url = eyou_basefile + "?m="+module_name+"&c=Tools&a=index";
                                     var iframe = $(obj).data('iframe');
                                     if ('parent' == iframe) {
-                                        workspace.window.location.href = url;
+                                        workspace.window.location.reload();
+                                        // workspace.window.location.href = url;
                                     } else {
-                                        window.location.href = url;
+                                        top.location.reload();
+                                        // window.location.href = url;
                                     }
                                 }
                             }

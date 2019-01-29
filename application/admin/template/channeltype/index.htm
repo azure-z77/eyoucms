@@ -22,36 +22,23 @@
                 <h5>(共{$pageObj->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:url('Channeltype/index')}" method="get" onsubmit="layer_loading('正在处理');">
-                {$searchform.hidden|default=''}
-                <div class="sDiv">
-                    {eq name="'Field@arctype_index'|is_check_access" value="1"}
-                        <div class="fbutton" style="float: none;">
-                              <a href="{:url('Field/arctype_index')}">
-                                  <div class="add">
-                                      <span><i class="fa fa-cogs"></i>栏目字段管理</span>
-                                  </div>
-                              </a>
-                        </div>
-                    {/eq}
-                    <div class="sDiv2">
-                        <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
-                        <input type="submit" class="btn" value="搜索">
+            <div class="sDiv">
+                {eq name="'Field@arctype_index'|is_check_access" value="1"}
+                    <div class="fbutton" style="float: none;">
+                          <a href="{:url('Field/arctype_index')}">
+                              <div class="add">
+                                  <span><i class="fa fa-cogs"></i>栏目字段管理</span>
+                              </div>
+                          </a>
                     </div>
-                    <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Channeltype/index')}';">
-                    </div>
-                </div>
-            </form>
+                {/eq}
+            </div>
         </div>
         <div class="hDiv">
             <div class="hDivBox">
                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
-                        <th class="sign w40" axis="col0">
-                            <div class="tc">选择</div>
-                        </th>
                         <th abbr="article_title" axis="col3" class="w40">
                             <div class="tc">ID</div>
                         </th>
@@ -60,9 +47,6 @@
                         </th>
                         <th abbr="article_time" axis="col6" class="w120">
                             <div class="tc">模型标识</div>
-                        </th>
-                        <th abbr="article_time" axis="col6" class="w60">
-                            <div class="tc">启用</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
@@ -88,13 +72,6 @@
                     {else/}
                         {foreach name="list" item="vo" key="k" }
                         <tr>
-                            <td class="sign">
-                                <div class="tc w40">
-                                    {empty name="$vo.ifsystem"}
-                                    <input type="checkbox" name="ids[]" value="{$vo.id}">
-                                    {/empty}
-                                </div>
-                            </td>
                             <td class="sort">
                                 <div class="tc w40">
                                     {$vo.id}
@@ -113,21 +90,12 @@
                                 <div class="w120 tc">{$vo.nid}</div>
                             </td>
                             <td>
-                                <div class="tc w50">
-                                    {if condition="$vo['status'] eq 1"}
-                                        是
-                                    {else /}
-                                        <font color="red">否</font>
-                                    {/if}
-                                </div>
-                            </td>
-                            <td>
                                 <div class="w100 tc">
                                     {$vo.update_time|date='Y-m-d',###}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w100 tc" style="text-align: left;">
+                                <div class="w100 tc">
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
                                     <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
@@ -151,18 +119,6 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
-                <div class="fbutton checkboxall">
-                    <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
-                </div>
-                {eq name="'Channeltype@del'|is_check_access" value="1"}
-                <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:url('Channeltype/del')}">
-                        <div class="add" title="批量删除">
-                            <span><i class="fa fa-close"></i>批量删除</span>
-                        </div>
-                    </a>
-                </div>
-                {/eq}
                 {eq name="'Channeltype@add'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="{:url('Channeltype/add')}">

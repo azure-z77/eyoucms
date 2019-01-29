@@ -231,8 +231,8 @@
                         // 删除数据库记录
                         $.ajax({
                             type:'GET',
-                            url:"{:url('Field/del_channelimgs')}",
-                            data:{filename:path,channel:"{$channeltype|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
+                            url:"{:url('Field/del_arctypeimgs')}",
+                            data:{filename:path,fieldname:"{$vo.name}",typeid:"{$aid|default='0'}"},
                             success:function(){
                                 $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
                                 $.ajax({

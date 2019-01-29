@@ -101,7 +101,9 @@ class FieldLogic extends Model
                     case 'imgs':
                     case 'files':
                     {
-                        $val = !empty($val) ? explode(',', $val) : array();
+                        if (!is_array($val)) {
+                            $val = !empty($val) ? explode(',', $val) : array();
+                        }
                         /*支持子目录*/
                         foreach ($val as $k1 => $v1) {
                             $val[$k1] = handle_subdir_pic($v1);

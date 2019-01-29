@@ -15,6 +15,7 @@ namespace app\admin\controller;
 
 use think\Page;
 use think\Db;
+use app\admin\logic\FieldLogic;
 
 class Channeltype extends Base
 {
@@ -34,6 +35,8 @@ class Channeltype extends Base
 
     public function index()
     {
+        model('Channeltype')->setChanneltypeStatus(); // 根据前端模板自动开启系统模型
+
         $list = array();
         $param = input('param.');
         $condition = array();
@@ -47,6 +50,8 @@ class Channeltype extends Base
                 }
             }
         }
+        $condition['status'] = 1;
+        $condition['nid'] = ['NOTIN', ['guestbook']];
 
         $count = $this->channeltype_db->alias('a')->where($condition)->count('id');// 查询满足要求的总记录数
         $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
@@ -109,24 +114,23 @@ class Channeltype extends Base
                 $_POST['id'] = $insertId;
                 if ($insertId) {
                     // 复制模型字段基础数据
-                    $model_db = Db::name('modelfield');
-                    $modelCount = $model_db->where('model_id', $insertId)->count();
-                    if (empty($modelCount)) {
-                        $modelRow = $model_db->field('id',true)
-                            ->where('model_id', 0)
-                            ->order('id asc')
-                            ->select();
-                        if (!empty($modelRow)) {
-                            foreach ($modelRow as $key => $val) {
-                                $modelRow[$key]['model_id'] = $insertId;
-                            }
-                            $insertObject = model('modelfield')->saveAll($modelRow);
-                            $insertNum = count($insertObject);
-                            if ($insertNum != count($modelRow)) {
-                                $this->error('保存 '.PREFIX.'modelfield 表的模型字段失败，请删除该模型重新新增，否则会导致发布时表单不正常。');
-                            }
-                        }
-                    }
+                    $fieldLogic = new FieldLogic;
+                    $fieldLogic->synArchivesTableColumns($insertId);
+                    // Db::name('channelfield')->where('channel_id', $insertId)->delete();
+                    // $modelRow = Db::name('channelfield')->field('id',true)
+                    //     ->where('channel_id', 0)
+                    //     ->order('id asc')
+                    //     ->select();
+                    // if (!empty($modelRow)) {
+                    //     foreach ($modelRow as $key => $val) {
+                    //         $modelRow[$key]['channel_id'] = $insertId;
+                    //     }
+                    //     $insertObject = model('Channelfield')->saveAll($modelRow);
+                    //     $insertNum = count($insertObject);
+                    //     if ($insertNum != count($modelRow)) {
+                    //         $this->error('保存 '.PREFIX.'modelfield 表的模型字段失败，请删除该模型重新新增，否则会导致发布时表单不正常。');
+                    //     }
+                    // }
 
                     try {
                         schemaTable($post['table'].'_content');
@@ -233,8 +237,6 @@ class Channeltype extends Base
                         ->delete();
                     // 删除文章
                     $archives = Db::name('archives')->where("channel",'IN',$id_arr)->delete();
-                    // 删除模型字段
-                    $modelfield = Db::name('modelfield')->where("model_id",'IN',$id_arr)->delete();
                     // 删除自定义字段
                     $channelfield = Db::name('channelfield')->where("channel_id",'IN',$id_arr)->delete();
 
@@ -268,94 +270,6 @@ class Channeltype extends Base
                 $this->error('删除失败');
             }
             $this->error('参数有误');
-        }
-        $this->error('非法访问');
-    }
-
-    public function field_management()
-    {
-        $assign_data = array();
-        $condition = array();
-        // 获取到所有GET参数
-        $param = input('param.');
-        if ($param['id']) {
-            $condition['model_id'] = $param['id'];
-        }
-
-        // 应用搜索条件
-        foreach (['keywords'] as $key) {
-            if (isset($param[$key]) && $param[$key] !== '') {
-                if ($key == 'keywords') {
-                    $condition['name'] = array('LIKE', "%{$param[$key]}%");
-                } else {
-                    $condition[$key] = array('eq', $param[$key]);
-                }
-            }
-        }
-        $condition['status'] = 0;
-
-        $modelfield =  M('modelfield');
-        $count = $modelfield->where($condition)->count('id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $modelfield->where($condition)->order('model_id desc, id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
-
-        $show = $Page->show();// 分页显示输出
-        $assign_data['page'] = $show; // 赋值分页输出
-        $assign_data['list'] = $list; // 赋值数据集
-        $assign_data['pager'] = $Page; // 赋值分页对象
-
-        /*字段类型列表*/
-        $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
-        /*--end*/
-
-        /*有效的模型列表*/
-        $channeltype_list = model('Channeltype')->getAll('*', ['status'=>1], 'nid');
-        foreach ($channeltype_list as $key => $val) {
-            if ('guestbook' == $key) { // 排除留言模型
-                unset($channeltype_list[$key]);
-            }
-        }
-        $assign_data['channeltype_list'] = $channeltype_list;
-        /*--end*/
-
-        /*模型ID*/
-        $assign_data['channel_id'] = $channel_id;
-        /*--end*/
-
-        $this->assign($assign_data);
-        return $this->fetch();
-    }
-
-    /**
-     * 显示与隐藏
-     */
-    public function field_management_show()
-    {
-        if (IS_POST) {
-            $id = input('id/d');
-            $ifeditable = input('ifeditable/d');
-            if(!empty($id)){
-                $row = Db::name('modelfield')->where([
-                        'id'    => $id,
-                    ])->find();
-                if (!empty($row) && 1 == intval($row['status'])) {
-                    $this->error('系统内置表单，禁止操作！');
-                }
-                $r = Db::name('modelfield')->where([
-                        'id'    => $id,
-                    ])->update([
-                        'ifeditable'    => $ifeditable,
-                        'update_time'   => getTime(),
-                    ]);
-                if($r){
-                    adminLog('操作自定义模型表单：'.$row['name']);
-                    $this->success('操作成功');
-                }else{
-                    $this->error('操作失败');
-                }
-            } else {
-                $this->error('参数有误');
-            }
         }
         $this->error('非法访问');
     }

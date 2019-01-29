@@ -89,8 +89,8 @@ class TagArcview extends Base
         }
         $tableContent = $channeltype_table.'_content';
         $row = M($tableContent)->field($addfields)->where('aid',$aid)->find();
-        $row = $this->fieldLogic->getChannelFieldList($row, $result['channel']); // 自定义字段的数据格式处理
-        $result = array_merge($row, $result);
+        $result = array_merge($result, $row);
+        $result = $this->fieldLogic->getChannelFieldList($result, $result['channel']); // 自定义字段的数据格式处理
         /*--end*/
 
         $result = view_logic($aid, $result['channel'], $result);

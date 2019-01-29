@@ -24,7 +24,7 @@
             </ul>
         </div>
     </div>
-    <form class="form-horizontal" id="post_form" action="{:U('Download/add')}" method="post">
+    <form class="form-horizontal" id="post_form" action="{:url('Download/add')}" method="post">
         <!-- 常规信息 -->
         <div class="ncap-form-default tab_div_1">
             <dl class="row">
@@ -137,7 +137,7 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" value="" name="seo_title" id="seo_title" class="input-txt">
-                    <p class="notic">为空则系统自动构成，可以到 <a href="{:U('Seo/index', array('inc_type'=>'seo'))}">SEO设置 - SEO基础</a> 中设置构成规则。</p>
+                    <p class="notic">为空则系统自动构成，可以到 <a href="{:url('Seo/index', array('inc_type'=>'seo'))}">SEO设置 - SEO基础</a> 中设置构成规则。</p>
                 </dd>
             </dl>
             <dl class="row">
@@ -211,7 +211,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label>排序</label>
+                    <label>排序号</label>
                 </dt>
                 <dd class="opt">    
                     <input type="text" value="100" name="sort_order" id="sort_order" class="input-txt">
@@ -232,7 +232,7 @@
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:U('Ueditor/downFileUp',array('savepath'=>'soft','nowfilename'=>-1))}";
+    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft','nowfilename'=>-1))}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script>
 <script type="text/javascript">

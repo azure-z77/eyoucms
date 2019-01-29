@@ -82,6 +82,7 @@ class Eyou extends Taglib
         'for'        => ['attr' => 'start,end,name,comparison,step'],
         'url'        => ['attr' => 'link,vars,suffix,domain', 'close' => 0, 'expression' => true],
         'function'   => ['attr' => 'name,vars,use,call'],
+        'diyfield'   => ['attr' => 'name,id,key,mod,limit'],
     ];
 
     /**
@@ -2097,5 +2098,67 @@ class Eyou extends Taglib
         $parseStr .= ' ?>' . $content . '<?php }; ';
         $parseStr .= $call ? '$' . $name . '(' . $call . '); ?>' : '?>';
         return $parseStr;
+    }
+
+    /**
+     * diyfield标签解析 循环输出自定义字段图集
+     * 格式：
+     * {eyou:diyfield type="default" name="$eyou.field.imgs" id="field"}
+     * <img src="{$field.image_url}" />
+     * {/eyou:diyfield}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagDiyfield($tag, $content)
+    {
+        $name   = $tag['name'];
+        $id  = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $type    = isset($tag['type']) ? $tag['type'] : 'default';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $offset = 0;
+        $length = 'null';
+        if (!empty($tag['limit'])) {
+            $limitArr = explode(',', $tag['limit']);
+            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
+            $length = !empty($limitArr[1]) ? intval($limitArr[1]) : 'null';
+        }
+
+        $parseStr = '<?php ';
+        $flag     = substr($name, 0, 1);
+        if (':' == $flag) {
+            $name = $this->autoBuildVar($name);
+            $parseStr .= '$_result=' . $name . ';';
+            $name = '$_result';
+        } else {
+            $name = $this->autoBuildVar($name);
+        }
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagDiyfield = new \think\template\taglib\eyou\TagDiyfield;';
+        $parseStr .= ' $__LIST__ = $tagDiyfield->getDiyfield('.$name.', "'.$type.'");';
+
+        $parseStr .= 'if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        // 设置了输出数组长度
+        if (0 != $offset || 'null' != $length) {
+            $parseStr .= '$__LIST__ = is_array($__LIST__) ? array_slice($__LIST__,' . $offset . ',' . $length . ', true) : $__LIST__->slice(' . $offset . ',' . $length . ', true); ';
+        }
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
     }
 }
