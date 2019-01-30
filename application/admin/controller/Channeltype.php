@@ -22,6 +22,9 @@ class Channeltype extends Base
     // 系统默认的模型ID，不可删除
     private $channeltype_system_id = [];
 
+    // 系统内置不可用的模型标识，防止与home分组的控制器重名覆盖，导致网站报错
+    private $channeltype_system_nid = ['base','index','lists','search','tags','view'];
+
     // 数据库对象
     public $channeltype_db;
     
@@ -88,6 +91,8 @@ class Channeltype extends Base
                 } else {
                     if (!preg_match('/^([a-z]+)([a-z0-9]*)$/i', $post['nid'])) {
                         $this->error('模型标识必须以小写字母开头！');
+                    } else if (in_array($post['nid'], $this->channeltype_system_nid)) {
+                        $this->error('系统内置模型标识，禁止使用！');
                     }
                 }
 
@@ -116,22 +121,6 @@ class Channeltype extends Base
                     // 复制模型字段基础数据
                     $fieldLogic = new FieldLogic;
                     $fieldLogic->synArchivesTableColumns($insertId);
-                    // Db::name('channelfield')->where('channel_id', $insertId)->delete();
-                    // $modelRow = Db::name('channelfield')->field('id',true)
-                    //     ->where('channel_id', 0)
-                    //     ->order('id asc')
-                    //     ->select();
-                    // if (!empty($modelRow)) {
-                    //     foreach ($modelRow as $key => $val) {
-                    //         $modelRow[$key]['channel_id'] = $insertId;
-                    //     }
-                    //     $insertObject = model('Channelfield')->saveAll($modelRow);
-                    //     $insertNum = count($insertObject);
-                    //     if ($insertNum != count($modelRow)) {
-                    //         $this->error('保存 '.PREFIX.'modelfield 表的模型字段失败，请删除该模型重新新增，否则会导致发布时表单不正常。');
-                    //     }
-                    // }
-
                     try {
                         schemaTable($post['table'].'_content');
                     } catch (\Exception $e) {}

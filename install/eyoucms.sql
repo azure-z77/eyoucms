@@ -617,7 +617,6 @@ INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', 'cn'
 INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('90', 'system_home_default_lang', 'cn', 'system', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('91', 'system_langnum', '2', 'system', '', 'cn', '0', '1545267532');
-INSERT INTO `ey_config` VALUES ('92', 'system_version', 'v1.2.3', 'system', '', 'cn', '0', '1546477013');
 INSERT INTO `ey_config` VALUES ('93', 'is_mark', '0', 'water', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('94', 'mark_txt', '易优Cms', 'water', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('95', 'mark_img', '/uploads/allimg/20190114/f0d5e5830502125f5077212a90ef3a33.png', 'water', '', 'en', '0', '1547463466');
@@ -693,7 +692,6 @@ INSERT INTO `ey_config` VALUES ('164', 'seo_dynamic_format', '1', 'seo', '', 'en
 INSERT INTO `ey_config` VALUES ('165', 'system_sql_mode', 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('166', 'system_home_default_lang', 'cn', 'system', '', 'en', '0', '0');
 INSERT INTO `ey_config` VALUES ('167', 'system_langnum', '2', 'system', '', 'en', '0', '1545267532');
-INSERT INTO `ey_config` VALUES ('168', 'system_version', 'v1.2.3', 'system', '', 'en', '0', '1546477013');
 INSERT INTO `ey_config` VALUES ('169', 'basic_indexname', 'Home', 'basic', '', 'en', '0', '1545272633');
 INSERT INTO `ey_config` VALUES ('170', 'web_exception', '0', 'web', '', 'cn', '0', '1546477337');
 INSERT INTO `ey_config` VALUES ('171', 'web_language_switch', '1', 'web', '', 'cn', '0', '1546477337');
