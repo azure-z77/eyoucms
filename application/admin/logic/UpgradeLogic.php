@@ -57,7 +57,12 @@ class UpgradeLogic extends Model
         {
             return false;
         }  
-        //error_reporting(0);//关闭所有错误报告        
+        //error_reporting(0);//关闭所有错误报告     
+        $allow_url_fopen = ini_get('allow_url_fopen');
+        if (!$allow_url_fopen) {
+            return ['code' => 1, 'msg' => "<font color='red'>不支持更新（请设置 php.ini 中参数 allow_url_fopen = 1）</font>"];
+        }
+
         $url = $this->upgrade_url; 
         $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
         $serviceVersionList = @file_get_contents($url,false,$context);    
@@ -96,9 +101,9 @@ class UpgradeLogic extends Model
             }
             /*--end*/
 
-            return $lastupgrade;
+            return ['code' => 2, 'msg' => $lastupgrade];
         }
-        return '';
+        return ['code' => 1, 'msg' => '已是最新版'];
     }
 
     /**
@@ -108,7 +113,7 @@ class UpgradeLogic extends Model
         error_reporting(0);//关闭所有错误报告
         $allow_url_fopen = ini_get('allow_url_fopen');
         if (!$allow_url_fopen) {
-            return ['code' => 0, 'msg' => "请开启 php.ini allow_url_fopen = 1"];
+            return ['code' => 0, 'msg' => "请设置 php.ini 中参数 allow_url_fopen = 1"];
         }     
                
         if (!extension_loaded('zip')) {

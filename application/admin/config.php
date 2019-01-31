@@ -28,6 +28,8 @@ $admin_config = array(
     ),
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => 'htmlspecialchars', // htmlspecialchars
+    // 登录有效期
+    'login_expire' => 3600,
 
     // +----------------------------------------------------------------------
     // | 异常及错误设置

@@ -52,16 +52,21 @@ if (!function_exists('getAdminInfo'))
      */
     function getAdminInfo($admin_id = 0)
     {
-        if ($admin_id > 0) {
-            $fields = 'a.*, b.name AS role_name';
-            $admin_info = M('admin')
-                ->field($fields)
+        $admin_info = [];
+        $admin_id = empty($admin_id) ? session('admin_id') : $admin_id;
+        if (0 < intval($admin_id)) {
+            $admin_info = \think\Db::name('admin')
+                ->field('a.*, b.name AS role_name')
                 ->alias('a')
                 ->join('__AUTH_ROLE__ b', 'b.id = a.role_id', 'LEFT')
-                ->where("a.admin_id", $admin_id)->find();
-        } else {
-            $admin_info = session('admin_info');
+                ->where("a.admin_id", $admin_id)
+                ->find();
+            if (!empty($admin_info)) {
+                $admin_info['role_id'] = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
+                $admin_info['role_name'] = !empty($admin_info['parent_id']) ? '超级管理员' : '创始人';
+            }
         }
+        
         return $admin_info;
     }
 }

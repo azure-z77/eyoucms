@@ -100,4 +100,43 @@ class Ajax extends Controller {
         }
         /*--end*/
     }
+
+    /**
+     * 进入欢迎页面需要异步处理的业务
+     */
+    public function welcome()
+    {
+        $this->update_robots();
+        $this->clear_session_file();
+    }
+
+    /**
+     * 自动给rotots.txt站点地图的sitemap.xml补充域名
+     */
+    private function update_robots()
+    {
+        $filename = 'robots.txt';
+        if (file_exists($filename) && is_file($filename)) {
+            $robots = @file_get_contents(ROOT_PATH . $filename);
+            $robots = preg_replace('#Sitemap:(\s*)(/)?sitemap.xml#i', 'Sitemap: '.$this->request->domain().'/sitemap.xml', $robots);
+            is_writable($filename) && @file_put_contents($filename, $robots);
+        }
+    }
+
+    /**
+     * 清理过期的data/session文件
+     */
+    private function clear_session_file()
+    {
+        $path = \think\Config::get('session.path');
+        if (!empty($path) && file_exists($path)) {
+            $files = glob($path.'/sess_*');
+            foreach ($files as $key => $file) {
+                $filemtime = filemtime($file);
+                if (getTime() - intval($filemtime) > config('login_expire')) {
+                    @unlink($file);
+                }
+            }
+        }
+    }
 }

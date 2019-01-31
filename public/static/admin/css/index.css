@@ -561,8 +561,8 @@ i.ice_b{ background-position:-336px -214px;}
 .stop_jia{ width:24px; height:24px; background-position:-45px -326px; top:16px; right:0;}
 
 .system_table{ border:1px solid #dcdcdc; width:100%;}
-.system_table td{ height:40px; line-height:40px; font-size:12px; color:#454545; border-bottom:1px solid #dcdcdc; border-right:1px solid #dcdcdc; width:32%;padding-left:3%;}
-.system_table td.gray_bg{ background:#f7f7f7; width:18%;}
+.system_table td{ height:40px; line-height:40px; font-size:12px; color:#454545; border-bottom:1px solid #dcdcdc; border-right:1px solid #dcdcdc; width:35%;padding-left:3%;}
+.system_table td.gray_bg{ background:#f7f7f7; width:15%;}
 
 #footer {
     text-align: center;

@@ -65,7 +65,7 @@ class Index extends Base
         $this->assign('home_url', $home_url);
         /*--end*/
 
-        $this->assign('admin_info', getAdminInfo());
+        $this->assign('admin_info', getAdminInfo(session('admin_id')));
         $this->assign('menu',getMenuList());
         return $this->fetch();
     }
@@ -101,10 +101,10 @@ class Index extends Base
     public function get_sys_info()
     {
         $sys_info['os']             = PHP_OS;
-        $sys_info['zlib']           = function_exists('gzclose') ? 'YES' : 'NO';//zlib
+        $sys_info['zlib']           = function_exists('gzclose') ? 'YES' : '<font color="red">NO（请开启 php.ini 中的php-zlib扩展）</font>';//zlib
         $sys_info['safe_mode']      = (boolean) ini_get('safe_mode') ? 'YES' : 'NO';//safe_mode = Off       
         $sys_info['timezone']       = function_exists("date_default_timezone_get") ? date_default_timezone_get() : "no_timezone";
-        $sys_info['curl']           = function_exists('curl_init') ? 'YES' : 'NO';  
+        $sys_info['curl']           = function_exists('curl_init') ? 'YES' : '<font color="red">NO（请开启 php.ini 中的php-curl扩展）</font>';  
         $sys_info['web_server']     = $_SERVER['SERVER_SOFTWARE'];
         $sys_info['phpv']           = phpversion();
         $sys_info['ip']             = gethostbyname($_SERVER['SERVER_NAME']);
@@ -126,7 +126,7 @@ class Index extends Base
         if (extension_loaded('zip')) {
             $sys_info['zip']     = "YES";
         } else {
-            $sys_info['zip']     = "NO";
+            $sys_info['zip']     = '<font color="red">NO（请开启 php.ini 中的php-zip扩展）</font>';
         }
         $upgradeLogic = new \app\admin\logic\UpgradeLogic();
         $sys_info['curent_version'] = $upgradeLogic->curent_version; //当前程序版本

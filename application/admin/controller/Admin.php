@@ -141,7 +141,13 @@ class Admin extends Base {
                     $admin_info['last_ip'] = $last_login_ip;
 
                     session('admin_id',$admin_info['admin_id']);
+                    /*过滤存储在session文件的敏感信息*/
+                    foreach (['user_name','true_name','password'] as $key => $val) {
+                        unset($admin_info[$val]);
+                    }
+                    /*--end*/
                     session('admin_info', $admin_info);
+                    session('admin_login_expire', getTime()); // 登录有效期
                     adminLog('后台登录');
                     $url = session('from_url') ? session('from_url') : request()->baseFile();
                     exit(json_encode(array('status'=>1,'url'=>$url)));

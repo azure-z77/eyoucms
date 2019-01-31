@@ -35,12 +35,6 @@ foreach ($channeltype_row as $key => $val) {
 return array(
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
-    // 一天的时间戳
-    'one_day_time'  => 86400,
-    // 发送短信默认有效时间
-    'sms_default_time_out' => 120,
-    // 发送邮箱默认有效时间
-    'email_default_time_out' => 180,
     // 栏目最多级别
     'arctype_max_level' => 3,
     // 模型标识

@@ -63,9 +63,17 @@ class Base extends Controller {
         if (in_array($ctl_act, $filter_login_action) || in_array($ctl_all, $filter_login_action)) {
             //return;
         }else{
-            if(session('admin_id') > 0 ){
+            $admin_login_expire = session('admin_login_expire'); // 登录有效期
+            if (getTime() - intval($admin_login_expire) < config('login_expire')) {
+                session('admin_login_expire', getTime()); // 登录有效期
                 $this->check_priv();//检查管理员菜单操作权限
             }else{
+                /*自动退出*/
+                adminLog('自动退出');
+                session_unset();
+                session::clear();
+                cookie('admin-treeClicked', null); // 清除并恢复栏目列表的展开方式
+                /*--end*/
                 $url = request()->baseFile().'?s=/Admin/login';
                 $this->redirect($url);
             }

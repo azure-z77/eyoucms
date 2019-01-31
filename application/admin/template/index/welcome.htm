@@ -127,21 +127,22 @@
                                 <tr>
                                     <td class="gray_bg">系统更新：</td>
                                     <td>
-                                        {notempty name="$upgradeMsg"}
-                                          <div id="upgrade_filelist" style="display:none;">{$upgradeMsg['upgrade']}</div> 
-                                          <div id="upgrade_intro" style="display:none;">{$upgradeMsg['intro']}</div> 
-                                          <div id="upgrade_notice" style="display:none;">{$upgradeMsg['notice']}</div> 
-                                          <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['key_num']}" data-max_version="{$upgradeMsg['max_version']}" data-iframe="workspace" title="{$upgradeMsg['tips']}" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}" style="color:#F00;">检测到新版本{$upgradeMsg['key_num']}[点击查看]</a>
-                                          {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
-                                          <script type="text/javascript">
-                                            $(document).ready(function(){
-                                                btn_upgrade($("#a_upgrade"), 1);
-                                            });
-                                          </script>
-                                          {/if}
-                                        {else /}
-                                        已是最新版
-                                        {/notempty}
+                                    {switch name="$upgradeMsg['code']"}
+                                        {case value="2"}
+                                            <div id="upgrade_filelist" style="display:none;">{$upgradeMsg['msg']['upgrade']}</div> 
+                                            <div id="upgrade_intro" style="display:none;">{$upgradeMsg['msg']['intro']}</div> 
+                                            <div id="upgrade_notice" style="display:none;">{$upgradeMsg['msg']['notice']}</div> 
+                                            <a href="javascript:void(0);" id="a_upgrade" data-version="{$upgradeMsg['msg']['key_num']}" data-max_version="{$upgradeMsg['msg']['max_version']}" data-iframe="workspace" title="{$upgradeMsg['msg']['tips']}" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}" style="color:#F00;">检测到新版本{$upgradeMsg['msg']['key_num']}[点击查看]</a>
+                                            {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
+                                                <script type="text/javascript">
+                                                    $(document).ready(function(){
+                                                        btn_upgrade($("#a_upgrade"), 1);
+                                                    });
+                                                </script>
+                                            {/if}
+                                        {/case}
+                                        {default /}{$upgradeMsg['msg']}
+                                    {/switch}
                                     </td>
                                     <td class="gray_bg">当前版本：</td>
                                     <td>{$sys_info.curent_version|default='v1.0'}</td>
@@ -227,6 +228,7 @@
         $.get("{:url('Ajax/saveBaseFile')}"); // 存储后台入口文件路径，比如：/login.php
         $.get("{:url('Ajax/renameInstall')}"); // 重命名安装目录，提高网站安全性
         $.get("{:url('Ajax/del_adminlog')}"); // 清除3个月之前的操作日志
+        $.get("{:url('Ajax/welcome')}"); // 进入欢迎页面需要异步处理的业务
     });
 
     $(function() {

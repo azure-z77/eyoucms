@@ -181,15 +181,6 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->save($data);
                 /*--end*/
-
-                // 同步数据到表单控制表modelfield
-                // M('modelfield')->insert([
-                //     'name'        => $post['name'],
-                //     'model_id'    => $post['channel_id'],
-                //     'title'       => $post['title'],
-                //     'add_time'    => getTime(),
-                //     'update_time' => getTime(),
-                // ]);
                 
                 /*重新生成数据表字段缓存文件*/
                 try {
@@ -293,17 +284,6 @@ class Field extends Base
                 $data = array_merge($post, $newData);
                 M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
                 /*--end*/
-
-                // 同步数据到表单控制表modelfield
-                // $modelfield_id = M('modelfield')->where('name',$old_name)->getField('id');
-                // if (!empty($modelfield_id)) {
-                //     M('modelfield')->where('id', intval($modelfield_id))
-                //         ->save([
-                //             'name'        => $post['name'],
-                //             'title'       => $post['title'],
-                //             'update_time' => getTime(),
-                //         ]);
-                // }
                 
                 /*重新生成数据表字段缓存文件*/
                 try {
@@ -362,13 +342,6 @@ class Field extends Base
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
                 M('channelfield')->where($map)->delete();
-                /*--end*/
-
-                /*同步数据到表单控制表modelfield*/
-                // M('modelfield')->where([
-                //         'name'      => ['IN', $name_list],
-                //         'model_id'  => $channel_id,
-                //     ])->delete();
                 /*--end*/
 
                 /*获取模型标题*/
