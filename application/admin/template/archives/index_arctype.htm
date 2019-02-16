@@ -93,9 +93,9 @@
                       {/gt}
 
                       {if condition="$vo['current_channel'] == 6" /}
-                      <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
+                      <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
                       {else /}
-                      <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
+                      <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
                       <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
                       {/if}
                     </div>
@@ -103,12 +103,12 @@
                   <td>
                       <div class="w160 tr pb0">
                          {if condition="in_array($vo['current_channel'], $allow_release_channel)"}
-                          <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/add',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-plus"></i>发布</a>
+                          <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/add',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-plus"></i>发布</a>
                           {/if}
                         {if condition="$vo['current_channel'] == 6" /}
-                          <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                          <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
                         {else /}
-                          <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                          <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
                         {/if}
                       </div>
                   </td>

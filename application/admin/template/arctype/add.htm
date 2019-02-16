@@ -22,7 +22,7 @@
             </ul>
         </div>
     </div>
-    <form class="form-horizontal" id="post_form" action="{:U('Arctype/add')}" method="post">
+    <form class="form-horizontal" id="post_form" action="{:url('Arctype/add')}" method="post">
         <!-- 常规选项 -->
         <div class="ncap-form-default tab_div_1">
             <dl class="row">
@@ -319,7 +319,7 @@
         $('#parent_id').html('<option value="">加载中……</option>');
         var channeltype = parseInt($(obj).find("option:selected").val());
         $.ajax({
-            url: "{:U('Arctype/ajax_get_arctype')}",
+            url: "{:url('Arctype/ajax_get_arctype')}",
             type: 'POST',
             dataType: 'JSON',
             data: {channeltype:channeltype},

@@ -29,8 +29,8 @@ class Other extends Base
      */
     public function other_show()
     {
-        $pid = I('pid/d',1);
-        $row = I('row/d',1);
+        $pid = input('pid/d',1);
+        $row = input('row/d',1);
         $where = array(
             'pid'=>$pid,
             'status'=>1,

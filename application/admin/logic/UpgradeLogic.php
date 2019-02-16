@@ -46,17 +46,7 @@ class UpgradeLogic extends Model
      * 检查是否有更新包
      * @return type 提示语
      */
-    public  function checkVersion() { 
-        
-        $ctl_act_list = array(
-            'index@welcome',
-            'upgrade@welcome',
-        );
-        $ctl_act_str = strtolower(CONTROLLER_NAME).'@'.strtolower(ACTION_NAME);
-        if(!in_array($ctl_act_str, $ctl_act_list))  
-        {
-            return false;
-        }  
+    public  function checkVersion() {
         //error_reporting(0);//关闭所有错误报告     
         $allow_url_fopen = ini_get('allow_url_fopen');
         if (!$allow_url_fopen) {

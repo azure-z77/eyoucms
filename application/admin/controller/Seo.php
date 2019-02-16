@@ -103,7 +103,7 @@ class Seo extends Base
             delFile(rtrim(HTML_ROOT, '/'));
             \think\Cache::clear();
         }
-        $this->success('操作成功', U('Seo/index',array('inc_type'=>$inc_type)));
+        $this->success('操作成功', url('Seo/index',array('inc_type'=>$inc_type)));
     }
     
     /*
@@ -119,7 +119,7 @@ class Seo extends Base
 
         $this->bindArchivesHtml($typeid, $html_startid, $html_endid);
 
-        $this->success('操作成功', U('Seo/index',array('inc_type'=>$inc_type)));
+        $this->success('操作成功', url('Seo/index',array('inc_type'=>$inc_type)));
     }
 
     /*

@@ -155,12 +155,12 @@
                 shade: 0.3,
                 maxmin: true, //开启最大化最小化按钮
                 area: ['600px', '520px'],
-                content: "{:U('Archives/release', array('iframe'=>1))}",
+                content: "{:url('Archives/release', array('iframe'=>1))}",
                 success: function(layero, index){
                     // var body = layer.getChildFrame('body', index);
                     // var gourl = $('.curSelectedNode').attr('href');
                     // if (!$.trim(gourl)) {
-                    //     gourl = "{:U('Archives/index_archives')}";
+                    //     gourl = "{:url('Archives/index_archives')}";
                     // }
                     // body.find('input[name=gourl]').val(gourl);
                 }
@@ -173,6 +173,6 @@
         <h3><a href="javascript:void(0);" onclick="quick_release();"><i class="fa fa-edit"></i>快捷发布文档</a></h3>
         <div id="tree" class="ztree"></div>
     </div>
-    <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="{:U('Archives/index_archives')}" width="100%" height="100%" frameborder="0"></iframe></div>
+    <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="{:url('Archives/index_archives')}" width="100%" height="100%" frameborder="0"></iframe></div>
 </body>
 </html>

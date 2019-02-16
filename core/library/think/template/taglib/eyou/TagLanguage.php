@@ -34,6 +34,14 @@ class TagLanguage extends Base
         if ('default' == $type) {
             $map['mark'] = ['NEQ', $this->home_lang];
         }
+
+        /*关闭多语言*/
+        $web_language_switch = tpCache('web.web_language_switch');
+        if (0 == intval($web_language_switch)) {
+            return [];
+        }
+        /*--end*/
+
         $result = M("language")->where($map)
             ->order('sort_order asc')
             ->limit($limit)

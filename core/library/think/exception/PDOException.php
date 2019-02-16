@@ -39,6 +39,7 @@ class PDOException extends DbException
         /*--end*/
 
         $message = $exception->getMessage();
+        $message = iconv('GB2312', 'UTF-8', $message); // 转化编码 by 小虎哥
         $message = $eyou_message."\n\n[错误代码]\n".$message;
 
         parent::__construct($message, $config, $sql, $code);

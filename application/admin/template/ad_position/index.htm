@@ -11,7 +11,7 @@
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('AdPosition/index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('AdPosition/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
@@ -19,7 +19,7 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('AdPosition/index')}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('AdPosition/index')}';">
                     </div>
                 </div>
             </form>
@@ -83,7 +83,7 @@
                             <td align="left" class="">
                                 <div class="w160 tl">
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
+                                    <a href="{:url('AdPosition/edit',array('id'=>$vo['id']))}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
@@ -111,12 +111,12 @@
                             </td>
                             <td class="">
                                 <div class="w250 tc">
-                                    <a class="btn blue" href="{:U('Other/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
+                                    <a class="btn blue" href="{:url('Other/index',array('pid'=>$vo['id']))}"><i class="fa fa-search"></i>查看</a>
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:U('AdPosition/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('AdPosition/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('AdPosition/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('AdPosition/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']}, 1)">标签调用</a>
                                 </div>
@@ -137,7 +137,7 @@
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('AdPosition/del')}">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:url('AdPosition/del')}">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>
@@ -146,7 +146,7 @@
                 {/eq}
                 {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('AdPosition/add')}">
+                    <a href="{:url('AdPosition/add')}">
                         <div class="add" title="新增广告位">
                             <span class="red"><i class="fa fa-plus"></i>新增广告位</span>
                         </div>

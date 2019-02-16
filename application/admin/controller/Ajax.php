@@ -14,74 +14,34 @@
 namespace app\admin\controller;
 use think\Controller;
 use think\Db;
+use app\admin\logic\AjaxLogic;
 
 /**
  * 所有ajax请求或者不经过权限验证的方法全放在这里
  */
 class Ajax extends Controller {
     
-    /**
-     * 只保留最近三个月的操作日志
-     */
-    public function del_adminlog()
-    {
-        $mtime = strtotime("-3 month");
-        Db::name('admin_log')->where([
-            'log_time'  => ['lt', $mtime],
-            ])->delete();
+    private $ajaxLogic;
+
+    public function _initialize() {
+        parent::_initialize();
+        $this->ajaxLogic = new AjaxLogic;
     }
 
     /**
-     * 重命名安装目录，提高网站安全性
-     * 在 Admin@login 和 Index@index 操作下
+     * 进入登录页面需要异步处理的业务
      */
-    public function renameInstall()
+    public function login_handle()
     {
-        $install_path = ROOT_PATH.'install';
-        if (is_dir($install_path) && file_exists($install_path)) {
-            $install_time = DEFAULT_INSTALL_DATE;
-            $constsant_path = APP_PATH.'admin/conf/constant.php';
-            if (file_exists($constsant_path)) {
-                require_once($constsant_path);
-                defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
-            }
-            $new_path = ROOT_PATH.'install_'.$install_time;
-            @rename($install_path, $new_path);
-        } else { // 修补v1.1.6版本删除的安装文件 install.lock
-            if(!empty($_SESSION['isset_install_lock']))
-                return true;
-            $_SESSION['isset_install_lock'] = 1;
-
-            $install_time = DEFAULT_INSTALL_DATE;
-            $constsant_path = APP_PATH.'admin/conf/constant.php';
-            if (file_exists($constsant_path)) {
-                require_once($constsant_path);
-                defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
-            }
-            $filename = ROOT_PATH.'install_'.$install_time.DS.'install.lock';
-            if (!file_exists($filename)) {
-                @file_put_contents($filename, '');
-            }
-        }
+        $this->ajaxLogic->login_handle();
     }
 
     /**
-     * 存储后台入口文件路径，比如：/login.php
-     * 在 Admin@login 和 Index@index 操作下
+     * 进入欢迎页面需要异步处理的业务
      */
-    public function saveBaseFile()
+    public function welcome_handle()
     {
-        $baseFile = request()->baseFile();
-        /*多语言*/
-        if (is_language()) {
-            $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
-            foreach ($langRow as $key => $val) {
-                tpCache('web', ['web_adminbasefile'=>$baseFile], $val['mark']);
-            }
-        } else { // 单语言
-            tpCache('web', ['web_adminbasefile'=>$baseFile]);
-        }
-        /*--end*/
+        $this->ajaxLogic->welcome_handle();
     }
 
     /**
@@ -102,41 +62,12 @@ class Ajax extends Controller {
     }
 
     /**
-     * 进入欢迎页面需要异步处理的业务
+     * 版本检测更新弹窗
      */
-    public function welcome()
+    public function check_upgrade_version()
     {
-        $this->update_robots();
-        $this->clear_session_file();
-    }
-
-    /**
-     * 自动给rotots.txt站点地图的sitemap.xml补充域名
-     */
-    private function update_robots()
-    {
-        $filename = 'robots.txt';
-        if (file_exists($filename) && is_file($filename)) {
-            $robots = @file_get_contents(ROOT_PATH . $filename);
-            $robots = preg_replace('#Sitemap:(\s*)(/)?sitemap.xml#i', 'Sitemap: '.$this->request->domain().'/sitemap.xml', $robots);
-            is_writable($filename) && @file_put_contents($filename, $robots);
-        }
-    }
-
-    /**
-     * 清理过期的data/session文件
-     */
-    private function clear_session_file()
-    {
-        $path = \think\Config::get('session.path');
-        if (!empty($path) && file_exists($path)) {
-            $files = glob($path.'/sess_*');
-            foreach ($files as $key => $file) {
-                $filemtime = filemtime($file);
-                if (getTime() - intval($filemtime) > config('login_expire')) {
-                    @unlink($file);
-                }
-            }
-        }
+        $upgradeLogic = new \app\admin\logic\UpgradeLogic;
+        $upgradeMsg = $upgradeLogic->checkVersion(); // 升级包消息
+        $this->success('检测成功', null, $upgradeMsg);  
     }
 }

@@ -61,7 +61,7 @@
                                     {eq name="$vo['filemine']" value='image'}
                                         <a href="{$vo['filepath']}?v={php}echo time();{/php}" target="_blank">{$vo.filename}</a>
                                     {else /}
-                                        <a href="{:U('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}">{$vo.filename}</a>
+                                        <a href="{:url('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}">{$vo.filename}</a>
                                     {/eq}
                                   {/if}
                                   {$vo.intro}
@@ -84,13 +84,13 @@
                                   {eq name="$vo['filemine']" value='image'}
                                     {if condition="in_array($vo['filetype'], $replaceImgOpArr)"}
                                         {eq name="$Think.const.CONTROLLER_NAME.'@replace_img'|is_check_access" value="1"}
-                                        <a href="{:U('Filemanager/replace_img',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>替换</a>
+                                        <a href="{:url('Filemanager/replace_img',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>替换</a>
                                         {/eq}
                                     {/if}
                                   {else /}
                                     {if condition="in_array($vo['filetype'], $editOpArr)"}
                                         {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                        <a href="{:U('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                        <a href="{:url('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                         {/eq}
                                     {/if}
                                   {/eq}
@@ -108,7 +108,7 @@
             <div class="tDiv2">
                 {eq name="'Filemanager@newfile'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:U('Filemanager/newfile', array('activepath'=>replace_path($activepath)))}">
+                    <a href="{:url('Filemanager/newfile', array('activepath'=>replace_path($activepath)))}">
                         <div class="add" title="新建文件">
                             <span class="red"><i class="fa fa-file"></i>新建文件</span>
                         </div>

@@ -59,15 +59,21 @@ class TagAdv extends Base
                 break;
 
             case 'now':
+            case 'new': // 兼容织梦的写法
+                $orderby = 'add_time desc';
+                break;
+                
             case 'id':
                 $orderby = 'id desc';
                 break;
 
             case 'sort_order':
                 $orderby = 'sort_order asc';
+                break;
 
             case 'rand':
                 $orderby = 'rand()';
+                break;
             
             default:
                 if (empty($orderby)) {

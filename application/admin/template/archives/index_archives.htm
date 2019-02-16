@@ -11,7 +11,7 @@
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form id="search_form" class="navbar-form form-inline" action="{:U('Archives/index_archives')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form id="search_form" class="navbar-form form-inline" action="{:url('Archives/index_archives')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     {eq name="'Archives@add'|is_check_access" value="1"}
@@ -34,7 +34,7 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Archives/index_archives', array("typeid"=>$Request.param.typeid))}';">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Archives/index_archives', array("typeid"=>$Request.param.typeid))}';">
                     </div>
                 </div>
             </form>
@@ -104,14 +104,14 @@
                                         <img src="__SKIN__/images/pic.gif" onmouseover="layer_tips=layer.tips('<img src={$vo.litpic} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});" onmouseout="layer.close(layer_tips);">&nbsp;
                                     {/notempty}
                                     {eq name="'Archives@edit'|is_check_access" value="1"}
-                                    <a href="{:U($channelRow[$vo['channel']]['ctl_name'].'/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid,'gourl'=>$gourl))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
+                                    <a href="{:url($channelRow[$vo['channel']]['ctl_name'].'/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid,'gourl'=>$gourl))}" style="{eq name="vo.is_b" value="1"} font-weight: bold;{/eq}">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w100 tc"><a href="{:U('Archives/index_archives', array('typeid'=>$vo['typeid']))}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
+                                <div class="w100 tc"><a href="{:url('Archives/index_archives', array('typeid'=>$vo['typeid']))}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
                             </td>
                             <td>
                                 <div class="tc w50">
@@ -135,10 +135,10 @@
                             <td class="">
                                 <div class="w180 tc">
                                     {eq name="'Archives@edit'|is_check_access" value="1"}
-                                    <a href="{:U($channelRow[$vo['channel']]['ctl_name'].'/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid,'gourl'=>$gourl))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url($channelRow[$vo['channel']]['ctl_name'].'/edit',array('id'=>$vo['aid'],'typeid'=>$Request.param.typeid,'gourl'=>$gourl))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="'Archives@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:U('Archives/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Archives/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
                                     {/eq}
                                 </div>
@@ -168,7 +168,7 @@
                 </div>
                 {eq name="'Archives@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Archives/del')}" data-deltype="pseudo">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:url('Archives/del')}" data-deltype="pseudo">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>
@@ -177,7 +177,7 @@
                 {/eq}
                 {eq name="'Archives@move'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="func_move(this, 'ids');" data-url="{:U('Archives/move', array('typeid'=>$Request.param.typeid))}">
+                    <a onclick="func_move(this, 'ids');" data-url="{:url('Archives/move', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="批量移动">
                             <span><i class="fa fa-hdd-o"></i>批量移动</span>
                         </div>
@@ -256,12 +256,12 @@
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
             area: ['600px', '520px'],
-            content: "{:U('Archives/release', array('iframe'=>2))}",
+            content: "{:url('Archives/release', array('iframe'=>2))}",
             success: function(layero, index){
                 // var body = layer.getChildFrame('body', index);
                 // var gourl = $('.curSelectedNode').attr('href');
                 // if (!$.trim(gourl)) {
-                //     gourl = "{:U('Archives/index_archives')}";
+                //     gourl = "{:url('Archives/index_archives')}";
                 // }
                 // body.find('input[name=gourl]').val(gourl);
             }

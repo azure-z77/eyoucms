@@ -166,7 +166,7 @@ class Index extends Base
                 adminLog('录入商业授权');
                 $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
             }else{
-                $this->error("操作失败!", U('Index/authortoken'));
+                $this->error("操作失败!", url('Index/authortoken'));
             }
             exit;
         }

@@ -30,9 +30,9 @@ class TagList extends Base
     {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
-        $this->tid = I('param.tid/s', '');
+        $this->tid = input('param.tid/s', '');
         /*应用于文档列表*/
-        $aid = I('param.aid/d', 0);
+        $aid = input('param.aid/d', 0);
         if ($aid > 0) {
             $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
         }
@@ -198,17 +198,19 @@ class TagList extends Base
                 $orderby = "a.click {$orderWay}";
                 break;
 
-            case 'now':
+            case 'id': // 兼容织梦的写法
             case 'aid':
                 $orderby = "a.aid {$orderWay}";
                 break;
 
-            case 'pubdate':
+            case 'now':
+            case 'new': // 兼容织梦的写法
+            case 'pubdate': // 兼容织梦的写法
             case 'add_time':
                 $orderby = "a.add_time {$orderWay}";
                 break;
 
-            case 'sortrank':
+            case 'sortrank': // 兼容织梦的写法
             case 'sort_order':
                 $orderby = "a.sort_order {$orderWay}";
                 break;
@@ -253,13 +255,13 @@ class TagList extends Base
                 $query_get = array();
 
                 /*列表分页URL问号的查询部分*/
-                $get_arr = I('get.');
+                $get_arr = input('get.');
                 foreach ($get_arr as $key => $val) {
                     if (empty($val) || stristr($key, '/')) {
                         unset($get_arr[$key]);
                     }
                 }
-                $param_arr = I('param.');
+                $param_arr = input('param.');
                 foreach ($param_arr as $key => $val) {
                     if (empty($val) || stristr($key, '/')) {
                         unset($param_arr[$key]);
@@ -269,7 +271,7 @@ class TagList extends Base
                 if ($seo_pseudo == 1) { // 动态URL模式
                     $query_get = $get_arr;
                 } elseif ($seo_pseudo == 3) { // 伪静态URL模式
-                    $uiset = I('param.uiset/s', 'off');
+                    $uiset = input('param.uiset/s', 'off');
                     $uiset = trim($uiset, '/');
                     if ($uiset == 'on') {// 装修模式下的分类URL
                         $query_get = $get_arr;
@@ -345,12 +347,12 @@ class TagList extends Base
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
                     $tableContent = $channeltype_table.'_content';
-                    $rowExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    $resultExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
-                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype, true);
+                    $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
                     /*--end*/
                     foreach ($list as $key => $val) {
-                        $valExt = !empty($rowExt[$val['aid']]) ? $rowExt[$val['aid']] : array();
+                        $valExt = !empty($resultExt[$val['aid']]) ? $resultExt[$val['aid']] : array();
                         $val = array_merge($valExt, $val);
                         $list[$key] = $val;
                     }
@@ -359,13 +361,13 @@ class TagList extends Base
 
                 /*针对下载列表*/
                 if (!empty($aidArr) && strtolower($controller_name) == 'download') {
-                    $result = M('download_file')->where(array('aid'=>array('IN', $aidArr)))
+                    $downloadRow = M('download_file')->where(array('aid'=>array('IN', $aidArr)))
                         ->order('aid asc, sort_order asc')
                         ->select();
                     $downloadFileArr = array();
-                    if (!empty($result)) {
+                    if (!empty($downloadRow)) {
                         /*获取指定文档ID的下载文件列表*/
-                        foreach ($result as $key => $val) {
+                        foreach ($downloadRow as $key => $val) {
                             if (!isset($downloadFileArr[$val['aid']]) || empty($downloadFileArr[$val['aid']])) {
                                 $downloadFileArr[$val['aid']] = array();
                             }
@@ -403,11 +405,11 @@ class TagList extends Base
 
         $condition = array();
         // 获取到所有URL参数
-        $param = I('param.');
+        $param = input('param.');
 
         if (strtolower(request()->controller()) == 'tags') {
-            $tag = I('param.tag/s', '');
-            $tagid = I('param.tagid/d', 0);
+            $tag = input('param.tag/s', '');
+            $tagid = input('param.tagid/d', 0);
             if (!empty($tag)) {
                 $tagidArr = M('tagindex')->where(array('tag'=>array('LIKE', "%{$tag}%")))->column('id', 'id');
                 $aidArr = M('taglist')->field('aid')->where(array('tid'=>array('in', $tagidArr)))->column('aid', 'aid');
@@ -490,7 +492,7 @@ class TagList extends Base
          * 数据查询，搜索出主键ID的值
          */
         $list = array();
-        $query_get = I('get.');
+        $query_get = input('get.');
         $paginate_type = config('paginate.type');
         if (isMobile()) {
             $paginate_type = 'mobile';

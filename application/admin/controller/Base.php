@@ -39,11 +39,6 @@ class Base extends Controller {
         $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
         $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
         /*--end*/
-
-        $upgradeLogic = new UpgradeLogic();
-        $upgradeMsg = $upgradeLogic->checkVersion(); //升级包消息     
-        $this->assign('upgradeMsg',$upgradeMsg);
-        // tpversion();
     }
     
     /*

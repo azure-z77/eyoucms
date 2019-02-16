@@ -18,6 +18,8 @@ define('ROOT_PATH', __DIR__ . '/../');
 define('APP_PATH', ROOT_PATH . 'application/');
 // 数据绝对路径
 define('DATA_PATH', ROOT_PATH . 'data/');
+// 缓存时间
+define('EYOUCMS_CACHE_TIME', 86400);
 // 运行缓存
 define('RUNTIME_PATH', DATA_PATH . 'runtime/');
 // 加载框架引导文件

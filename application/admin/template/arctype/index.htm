@@ -16,7 +16,7 @@
         <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
         {eq name='$main_lang' value='$admin_lang'}
         <div class="fbutton">
-              <a href="{if condition="in_array($Request.action, array('add','edit'))"}javascript:void(0);{else /}{:U("Arctype/add")}{/if}">
+              <a href="{if condition="in_array($Request.action, array('add','edit'))"}javascript:void(0);{else /}{:url("Arctype/add")}{/if}">
                   <div class="add">
                       <span><i class="fa fa-plus"></i>增加顶级栏目</span>
                   </div>
@@ -99,9 +99,9 @@
                   {/gt}
                   
                   {if condition="$vo['current_channel'] == 6" /}
-                  <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
+                  <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}">{$vo.typename}</a>
                   {else /}
-                  <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
+                  <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}">{$vo.typename}</a>
                   <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
                   {/if}
                 </div>
@@ -125,16 +125,16 @@
                   <div class="w300 tl pb0">
                       {eq name="'Archives@index'|is_check_access" value="1"}  
                         {if condition="$vo['current_channel'] == 6" /}
-                        <a href="{:U('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
                         {else /}
-                        <a href="{:U($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
+                        <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>内容</a>
                         {/if}
                       {/eq}
-                      <a href="{:U('Arctype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                      <a href="{:url('Arctype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                       {eq name="'Arctype@add'|is_check_access" value="1"}
                       {eq name='$main_lang' value='$admin_lang'}
                         {if condition="$vo['grade'] < ($arctype_max_level - 1)"}           
-                          <a href="{:U('Arctype/add',array('parent_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>增加子栏目</a>
+                          <a href="{:url('Arctype/add',array('parent_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>增加子栏目</a>
                         {else /}
                           <a class="btn blue" title="不支持增加四级栏目"><i class="fa fa-pencil-square-o"></i>不支持增加</a>
                         {/if}
@@ -142,7 +142,7 @@
                       {/eq}
                       {eq name="'Arctype@pseudo_del'|is_check_access" value="1"}
                       {eq name='$main_lang' value='$admin_lang'}
-                      <a class="btn red"  href="javascript:void(0);" data-url="{:U('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                      <a class="btn red"  href="javascript:void(0);" data-url="{:url('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                       {/eq}
                       {/eq}
                       <a href="{$vo|get_typeurl=###}" class="btn blue" target="_blank"><i class="fa fa-pencil-square-o"></i>浏览</a>

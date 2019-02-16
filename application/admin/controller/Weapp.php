@@ -252,7 +252,7 @@ class Weapp extends Base
                 /*插件安装的后置操作（可无）*/
                 $this->afterInstall($weapp);
                 /*--end*/
-                $this->success('安装成功', U('Weapp/index'));
+                $this->success('安装成功', url('Weapp/index'));
                 exit;
             }
         }
@@ -314,7 +314,7 @@ class Weapp extends Base
                 /*插件卸载的后置操作（可无）*/
                 $this->afterUninstall($weapp);
                 /*--end*/
-                $this->success('卸载成功', U('Weapp/index'));
+                $this->success('卸载成功', url('Weapp/index'));
                 exit;
             }
         }
@@ -346,7 +346,7 @@ class Weapp extends Base
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
                 \think\Cache::clear('hooks');
-                $this->success('操作成功！', U('Weapp/index'));
+                $this->success('操作成功！', url('Weapp/index'));
                 exit;
             }
         }
@@ -378,7 +378,7 @@ class Weapp extends Base
                 cache("hookexec_".$row['code'], null);
                 cache('hooks', null);
                 \think\Cache::clear('hooks');
-                $this->success('操作成功！', U('Weapp/index'));
+                $this->success('操作成功！', url('Weapp/index'));
                 exit;
             }
         }
@@ -618,7 +618,7 @@ class Weapp extends Base
                     @delFile($savePath.$folderName, true);
                     /*--end*/
 
-                    $this->success("上传插件成功", U('Weapp/index'));
+                    $this->success("上传插件成功", url('Weapp/index'));
                 }
             }else{
                 //上传错误提示错误信息
@@ -724,7 +724,7 @@ class Weapp extends Base
             }
             /*--end*/
 
-            $this->success('初始化插件成功！', U('Weapp/index'));
+            $this->success('初始化插件成功，请在该插件基础上进行二次开发！', url('Weapp/index'), [], 3);
         }
 
         /*删除多余目录以及文件，兼容v1.1.7之后的版本*/
@@ -893,7 +893,7 @@ class Weapp extends Base
         $url = "{$service_ey}/index.php?m=api&c=Weapp&a=checkIsCode&code={$code}";
         $response = httpRequest($url, "GET");
         if (1 == intval($response)) {
-            $this->success('插件标识可使用！', U('Weapp/create'));
+            $this->success('插件标识可使用！', url('Weapp/create'));
         } else if (-1 == intval($response)) {
             $this->error('插件标识已被占用！');
         }

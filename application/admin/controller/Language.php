@@ -1167,7 +1167,7 @@ class Language extends Base
             $result[$val['lang']][$val['name']] = $val['value'];
         }
         foreach ($result as $key => $val) {
-            file_put_contents ( APP_PATH."lang/{$key}.php", "<?php\r\n\r\n"."return ".var_export($val,true).";" );
+            file_put_contents( APP_PATH."lang/{$key}.php", "<?php\r\n\r\n"."return ".var_export($val,true).";" );
         }
     }
 

@@ -60,7 +60,7 @@
                     <div class="formText" style="position:relative">
                         <i class="icon icon-chick"></i>
                         <input type="text" name="vertify" autocomplete="off" class="form-control" value="" placeholder="验证码" />
-                        <img src="{:U('Admin/vertify')}" class="chicuele" id="imgVerify" alt="" onclick="fleshVerify();" style="position:absolute; right: 3px;top: 3px;height: 36px;">
+                        <img src="{:url('Admin/vertify')}" class="chicuele" id="imgVerify" alt="" onclick="fleshVerify();" style="position:absolute; right: 3px;top: 3px;height: 36px;">
                     </div>
                     {/eq}
                     <div class="clearfix text-right">
@@ -72,8 +72,7 @@
         </div> <!-- /container -->
         <script type="text/javascript">
             $(function () {
-                $.get("{:url('Ajax/saveBaseFile')}"); // 存储后台入口文件路径，比如：/login.php
-                $.get("{:url('Ajax/renameInstall')}"); // 重命名安装目录，提高网站安全性
+                $.get("{:url('Ajax/login_handle')}"); // 进入登录页面需要异步处理的业务
             });
             
             $(function(){
@@ -127,7 +126,7 @@
                     {/eq}
 
                     if(vertify && $('#theForm input[name=username]').val() != '' && $('#theForm input[name=password]').val() != ''){
-                        var url = "{:U('Admin/login')}";
+                        var url = "{:url('Admin/login')}";
                         if (url.indexOf('?') > -1) {
                             url += '&';
                         } else {
@@ -169,7 +168,7 @@
             });
             
             function fleshVerify(){
-                var src = "{:U('Admin/vertify')}";
+                var src = "{:url('Admin/vertify')}";
                 if (src.indexOf('?') > -1) {
                     src += '&';
                 } else {

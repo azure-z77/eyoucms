@@ -189,7 +189,7 @@ class Tools extends Base {
         if (!DB::query("OPTIMIZE TABLE {$strTable} ")) {
             $strTable = '';
         }
-        $this->success("操作成功" . $strTable, U('Tools/index'));
+        $this->success("操作成功" . $strTable, url('Tools/index'));
     
     }
     
@@ -215,7 +215,7 @@ class Tools extends Base {
             $strTable = '';
         }
     
-        $this->success("操作成功" . $strTable, U('Tools/index'));
+        $this->success("操作成功" . $strTable, url('Tools/index'));
   
     }
 
@@ -291,7 +291,7 @@ class Tools extends Base {
                     /*清除缓存*/
                     delFile(RUNTIME_PATH);
                     /*--end*/
-                    $this->success("导入sql还原成功", U('Tools/restore'));
+                    $this->success("导入sql还原成功", url('Tools/restore'));
                 }else{
                     $this->error('sql文件导入失败');
                 }
@@ -419,7 +419,7 @@ class Tools extends Base {
                 preg_match('/(\d{8,8})-(\d{6,6})-(\d+)-(v\d+\.\d+\.\d+)\.sql/i', $file_path_full, $matches);
                 $version = getCmsVersion();
                 if ($matches[4] != $version) {
-                    $this->error('sql不兼容当前版本：'.$version, U('Tools/restore'));
+                    $this->error('sql不兼容当前版本：'.$version, url('Tools/restore'));
                 }
                 /*--end*/
                 $sqls = Backup::parseSql($file_path_full);
@@ -429,13 +429,13 @@ class Tools extends Base {
                     /*--end*/
                     $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
                 }else{
-                    $this->error('操作失败！', U('Tools/restore'));
+                    $this->error('操作失败！', url('Tools/restore'));
                 }
             }
         }
         else 
         {
-            $this->error("参数有误", U('Tools/restore'));
+            $this->error("参数有误", url('Tools/restore'));
         }
         exit;
     }

@@ -13,6 +13,7 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
 use app\home\logic\FieldLogic;
 
 /**
@@ -22,17 +23,19 @@ class TagArclist extends Base
 {
     public $tid = '';
     public $fieldLogic;
+    public $archives_db;
 
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
-        $this->tid = I("param.tid/s", ''); // 应用于栏目列表
+        $this->tid = input("param.tid/s", ''); // 应用于栏目列表
+        $this->archives_db = Db::name('archives');
         /*应用于文档列表*/
-        $aid = I('param.aid/d', 0);
+        $aid = input('param.aid/d', 0);
         if ($aid > 0) {
-            $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
+            $this->tid = $this->archives_db->where('aid', $aid)->getField('typeid');
         }
         /*--end*/
         /*tid为目录名称的情况下*/
@@ -41,16 +44,29 @@ class TagArclist extends Base
     }
 
     /**
-     * 获取多条记录
+     *  arclist解析函数
+     *
      * @author wengxianhu by 2018-4-20
+     * @access    public
+     * @param     array  $param  查询数据条件集合
+     * @param     int  $row  调用行数
+     * @param     string  $orderby  排列顺序
+     * @param     string  $addfields  附加表字段，以逗号隔开
+     * @param     string  $orderWay  排序方式
+     * @param     string  $tagid  标签id
+     * @param     string  $tag  标签属性集合
+     * @param     string  $pagesize  分页显示条数
+     * @return    array
      */
-    public function getArclist($param = array(),  $limit = 15, $orderby = '', $addfields = '', $orderWay = '')
+    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderWay = '', $tagid = '', $tag = '', $pagesize = 0)
     {
         $result = false;
 
         $channeltype = !empty($param['channel']) ? $param['channel'] : '';
         $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
         empty($orderWay) && $orderWay = 'desc';
+        $pagesize = empty($pagesize) ? intval($row) : intval($pagesize);
+        $limit = $row;
 
         /*多语言*/
         if (!empty($param['typeid'])) {
@@ -179,17 +195,19 @@ class TagArclist extends Base
                 $orderby = "a.click {$orderWay}";
                 break;
 
-            case 'now':
+            case 'id': // 兼容织梦的写法
             case 'aid':
                 $orderby = "a.aid {$orderWay}";
                 break;
 
-            case 'pubdate':
+            case 'now':
+            case 'new': // 兼容织梦的写法
+            case 'pubdate': // 兼容织梦的写法
             case 'add_time':
                 $orderby = "a.add_time {$orderWay}";
                 break;
                 
-            case 'sortrank':
+            case 'sortrank': // 兼容织梦的写法
             case 'sort_order':
                 $orderby = "a.sort_order {$orderWay}";
                 break;
@@ -222,6 +240,14 @@ class TagArclist extends Base
         $controller_name = $channeltype_info['ctl_name'];
         $channeltype_table = $channeltype_info['table'];
 
+        /*用于arclist标签的分页*/
+        $taghash = md5(serialize($tag).$typeid); // 统一hash
+        if(0 < $pagesize) $tagid = $this->attDef($tagid,'arclist'.$taghash ); // 进行tagid的默认处理
+        /*--end*/
+
+        // 查询数据处理
+        $aidArr = array();
+        $addtableName = ''; // 附加字段的数据表名
         switch ($channeltype) {
             case '-1':
             {
@@ -231,7 +257,7 @@ class TagArclist extends Base
             default:
             {
                 $field = "b.*, a.*";
-                $result = db('archives')
+                $result = $this->archives_db
                     ->field($field)
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
@@ -240,8 +266,8 @@ class TagArclist extends Base
                     ->orderRaw($orderby)
                     ->limit($limit)
                     ->select();
+                $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
 
-                $aidArr = array();
                 foreach ($result as $key => $val) {
                     array_push($aidArr, $val['aid']); // 收集文档ID
 
@@ -275,13 +301,13 @@ class TagArclist extends Base
                 if (!empty($addfields) && !empty($aidArr)) {
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
-                    $tableContent = $channeltype_table.'_content';
-                    $rowExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    $addtableName = $channeltype_table.'_content';
+                    $resultExt = M($addtableName)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
-                    $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $channeltype, true);
+                    $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
                     /*--end*/
                     foreach ($result as $key => $val) {
-                        $valExt = !empty($rowExt[$val['aid']]) ? $rowExt[$val['aid']] : array();
+                        $valExt = !empty($resultExt[$val['aid']]) ? $resultExt[$val['aid']] : array();
                         $val = array_merge($valExt, $val);
                         $result[$key] = $val;
                     }
@@ -292,6 +318,64 @@ class TagArclist extends Base
             }
         }
 
+        //分页特殊处理
+        if(0 < $pagesize)
+        {
+            $arcmulti_db = \think\Db::name('arcmulti');
+            $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagid])->find();
+            $attstr = addslashes(serialize($tag)); //记录属性,以便分页样式统一调用
+
+            $innertext = '';
+            $filename = \think\Config::get('template.view_path').'arclist_'.$tagid.'.'.\think\Config::get('template.view_suffix');
+            if (file_exists($filename) && is_file($filename)) {
+                $innertextStr = @file_get_contents($filename);
+                $innertextStr && $innertext = addslashes($innertextStr);
+            }
+
+            if(empty($arcmultiRow))
+            {
+                $arcmulti_db->insert([
+                    'tagid' => $tagid,
+                    'tagname'   => 'arclist',
+                    'innertext' => $innertext,
+                    'pagesize'  => $pagesize,
+                    'querysql'  => $querysql,
+                    'ordersql'  => $orderby,
+                    'addfieldsSql'  => $addfields,
+                    'addtableName'  => $addtableName,
+                    'attstr'    => $attstr,
+                    'add_time'   => getTime(),
+                    'update_time'   => getTime(),
+                ]);
+            } else {
+                $arcmulti_db->where([
+                    'tagid' => $tagid,
+                    'tagname' => 'arclist',
+                ])->update([
+                    'innertext' => $innertext,
+                    'pagesize'  => $pagesize,
+                    'querysql'  => $querysql,
+                    'ordersql'  => $orderby,
+                    'addfieldsSql'  => $addfields,
+                    'addtableName'  => $addtableName,
+                    'attstr'    => $attstr,
+                    'update_time'   => getTime(),
+                ]);
+            }
+        }
+
         return $result;
+    }
+
+    /**
+     *  默认属性
+     *
+     * @param     string  $oldvar  旧的值
+     * @param     string  $nv      新值
+     * @return    string
+     */
+    private function attDef($oldvar, $nv)
+    {
+        return empty($oldvar) ? $nv : $oldvar;
     }
 }

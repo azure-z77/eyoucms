@@ -12,7 +12,7 @@
             </div>
         </div>
     </div>
-    <form id="admin_form" name="admin_form" class="form-horizontal" action="{:U('Admin/admin_pwd')}" method="post">
+    <form id="admin_form" name="admin_form" class="form-horizontal" action="{:url('Admin/admin_pwd')}" method="post">
         <input type="hidden" name="admin_id" value="{$info.admin_id}">
         <div class="ncap-form-default">
             <dl class="row">
@@ -59,7 +59,7 @@
             onkeyup: false,   
             submitHandler: function(form){   //表单提交句柄,为一回调函数，带一个参数：form   
                 $.ajax({
-                    url:"{:U('Admin/admin_pwd')}",
+                    url:"{:url('Admin/admin_pwd')}",
                     type:'post',
                     dataType:'json',
                     data: $("#admin_form").serialize(),

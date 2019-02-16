@@ -67,7 +67,7 @@ class System extends Base
 
             tpCache($inc_type, $param);
             write_global_params(); // 写入全局内置参数
-            $this->success('操作成功', U('System/web'));
+            $this->success('操作成功', url('System/web'));
             exit;
         }
 
@@ -191,7 +191,7 @@ class System extends Base
             }
             /*--end*/
 
-            $this->success('操作成功', U('System/web2'));
+            $this->success('操作成功', url('System/web2'));
         }
 
         $config = tpCache($inc_type);
@@ -234,7 +234,7 @@ class System extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
-            $this->success('操作成功', U('System/basic'));
+            $this->success('操作成功', url('System/basic'));
         }
 
         $config = tpCache($inc_type);
@@ -278,7 +278,7 @@ class System extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
-            $this->success('操作成功', U('System/water'));
+            $this->success('操作成功', url('System/water'));
         }
 
         $config = tpCache($inc_type);
@@ -374,7 +374,7 @@ class System extends Base
     public function fastClearCache($arr = array())
     {
         $this->clearSystemCache();
-        $script = "<script>parent.layer.msg('操作成功', {time:3000,icon: 1});window.location='".U('Index/welcome')."';</script>";
+        $script = "<script>parent.layer.msg('操作成功', {time:3000,icon: 1});window.location='".url('Index/welcome')."';</script>";
         echo $script;
     }
 

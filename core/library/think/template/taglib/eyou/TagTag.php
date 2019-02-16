@@ -32,7 +32,7 @@ class TagTag extends Base
      * 获取标签
      * @author wengxianhu by 2018-4-20
      */
-    public function getTag($getall = 0, $typeid = '', $aid = 0, $row = 30, $sort = 'now')
+    public function getTag($getall = 0, $typeid = '', $aid = 0, $row = 30, $sort = 'new')
     {
         $aid = !empty($aid) ? $aid : $this->aid;
         $getall = intval($getall);

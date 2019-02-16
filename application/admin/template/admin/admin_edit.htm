@@ -5,7 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="admin/admin_bar" /}
-    <form class="form-horizontal" id="postForm" action="{:U('Admin/admin_edit')}" method="post">
+    <form class="form-horizontal" id="postForm" action="{:url('Admin/admin_edit')}" method="post">
         <input type="hidden" name="admin_id" value="{$info.admin_id}">
         <div class="ncap-form-default">
             <dl class="row">
@@ -73,10 +73,10 @@
                     {foreach name="admin_role_list" item="role"}
                     <p>
                         <label><input type="radio" name="role_id" value="{$role.id}" onclick="changeRole({$role.id});" {eq name="$role_info.id" value="$role.id"} checked="checked"{/eq} />{$role.name}</label>
-                        <!-- &nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:U('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
+                        <!-- &nbsp;<a href="javascript:void;" data-url="{:url('AuthRole/edit', array('id'=>$role.id,'iframe'=>1))}" onclick="addRole(this);">[编辑]</a>&nbsp;&nbsp;<a href="javascript:void;" data-url="{:url('AuthRole/del')}" data-id="{$role.id}" onclick="delfun(this);">[删除]</a> -->
                     </p>
                     {/foreach}
-                    <p id="custom_role" style="padding-left: 13px; text-decoration:underline;"><label><a href="javascript:void(0);" data-url="{:U('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);">自定义</a></label></p>
+                    <p id="custom_role" style="padding-left: 13px; text-decoration:underline;"><label><a href="javascript:void(0);" data-url="{:url('AuthRole/add', array('iframe'=>1))}" onclick="addRole(this);">自定义</a></label></p>
                 </dd>
             </dl>
             <dl class="row"><dt class="tit"><label><b>当前权限组预览</b></label></dt></dl>

@@ -16,6 +16,7 @@ namespace app\admin\controller;
 use think\Page;
 use think\Db;
 use app\admin\logic\FieldLogic;
+use think\template\taglib\Eyou;
 
 class Channeltype extends Base
 {
@@ -23,13 +24,15 @@ class Channeltype extends Base
     private $channeltype_system_id = [];
 
     // 系统内置不可用的模型标识，防止与home分组的控制器重名覆盖，导致网站报错
-    private $channeltype_system_nid = ['base','index','lists','search','tags','view'];
+    private $channeltype_system_nid = ['base','index','lists','search','tags','view','left','right','top','bottom','ajax'];
 
     // 数据库对象
     public $channeltype_db;
     
     public function _initialize() {
         parent::_initialize();
+        $eyou = new Eyou;
+        $this->channeltype_system_nid = array_merge($this->channeltype_system_nid, array_keys($eyou->getTags()));
         $this->channeltype_db = Db::name('channeltype');
         $this->channeltype_system_id = $this->channeltype_db->where([
                 'ifsystem'  => 1,
@@ -92,7 +95,7 @@ class Channeltype extends Base
                     if (!preg_match('/^([a-z]+)([a-z0-9]*)$/i', $post['nid'])) {
                         $this->error('模型标识必须以小写字母开头！');
                     } else if (in_array($post['nid'], $this->channeltype_system_nid)) {
-                        $this->error('系统内置模型标识，禁止使用！');
+                        $this->error('系统禁用当前模型标识，请更改！');
                     }
                 }
 

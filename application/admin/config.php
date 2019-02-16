@@ -30,6 +30,13 @@ $admin_config = array(
     'default_filter'         => 'htmlspecialchars', // htmlspecialchars
     // 登录有效期
     'login_expire' => 3600,
+    // +----------------------------------------------------------------------
+    // | 模板设置
+    // +----------------------------------------------------------------------
+    // 默认成功跳转对应的模板文件
+    'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
+    // 默认错误跳转对应的模板文件
+    'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
 
     // +----------------------------------------------------------------------
     // | 异常及错误设置

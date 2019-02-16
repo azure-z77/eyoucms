@@ -507,7 +507,7 @@ if (!function_exists('html_msubstr'))
 if (!function_exists('text_msubstr')) 
 {
     /**
-     * 截取纯文本内容的字符串长度，支持中文和其他编码
+     * 针对多语言截取，其他语言的截取是中文语言的2倍长度
      *
      * @param string $str 需要转换的字符串
      * @param string $start 开始位置
@@ -714,7 +714,7 @@ if (!function_exists('respose'))
      */
     function respose($res, $is_jsonp = false){
         if (true === $is_jsonp) {
-            exit(I('callback')."(".json_encode($res).")");
+            exit(input('callback')."(".json_encode($res).")");
         } else {
             exit(json_encode($res));
         }
