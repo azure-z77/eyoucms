@@ -31,9 +31,9 @@ class Eyou extends Taglib
         'php'        => ['attr' => ''],
         'channel'    => ['attr' => 'typeid,reid,type,row,currentstyle,id,name,key,empty,mod,titlelen,offset,limit'],
         'channelartlist' => ['attr' => 'typeid,type,row,id,key,empty,titlelen,mod'],
-        'arclist'    => ['attr' => 'channel,typeid,notypeid,row,offset,titlelen,limit,orderby,orderWay,noflag,flag,infolen,empty,mod,name,id,key,addfields,tagid,pagesize'],
+        'arclist'    => ['attr' => 'channelid,typeid,notypeid,row,offset,titlelen,limit,orderby,orderWay,noflag,flag,infolen,empty,mod,name,id,key,addfields,tagid,pagesize'],
         'arcpagelist'=> ['attr' => 'tagid,pagesize,id,tips,loading'],
-        'list'       => ['attr' => 'channel,typeid,notypeid,pagesize,titlelen,orderby,orderWay,noflag,flag,infolen,empty,mod,id,key,addfields'],
+        'list'       => ['attr' => 'channelid,typeid,notypeid,pagesize,titlelen,orderby,orderWay,noflag,flag,infolen,empty,mod,id,key,addfields'],
         'pagelist'   => ['attr' => 'listitem,listsize', 'close' => 0],
         'position'   => ['attr' => 'symbol,style', 'close' => 0],
         'type'       => ['attr' => 'typeid,type,empty,dirname,id,addfields,addtable'],
@@ -58,7 +58,7 @@ class Eyou extends Taglib
         'global'     => ['attr' => 'name', 'close' => 0],
         'static'     => ['attr' => 'file,lang,href', 'close' => 0], 
         'prenext'    => ['attr' => 'get,titlelen,id,empty'],
-        'field'      => ['attr' => 'name', 'close' => 0], 
+        'field'      => ['attr' => 'name,addfields,aid', 'close' => 0], 
         'searchurl'  => ['attr' => '', 'close' => 0],
         'searchform' => ['attr' => 'channel,typeid,type,empty,id,mod,key', 'close'=>1], 
         'tag'        => ['attr' => 'aid,name,row,id,key,mod,typeid,getall,sort,empty,style'],
@@ -83,7 +83,9 @@ class Eyou extends Taglib
         'for'        => ['attr' => 'start,end,name,comparison,step'],
         'url'        => ['attr' => 'link,vars,suffix,domain', 'close' => 0, 'expression' => true],
         'function'   => ['attr' => 'name,vars,use,call'],
-        'diyfield'   => ['attr' => 'name,id,key,mod,limit'],
+        'diyfield'   => ['attr' => 'name,id,key,mod,type,empty,limit'],
+        'attribute'  => ['attr' => 'aid,type,empty,id,mod,key'],
+        'attr'       => ['attr' => 'aid,name', 'close' => 0],
     ];
 
     /**
@@ -587,7 +589,7 @@ class Eyou extends Taglib
     /**
      * arclist标签解析 获取指定文档列表（兼容tp的volist标签语法）
      * 格式：
-     * {eyou:arclist channel='1' typeid='1' row='10' offset='0' titlelen='30' orderby ='aid desc' flag='' infolen='160' empty='' id='field' mod='' name=''}
+     * {eyou:arclist channelid='1' typeid='1' row='10' offset='0' titlelen='30' orderby ='aid desc' flag='' infolen='160' empty='' id='field' mod='' name=''}
      *  {$field.title}
      *  {$field.typeid}
      * {/eyou:arclist}
@@ -604,7 +606,7 @@ class Eyou extends Taglib
         $notypeid     = !empty($tag['notypeid']) ? $tag['notypeid'] : '';
         $notypeid  = $this->varOrvalue($notypeid);
 
-        $channeltype   = isset($tag['channel']) ? $tag['channel'] : '';
+        $channeltype   = isset($tag['channelid']) ? $tag['channelid'] : '';
         $channeltype  = $this->varOrvalue($channeltype);
 
         $addfields     = isset($tag['addfields']) ? $tag['addfields'] : '';
@@ -702,7 +704,7 @@ class Eyou extends Taglib
     /**
      * list 标签解析 获取指定文档分页列表（兼容tp的volist标签语法）
      * 格式：
-     * {eyou:list channel='1' typeid='1' row='10' titlelen='30' orderby ='aid desc' flag='' infolen='160' empty='' id='field' mod='' name=''}
+     * {eyou:list channelid='1' typeid='1' row='10' titlelen='30' orderby ='aid desc' flag='' infolen='160' empty='' id='field' mod='' name=''}
      *  {$field.title}
      *  {$field.typeid}
      * {/eyou:list}
@@ -719,7 +721,7 @@ class Eyou extends Taglib
         $notypeid     = !empty($tag['notypeid']) ? $tag['notypeid'] : '';
         $notypeid  = $this->varOrvalue($notypeid);
 
-        $channeltype   = isset($tag['channel']) ? $tag['channel'] : '';
+        $channeltype   = isset($tag['channelid']) ? $tag['channelid'] : '';
         $channeltype  = $this->varOrvalue($channeltype);
         
         $addfields     = isset($tag['addfields']) ? $tag['addfields'] : '';
@@ -1470,35 +1472,52 @@ class Eyou extends Taglib
      */
     public function tagField($tag)
     {
-        $name   = $tag['name'];
-        $arr = explode('|', $name);
-        $name = $arr[0];
+        $name  = isset($tag['name']) ? $tag['name'] : '';
+        $addfields    = isset($tag['addfields']) ? $tag['addfields'] : '';
+        $aid  = isset($tag['aid']) ? $tag['aid'] : '';
+        $aid  = $this->varOrvalue($aid);
 
-        // 查询数据库获取的数据集
-        $parseStr = '<?php ';
-        $parseStr .= ' $__value__ = isset($channelartlist["'.$name.'"]) ? $channelartlist["'.$name.'"] : "变量名不存在";';
+        $parseStr = '';
 
-        if (1 < count($arr)) {
-            $funcArr = explode('=', $arr[1]);
-            $funcName = $funcArr[0]; // 函数名
-            $funcParam = !empty($funcArr[1]) ? $funcArr[1] : ''; // 函数参数
-            if (!empty($funcParam)) {
-                $funcParamStr = '';
-                foreach (explode(',', $funcParam) as $key => $val) {
-                    if ('###' == $val) {
-                        $val = '$__value__';
+        if (!empty($name)) {
+            $arr = explode('|', $name);
+            $name = $arr[0];
+
+            // 查询数据库获取的数据集
+            $parseStr .= '<?php ';
+            $parseStr .= ' $__value__ = isset($channelartlist["'.$name.'"]) ? $channelartlist["'.$name.'"] : "变量名不存在";';
+
+            if (1 < count($arr)) {
+                $funcArr = explode('=', $arr[1]);
+                $funcName = $funcArr[0]; // 函数名
+                $funcParam = !empty($funcArr[1]) ? $funcArr[1] : ''; // 函数参数
+                if (!empty($funcParam)) {
+                    $funcParamStr = '';
+                    foreach (explode(',', $funcParam) as $key => $val) {
+                        if ('###' == $val) {
+                            $val = '$__value__';
+                        }
+                        if (0 < $key) {
+                            $funcParamStr .= ', ';
+                        }
+                        $funcParamStr .= $val;
                     }
-                    if (0 < $key) {
-                        $funcParamStr .= ', ';
-                    }
-                    $funcParamStr .= $val;
+                    $parseStr .= '$__value__ = '.$funcName.'('.$funcParamStr.');';
                 }
-                $parseStr .= '$__value__ = '.$funcName.'('.$funcParamStr.');';
             }
-        }
 
-        $parseStr .= ' echo $__value__;';
-        $parseStr .= ' ?>';
+            $parseStr .= ' echo $__value__;';
+            $parseStr .= ' ?>';
+
+        } else if (!empty($addfields)) {
+            $parseStr .= '<?php ';
+
+            // 查询数据库获取的数据集
+            $parseStr .= ' $tagField = new \think\template\taglib\eyou\TagField;';
+            $parseStr .= ' $__value__ = $tagField->getField("'.$addfields.'", '.$aid.');';
+            $parseStr .= ' echo $__value__;';
+            $parseStr .= ' ?>';
+        }
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2194,6 +2213,90 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * attribute 栏目属性标签解析 TAG调用
+     * {eyou:attribute type='default'}
+        {$field.itemname_2}:{$field.attr_2}
+     * {/eyou:attribute}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagAttribute($tag, $content)
+    {
+        $aid   = !empty($tag['aid']) ? $tag['aid'] : '';
+        $aid  = $this->varOrvalue($aid);
+        $type   = !empty($tag['type']) ? $tag['type'] : 'default';
+        $id     = isset($tag['id']) ? $tag['id'] : 'attr';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+
+        $parseStr = '<?php ';
+
+        /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
+        $parseStr .= ' if(empty($aid)) : $aid_tmp = '.$aid.'; endif; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; else : $taid = $aid; endif;';
+        /*--end*/
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagAttribute = new \think\template\taglib\eyou\TagAttribute;';
+        $parseStr .= ' $_result = $tagAttribute->getAttribute($taid, "'.$type.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach;';
+        $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * attr 标签解析
+     * 在模板中获取栏目属性值
+     * 格式： {eyou:attr name="" /}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagAttr($tag)
+    {
+        $aid   = !empty($tag['aid']) ? $tag['aid'] : '';
+        $aid  = $this->varOrvalue($aid);
+        $name     = isset($tag['name']) ? $tag['name'] : '';
+
+        $parseStr = '<?php ';
+
+        /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
+        $parseStr .= ' $aid_tmp = '.$aid.'; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; else : $taid = $aid; endif;';
+        /*--end*/
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagAttr = new \think\template\taglib\eyou\TagAttr;';
+        $parseStr .= ' $_value = $tagAttr->getAttr($taid,"'.$name.'");';
+        $parseStr .= ' echo $_value;';
+        $parseStr .= ' ?>';
+        $parseStr .= '<?php unset($aid_tmp); ?>';
 
         if (!empty($parseStr)) {
             return $parseStr;

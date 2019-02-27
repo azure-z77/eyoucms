@@ -75,7 +75,7 @@ class TagTag extends Base
         }
 
         foreach ($result as $key => $val) {
-            $val['link'] = url(MODULE_NAME.'/Tags/lists', array('tagid'=>$val['tagid']));
+            $val['link'] = url('home/Tags/lists', array('tagid'=>$val['tagid']));
             $result[$key] = $val;
         }
 

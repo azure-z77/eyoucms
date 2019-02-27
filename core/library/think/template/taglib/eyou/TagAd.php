@@ -56,6 +56,7 @@ class TagAd extends Base
         
         $result['litpic'] = get_default_pic($result['litpic']); // 默认无图封面
         $result['intro'] = htmlspecialchars_decode($result['intro']); // 解码内容
+        $result['target'] = ($result['target'] == 1) ? 'target="_blank"' : 'target="_self"';
 
         /*支持子目录*/
         $result['intro'] = handle_subdir_pic($result['intro'], 'html');

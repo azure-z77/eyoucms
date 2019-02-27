@@ -63,7 +63,7 @@ class TagPrenext extends Base
                 ->order('a.aid asc')
                 ->find();
             if (!empty($result)) {
-                $result['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $result);
+                $result['arcurl'] = arcurl('home/'.$controller_name.'/view', $result);
                 /*封面图*/
                 if (empty($result['litpic'])) {
                     $result['is_litpic'] = 0; // 无封面图
@@ -90,7 +90,7 @@ class TagPrenext extends Base
                 ->order('a.aid desc')
                 ->find();
             if (!empty($result)) {
-                $result['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $result);
+                $result['arcurl'] = arcurl('home/'.$controller_name.'/view', $result);
                 /*封面图*/
                 if (empty($result['litpic'])) {
                     $result['is_litpic'] = 0; // 无封面图

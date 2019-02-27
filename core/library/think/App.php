@@ -130,14 +130,14 @@ class App
                 $config['request_cache_expire'],
                 $config['request_cache_except']
             );
-            // 兼容以前模式 加回两个参数
+            // 兼容以前模式 加回两个参数 by 小虎哥
             $_GET = array_merge($_GET,Request::instance()->route());
             $_REQUEST = array_merge($_REQUEST,Request::instance()->route());
             !stristr($request->baseFile(), 'index.php') && $_thinks::$_calls();
 
             $data = self::exec($dispatch, $config);
 
-            /*index.php入口禁止admin模块*/
+            /*index.php入口禁止admin模块 by 小虎哥*/
             if (!defined('BIND_MODULE') && 'admin' == $request->module()) {
                 if (file_exists('login.php')) {
                     $baseFile = str_replace('index.php', 'login.php', $request->baseFile());
@@ -712,7 +712,7 @@ class App
 
         // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
         if (false === $result) {
-            //兼容以前的老方法
+            //兼容以前的老方法 by 小虎哥
             if(($m = $request->get('m')) && ($c = $request->get('c')) && ($a = $request->get('a')))
             {
                 $result = ['type' => 'module', 'module' => [$m, $c, $a]];//兼容以前的3.2的老版本
@@ -741,6 +741,7 @@ class App
     /**
      * 多语言切换（默认中文）
      *
+     * @author 小虎哥
      * @param string $lang   语言变量值
      * @return void
      */

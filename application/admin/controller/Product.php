@@ -238,7 +238,18 @@ class Product extends Base
         /*--end*/
 
         /*自定义字段*/
-        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($this->channeltype);
+        $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
+        $channelfieldBindRow = Db::name('channelfield_bind')->where([
+                'typeid'    => ['IN', [0,$typeid]],
+            ])->column('field_id');
+        if (!empty($channelfieldBindRow)) {
+            foreach ($addonFieldExtList as $key => $val) {
+                if (!in_array($val['id'], $channelfieldBindRow)) {
+                    unset($addonFieldExtList[$key]);
+                }
+            }
+        }
+        $assign_data['addonFieldExtList'] = $addonFieldExtList;
         $assign_data['aid'] = 0;
         /*--end*/
 
@@ -364,9 +375,20 @@ class Product extends Base
         $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
-
+        
         /*自定义字段*/
-        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList($info['channel'], 0, $id);
+        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id);
+        $channelfieldBindRow = Db::name('channelfield_bind')->where([
+                'typeid'    => ['IN', [0,$typeid]],
+            ])->column('field_id');
+        if (!empty($channelfieldBindRow)) {
+            foreach ($addonFieldExtList as $key => $val) {
+                if (!in_array($val['id'], $channelfieldBindRow)) {
+                    unset($addonFieldExtList[$key]);
+                }
+            }
+        }
+        $assign_data['addonFieldExtList'] = $addonFieldExtList;
         $assign_data['aid'] = $id;
         /*--end*/
 

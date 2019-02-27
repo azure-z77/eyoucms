@@ -309,7 +309,7 @@ if (!function_exists('push_zzbaidu'))
             array_push($urlsArr, $typeurl);
         }
 
-        $type = ('edit' == $type) ? 'update' : $type;
+        $type = ('edit' == $type) ? 'update' : 'urls';
         $api = 'http://data.zz.baidu.com/'.$type.'?site='.request()->host(true).'&token='.$sitemap_zzbaidutoken;
         $ch = curl_init();
         $options =  array(

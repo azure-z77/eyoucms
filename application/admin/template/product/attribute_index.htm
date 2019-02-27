@@ -129,6 +129,7 @@
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:U('Product/attribute_del')}" data-id="{$vo.attr_id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                     {/eq}
+                                    <!-- <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo.fieldname}', '{$vo.attr_id}', {$vo.attr_input_type|default='0'})">标签调用</a> -->
                                 </div>
                             </td>
                             <td class="sort">
@@ -194,6 +195,31 @@
             location.href = location.href;
         });
     });
+
+    /**
+     * 代码调用js
+     * @param id  id
+     * @param limit 条数
+     */
+    function copyToClipBoard(fieldname, attr_id, attr_input_type) {
+        var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;">';
+        var liststr = "eyou:attr name='name_"+attr_id+" /";
+        contentdiv += '<dd>list标签/arclist标签/内容页：</dd>';
+        contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{'+liststr+'}"></dd>';
+
+        var otherstr = "eyou:attr aid='文档ID' name='name_"+attr_id+" /";
+        contentdiv += '<dd>其他调法：</dd>';
+        contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{'+otherstr+'}"></dd>';
+
+        contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将相应标签复制并粘贴到对应模板文件中！</dd></dl></div>'
+        layer.open({
+            title: '标签调用',
+            type: 1,
+            skin: 'layui-layer-demo',
+            area: ['480px', '330px'], //宽高
+            content: contentdiv
+        });
+    }
 </script>
 
 {include file="public/footer" /}

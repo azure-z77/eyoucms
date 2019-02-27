@@ -45,7 +45,7 @@ class Query
     // 回调事件
     private static $event = [];
     // 读取主库
-    private static $readMaster = [];
+    protected static $readMaster = [];
 
     /**
      * 构造函数
@@ -83,6 +83,13 @@ class Query
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
+        } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $this);
+
+            call_user_func_array([$this->model, $method], $args);
+            return $this;
         } else {
             throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
         }
@@ -530,9 +537,9 @@ class Query
             $options = $this->getOptions();
             $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
 
-            $count = $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0);
+            $count = $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
         } else {
-            $count = $this->aggregate('COUNT', $field);
+            $count = $this->aggregate('COUNT', $field, true);
         }
 
         return is_string($count) ? $count : (int) $count;
@@ -549,11 +556,15 @@ class Query
      */
     public function aggregate($aggregate, $field, $force = false)
     {
-        if (!preg_match('/^[\w\.\*]+$/', $field)) {
+        if (0 === stripos($field, 'DISTINCT ')) {
+            list($distinct, $field) = explode(' ', $field);
+        }
+
+        if (!preg_match('/^[\w\.\+\-\*]+$/', $field)) {
             throw new Exception('not support data:' . $field);
         }
 
-        $result = $this->value($aggregate . '(' . $field . ') AS tp_' . strtolower($aggregate), 0, $force);
+        $result = $this->value($aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $field . ') AS tp_' . strtolower($aggregate), 0, $force);
 
         return $result;
     }
@@ -2119,14 +2130,23 @@ class Query
                 $this->field('*');
             }
             foreach ($relations as $key => $relation) {
-                $closure = false;
+                $closure = $name = null;
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
                     $relation = $key;
+                } elseif (!is_int($key)) {
+                    $name     = $relation;
+                    $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure) . ')';
-                $this->field([$count => Loader::parseName($relation) . '_count']);
+
+                $count = '(' . $this->model->$relation()->getRelationCountQuery($closure, $name) . ')';
+
+                if (empty($name)) {
+                    $name = Loader::parseName($relation) . '_count';
+                }
+
+                $this->field([$count => $name]);
             }
         }
         return $this;
@@ -2239,7 +2259,7 @@ class Query
      */
     public function insert(array $data = [], $replace = false, $getLastInsID = false, $sequence = null)
     {
-        $data = $this->allowField($data);
+        $data = $this->allowField($data); // 设置允许写入的字段 by 小虎哥
         // 分析查询表达式
         $options = $this->parseExpress();
         $data    = array_merge($options['data'], $data);
@@ -2362,7 +2382,7 @@ class Query
      */
     public function update(array $data = [])
     {
-        $data = $this->allowField($data);
+        $data = $this->allowField($data); // 设置允许写入的字段 by 小虎哥
         $options = $this->parseExpress();
         $data    = array_merge($options['data'], $data);
         $pk      = $this->getPk($options);
@@ -3028,6 +3048,8 @@ class Query
     /**
      * 兼容TP3.2里面的getField
      * 获取一条记录的某个字段值
+     *
+     * @author 小虎哥
      * @access public
      * @param string $field  字段名
      * @param string $spea  字段数据间隔符号 NULL返回数组
@@ -3049,8 +3071,9 @@ class Query
     }
     
     /**
-     * 为兼容3.2 添加save 方法
-     * 此函数提供作者 QQ名 IT草根
+     * 为兼容3.2 添加save
+     *
+     * @author 小虎哥
      * @access public
      * @param array     $data 数据          
      * @return integer|false
@@ -3068,7 +3091,9 @@ class Query
     }
     
     /**
-     * 为兼容3.2 添加add 方法     
+     * 为兼容3.2 添加add 方法
+     *
+     * @author 小虎哥
      * @access public
      * @param array     $data 数据          
      * @return $this->insert($data);
@@ -3082,6 +3107,8 @@ class Query
     /**
      * 为兼容3.2 添加allowField 方法  
      * 设置允许写入的字段
+     *
+     * @author 小虎哥
      * @access public   
      * @return $data
      */
@@ -3101,6 +3128,8 @@ class Query
 
     /**
      * 以指定字段值为键名形式返回结果集
+     *
+     * @author 小虎哥
      * @access public
      * @param string $index_key
      * @param array|string|Query|\Closure $data
@@ -3128,6 +3157,8 @@ class Query
 
     /**
      * 执行查询，以指定字段值为键名返回数据集
+     *
+     * @author 小虎哥
      * @access public
      * @param string      $sql    sql指令
      * @param string      $index_key 指定键名的字段
@@ -3156,7 +3187,7 @@ class Query
     /**
      * 拼接更新字段
      *
-     * @author wengxianhu
+     * @author 小虎哥
      * @created to 2013-05-27
      * @param unknown $data 批量更新的数组
      * @param string $index_key 主键值的字段名
@@ -3202,7 +3233,7 @@ class Query
     /**
      * 获取更新的数据SQL
      *
-     * @author wengxianhu
+     * @author 小虎哥
      * @created to 2013-05-27
      * @param unknown $data 批量更新的数组
      * @param string $index_key 主键值的字段名
@@ -3223,7 +3254,7 @@ class Query
     /**
      * 批量更新数据[此方法废弃，建议使用模型中的 saveAll 方法]
      *
-     * @author wengxianhu
+     * @author 小虎哥
      * @created to 2013-05-27
      * @param unknown $set 批量更新的数组
      * @param string $index_key 主键值的字段名

@@ -61,7 +61,7 @@ class TagList extends Base
 
         $result = false;
 
-        $channeltype = !empty($param['channel']) ? $param['channel'] : '';
+        $channeltype = ("" != $param['channel'] && is_numeric($param['channel'])) ? intval($param['channel']) : '';
         $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
 
         /*多语言*/
@@ -77,7 +77,7 @@ class TagList extends Base
         $typeid = $param['typeid'];
         
         /*不指定模型ID、栏目ID，默认显示所有可以发布文档的模型ID下的文档*/
-        if (empty($channeltype) && empty($typeid)) {
+        if (("" === $channeltype && empty($typeid)) || 0 === $channeltype) {
             $allow_release_channel = config('global.allow_release_channel');
             $channeltype = $param['channel'] = implode(',', $allow_release_channel);
         }
@@ -153,6 +153,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special = 1");
                         } elseif ($v2 == "j") {
                             array_push($where_or_flag, "a.is_jump = 1");
+                        } elseif ($v2 == "b") {
+                            array_push($where_or_flag, "a.is_b = 1");
                         }
                     }
                     if (!empty($where_or_flag)) {
@@ -171,6 +173,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special <> 1");
                         } elseif ($nv2 == "j") {
                             array_push($where_or_flag, "a.is_jump <> 1");
+                        } elseif ($nv2 == "b") {
+                            array_push($where_or_flag, "a.is_b <> 1");
                         }
                     }
                     if (!empty($where_or_flag)) {
@@ -318,14 +322,14 @@ class TagList extends Base
                     if ($val['is_part'] == 1) {
                         $val['typeurl'] = $val['typelink'];
                     } else {
-                        $val['typeurl'] = typeurl(MODULE_NAME.'/'.$controller_name."/lists", $val);
+                        $val['typeurl'] = typeurl('home/'.$controller_name."/lists", $val);
                     }
                     /*--end*/
                     /*文档链接*/
                     if ($val['is_jump'] == 1) {
                         $val['arcurl'] = $val['jumplinks'];
                     } else {
-                        $val['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $val);
+                        $val['arcurl'] = arcurl('home/'.$controller_name.'/view', $val);
                     }
                     /*--end*/
                     /*封面图*/
@@ -535,14 +539,14 @@ class TagList extends Base
                 if ($arcval['is_part'] == 1) {
                     $arcval['typeurl'] = $arcval['typelink'];
                 } else {
-                    $arcval['typeurl'] = typeurl(MODULE_NAME.'/'.$controller_name."/lists", $arcval);
+                    $arcval['typeurl'] = typeurl('home/'.$controller_name."/lists", $arcval);
                 }
                 /*--end*/
                 /*文档链接*/
                 if ($arcval['is_jump'] == 1) {
                     $arcval['arcurl'] = $arcval['jumplinks'];
                 } else {
-                    $arcval['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name."/view", $arcval);
+                    $arcval['arcurl'] = arcurl('home/'.$controller_name."/view", $arcval);
                 }
                 /*--end*/
                 /*封面图*/

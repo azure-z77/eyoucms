@@ -37,6 +37,10 @@ class Field extends Base
      */
     public function channel_index()
     {
+        /*同步栏目绑定的自定义字段*/
+        $this->syn_channelfield_bind();
+        /*--end*/
+
         $channel_id = input('param.channel_id/d', 1);
         $assign_data = array();
         $condition = array();
@@ -106,6 +110,32 @@ class Field extends Base
         $this->assign($assign_data);
         return $this->fetch();
     }
+
+    /**
+     * 同步栏目绑定的自定义字段
+     */
+    private function syn_channelfield_bind()
+    {
+        $field_ids = Db::name('channelfield')->where([
+                'ifmain'  => 0,
+                'channel_id'=> ['NEQ', -99],
+            ])->column('id');
+        if (!empty($field_ids)) {
+            $totalRow = Db::name('channelfield_bind')->count();
+            if (empty($totalRow)) {
+                $sveData = [];
+                foreach ($field_ids as $key => $val) {
+                    $sveData[] = [
+                        'typeid'        => 0,
+                        'field_id'      => $val,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ];
+                }
+                model('ChannelfieldBind')->saveAll($sveData);
+            }
+        }
+    }
     
     /**
      * 新增-模型字段
@@ -162,6 +192,10 @@ class Field extends Base
             }
             /*--end*/
 
+            if (empty($post['typeids'])) {
+                $this->error('请选择可见栏目！');
+            }
+
             /*组装完整的SQL语句，并执行新增字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
             $ntabsql = $fieldinfos[0];
@@ -180,6 +214,39 @@ class Field extends Base
                 );
                 $data = array_merge($post, $newData);
                 M('channelfield')->save($data);
+                $field_id = M('channelfield')->getLastInsID();
+                /*--end*/
+                
+                /*保存栏目与字段绑定的记录*/
+                $typeids = $post['typeids'];
+                if (!empty($typeids)) {
+                    /*多语言*/
+                    if (is_language()) {
+                        $attr_name_arr = [];
+                        foreach ($typeids as $key => $val) {
+                            $attr_name_arr[] = 'tid'.$val;
+                        }
+                        $new_typeid_arr = Db::name('language_attr')->where([
+                                'attr_name' => ['IN', $attr_name_arr],
+                                'attr_group'    => 'arctype',
+                            ])->column('attr_value');
+                        !empty($new_typeid_arr) && $typeids = $new_typeid_arr;
+                    }
+                    /*--end*/
+                    $addData = [];
+                    foreach ($typeids as $key => $val) {
+                        if (1 < count($typeids) && empty($val)) {
+                            continue;
+                        }
+                        $addData[] = [
+                            'typeid'        => $val,
+                            'field_id'      => $field_id,
+                            'add_time'      => getTime(),
+                            'update_time'   => getTime(),
+                        ];
+                    }
+                    !empty($addData) && model('ChannelfieldBind')->saveAll($addData);
+                }
                 /*--end*/
                 
                 /*重新生成数据表字段缓存文件*/
@@ -196,6 +263,11 @@ class Field extends Base
 
         /*字段类型列表*/
         $assign_data['fieldtype_list'] = model('Field')->getFieldTypeAll('name,title,ifoption');
+        /*--end*/
+
+        /*允许发布文档列表的栏目*/
+        $select_html = allow_release_arctype(0, [$channel_id]);
+        $this->assign('select_html',$select_html);
         /*--end*/
         
         /*模型ID*/
@@ -267,6 +339,10 @@ class Field extends Base
             }
             /*--end*/
 
+            if (empty($post['typeids'])) {
+                $this->error('请选择可见栏目！');
+            }
+
             /*组装完整的SQL语句，并执行编辑字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
             $ntabsql = $fieldinfos[0];
@@ -285,6 +361,40 @@ class Field extends Base
                 M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
                 /*--end*/
                 
+                /*保存栏目与字段绑定的记录*/
+                $field_id = $post['id'];
+                model('ChannelfieldBind')->where(['field_id'=>$field_id])->delete();
+                $typeids = $post['typeids'];
+                if (!empty($typeids)) {
+                    /*多语言*/
+                    if (is_language()) {
+                        $attr_name_arr = [];
+                        foreach ($typeids as $key => $val) {
+                            $attr_name_arr[] = 'tid'.$val;
+                        }
+                        $new_typeid_arr = Db::name('language_attr')->where([
+                                'attr_name' => ['IN', $attr_name_arr],
+                                'attr_group'    => 'arctype',
+                            ])->column('attr_value');
+                        !empty($new_typeid_arr) && $typeids = $new_typeid_arr;
+                    }
+                    /*--end*/
+                    $addData = [];
+                    foreach ($typeids as $key => $val) {
+                        if (1 < count($typeids) && empty($val)) {
+                            continue;
+                        }
+                        $addData[] = [
+                            'typeid'        => $val,
+                            'field_id'      => $field_id,
+                            'add_time'      => getTime(),
+                            'update_time'   => getTime(),
+                        ];
+                    }
+                    !empty($addData) && model('ChannelfieldBind')->saveAll($addData);
+                }
+                /*--end*/
+
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
@@ -312,6 +422,13 @@ class Field extends Base
 
         /*字段类型列表*/
         $assign_data['fieldtype_list'] = model('Field')->getFieldTypeAll('name,title,ifoption');
+        /*--end*/
+
+        /*允许发布文档列表的栏目*/
+        $typeids = Db::name('channelfield_bind')->where(['field_id'=>$id])->column('typeid');
+        $select_html = allow_release_arctype($typeids, [$channel_id]);
+        $this->assign('select_html',$select_html);
+        $this->assign('typeids',$typeids);
         /*--end*/
         
         /*模型ID*/
@@ -342,6 +459,9 @@ class Field extends Base
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
                 M('channelfield')->where($map)->delete();
+                /*--end*/
+                /*删除栏目与字段绑定的记录*/
+                model('ChannelfieldBind')->where(['field_id'=>$id])->delete();
                 /*--end*/
 
                 /*获取模型标题*/

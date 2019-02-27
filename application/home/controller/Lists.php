@@ -180,41 +180,6 @@ class Lists extends Base
     }
 
     /**
-     * 读取指定栏目ID下有内容的栏目信息，只读取每一级的第一个栏目
-     * @param intval $typeid 栏目ID
-     * @return array
-     */
-/*    private function readContentFirst_old($typeid)
-    {
-        $result = false;
-        while (true)
-        {
-            $result = model('Single')->getInfoByTypeid($typeid);
-            if (empty($result['content'])) {
-                $map = array(
-                    'parent_id' => $result['typeid'],
-                    'is_hidden' => 0,
-                    'status'    => 1,
-                );
-                $row = M('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的第一个栏目
-                if (empty($row)) { // 不存在并返回当前栏目信息
-                    break;
-                } elseif (6 != $row['current_channel']) { // 存在且不是单页模型，并进行跳转
-                    $typeurl = model('Arctype')->getTypeUrl($row);
-                    header('Location: '.$typeurl);
-                    exit;
-                } elseif (6 == $row['current_channel']) { // 存在且是单页模型，则进行继续往下查找，直到有内容为止
-                    $typeid = $row['id'];
-                }
-            } else {
-                break;
-            }
-        }
-
-        return $result;
-    }*/
-
-    /**
      * 留言提交 
      */
     public function gbook_submit()

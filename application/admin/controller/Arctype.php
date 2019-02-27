@@ -421,7 +421,7 @@ class Arctype extends Base
             $post = input('post.');
             $typeid = input('post.typeid/d', 0);
             if(!empty($typeid)){
-                $info = M('arctype')->field('typename')
+                $info = M('arctype')->field('id,typename,current_channel')
                     ->where([
                         'id'    => $typeid,
                         'lang'  => $this->admin_lang,
@@ -431,6 +431,22 @@ class Arctype extends Base
                         'channel'   => 6,
                         'lang'  => $this->admin_lang,
                     ])->getField('aid');
+                
+                /*修复新增单页栏目的关联数据不完善，进行修复*/
+                if (empty($aid)) {
+                    $archivesData = array(
+                        'title' => $info['typename'],
+                        'typeid'=> $info['id'],
+                        'channel'   => $info['current_channel'],
+                        'sort_order'    => 100,
+                        'add_time'  => getTime(),
+                        'update_time'     => getTime(),
+                        'lang'  => $this->admin_lang,
+                    );
+                    $aid = M('archives')->insertGetId($archivesData);
+                }
+                /*--end*/
+
                 if (!isset($post['addonFieldExt'])) {
                     $post['addonFieldExt'] = array();
                 }

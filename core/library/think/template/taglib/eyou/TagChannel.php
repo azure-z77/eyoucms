@@ -31,7 +31,7 @@ class TagChannel extends Base
         /*应用于文档列表*/
         $aid = I('param.aid/d', 0);
         if ($aid > 0) {
-            $cacheKey = 'tagChannel_'.strtolower(MODULE_NAME.'_'.CONTROLLER_NAME.'_'.ACTION_NAME);
+            $cacheKey = 'tagChannel_'.strtolower('home_'.CONTROLLER_NAME.'_'.ACTION_NAME);
             $cacheKey .= "_{$aid}";
             $this->tid = cache($cacheKey);
             if ($this->tid == false) {
@@ -178,7 +178,7 @@ class TagChannel extends Base
                     $val['typeurl'] = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $val['typeurl'] = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
+                    $val['typeurl'] = typeurl('home/'.$ctl_name."/lists", $val);
                 }
                 /*--end*/
 
@@ -325,7 +325,7 @@ class TagChannel extends Base
                     $val['typeurl'] = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $val['typeurl'] = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
+                    $val['typeurl'] = typeurl('home/'.$ctl_name."/lists", $val);
                 }
                 /*--end*/
 

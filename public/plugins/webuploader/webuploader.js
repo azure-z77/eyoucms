@@ -2165,12 +2165,13 @@
              * ```
              */
             compress: {
-                width: 3800,
-                height: 3800,
+                width: 3800, // by 小虎哥
+                height: 3800, // by 小虎哥
                 quality: 90,
                 allowMagnify: false,
                 crop: false,
-                preserveHeaders: true
+                preserveHeaders: true,
+                noCompressIfLarger: true // by 小虎哥
             }
         });
     

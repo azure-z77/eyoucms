@@ -67,6 +67,11 @@ class Weapp extends Base
      */
     public function index()
     {
+        $root_dir = ROOT_DIR;
+        if (!empty($root_dir)) {
+            $this->error('子目录暂时不支持插件，待完善中……');
+        }
+        
         $assign_data = array();
         $condition = array();
         // 获取到所有GET参数

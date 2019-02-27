@@ -68,7 +68,7 @@ class TagArcview extends Base
         if ($result['is_part'] == 1) {
             $result['typeurl'] = $result['typelink'];
         } else {
-            $result['typeurl'] = typeurl(MODULE_NAME.'/'.$controller_name."/lists", $result);
+            $result['typeurl'] = typeurl('home/'.$controller_name."/lists", $result);
         }
         /*--end*/
 
@@ -76,7 +76,7 @@ class TagArcview extends Base
         if ($result['is_jump'] == 1) {
             $result['arcurl'] = $result['jumplinks'];
         } else {
-            $result['arcurl'] = arcurl(MODULE_NAME.'/'.$controller_name.'/view', $result);
+            $result['arcurl'] = arcurl('home/'.$controller_name.'/view', $result);
         }
         /*--end*/
 

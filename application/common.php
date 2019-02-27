@@ -882,7 +882,11 @@ if (!function_exists('allow_release_arctype'))
         }
         /*--end*/
 
-        $cacheKey = $selected.json_encode($allow_release_channel).$selectform.json_encode($where);
+        if (!is_array($selected)) {
+            $selected = [$selected];
+        }
+
+        $cacheKey = json_encode($selected).json_encode($allow_release_channel).$selectform.json_encode($where);
         $select_html = cache($cacheKey);
         if (empty($select_html) || false == $selectform) {
             /*允许发布文档的模型*/
@@ -948,12 +952,14 @@ if (!function_exists('allow_release_arctype'))
             /*--end*/
 
             /*组装成层级下拉列表框*/
-            if (true == $selectform) {
-                $select_html = '';
+            $select_html = '';
+            if (false == $selectform) {
+                $select_html = $nowArr;
+            } else if (true == $selectform) {
                 foreach ($nowArr AS $key => $val)
                 {
                     $select_html .= '<option value="' . $val['id'] . '" data-grade="' . $val['grade'] . '" data-current_channel="' . $val['current_channel'] . '"';
-                    $select_html .= ($selected == $val['id']) ? ' selected="ture"' : '';
+                    $select_html .= (in_array($val['id'], $selected)) ? ' selected="ture"' : '';
                     if (!empty($allow_release_channel) && !in_array($val['current_channel'], $allow_release_channel)) {
                         $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
                     }
@@ -969,7 +975,7 @@ if (!function_exists('allow_release_arctype'))
                     }
                     foreach ($nowArr[$key]['children'] as $key2 => $val2) {
                         $select_html .= '<option value="' . $val2['id'] . '" data-grade="' . $val2['grade'] . '" data-current_channel="' . $val2['current_channel'] . '"';
-                        $select_html .= ($selected == $val2['id']) ? ' selected="ture"' : '';
+                        $select_html .= (in_array($val2['id'], $selected)) ? ' selected="ture"' : '';
                         if (!empty($allow_release_channel) && !in_array($val2['current_channel'], $allow_release_channel)) {
                             $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
                         }
@@ -985,7 +991,7 @@ if (!function_exists('allow_release_arctype'))
                         }
                         foreach ($nowArr[$key]['children'][$key2]['children'] as $key3 => $val3) {
                             $select_html .= '<option value="' . $val3['id'] . '" data-grade="' . $val3['grade'] . '" data-current_channel="' . $val3['current_channel'] . '"';
-                            $select_html .= ($selected == $val3['id']) ? ' selected="ture"' : '';
+                            $select_html .= (in_array($val3['id'], $selected)) ? ' selected="ture"' : '';
                             if (!empty($allow_release_channel) && !in_array($val3['current_channel'], $allow_release_channel)) {
                                 $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
                             }

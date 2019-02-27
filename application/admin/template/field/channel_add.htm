@@ -72,6 +72,19 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
+                    <label for="title">可见栏目</label>
+                </dt>
+                <dd class="opt">
+                    <select name="typeids[]" id="typeid" style="width: 300px;" size="15" multiple="true">
+                        <option value="0" selected="true">—所有栏目可见—</option>
+                        {$select_html}
+                    </select>
+                    <span class="err"></span>
+                    <p class="red">(按 Ctrl 可以进行多选)</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
                     <label for="sort_order">排序</label>
                 </dt>
                 <dd class="opt">
@@ -150,7 +163,12 @@
                 }
             }
         }
-        
+        if (0 >= parseInt($('#typeid').find('option:selected').length)) {
+            showErrorMsg('请选择可见栏目！');
+            $('#typeid').focus();
+            return false;
+        }
+
         layer_loading('正在处理');
         $('#post_form').submit();
     }

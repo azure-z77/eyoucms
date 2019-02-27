@@ -26,11 +26,11 @@ class TagChannelartlist extends Base
     protected function _initialize()
     {
         parent::_initialize();
-        $this->tid = I("param.tid/s", ''); // 应用于栏目列表
+        $this->tid = input("param.tid/s", ''); // 应用于栏目列表
         /*应用于文档列表*/
-        $aid = I('param.aid/d', 0);
+        $aid = input('param.aid/d', 0);
         if ($aid > 0) {
-            $cacheKey = 'tagChannelartlist_'.strtolower(MODULE_NAME.'_'.CONTROLLER_NAME.'_'.ACTION_NAME);
+            $cacheKey = 'tagChannelartlist_'.strtolower('home_'.CONTROLLER_NAME.'_'.ACTION_NAME);
             $cacheKey .= "_{$aid}";
             $this->tid = cache($cacheKey);
             if ($this->tid == false) {
@@ -140,6 +140,7 @@ class TagChannelartlist extends Base
         }
         $map['is_hidden'] = 0;
         $map['status'] = 1;
+        $map['is_del'] = 0;
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
             ->where('lang', $this->home_lang)
@@ -154,7 +155,7 @@ class TagChannelartlist extends Base
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
+                    $typeurl = typeurl('home/'.$ctl_name."/lists", $val);
                 }
                 $val['typeurl'] = $typeurl;
 
@@ -183,6 +184,7 @@ class TagChannelartlist extends Base
             'id'    => array('IN', $typeid),
             'is_hidden' => 0,
             'status'    => 1,
+            'is_del'    => 0,
         );
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
@@ -198,7 +200,7 @@ class TagChannelartlist extends Base
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
+                    $typeurl = typeurl('home/'.$ctl_name."/lists", $val);
                 }
                 $val['typeurl'] = $typeurl;
 
@@ -222,6 +224,7 @@ class TagChannelartlist extends Base
             'parent_id'    => 0,
             'is_hidden' => 0,
             'status'    => 1,
+            'is_del'    => 0,
         );
         $result = M('arctype')->field('*, id as typeid')
             ->where($map)
@@ -237,7 +240,7 @@ class TagChannelartlist extends Base
                     $typeurl = $val['typelink'];
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $typeurl = typeurl(MODULE_NAME.'/'.$ctl_name."/lists", $val);
+                    $typeurl = typeurl('home/'.$ctl_name."/lists", $val);
                 }
                 $val['typeurl'] = $typeurl;
 

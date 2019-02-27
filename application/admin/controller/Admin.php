@@ -352,6 +352,14 @@ class Admin extends Base {
             $data['update_time'] = getTime();
             $r = M('admin')->where('admin_id', $id)->save($data);
             if ($r) {
+                /*过滤存储在session文件的敏感信息*/
+                $admin_info = session('admin_info');
+                $admin_info = array_merge($admin_info, $data);
+                foreach (['user_name','true_name','password','password2'] as $key => $val) {
+                    unset($newData[$val]);
+                }
+                session('admin_info', $admin_info);
+                /*--end*/
                 adminLog('编辑管理员：'.$user_name);
                 $this->success("操作成功",url('Admin/index'));
             } else {

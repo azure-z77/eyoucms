@@ -216,15 +216,15 @@
      * @param limit 条数
      */
     function copyToClipBoard(id) {
-      var adstr = "{eyou:ad aid='" + id + "'}\r\n   <img src='{$"+"field.litpic}' alt='{$"+"field.title}' />\r\n{/eyou:ad";
+      var adstr = "{eyou:ad aid='" + id + "'}\r\n   <a href='{$"+"field.links}' {$"+"field.target}><img src='{$"+"field.litpic}' alt='{$"+"field.title}' /></a>\r\n{/eyou:ad";
       var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px"><dd>标签 ad 调用:</dd>'
-      contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:60px;">' + adstr + '}</textarea>'
+      contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:80px;">' + adstr + '}</textarea>'
       contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将对应标签代码复制并粘贴到对应模板文件中！</dd></dl></div>'
       layer.open({
         title: '代码调用',
         type: 1,
         skin: 'layui-layer-demo',
-        area: ['480px', '220px'], //宽高
+        area: ['480px', '240px'], //宽高
         content: contentdiv
       });
     }

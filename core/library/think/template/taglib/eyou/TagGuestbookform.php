@@ -56,8 +56,12 @@ class TagGuestbookform extends Base
         $result = false;
 
         /*当前栏目下的表单属性*/
-        $row = M('guestbook_attribute')->where('typeid', $typeid)
-            ->where('lang', $this->home_lang)
+        $row = M('guestbook_attribute')
+            ->where([
+                'typeid'    => $typeid,
+                'lang'      => $this->home_lang,
+                'is_del'    => 0,
+            ])
             ->order('sort_order asc, attr_id asc')
             ->select();
         /*--end*/

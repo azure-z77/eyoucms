@@ -84,9 +84,9 @@
         <h1 class="m-t-0 font-size-24">{$eyou.field.title}</h1> 
         <p class="description">{$eyou.field.seo_description}</p> 
         <ul class="product-para paralist blocks-100 blocks-sm-2 blocks-md-3 blocks-lg-2"> 
-          {eyou:volist name="$eyou.field.attr_list"}
-          <li> <span>{$field.attr_name}：</span> {$field.attr_value} </li> 
-          {/eyou:volist}
+          {eyou:attribute type='auto'}
+          <li> <span>{$attr.name}：</span> {$attr.value} </li> 
+          {/eyou:attribute}
         </ul> 
        </div> 
       </div> 

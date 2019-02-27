@@ -2,8 +2,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 <title>文件管理</title>
-<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css">
-<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/css/style.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css?v={$version|default='1.2.9'}">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/css/style.css?v={$version|default='1.2.9'}">
 <script type="text/javascript">
     var eyou_basefile = "{$Request.baseFile}";
     var module_name = "{$Think.const.MODULE_NAME}";
@@ -87,17 +87,16 @@
     </div>
 </div>
 <script type="text/javascript" src="__STATIC__/common/js/jquery.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/upload.js"></script>
-<!-- <script type="text/javascript" src="__PUBLIC__/plugins/layer/layer.js"></script> -->
-<script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
+<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js?v={$version|default='1.2.9'}"></script>
+<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/upload.js?v={$version|default='1.2.9'}"></script>
+<script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js?v={$version|default='1.2.9'}"></script>
 <script type="text/javascript">
 $(function(){
     var config = {
             "swf":"__PUBLIC__/plugins/webuploader/Uploader.swf",
             "server":"{$field.upload}",
             "filelistPah":"{$field.fileList}",
-            "delPath":"{:U('Uploadify/delupload')}",
+            "delPath":"{:url('Uploadify/delupload')}",
             "chunked":false,
             "chunkSize":524288,
             "fileNumLimit":{$field.num|default=1},
@@ -163,7 +162,7 @@ $(function(){
     {
         $.ajax({
             type: "POST",
-            url: "{:U('Product/ajax_save_productimg')}",
+            url: "{:url('Product/ajax_save_productimg')}",
             data: {proimg:a, aid:aid},
             dataType: 'json',
             success: function (data) {

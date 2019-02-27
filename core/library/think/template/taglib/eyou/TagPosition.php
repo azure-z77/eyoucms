@@ -25,9 +25,9 @@ class TagPosition extends Base
     protected function _initialize()
     {
         parent::_initialize();
-        $this->tid = I("param.tid/s", ''); // 应用于栏目列表
+        $this->tid = input("param.tid/s", ''); // 应用于栏目列表
         /*应用于文档列表*/
-        $aid = I('param.aid/d', 0);
+        $aid = input('param.aid/d', 0);
         if ($aid > 0) {
             $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
         }

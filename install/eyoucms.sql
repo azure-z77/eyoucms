@@ -225,6 +225,27 @@ INSERT INTO `ey_archives` VALUES ('70', '36', '1', '0', 'Read the Internet Queen
 INSERT INTO `ey_archives` VALUES ('71', '36', '1', '0', 'Website construction, static pages and dynamic pages how to choose', '/uploads/allimg/20181220/4e7474448185b797c4c1d796b3e581fe.jpg', '0', '0', '0', '0', '0', '', '151', '0', '', '0', '', '', 'Website construction, static pages and dynamic pages how to chooseWhy should e-commerce website construction use static page production? We all know that website production is divided into static page production and dynamic web page production. So which website design technology is better for building e-commerce websites?The ultimate goal of our website is to provide users with a view, so it is most practical to think from the user\'s point of view. Although the dynamic webpage creation techn', '1', '100', 'en', '1', '0', '0', '1545272283', '1547463680');
 
 -- -----------------------------
+-- Table structure for `ey_arcmulti`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_arcmulti`;
+CREATE TABLE `ey_arcmulti` (
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `tagid` varchar(60) NOT NULL DEFAULT '' COMMENT '标签ID',
+  `tagname` varchar(60) NOT NULL DEFAULT '' COMMENT '标签名',
+  `innertext` text NOT NULL COMMENT '标签模板代码',
+  `pagesize` int(10) NOT NULL DEFAULT '0' COMMENT '分页列表',
+  `querysql` text NOT NULL COMMENT '完整SQL',
+  `ordersql` varchar(200) DEFAULT '' COMMENT '排序SQL',
+  `addfieldsSql` varchar(255) DEFAULT '' COMMENT '附加字段SQL',
+  `addtableName` varchar(50) DEFAULT '' COMMENT '附加字段的数据表，不包含表前缀',
+  `attstr` text COMMENT '属性字符串',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='多页标记存储数据表';
+
+
+-- -----------------------------
 -- Table structure for `ey_arcrank`
 -- -----------------------------
 DROP TABLE IF EXISTS `ey_arcrank`;
@@ -490,6 +511,20 @@ INSERT INTO `ey_channelfield` VALUES ('51', 'id', '-99', '栏目ID', 'int', 'int
 INSERT INTO `ey_channelfield` VALUES ('52', 'del_method', '-99', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '1', '0', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
 INSERT INTO `ey_channelfield` VALUES ('53', 'is_del', '0', '是否伪删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
 INSERT INTO `ey_channelfield` VALUES ('54', 'del_method', '0', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '250', '', '', '', '1', '0', '1', '1', '1', '100', '1', '1547890773', '1547890773');
+
+-- -----------------------------
+-- Table structure for `ey_channelfield_bind`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_channelfield_bind`;
+CREATE TABLE `ey_channelfield_bind` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `typeid` int(10) DEFAULT '0' COMMENT '栏目ID',
+  `field_id` int(10) DEFAULT '0' COMMENT '自定义字段ID',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='栏目与自定义字段绑定表';
+
 
 -- -----------------------------
 -- Table structure for `ey_channeltype`

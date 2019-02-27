@@ -287,6 +287,7 @@ $(function() {
 				 extensions: 'gif,jpg,jpeg,bmp,png,rar,zip',
 				 mimeTypes: 'image/*'
 			},*/
+			disableWidgets: 'log', // 禁止开启日志组件 by 小虎哥
 			//禁掉全局的拖拽功能。这样不会出现图片拖进页面的时候，把图片打开。
 			disableGlobalDnd: true
 		};
