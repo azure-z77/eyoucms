@@ -31,7 +31,7 @@ class Channeltype extends Base
     
     public function _initialize() {
         parent::_initialize();
-        $eyou = new Eyou;
+        $eyou = new Eyou('');
         $this->channeltype_system_nid = array_merge($this->channeltype_system_nid, array_keys($eyou->getTags()));
         $this->channeltype_db = Db::name('channeltype');
         $this->channeltype_system_id = $this->channeltype_db->where([
