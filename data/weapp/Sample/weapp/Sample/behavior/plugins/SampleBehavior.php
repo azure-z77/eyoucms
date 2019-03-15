@@ -1,6 +1,6 @@
 <?php
 
-namespace weapp\Sample\behavior\weapp;
+namespace weapp\Sample\behavior\plugins;
 
 /**
  * 行为扩展
