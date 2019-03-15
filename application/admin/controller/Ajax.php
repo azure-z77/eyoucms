@@ -12,28 +12,19 @@
  */
 
 namespace app\admin\controller;
-use think\Controller;
 use think\Db;
 use app\admin\logic\AjaxLogic;
 
 /**
  * 所有ajax请求或者不经过权限验证的方法全放在这里
  */
-class Ajax extends Controller {
+class Ajax extends Base {
     
     private $ajaxLogic;
 
     public function _initialize() {
         parent::_initialize();
         $this->ajaxLogic = new AjaxLogic;
-    }
-
-    /**
-     * 进入登录页面需要异步处理的业务
-     */
-    public function login_handle()
-    {
-        $this->ajaxLogic->login_handle();
     }
 
     /**

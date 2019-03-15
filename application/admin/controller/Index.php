@@ -42,7 +42,7 @@ class Index extends Base
         1 == intval($seo_inlet) && $inletStr = '';
         // --end
         $home_default_lang = config('ey_config.system_home_default_lang');
-        $admin_lang = get_admin_lang();
+        $admin_lang = $this->admin_lang;
         $home_url = request()->domain().ROOT_DIR.'/';  // 支持子目录
         if ($home_default_lang != $admin_lang) {
             $home_url = $language_db->where(['mark'=>$admin_lang])->getField('url');
@@ -241,6 +241,6 @@ class Index extends Base
         // $htmlCacheLogic->clear_archives();
         /*--end*/
         
-        $this->success('操作成功');
+        $this->success('更新成功');
     }   
 }

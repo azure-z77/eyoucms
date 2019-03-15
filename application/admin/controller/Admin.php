@@ -18,13 +18,10 @@ use think\Verify;
 use think\Db;
 use think\db\Query;
 use think\Session;
-use app\admin\logic\AuthModularLogic;
-use app\admin\logic\AuthRoleLogic;
 use app\admin\model\AuthRole;
+use app\admin\logic\AjaxLogic;
 
 class Admin extends Base {
-    private $modular_system_id = array(); // 系统默认的模块id，不可删除
-    private $admin_system_id = array(1); // 系统默认的管理员ID，不可删除
 
     public function index()
     {
@@ -160,6 +157,10 @@ class Admin extends Base {
         }
 
         $this->assign('is_vertify', $is_vertify);
+
+        $ajaxLogic = new AjaxLogic;
+        $ajaxLogic->login_handle();
+
         return $this->fetch();
     }
 
@@ -266,6 +267,9 @@ class Admin extends Base {
             $data['role_id'] = intval($data['role_id']);
             $data['parent_id'] = session('admin_info.admin_id');
             $data['add_time'] = getTime();
+            if (empty($data['pen_name'])) {
+                $data['pen_name'] = $data['user_name'];
+            }
             if (M('admin')->where("user_name", $data['user_name'])->count()) {
                 $this->error("此用户名已被注册，请更换",url('Admin/admin_add'));
             } else {
@@ -478,5 +482,32 @@ class Admin extends Base {
             }
             $authRole->saveAll($saveData);
         }
+    }
+
+    /*
+     * 设置admin表数据
+     */
+    public function ajax_setfield()
+    {
+        if (IS_POST) {
+            $admin_id = session('admin_id');
+            $field  = input('field'); // 修改哪个字段
+            $value  = input('value', '', null); // 修改字段值  
+            if (!empty($admin_id)) {
+                $r = M('admin')->where('admin_id',intval($admin_id))->save([
+                        $field=>$value,
+                        'update_time'=>getTime(),
+                    ]); // 根据条件保存修改的数据
+                if ($r) {
+                    /*更新存储在session里的信息*/
+                    $admin_info = session('admin_info');
+                    $admin_info[$field] = $value;
+                    session('admin_info', $admin_info);
+                    /*--end*/
+                    $this->success('操作成功');
+                }
+            }
+        }
+        $this->error('操作失败');
     }
 }

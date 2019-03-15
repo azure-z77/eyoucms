@@ -1770,7 +1770,7 @@ if (!function_exists('view_logic'))
 
                 /*产品参数*/
                 $attr_list = model('ProductAttr')->getProAttr($aid);
-                $attr_list = model('LanguageAttr')->getBindValue($attr_list, 'product_attribute'); // 获取多语言关联绑定的值
+                $attr_list = model('LanguageAttr')->getBindValue($attr_list, 'product_attribute', get_main_lang()); // 获取多语言关联绑定的值
                 $result['attr_list'] = $attr_list;
                 /*--end*/
                 break;

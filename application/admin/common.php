@@ -35,9 +35,11 @@ if (!function_exists('adminLog'))
      * @param $log_url 操作URL
      * @param $log_info 记录信息
      */
-    function adminLog($log_info){
+    function adminLog($log_info = ''){
+        $admin_id = session('admin_id');
+        $admin_id = !empty($admin_id) ? $admin_id : -1;
         $add['log_time'] = getTime();
-        $add['admin_id'] = session('admin_id');
+        $add['admin_id'] = $admin_id;
         $add['log_info'] = $log_info;
         $add['log_ip'] = clientIP();
         $add['log_url'] = request()->baseUrl() ;

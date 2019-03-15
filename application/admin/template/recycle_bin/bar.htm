@@ -5,16 +5,5 @@
                 <h3>回收站</h3>
                 <h5></h5>
             </div>
-            <ul class="tab-base nc-row">
-                {eq name="$Think.const.CONTROLLER_NAME.'@clear_cache'|is_check_access" value="1"}
-                <li><a href="{:U('System/clear_cache')}" {if condition="'clear_cache'==$Think.const.ACTION_NAME"}class="current"{/if}><span>清除缓存</span></a></li>
-                {/eq}
-
-                {eq name='$main_lang' value='$admin_lang'}
-                {eq name="'RecycleBin@arctype_index'|is_check_access" value="1"}
-                <li><a href="{:U('RecycleBin/arctype_index')}" {if condition="'RecycleBin'==$Think.const.CONTROLLER_NAME"}class="current"{/if}><span>回收站</span></a></li>
-                {/eq}
-                {/eq}
-            </ul>
         </div>
     </div>

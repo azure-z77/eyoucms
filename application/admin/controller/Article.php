@@ -91,7 +91,7 @@ class Article extends Base
         // 模型ID
         $condition['a.channel'] = array('eq', $this->channeltype);
         // 多语言
-        $condition['a.lang'] = array('eq', get_admin_lang());
+        $condition['a.lang'] = array('eq', $this->admin_lang);
         // 回收站
         $condition['a.is_del'] = array('eq', 0);
 
@@ -182,7 +182,7 @@ class Article extends Base
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 500, false);
+                $seo_description = @msubstr(checkStrHtml($content), 0, 200, false);
             } else {
                 $seo_description = $post['seo_description'];
             }
@@ -206,7 +206,8 @@ class Article extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
+                'sort_order'    => 100,
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'  => strtotime($post['add_time']),
             );
@@ -326,7 +327,7 @@ class Article extends Base
 
             $r = M('archives')->where([
                     'aid'   => $data['aid'],
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->update($data);
             
             if ($r) {

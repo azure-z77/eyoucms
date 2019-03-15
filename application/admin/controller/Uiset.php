@@ -68,7 +68,7 @@ class Uiset extends Base
     public function pc()
     {
         // 支持子目录
-        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=pc&lang='.get_admin_lang();
+        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=pc&lang='.$this->admin_lang;
         $this->redirect($index_url);
     }
 
@@ -78,7 +78,7 @@ class Uiset extends Base
     public function mobile()
     {
         // 支持子目录
-        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=mobile&lang='.get_admin_lang();
+        $index_url = ROOT_DIR.'/index.php?m=home&c=Index&a=index&uiset=on&v=mobile&lang='.$this->admin_lang;
         $this->redirect($index_url);
     }
 
@@ -114,7 +114,7 @@ class Uiset extends Base
         }
 
         /*多语言*/
-        $condition['a.lang'] = get_admin_lang();
+        $condition['a.lang'] = $this->admin_lang;
         /*--end*/
 
         $list = array();

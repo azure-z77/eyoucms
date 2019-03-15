@@ -72,6 +72,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'position' => 
+  array (
+    'name' => 'position',
+    'type' => 'varchar(30)',
+    'notnull' => false,
+    'default' => 'default',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'add_time' => 
   array (
     'name' => 'add_time',

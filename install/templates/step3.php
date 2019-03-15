@@ -166,7 +166,7 @@
           },
           error:function(){
               layer.closeAll();
-              layer.alert('网络请求失败，请尝试F5刷新！', {icon: 5});
+              layer.alert('网络失败，请刷新页面后重试', {icon: 5});
           }
       });
 

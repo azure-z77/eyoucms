@@ -107,9 +107,6 @@
 
 			var formData = new FormData($("#post_form")[0]);
             var url = "{:url('api/Uiset/submit')}";
-            if (url.indexOf('__ROOT_DIR__?') > -1) {
-                url = url.replace('__ROOT_DIR__?', '__ROOT_DIR__/index.php?');
-            }
             $.ajax({
                 url: url,
 				type: 'POST',  

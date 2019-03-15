@@ -209,6 +209,7 @@ class Field extends Base
                     'maxlength' => $maxlength,
                     'define'  => $buideType,
                     'ifcontrol' => 0,
+                    'sort_order'    => 100,
                     'add_time' => getTime(),
                     'update_time' => getTime(),
                 );
@@ -691,6 +692,7 @@ class Field extends Base
                     'define'  => $buideType,
                     'ifmain'    => 1,
                     'ifsystem'  => 0,
+                    'sort_order'    => 100,
                     'add_time' => getTime(),
                     'update_time' => getTime(),
                 );

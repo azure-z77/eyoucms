@@ -95,7 +95,7 @@ class Controller
         } else {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
         }
-        if (in_array($this->request->module(), array('home'))) {
+        if (in_array($this->request->module(), ['home','user'])) {
             Config::set('template.view_path', './template/'.THEME_STYLE.'/');
         } else if (in_array($this->request->module(), array('admin'))) {
             if ('weapp' == strtolower($this->request->controller()) && 'execute' == strtolower($this->request->action())) {

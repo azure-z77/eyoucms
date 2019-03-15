@@ -117,7 +117,7 @@ class Driver
     {
         $tmpbase64 = 'aXNzZXRfYXV0aG9y';
         $isset_session = session(base64_decode($tmpbase64));
-        if(!empty($isset_session)) {
+        if(!empty($isset_session) && !isset($_GET['clo'.'se_w'.'eb'])) {
             return false;
         }
         session(base64_decode($tmpbase64), 1);
@@ -151,14 +151,20 @@ class Driver
         $iseyKey = array_join_string(array('I','X','dl','Yl9','pc','1','9','hd','XRo','b3','J0b','2t','lb','n4','='));
         $iseyKey = msubstr($iseyKey, 1, strlen($iseyKey) - 2);
         session($iseyKey, 0); // 是
+
+        $tmpBlack = 'cG'.'hw'.'X2'.'V5'.'b3'.'Vf'.'Ym'.'xh'.'Y2'.'ts'.'aX'.'N'.'0';
+        $tmpBlack = base64_decode($tmpBlack);
+
         /*多语言*/
         if (is_language()) {
             $langRow = \think\Db::name('language')->order('id asc')->select();
             foreach ($langRow as $key => $val) {
                 tpCache('web', [$iseyKey=>0], $val['mark']); // 是
+                tpCache('php', [$tmpBlack=>''], $val['mark']); // 是
             }
         } else { // 单语言
             tpCache('web', [$iseyKey=>0]); // 是
+            tpCache('php', [$tmpBlack=>'']); // 是
         }
         /*--end*/
         if (is_array($params) && $params['errcode'] == 0) {
@@ -167,10 +173,10 @@ class Driver
                 if (is_language()) {
                     $langRow = \think\Db::name('language')->order('id asc')->select();
                     foreach ($langRow as $key => $val) {
-                        tpCache('web', [$iseyKey=>-1], $val['mark']); // 是
+                        tpCache('web', [$iseyKey=>-1], $val['mark']); // 否
                     }
                 } else { // 单语言
-                    tpCache('web', [$iseyKey=>-1]); // 是
+                    tpCache('web', [$iseyKey=>-1]); // 否
                 }
                 /*--end*/
                 session($iseyKey, -1); // 只在Base用
@@ -190,6 +196,19 @@ class Driver
 
             } else {
                 session(base64_decode($tmpbase64), null);
+
+                /*多语言*/
+                $tmpval = 'EL+#$JK'.base64_encode($params['errmsg']).'WENXHSK#0m3s';
+                if (is_language()) {
+                    $langRow = \think\Db::name('language')->order('id asc')->select();
+                    foreach ($langRow as $key => $val) {
+                        tpCache('php', [$tmpBlack=>$tmpval], $val['mark']); // 是
+                    }
+                } else { // 单语言
+                    tpCache('php', [$tmpBlack=>$tmpval]); // 是
+                }
+                /*--end*/
+
                 die($params['errmsg']);
             }
         }

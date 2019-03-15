@@ -105,6 +105,7 @@ class Taglist extends Model
             M('taglist')->where(array('aid'=>$aid))->delete();
 
             // 组装数据写入数据表
+            $time = getTime();
             $add_data = array();
             $now_data = array();
             foreach ($tags_arr as $key => $val) {
@@ -115,7 +116,7 @@ class Taglist extends Model
                     $now_data = array(
                         'tag'   => $val,
                         'typeid'    => $typeid,
-                        'add_time'  => getTime(),
+                        'add_time'  => $time,
                     );
                     $tid = M('tagindex')->insertGetId($now_data);
                 }
@@ -124,7 +125,7 @@ class Taglist extends Model
                     'aid'   => $aid,
                     'typeid'   => $typeid,
                     'tag'   => $val,
-                    'add_time'  => getTime(),
+                    'add_time'  => $time,
                 );
             }
             // 保存标签

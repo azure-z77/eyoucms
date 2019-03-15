@@ -16,7 +16,6 @@ namespace app\admin\controller;
 use think\Page;
 use think\Db;
 use think\Validate;
-use app\admin\logic\AuthRoleLogic;
 
 class AuthRole extends Base {
     

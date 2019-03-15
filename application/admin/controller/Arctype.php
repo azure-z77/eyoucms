@@ -26,13 +26,14 @@ class Arctype extends Base
     // 允许发布文档的模型ID
     public $allowReleaseChannel = array();
     // 禁用的目录名称
-    public $disableDirname = array('application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search');
+    public $disableDirname = [];
     
     public function _initialize() {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
         $this->allowReleaseChannel = config('global.allow_release_channel');
         $this->arctype_channel_id = config('global.arctype_channel_id');
+        $this->disableDirname = config('global.disable_dirname');
 
         /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
         $arctypeFieldInfo = include DATA_PATH.'schema/'.PREFIX.'arctype.php';
@@ -134,6 +135,7 @@ class Arctype extends Base
                     'seo_description' => $seo_description,
                     'admin_id'  => session('admin_info.admin_id'),
                     'lang'  => $this->admin_lang,
+                    'sort_order'    => 100,
                     'add_time'  => getTime(),
                     'update_time'  => getTime(),
                 );

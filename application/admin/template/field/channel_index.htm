@@ -142,9 +142,7 @@
                             </td>
                             <td class="sort">
                                 <div class="w60 tc">
-                                {if condition="($vo['ifsystem'] eq 1) OR (1 eq $vo['ifmain'])"}
-                                    ————
-                                {else /}
+                                {if condition="empty($vo['ifmain'])"}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_edit'|is_check_access" value="1"}
                                     <input style="text-align: left;" type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" onchange="changeTableVal('channelfield','id','{$vo.id}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
                                     {else /}

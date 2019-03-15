@@ -96,7 +96,7 @@ class Product extends Base
         // 模型ID
         $condition['a.channel'] = array('eq', $this->channeltype);
         // 多语言
-        $condition['a.lang'] = array('eq', get_admin_lang());
+        $condition['a.lang'] = array('eq', $this->admin_lang);
         // 回收站
         $condition['a.is_del'] = array('eq', 0);
 
@@ -184,7 +184,7 @@ class Product extends Base
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 500, false);
+                $seo_description = @msubstr(checkStrHtml($content), 0, 200, false);
             } else {
                 $seo_description = $post['seo_description'];
             }
@@ -208,7 +208,8 @@ class Product extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
+                'sort_order'    => 100,
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'  => getTime(),
             );
@@ -329,7 +330,7 @@ class Product extends Base
 
             $r = M('archives')->where([
                     'aid'   => $data['aid'],
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->update($data);
             
             if ($r) {
@@ -470,7 +471,7 @@ class Product extends Base
 
         $condition['a.is_del'] = 0;
         // 多语言
-        $condition['a.lang'] = get_admin_lang();
+        $condition['a.lang'] = $this->admin_lang;
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -500,7 +501,7 @@ class Product extends Base
                 ->getAllWithIndex('attr_id');
             
             /*获取多语言关联绑定的值*/
-            $row = model('LanguageAttr')->getBindValue($row, 'product_attribute'); // 多语言
+            $row = model('LanguageAttr')->getBindValue($row, 'product_attribute', $this->main_lang); // 多语言
             /*--end*/
 
             foreach ($row as $key => $val) {
@@ -573,7 +574,7 @@ class Product extends Base
                 'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
                 'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
                 'sort_order'    => $post_data['sort_order'],
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
                 'add_time'  => getTime(),
                 'update_time'   => getTime(),
             );
@@ -663,7 +664,7 @@ class Product extends Base
                 $model->data($savedata,true); // 收集数据
                 $model->isUpdate(true, [
                         'attr_id'   => $post_data['attr_id'],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])->save(); // 写入数据到数据库     
                 $return_arr = array(
                      'status' => 1,
@@ -684,7 +685,7 @@ class Product extends Base
         /*--end*/
         $info = M('ProductAttribute')->where([
                 'attr_id'    => $id,
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
             ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
@@ -769,8 +770,8 @@ class Product extends Base
         /*--end*/
         
         $attr_group = 'product_attribute';
-        $admin_lang = get_admin_lang();
-        $main_lang = get_main_lang();
+        $admin_lang = $this->admin_lang;
+        $main_lang = $this->main_lang;
         $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
         if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
             $result = Db::name('product_attribute')->find($attr_id);

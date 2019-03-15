@@ -78,7 +78,7 @@ class Uploadify extends Base
         $filename= trim($filename,'/');
         if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists($filename)){
             $fileArr = explode('/', $filename);
-            if($fileArr[3] != cookie('user_id')) return false;
+            if($fileArr[3] != cookie('users_id')) return false;
 
             $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
             $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
@@ -132,7 +132,7 @@ class Uploadify extends Base
             ));
             exit;
         }
-        $path = UPLOAD_PATH.'user/'.cookie('user_id').'/'.$path;
+        $path = UPLOAD_PATH.'user/'.cookie('users_id').'/'.$path;
 
         /* 获取文件列表 */
         $files = $this->getfiles($path, $allowFiles, $key);
@@ -408,7 +408,7 @@ class Uploadify extends Base
             }
         }
          
-        $path = UPLOAD_PATH.'user/'.cookie('user_id').'/'.$this->savePath;
+        $path = UPLOAD_PATH.'user/'.cookie('users_id').'/'.$this->savePath;
         $listSize = 100000;
         $key = empty($_GET['key']) ? '' : $_GET['key'];
         /* 获取参数 */
@@ -640,7 +640,7 @@ class Uploadify extends Base
         if (true !== $result || empty($file)) {
             $state = "ERROR" . $result;
         } else {
-            $savePath = 'user/'.cookie('user_id').'/'.$this->savePath.'/';
+            $savePath = 'user/'.cookie('users_id').'/'.$this->savePath.'/';
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //商品图片可选择存放在oss

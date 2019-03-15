@@ -35,6 +35,8 @@ foreach ($channeltype_row as $key => $val) {
 return array(
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
+    // 禁用的目录名称
+    'disable_dirname' => ['application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search','user','users','member','bbs','shop'],
     // 栏目最多级别
     'arctype_max_level' => 3,
     // 模型标识

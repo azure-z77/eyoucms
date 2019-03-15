@@ -83,7 +83,7 @@ class Guestbook extends Base
             ->alias('a')
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
             ->where($condition)
-            ->order('a.aid desc')
+            ->order('a.update_time desc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('aid');
 
@@ -214,7 +214,7 @@ class Guestbook extends Base
                 ->getAllWithIndex('attr_id');
             
             /*获取多语言关联绑定的值*/
-            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute'); // 多语言
+            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute', $this->main_lang); // 多语言
             /*--end*/
 
             foreach ($row as $key => $val) {

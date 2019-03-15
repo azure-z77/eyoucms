@@ -15,7 +15,7 @@ function ajax_submit_form(form_id,submit_url){
                 url  : submit_url,
                 data : $('#'+form_id).serialize(),// 你的formid                
                 error: function(request) {
-                    layer.alert("网络请求失败", {icon: 2});
+                    layer.alert("网络失败，请刷新页面后重试", {icon: 2});
                     return false;
                 },
                 success: function(v) {

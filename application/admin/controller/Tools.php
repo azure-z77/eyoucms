@@ -55,12 +55,12 @@ class Tools extends Base {
     /**
      * 数据备份
      */
-    public function export($tables = null, $id = null, $start = null)
+    public function export($tables = null, $id = null, $start = null,$optstep = 0)
     {
         //防止备份数据过程超时
         function_exists('set_time_limit') && set_time_limit(0);
 
-        if(IS_POST && !empty($tables) && is_array($tables)){ //初始化
+        if(IS_POST && !empty($tables) && is_array($tables) && empty($optstep)){ //初始化
             $path = tpCache('global.web_sqldatapath');
             $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
             $path = trim($path, '/');
@@ -102,13 +102,13 @@ class Tools extends Base {
             //创建备份文件
             $Database = new Backup($file, $config);
             if(false !== $Database->create()){
-                $speed = (floor((1/count($tables))*10000)/10000*100).'%';
-                $tab = array('id' => 0, 'start' => 0, 'speed'=>$speed, 'table'=>$tables[0]);
+                $speed = (floor((1/count($tables))*10000)/10000*100);
+                $tab = array('id' => 0, 'start' => 0, 'speed'=>$speed, 'table'=>$tables[0], 'optstep'=>1);
                 return json(array('tables' => $tables, 'tab' => $tab, 'info'=>'初始化成功！', 'status'=>1, 'url'=>''));
             } else {
                 return json(array('info'=>'初始化失败，备份文件创建失败！', 'status'=>0, 'url'=>''));
             }
-        } elseif (IS_GET && is_numeric($id) && is_numeric($start)) { //备份数据
+        } elseif (IS_POST && is_numeric($id) && is_numeric($start) && 1 == intval($optstep)) { //备份数据
             $tables = session('backup_tables');
             //备份指定表
             $Database = new Backup(session('backup_file'), session('backup_config'));
@@ -117,8 +117,8 @@ class Tools extends Base {
                 return json(array('info'=>'备份出错！', 'status'=>0, 'url'=>''));
             } elseif (0 === $start) { //下一表
                 if(isset($tables[++$id])){
-                    $speed = (floor((($id+1)/count($tables))*10000)/10000*100).'%';
-                    $tab = array('id' => $id, 'start' => 0, 'speed' => $speed, 'table'=>$tables[$id]);
+                    $speed = (floor((($id+1)/count($tables))*10000)/10000*100);
+                    $tab = array('id' => $id, 'start' => 0, 'speed' => $speed, 'table'=>$tables[$id], 'optstep'=>1);
                     return json(array('tab' => $tab, 'info'=>'备份完成！', 'status'=>1, 'url'=>''));
                 } else { //备份完成，清空缓存
                     /*自动覆盖安装目录下的eyoucms.sql*/
@@ -159,7 +159,7 @@ class Tools extends Base {
             } else {
                 $rate = floor(100 * ($start[0] / $start[1]));
                 $speed = floor((($id+1)/count($tables))*10000)/10000*100 + ($rate/100);
-                $tab  = array('id' => $id, 'start' => $start[0], 'speed' => $speed.'%', 'table'=>$tables[$id]);
+                $tab  = array('id' => $id, 'start' => $start[0], 'speed' => $speed, 'table'=>$tables[$id], 'optstep'=>1);
                 return json(array('tab' => $tab, 'info'=>"正在备份...({$rate}%)", 'status'=>1, 'url'=>''));
             }
 
@@ -291,9 +291,9 @@ class Tools extends Base {
                     /*清除缓存*/
                     delFile(RUNTIME_PATH);
                     /*--end*/
-                    $this->success("导入sql还原成功", url('Tools/restore'));
+                    $this->success("执行sql成功", url('Tools/restore'));
                 }else{
-                    $this->error('sql文件导入失败');
+                    $this->error('执行sql失败');
                 }
             } else {
                 $this->error('sql文件上传失败');

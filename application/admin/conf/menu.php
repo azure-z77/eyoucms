@@ -104,14 +104,14 @@ if ($main_lang == $admin_lang) {
 /*--end*/
 
 /*字段管理URl*/
-$field_cindex_arr = array();
-if ($main_lang == $admin_lang) {
-    $field_cindex_arr = array(
-        'controller' => 'Field',
-        'action' => 'channel_index',
-        'url' => '',
-    );
-}
+// $field_cindex_arr = array();
+// if ($main_lang == $admin_lang) {
+//     $field_cindex_arr = array(
+//         'controller' => 'Field',
+//         'action' => 'channel_index',
+//         'url' => '',
+//     );
+// }
 /*--end*/
 
 /*模型管理URl*/
@@ -375,6 +375,20 @@ return  array(
                         'is_modules'=>0,
                         'child' => array(),
                     ),
+                    '2004006' => array(
+                        'id'=>2004006,
+                        'parent_id'=>2004,
+                        'name' => '回收站',
+                        'controller'=>isset($recyclebin_index_arr['controller']) ? $recyclebin_index_arr['controller'] : '',
+                        'action'=>isset($recyclebin_index_arr['action']) ? $recyclebin_index_arr['action'] : '',
+                        'url'=>isset($recyclebin_index_arr['url']) ? $recyclebin_index_arr['url'] : '',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-recycle',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
                     '2004002' => array(
                         'id'=>2004002,
                         'parent_id'=>2004,
@@ -403,20 +417,20 @@ return  array(
                         'is_modules'=>0,
                         'child' => array(),
                     ),
-                    '2004004' => array(
-                        'id'=>2004004,
-                        'parent_id'=>2004,
-                        'name' => '字段管理', 
-                        'controller'=>isset($field_cindex_arr['controller']) ? $field_cindex_arr['controller'] : '',
-                        'action'=>isset($field_cindex_arr['action']) ? $field_cindex_arr['action'] : '',
-                        'url'=>isset($field_cindex_arr['url']) ? $field_cindex_arr['url'] : '',
-                        'target'=>'workspace',
-                        'icon'=>'fa fa-cogs',
-                        'grade'=>2,
-                        'is_menu'=>0,
-                        'is_modules'=>0,
-                        'child' => array(),
-                    ),
+                    // '2004004' => array(
+                    //     'id'=>2004004,
+                    //     'parent_id'=>2004,
+                    //     'name' => '字段管理', 
+                    //     'controller'=>isset($field_cindex_arr['controller']) ? $field_cindex_arr['controller'] : '',
+                    //     'action'=>isset($field_cindex_arr['action']) ? $field_cindex_arr['action'] : '',
+                    //     'url'=>isset($field_cindex_arr['url']) ? $field_cindex_arr['url'] : '',
+                    //     'target'=>'workspace',
+                    //     'icon'=>'fa fa-cogs',
+                    //     'grade'=>2,
+                    //     'is_menu'=>0,
+                    //     'is_modules'=>0,
+                    //     'child' => array(),
+                    // ),
                     '2004007' => array(
                         'id'=>2004007,
                         'parent_id'=>2004,
@@ -426,20 +440,6 @@ return  array(
                         'url'=>isset($channeltype_index_arr['url']) ? $channeltype_index_arr['url'] : '',
                         'target'=>'workspace',
                         'icon'=>'fa fa-cube',
-                        'grade'=>2,
-                        'is_menu'=>1,
-                        'is_modules'=>0,
-                        'child' => array(),
-                    ),
-                    '2004006' => array(
-                        'id'=>2004006,
-                        'parent_id'=>2004,
-                        'name' => '回收站',
-                        'controller'=>isset($recyclebin_index_arr['controller']) ? $recyclebin_index_arr['controller'] : '',
-                        'action'=>isset($recyclebin_index_arr['action']) ? $recyclebin_index_arr['action'] : '',
-                        'url'=>isset($recyclebin_index_arr['url']) ? $recyclebin_index_arr['url'] : '',
-                        'target'=>'workspace',
-                        'icon'=>'fa fa-recycle',
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,

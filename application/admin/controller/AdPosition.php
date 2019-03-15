@@ -243,8 +243,8 @@ class AdPosition extends Base
         /*--end*/
 
         $attr_group = 'ad_position';
-        $admin_lang = get_admin_lang();
-        $main_lang = get_main_lang();
+        $admin_lang = $this->admin_lang;
+        $main_lang = $this->main_lang;
         $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
         if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
             $ad_position_db = Db::name('ad_position');

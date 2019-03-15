@@ -9,7 +9,7 @@
                 <li><a href="{eq name="$Request.action" value="index"}javascript:void(0);{else /}{:U("Links/index")}{/eq}" class="tab {eq name="$Request.action" value="index"}current{/eq}"><span>友链列表</span></a></li>
 
                 {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
-                <li><a href="{if condition="in_array($Request.action, array('add','edit'))"}javascript:void(0);{else /}{:U("Links/add")}{/if}" class="tab {if condition="in_array($Request.action, array('add','edit'))"}current{/if}"><span>新增链接</span></a></li>
+                <li><a href="{if condition="in_array($Request.action, array('add','edit'))"}javascript:void(0);{else /}{:U("Links/add")}{/if}" class="tab {if condition="in_array($Request.action, array('add','edit'))"}current{/if}"><span>{if condition="'edit' == $Request.action"}编辑链接{else /}新增链接{/if}</span></a></li>
                 {/eq}
             </ul>
         </div>

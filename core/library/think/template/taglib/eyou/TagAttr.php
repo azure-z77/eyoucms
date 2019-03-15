@@ -66,7 +66,7 @@ class TagAttr extends Base
             return $parseStr;
         } else {
             /*获取多语言关联绑定的值*/
-            $row = model('LanguageAttr')->getBindValue($row, 'product_attribute'); // 多语言
+            $row = model('LanguageAttr')->getBindValue($row, 'product_attribute', $this->main_lang); // 多语言
             /*--end*/
 
             $parseStr = $row['attr_value'];

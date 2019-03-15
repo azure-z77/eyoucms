@@ -27,6 +27,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'md5data' => 
+  array (
+    'name' => 'md5data',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'ip' => 
   array (
     'name' => 'ip',

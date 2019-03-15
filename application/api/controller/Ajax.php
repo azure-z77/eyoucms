@@ -124,4 +124,65 @@ class Ajax extends Base
 
         $this->success('请求成功', null, $data);
     }
+
+    /**
+     * 获取表单令牌
+     */
+    public function get_token()
+    {
+        if (IS_AJAX_POST) {
+            echo $this->request->token();
+            exit;
+        }
+    }
+
+    /**
+     * 检验会员登录
+     */
+    public function check_login()
+    {
+        if (IS_AJAX_POST) {
+            $type = input('post.type/s', 'default');
+            $users_id = session('users_id');
+            if (!empty($users_id)) {
+                $users = M('users')->field('username,head_pic')
+                    ->where([
+                        'users_id'  => $users_id,
+                        'lang'      => $this->home_lang,  
+                    ])->find();
+                if (!empty($users)) {
+                    $head_pic = get_head_pic($users['head_pic']);
+                    if ('default' == $type) {
+                        $users['login_html'] = $users['username'];
+                    } else {
+                        $users['login_html'] = "<img class='eyou_head_pic' src='{$head_pic}' />";
+                    }
+                    $users['eyou_is_login'] = 1;
+                    $this->success('请求成功', null, $users);
+                } else {
+                    $this->error('登录加载失败');
+                }
+            }
+            $this->success('请先登录', null, ['eyou_is_login'=>0]);
+        }
+        $this->error('访问错误');
+    }
+
+    // 验证码获取
+    public function vertify()
+    {
+        $type = input('param.type/s', 'default');
+        $configList = \think\Config::get('captcha');
+        $captchaArr = array_keys($configList);
+        if (in_array($type, $captchaArr)) {
+            /*验证码插件开关*/
+            $admin_login_captcha = config('captcha.'.$type);
+            $config = (!empty($admin_login_captcha['is_on']) && !empty($admin_login_captcha['config'])) ? $admin_login_captcha['config'] : config('captcha.default');
+            /*--end*/
+            ob_clean(); // 清空缓存，才能显示验证码
+            $Verify = new \think\Verify($config);
+            $Verify->entry($type);
+        }
+        exit();
+    }
 }

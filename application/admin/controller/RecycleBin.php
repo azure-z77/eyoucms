@@ -295,6 +295,7 @@ class RecycleBin extends Base
                     $ids = get_arr_column($list, 'id');
                     !empty($ids) && $where .= 'id IN ('.implode(',', $ids).') OR parent_id IN ('.implode(',', $ids).')';
                 }else{
+                    $ids = [$del_id];
                     $where  = $map.' and (id='.$del_id.' or parent_id='.$del_id;
                     if (0 == intval($row['parent_id'])) {
                         foreach ($list as $value) {
@@ -320,6 +321,10 @@ class RecycleBin extends Base
                 // 栏目数据删除
                 $r = $this->arctype->where($where)->delete();
                 if($r){
+                    // Tag标签删除
+                    Db::name('tagindex')->where([
+                            'typeid'    => ['IN', $ids],
+                        ])->delete();
                     // 内容数据删除
                     $r = $this->archives->where($where1)->delete();
                     $msg = '';
@@ -357,7 +362,7 @@ class RecycleBin extends Base
         }
 
         /*多语言*/
-        $condition['a.lang'] = array('eq', get_admin_lang());
+        $condition['a.lang'] = array('eq', $this->admin_lang);
         /*--end*/
 
         $condition['a.is_del'] = array('eq', 1); // 回收站功能
@@ -489,7 +494,7 @@ class RecycleBin extends Base
         $id_arr = eyIntval($id_arr);
         if(IS_POST && !empty($id_arr)){
             // 当前文档信息
-            $row = $this->archives->field('aid, title')
+            $row = $this->archives->field('aid, title, channel')
                 ->where([
                     'aid'   => ['IN', $id_arr],
                     'is_del'    => 1,
@@ -505,6 +510,22 @@ class RecycleBin extends Base
                     ])
                     ->delete();
                 if($r){
+                    /*按模型分组，然后进行分组删除*/
+                    $row2Group = group_same_key($row, 'channel');
+                    if (!empty($row2Group)) {
+                        $channelids = array_keys($row2Group);
+                        $channeltypeRow = Db::name('channeltype')->field('id,table')
+                            ->where([
+                                'id'    => ['IN', $channelids],
+                            ])->getAllWithIndex('id');
+                        foreach ($row2Group as $key => $val) {
+                            $table = $channeltypeRow[$key]['table'];
+                            $aidarr_tmp = get_arr_column($val, 'aid');
+                            model($table)->afterDel($id_arr);
+                        }
+                    }
+                    /*--end*/
+
                     adminLog('删除文档：'.implode('|', get_arr_column($row, 'title')));
                     $this->success("操作成功!");
                 }

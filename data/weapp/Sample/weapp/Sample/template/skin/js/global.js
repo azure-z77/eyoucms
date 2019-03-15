@@ -67,7 +67,7 @@ function batch_del(obj, name) {
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络异常', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
             }
         });
     }, function (index) {
@@ -163,7 +163,7 @@ function batch_move(obj, name) {
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络异常', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
             }
         });
     }, function (index) {

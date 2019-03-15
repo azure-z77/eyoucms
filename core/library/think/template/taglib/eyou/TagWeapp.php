@@ -38,6 +38,7 @@ class TagWeapp extends Base
         $map = array(
             'tag_weapp' => array('eq',1),
             'status' => array('eq',1),
+            'position'  => $type,
         );
         $result = M('weapp')->field('code,config')
             ->where($map)

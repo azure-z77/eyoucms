@@ -50,6 +50,7 @@ class Lang
         if ($range) {
             self::$range = $range;
         }
+        $range = trim(self::$range, '/'); // 处理语言变量值后面多一个斜杠 by 小虎哥
 
         return self::$range;
     }

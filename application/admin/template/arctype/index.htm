@@ -34,7 +34,7 @@
                 </th>
                 <th axis="col3" class="">
                   <div class="sundefined" style="padding-left: 15px">
-                    <img src="__SKIN__/images/tv-expandable.gif" id="all_treeclicked" title="关闭所有子栏目" style="float: none;" data-status="open" onClick="treeClicked(this,'all',0);">
+                    <img src="__SKIN__/images/tv-expandable.gif" id="all_treeclicked" title="展开所有子栏目" style="float: none;" data-status="close" onClick="treeClicked(this,'all',0);">
                     栏目名称
                   </div>
                 </th>
@@ -178,7 +178,7 @@
             location.href = location.href;
         });
 
-        treeClicked($('#all_treeclicked'), 'all', 1);
+        // treeClicked($('#all_treeclicked'), 'all', 1);
     });
 
      // 点击展开 收缩节点

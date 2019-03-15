@@ -99,6 +99,7 @@ class Other extends Base
                 'litpic'            => $litpic,
                 'admin_id'  => session('admin_id'),
                 'lang'  => $this->admin_lang,
+                'sort_order'    => 100,
                 'add_time'           => getTime(),
                 'update_time'   => getTime(),
             );

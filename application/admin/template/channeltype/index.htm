@@ -51,7 +51,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
                         </th>
-                        <th axis="col1" class="w100">
+                        <th axis="col1" class="w230">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -95,13 +95,14 @@
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w100 tc">
+                                <div class="w230 tc">
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                    <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o blocki"></i>编辑</a>
+                                    <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-code blocki"></i>内容字段</a>
                                     {/eq}
                                     {empty name="$vo.ifsystem"}
                                         {eq name="'Channeltype@del'|is_check_access" value="1"}
-                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o blocki"></i>删除</a>
                                         {/eq}
                                     {/empty}
                                 </div>

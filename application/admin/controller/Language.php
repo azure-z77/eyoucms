@@ -684,7 +684,7 @@ class Language extends Base
                 $row2 = $this->langAttrModel->where([
                     'attr_name'    => $attr_name,
                     'attr_group'    => 'arctype',
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->find();
                 if (!empty($row2)) {
                     $r = $this->langAttrModel->where('id', $row2['id'])
@@ -696,7 +696,7 @@ class Language extends Base
                     $r = $this->langAttrModel->add([
                             'attr_name'    => $attr_name,
                             'attr_value' => $typeid,
-                            'lang'  => get_admin_lang(),
+                            'lang'  => $this->admin_lang,
                             'add_time'  => getTime(),
                             'update_time' => getTime(),
                         ]);
@@ -743,7 +743,7 @@ class Language extends Base
         }
 
         // 多语言
-        $condition['a.lang'] = get_admin_lang();
+        $condition['a.lang'] = $this->admin_lang;
         $condition['a.is_syn'] = 0;
 
         $pack_db =  Db::name('language_pack');
@@ -827,8 +827,8 @@ class Language extends Base
         function_exists('set_time_limit') && set_time_limit(0);
         
         if (IS_POST) {
-            $admin_lang = get_admin_lang();
-            $main_lang = get_main_lang();
+            $admin_lang = $this->admin_lang;
+            $main_lang = $this->main_lang;
             $content = input('post.content/s', '', 'strip_sql');
             $languagePack_M = model('LanguagePack');
 
@@ -910,7 +910,7 @@ class Language extends Base
     // public function pack_batch_add()
     // {
     //     if (IS_POST) {
-    //         $admin_lang = get_admin_lang();
+    //         $admin_lang = $this->admin_lang;
     //         $content = input('post.content/s', '', 'strip_sql');
 
     //         $tmp_content = trim(str_replace(PHP_EOL,"",$content)); //去掉回车换行符号
@@ -984,7 +984,7 @@ class Language extends Base
      */
     public function pack_edit()
     {
-        $admin_lang = get_admin_lang();
+        $admin_lang = $this->admin_lang;
 
         $official = input('official');
 
@@ -1086,7 +1086,7 @@ class Language extends Base
 
                 $count = $languagepack_db->where([
                         'id'    => ['IN', $id_arr],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                         'is_syn'=> 1,
                     ])->count();
                 if (!empty($count)) {
@@ -1095,7 +1095,7 @@ class Language extends Base
 
                 $names = $languagepack_db->where([
                         'id'    => ['IN', $id_arr],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])->column('name');
 
                 $r = $languagepack_db->where([
@@ -1137,7 +1137,7 @@ class Language extends Base
         }
 
         // 多语言
-        $condition['a.lang'] = get_admin_lang();
+        $condition['a.lang'] = $this->admin_lang;
         $condition['a.is_syn'] = 1;
 
         $pack_db =  Db::name('language_pack');

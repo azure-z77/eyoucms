@@ -24,6 +24,7 @@ i.fa { font-size: 14px; vertical-align: baseline; margin-right: 4px; }/*字体�
 .nobd { border-width: 0!important; border-color: transparent!important; border-style: none!important; border-radius: 0!important; }
 .nobs, .nobs:hover { box-shadow: none!important; }
 .none {display: none;}
+.blocki{ display:inline-block !important; }
 i,em{ font-style: normal; }
 /* ==========================
  * 为旧版本浏览器格式化Html5元素
@@ -1325,3 +1326,41 @@ a.upimg:hover{background-color: #e6e6e6;border-color: #adadad;}
 .rolecss .ncap-form-default dl.row{ position: inherit; }
 
 img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
+
+
+
+
+/*a  upload 上传input美化 */
+.a-upload {
+    padding: 4px 10px;
+    height: 20px;
+    line-height: 20px;
+    position: relative;
+    cursor: pointer;
+    color: #333;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    font-size:13px;
+}
+
+.a-upload  input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    cursor: pointer
+}
+
+.a-upload:hover {
+    color: #444;
+    background: #eee;
+    border-color: #ccc;
+    text-decoration: none
+}

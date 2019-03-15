@@ -560,6 +560,31 @@ class TagList extends Base
 
                 $list[$key] = $arcval;
             }
+
+            /*附加表*/
+            if (!empty($addfields) && !empty($list)) {
+                $channeltypeRow = model('Channeltype')->getAll('id,table', [], 'id'); // 模型对应数据表
+                $channelGroupRow = group_same_key($list, 'current_channel'); // 模型下的文档集合
+                foreach ($channelGroupRow as $channelid => $tmp_list) {
+                    $addtableName = ''; // 附加字段的数据表名
+                    $tmp_aid_arr = get_arr_column($tmp_list, 'aid');
+                    $channeltype_table = $channeltypeRow[$channelid]['table']; // 每个模型对应的数据表
+
+                    $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
+                    $addfields = trim($addfields, ',');
+                    $addtableName = $channeltype_table.'_content';
+                    $resultExt = M($addtableName)->field("aid,$addfields")->where('aid','in',$tmp_aid_arr)->getAllWithIndex('aid');
+                    /*自定义字段的数据格式处理*/
+                    $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channelid, true);
+                    /*--end*/
+                    foreach ($list as $key2 => $val2) {
+                        $valExt = !empty($resultExt[$val2['aid']]) ? $resultExt[$val2['aid']] : array();
+                        $val2 = array_merge($valExt, $val2);
+                        $list[$key2] = $val2;
+                    }
+                }
+            }
+            /*--end*/
         }
         $result['pages'] = $pages; // 分页显示输出
         $result['list'] = $list; // 赋值数据集

@@ -71,10 +71,6 @@
             </div> 
         </div> <!-- /container -->
         <script type="text/javascript">
-            $(function () {
-                $.get("{:url('Ajax/login_handle')}"); // 进入登录页面需要异步处理的业务
-            });
-            
             $(function(){
                 $(".formText .input-text").focus(function(){
                     $(this).parent().addClass("focus");
@@ -154,7 +150,7 @@
                             },
                             error : function(XMLHttpRequest, textStatus, errorThrown) {
                                 layer.closeAll();
-                                layer.alert('网络请求失败', {icon: 5});
+                                layer.alert('网络失败，请刷新页面后重试', {icon: 5});
                             }
                         });
                     }else{

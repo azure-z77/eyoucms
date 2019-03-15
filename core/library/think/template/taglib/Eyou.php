@@ -63,7 +63,7 @@ class Eyou extends Taglib
         'searchform' => ['attr' => 'channel,typeid,type,empty,id,mod,key', 'close'=>1], 
         'tag'        => ['attr' => 'aid,name,row,id,key,mod,typeid,getall,sort,empty,style'],
         'flink'      => ['attr' => 'type,row,id,key,mod,titlelen,empty,limit'],
-        'language'   => ['attr' => 'type,row,id,key,mod,titlelen,empty,limit'], 
+        'language'   => ['attr' => 'type,row,id,key,mod,titlelen,empty,limit,currentstyle'], 
         'lang'       => ['attr' => 'name,const', 'close' => 0],
         'ui'         => ['attr' => 'open', 'close' => 0],
         'uitext'     => ['attr' => 'e-id,e-page,id'],
@@ -86,6 +86,8 @@ class Eyou extends Taglib
         'diyfield'   => ['attr' => 'name,id,key,mod,type,empty,limit'],
         'attribute'  => ['attr' => 'aid,type,empty,id,mod,key'],
         'attr'       => ['attr' => 'aid,name', 'close' => 0],
+        'login'      => ['attr' => 'type,id,key,mod,empty,currentstyle'],
+        'weapplist'  => ['attr' => 'type,id,key,mod,empty,currentstyle'], // 网站应用插件列表
     ];
 
     /**
@@ -167,8 +169,8 @@ class Eyou extends Taglib
 
         $parseStr = '<?php ';
         $parseStr .= ' $tagUi = new \think\template\taglib\eyou\TagUi;';
-        $parseStr .= ' $_value = $tagUi->getUi();';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagUi->getUi();';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
@@ -371,8 +373,8 @@ class Eyou extends Taglib
 
         $parseStr .= $startStr;
         $parseStr .= ' <? $tagLoad = new \think\template\taglib\eyou\TagLoad;';
-        $parseStr .= ' $_value = $tagLoad->getLoad("'.$file.'", "'.$ver.'");';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagLoad->getLoad("'.$file.'", "'.$ver.'");';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
         $parseStr .= $endStr;
 
@@ -402,8 +404,8 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagStatic = new \think\template\taglib\eyou\TagStatic;';
-        $parseStr .= ' $_value = $tagStatic->getStatic('.$file.','.$lang.','.$href.');';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagStatic->getStatic('.$file.','.$lang.','.$href.');';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
@@ -757,11 +759,11 @@ class Eyou extends Taglib
         $parseStr .= ' );';
         // $parseStr .= ' $orderby = "'.$orderby.'";';
         $parseStr .= ' $tagList = new \think\template\taglib\eyou\TagList;';
-        $parseStr .= ' $_result = $tagList->getList($param, '.$pagesize.', "'.$orderby.'", '.$addfields.', "'.$orderWay.'");';
+        $parseStr .= ' $_result_tmp = $tagList->getList($param, '.$pagesize.', "'.$orderby.'", '.$addfields.', "'.$orderWay.'");';
 
-        $parseStr .= 'if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
-        $parseStr .= ' $__LIST__ = $_result["list"];';
-        $parseStr .= ' $__PAGES__ = $_result["pages"];';
+        $parseStr .= 'if(is_array($_result_tmp) || $_result_tmp instanceof \think\Collection || $_result_tmp instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result = $_result_tmp["list"];';
+        $parseStr .= ' $__PAGES__ = $_result_tmp["pages"];';
 
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
@@ -799,8 +801,8 @@ class Eyou extends Taglib
         $parseStr = ' <?php ';
         $parseStr .= ' $__PAGES__ = isset($__PAGES__) ? $__PAGES__ : "";';
         $parseStr .= ' $tagPagelist = new \think\template\taglib\eyou\TagPagelist;';
-        $parseStr .= ' $_value = $tagPagelist->getPagelist($__PAGES__, "'.$listitem.'", "'.$listsize.'");';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagPagelist->getPagelist($__PAGES__, "'.$listitem.'", "'.$listsize.'");';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         return $parseStr;
@@ -866,8 +868,8 @@ class Eyou extends Taglib
         /*--end*/
         
         $parseStr .= ' $tagPosition = new \think\template\taglib\eyou\TagPosition;';
-        $parseStr .= ' $_value = $tagPosition->getPosition($typeid, "'.$symbol.'", "'.$style.'");';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagPosition->getPosition($typeid, "'.$symbol.'", "'.$style.'");';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         return $parseStr;
@@ -887,8 +889,8 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagSearchurl = new \think\template\taglib\eyou\TagSearchurl;';
-        $parseStr .= ' $_result = $tagSearchurl->getSearchurl();';
-        $parseStr .= ' echo $_result';
+        $parseStr .= ' $__VALUE__ = $tagSearchurl->getSearchurl();';
+        $parseStr .= ' echo $__VALUE__';
         $parseStr .= '?>';
         
         if (!empty($parseStr)) {
@@ -978,18 +980,19 @@ class Eyou extends Taglib
         $parseStr .= ' if(empty($typeid) && isset($channelartlist["id"]) && !empty($channelartlist["id"])) : $typeid = intval($channelartlist["id"]); endif; ';
         /*--end*/
         $parseStr .= ' $tagType = new \think\template\taglib\eyou\TagType;';
-        $parseStr .= ' $__LIST__ = $tagType->getType($typeid, "'.$type.'", '.$addfields.');';
+        $parseStr .= ' $_result = $tagType->getType($typeid, "'.$type.'", '.$addfields.');';
         $parseStr .= ' ?>';
 
         /*方式一*/
-        /*$parseStr .= '<?php if((!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty()))): ?>';
-        $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
+        /*$parseStr .= '<?php if((!empty($_result) || (($_result instanceof \think\Collection || $_result instanceof \think\Paginator ) && $_result->isEmpty()))): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result; ?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';*/
         /*--end*/
 
         /*方式二*/
-        $parseStr .= '<?php if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): ';
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
         $parseStr .= '$'.$id.' = $__LIST__;';
@@ -1031,18 +1034,19 @@ class Eyou extends Taglib
         $parseStr .= ' if(!isset($aid) || empty($aid)) : $aid = '.$aid.'; endif;';
 
         $parseStr .= ' $tagArcview = new \think\template\taglib\eyou\TagArcview;';
-        $parseStr .= ' $__LIST__ = $tagArcview->getArcview($aid, '.$addfields.');';
+        $parseStr .= ' $_result = $tagArcview->getArcview($aid, '.$addfields.');';
         $parseStr .= ' ?>';
 
         /*方式一*/
-        /*$parseStr .= '<?php if((!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty()))): ?>';
-        $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
+        /*$parseStr .= '<?php if((!empty($_result) || (($_result instanceof \think\Collection || $_result instanceof \think\Paginator ) && $_result->isEmpty()))): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result; ?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';*/
         /*--end*/
 
         /*方式一*/
-        $parseStr .= '<?php if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): ';
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
         $parseStr .= '$'.$id.' = $__LIST__;';
@@ -1190,6 +1194,7 @@ class Eyou extends Taglib
         $type   = !empty($tag['type']) ? $tag['type'] : '';
         $id     = isset($tag['id']) ? $tag['id'] : 'field';
         $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
         $empty  = isset($tag['empty']) ? $tag['empty'] : '';
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
@@ -1204,7 +1209,7 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagLanguage = new \think\template\taglib\eyou\TagLanguage;';
-        $parseStr .= ' $_result = $tagLanguage->getLanguage("'.$type.'", "'.$limit.'");';
+        $parseStr .= ' $_result = $tagLanguage->getLanguage("'.$type.'", "'.$limit.'", "'.$currentstyle.'");';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         $parseStr .= ' $__LIST__ = $_result;';
 
@@ -1246,8 +1251,8 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagLang = new \think\template\taglib\eyou\TagLang;';
-        $parseStr .= ' $_value = $tagLang->getLang(\''.serialize($param).'\');';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagLang->getLang(\''.serialize($param).'\');';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
@@ -1277,10 +1282,11 @@ class Eyou extends Taglib
         $parseStr = '<?php ';
         // 声明变量
         $parseStr .= ' $tagAd = new \think\template\taglib\eyou\TagAd;';
-        $parseStr .= ' $__LIST__ = $tagAd->getAd('.$aid.');';
+        $parseStr .= ' $_result = $tagAd->getAd('.$aid.');';
         $parseStr .= ' ?>';
 
-        $parseStr .= '<?php if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): ';
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
         $parseStr .= 'if( count($__LIST__)==0 ) : echo "";';
         $parseStr .= 'else: ';
         $parseStr .= '$'.$id.' = $__LIST__;';
@@ -1383,8 +1389,9 @@ class Eyou extends Taglib
             
             $parseStr = '<?php ';
             $parseStr .= ' $tagPrenext = new \think\template\taglib\eyou\TagPrenext;';
-            $parseStr .= ' $__LIST__ = $tagPrenext->getPrenext("'.$get.'");';
-            $parseStr .= 'if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): ';
+            $parseStr .= ' $_result = $tagPrenext->getPrenext("'.$get.'");';
+            $parseStr .= 'if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+            $parseStr .= ' $__LIST__ = $_result;';
             $parseStr .= 'if( empty($__LIST__) ) : echo htmlspecialchars_decode("' . $empty . '");';
             $parseStr .= 'else: ';
             $parseStr .= '$'.$id.' = $__LIST__;';
@@ -1397,11 +1404,11 @@ class Eyou extends Taglib
         } else {
             $parseStr = '<?php ';
             $parseStr .= ' $tagPrenext = new \think\template\taglib\eyou\TagPrenext;';
-            $parseStr .= ' $__LIST__ = $tagPrenext->getPrenext("'.$get.'");';
+            $parseStr .= ' $_result = $tagPrenext->getPrenext("'.$get.'");';
             $parseStr .= '?>';
 
-            $parseStr .= '<?php if(!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty())): ?>';
-            $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
+            $parseStr .= '<?php if(!empty($_result) || (($_result instanceof \think\Collection || $_result instanceof \think\Paginator ) && $_result->isEmpty())): ?>';
+            $parseStr .= '<?php $'.$id.' = $_result; ?>';
             $parseStr .= $content;
             $parseStr .= '<?php endif; ?>';
         }
@@ -1485,7 +1492,7 @@ class Eyou extends Taglib
 
             // 查询数据库获取的数据集
             $parseStr .= '<?php ';
-            $parseStr .= ' $__value__ = isset($channelartlist["'.$name.'"]) ? $channelartlist["'.$name.'"] : "变量名不存在";';
+            $parseStr .= ' $__VALUE__ = isset($channelartlist["'.$name.'"]) ? $channelartlist["'.$name.'"] : "变量名不存在";';
 
             if (1 < count($arr)) {
                 $funcArr = explode('=', $arr[1]);
@@ -1495,18 +1502,18 @@ class Eyou extends Taglib
                     $funcParamStr = '';
                     foreach (explode(',', $funcParam) as $key => $val) {
                         if ('###' == $val) {
-                            $val = '$__value__';
+                            $val = '$__VALUE__';
                         }
                         if (0 < $key) {
                             $funcParamStr .= ', ';
                         }
                         $funcParamStr .= $val;
                     }
-                    $parseStr .= '$__value__ = '.$funcName.'('.$funcParamStr.');';
+                    $parseStr .= '$__VALUE__ = '.$funcName.'('.$funcParamStr.');';
                 }
             }
 
-            $parseStr .= ' echo $__value__;';
+            $parseStr .= ' echo $__VALUE__;';
             $parseStr .= ' ?>';
 
         } else if (!empty($addfields)) {
@@ -1514,8 +1521,8 @@ class Eyou extends Taglib
 
             // 查询数据库获取的数据集
             $parseStr .= ' $tagField = new \think\template\taglib\eyou\TagField;';
-            $parseStr .= ' $__value__ = $tagField->getField("'.$addfields.'", '.$aid.');';
-            $parseStr .= ' echo $__value__;';
+            $parseStr .= ' $__VALUE__ = $tagField->getField("'.$addfields.'", '.$aid.');';
+            $parseStr .= ' echo $__VALUE__;';
             $parseStr .= ' ?>';
         }
 
@@ -1892,8 +1899,8 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagGlobal = new \think\template\taglib\eyou\TagGlobal;';
-        $parseStr .= ' $_value = $tagGlobal->getGlobal('.$name.');';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagGlobal->getGlobal('.$name.');';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
@@ -1922,8 +1929,8 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagArcclick = new \think\template\taglib\eyou\TagArcclick;';
-        $parseStr .= ' $_value = $tagArcclick->getArcclick('.$aid.', '.$value.');';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagArcclick->getArcclick('.$aid.', '.$value.');';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
@@ -1962,8 +1969,8 @@ class Eyou extends Taglib
 
         $parseStr = ' <?php ';
         $parseStr .= ' $tagWeapp = new \think\template\taglib\eyou\TagWeapp;';
-        $parseStr .= ' $_value = $tagWeapp->getWeapp("'.$type.'");';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagWeapp->getWeapp("'.$type.'");';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
         return $parseStr;
@@ -2198,12 +2205,14 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagDiyfield = new \think\template\taglib\eyou\TagDiyfield;';
-        $parseStr .= ' $__LIST__ = $tagDiyfield->getDiyfield('.$name.', "'.$type.'");';
+        $parseStr .= $name . ' = $tagDiyfield->getDiyfield('.$name.', "'.$type.'");';
 
-        $parseStr .= 'if(is_array($__LIST__) || $__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
-            $parseStr .= '$__LIST__ = is_array($__LIST__) ? array_slice($__LIST__,' . $offset . ',' . $length . ', true) : $__LIST__->slice(' . $offset . ',' . $length . ', true); ';
+            $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
+        } else {
+            $parseStr .= ' $__LIST__ = ' . $name . ';';
         }
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
@@ -2293,10 +2302,86 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagAttr = new \think\template\taglib\eyou\TagAttr;';
-        $parseStr .= ' $_value = $tagAttr->getAttr($taid,"'.$name.'");';
-        $parseStr .= ' echo $_value;';
+        $parseStr .= ' $__VALUE__ = $tagAttr->getAttr($taid,"'.$name.'");';
+        $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
         $parseStr .= '<?php unset($aid_tmp); ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * login 标签解析
+     * 在模板中获取会员登录入口
+     * 格式：
+     * {eyou:login type='default'}
+     *  <a href="{$field:loginurl}">{$field:username}</a>
+     * {/eyou:login}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagLogin($tag, $content)
+    {
+        $type  =  !empty($tag['type']) ? $tag['type'] : 'default';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key     = isset($tag['key']) ? $tag['key'] : 'i';
+        $logouttxt  =  !empty($tag['logouttxt']) ? $tag['logouttxt'] : '';
+        $logoutimg  =  !empty($tag['logoutimg']) ? $tag['logoutimg'] : '';
+
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagLogin = new \think\template\taglib\eyou\TagLogin;';
+        $parseStr .= ' $__LIST__ = $tagLogin->getLogin("'.$type.'","'.$logouttxt.'","'.$logoutimg.'");';
+        $parseStr .= '?>';
+
+        $parseStr .= '<?php if(!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * weapplist标签解析
+     * 安装网站应用插件时自动在页面上追加代码
+     * 格式： {eyou:weapplist type='default'}content{/eyou:weapplist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string
+     */
+    public function tagWeapplist($tag, $content)
+    {
+        $type     = isset($tag['type']) ? $tag['type'] : 'default';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key     = isset($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagWeapplist = new \think\template\taglib\eyou\TagWeapplist;';
+        $parseStr .= ' $_result = $tagWeapplist->getWeapplist("'.$type.'","'.$currentstyle.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
 
         if (!empty($parseStr)) {
             return $parseStr;

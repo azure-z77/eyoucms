@@ -127,7 +127,7 @@ function eyou_lang(key, str) {
     langArr['Being dealt with']='正在处理';
     langArr['This operation is irreversible. Confirm the complete unloading?']='此操作不可逆，确认彻底卸载？';
     langArr['Complete unload']='彻底卸载';
-    langArr['Network request failed']='网络请求失败';
+    langArr['Network request failed']='网络失败，请刷新页面后重试';
     langArr['Successful operation']='操作成功';
     langArr['Operation failed']='操作失败';
     langArr['There is no list of documents in this column']='该栏目没有文档列表';

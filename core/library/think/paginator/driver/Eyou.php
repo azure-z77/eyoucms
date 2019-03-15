@@ -190,6 +190,18 @@ class Eyou extends Paginator
     }
 
     /**
+     * 生成一个可点击的数字按钮
+     *
+     * @param  string $url
+     * @param  int    $page
+     * @return string
+     */
+    protected function getAvailablePageWrapper2($url, $page)
+    {
+        return '<li><a href="' . htmlentities($url) . '" class="tcdNumber">' . $page . '</a></li>';
+    }
+
+    /**
      * 生成一个可点击的按钮
      *
      * @param  string $url
@@ -210,6 +222,17 @@ class Eyou extends Paginator
     protected function getDisabledTextWrapper($text)
     {
         return '<li><span class="disabled">' . $text . '</span></li>';
+    }
+
+    /**
+     * 生成一个激活的数字按钮
+     *
+     * @param  string $text
+     * @return string
+     */
+    protected function getActivePageWrapper2($text)
+    {
+        return '<li><span class="current">' . $text . '</span></li>';
     }
 
     /**
@@ -244,7 +267,7 @@ class Eyou extends Paginator
         $html = '';
 
         foreach ($urls as $page => $url) {
-            $html .= $this->getPageLinkWrapper($url, $page);
+            $html .= $this->getPageLinkWrapper2($url, $page);
         }
 
         return $html;
@@ -264,5 +287,21 @@ class Eyou extends Paginator
         }
 
         return $this->getAvailablePageWrapper($url, $page);
+    }
+
+    /**
+     * 生成普通页码的数字按钮
+     *
+     * @param  string $url
+     * @param  int    $page
+     * @return string
+     */
+    protected function getPageLinkWrapper2($url, $page)
+    {
+        if ($page == $this->currentPage()) {
+            return $this->getActivePageWrapper2($page);
+        }
+
+        return $this->getAvailablePageWrapper2($url, $page);
     }
 }

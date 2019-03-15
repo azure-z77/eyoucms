@@ -98,7 +98,7 @@ if (!function_exists('tpCache'))
                         'value'=>trim($v),
                         'inc_type'=>$param[0],
                         'lang'  => $lang,
-                        'update_time'   => time(),
+                        'update_time'   => getTime(),
                     );
                     if(!isset($temp[$newK])){
                         array_push($add_data, $newArr); //新key数据插入数据库
@@ -222,6 +222,9 @@ if (!function_exists('write_html_cache'))
             $home_lang = get_home_lang(); // 多语言
             $request = \think\Request::instance();
             $param = input('param.');
+            isset($param['tid']) && $param['tid'] = input('param.tid/d');
+            isset($param['aid']) && $param['aid'] = input('param.aid/d');
+            isset($param['page']) && $param['page'] = input('param.page/d');
 
             /*URL模式是否启动页面缓存（排除admin后台、前台可视化装修）*/
             $uiset = input('param.uiset/s', 'off');
@@ -255,7 +258,7 @@ if (!function_exists('write_html_cache'))
                 {
                     $tid = '';
                     if (in_array('tid', $val['p'])) {
-                        $tid = $param['tid'];
+                        $tid = intval($param['tid']);
                         if (strval(intval($tid)) != strval($tid)) {
                             $map = array('dirname'=>$tid);
                             $map['lang'] = $home_lang; // 多语言
@@ -333,6 +336,9 @@ if (!function_exists('read_html_cache'))
             $home_lang = get_home_lang();
             $request = \think\Request::instance();
             $param = input('param.');
+            isset($param['tid']) && $param['tid'] = input('param.tid/d');
+            isset($param['aid']) && $param['aid'] = input('param.aid/d');
+            isset($param['page']) && $param['page'] = input('param.page/d');
             $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
             $m_c_a_str = strtolower($m_c_a_str);
             //exit('read_html_cache读取缓存<br/>');
@@ -353,7 +359,7 @@ if (!function_exists('read_html_cache'))
                 {
                     $tid = '';
                     if (in_array('tid', $val['p'])) {
-                        $tid = $param['tid'];
+                        $tid = intval($param['tid']);
                         if (strval(intval($tid)) != strval($tid)) {
                             $map = array('dirname'=>$tid);
                             $map['lang'] = $home_lang; // 多语言
@@ -425,6 +431,18 @@ if (!function_exists('read_html_cache'))
                 }
             }
         }
+    }
+}
+
+if (!function_exists('get_head_pic')) 
+{
+    /**
+     * 默认头像
+     */
+    function get_head_pic($pic_url = '')
+    {
+        $default_pic = ROOT_DIR . '/public/static/common/images/bag-imgB.jpg';
+        return empty($pic_url) ? $default_pic : $pic_url;
     }
 }
 
@@ -1248,6 +1266,131 @@ if (!function_exists('switch_language'))
                     'update_time'   => getTime(),
                 ]);
             }
+        }
+    }
+}
+
+if (!function_exists('getUsersConfigData')) 
+{
+    // 专用于获取users_config，会员配置表数据处理。
+    // 参数1：必须传入，传入值不同，获取数据不同：
+    // 例：获取配置所有数据，传入：all，
+    // 获取分组所有数据，传入：分组标识，如：member，
+    // 获取分组中的单个数据，传入：分组标识.名称标识，如：users.users_open_register
+    // 参数2：data数据，为空则查询，否则为添加或修改。
+    // 参数3：多语言标识，为空则获取当前默认语言。
+    function getUsersConfigData($config_key,$data=array(),$lang='', $options = null){
+        $param = explode('.', $config_key);
+        $lang = !empty($lang) ? $lang : get_current_lang();
+        if (empty($options)) {
+            $options['path'] = CACHE_PATH.$lang.DS;
+        }
+        if(empty($data)){
+            //如$config_key=shop_info则获取网站信息数组
+            //如$config_key=shop_info.logo则获取网站logo字符串
+            $config = cache($param[0],'',$options);//直接获取缓存文件
+            if(empty($config)){
+                //缓存文件不存在就读取数据库
+                if ($param[0] == 'all') {
+                    $param[0] = 'all';
+                    $res = M('users_config')->where([
+                        'lang'  => $lang,
+                    ])->select();
+                } else {
+                    $res = M('users_config')->where([
+                        'inc_type'  => $param[0],
+                        'lang'  => $lang,
+                    ])->select();
+                }
+                if($res){
+                    foreach($res as $k=>$val){
+                        $config[$val['name']] = $val['value'];
+                    }
+                    cache($param[0],$config,$options);
+                }
+            }
+            if(!empty($param) && count($param)>1){
+                $newKey = strtolower($param[1]);
+                return isset($config[$newKey]) ? $config[$newKey] : '';
+            }else{
+                return $config;
+            }
+        }else{
+            //更新缓存
+            $result =  M('users_config')->where([
+                'inc_type'  => $param[0],
+                'lang'  => $lang,
+            ])->select();
+            if($result){
+                foreach($result as $val){
+                    $temp[$val['name']] = $val['value'];
+                }
+                $add_data = array();
+                foreach ($data as $k=>$v){
+                    $newK = strtolower($k);
+                    $newArr = array(
+                        'name'=>$newK,
+                        'value'=>trim($v),
+                        'inc_type'=>$param[0],
+                        'lang'  => $lang,
+                        'update_time'   => time(),
+                    );
+                    if(!isset($temp[$newK])){
+                        array_push($add_data, $newArr); //新key数据插入数据库
+                    }else{
+                        if ($v != $temp[$newK]) {
+                            M('users_config')->where([
+                                'name'  => $newK,
+                                'lang'  => $lang,
+                            ])->save($newArr);//缓存key存在且值有变更新此项
+                        }
+                    }
+                }
+                if (!empty($add_data)) {
+                    M('users_config')->insertAll($add_data);
+                }
+                //更新后的数据库记录
+                $newRes = M('users_config')->where([
+                    'inc_type'  => $param[0],
+                    'lang'  => $lang,
+                ])->select();
+                foreach ($newRes as $rs){
+                    $newData[$rs['name']] = $rs['value'];
+                }
+            }else{
+                if ($param[0] != 'all') {
+                    foreach($data as $k=>$v){
+                        $newK = strtolower($k);
+                        $newArr[] = array(
+                            'name'=>$newK,
+                            'value'=>trim($v),
+                            'inc_type'=>$param[0],
+                            'lang'  => $lang,
+                            'update_time'   => time(),
+                        );
+                    }
+                    M('users_config')->insertAll($newArr);
+                }
+                $newData = $data;
+            }
+
+            $result = false;
+            $res = M('users_config')->where([
+                'lang'  => $lang,
+            ])->select();
+            if($res){
+                $global = array();
+                foreach($res as $k=>$val){
+                    $global[$val['name']] = $val['value'];
+                }
+                $result = cache('all',$global,$options);
+            } 
+
+            if ($param[0] != 'all') {
+                $result = cache($param[0],$newData,$options);
+            }
+            
+            return $result;
         }
     }
 }

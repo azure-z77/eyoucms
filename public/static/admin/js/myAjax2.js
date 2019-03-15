@@ -61,6 +61,9 @@ function changeTableVal(table,id_name,id_value,field,obj)
         try {  
             if ($(obj).attr('data-value')) {
                 value = $(obj).attr('data-value');
+                if ('weapp' == table && 'status' == field) {
+                    $(obj).attr('data-value', -1); // 插件的禁用
+                }
             }
         } catch(e) {  
             // 出现异常以后执行的代码  
@@ -74,6 +77,7 @@ function changeTableVal(table,id_name,id_value,field,obj)
         try {  
             if ($(obj).attr('data-value')) {
                 value = $(obj).attr('data-value');
+                $(obj).attr('data-value', 1); // 插件的启用
             }
         } catch(e) {  
             // 出现异常以后执行的代码  
@@ -92,14 +96,14 @@ function changeTableVal(table,id_name,id_value,field,obj)
     $.ajax({
         type:'POST',
         url: url,         
-        success: function(data){
-             if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
-                layer.msg('更新成功', {icon: 1});  
-             } else {
-                if (0 == data.code) {
-                    layer.msg(data.msg, {icon: 2});  
+        success: function(res){
+            if (res.code == 1) {
+                if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
+                    layer.msg(res.msg, {icon: 1});
                 }
-             }
+            } else {
+                layer.msg(res.msg, {icon: 2});  
+            }
         }
     }); 
 }

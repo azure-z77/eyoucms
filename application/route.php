@@ -126,8 +126,8 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 留言模型
                 $lang_rewrite_str.'guestbook$' => array('home/Guestbook/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'guestbook/submit$' => array('home/Lists/gbook_submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
                 $lang_rewrite_str.'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'guestbook/submit$' => array('home/View/submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
             );
 
             /*自定义模型*/

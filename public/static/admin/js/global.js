@@ -82,7 +82,7 @@ function batch_del(obj, name) {
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络请求失败', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
             }
         });
     }, function (index) {
@@ -123,7 +123,7 @@ function delfun(obj) {
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络请求失败', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
                 }
             })
         }, function(index){
@@ -190,7 +190,7 @@ function batch_move(obj, name) {
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络请求失败', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
             }
         });
     }, function (index) {
@@ -380,7 +380,7 @@ function get_select_options(t,next){
         type : "GET",
         url  : url,
         error: function(request) {
-            alert("网络请求失败");
+            alert("网络失败，请刷新页面后重试");
             return;
         },
         success: function(v) {

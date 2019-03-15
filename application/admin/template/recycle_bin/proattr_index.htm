@@ -8,7 +8,7 @@
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <h3>产品参数列表</h3>
+                <h3>产品参数回收列表</h3>
                 <h5>(共{$pageObj->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
@@ -215,7 +215,7 @@
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络请求失败', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
                 }
             });
         }, function (index) {
@@ -287,7 +287,7 @@
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络请求失败', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
                 }
             });
         }, function (index) {

@@ -132,8 +132,7 @@
                 {eq name="$Think.const.CONTROLLER_NAME.'@restoreUpload'|is_check_access" value="1"}
                 <div class="fbutton">
                     <form class="navbar-form form-inline" action="{:U('Tools/restoreUpload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
-                        <input type="file" class="btn fl w200" name="sqlfile" id="sqlfile">
-                        <input type="button" onclick="return restoreUpload();" class="ncap-btn-big ncap-btn-green" value="上传并执行sql文件" style="margin-top: 8px; height: 22px">
+                        <a href="javascript:void(0);" class="a-upload"><input type="file" name="sqlfile" id="sqlfile" title="请选择…"><i class="fa fa-upload"></i>上传执行sql文件</a>
                     </form>
                 </div>
                 {/eq}
@@ -157,33 +156,39 @@
             location.href = location.href;
         });
 
-    });
+        $('#sqlfile').change(function(){
+            restoreUpload();
+        });
     
-    function restoreUpload()
-    {
-        var sqlfile = $('input[name=sqlfile]').val();
-        var ext = sqlfile.substr(sqlfile.lastIndexOf('.')).toLowerCase();
-        if ($.trim(sqlfile) == '' || ext != '.sql') {
-            showErrorMsg('请上传sql文件！');
-            return false;
+        function restoreUpload()
+        {
+            var sqlfile = $('input[name=sqlfile]').val();
+            var ext = sqlfile.substr(sqlfile.lastIndexOf('.')).toLowerCase();
+            if ($.trim(sqlfile) == '' || ext != '.sql') {
+                showErrorMsg('请上传sql文件！');
+                return false;
+            }
+
+            layer.confirm('此操作不可逆，确认执行？', {
+                title: '<font color="red">重要提示</font>',
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                layer_loading('正在处理');
+                $('#change_System').submit();
+                return false;
+            }, function (index) {
+                $('#sqlfile').val('');
+                layer.closeAll();
+                return false;
+            });
         }
 
-        layer.confirm('此操作不可逆，确认还原？', {
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            layer_loading('请耐心等待');
-            $('#change_System').submit();
-            return false;
-        }, function (index) {
-            layer.closeAll( );
-            return false;
-        });
-    }
+    });
 
     $(".db-import").click(function(){
         var url = $(this).attr('data-url');
         $('#form_tmp').attr('action', url);
-        layer_loading('请耐心等待');
+        layer_loading('正在处理');
         $('#form_tmp').submit();
     }); 
 

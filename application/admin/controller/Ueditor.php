@@ -180,6 +180,7 @@ class Ueditor extends Base
         $ossConfig = tpCache('oss');
         if ($ossConfig['oss_switch']) {
             //商品图片可选择存放在oss
+            $savePath = $this->savePath.date('Ymd/');
             $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
             $ossClient = new \app\common\logic\OssLogic;
             $return_url = $ossClient->uploadFile($file->getRealPath(), $object);

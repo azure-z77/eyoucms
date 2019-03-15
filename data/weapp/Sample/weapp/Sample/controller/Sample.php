@@ -77,7 +77,7 @@ class Sample extends Weapp
     public function index()
     {
         $list = array();
-        $keywords = I('keywords/s');
+        $keywords = input('keywords/s');
 
         $map = array();
         if (!empty($keywords)) {
@@ -101,7 +101,7 @@ class Sample extends Weapp
     public function add()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
 
             /*------------这里可以实现存储数据之前的额外逻辑 start-------------*/
 
@@ -144,7 +144,7 @@ class Sample extends Weapp
     public function edit()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             $post['id'] = eyIntval($post['id']);
             if(!empty($post['id'])){
 
@@ -181,7 +181,7 @@ class Sample extends Weapp
             $this->error("操作失败!");
         }
 
-        $id = I('id/d', 0);
+        $id = input('id/d', 0);
         $row = $this->db->find($id);
         if (empty($row)) {
             $this->error('数据不存在，请联系管理员！');
@@ -208,7 +208,7 @@ class Sample extends Weapp
      */
     public function del()
     {
-        $id_arr = I('del_id/a');
+        $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(!empty($id_arr)){
             $result = $this->db->where("id",'IN',$id_arr)->select();
@@ -232,7 +232,7 @@ class Sample extends Weapp
     public function conf()
     {
         if (IS_POST) {
-            $post = I('post.');
+            $post = input('post.');
             if(!empty($post['code'])){
                 $data = array(
                     'tag_weapp' => $post['tag_weapp'],

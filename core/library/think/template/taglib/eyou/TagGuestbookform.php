@@ -13,6 +13,8 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Request;
+
 /**
  * 留言表单
  */
@@ -70,7 +72,7 @@ class TagGuestbookform extends Base
             return false;
         } else {
             /*获取多语言关联绑定的值*/
-            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute'); // 多语言
+            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute', $this->main_lang); // 多语言
             /*--end*/
 
             $newAttribute = array();
@@ -109,7 +111,32 @@ class TagGuestbookform extends Base
                 /*--end*/
             }
 
-            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" />';
+            $token_id = md5('guestbookform_token_'.$typeid.getTime());
+            $funname = 'f'.md5("ey_guestbookform_token_{$typeid}");
+            $tokenStr = <<<EOF
+<script type="text/javascript">
+    function {$funname}()
+    {
+        //步骤一:创建异步对象
+        var ajax = new XMLHttpRequest();
+        //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
+        ajax.open("post", "{$this->root_dir}/index.php?m=api&c=Ajax&a=get_token", true);
+        // 给头部添加ajax信息
+        ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
+        //步骤三:发送请求+数据
+        ajax.send();
+        //步骤四:注册事件 onreadystatechange 状态改变就会调用
+        ajax.onreadystatechange = function () {
+            //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
+            if (ajax.readyState==4 && ajax.status==200) {
+        　　　　document.getElementById("{$token_id}").value = ajax.responseText;
+          　}
+        } 
+    }
+    {$funname}();
+</script>
+EOF;
+            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
             $action = url('home/Lists/gbook_submit');

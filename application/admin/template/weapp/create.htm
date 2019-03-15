@@ -5,14 +5,14 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="weapp/bar" /}
-    <form class="form-horizontal" id="post_form" action="{:U('Weapp/create')}" method="post">
+    <form class="form-horizontal" id="post_form" action="{:url('Weapp/create')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
                     <label for="code"><em>*</em>插件标识</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" name="code" placeholder="比如：Demo" id="code" class="input-txt" onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^a-zA-Z0-9]/g,''));">
+                    <input type="text" name="code" placeholder="比如：Demo" id="code" class="input-txt">
                     <span class="err"></span>
                     <p class="notic"></p>
                     <p class="">易优插件库中唯一的标识，首字母必须大写，只支持大小字母与数字。</p>
@@ -118,6 +118,12 @@
     {
         var flag = false;
         var code = $.trim($('input[name=code]').val());
+        var reg = /(^[a-zA-Z0-9]{1,}$)/;
+        if (!reg.test(code)) {
+            showErrorMsg('插件标识格式不正确！');
+            $('input[name=code]').focus();
+            return false;
+        }
         if ('Sample' == code) {
             showErrorMsg('插件标识已被占用！');
             $('input[name=code]').focus();

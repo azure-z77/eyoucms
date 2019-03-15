@@ -29,7 +29,7 @@ class Links extends Base
         }
 
         // 多语言
-        $condition['lang'] = array('eq', get_admin_lang());
+        $condition['lang'] = array('eq', $this->admin_lang);
 
         $linksM =  M('links');
         $count = $linksM->where($condition)->count('id');// 查询满足要求的总记录数
@@ -64,7 +64,8 @@ class Links extends Base
             $nowData = array(
                 'typeid'    => empty($post['typeid']) ? 1 : $post['typeid'],
                 'url'    => trim($post['url']),
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
+                'sort_order'    => 100,
                 'add_time'    => getTime(),
                 'update_time'    => getTime(),
             );
@@ -110,7 +111,7 @@ class Links extends Base
                 $data = array_merge($post, $nowData);
                 $r = M('links')->where([
                         'id'    => $post['id'],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])
                     ->cache(true, null, "links")
                     ->update($data);
@@ -127,7 +128,7 @@ class Links extends Base
         $id = input('id/d');
         $info = M('links')->where([
                 'id'    => $id,
-                'lang'  => get_admin_lang(),
+                'lang'  => $this->admin_lang,
             ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
@@ -157,13 +158,13 @@ class Links extends Base
                 $result = M('links')->field('title')
                     ->where([
                         'id'    => ['IN', $id_arr],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])->select();
                 $title_list = get_arr_column($result, 'title');
 
                 $r = M('links')->where([
                         'id'    => ['IN', $id_arr],
-                        'lang'  => get_admin_lang(),
+                        'lang'  => $this->admin_lang,
                     ])
                     ->cache(true, null, "links")
                     ->delete();

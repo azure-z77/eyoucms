@@ -478,9 +478,11 @@ class Template
                 foreach ($matches as $match) {
                     $array = $this->parseAttr($match[0]);
                     $file  = $array['file'];
-                    if (preg_match('/^([^\\/]+)\.'.$this->config['view_suffix'].'$/i', $file) === 1) {
+                    if (preg_match('/^([^\\/]+)(.*)\.'.$this->config['view_suffix'].'$/i', $file) === 1) {
+                        // 支持模板引入的写法： {eyou:include file="header.htm" /} 或者 {eyou:include file="header" /}  或者 {eyou:include file="users/header.htm" /} 或者 {eyou:include file="users/header" /}
                         $file = str_replace('.'.$this->config['view_suffix'], '', $file);
                     } else if (stristr($file, '.'.$this->config['view_suffix']) && (stristr($file, '/') || stristr($file, '\\'))) {
+                        // 支持绝对路径的模板引入写法： {eyou:include file="/template/pc/header.htm" /}
                         $file  = '.'.$file;
                     }
                     unset($array['file']);

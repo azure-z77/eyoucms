@@ -13,6 +13,8 @@
 
 namespace app\home\controller;
 
+use think\Db;
+
 class Lists extends Base
 {
     // 模型标识
@@ -78,6 +80,35 @@ class Lists extends Base
             }
         }
         /*--end*/
+
+        // /*模板文件*/
+        // $viewfile = $filename = !empty($result['templist'])
+        // ? str_replace('.'.$this->view_suffix, '',$result['templist'])
+        // : 'lists_'.$this->nid;
+        // /*--end*/
+
+        // /*每个栏目内置模板文件名*/
+        // $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}.".$this->view_suffix;
+        // if (file_exists($viewfilepath)) {
+        //     $viewfile = $filename."_{$result['id']}";
+        // }
+        // /*--end*/
+
+        // /*多语言内置模板文件名*/
+        // $lang = get_home_lang();
+        // if (!empty($lang)) {
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$lang}.".$this->view_suffix;
+        //     if (file_exists($viewfilepath)) {
+        //         $viewfile = $filename."_{$lang}";
+        //     }
+        //     /*每个栏目内置模板文件名*/
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}_{$lang}.".$this->view_suffix;
+        //     if (file_exists($viewfilepath)) {
+        //         $viewfile = $filename."_{$result['id']}_{$lang}";
+        //     }
+        //     /*--end*/
+        // }
+        // /*--end*/
 
         return $this->fetch(":{$viewfile}");
     }
@@ -158,7 +189,7 @@ class Lists extends Base
         while (true)
         {
             $result = model('Single')->getInfoByTypeid($typeid);
-            if (empty($result['content'])) {
+            if (empty($result['content']) && 'lists_single.htm' == strtolower($result['templist'])) {
                 $map = array(
                     'parent_id' => $result['typeid'],
                     'current_channel' => 6,
@@ -184,20 +215,20 @@ class Lists extends Base
      */
     public function gbook_submit()
     {
-        $post = input('post.');
         $typeid = input('post.typeid/d');
-        $ip = clientIP();
 
-        if (!empty($typeid)) {
+        if (IS_POST && !empty($typeid)) {
+            $post = input('post.');
+            $ip = clientIP();
             $map = array(
                 'ip'    => $ip,
                 'typeid'    => $typeid,
+                'lang'      => $this->home_lang,
                 'add_time'  => array('gt', getTime() - 60),
             );
             $count = M('guestbook')->where($map)->count('aid');
             if ($count > 0) {
                 $this->error('同一个IP在60秒之内不能重复提交！');
-                exit;
             }
 
             $newData = array(
@@ -217,27 +248,44 @@ class Lists extends Base
                 $error = $validate->getError();
                 $error_msg = array_values($error);
                 $this->error($error_msg[0]);
-                exit;
             } else {
-                $aid = M('guestbook')->insertGetId($data);
-                if ($aid > 0) {
-                    $this->saveGuestbookAttr($aid, $typeid);
+                $guestbookRow = [];
+                /*处理是否重复表单数据的提交*/
+                $formdata = $data;
+                foreach ($formdata as $key => $val) {
+                    if (in_array($key, ['typeid','lang']) || preg_match('/^attr_(\d+)$/i', $key)) {
+                        continue;
+                    }
+                    unset($formdata[$key]);
                 }
-                /*插件 - 邮箱发送*/
-                $data = [
-                    'gbook_submit',
-                    $typeid,
-                    $aid,
-                ];
-                $dataStr = implode('|', $data);
+                $md5data = md5(serialize($formdata));
+                $data['md5data'] = $md5data;
+                $guestbookRow = M('guestbook')->field('aid')->where(['md5data'=>$md5data])->find();
                 /*--end*/
+                if (empty($guestbookRow)) { // 非重复表单的才能写入数据库
+                    $aid = M('guestbook')->insertGetId($data);
+                    if ($aid > 0) {
+                        $this->saveGuestbookAttr($aid, $typeid);
+                    }
+                    /*插件 - 邮箱发送*/
+                    $data = [
+                        'gbook_submit',
+                        $typeid,
+                        $aid,
+                    ];
+                    $dataStr = implode('|', $data);
+                    /*--end*/
+                } else {
+                    // 存在重复数据的表单，将在后台显示在最前面
+                    M('guestbook')->where('aid',$guestbookRow['aid'])->update([
+                            'update_time'   => getTime(),
+                        ]);
+                }
                 $this->success('操作成功！', null, $dataStr, 3);
-                exit;
             }  
         }
 
-        $this->error('表单typeid值丢失！');
-        exit;
+        $this->error('表单缺少标签属性{$field.hidden}');
     }
 
     /**
@@ -249,11 +297,34 @@ class Lists extends Base
     {  
         // post 提交的属性  以 attr_id _ 和值的 组合为键名    
         $post = input("post.");
+        $attrArr = [];
+
+        /*多语言*/
+        if (is_language()) {
+            foreach($post as $key => $val) {
+                if (preg_match_all('/^attr_(\d+)$/i', $key, $matchs)) {
+                    $attr_value = intval($matchs[1][0]);
+                    $attrArr[$attr_value] = [
+                        'attr_id'   => $attr_value,
+                    ];
+                }
+            }
+            $attrArr = model('LanguageAttr')->getBindValue($attrArr, 'guestbook_attribute'); // 多语言
+        }
+        /*--end*/
+
         foreach($post as $k => $v)
         {
-            $attr_id = str_replace('attr_','',$k);
             if(!strstr($k, 'attr_'))
                 continue;                                 
+
+            $attr_id = str_replace('attr_','',$k);
+
+            /*多语言*/
+            if (!empty($attrArr)) {
+                $attr_id = $attrArr[$attr_id]['attr_id'];
+            }
+            /*--end*/
 
             //$v = str_replace('_', '', $v); // 替换特殊字符
             //$v = str_replace('@', '', $v); // 替换特殊字符

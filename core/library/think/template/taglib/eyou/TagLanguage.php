@@ -18,6 +18,8 @@ namespace think\template\taglib\eyou;
  */
 class TagLanguage extends Base
 {
+    public $currentstyle = '';
+    
     //初始化
     protected function _initialize()
     {
@@ -28,8 +30,10 @@ class TagLanguage extends Base
      * 获取多语言列表
      * @author 小虎哥 by 2018-4-20
      */
-    public function getLanguage($type = 'default', $limit = '')
+    public function getLanguage($type = 'default', $limit = '', $currentstyle = '')
     {
+        $this->currentstyle = $currentstyle;
+        
         $map = ['status'=>1];
         if ('default' == $type) {
             $map['mark'] = ['NEQ', $this->home_lang];
@@ -80,6 +84,14 @@ class TagLanguage extends Base
                 }
             }
             $val['url'] = $url;
+            /*--end*/
+            
+            /*标记被选中效果*/
+            if ($val['mark'] == $this->home_lang) {
+                $val['currentstyle'] = $this->currentstyle;
+            } else {
+                $val['currentstyle'] = '';
+            }
             /*--end*/
 
             $result[$key] = $val;

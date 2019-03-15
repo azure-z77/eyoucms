@@ -33,13 +33,11 @@ class AjaxLogic extends Model
     }
 
     /**
-     * 进入欢迎页面需要异步处理的业务
+     * 进入登录页面需要异步处理的业务
      */
     public function login_handle()
     {
         $this->saveBaseFile(); // 存储后台入口文件路径，比如：/login.php
-        $this->renameInstall(); // 重命名安装目录，提高网站安全性
-        $this->del_adminlog(); // 只保留最近三个月的操作日志
         $this->update_robots(); // 自动给rotots.txt站点地图的sitemap.xml补充域名
         $this->clear_session_file(); // 清理过期的data/session文件
     }
@@ -51,6 +49,7 @@ class AjaxLogic extends Model
     {
         $this->saveBaseFile(); // 存储后台入口文件路径，比如：/login.php
         $this->renameInstall(); // 重命名安装目录，提高网站安全性
+        $this->del_adminlog(); // 只保留最近三个月的操作日志
     }
     
     /**

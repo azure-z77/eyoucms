@@ -34,7 +34,7 @@ class LanguageAttr extends Model
      * @param string|array $bind_value 绑定之前的值，或者绑定之后的值
      * @param string $group 分组
      */
-    public function getBindValue($bind_value = '', $attr_group = 'arctype')
+    public function getBindValue($bind_value = '', $attr_group = 'arctype', $langvar = '')
     {
         /*单语言情况下不执行多语言代码*/
         if (!is_language()) {
@@ -85,6 +85,7 @@ class LanguageAttr extends Model
                 case 'product_attribute':
                     {
                         if (is_array($bind_value)) {
+                            !empty($langvar) && $lang = $langvar;
                             $row = Db::name('language_attr')->field('attr_name, attr_value')
                                 ->where([
                                     'attr_value'    => ['IN', get_arr_column($bind_value, 'attr_id')],
@@ -94,7 +95,7 @@ class LanguageAttr extends Model
                                 $row2 = Db::name('language_attr')->field('attr_name, attr_value')
                                     ->where([
                                         'attr_name' => ['IN', get_arr_column($row, 'attr_name')],
-                                        'lang'  => $main_lang,
+                                        'lang'  => $lang,
                                         'attr_group' => $attr_group,
                                     ])->getAllWithIndex('attr_name');
                                 if (!empty($row2)) {
@@ -121,16 +122,18 @@ class LanguageAttr extends Model
                 case 'guestbook_attribute':
                     {
                         if (is_array($bind_value)) {
+                            !empty($langvar) && $lang = $langvar;
                             $row = Db::name('language_attr')->field('attr_name, attr_value')
                                 ->where([
                                     'attr_value'    => ['IN', get_arr_column($bind_value, 'attr_id')],
                                     'attr_group' => $attr_group,
                                 ])->getAllWithIndex('attr_value');
+
                             if (!empty($row)) {
                                 $row2 = Db::name('language_attr')->field('attr_name, attr_value')
                                     ->where([
                                         'attr_name' => ['IN', get_arr_column($row, 'attr_name')],
-                                        'lang'  => $main_lang,
+                                        'lang'  => $lang,
                                         'attr_group' => $attr_group,
                                     ])->getAllWithIndex('attr_name');
                                 if (!empty($row2)) {

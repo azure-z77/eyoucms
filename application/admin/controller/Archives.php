@@ -167,7 +167,7 @@ class Archives extends Base
         }
 
         /*多语言*/
-        $condition['a.lang'] = array('eq', get_admin_lang());
+        $condition['a.lang'] = array('eq', $this->admin_lang);
         /*--end*/
 
         /*回收站数据不显示*/
@@ -338,13 +338,13 @@ class Archives extends Base
             // 获取移动栏目的模型ID
             $current_channel = Db::name('arctype')->where([
                     'id'    => $typeid,
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->getField('current_channel');
             // 抽取相符合模型ID的文档aid
             $aids = Db::name('archives')->where([
                     'aid'   =>  ['IN', $aids],
                     'channel'   =>  $current_channel,
-                    'lang'  => get_admin_lang(),
+                    'lang'  => $this->admin_lang,
                 ])->column('aid');
             // 移动文档处理
             $update_data = array(
@@ -418,8 +418,8 @@ class Archives extends Base
             }
             /*-----end*/
 
-            $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
-            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
+            $gourl = url('Archives/index_archives', array('typeid'=>$typeid), true, true);
+            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl), true, true);
             header('Location: '.$jumpUrl);
             exit;
         }

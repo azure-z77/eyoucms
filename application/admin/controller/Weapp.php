@@ -154,8 +154,9 @@ class Weapp extends Base
             $versionStr = implode(',', $versionArr);
             // URL参数
             $vaules = array(
-                'code'  => $codeStr,
-                'v'    => $versionStr,
+                'domain'    => request()->host(true),
+                'code'      => $codeStr,
+                'v'         => $versionStr,
             );
             $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVdlYXBwJmE9Y2hlY2tCYXRjaFZlcnNpb24m';
             $service_url = base64_decode(config('service_ey')).base64_decode($tmp_str);
@@ -187,7 +188,7 @@ class Weapp extends Base
         if (!IS_AJAX) {
             $msg = $this->weappLogic->checkInstall();
             if ($msg !== true) {
-                $this->error($msg);
+                $this->error($msg, url('Weapp/index'));
             }
         }
         $sm = request()->param('sm');
@@ -204,9 +205,8 @@ class Weapp extends Base
     /**
      * 安装插件
      */
-    public function install(){
-        $id       =   input('id');
-        $row      =   M('Weapp')->field('code,thorough,config')->find($id);
+    public function install($id){
+        $row      =   M('Weapp')->field('name,code,thorough,config')->find($id);
         $row['config'] = json_decode($row['config'], true);
         $class    =   get_weapp_class($row['code']);
         if (!class_exists($class)) {
@@ -257,6 +257,7 @@ class Weapp extends Base
                 /*插件安装的后置操作（可无）*/
                 $this->afterInstall($weapp);
                 /*--end*/
+                adminLog('安装插件：'.$row['name']);
                 $this->success('安装成功', url('Weapp/index'));
                 exit;
             }
@@ -271,7 +272,7 @@ class Weapp extends Base
     public function uninstall(){
         $id       =   input('param.id/d', 0);
         $thorough = input('param.thorough/d', 0);
-        $row      =   M('Weapp')->field('code')->find($id);
+        $row      =   M('Weapp')->field('name,code')->find($id);
         $class    =   get_weapp_class($row['code']);
         if (!class_exists($class)) {
             $this->error('插件不存在！');
@@ -286,7 +287,9 @@ class Weapp extends Base
             if (1 == $thorough) {
                 $r = M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'add_time'=>getTime()));
             } else if (0 == $thorough) {
-                $r = M('weapp')->where('id',$id)->delete();
+                M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'update_time'=>getTime()));
+                // 删除插件相关文件
+                $this->unlinkcode($row['code']);
             }
             if (false !== $r) {
                /*插件sql文件，不执行删除插件数据表*/
@@ -319,6 +322,8 @@ class Weapp extends Base
                 /*插件卸载的后置操作（可无）*/
                 $this->afterUninstall($weapp);
                 /*--end*/
+
+                adminLog('卸载插件：'.$row['name']);
                 $this->success('卸载成功', url('Weapp/index'));
                 exit;
             }
@@ -413,22 +418,7 @@ class Weapp extends Base
                 if($r){
                     /*清理插件相关文件*/
                     foreach ($result as $key => $val) {
-                        $filelist_path = WEAPP_DIR_NAME.DS.$val['code'].DS.'filelist.txt';
-                        if (file_exists($filelist_path)) {
-                            $filelistStr = file_get_contents($filelist_path);
-                            $filelist = explode("\n\r", $filelistStr);
-                            if (empty($filelist)) {
-                                continue;
-                            }
-                            delFile(WEAPP_DIR_NAME.DS.$val['code'], true);
-                            foreach ($filelist as $k2 => $v2) {
-                                if (!empty($v2) && !preg_match('/^'.WEAPP_DIR_NAME.'\/'.$val['code'].'/i', $v2)) {
-                                    if (file_exists($v2) && is_file($v2)) {
-                                        @unlink($v2);
-                                    }
-                                }
-                            }
-                        }
+                        $this->unlinkcode($val['code']);
                     }
                     /*--end*/
                     adminLog('删除插件：'.implode(',', $name_list));
@@ -441,6 +431,30 @@ class Weapp extends Base
             }
         }
         $this->error('非法访问');
+    }
+
+    /**
+     * 清理插件相关文件
+     */
+    private function unlinkcode($code)
+    {
+        $filelist_path = WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
+        if (file_exists($filelist_path)) {
+            $filelistStr = file_get_contents($filelist_path);
+            $filelist = explode("\n\r", $filelistStr);
+            if (empty($filelist)) {
+                continue;
+            }
+            delFile(WEAPP_DIR_NAME.DS.$code, true);
+            foreach ($filelist as $k2 => $v2) {
+                if (!empty($v2) && !preg_match('/^'.WEAPP_DIR_NAME.'\/'.$code.'/i', $v2)) {
+                    if (file_exists($v2) && is_file($v2)) {
+                        @unlink($v2);
+                    }
+                }
+            }
+            delFile(WEAPP_DIR_NAME.DS.$code, true);
+        }
     }
 
     /**
@@ -623,7 +637,23 @@ class Weapp extends Base
                     @delFile($savePath.$folderName, true);
                     /*--end*/
 
-                    $this->success("上传插件成功", url('Weapp/index'));
+                    /*安装插件*/
+                    $configfile = WEAPP_DIR_NAME.DS.$weappName.'/config.php';
+                    if (file_exists($configfile)) {
+                        $configdata = include($configfile);
+                        $code = isset($configdata['code']) ? $configdata['code'] : 'error_'.date('Ymd');
+                        $addData = [
+                            'code'          => $code,
+                            'name'          => isset($configdata['name']) ? $configdata['name'] : '配置信息不完善',
+                            'config'        => empty($configdata) ? '' : json_encode($configdata),
+                            'add_time'      => getTime(),
+                        ];
+                        $weapp_id = Db::name('weapp')->insertGetId($addData);
+                        if (!empty($weapp_id)) {
+                            $this->install($weapp_id);
+                        }
+                    }
+                    /*--end*/
                 }
             }else{
                 //上传错误提示错误信息
@@ -738,6 +768,9 @@ class Weapp extends Base
         }
         if (file_exists($srcPath.DS.'template'.DS.'weapp')) {
             delFile($srcPath.DS.'template'.DS.'weapp', true);
+        }
+        if (file_exists($srcPath.DS.'weapp'.DS.$sample.DS.'behavior'.DS.'weapp')) {
+            delFile($srcPath.DS.'weapp'.DS.$sample.DS.'behavior'.DS.'weapp', true);
         }
         if (file_exists($srcPath.DS.'weapp'.DS.$sample.DS.'template'.DS.'skin'.DS.'font')) {
             delFile($srcPath.DS.'weapp'.DS.$sample.DS.'template'.DS.'skin'.DS.'font', true);
