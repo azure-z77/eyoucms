@@ -57,18 +57,6 @@
                 </dd>
             </dl>
             <dl class="row">
-                <dt class="tit">模板错误提示</dt>
-                <dd class="opt">
-                    <div class="onoff">
-                        <label for="web_exception1" class="cb-enable {if condition="isset($config.web_exception) && $config.web_exception eq 1"}selected{/if}" >开启</label>
-                        <label for="web_exception0" class="cb-disable {if condition="!isset($config.web_exception) || empty($config.web_exception)"}selected{/if}" >关闭</label>
-                        <input id="web_exception1" name="web_exception" value="1" {if condition="isset($config.web_exception) && $config.web_exception eq 1"}checked{/if} type="radio">
-                        <input id="web_exception0" name="web_exception"  value="0" {if condition="!isset($config.web_exception) || empty($config.web_exception)"}checked{/if} type="radio">
-                    </div>
-                    <p class="notic">开启之后，显示系统的报错信息，跟踪调试。</p>
-                </dd>
-            </dl>
-            <dl class="row">
                 <dt class="tit">
                     <label for="site_url">多语言入口</label>
                 </dt>

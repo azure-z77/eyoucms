@@ -102,7 +102,9 @@ function changeTableVal(table,id_name,id_value,field,obj)
                     layer.msg(res.msg, {icon: 1});
                 }
             } else {
-                layer.msg(res.msg, {icon: 2});  
+                layer.msg(res.msg, {icon: 2}, function(){
+                    window.location.reload();
+                });  
             }
         }
     }); 

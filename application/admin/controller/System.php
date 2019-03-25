@@ -15,6 +15,7 @@ namespace app\admin\controller;
 use think\Db;
 use think\Cache;
 use think\Request;
+use think\Page;
 
 class System extends Base
 {
@@ -295,6 +296,113 @@ class System extends Base
     }
 
     /**
+     * 邮件配置
+     */
+    public function smtp()
+    {
+        $inc_type =  'smtp';
+
+        if (IS_POST) {
+            $param = input('post.');
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            /*--end*/
+            $this->success('操作成功', url('System/smtp'));
+        }
+
+        $config = tpCache($inc_type);
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 邮件模板列表
+     */
+    public function smtp_tpl()
+    {
+        $list = array();
+        $keywords = input('keywords/s');
+
+        $map = array();
+        if (!empty($keywords)) {
+            $map['tpl_name'] = array('LIKE', "%{$keywords}%");
+        }
+
+        // 多语言
+        $map['lang'] = array('eq', $this->admin_lang);
+
+        $count = Db::name('smtp_tpl')->where($map)->count('tpl_id');// 查询满足要求的总记录数
+        $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list = Db::name('smtp_tpl')->where($map)
+            ->order('tpl_id asc')
+            ->limit($pageObj->firstRow.','.$pageObj->listRows)
+            ->select();
+        $pageStr = $pageObj->show(); // 分页显示输出
+        $this->assign('list', $list); // 赋值数据集
+        $this->assign('pageStr', $pageStr); // 赋值分页输出
+        $this->assign('pageObj', $pageObj); // 赋值分页对象
+        
+        return $this->fetch();
+    }
+    
+    /**
+     * 邮件模板列表 - 编辑
+     */
+    public function smtp_tpl_edit()
+    {
+        if (IS_POST) {
+            $post = input('post.');
+            $post['tpl_id'] = eyIntval($post['tpl_id']);
+            if(!empty($post['tpl_id'])){
+                $post['tpl_title'] = trim($post['tpl_title']);
+
+                /*组装存储数据*/
+                $nowData = array(
+                    'update_time'   => getTime(),
+                );
+                $saveData = array_merge($post, $nowData);
+                /*--end*/
+                
+                $r = Db::name('smtp_tpl')->where([
+                        'tpl_id'    => $post['tpl_id'],
+                        'lang'      => $this->home_lang,
+                    ])->update($saveData);
+                if ($r) {
+                    $tpl_name = Db::name('smtp_tpl')->where([
+                            'tpl_id'    => $post['tpl_id'],
+                            'lang'      => $this->home_lang,
+                        ])->getField('tpl_name');
+                    adminLog('编辑邮件模板：'.$tpl_name); // 写入操作日志
+                    $this->success("操作成功", url('System/smtp_tpl'));
+                }
+            }
+            $this->error("操作失败");
+        }
+
+        $id = input('id/d', 0);
+        $row = Db::name('smtp_tpl')->where([
+                'tpl_id'    => $id,
+                'lang'      => $this->home_lang,
+            ])->find();
+        if (empty($row)) {
+            $this->error('数据不存在，请联系管理员！');
+            exit;
+        }
+
+        $this->assign('row',$row);
+        return $this->fetch();
+    }
+
+    /**
      * 清空缓存 - 兼容升级没刷新后台，点击报错404，过1.2.5版本之后清除掉代码
      */
     public function clearCache()
@@ -444,8 +552,14 @@ class System extends Base
     public function send_email()
     {
         $param = input('post.');
-        $res = send_email($param['smtp_test_eamil'],'易优CMS','易优CMS验证码:'.mt_rand(1000,9999), 1);
-        exit(json_encode($res));
+        $title = '演示标题';
+        $content = '演示一串随机数字：' . mt_rand(100000,999999);
+        $res = send_email($param['smtp_from_eamil'], $title, $content, 0);
+        if (intval($res['code']) == 1) {
+            $this->success($res['msg']);
+        } else {
+            $this->error($res['msg']);
+        }
     }
       
     /**

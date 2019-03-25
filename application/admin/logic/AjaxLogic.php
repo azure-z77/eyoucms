@@ -50,6 +50,7 @@ class AjaxLogic extends Model
         $this->saveBaseFile(); // 存储后台入口文件路径，比如：/login.php
         $this->renameInstall(); // 重命名安装目录，提高网站安全性
         $this->del_adminlog(); // 只保留最近三个月的操作日志
+        $this->syn_smtp_config(); // 同步插件【邮箱发送】的配置信息到内置表中
     }
     
     /**
@@ -145,6 +146,58 @@ class AjaxLogic extends Model
                     @unlink($file);
                 }
             }
+        }
+    }
+
+    /**
+     * 同步插件【邮箱发送】的配置信息到内置表中 -- 兼容1.3.0之前版本
+     */
+    private function syn_smtp_config()
+    {
+        $smtp_syn_weapp = tpCache('smtp.smtp_syn_weapp'); // 是否同步插件【邮箱发送】的配置
+        if (empty($smtp_syn_weapp)) {
+
+            /*同步之前安装邮箱插件的配置信息*/
+            $data = \think\Db::name('weapp')->where('code','Smtpmail')->getField('data');
+            if (!empty($data)) {
+                $data = unserialize($data);
+                if (is_array($data) && !empty($data)) {
+                    foreach ($data as $key => $val) {
+                        if (!in_array($key, ['smtp_server','smtp_port','smtp_user','smtp_pwd','smtp_from_eamil'])) {
+                            unset($data[$key]);
+                        }
+                    }
+                }
+            }
+            /*--end*/
+
+            $data['smtp_syn_weapp'] = 1;
+
+            /*多语言*/
+            if (!is_language()) {
+                tpCache('smtp',$data);
+            } else {
+                $smtp_tpl_db = \think\Db::name('smtp_tpl');
+                $smtptplList = $smtp_tpl_db->field('tpl_id,lang')->getAllWithIndex('lang');
+                $smtptplRow = $smtp_tpl_db->field('tpl_id,lang',true)
+                    ->where('lang', get_main_lang())
+                    ->order('tpl_id asc')
+                    ->select();
+
+                $langRow = \think\Db::name('language')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    /*同步多语言邮件模板表数据*/
+                    if (empty($smtptplList[$val['mark']]) && !empty($smtptplRow)) {
+                        foreach ($smtptplRow as $key2 => $val2) {
+                            $smtptplRow[$key2]['lang'] = $val['mark'];
+                        }
+                        model('SmtpTpl')->saveAll($smtptplRow);
+                    }
+                    /*--end*/
+                    tpCache('smtp', $data, $val['mark']);
+                }
+            }
+            /*--end*/
         }
     }
 }

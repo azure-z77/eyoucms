@@ -46,12 +46,24 @@
                     <p class="">与文档的模板相关连，建议由小写字母、数字组成，因为部份Unix系统无法识别中文文件。<br/>列表模板是：lists_模型标识.htm<br/>文档模板是：view_模型标识.htm</p>
                 </dd>
             </dl>
-            {neq name="$field.ifsystem" value="1"}
+            <dl class="row">
+                <dt class="tit">
+                    <label>文档标题重复</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="is_repeat_title1" class="cb-enable {if condition='!isset($field.is_repeat_title) || $field.is_repeat_title eq 1'}selected{/if}">允许</label>
+                        <label for="is_repeat_title0" class="cb-disable {if condition='isset($field.is_repeat_title) && $field.is_repeat_title eq 0'}selected{/if}">不允许</label>
+                        <input id="is_repeat_title1" name="is_repeat_title" value="1" type="radio" {if condition="!isset($field.is_repeat_title) || $field.is_repeat_title eq 1"} checked="checked"{/if}>
+                        <input id="is_repeat_title0" name="is_repeat_title" value="0" type="radio" {if condition="isset($field.is_repeat_title) && $field.is_repeat_title eq 0"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic">新增/编辑文档时，是否允许标题的重复</p>
+                </dd>
+            </dl>
             <div class="bot">
                 <input type="hidden" name="id" value="{$field.id}">
                 <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
-            {/neq}
         </div>
     </form>
 </div>

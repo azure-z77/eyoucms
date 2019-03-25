@@ -182,7 +182,7 @@ class Eyou extends Paginator
             }
             $pageStr = implode(' ', $pageArr);
 
-            return '<ul class="tcdPageCode">'.$pageStr.'</ul>';
+            return $pageStr;
 
         } else { // 没有数据的情况下
             return $this->getTotalResult();

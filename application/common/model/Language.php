@@ -78,7 +78,6 @@ class Language extends Model
             if (!empty($arcrankRow)) {
                 foreach ($arcrankRow as $key => $val) {
                     $arcrankRow[$key]['lang'] = $mark;
-                    $arcrankRow[$key]['name'] = $mark.$val['name']; // 临时测试
                 }
                 $insertNum = $arcrank_db->insertAll($arcrankRow);
                 if ($insertNum != count($arcrankRow)) {
@@ -158,6 +157,27 @@ class Language extends Model
                 $insertObject = model('Links')->saveAll($linksRow);
                 $insertNum = count($insertObject);
                 if ($insertNum != count($linksRow)) {
+                    return false;
+                }
+            }
+        }
+        /*--end*/
+
+        /*复制邮件模板表数据*/
+        $smtp_tpl_db = Db::name('smtp_tpl');
+        $smtptplCount = $smtp_tpl_db->where('lang',$mark)->count();
+        if (empty($smtptplCount)) {
+            $smtptplRow = $smtp_tpl_db->field('tpl_id,lang',true)
+                ->where('lang', $post['copy_lang'])
+                ->order('tpl_id asc')
+                ->select();
+            if (!empty($smtptplRow)) {
+                foreach ($smtptplRow as $key => $val) {
+                    $smtptplRow[$key]['lang'] = $mark;
+                }
+                $insertObject = model('SmtpTpl')->saveAll($smtptplRow);
+                $insertNum = count($insertObject);
+                if ($insertNum != count($smtptplRow)) {
                     return false;
                 }
             }
@@ -270,6 +290,10 @@ class Language extends Model
             Db::name('taglist')->where("lang",'IN',$lang_list)->delete();
             /*同步删除标签索引表数据*/
             Db::name('tagindex')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除邮件模板表数据*/
+            Db::name('smtp_tpl')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除邮件发送记录表数据*/
+            Db::name('smtp_record')->where("lang",'IN',$lang_list)->delete();
         }
     }
 

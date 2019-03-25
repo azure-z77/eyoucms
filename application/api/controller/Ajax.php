@@ -30,21 +30,23 @@ class Ajax extends Base
      */
     public function arcclick()
     {
-        $aid = input('aid/d', 0);
-        $click = 0;
-        if (empty($aid)) {
+        if (IS_AJAX) {
+            $aid = input('aid/d', 0);
+            $click = 0;
+            if (empty($aid)) {
+                echo($click);
+                exit;
+            }
+
+            if ($aid > 0) {
+                $archives_db = Db::name('archives');
+                $archives_db->where(array('aid'=>$aid))->setInc('click'); 
+                $click = $archives_db->where(array('aid'=>$aid))->getField('click');
+            }
+
             echo($click);
             exit;
         }
-
-        if ($aid > 0) {
-            $archives_db = Db::name('archives');
-            $archives_db->where(array('aid'=>$aid))->setInc('click'); 
-            $click = $archives_db->where(array('aid'=>$aid))->getField('click');
-        }
-
-        echo($click);
-        exit;
     }
 
     /**
@@ -130,7 +132,7 @@ class Ajax extends Base
      */
     public function get_token()
     {
-        if (IS_AJAX_POST) {
+        if (IS_AJAX) {
             echo $this->request->token();
             exit;
         }
@@ -184,5 +186,58 @@ class Ajax extends Base
             $Verify->entry($type);
         }
         exit();
+    }
+      
+    /**
+     * 邮箱发送
+     */
+    public function send_email()
+    {
+        // 超时后，断掉邮件发送
+        function_exists('set_time_limit') && set_time_limit(5);
+
+        $type = input('param.type/s');
+        
+        // 留言发送邮件
+        if (IS_AJAX_POST && 'gbook_submit' == $type) {
+            $tid = input('param.tid/d');
+            $aid = input('param.aid/d');
+
+            $send_email_scene = config('send_email_scene');
+            $scene = $send_email_scene[1]['scene'];
+
+            $web_name = tpCache('web.web_name');
+            // 判断标题拼接
+            $arctype  = M('arctype')->field('typename')->find($tid);
+            $web_name = $arctype['typename'].'-'.$web_name;
+
+            // 拼装发送的字符串内容
+            $row = M('guestbook_attribute')->field('a.attr_name, b.attr_value')
+                ->alias('a')
+                ->join('__GUESTBOOK_ATTR__ b', 'a.attr_id = b.attr_id AND a.typeid = '.$tid, 'LEFT')
+                ->where([
+                    'b.aid' => $aid,
+                ])
+                ->order('a.attr_id sac')
+                ->select();
+            $content = '';
+            foreach ($row as $key => $val) {
+                $content .= $val['attr_name'] . '：' . $val['attr_value'].'<br/>';
+            }
+            $html = "<p style='text-align: left;'>{$web_name}</p><p style='text-align: left;'>{$content}</p>";
+            if (isMobile()) {
+                $html .= "<p style='text-align: left;'>——来源：移动端</p>";
+            } else {
+                $html .= "<p style='text-align: left;'>——来源：电脑端</p>";
+            }
+            
+            // 发送邮件
+            $res = send_email(null,null,$html, $scene);
+            if (intval($res['code']) == 1) {
+                $this->success($res['msg']);
+            } else {
+                $this->error($res['msg']);
+            }
+        }
     }
 }

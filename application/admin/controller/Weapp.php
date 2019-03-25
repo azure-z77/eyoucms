@@ -194,6 +194,13 @@ class Weapp extends Base
         $sm = request()->param('sm');
         $sc = request()->param('sc');
         $sa = request()->param('sa');
+
+        /*插件转为内置*/
+        if ('Smtpmail' == $sm) {
+            $this->success('该插件已迁移，前往中…', url('System/smtp'));
+        }
+        /*--end*/
+
         $controllerName = !empty($sc) ? $sc : $sm;
         $actionName = !empty($sa) ? $sa : "index";
         $class_path = "\\".WEAPP_DIR_NAME."\\".$sm."\\controller\\".$controllerName;
@@ -284,12 +291,12 @@ class Weapp extends Base
         /*--end*/
 
         if (true) {
+            $is_uninstall = false;
             if (1 == $thorough) {
                 $r = M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'add_time'=>getTime()));
             } else if (0 == $thorough) {
-                M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'update_time'=>getTime()));
-                // 删除插件相关文件
-                $this->unlinkcode($row['code']);
+                $r = M('weapp')->where('id',$id)->update(array('thorough'=>$thorough,'status'=>0,'update_time'=>getTime()));
+                $r && $is_uninstall = true;
             }
             if (false !== $r) {
                /*插件sql文件，不执行删除插件数据表*/
@@ -322,6 +329,12 @@ class Weapp extends Base
                 /*插件卸载的后置操作（可无）*/
                 $this->afterUninstall($weapp);
                 /*--end*/
+
+                // 删除插件相关文件
+                if ($is_uninstall) {
+                    $rdel = M('weapp')->where('id',$id)->delete();
+                    $this->unlinkcode($row['code']);
+                }
 
                 adminLog('卸载插件：'.$row['name']);
                 $this->success('卸载成功', url('Weapp/index'));
@@ -418,9 +431,13 @@ class Weapp extends Base
                 if($r){
                     /*清理插件相关文件*/
                     foreach ($result as $key => $val) {
-                        $this->unlinkcode($val['code']);
+                        $unbool = $this->unlinkcode($val['code']);
+                        if (true == $unbool) {
+                            continue;
+                        }
                     }
                     /*--end*/
+
                     adminLog('删除插件：'.implode(',', $name_list));
                     $this->success('删除成功');
                 }else{
@@ -443,7 +460,7 @@ class Weapp extends Base
             $filelistStr = file_get_contents($filelist_path);
             $filelist = explode("\n\r", $filelistStr);
             if (empty($filelist)) {
-                continue;
+                return true;
             }
             delFile(WEAPP_DIR_NAME.DS.$code, true);
             foreach ($filelist as $k2 => $v2) {
@@ -455,6 +472,8 @@ class Weapp extends Base
             }
             delFile(WEAPP_DIR_NAME.DS.$code, true);
         }
+
+        return true;
     }
 
     /**
@@ -618,12 +637,13 @@ class Weapp extends Base
                     if (empty($weappPath)) {
                         $this->error('插件压缩包缺少目录文件');
                     }
+                    
                     $weappPath = str_replace("\\", DS, $weappPath);
                     $weappPathArr = explode(DS, $weappPath);
                     $weappName = $weappPathArr[count($weappPathArr) - 1];
-                    if (is_dir(ROOT_PATH.WEAPP_DIR_NAME.DS.$weappName)) {
-                        $this->error("已存在同名插件{$weappName}，请手工移除".WEAPP_DIR_NAME.DS.$weappName."目录");
-                    }
+                    // if (is_dir(ROOT_PATH.WEAPP_DIR_NAME.DS.$weappName)) {
+                    //     $this->error("已存在同名插件{$weappName}，请手工移除".WEAPP_DIR_NAME.DS.$weappName."目录");
+                    // }
                     /*--end*/
 
                     // 递归复制文件夹            

@@ -116,19 +116,15 @@ INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999e
 DROP TABLE IF EXISTS `ey_admin_log`;
 CREATE TABLE `ey_admin_log` (
   `log_id` bigint(16) unsigned NOT NULL AUTO_INCREMENT COMMENT '表id',
-  `admin_id` int(10) DEFAULT NULL COMMENT '管理员id',
-  `log_info` varchar(255) DEFAULT NULL COMMENT '日志描述',
-  `log_ip` varchar(30) DEFAULT NULL COMMENT 'ip地址',
-  `log_url` varchar(255) DEFAULT NULL COMMENT 'url',
-  `log_time` int(10) DEFAULT NULL COMMENT '日志时间',
+  `admin_id` int(10) NOT NULL DEFAULT '-1' COMMENT '管理员id',
+  `log_info` varchar(255) DEFAULT '' COMMENT '日志描述',
+  `log_ip` varchar(30) DEFAULT '' COMMENT 'ip地址',
+  `log_url` varchar(255) DEFAULT '' COMMENT 'url',
+  `log_time` int(11) DEFAULT '0' COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=262 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
--- -----------------------------
--- Records of `ey_admin_log`
--- -----------------------------
-INSERT INTO `ey_admin_log` VALUES ('261', '1', '后台登录', '127.0.0.1', '/login.php', '1548383780');
 
 -- -----------------------------
 -- Table structure for `ey_archives`
@@ -262,10 +258,10 @@ CREATE TABLE `ey_arcrank` (
 -- -----------------------------
 -- Records of `ey_arcrank`
 -- -----------------------------
-INSERT INTO `ey_arcrank` VALUES ('1', '0', '开放浏览', 'cn', '0', '0');
-INSERT INTO `ey_arcrank` VALUES ('2', '-1', '待审核稿件', 'cn', '0', '0');
-INSERT INTO `ey_arcrank` VALUES ('3', '0', 'en开放浏览', 'en', '0', '0');
-INSERT INTO `ey_arcrank` VALUES ('4', '-1', 'en待审核稿件', 'en', '0', '0');
+INSERT INTO `ey_arcrank` VALUES ('1', '0', '开放浏览', 'cn', '0', '1552376880');
+INSERT INTO `ey_arcrank` VALUES ('2', '-1', '待审核稿件', 'cn', '0', '1552376880');
+INSERT INTO `ey_arcrank` VALUES ('3', '0', '开放浏览', 'en', '0', '1552376880');
+INSERT INTO `ey_arcrank` VALUES ('4', '-1', '待审核稿件', 'en', '0', '1552376880');
 
 -- -----------------------------
 -- Table structure for `ey_arctype`
@@ -539,6 +535,7 @@ CREATE TABLE `ey_channeltype` (
   `ctl_name` varchar(50) DEFAULT '' COMMENT '控制器名称（区分大小写）',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(1=启用，0=屏蔽)',
   `ifsystem` tinyint(1) DEFAULT '0' COMMENT '字段分类，1=系统(不可修改)，0=自定义',
+  `is_repeat_title` tinyint(1) DEFAULT '1' COMMENT '文档标题重复，1=允许，0=不允许',
   `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，1=是，0=否',
   `sort_order` smallint(6) DEFAULT '50' COMMENT '排序',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
@@ -551,12 +548,12 @@ CREATE TABLE `ey_channeltype` (
 -- -----------------------------
 -- Records of `ey_channeltype`
 -- -----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1', '0', '1548383781');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '0', '4', '0', '1548383781');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '0', '2', '0', '1548383781');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '0', '8', '1509197711', '1548383781');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '0', '6', '1523091961', '1548383781');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '0', '3', '1523929121', '1548383781');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '1', '0', '1', '0', '1553497770');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '1', '0', '4', '0', '1553497770');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '1', '0', '2', '0', '1553497770');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '1', '0', '8', '1509197711', '1553497770');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '1', '0', '6', '1523091961', '1553497770');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '1', '0', '3', '1523929121', '1553497770');
 
 -- -----------------------------
 -- Table structure for `ey_config`
@@ -572,7 +569,7 @@ CREATE TABLE `ey_config` (
   `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=174 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=178 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- -----------------------------
 -- Records of `ey_config`
@@ -732,6 +729,10 @@ INSERT INTO `ey_config` VALUES ('170', 'web_exception', '0', 'web', '', 'cn', '0
 INSERT INTO `ey_config` VALUES ('171', 'web_language_switch', '1', 'web', '', 'cn', '0', '1546477337');
 INSERT INTO `ey_config` VALUES ('172', 'web_exception', '0', 'web', '', 'en', '0', '1546477338');
 INSERT INTO `ey_config` VALUES ('173', 'web_language_switch', '1', 'web', '', 'en', '0', '1546477338');
+INSERT INTO `ey_config` VALUES ('174', 'system_version', 'v1.3.0', 'system', '', 'cn', '0', '1553497685');
+INSERT INTO `ey_config` VALUES ('175', 'system_version', 'v1.3.0', 'system', '', 'en', '0', '1553497685');
+INSERT INTO `ey_config` VALUES ('176', 'smtp_syn_weapp', '1', 'smtp', '', 'cn', '0', '1553497729');
+INSERT INTO `ey_config` VALUES ('177', 'smtp_syn_weapp', '1', 'smtp', '', 'en', '0', '1553497729');
 
 -- -----------------------------
 -- Table structure for `ey_config_attribute`
@@ -854,6 +855,7 @@ CREATE TABLE `ey_guestbook` (
   `aid` int(11) NOT NULL AUTO_INCREMENT,
   `typeid` int(11) DEFAULT '0' COMMENT '栏目ID',
   `channel` smallint(5) DEFAULT '0' COMMENT '模型ID',
+  `md5data` varchar(50) DEFAULT '' COMMENT '数据序列化之后的MD5加密，提交内容的唯一性',
   `ip` varchar(255) DEFAULT '' COMMENT 'ip地址',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
@@ -861,29 +863,6 @@ CREATE TABLE `ey_guestbook` (
   PRIMARY KEY (`aid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COMMENT='留言主表';
 
--- -----------------------------
--- Records of `ey_guestbook`
--- -----------------------------
-INSERT INTO `ey_guestbook` VALUES ('15', '30', '8', '127.0.0.1', 'cn', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook` VALUES ('16', '30', '8', '127.0.0.1', 'cn', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook` VALUES ('17', '6', '8', '127.0.0.1', 'cn', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook` VALUES ('18', '6', '8', '127.0.0.1', 'cn', '1526873194', '1526873194');
-INSERT INTO `ey_guestbook` VALUES ('19', '6', '8', '127.0.0.1', 'cn', '1526873250', '1526873250');
-INSERT INTO `ey_guestbook` VALUES ('20', '6', '8', '127.0.0.1', 'cn', '1526873289', '1526873289');
-INSERT INTO `ey_guestbook` VALUES ('21', '6', '8', '127.0.0.1', 'cn', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook` VALUES ('22', '6', '8', '127.0.0.1', 'cn', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook` VALUES ('23', '6', '8', '127.0.0.1', 'cn', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook` VALUES ('24', '6', '8', '127.0.0.1', 'cn', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook` VALUES ('25', '6', '8', '127.0.0.1', 'cn', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook` VALUES ('26', '6', '8', '127.0.0.1', 'cn', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook` VALUES ('27', '6', '8', '127.0.0.1', 'cn', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook` VALUES ('28', '6', '8', '127.0.0.1', 'cn', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook` VALUES ('29', '6', '8', '127.0.0.1', 'cn', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook` VALUES ('30', '6', '8', '127.0.0.1', 'cn', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook` VALUES ('31', '6', '8', '127.0.0.1', 'cn', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook` VALUES ('32', '6', '8', '127.0.0.1', 'cn', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook` VALUES ('33', '6', '8', '127.0.0.1', 'cn', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook` VALUES ('34', '6', '8', '127.0.0.1', 'cn', '1527156154', '1527156154');
 
 -- -----------------------------
 -- Table structure for `ey_guestbook_attr`
@@ -902,67 +881,6 @@ CREATE TABLE `ey_guestbook_attr` (
   KEY `guest_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COMMENT='留言表单属性值';
 
--- -----------------------------
--- Records of `ey_guestbook_attr`
--- -----------------------------
-INSERT INTO `ey_guestbook_attr` VALUES ('1', '15', '1', '蓉蓉', 'cn', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('2', '15', '2', '18800000000', 'cn', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('3', '15', '3', '隔壁老王', 'cn', '1526616554', '1526616554');
-INSERT INTO `ey_guestbook_attr` VALUES ('4', '16', '1', '隔壁老王', 'cn', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('5', '16', '2', '18800000000', 'cn', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('6', '16', '3', '扫地阿姨', 'cn', '1526616615', '1526616615');
-INSERT INTO `ey_guestbook_attr` VALUES ('7', '17', '4', '姓名啊', 'cn', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('8', '17', '5', '手机号啊', 'cn', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('9', '17', '6', '备注啊', 'cn', '1526872813', '1526872813');
-INSERT INTO `ey_guestbook_attr` VALUES ('10', '20', '4', '77u', 'cn', '1526873289', '1526873289');
-INSERT INTO `ey_guestbook_attr` VALUES ('11', '20', '5', '润体乳', 'cn', '1526873290', '1526873290');
-INSERT INTO `ey_guestbook_attr` VALUES ('12', '20', '6', '投入人员让他', 'cn', '1526873290', '1526873290');
-INSERT INTO `ey_guestbook_attr` VALUES ('13', '21', '4', '大声说地方', 'cn', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('14', '21', '5', '多个梵蒂冈', 'cn', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('15', '21', '6', '士大夫士大夫', 'cn', '1526873428', '1526873428');
-INSERT INTO `ey_guestbook_attr` VALUES ('16', '22', '4', '第三方', 'cn', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('17', '22', '5', '非官方个', 'cn', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('18', '22', '6', '阿大丰收', 'cn', '1526873526', '1526873526');
-INSERT INTO `ey_guestbook_attr` VALUES ('19', '23', '4', '打发斯蒂芬', 'cn', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook_attr` VALUES ('20', '23', '6', '房东是个负担', 'cn', '1526873538', '1526873538');
-INSERT INTO `ey_guestbook_attr` VALUES ('21', '24', '4', '爱的色放的', 'cn', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('22', '24', '5', '第三方', 'cn', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('23', '24', '6', '第三方', 'cn', '1526873590', '1526873590');
-INSERT INTO `ey_guestbook_attr` VALUES ('24', '25', '4', '3423', 'cn', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('25', '25', '5', '', 'cn', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('26', '25', '6', '', 'cn', '1526873598', '1526873598');
-INSERT INTO `ey_guestbook_attr` VALUES ('27', '26', '4', '3423', 'cn', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('28', '26', '5', '', 'cn', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('29', '26', '6', '', 'cn', '1526873599', '1526873599');
-INSERT INTO `ey_guestbook_attr` VALUES ('30', '27', '4', 'ad', 'cn', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('31', '27', '5', '辅导费', 'cn', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('32', '27', '6', '第三方官方的', 'cn', '1526874038', '1526874038');
-INSERT INTO `ey_guestbook_attr` VALUES ('33', '28', '4', 'u7uym', 'cn', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('34', '28', '5', '一颗', 'cn', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('35', '28', '6', '个梵蒂冈', 'cn', '1526874117', '1526874117');
-INSERT INTO `ey_guestbook_attr` VALUES ('36', '29', '4', '突然有人头', 'cn', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('37', '29', '5', '扔他', 'cn', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('38', '29', '6', '儿童', 'cn', '1526874555', '1526874555');
-INSERT INTO `ey_guestbook_attr` VALUES ('39', '30', '4', '545', 'cn', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('40', '30', '5', '天通苑', 'cn', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('41', '30', '6', '个体户发过火', 'cn', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('42', '30', '7', '个人', 'cn', '1526876081', '1526876081');
-INSERT INTO `ey_guestbook_attr` VALUES ('43', '31', '4', '234', 'cn', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('44', '31', '5', '43534', 'cn', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('45', '31', '6', '546546', 'cn', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('46', '31', '7', '团队', 'cn', '1526876214', '1526876214');
-INSERT INTO `ey_guestbook_attr` VALUES ('47', '32', '4', '姓名', 'cn', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('48', '32', '5', '联系方式', 'cn', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('49', '32', '7', '无', 'cn', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('50', '32', '6', '备注', 'cn', '1527060356', '1527060356');
-INSERT INTO `ey_guestbook_attr` VALUES ('51', '33', '4', '姓名', 'cn', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('52', '33', '7', '个人', 'cn', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('53', '33', '6', '备注', 'cn', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('54', '33', '5', '联系方式', 'cn', '1527060517', '1527060517');
-INSERT INTO `ey_guestbook_attr` VALUES ('55', '34', '4', '343', 'cn', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('56', '34', '5', '435435', 'cn', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('57', '34', '6', '435345', 'cn', '1527156154', '1527156154');
-INSERT INTO `ey_guestbook_attr` VALUES ('58', '34', '7', '无', 'cn', '1527156154', '1527156154');
 
 -- -----------------------------
 -- Table structure for `ey_guestbook_attribute`
@@ -1634,6 +1552,53 @@ INSERT INTO `ey_single_content` VALUES ('5', '46', '32', '&lt;p&gt;EyouCms is kn
 INSERT INTO `ey_single_content` VALUES ('6', '47', '39', '&lt;p&gt;For different servers and virtual spaces, the environment for running PHP is also different, currently mainly divided into: Nginx, apache, IIS and other servers. Here&amp;#39;s how to remove the index. PHP character from the URL. Remember to restart the server and clear the cache in the management background.&lt;/p&gt;&lt;p&gt;[IIS Server]&lt;/p&gt;&lt;p&gt;There is a web. config file in the root directory of the website. The function of this file is to rewrite the URL, make the URL short, easy to optimize by SEO, and the user&amp;#39;s memory. Open the web. config file and add the following code fragments on the original basis.&lt;/p&gt;&lt;p&gt;&amp;lt;rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rule name= &amp;quot;Imported Rule 1&amp;quot; enabled= &amp;quot;true&amp;quot; stopProcessing= &amp;quot;true&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;match url=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&amp;quot;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsFile&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsDirectory&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/conditions&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rule&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;The following is the effect of a Hong Kong virtual space:&lt;/p&gt;&lt;p&gt;&amp;lt;? XML version = &amp;quot;1.0&amp;quot; encoding = &amp;quot;UTF-8&amp;quot;?&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;configuration&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;system.webServer&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;handlers&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-7.0-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.6-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.5-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.4-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.3-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.2-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add name=&amp;quot;PHP-5.4-7i24.com&amp;quot; path=&amp;quot;*.php&amp;quot; verb=&amp;quot;*&amp;quot; modules=&amp;quot;FastCgiModule&amp;quot; scriptProcessor=&amp;quot;c:php.4php-cgi.exe&amp;quot; resourceType=&amp;quot;Either&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/handlers&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rule name= &amp;quot;Imported Rule 1&amp;quot; enabled= &amp;quot;true&amp;quot; stopProcessing= &amp;quot;true&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;match url=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&amp;quot;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsFile&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsDirectory&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/conditions&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rule&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/system.webServer&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/configuration&amp;gt;&lt;/p&gt;&lt;p&gt;[Nginx Server]&lt;/p&gt;&lt;p&gt;Add the following code fragments to the original nginx rewrite file:&lt;/p&gt;&lt;p&gt;Location / {&lt;/p&gt;&lt;p&gt;If (!-e $request_filename) {&lt;/p&gt;&lt;p&gt;Rewrite ^(. *)$/ index. php? S=/$1 last;&lt;/p&gt;&lt;p&gt;Break;&lt;/p&gt;&lt;p&gt;}&lt;/p&gt;&lt;p&gt;}&lt;/p&gt;&lt;p&gt;[apache server]&lt;/p&gt;&lt;p&gt;Yiyou CMS automatically hides index. PHP entries by default in Apache server environment.&lt;/p&gt;&lt;p&gt;If no hiding is found, you can check whether the root directory. htaccess contains the following code snippets:&lt;/p&gt;&lt;p&gt;&amp;lt;IfModule mod_rewrite.c&amp;gt;&lt;/p&gt;&lt;p&gt;Options + FollowSymlinks - Multiviews&lt;/p&gt;&lt;p&gt;RewriteEngine on&lt;/p&gt;&lt;p&gt;RewriteCond%{REQUEST_FILENAME}!-d&lt;/p&gt;&lt;p&gt;RewriteCond%{REQUEST_FILENAME}!-f&lt;/p&gt;&lt;p&gt;RewriteRule ^(*)$index.php/$1 [QSA, PT, L]&lt;/p&gt;&lt;p&gt;&amp;lt;/IfModule&amp;gt;&lt;/p&gt;&lt;p&gt;If it exists, go ahead and see if Apache has opened the URL rewrite_module and restart the service.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1545270877', '1545270877');
 
 -- -----------------------------
+-- Table structure for `ey_smtp_record`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_smtp_record`;
+CREATE TABLE `ey_smtp_record` (
+  `record_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `source` tinyint(1) DEFAULT '0' COMMENT '来源，与场景ID对应：0=默认，2=注册，3=绑定邮箱，4=找回密码',
+  `email` varchar(50) DEFAULT '' COMMENT '邮件地址',
+  `users_id` int(10) DEFAULT '0' COMMENT '用户ID',
+  `code` varchar(20) DEFAULT '' COMMENT '发送邮件内容',
+  `status` tinyint(1) DEFAULT '0' COMMENT '是否使用，默认0，0为未使用，1为使用',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`record_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='邮件发送记录表';
+
+
+-- -----------------------------
+-- Table structure for `ey_smtp_tpl`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_smtp_tpl`;
+CREATE TABLE `ey_smtp_tpl` (
+  `tpl_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `tpl_name` varchar(200) DEFAULT '' COMMENT '模板名称',
+  `tpl_title` varchar(200) DEFAULT '' COMMENT '邮件标题',
+  `tpl_content` text COMMENT '发送邮件内容',
+  `send_scene` tinyint(1) DEFAULT '0' COMMENT '邮件发送场景(1=留言表单）',
+  `is_open` tinyint(1) DEFAULT '0' COMMENT '是否开启使用这个模板，1为是，0为否。',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '添加时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`tpl_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='邮件模板表';
+
+-- -----------------------------
+-- Records of `ey_smtp_tpl`
+-- -----------------------------
+INSERT INTO `ey_smtp_tpl` VALUES ('1', '留言表单', '您有新的留言消息，请查收！', '${content}', '1', '1', 'cn', '1544763495', '1552638302');
+INSERT INTO `ey_smtp_tpl` VALUES ('2', '会员注册', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '2', '1', 'cn', '1544763495', '1552667056');
+INSERT INTO `ey_smtp_tpl` VALUES ('3', '绑定邮箱', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '3', '1', 'cn', '1544763495', '1552667400');
+INSERT INTO `ey_smtp_tpl` VALUES ('4', '找回密码', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '4', '1', 'cn', '1544763495', '1552663577');
+INSERT INTO `ey_smtp_tpl` VALUES ('5', '留言表单', '您有新的留言消息，请查收！', '${content}', '1', '1', 'en', '1544763495', '1552638302');
+INSERT INTO `ey_smtp_tpl` VALUES ('6', '会员注册', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '2', '1', 'en', '1544763495', '1552667056');
+INSERT INTO `ey_smtp_tpl` VALUES ('7', '绑定邮箱', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '3', '1', 'en', '1544763495', '1552667400');
+INSERT INTO `ey_smtp_tpl` VALUES ('8', '找回密码', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '4', '1', 'en', '1544763495', '1552663577');
+
+-- -----------------------------
 -- Table structure for `ey_tagindex`
 -- -----------------------------
 DROP TABLE IF EXISTS `ey_tagindex`;
@@ -1737,6 +1702,7 @@ CREATE TABLE `ey_weapp` (
   `status` tinyint(1) DEFAULT '0' COMMENT '状态：0=未安装，1=启用，-1=禁用',
   `tag_weapp` tinyint(1) DEFAULT '1' COMMENT '1=自动绑定，2=手工调用。关联模板标签weapp，自动调用内置的show钩子方法',
   `thorough` tinyint(1) DEFAULT '0' COMMENT '彻底卸载：0=是，1=否',
+  `position` varchar(30) DEFAULT 'default' COMMENT '插件位置',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),

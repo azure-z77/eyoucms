@@ -306,7 +306,36 @@
             }, function(){
                 form2.find('input[name=thorough]').val(0);
                 layer_loading('正在处理');
-                form2.submit();
+                // 确定
+                $.ajax({
+                    type : 'post',
+                    url : url,
+                    data : form2.serialize(),
+                    dataType : 'json',
+                    success : function(res){
+                        layer.closeAll();
+                        if(res.code == 1){
+                            layer.msg(res.msg, {icon: 1, time: 1500}, function(){
+                                window.location.reload();
+                            });
+                        }else{
+                            layer.alert(res.msg, {icon: 2});
+                        }
+                    },
+                    error: function(e) {
+                        layer.closeAll();
+                        // 处理插件行为app_end影响到的卸载问题
+                        if (e.responseText.indexOf("\\behavior\\admin\\") >= 0 && e.responseText.indexOf("not found") >= 0) {
+                            layer.msg('卸载成功', {icon: 1, time: 1500}, function(){
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(e.responseText, {icon: 2});
+                        }
+                    }
+                });
+                // layer_loading('正在处理');
+                // form2.submit();
                 
             }, function(){
                 layer.close(confirm);

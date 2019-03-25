@@ -445,7 +445,6 @@ class TagList extends Base
         $condition['a.arcrank'] = array('gt', -1);
         $condition['a.status'] = array('eq', 1);
         $condition['a.is_del'] = array('eq', 0); // 回收站功能
-        $condition['b.is_hidden'] = array('eq', 0);
 
         // 给排序字段加上表别名
         switch ($orderby) {

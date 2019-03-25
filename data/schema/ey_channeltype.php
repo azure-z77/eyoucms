@@ -72,6 +72,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'is_repeat_title' => 
+  array (
+    'name' => 'is_repeat_title',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'is_del' => 
   array (
     'name' => 'is_del',

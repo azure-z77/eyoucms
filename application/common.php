@@ -222,9 +222,6 @@ if (!function_exists('write_html_cache'))
             $home_lang = get_home_lang(); // 多语言
             $request = \think\Request::instance();
             $param = input('param.');
-            isset($param['tid']) && $param['tid'] = input('param.tid/d');
-            isset($param['aid']) && $param['aid'] = input('param.aid/d');
-            isset($param['page']) && $param['page'] = input('param.page/d');
 
             /*URL模式是否启动页面缓存（排除admin后台、前台可视化装修）*/
             $uiset = input('param.uiset/s', 'off');
@@ -237,6 +234,14 @@ if (!function_exists('write_html_cache'))
                 return false;
             }
             /*--end*/
+
+            if (1 == $seo_pseudo) {
+                isset($param['tid']) && $param['tid'] = input('param.tid/d');
+            } else {
+                isset($param['tid']) && $param['tid'] = input('param.tid/s');
+            }
+            isset($param['aid']) && $param['aid'] = input('param.aid/d');
+            isset($param['page']) && $param['page'] = input('param.page/d');
 
             $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
             $m_c_a_str = strtolower($m_c_a_str);
@@ -258,7 +263,7 @@ if (!function_exists('write_html_cache'))
                 {
                     $tid = '';
                     if (in_array('tid', $val['p'])) {
-                        $tid = intval($param['tid']);
+                        $tid = $param['tid'];
                         if (strval(intval($tid)) != strval($tid)) {
                             $map = array('dirname'=>$tid);
                             $map['lang'] = $home_lang; // 多语言
@@ -335,10 +340,17 @@ if (!function_exists('read_html_cache'))
         if ($html_cache_status && !empty($html_cache_arr)) {
             $home_lang = get_home_lang();
             $request = \think\Request::instance();
+            $seo_pseudo = config('ey_config.seo_pseudo');
             $param = input('param.');
-            isset($param['tid']) && $param['tid'] = input('param.tid/d');
+
+            if (1 == $seo_pseudo) {
+                isset($param['tid']) && $param['tid'] = input('param.tid/d');
+            } else {
+                isset($param['tid']) && $param['tid'] = input('param.tid/s');
+            }
             isset($param['aid']) && $param['aid'] = input('param.aid/d');
             isset($param['page']) && $param['page'] = input('param.page/d');
+
             $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
             $m_c_a_str = strtolower($m_c_a_str);
             //exit('read_html_cache读取缓存<br/>');
@@ -359,7 +371,7 @@ if (!function_exists('read_html_cache'))
                 {
                     $tid = '';
                     if (in_array('tid', $val['p'])) {
-                        $tid = intval($param['tid']);
+                        $tid = $param['tid'];
                         if (strval(intval($tid)) != strval($tid)) {
                             $map = array('dirname'=>$tid);
                             $map['lang'] = $home_lang; // 多语言
@@ -1392,5 +1404,24 @@ if (!function_exists('getUsersConfigData'))
             
             return $result;
         }
+    }
+}
+
+if (!function_exists('send_email')) 
+{
+    /**
+     * 邮件发送
+     * @param $to    接收人
+     * @param string $subject   邮件标题
+     * @param string $content   邮件内容(html模板渲染后的内容)
+     * @param string $scene   使用场景
+     * @throws Exception
+     * @throws phpmailerException
+     */
+    function send_email($to='', $subject='', $data=array(), $scene=0){
+        // 实例化类库，调用发送邮件
+        $emailLogic = new \app\common\logic\EmailLogic;
+        $res = $emailLogic->send_email($to, $subject, $data, $scene);
+        return $res;
     }
 }

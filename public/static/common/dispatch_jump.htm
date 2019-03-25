@@ -59,10 +59,10 @@
             if (data.length > 0 && data[0] == 'gbook_submit') {
                 $.ajax({
                     type: "post",
-                    data: {tid: data[1],aid: data[2]},
+                    data: {type:data[0],tid:data[1],aid:data[2]},
                     dataType: 'json',
                     // timeout: 3000,
-                    url: "{:url('plugins/Smtpmail/send_email')}",
+                    url: "{:url('api/Ajax/send_email')}",
                 });
             }
             /*--end*/

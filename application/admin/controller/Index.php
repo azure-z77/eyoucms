@@ -218,7 +218,12 @@ class Index extends Base
         $id_value = input('id_value'); // 表主键id值
         $field  = input('field'); // 修改哪个字段
         $value  = input('value', '', null); // 修改字段值  
-        M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save(array($field=>$value)); // 根据条件保存修改的数据
+
+        $savedata = [
+            $field => $value,
+            'update_time'   => getTime(),
+        ];
+        M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
 
         // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
         switch ($table) {

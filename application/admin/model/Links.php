@@ -14,7 +14,6 @@
 namespace app\admin\model;
 
 use think\Model;
-use traits\model\SoftDelete;
 
 /**
  * 友情链接

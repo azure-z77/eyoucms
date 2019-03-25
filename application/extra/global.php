@@ -37,6 +37,12 @@ return array(
     'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
     // 禁用的目录名称
     'disable_dirname' => ['application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search','user','users','member','bbs','shop'],
+    // 发送邮箱默认有效时间，会员中心，邮箱验证时用到
+    'email_default_time_out' => 3600,
+    // 邮箱发送倒计时 2分钟
+    'email_send_time' => 120,
+    // 充值订单默认有效时间，会员中心用到，2天时间
+    'get_order_validity' => 7200,
     // 栏目最多级别
     'arctype_max_level' => 3,
     // 模型标识
@@ -67,6 +73,20 @@ return array(
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
     'parse_url_param'   => ['uiset','v','lang'],
+    // 用户金额明细类型
+    'pay_cause_type_arr' => array(
+        0   => '消费',
+        1   => '账户充值',
+        // 2   => '后续添加',
+    ),
+    'pay_status_arr' => array(
+        0   => '失败',
+        1   => '未付款',
+        2   => '已付款',
+        3   => '已完成',
+        4   => '订单取消',
+        // 5   => '后续添加',
+    ),
     // 清理文件时，需要查询的数据表和字段
     'get_tablearray' => array(
         0 => array(
@@ -130,12 +150,8 @@ return array(
             'field' => 'file_url',
         ),
         15 => array(
-            'table' => 'weapp_minipro0001',
-            'field' => 'value',
-        ),
-        16 => array(
-            'table' => 'weapp',
-            'field' => 'data',
+            'table' => 'users',
+            'field' => 'head_pic',
         ),
         // 后续可持续添加数据表和字段，格式参照以上
     ),

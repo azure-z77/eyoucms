@@ -11,25 +11,19 @@
  * Date: 2018-4-3
  */
 
-namespace app\weapp\controller;
-use app\common\controller\Common;
-use think\Db;
+namespace app\admin\model;
 
-class Base extends Common {
+use think\Model;
 
-    /**
-     * 析构函数
-     */
-    function __construct() 
+/**
+ * 邮件模板
+ */
+class SmtpTpl extends Model
+{
+    //初始化
+    protected function initialize()
     {
-        parent::__construct();
-    }
-    
-    /*
-     * 初始化操作
-     */
-    public function _initialize() 
-    {
-        parent::_initialize();
+        // 需要调用`Model`的`initialize`方法
+        parent::initialize();
     }
 }

@@ -9,17 +9,6 @@
          <img src="{eyou:global name="web_logo" /}" alt="{eyou:global name="web_name" /}" /> 
         </div> </a> 
       </div>
-      {eyou:login type='default'}
-        <div class="collapse navbar-collapse navbar-collapse-toolbar pull-md-right p-0" id="met-head-user-collapse">
-          <ul class="navbar-nav pull-md-right vertical-align p-l-0 m-b-0 met-head-user no-login text-xs-center" m-id="member" m-type="member">
-            <li class=" text-xs-center vertical-align-middle animation-slide-top">
-                <a href="{$field.loginurl}" id="{$field.loginid}" class="met_navbtn">登录</a>
-                <a href="{$field.regurl}" id="{$field.regid}" class="met_navbtn">注册</a>
-            </li>
-          </ul>
-        </div>
-        {$field.hidden}
-      {/eyou:login}
       <button type="button" class="navbar-toggler hamburger hamburger-close collapsed p-x-5 met-nav-toggler" data-target="#met-nav-collapse" data-toggle="collapse">
         <span class="sr-only"></span>
         <span class="hamburger-bar"></span>

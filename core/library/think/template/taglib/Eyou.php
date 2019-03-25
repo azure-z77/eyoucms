@@ -911,7 +911,7 @@ class Eyou extends Taglib
      */
     public function tagSearchform($tag, $content)
     {
-        $channel   = !empty($tag['channel']) ? $tag['channel'] : '';
+        $channel   = !empty($tag['channelid']) ? $tag['channelid'] : '';
         $channel  = $this->varOrvalue($channel);
         $typeid   = !empty($tag['typeid']) ? $tag['typeid'] : '';
         $typeid  = $this->varOrvalue($typeid);
@@ -2254,7 +2254,8 @@ class Eyou extends Taglib
 
         /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
         $parseStr .= ' if(empty($aid)) : $aid_tmp = '.$aid.'; endif; ';
-        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; else : $taid = $aid; endif;';
+        $parseStr .= ' $taid = 0; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; elseif(!empty($aid)) : $taid = $aid; endif;';
         /*--end*/
 
         // 查询数据库获取的数据集

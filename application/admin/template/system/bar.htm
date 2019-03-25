@@ -24,6 +24,12 @@
                 <li><a href="{:U('System/water')}" {if condition="'water'==$Think.const.ACTION_NAME"}class="current"{/if}><span>图片水印</span></a></li>
                 {/eq}
                 {/eq}
+
+                {eq name='$main_lang' value='$admin_lang'}
+                {eq name="$Think.const.CONTROLLER_NAME.'@smtp'|is_check_access" value="1"}
+                <li><a href="{:U('System/smtp')}" {if condition="preg_match('/^smtp/i', $Think.const.ACTION_NAME)"}class="current"{/if}><span>接口配置</span></a></li>
+                {/eq}
+                {/eq}
             </ul>
         </div>
     </div>

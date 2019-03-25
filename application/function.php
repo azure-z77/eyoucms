@@ -433,7 +433,7 @@ if (!function_exists('getSubstr'))
      * @param intval $length 截取长度
      * @return string
      */
-    function getSubstr($string, $start, $length) {
+    function getSubstr($string='', $start=0, $length=NULL) {
         if(mb_strlen($string,'utf-8')>$length){
             $str = msubstr($string, $start, $length, true,'utf-8');
             return $str;
@@ -455,7 +455,7 @@ if (!function_exists('msubstr'))
      * @param string $charset 编码格式
      * @return string
      */
-    function msubstr($str, $start=0, $length, $suffix=false, $charset="utf-8") {
+    function msubstr($str='', $start=0, $length=NULL, $suffix=false, $charset="utf-8") {
         if(function_exists("mb_substr"))
             $slice = mb_substr($str, $start, $length, $charset);
         elseif(function_exists('iconv_substr')) {
@@ -494,7 +494,7 @@ if (!function_exists('html_msubstr'))
      * @param string $charset 编码格式
      * @return string
      */
-    function html_msubstr($str, $start=0, $length, $suffix=false, $charset="utf-8") {
+    function html_msubstr($str='', $start=0, $length=NULL, $suffix=false, $charset="utf-8") {
         if (is_language() && 'cn' != get_current_lang()) {
             $length = $length * 2;
         }
@@ -516,7 +516,7 @@ if (!function_exists('text_msubstr'))
      * @param string $charset 编码格式
      * @return string
      */
-    function text_msubstr($str, $start=0, $length, $suffix=false, $charset="utf-8") {
+    function text_msubstr($str='', $start=0, $length=NULL, $suffix=false, $charset="utf-8") {
         if (is_language() && 'cn' != get_current_lang()) {
             $length = $length * 2;
         }
@@ -536,7 +536,7 @@ if (!function_exists('eyou_htmlspecialchars_decode'))
      * @param string $charset 编码格式
      * @return string
      */
-    function eyou_htmlspecialchars_decode($str) {
+    function eyou_htmlspecialchars_decode($str='') {
         if (is_string($str) && stripos($str, '&lt;') !== false && stripos($str, '&gt;') !== false) {
             $str = htmlspecialchars_decode($str);
         }
@@ -1826,5 +1826,117 @@ if (!function_exists('uncamelize'))
     function uncamelize($camelCaps, $separator='_')
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . $separator . "$2", $camelCaps));
+    }
+}
+
+if (!function_exists('GetDatabaseData')) 
+{
+    /**
+     * 获取数据中指定数据表的图片和文件路径
+     * 思路:
+     * 
+     */
+    function GetDatabaseData($array)
+    {
+        $data  = $hello = array();
+        $i = '0';
+        foreach ($array as $value) {
+            $where  = $value['field']."<>''";
+            $result = M($value['table'])->field($value['field'])->where($where)->select();
+            // 查找多余未使用文件
+            foreach ($result as $vv) {
+                if ('litpic' == $value['field']) {
+                    $path = parse_url($vv['litpic']);
+                    if ($path['host']) {
+                        $data[$i] = ROOT_DIR.$path['path'];
+                    }else{
+                        $data[$i] = $path['path'];
+                    }
+                    $i++;
+                } else if ('image_url' == $value['field']) {
+                    $path = parse_url($vv['image_url']);
+                    if ($path['host']) {
+                        $data[$i] = ROOT_DIR.$path['path'];
+                    }else{
+                        $data[$i] = $path['path'];
+                    }
+                    $i++;
+                } else if ('logo' == $value['field']) {
+                    $path = parse_url($vv['logo']);
+                    if ($path['host']) {
+                        $data[$i] = ROOT_DIR.$path['path'];
+                    }else{
+                        $data[$i] = $path['path'];
+                    }
+                    $i++;
+                } else if ('file_url' == $value['field']) {
+                    $path = parse_url($vv['file_url']);
+                    if ($path['host']) {
+                        $data[$i] = ROOT_DIR.$path['path'];
+                    }else{
+                        $data[$i] = $path['path'];
+                    }
+                    $i++;
+                } else if ('head_pic' == $value['field']) {
+                    $path = parse_url($vv['head_pic']);
+                    if ($path['host']) {
+                        $data[$i] = ROOT_DIR.$path['path'];
+                    }else{
+                        $data[$i] = $path['path'];
+                    }
+                    $i++;
+                } else if ('intro' == $value['field']) {
+                    $str = htmlspecialchars_decode($vv['intro']);
+                    $str = strip_tags($str, '<img>');
+                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
+                    $match = $matches[2];
+                    foreach ($match as $vvv) {
+                        $data[$i] = $vvv;
+                        $i++;
+                    }
+                } else if ('content' == $value['field']) {
+                    $str = htmlspecialchars_decode($vv['content']);
+                    $str = strip_tags($str, '<img>');
+                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
+                    $match = $matches[2];
+                    foreach ($match as $vvv) {
+                        $data[$i] = $vvv;
+                        $i++;
+                    }
+                } else if ('config' == $value['table']) {
+                    $strlen = strlen(ROOT_DIR);
+                    if (substr($vv['value'], $strlen, 7 ) == '/public' || substr($vv['value'], $strlen, 7 ) == '/upload') {
+                        $data[$i] = $vv['value'];
+                        $i++;
+                    }
+                } else if ('ui_config' == $value['table']) {
+                    $values = json_decode($vv['value'],true);
+                    $str = htmlspecialchars_decode($values['info']['value']);
+                    $str = strip_tags($str, '<img>');
+                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
+                    $match = $matches[2];
+                    foreach ($match as $vvv) {
+                        $data[$i] = $vvv;
+                        $i++;
+                    }
+                } else if($value['channel_id']){
+                    if ('imgs' == $value['dtype']) {
+                        $hello = explode(',',$vv[$value['field']]);
+                    } else if ('img' == $value['dtype']) {
+                        $path = parse_url($vv[$value['field']]);
+                        if ($path['host']) {
+                            $data[$i] = ROOT_DIR.$path['path'];
+                        }else{
+                            $data[$i] = $path['path'];
+                        }
+                        $i++;
+                    }
+                }
+            }
+        }
+
+        $data = array_merge($data,$hello);
+        $data = array_unique($data);
+        return $data;
     }
 }
