@@ -28,7 +28,8 @@ class Article extends Base
 
     public function lists($tid)
     {
-        $dirname = '';
+        $tid_tmp = $tid;
+        $seo_pseudo = config('ey_config.seo_pseudo');
     	if (empty($tid)) {
             $map = array(
                 'channeltype'   => $this->channeltype,
@@ -37,9 +38,12 @@ class Article extends Base
                 'status'    => 1,
             );
     	} else {
-            if (strval(intval($tid)) != strval($tid)) {
+            if (3 == $seo_pseudo) {
                 $map = array('dirname'=>$tid);
             } else {
+                if (!is_numeric($tid) || strval(intval($tid)) !== strval($tid)) {
+                    abort(404,'页面不存在');
+                }
                 $map = array('id'=>$tid);
             }
         }
@@ -51,6 +55,12 @@ class Article extends Base
         /*301重定向到新的伪静态格式*/
         $this->jumpRewriteFormat($tid, $dirname, 'lists');
         /*--end*/
+
+        if (3 == $seo_pseudo) {
+            $tid = $dirname;
+        } else {
+            $tid = $tid_tmp;
+        }
 
         return action('home/Lists/index', $tid);
     }

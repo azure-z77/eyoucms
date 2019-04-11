@@ -2,6 +2,8 @@
 
 namespace think\exception;
 
+use think\Config;
+
 /**
  * PDO异常处理类
  * 重新封装了系统的\PDOException类
@@ -30,7 +32,7 @@ class PDOException extends DbException
 
         /*提高错误提示的友好性 by 小虎哥*/
         $errcode = "{$code0}:{$code1}";
-        $mysqlcode = config('error_code.mysql');
+        $mysqlcode = Config::get('error_code.mysql');
         $eyou_message = "";
         if (!empty($mysqlcode[$errcode])) {
             $code = 'eyou';

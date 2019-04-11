@@ -103,7 +103,7 @@ class Product extends Base
         /**
          * 数据查询，搜索出主键ID的值
          */
-        $count = DB::name('archives')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
+        $count = DB::name('archives')->alias('a')->where($condition)->count('aid');// 查询满足要求的总记录数
         $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = DB::name('archives')
             ->field("a.aid")
@@ -146,7 +146,7 @@ class Product extends Base
         }
         $assign_data['arctype_info'] = $arctype_info;
         /*--end*/
-        
+
         /*选项卡*/
         $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
@@ -179,22 +179,32 @@ class Product extends Base
             } else {
                 $litpic = $post['litpic_local'];
             }
+            if (empty($litpic)) {
+                $litpic = get_html_first_imgurl($content);
+            }
             $post['litpic'] = $litpic;
 
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 200, false);
+                $seo_description = @msubstr(checkStrHtml($content), 0, config('global.arc_seo_description_length'), false);
             } else {
                 $seo_description = $post['seo_description'];
             }
 
-            // --外部链接
+            // 外部链接跳转
             $jumplinks = '';
             $is_jump = isset($post['is_jump']) ? $post['is_jump'] : 0;
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+
+            // 模板文件，如果文档模板名与栏目指定的一致，默认就为空。让它跟随栏目的指定而变
+            if ($post['type_tempview'] == $post['tempview']) {
+                unset($post['type_tempview']);
+                unset($post['tempview']);
+            }
+
             // --存储数据
             $newData = array(
                 'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
@@ -204,14 +214,14 @@ class Product extends Base
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'     => $is_jump,
-                'jumplinks'     => $jumplinks,
+                'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
                 'lang'  => $this->admin_lang,
                 'sort_order'    => 100,
                 'add_time'     => strtotime($post['add_time']),
-                'update_time'  => getTime(),
+                'update_time'  => strtotime($post['add_time']),
             );
             $data = array_merge($post, $newData);
 
@@ -232,7 +242,10 @@ class Product extends Base
 
         $typeid = input('param.typeid/d', 0);
         $assign_data['typeid'] = $typeid; // 栏目ID
-        
+
+        // 栏目信息
+        $arctypeInfo = Db::name('arctype')->find($typeid);
+
         /*允许发布文档列表的栏目*/
         $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
         $assign_data['arctype_html'] = $arctype_html;
@@ -261,6 +274,18 @@ class Product extends Base
         /*产品参数*/
         $assign_data['canshu'] = $this->ajax_get_attr_input($typeid);
         /*--end*/
+        
+        /*模板列表*/
+        $archivesLogic = new \app\admin\logic\ArchivesLogic;
+        $templateList = $archivesLogic->getTemplateList($this->nid);
+        $this->assign('templateList', $templateList);
+        /*--end*/
+
+        /*默认模板文件*/
+        $tempview = 'view_'.$this->nid.'.'.config('template.view_suffix');
+        !empty($arctypeInfo['tempview']) && $tempview = $arctypeInfo['tempview'];
+        $this->assign('tempview', $tempview);
+        /*--end*/
 
         /*返回上一层*/
         $gourl = input('param.gourl/s', '');
@@ -271,6 +296,7 @@ class Product extends Base
         /*--end*/
 
         $this->assign($assign_data);
+
         return $this->fetch();
     }
     
@@ -298,10 +324,18 @@ class Product extends Base
             } else {
                 $litpic = $post['litpic_local'];
             }
+            if (empty($litpic)) {
+                $litpic = get_html_first_imgurl($content);
+            }
             $post['litpic'] = $litpic;
 
-            // 描述
-            $seo_description = $post['seo_description'];
+            // SEO描述
+            $seo_description = '';
+            if (empty($post['seo_description']) && !empty($content)) {
+                $seo_description = @msubstr(checkStrHtml($content), 0, config('global.arc_seo_description_length'), false);
+            } else {
+                $seo_description = $post['seo_description'];
+            }
 
             // --外部链接
             $jumplinks = '';
@@ -309,6 +343,13 @@ class Product extends Base
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+
+            // 模板文件，如果文档模板名与栏目指定的一致，默认就为空。让它跟随栏目的指定而变
+            if ($post['type_tempview'] == $post['tempview']) {
+                unset($post['type_tempview']);
+                unset($post['tempview']);
+            }
+
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
             // --存储数据
@@ -319,12 +360,12 @@ class Product extends Base
                 'is_head'      => empty($post['is_head']) ? 0 : $post['is_head'],
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
-                'is_jump'     => $is_jump,
-                'jumplinks'     => $jumplinks,
+                'is_jump'   => $is_jump,
+                'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'add_time'     => strtotime($post['add_time']),
-                'update_time'  => getTime(),
+                'update_time'     => getTime(),
             );
             $data = array_merge($post, $newData);
 
@@ -354,8 +395,20 @@ class Product extends Base
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
+        /*兼容采集没有归属栏目的文档*/
+        if (empty($info['channel'])) {
+            $channelRow = Db::name('channeltype')->field('id as channel')
+                ->where('id',$this->channeltype)
+                ->find();
+            $info = array_merge($info, $channelRow);
+        }
+        /*--end*/
         $typeid = $info['typeid'];
-        $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
+
+        // 栏目信息
+        $arctypeInfo = Db::name('arctype')->find($typeid);
+
+        $info['channel'] = $arctypeInfo['current_channel'];
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
             $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
@@ -363,6 +416,12 @@ class Product extends Base
             $info['is_remote'] = 0;
             $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
+    
+        // SEO描述
+        if (!empty($info['seo_description'])) {
+            $info['seo_description'] = @msubstr(checkStrHtml($info['seo_description']), 0, config('global.arc_seo_description_length'), false);
+        }
+
         $assign_data['field'] = $info;
 
         // 产品相册
@@ -399,6 +458,18 @@ class Product extends Base
 
         /*产品参数*/
         $assign_data['canshu'] = $this->ajax_get_attr_input($typeid, $id);
+        /*--end*/
+
+        /*模板列表*/
+        $archivesLogic = new \app\admin\logic\ArchivesLogic;
+        $templateList = $archivesLogic->getTemplateList($this->nid);
+        $this->assign('templateList', $templateList);
+        /*--end*/
+
+        /*默认模板文件*/
+        $tempview = $info['tempview'];
+        empty($tempview) && $tempview = $arctypeInfo['tempview'];
+        $this->assign('tempview', $tempview);
         /*--end*/
 
         /*返回上一层*/

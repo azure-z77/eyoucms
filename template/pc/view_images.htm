@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -29,10 +29,10 @@
 <!--header-s-->
     {eyou:include file="header.htm"/}
 <!--header-e-->
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -43,21 +43,21 @@
     </div> 
    </div> 
   </section> 
-  <div class="met-showimg"> 
+  <div class="ey-showimg"> 
    <div class="container"> 
     <div class="row"> 
-     <div class="met-showimg-body col-md-9" m-id="noset"> 
+     <div class="ey-showimg-body col-md-9" m-id="noset"> 
       <div class="row"> 
        <section class="details-title border-bottom1"> 
         <h1 class="m-t-10 m-b-5">{$eyou.field.title}</h1> 
         <div class="info"> 
          <span>{$eyou.field.add_time|MyDate='Y-m-d H:i:s',###}</span> 
          <span></span> 
-         <span> <i class="icon wb-eye m-r-5" aria-hidden="true"></i> {eyou:arcclick /} </span> 
+         <span> <i class="icon fa-eye m-r-5"></i> {eyou:arcclick /} </span> 
         </div> 
        </section> 
-       <section class="met-showimg-con"> 
-        <div class="met-showimg-list fngallery cover text-xs-center" id="met-imgs-slick" m-id="noset" m-type="displayimgs"> 
+       <section class="ey-showimg-con"> 
+        <div class="ey-showimg-list fngallery cover text-xs-center" id="ey-imgs-slick" m-id="noset" m-type="displayimgs"> 
          {eyou:volist name="$eyou.field.image_list" id="field"}
          <div class="slick-slide"> 
           <a href="{$field.image_url}" data-size="380x300" data-med="{$field.image_url}" data-med-size="380x300" class="lg-item-box" data-src="{$field.image_url}" data-exthumbimage="{$field.image_url}" data-sub-html="{$field.title}"> <img src="{$field.image_url}" class="img-fluid" alt="{$field.title}" /> </a> 
@@ -65,19 +65,19 @@
          {/eyou:volist}
         </div> 
        </section> 
-       <section class="met-editor clearfix m-t-20"></section> 
-       <div class="met-page met-shownews-footer border-top1"> 
+       <section class="ey-editor clearfix m-t-20"></section> 
+       <div class="ey-page ey-shownews-footer border-top1"> 
         <ul class="pagination block blocks-2"> 
           <li class="page-item m-b-0 ">
             {eyou:prenext get='pre'}
-             <a href="{$field.arcurl}" title="{$field.title}" class="page-link text-truncate"> {eyou:lang name='sys11' /} <span aria-hidden="true" class="hidden-xs-down">: {$field.title}</span> </a>  
+             <a href="{$field.arcurl}" title="{$field.title}" class="page-link text-truncate"> {eyou:lang name='sys11' /} <span class="hidden-xs-down">: {$field.title}</span> </a>  
             {eyou:else /}
             <a class="page-link text-truncate">{eyou:lang name='sys11' /}：{eyou:lang name='sys10' /}</a>
             {/eyou:prenext}
             </li>
             <li class="page-item m-b-0 ">
             {eyou:prenext get='next'}
-              <a href="{$field.arcurl}" title="{$field.title}" class="page-link pull-xs-right text-truncate"> {eyou:lang name='sys12' /} <span aria-hidden="true" class="hidden-xs-down">: {$field.title}</span> </a>
+              <a href="{$field.arcurl}" title="{$field.title}" class="page-link pull-xs-right text-truncate"> {eyou:lang name='sys12' /} <span class="hidden-xs-down">: {$field.title}</span> </a>
              {eyou:else /} 
               <a class="page-link pull-xs-right text-truncate">{eyou:lang name='sys12' /}：{eyou:lang name='sys10' /}</a>
             {/eyou:prenext}
@@ -88,13 +88,13 @@
      </div> 
      <div class="col-md-3"> 
       <div class="row"> 
-       <div class="met-bar"> 
+       <div class="ey-bar"> 
         {eyou:searchform type='default'}
         <form class="sidebar-search" method="get" action="{$field.action}">
           {$field.hidden}
          <div class="form-group"> 
           <div class="input-search"> 
-           <button type="submit" class="input-search-btn"> <i class="icon wb-search" aria-hidden="true"></i> </button> 
+           <button type="submit" class="input-search-btn"> <i class="icon fa-search"></i> </button> 
            <input type="text" class="form-control" name="keywords" placeholder="{eyou:lang name='yybl6' /}" /> 
           </div> 
          </div> 
@@ -119,13 +119,7 @@
   <!--footer-s-->
   {eyou:include file="footer.htm" /}
   <!--footer-e-->
-  {eyou:static file="skin/js/lightgallery.js" /}
-  {eyou:static file="skin/js/lg-fullscreen.js" /}
-  {eyou:static file="skin/js/lg-thumbnail.js" /}
-  {eyou:static file="skin/js/lg-zoom.js" /}
   {eyou:static file="skin/js/PhotoSwipe.js" /}
-  {eyou:static file="skin/js/PhotoSwipe.ui.js" /}
-  {eyou:static file="skin/js/Swiper.js" /}
   {eyou:ui open='off' /}
  </body>
 </html>

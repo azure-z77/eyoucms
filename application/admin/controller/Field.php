@@ -150,6 +150,16 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
+            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
+                $this->error("缺少必填信息！");
+            }
+
+            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
+                $this->error("字段名称格式不正确！");
+            } else if (preg_match('/^type/', $post['name'])) {
+                $this->error("模型字段名称不允许以type开头！");
+            }
+
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
             $dfvalueArr = explode(',', $dfvalue);
@@ -163,14 +173,6 @@ class Field extends Base
             }
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
-
-            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
-                $this->error("缺少必填信息！");
-            }
-
-            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
-                $this->error("字段名称格式不正确！");
-            }
 
             /*默认值必填字段*/
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
@@ -292,6 +294,16 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
+            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
+                $this->error("缺少必填信息！");
+            }
+
+            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
+                $this->error("字段名称格式不正确！");
+            } else if (preg_match('/^type/', $post['name'])) {
+                $this->error("模型字段名称不允许以type开头！");
+            }
+
             $info = model('Channelfield')->getInfo($post['id'], 'ifsystem');
             if (!empty($info['ifsystem'])) {
                 $this->error('系统字段不允许更改！');
@@ -311,14 +323,6 @@ class Field extends Base
             }
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
-
-            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
-                $this->error("缺少必填信息！");
-            }
-
-            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
-                $this->error("字段名称格式不正确！");
-            }
 
             /*默认值必填字段*/
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
@@ -636,6 +640,14 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
+            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
+                $this->error("缺少必填信息！");
+            }
+
+            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
+                $this->error("字段名称格式不正确！");
+            }
+
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
             $dfvalueArr = explode(',', $dfvalue);
@@ -649,14 +661,6 @@ class Field extends Base
             }
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
-
-            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
-                $this->error("缺少必填信息！");
-            }
-
-            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
-                $this->error("字段名称格式不正确！");
-            }
 
             /*默认值必填字段*/
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
@@ -738,6 +742,14 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
+            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
+                $this->error("缺少必填信息！");
+            }
+
+            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
+                $this->error("字段名称格式不正确！");
+            }
+
             $info = model('Channelfield')->getInfo($post['id'], 'ifsystem');
             if (!empty($info['ifsystem'])) {
                 $this->error('系统字段不允许更改！');
@@ -757,14 +769,6 @@ class Field extends Base
             }
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
-
-            if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
-                $this->error("缺少必填信息！");
-            }
-
-            if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
-                $this->error("字段名称格式不正确！");
-            }
 
             /*默认值必填字段*/
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');

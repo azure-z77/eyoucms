@@ -104,6 +104,11 @@
     });
 
     function check_submit(){
+        if($('input[name="title"]').val() == ''){
+            showErrorMsg('字段标题不能为空！');
+            $('input[name=title]').focus();
+            return false;
+        }
         var name = $('input[name="name"]').val();
         var ret1 = /^[_]+$/;
         var ret2 = /^[\w]+$/;
@@ -115,11 +120,6 @@
         } else if (ret3.test(name)) {
             showErrorMsg('字段名称不能纯数字！');
             $('input[name=name]').focus();
-            return false;
-        }
-        if($('input[name="title"]').val() == ''){
-            showErrorMsg('字段标题不能为空！');
-            $('input[name=title]').focus();
             return false;
         }
         if($('#dtype').val() == ''){

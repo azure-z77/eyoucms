@@ -105,7 +105,7 @@ class Weapp extends Base
             ->field('a.*')
             ->alias('a')
             ->where($condition)
-            ->order('a.add_time desc')
+            ->order('a.sort_order asc, a.id desc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('id');
         foreach ($list as $key => $val) {
@@ -481,7 +481,7 @@ class Weapp extends Base
      */
     public function sql_split($sql, $tablepre) {
 
-        $sql = str_replace("#@__", $tablepre, $sql);
+        $sql = str_replace("`#@__", '`'.$tablepre, $sql);
 
         $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
         

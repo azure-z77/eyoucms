@@ -183,15 +183,17 @@ class FieldLogic extends Model
      */
     public function checkChannelFieldList($slave_table, $fieldname, $channel_id, $filter = array())
     {
-        if (6 == $channel_id) {
-            $master_table = PREFIX.'arctype';
-        } else {
-            $master_table = PREFIX.'archives';
+        // 栏目表字段
+        $arctypeFieldArr = Db::getTableFields(PREFIX.'arctype'); 
+        foreach ($arctypeFieldArr as $key => $val) {
+            if (!preg_match('/^type/i',$val)) {
+                array_push($arctypeFieldArr, 'type'.$val);
+            }
         }
-        $masterFieldArr = Db::getTableFields($master_table); // 主表字段
-        $slaveFieldArr = Db::getTableFields($slave_table); // 附加表字段
+        $masterFieldArr = Db::getTableFields(PREFIX.'archives'); // 文档主表字段
+        $slaveFieldArr = Db::getTableFields($slave_table); // 文档附加表字段
         $addfields = ['pageurl','has_children','typelitpic','arcurl','typeurl']; // 额外与字段冲突的变量名
-        $fieldArr = array_merge($slaveFieldArr, $masterFieldArr, $addfields); // 合并字段
+        $fieldArr = array_merge($slaveFieldArr, $masterFieldArr, $addfields, $arctypeFieldArr); // 合并字段
         if (!empty($fieldname)) {
             if (!empty($filter) && is_array($filter)) {
                 foreach ($filter as $key => $val) {

@@ -18,9 +18,9 @@
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="搜索相关数据...">
                         <input type="submit" class="btn" value="搜索">
                     </div>
-                    <div class="sDiv2">
+                    <!-- <div class="sDiv2">
                         <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Language/index')}';">
-                    </div>
+                    </div> -->
                 </div>
             </form>
         </div>
@@ -147,7 +147,7 @@
                             <td class="sort">
                                 <div class="w60 tc">
                                     {eq name="'Language@edit'|is_check_access" value="1"}
-                                    <input style="text-align: left;" type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'');" onchange="changeTableVal('language','id','{$vo.id}','sort_order',this);" size="4"  value="{$vo.sort_order}" />
+                                    <input style="text-align: left;" type="text" onchange="changeTableVal('language','id','{$vo.id}','sort_order',this);" size="4"  value="{$vo.sort_order}" />
                                     {else /}
                                     {$vo.sort_order}
                                     {/eq}
@@ -212,7 +212,7 @@
             $(".em_lang ul li.lang", window.parent.document).remove();
             var htmlstr = '';
             {volist name='$list' id='vo'}
-                htmlstr += '<li class="met-tool-list text-center lang"><a class="liaojie" href="?lang={$vo.mark}">{$vo.title}</a></li>';
+                htmlstr += '<li class="ey-tool-list text-center lang"><a class="liaojie" href="?lang={$vo.mark}">{$vo.title}</a></li>';
             {/volist}
             $('#addlang', window.parent.document).before(htmlstr);
         }

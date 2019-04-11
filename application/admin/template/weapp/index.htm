@@ -3,7 +3,19 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="weapp/bar" /}
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>插件应用</h3>
+                <h5></h5>
+            </div>
+            <ul class="tab-base nc-row">
+                {eq name="$Think.const.CONTROLLER_NAME.'@index'|is_check_access" value="1"}
+                <li><a href="{:url("Weapp/index")}" class="tab {eq name="$Request.action" value="index"}current{/eq}"><span>插件列表</span></a></li>
+                {/eq}
+            </ul>
+        </div>
+    </div>
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
@@ -14,12 +26,15 @@
             <form class="navbar-form form-inline" action="{:url('Weapp/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
-                    <div class="sDiv2">
+                    <div class="sDiv2 fl" style="margin-right: 6px;">
                         <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
                         <input type="submit" class="btn" value="搜索">
                     </div>
-                    <div class="sDiv2">
+                    <!-- <div class="sDiv2">
                         <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Weapp/index')}';">
+                    </div> -->
+                    <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
+                        <input type="button" class="btn current" value="插件开发者" onclick="window.location.href='{:url("Weapp/create")}';">
                     </div>
                 </div>
             </form>
@@ -30,13 +45,13 @@
                     <thead>
                     <tr>
                         <th abbr="article_title" axis="col3" class="w150">
-                            <div class="tc">名称</div>
+                            <div class="tc" style="text-align: left; padding-left: 10px;">名称</div>
+                        </th>
+                        <th abbr="ac_id" axis="col4">
+                            <div class="" style="padding-left: 10px;">描述</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="w150">
                             <div class="tc">标识</div>
-                        </th>
-                        <th abbr="ac_id" axis="col4">
-                            <div class="">描述</div>
                         </th>
                         <th abbr="article_show" axis="col5" class="w120">
                             <div class="tc">作者</div>
@@ -49,6 +64,9 @@
                         </th>
                         <th axis="col1" class="w130">
                             <div class="tc">操作</div>
+                        </th>
+                        <th abbr="article_time" axis="col6" class="w60">
+                            <div class="tc">排序</div>
                         </th>
                     </tr>
                     </thead>
@@ -69,7 +87,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="">
-                                <div class="w150 tc">
+                                <div class="w150 tl" style="padding-left: 10px;">
                                     {$vo.name}
                                     {assign name="weapp_upgrade_info" value="$weapp_upgrade[$vo['code']]" /}
                                     {eq name="$weapp_upgrade_info['code']" value='2'}
@@ -82,14 +100,14 @@
                                     {/eq}
                                 </div>
                             </td>
-                            <td class="">
-                                <div class="w150 tc">
-                                    {$vo.code}
-                                </div>
-                            </td>
                             <td style="width: 100%">
                                 <div style="">
                                     {$vo.config.description}
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w150 tc">
+                                    {$vo.code}
                                 </div>
                             </td>
                             <td class="">
@@ -130,6 +148,15 @@
                                     <a href="javascript:void(0);" onclick="uninstall(this);" data-id="{$vo['id']}" data-name="{$vo.name}" class="btn red"><i class="fa fa-trash-o"></i>卸载</a>
                                     {/eq}
                                 {/empty}
+                                </div>
+                            </td>
+                            <td class="sort">
+                                <div class="w60 tc">
+                                    {eq name="'Weapp@edit'|is_check_access" value="1"}
+                                    <input style="text-align: left;" type="text" onchange="changeTableVal('weapp','id','{$vo.id}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
+                                    {else /}
+                                    {$vo.sort_order}
+                                    {/eq}
                                 </div>
                             </td>
                         </tr>

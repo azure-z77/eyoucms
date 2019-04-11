@@ -69,7 +69,7 @@ class Base extends Controller {
                 session::clear();
                 cookie('admin-treeClicked', null); // 清除并恢复栏目列表的展开方式
                 /*--end*/
-                $url = request()->baseFile().'?s=/Admin/login';
+                $url = request()->baseFile().'?s=Admin/login';
                 $this->redirect($url);
             }
         }

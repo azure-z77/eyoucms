@@ -269,7 +269,7 @@ class Channeltype extends Base
     // 解析sql语句
     private function sql_split($sql, $tablepre) {
         if ($tablepre != "ey_")
-            $sql = str_replace("ey_", $tablepre, $sql);
+            $sql = str_replace("`ey_", '`'.$tablepre, $sql);
               
         $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
         
@@ -318,7 +318,7 @@ class Channeltype extends Base
                 $fileContent = str_replace('CUSTOMMODEL', strtoupper($post['nid']), $fileContent);
                 $puts = @file_put_contents($dst, $fileContent);
                 if (!$puts) {
-                    $this->error('创建自定义模型生成相关文件失败！');
+                    $this->error('创建自定义模型生成相关文件失败，请检查站点目录权限！');
                 }
             }
         }

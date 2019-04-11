@@ -38,7 +38,6 @@ class AjaxLogic extends Model
     public function login_handle()
     {
         $this->saveBaseFile(); // 存储后台入口文件路径，比如：/login.php
-        $this->update_robots(); // 自动给rotots.txt站点地图的sitemap.xml补充域名
         $this->clear_session_file(); // 清理过期的data/session文件
     }
 
@@ -118,16 +117,66 @@ class AjaxLogic extends Model
     }
 
     /**
-     * 自动给rotots.txt站点地图的sitemap.xml补充域名
+     * 自动纠正蜘蛛抓取文件rotots.txt
      */
-    private function update_robots()
+    public function update_robots()
     {
         $filename = 'robots.txt';
         if (file_exists($filename) && is_file($filename)) {
+            // 系统设置的抓取规则
+            $validList = [
+                'disallow:/extend/',
+                'disallow:/install/',
+                'disallow:/template/',
+                'disallow:/core/',
+                'disallow:/vendor/',
+            ];
+            // 系统移除的抓取规则
+            $removeList = [
+                'disallow:/*.php*',
+                'disallow:/*.js*',
+                'disallow:/*.css*',
+                'disallow:/data/',
+                'disallow:/weapp/',
+                'disallow:/public/',
+                'disallow:/adm*',
+                'sitemap:/sitemap.xml',
+            ];
             $robots = @file_get_contents(ROOT_PATH . $filename);
-            if (!stristr($robots, $this->request->domain().'/sitemap.xml')) {
-                $robots = preg_replace('#Sitemap:(.*)(/)?sitemap.xml#i', 'Sitemap: '.$this->request->domain().'/sitemap.xml', $robots);
-                is_writable($filename) && @file_put_contents($filename, $robots);
+            $arr = explode(PHP_EOL, $robots);
+            foreach ($arr as $key => $val) {
+                $is_unset = false;
+                $val = trim($val);
+                $str = str_replace(' ', '', strtolower($val));
+                if ($str == 'disallow:/appli*') {
+                    $arr[$key] = 'Disallow: /application';
+                    continue;
+                // } else if (stristr(strtolower($val), 'sitemap.xml') && !stristr($val, $this->request->domain().ROOT_DIR.'/sitemap.xml')) {
+                //     $arr[$key] = preg_replace('#Sitemap:(.*)?(/)?sitemap.xml#i', 'Sitemap: '.$this->request->domain().ROOT_DIR.'/sitemap.xml', $val);
+                //     continue;
+                } else if (preg_match('#disallow:/install#i', $str)) {
+                    $arr[$key] = 'Disallow: /install_*';
+                    continue;
+                } else if (in_array($str, $removeList)) {
+                    $is_unset = true;
+                }
+
+                // 移除系统指定的抓取规则
+                if (true === $is_unset) {
+                    unset($arr[$key]);
+                    continue;
+                }
+
+                // 系统之前设置的抓取规则，将移除尾部的斜杆
+                if (in_array($str, $validList)) {
+                    $val = trim($val, '/');
+                }
+
+                $arr[$key] = $val;
+            }
+            if (!empty($arr)) {
+                $robotsStr = implode(PHP_EOL, $arr);
+                is_writable($filename) && @file_put_contents($filename, $robotsStr);
             }
         }
     }

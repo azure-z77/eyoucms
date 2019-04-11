@@ -25,9 +25,9 @@ class EmailLogic
     private $config;
     private $home_lang;
     
-    public function __construct() 
+    public function __construct($smtp_config = []) 
     {
-        $this->config = tpCache('smtp') ?: [];
+        $this->config = !empty($smtp_config) ? $smtp_config : tpCache('smtp');
         $this->home_lang = get_home_lang();
     }
 

@@ -41,9 +41,8 @@ class TagUi extends Base
         if ("on" == $this->uiset) {
 
             /*权限控制 by 小虎哥*/
-            $config = config('session');
-            $admin_info = $_SESSION[$config['prefix']]['admin_info'];
-            if (0 < intval($admin_info['role_id'])) {
+            $admin_info = session('admin_info');
+            if (!empty($admin_info) && 0 < intval($admin_info['role_id'])) {
                 if(empty($admin_info['auth_role_info'])){
                     return '';
                 }

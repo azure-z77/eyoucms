@@ -120,7 +120,7 @@ class TagGuestbookform extends Base
         //步骤一:创建异步对象
         var ajax = new XMLHttpRequest();
         //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
-        ajax.open("get", "{$this->root_dir}/index.php?m=api&c=Ajax&a=get_token", true);
+        ajax.open("get", "{$this->root_dir}/index.php?m=api&c=Ajax&a=get_token&name=__token__{$token_id}", true);
         // 给头部添加ajax信息
         ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
         //步骤三:发送请求+数据
@@ -136,7 +136,7 @@ class TagGuestbookform extends Base
     {$funname}();
 </script>
 EOF;
-            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__" id="'.$token_id.'" value="" />'.$tokenStr;
+            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
             $action = url('home/Lists/gbook_submit');

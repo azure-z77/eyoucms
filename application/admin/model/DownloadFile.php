@@ -66,56 +66,41 @@ class DownloadFile extends Model
         $fileupload = isset($post['fileupload']) ? $post['fileupload'] : array();
         if (!empty($fileupload)) {
 
-             $DownFileArr = M('DownloadFile')->where("aid = $aid")->getField('file_id,file_url'); // 查出所有已经存在的文件
-
-             // 删除文件
-             $file_ids = array();
-             foreach($DownFileArr as $key => $val)
-             {
-                if (!in_array($val, $fileupload)) {
-                    array_push($file_ids, $key);
-                }
-             }
-             if (!empty($file_ids)) {
-                db('DownloadFile')->where(array('file_id'=>array('IN', $file_ids)))->delete();
-             }
+            // 删除
+            $this->delDownFile($aid);
 
              // 添加文件
             $data = array();
             $sort_order = 0;
             foreach($fileupload as $key => $val)
             {
-                if($val == null || empty($val))  continue;                                  
-                if(!in_array($val, $DownFileArr))
-                {                 
-                    $title = !empty($post['title']) ? $post['title'] : '';
-                    $file_size = isset($post['fileSize'][$key]) ? $post['fileSize'][$key] : 0;
-                    $file_mime = isset($post['fileMime'][$key]) ? $post['fileMime'][$key] : '';
-                    $uhash = isset($post['uhash'][$key]) ? $post['uhash'][$key] : '';
-                    $md5file = isset($post['md5file'][$key]) ? $post['md5file'][$key] : '';
-                    $file_ext = pathinfo($val, PATHINFO_EXTENSION);
-                    $file_name = pathinfo($val, PATHINFO_BASENAME);
-                    ++$sort_order;
-                    $data[] = array(
-                        'aid' => $aid,
-                        'title' => $title,
-                        'file_url'   => $val,
-                        'file_size'  => $file_size,
-                        'file_ext'  => $file_ext,
-                        'file_name'  => $file_name,
-                        'file_mime'  => $file_mime,
-                        'uhash'  => $uhash,
-                        'md5file'  => $md5file,
-                        'sort_order'    => $sort_order,
-                        'add_time' => getTime(),
-                    );
-                }                 
+                if($val == null || empty($val))  continue;    
+
+                $title = !empty($post['title']) ? $post['title'] : '';
+                $file_size = isset($post['fileSize'][$key]) ? $post['fileSize'][$key] : 0;
+                $file_mime = isset($post['fileMime'][$key]) ? $post['fileMime'][$key] : '';
+                $uhash = isset($post['uhash'][$key]) ? $post['uhash'][$key] : '';
+                $md5file = isset($post['md5file'][$key]) ? $post['md5file'][$key] : '';
+                $file_ext = pathinfo($val, PATHINFO_EXTENSION);
+                $file_name = pathinfo($val, PATHINFO_BASENAME);
+                ++$sort_order;
+                $data[] = array(
+                    'aid' => $aid,
+                    'title' => $title,
+                    'file_url'   => $val,
+                    'file_size'  => $file_size,
+                    'file_ext'  => $file_ext,
+                    'file_name'  => $file_name,
+                    'file_mime'  => $file_mime,
+                    'uhash'  => $uhash,
+                    'md5file'  => $md5file,
+                    'sort_order'    => $sort_order,
+                    'add_time' => getTime(),
+                );
             }
             if (!empty($data)) {
                 M('DownloadFile')->insertAll($data);
             }
-        } else {
-            M('DownloadFile')->where('aid',$aid)->delete();
         }
     }
 }

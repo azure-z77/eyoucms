@@ -213,34 +213,36 @@
 </div>
 <script type="text/javascript">
     $(function () {
+        check_upgrade_version();
+        $.get("{:url('Ajax/welcome_handle')}"); // 进入欢迎页面需要异步处理的业务
         // 版本检测更新弹窗
-        $.ajax({
-            type : "GET",
-            url  : "{:url('Ajax/check_upgrade_version')}",
-            data : {},
-            dataType : "JSON",
-            success: function(res) {
-                if (1 == res.code) {
-                    if (2 == res.data.code) {
-                        $('#upgrade_filelist').html(res.data.msg.upgrade);
-                        $('#upgrade_intro').html(res.data.msg.intro);
-                        $('#upgrade_notice').html(res.data.msg.notice);
-                        $('#a_upgrade').attr('data-version', res.data.msg.key_num)
-                        .attr('data-max_version', res.data.msg.max_version)
-                        .attr('title', res.data.msg.tips);
-                        $('#a_upgrade').html('检测到新版本'+res.data.msg.key_num+'[点击查看]').css('color', '#F00');
+        function check_upgrade_version(){
+            $.ajax({
+                type : "GET",
+                url  : "{:url('Ajax/check_upgrade_version')}",
+                data : {},
+                dataType : "JSON",
+                success: function(res) {
+                    if (1 == res.code) {
+                        if (2 == res.data.code) {
+                            $('#upgrade_filelist').html(res.data.msg.upgrade);
+                            $('#upgrade_intro').html(res.data.msg.intro);
+                            $('#upgrade_notice').html(res.data.msg.notice);
+                            $('#a_upgrade').attr('data-version', res.data.msg.key_num)
+                            .attr('data-max_version', res.data.msg.max_version)
+                            .attr('title', res.data.msg.tips);
+                            $('#a_upgrade').html('检测到新版本'+res.data.msg.key_num+'[点击查看]').css('color', '#F00');
 
-                        {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
-                            btn_upgrade($("#a_upgrade"), 1);
-                        {/if}
-                    } else {
-                        $('#td_upgrade_msg').html(res.data.msg);
+                            {if condition="-1 != $web_show_popup_upgrade AND (0 >= $Think.session.admin_info.role_id OR 1 == $Think.session.admin_info.auth_role_info.online_update)"}
+                                btn_upgrade($("#a_upgrade"), 1);
+                            {/if}
+                        } else {
+                            $('#td_upgrade_msg').html(res.data.msg);
+                        }
                     }
                 }
-            }
-        }); 
-        
-        $.get("{:url('Ajax/welcome_handle')}"); // 进入欢迎页面需要异步处理的业务
+            }); 
+        }
     });
 
     $(function() {

@@ -81,6 +81,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'sort_order' => 
+  array (
+    'name' => 'sort_order',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '100',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'add_time' => 
   array (
     'name' => 'add_time',

@@ -53,11 +53,12 @@ class TagWeapplist extends Base
             }
 
             $code = $val['code'];
-            $link = !empty($config['link']) ? url($config['link']) : url('user/Users/centre');
+            $link = !empty($config['link']) ? $config['link'] : 'user/Users/centre';
+            $href = url($link);
             $menutitle = !empty($config['menutitle']) ? $config['menutitle'] : $val['name'];
 
             /*标记被选中效果*/
-            if ($link == MODULE_NAME.'/'.CONTROLLER_NAME.'/'.ACTION_NAME) {
+            if (stristr($link, MODULE_NAME.'/'.CONTROLLER_NAME.'/')) {
                 $tmp_currentstyle = $currentstyle;
             } else {
                 $tmp_currentstyle = '';
@@ -66,7 +67,7 @@ class TagWeapplist extends Base
 
             $row[] = [
                 'code'  => $code,
-                'href'  => $link,
+                'href'  => $href,
                 'title' => $menutitle,
                 'currentstyle'  => $tmp_currentstyle,
             ];

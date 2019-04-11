@@ -330,7 +330,7 @@ class Backup{
     public function sql_split($sql, $tablepre) {
 
         if ($tablepre != "ey_")
-            $sql = str_replace("ey_", $tablepre, $sql);
+            $sql = str_replace("`ey_", '`'.$tablepre, $sql);
               
         $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
         

@@ -171,6 +171,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'tempview' => 
+  array (
+    'name' => 'tempview',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'status' => 
   array (
     'name' => 'status',

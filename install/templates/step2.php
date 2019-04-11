@@ -48,6 +48,11 @@
           <td><font title="影响验证码是否显示、图片水印、以及图像处理等问题">必须开启</font></td>
           <td><?php echo $gd; ?></td>
         </tr>
+<!--         <tr>
+          <td class="first">session</td>
+          <td><font title="影响系统安装、后台登录等功能">必须开启</font></td>
+          <td><?php echo $session; ?></td>
+        </tr> -->
         <tr>
           <td class="first">mysqli</td>
           <td><font title="影响数据库的连接和一系列读、写、删、改操作">必须开启</font></td>

@@ -82,6 +82,10 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
         /*--end*/
         if (1 == $seo_rewrite_format) { // 精简伪静态
             $home_rewrite = array(
+                // 会员中心
+                $lang_rewrite_str.'user$' => array('user/Users/login',array('ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'reg$' => array('user/Users/reg',array('ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'centre$' => array('user/Users/centre',array('ext' => ''), 'cache'=>1),
                 // 留言提交
                 $lang_rewrite_str.'guestbook/submit$' => array('home/Lists/gbook_submit',array('method' => 'post', 'ext' => 'html'), 'cache'=>1),
                 // 下载文件
@@ -98,6 +102,10 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
             );
         } else {
             $home_rewrite = array(
+                // 会员中心
+                $lang_rewrite_str.'Users/login$' => array('user/Users/login',array('ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'Users/reg$' => array('user/Users/reg',array('ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'Users/centre$' => array('user/Users/centre',array('ext' => 'html'), 'cache'=>1),
                 // 文章模型伪静态
                 $lang_rewrite_str.'article$' => array('home/Article/index',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 $lang_rewrite_str.'article/<tid>$' => array('home/Article/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),

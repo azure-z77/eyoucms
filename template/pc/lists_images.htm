@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -29,10 +29,10 @@
 <!--header-s-->
     {eyou:include file="header.htm"/}
 <!--header-e-->
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -43,14 +43,14 @@
     </div> 
    </div> 
   </section> 
-  <div class="met-img animsition"> 
+  <div class="ey-img animsition"> 
    <div class="container"> 
     <div class="row"> 
-     <ul class="blocks-100 blocks-md-2 blocks-lg-4 blocks-xxl-4  no-space met-pager-ajax imagesize met-img-list" data-scale="400x400" m-id="noset"> 
+     <ul class="blocks-100 blocks-md-2 blocks-lg-4 blocks-xxl-4  no-space ey-pager-ajax imagesize ey-img-list" data-scale="400x400" m-id="noset"> 
       {eyou:list pagesize="8" titlelen="20"}
       <li class="widget "> 
        <div class="cover overlay overlay-hover"> 
-        <a href="{$field.arcurl}" title="{$field.title}" class="btn btn-outline btn-inverse met-img-showbtn" target="_self"> <img class="cover-image overlay-scale" src="{$field.litpic}" alt="{$field.title}" /> </a> 
+        <a href="{$field.arcurl}" title="{$field.title}" class="btn btn-outline btn-inverse ey-img-showbtn" target="_self"> <img class="cover-image overlay-scale" src="{$field.litpic}" alt="{$field.title}" /> </a> 
        </div> 
        <div class="cover-title"> 
         <h3><a href="{$field.arcurl}" title="{$field.title}">{$field.title}</a></h3> 

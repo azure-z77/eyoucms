@@ -83,7 +83,7 @@ switch ($step) {
         if ($mini_php <= phpversion()){
             $phpvStr = '<img src="images/ok.png">';
         }else{
-            $phpvStr = '<img src="images/del.png"> &nbsp;<a href="http://www.eyoucms.com/bbs/3132.html" target="_blank">当前版本('.phpversion().')不支持</a>';
+            $phpvStr = '<img src="images/del.png"> &nbsp;<a href="http://www.eyoucms.com/wenda/3132.html" target="_blank">当前版本('.phpversion().')不支持</a>';
             $err++;
         }
         $os = PHP_OS;
@@ -95,10 +95,10 @@ switch ($step) {
         $max_execution_time = ini_get('max_execution_time');
         $allow_reference = (ini_get('allow_call_time_pass_reference') ? '<img src="images/ok.png">' : '<img src="images/del.png">');
         $allow_url_fopen = (ini_get('allow_url_fopen') ? '<img src="images/ok.png">' : '<img src="images/del.png">');
-        $safe_mode = (ini_get('safe_mode') ? '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3125.html" target="_blank">详情</a>' : '<img src="images/ok.png">');
+        $safe_mode = (ini_get('safe_mode') ? '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3125.html" target="_blank">详情</a>' : '<img src="images/ok.png">');
         
         if (empty($tmp['GD Version'])) {
-            $gd = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3126.html" target="_blank">详情</a>';
+            $gd = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3126.html" target="_blank">详情</a>';
             $err++;
         } else {
             $gd = '<img src="images/ok.png">';
@@ -106,42 +106,42 @@ switch ($step) {
         if (function_exists('mysqli_connect')) {
             $mysql = '<img src="images/ok.png">';
         } else {
-            $mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3127.html" target="_blank">详情</a>';
+            $mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3127.html" target="_blank">详情</a>';
             $err++;
         }
         // if (ini_get('file_uploads')) {
         //     $uploadSize = '<img src="images/ok.png">';
         // } else {
-        //     $uploadSize = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3128.html" target="_blank">详情</a>';
+        //     $uploadSize = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3128.html" target="_blank">详情</a>';
         // }
         if (class_exists('pdo')) {
             $pdo = '<img src="images/ok.png">';
         } else {
-            $pdo = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3129.html" target="_blank">详情</a>';
+            $pdo = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3129.html" target="_blank">详情</a>';
             $err++;
         }
         if (extension_loaded('pdo_mysql')) {
             $pdo_mysql = '<img src="images/ok.png">';
         } else {
-            $pdo_mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3129.html" target="_blank">详情</a>';
+            $pdo_mysql = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3129.html" target="_blank">详情</a>';
             $err++;
         }
 /*        if (function_exists('session_start')) {
             $session = '<img src="images/ok.png">';
         } else {
-            $session = '<img src="images/del.png">';
+            $session = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/7115.html" target="_blank">详情</a>';
             $err++;
         }*/
         if(function_exists('curl_init')){
             $curl = '<img src="images/ok.png">';
         }else{
-            $curl = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3130.html" target="_blank">详情</a>';
+            $curl = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3130.html" target="_blank">详情</a>';
             $err++;
         }
         if(function_exists('file_put_contents')){
             $file_put_contents = '<img src="images/ok.png">';
         }else{
-            $file_put_contents = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/bbs/3131.html" target="_blank">详情</a>';
+            $file_put_contents = '<img src="images/del.png">&nbsp;<a href="http://www.eyoucms.com/wenda/3131.html" target="_blank">详情</a>';
             $err++;
         }
         // if(function_exists('scandir')){
@@ -185,7 +185,7 @@ switch ($step) {
                 //     if(strstr($result[0],'STRICT_ALL_TABLES') || strstr($result[0],'TRADITIONAL') || strstr($result[0],'ANSI') || strstr($result[0],'ONLY_FULL_GROUP_BY')) {
                 //         die(json_encode(array(
                 //             'errcode'   => -1,
-                //             'dbpwmsg'    => "<span for='dbname' generated='true' class='tips_error'>请在mysql配置文件修改sql-mode或sql_mode</span>&nbsp;<a href='http://www.eyoucms.com/bbs/2799.html' target='_blank'>点击查看操作</a>",
+                //             'dbpwmsg'    => "<span for='dbname' generated='true' class='tips_error'>请在mysql配置文件修改sql-mode或sql_mode</span>&nbsp;<a href='http://www.eyoucms.com/wenda/2799.html' target='_blank'>点击查看操作</a>",
                 //         )));
                 //     } 
                 // }
@@ -411,8 +411,8 @@ switch ($step) {
         $ip = get_client_ip();
         $ip = empty($ip) ? "0.0.0.0" : $ip;
         $password = md5('!*&^eyoucms<>|?'.trim($_POST['manager_pwd']));
-        mysqli_query($conn, "DELETE FROM `{$dbPrefix}admin` WHERE user_name = 'admin'");
-        mysqli_query($conn, " INSERT  INTO `{$dbPrefix}admin` (`admin_id`,`user_name`,`true_name`,`password`,`add_time`,`last_login`,`last_ip`,`login_cnt`,`status`) VALUES ('1','$username','$username','$password','$time','0','$ip','1','1')");
+        mysqli_query($conn, "DELETE FROM `{$dbPrefix}admin` WHERE user_name = '$username'");
+        mysqli_query($conn, " INSERT  INTO `{$dbPrefix}admin` (`user_name`,`true_name`,`password`,`add_time`,`last_login`,`last_ip`,`login_cnt`,`status`) VALUES ('$username','$username','$password','$time','0','$ip','1','1')");
                 
         $url = $_SERVER['PHP_SELF']."?step=5";
         header("Location: {$url}");

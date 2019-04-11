@@ -182,17 +182,24 @@ class Article extends Base
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
-                $seo_description = @msubstr(checkStrHtml($content), 0, 200, false);
+                $seo_description = @msubstr(checkStrHtml($content), 0, config('global.arc_seo_description_length'), false);
             } else {
                 $seo_description = $post['seo_description'];
             }
 
-            // --外部链接
+            // 外部链接跳转
             $jumplinks = '';
             $is_jump = isset($post['is_jump']) ? $post['is_jump'] : 0;
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+
+            // 模板文件，如果文档模板名与栏目指定的一致，默认就为空。让它跟随栏目的指定而变
+            if ($post['type_tempview'] == $post['tempview']) {
+                unset($post['type_tempview']);
+                unset($post['tempview']);
+            }
+
             // --存储数据
             $newData = array(
                 'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
@@ -231,6 +238,9 @@ class Article extends Base
         $typeid = input('param.typeid/d', 0);
         $assign_data['typeid'] = $typeid; // 栏目ID
 
+        // 栏目信息
+        $arctypeInfo = Db::name('arctype')->find($typeid);
+
         /*允许发布文档列表的栏目*/
         $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
         $assign_data['arctype_html'] = $arctype_html;
@@ -256,6 +266,18 @@ class Article extends Base
         $arcrank_list = get_arcrank_list();
         $assign_data['arcrank_list'] = $arcrank_list;
 
+        /*模板列表*/
+        $archivesLogic = new \app\admin\logic\ArchivesLogic;
+        $templateList = $archivesLogic->getTemplateList($this->nid);
+        $this->assign('templateList', $templateList);
+        /*--end*/
+
+        /*默认模板文件*/
+        $tempview = 'view_'.$this->nid.'.'.config('template.view_suffix');
+        !empty($arctypeInfo['tempview']) && $tempview = $arctypeInfo['tempview'];
+        $this->assign('tempview', $tempview);
+        /*--end*/
+
         /*返回上一层*/
         $gourl = input('param.gourl/s', '');
         if (empty($gourl)) {
@@ -265,6 +287,7 @@ class Article extends Base
         /*--end*/
 
         $this->assign($assign_data);
+
         return $this->fetch();
     }
     
@@ -297,8 +320,13 @@ class Article extends Base
             }
             $post['litpic'] = $litpic;
 
-            // 描述
-            $seo_description = $post['seo_description'];
+            // SEO描述
+            $seo_description = '';
+            if (empty($post['seo_description']) && !empty($content)) {
+                $seo_description = @msubstr(checkStrHtml($content), 0, config('global.arc_seo_description_length'), false);
+            } else {
+                $seo_description = $post['seo_description'];
+            }
 
             // --外部链接
             $jumplinks = '';
@@ -306,6 +334,13 @@ class Article extends Base
             if (intval($is_jump) > 0) {
                 $jumplinks = $post['jumplinks'];
             }
+
+            // 模板文件，如果文档模板名与栏目指定的一致，默认就为空。让它跟随栏目的指定而变
+            if ($post['type_tempview'] == $post['tempview']) {
+                unset($post['type_tempview']);
+                unset($post['tempview']);
+            }
+
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
             // --存储数据
@@ -354,13 +389,17 @@ class Article extends Base
         /*兼容采集没有归属栏目的文档*/
         if (empty($info['channel'])) {
             $channelRow = Db::name('channeltype')->field('id as channel')
-                ->where('id',1)
+                ->where('id',$this->channeltype)
                 ->find();
             $info = array_merge($info, $channelRow);
         }
         /*--end*/
         $typeid = $info['typeid'];
-        $info['channel'] = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
+
+        // 栏目信息
+        $arctypeInfo = Db::name('arctype')->find($typeid);
+
+        $info['channel'] = $arctypeInfo['current_channel'];
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
             $info['litpic_remote'] = handle_subdir_pic($info['litpic']);
@@ -368,6 +407,12 @@ class Article extends Base
             $info['is_remote'] = 0;
             $info['litpic_local'] = handle_subdir_pic($info['litpic']);
         }
+    
+        // SEO描述
+        if (!empty($info['seo_description'])) {
+            $info['seo_description'] = @msubstr(checkStrHtml($info['seo_description']), 0, config('global.arc_seo_description_length'), false);
+        }
+
         $assign_data['field'] = $info;
 
         /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/
@@ -394,6 +439,18 @@ class Article extends Base
         // 阅读权限
         $arcrank_list = get_arcrank_list();
         $assign_data['arcrank_list'] = $arcrank_list;
+
+        /*模板列表*/
+        $archivesLogic = new \app\admin\logic\ArchivesLogic;
+        $templateList = $archivesLogic->getTemplateList($this->nid);
+        $this->assign('templateList', $templateList);
+        /*--end*/
+
+        /*默认模板文件*/
+        $tempview = $info['tempview'];
+        empty($tempview) && $tempview = $arctypeInfo['tempview'];
+        $this->assign('tempview', $tempview);
+        /*--end*/
 
         /*返回上一层*/
         $gourl = input('param.gourl/s', '');

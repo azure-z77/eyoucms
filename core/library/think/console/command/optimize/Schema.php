@@ -89,7 +89,9 @@ class Schema extends Command
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = $class::getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(DATA_PATH . 'schema' . DS . $table . EXT, $content); // by 小虎哥
+            $prefix = \think\Config::get('database.prefix'); // by 小虎哥
+            $filename = preg_replace('/^'.$prefix.'/i', 'ey_', $table); // by 小虎哥
+            file_put_contents(DATA_PATH . 'schema' . DS . $filename . EXT, $content); // by 小虎哥
         }
     }
 
@@ -100,12 +102,14 @@ class Schema extends Command
         } else {
             $dbName = $db;
         }
+        $prefix = \think\Config::get('database.prefix'); // by 小虎哥
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = Db::connect($config)->getFields($table); // by 小虎哥
             // $info    = Db::connect($config)->getFields($db . $table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(DATA_PATH . 'schema' . DS . $table . EXT, $content); // by 小虎哥
+            $filename = preg_replace('/^'.$prefix.'/i', 'ey_', $table); // by 小虎哥
+            file_put_contents(DATA_PATH . 'schema' . DS . $filename . EXT, $content); // by 小虎哥
         }
     }
 }

@@ -1910,9 +1910,9 @@ class Query
         if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
                 // $schema = $db . '.' . $guid;
-                $schema = $guid; // 以表名做为文件名 by 小虎哥
+                $schema = preg_replace('/^'.$this->prefix.'/i', 'ey_', $guid); // 以表名做为文件名 by 小虎哥
             } else {
-                $schema = $guid;
+                $schema = preg_replace('/^'.$this->prefix.'/i', 'ey_', $guid); // 以表名做为文件名 by 小虎哥
             }
             // 读取缓存
             if (!App::$debug && is_file(DATA_PATH . 'schema/' . $schema . '.php')) {

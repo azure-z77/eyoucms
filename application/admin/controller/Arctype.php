@@ -481,7 +481,18 @@ class Arctype extends Base
         $assign_data['info'] = $info;
 
         /*自定义字段*/
-        $assign_data['addonFieldExtList'] = model('Field')->getChannelFieldList(6, 0, $typeid);
+        $addonFieldExtList = model('Field')->getChannelFieldList(6, 0, $typeid);
+        $channelfieldBindRow = Db::name('channelfield_bind')->where([
+                'typeid'    => ['IN', [0,$typeid]],
+            ])->column('field_id');
+        if (!empty($channelfieldBindRow)) {
+            foreach ($addonFieldExtList as $key => $val) {
+                if (!in_array($val['id'], $channelfieldBindRow)) {
+                    unset($addonFieldExtList[$key]);
+                }
+            }
+        }
+        $assign_data['addonFieldExtList'] = $addonFieldExtList;
         $assign_data['aid'] = $typeid;
         $assign_data['channeltype'] = 6;
         $assign_data['nid'] = 'single';

@@ -1637,6 +1637,34 @@ if (!function_exists('getCmsVersion'))
     }
 }
 
+if (!function_exists('getVersion')) 
+{
+    /**
+     * 获取当前各种版本号
+     *
+     * @return string
+     */
+    function getVersion($filename='version', $ver='v1.0.0')
+    {
+        $version_txt_path = ROOT_PATH.'data/conf/'.$filename.'.txt';
+        if(file_exists($version_txt_path)) {
+            $fp = fopen($version_txt_path, 'r');
+            $content = fread($fp, filesize($version_txt_path));
+            fclose($fp);
+            $ver = $content ? $content : $ver;
+        } else {
+            $r = tp_mkdir(dirname($version_txt_path));
+            if ($r) {
+                $fp = fopen($version_txt_path, "w+") or die("请设置".$version_txt_path."的权限为777");
+                if (fwrite($fp, $ver)) {
+                    fclose($fp);
+                }
+            }
+        }
+        return $ver;
+    }
+}
+
 if (!function_exists('getWeappVersion')) 
 {
     /**

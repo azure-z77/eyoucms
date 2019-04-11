@@ -88,7 +88,7 @@ class TagPosition extends Base
             if ($i < count($result)) {
                 $str .= " {$symbol} <a href='{$val['typeurl']}' class='{$style}'>{$val['typename']}</a>";
             } else {
-                $str .= " {$symbol} {$val['typename']}";
+                $str .= " {$symbol} <a href='{$val['typeurl']}'>{$val['typename']}</a>";
             }
             ++$i;
         }

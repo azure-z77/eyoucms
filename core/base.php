@@ -25,6 +25,10 @@ defined('DATA_PATH') or define('DATA_PATH', ROOT_PATH . DATA_NAME . DS);
 defined('WEAPP_DIR_NAME') or define('WEAPP_DIR_NAME', 'weapp');
 defined('WEAPP_PATH') or define('WEAPP_PATH', ROOT_PATH . WEAPP_DIR_NAME . DS);
 defined('TEMPLATE_PATH') or define('TEMPLATE_PATH', ROOT_PATH . 'template' . DS);
+// 新版支付宝 - 存放日志，AOP缓存数据
+defined('AOP_SDK_WORK_DIR') or define('AOP_SDK_WORK_DIR', RUNTIME_PATH);
+// 新版支付宝 - 是否处于开发模式
+defined('AOP_SDK_DEV_MODE') or define('AOP_SDK_DEV_MODE', false);
 
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);

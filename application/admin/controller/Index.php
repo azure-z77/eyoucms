@@ -67,6 +67,17 @@ class Index extends Base
 
         $this->assign('admin_info', getAdminInfo(session('admin_id')));
         $this->assign('menu',getMenuList());
+
+        /*检测是否存在会员中心模板*/
+        $globalConfig = tpCache('global');
+        if ('v1.0.1' > getVersion('version_themeusers') && !empty($globalConfig['web_users_switch'])) {
+            $is_syn_theme_users = 1;
+        } else {
+            $is_syn_theme_users = 0;
+        }
+        $this->assign('is_syn_theme_users',$is_syn_theme_users);
+        /*--end*/
+
         return $this->fetch();
     }
    
@@ -95,6 +106,11 @@ class Index extends Base
 
         $this->assign('sys_info',$this->get_sys_info());
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
+
+        // 自动纠正蜘蛛抓取文件rotots.txt
+        $ajaxLogic = new \app\admin\logic\AjaxLogic;
+        $ajaxLogic->update_robots();
+
         return $this->fetch();
     }
     
@@ -218,6 +234,32 @@ class Index extends Base
         $id_value = input('id_value'); // 表主键id值
         $field  = input('field'); // 修改哪个字段
         $value  = input('value', '', null); // 修改字段值  
+
+        switch ($table) {
+            // 会员等级表
+            case 'users_level':
+                {
+                    $return = model('UsersLevel')->isRequired($id_name,$id_value,$field,$value);
+                    if (is_array($return)) {
+                        $this->error($return['msg']);
+                    }
+                }
+                break;
+            
+            // 会员属性表
+            case 'users_parameter':
+                {
+                    $return = model('UsersParameter')->isRequired($id_name,$id_value,$field,$value);
+                    if (is_array($return)) {
+                        $this->error($return['msg']);
+                    }
+                }
+                break;
+
+            default:
+                # code...
+                break;
+        }
 
         $savedata = [
             $field => $value,

@@ -178,8 +178,16 @@ return [
         'id' => 20,
         'menu_id' => 2004,
         'menu_id2' => 2004007,
-        'name'  => '模型管理',
+        'name'  => '频道模型',
         'is_modules'    => 1,
         'auths' => 'Channeltype@*,Field@*',
+    ],
+    [
+        'id' => 21,
+        'menu_id' => 2006,
+        'menu_id2' => 0,
+        'name'  => '允许操作',
+        'is_modules'    => 1,
+        'auths' => 'Member@*',
     ],
 ];

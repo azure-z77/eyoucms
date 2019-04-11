@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -30,10 +30,10 @@
     {eyou:include file="header.htm"/}
 <!--header-e-->
 <main e-page="lists_download">
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -44,13 +44,13 @@
     </div> 
    </div> 
   </section> 
-  <section class="met-download animsition"> 
+  <section class="ey-download animsition"> 
    <div class="container"> 
     <div class="row"> 
-     <div class="col-md-9 met-download-body"> 
+     <div class="col-md-9 ey-download-body"> 
       <div class="row"> 
-       <div class="met-download-list"> 
-        <ul class="ulstyle met-pager-ajax imagesize" data-scale="1" m-id="met_download"> 
+       <div class="ey-download-list"> 
+        <ul class="ulstyle ey-pager-ajax imagesize" data-scale="1" m-id="met_download"> 
           {eyou:list pagesize="10" titlelen="20" id='field'}
           <li class="list-group-item"> 
           <div class="media"> 
@@ -64,7 +64,7 @@
               {/eyou:volist}
             {/eyou:arcview}
             <h4 class="media-heading font-size-16"> <a class="name" href="{$field.arcurl}" title="{$field.title}" target="_self">{$field.title}</a> </h4> 
-            <small class="font-size-14 blue-grey-500"> <span>100 kb</span> <span class="m-l-10">{$field.add_time|MyDate='Y-m-d',###}</span> </small> 
+            <small class="font-size-14 blue-grey-500"> <span>浏览量：{$field.click}次</span> <span class="m-l-10">日期：{$field.add_time|MyDate='Y-m-d',###}</span> </small> 
            </div> 
           </div>
           </li> 
@@ -80,13 +80,13 @@
      </div> 
      <div class="col-md-3" m-id="downlaod_bar" m-type="nocontent"> 
       <div class="row"> 
-       <div class="met-bar"> 
+       <div class="ey-bar"> 
         {eyou:searchform type='default'}
         <form class="sidebar-search" method="get" action="{$field.action}">
           {$field.hidden}
          <div class="form-group"> 
           <div class="input-search"> 
-           <button type="submit" class="input-search-btn"> <i class="icon wb-search" aria-hidden="true"></i> </button> 
+           <button type="submit" class="input-search-btn"> <i class="icon fa-search"></i> </button> 
            <input type="text" class="form-control" name="keywords" placeholder="{eyou:lang name='yybl6' /}" /> 
           </div> 
          </div> 

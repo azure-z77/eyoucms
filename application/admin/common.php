@@ -65,7 +65,8 @@ if (!function_exists('getAdminInfo'))
                 ->find();
             if (!empty($admin_info)) {
                 $admin_info['role_id'] = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
-                $admin_info['role_name'] = !empty($admin_info['parent_id']) ? '超级管理员' : '创始人';
+                $role_name = !empty($admin_info['role_name']) ? $admin_info['role_name'] : '创始人';
+                $admin_info['role_name'] = $role_name;
             }
         }
         
@@ -288,7 +289,7 @@ if (!function_exists('push_zzbaidu'))
         $aid = intval($aid);
         $typeid = intval($typeid);
         $sitemap_zzbaidutoken = tpCache('sitemap.sitemap_zzbaidutoken');
-        if (empty($sitemap_zzbaidutoken) || (empty($aid) && empty($typeid))) {
+        if (empty($sitemap_zzbaidutoken) || (empty($aid) && empty($typeid)) || !function_exists('curl_init')) {
             return '';
         }
 
@@ -779,5 +780,27 @@ if (!function_exists('schemaTable'))
         /*调用命令行的指令*/
         \think\Console::call('optimize:schema', ['--table', $table]);
         /*--end*/
+    }
+}
+
+if (!function_exists('testWriteAble')) 
+{
+    /**
+     * 测试目录路径是否有写入权限
+     * @param string $d 目录路劲
+     * @return boolean
+     */
+    function testWriteAble($filepath)
+    {
+        $tfile = '_eyout.txt';
+        $fp = @fopen($filepath.$tfile,'w');
+        if(!$fp) {
+            return false;
+        }
+        else {
+            fclose($fp);
+            $rs = @unlink($filepath.$tfile);
+            return true;
+        }
     }
 }

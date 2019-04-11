@@ -21,9 +21,9 @@ return array (
   'log_info' => 
   array (
     'name' => 'log_info',
-    'type' => 'varchar(255)',
+    'type' => 'text',
     'notnull' => false,
-    'default' => '',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

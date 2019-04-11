@@ -69,6 +69,8 @@ class WeappLogic extends Model
                 'code'          => $code,
                 'name'          => isset($v['name']) ? $v['name'] : '配置信息不完善',
                 'config'        => empty($v) ? '' : json_encode($v),
+                'position'      => isset($v['position']) ? $v['position'] : 'default',
+                'sort_order'    => 100,
             );
             if(empty($row[$code])){ // 新增插件
                 $data['add_time'] = getTime();
@@ -473,7 +475,7 @@ class WeappLogic extends Model
 
     public function sql_split($sql, $tablepre) {
 
-        $sql = str_replace("#@__", $tablepre, $sql);
+        $sql = str_replace("`#@__", '`'.$tablepre, $sql);
               
         $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
         

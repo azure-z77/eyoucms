@@ -25,6 +25,15 @@ class ArchivesLogic extends Model
 {
     use \traits\controller\Jump;
     
+    private $admin_lang = 'cn';
+
+    /**
+     * 析构函数
+     */
+    function  __construct() {
+        $this->admin_lang = get_admin_lang();
+    }
+
     /**
      * 删除文档
      */
@@ -43,7 +52,7 @@ class ArchivesLogic extends Model
                 ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
                 ->where([
                     'a.aid' => ['IN', $id_arr],
-                    'a.lang'    => get_admin_lang(),
+                    'a.lang'    => $this->admin_lang,
                 ])
                 ->select();
             $data = array();
@@ -79,5 +88,52 @@ class ArchivesLogic extends Model
         }else{
             $this->error('参数有误');
         }
+    }
+
+    /**
+     * 获取文档模板文件列表
+     */
+    public function getTemplateList($nid = 'article')
+    {   
+        $planPath = 'template/pc';
+        $dirRes   = opendir($planPath);
+        $view_suffix = config('template.view_suffix');
+
+        /*模板PC目录文件列表*/
+        $templateArr = array();
+        while($filename = readdir($dirRes))
+        {
+            if (in_array($filename, array('.','..'))) {
+                continue;
+            }
+            array_push($templateArr, $filename);
+        }
+        /*--end*/
+
+        /*多语言全部标识*/
+        $markArr = Db::name('language_mark')->column('mark');
+        /*--end*/
+
+        $templateList = array();
+        foreach ($templateArr as $k2 => $v2) {
+            $v2 = iconv('GB2312', 'UTF-8', $v2);
+            preg_match('/^(view)_'.$nid.'(_(.*))?(_'.$this->admin_lang.')?\.'.$view_suffix.'/i', $v2, $matches1);
+            $langtpl = preg_replace('/\.'.$view_suffix.'$/i', "_{$this->admin_lang}.{$view_suffix}", $v2);
+            if (file_exists(realpath($planPath.DS.$langtpl))) {
+                continue;
+            } else if (preg_match('/^(.*)_([a-zA-z]{2,2})\.'.$view_suffix.'$/i',$v2,$matches2)) {
+                if (in_array($matches2[2], $markArr) && $matches2[2] != $this->admin_lang) {
+                    continue;
+                }
+            }
+
+            if (!empty($matches1)) {
+                if ('view' == $matches1[1]) {
+                    array_push($templateList, $v2);
+                }
+            }
+        }
+
+        return $templateList;
     }
 }

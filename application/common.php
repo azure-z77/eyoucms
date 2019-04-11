@@ -499,20 +499,20 @@ if (!function_exists('handle_subdir_pic'))
         switch ($type) {
             case 'img':
                 if (!is_http_url($str) && !empty($str)) {
-                    if (!empty($root_dir)) { // 子目录之间切换
+                    // if (!empty($root_dir)) { // 子目录之间切换
                         $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
-                    } else { // 子目录与根目录切换
+                    // } else { // 子目录与根目录切换
                         // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
-                    }
+                    // }
                 }
                 break;
 
             case 'html':
-                if (!empty($root_dir)) { // 子目录之间切换
+                // if (!empty($root_dir)) { // 子目录之间切换
                     $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
-                } else { // 子目录与根目录切换
+                // } else { // 子目录与根目录切换
                     // $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
-                }
+                // }
                 break;
             
             default:
@@ -1418,10 +1418,45 @@ if (!function_exists('send_email'))
      * @throws Exception
      * @throws phpmailerException
      */
-    function send_email($to='', $subject='', $data=array(), $scene=0){
+    function send_email($to='', $subject='', $data=array(), $scene=0, $smtp_config = []){
         // 实例化类库，调用发送邮件
-        $emailLogic = new \app\common\logic\EmailLogic;
+        $emailLogic = new \app\common\logic\EmailLogic($smtp_config);
         $res = $emailLogic->send_email($to, $subject, $data, $scene);
         return $res;
+    }
+}
+
+if (!function_exists('download_file')) 
+{
+    /**
+     * 下载文件
+     * @param $down_path 文件路径
+     * @param $file_mime 文件类型
+     */
+    function download_file($down_path = '', $file_mime = '')
+    {
+        /*支持子目录*/
+        $down_path = handle_subdir_pic($down_path);
+        /*--end*/
+
+        //文件名
+        $filename = explode('/', $down_path);
+        $filename = end($filename);
+        //以只读和二进制模式打开文件
+        $file = fopen('.'.$down_path, "rb");
+        //文件大小
+        $file_size = filesize('.'.$down_path);
+        //告诉浏览器这是一个文件流格式的文件    
+        header("Content-type: ".$file_mime);
+        //请求范围的度量单位
+        Header("Accept-Ranges: bytes");
+        //Content-Length是指定包含于请求或响应中数据的字节长度
+        Header("Accept-Length: " . $file_size);
+        //用来告诉浏览器，文件是可以当做附件被下载，下载后的文件名称为$filename该变量的值。
+        Header("Content-Disposition: attachment; filename=" . $filename); 
+        //读取文件内容并直接输出到浏览器    
+        echo fread($file, $file_size);    
+        fclose($file);    
+        exit();
     }
 }

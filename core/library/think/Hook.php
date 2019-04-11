@@ -123,9 +123,18 @@ class Hook
         } elseif (strpos($class, '::')) {
             $result = call_user_func_array($class, [ & $params, $extra]);
         } else {
-            $obj    = new $class();
-            $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
-            $result = $obj->$method($params, $extra);
+            if (preg_match('#weapp\\\([^\\\]+)\\\behavior\\\admin\\\#i',$class)) {
+                // 针对删除含有app_end行为的插件，避免删除报错 by 小虎哥
+                if (class_exists($class)) {
+                    $obj    = new $class();
+                    $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
+                    $result = $obj->$method($params, $extra);
+                }
+            } else {
+                $obj    = new $class();
+                $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
+                $result = $obj->$method($params, $extra);
+            }
         }
 
         if (App::$debug) {

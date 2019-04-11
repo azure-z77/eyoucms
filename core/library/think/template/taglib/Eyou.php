@@ -72,7 +72,7 @@ class Eyou extends Taglib
         'uitype'     => ['attr' => 'e-id,e-page,id,typeid'],
         'uiarclist'  => ['attr' => 'e-id,e-page,id,typeid'],
         'uichannel'  => ['attr' => 'e-id,e-page,id,typeid'],
-        'sql'        => ['attr' => 'sql,key,id,mod,cachetime,empty', 'close'=>1, 'level'=>3], // eyou sql 万能标签
+        // 'sql'        => ['attr' => 'sql,key,id,mod,cachetime,empty', 'close'=>1, 'level'=>3], // eyou sql 万能标签
         'weapp'      => ['attr' => 'type', 'close' => 0], // 网站应用插件
         'range'      => ['attr' => 'name,value,type', 'alias' => ['in,notin,between,notbetween', 'type']],
         'present'    => ['attr' => 'name'],
@@ -86,7 +86,7 @@ class Eyou extends Taglib
         'diyfield'   => ['attr' => 'name,id,key,mod,type,empty,limit'],
         'attribute'  => ['attr' => 'aid,type,empty,id,mod,key'],
         'attr'       => ['attr' => 'aid,name', 'close' => 0],
-        'login'      => ['attr' => 'type,id,key,mod,empty,currentstyle'],
+        'user'       => ['attr' => 'type,id,key,mod,empty,currentstyle,img'],
         'weapplist'  => ['attr' => 'type,id,key,mod,empty,currentstyle'], // 网站应用插件列表
     ];
 
@@ -1517,11 +1517,35 @@ class Eyou extends Taglib
             $parseStr .= ' ?>';
 
         } else if (!empty($addfields)) {
+
+            $addfieldsArr = explode('|', $addfields);
+
             $parseStr .= '<?php ';
 
             // 查询数据库获取的数据集
             $parseStr .= ' $tagField = new \think\template\taglib\eyou\TagField;';
-            $parseStr .= ' $__VALUE__ = $tagField->getField("'.$addfields.'", '.$aid.');';
+            $parseStr .= ' $__VALUE__ = $tagField->getField("'.$addfieldsArr[0].'", '.$aid.');';
+
+            // 字段指定的函数
+            if (!empty($addfieldsArr[1])) {
+                $funcArr = explode('=', $addfieldsArr[1]);
+                $funcName = $funcArr[0]; // 函数名
+                $funcParam = !empty($funcArr[1]) ? $funcArr[1] : ''; // 函数参数
+                if (!empty($funcParam)) {
+                    $funcParamStr = '';
+                    foreach (explode(',', $funcParam) as $key => $val) {
+                        if ('###' == $val) {
+                            $val = '$__VALUE__';
+                        }
+                        if (0 < $key) {
+                            $funcParamStr .= ', ';
+                        }
+                        $funcParamStr .= $val;
+                    }
+                    $parseStr .= '$__VALUE__ = '.$funcName.'('.$funcParamStr.');';
+                }
+            }
+
             $parseStr .= ' echo $__VALUE__;';
             $parseStr .= ' ?>';
         }
@@ -2315,27 +2339,29 @@ class Eyou extends Taglib
     }
 
     /**
-     * login 标签解析
+     * user 标签解析
      * 在模板中获取会员登录入口
      * 格式：
-     * {eyou:login type='default'}
-     *  <a href="{$field:loginurl}">{$field:username}</a>
-     * {/eyou:login}
+     * {eyou:user type='default'}
+     *  <a href="{$field.url}">{$field.username}</a>
+     * {/eyou:user}
      * @access public
      * @param array $tag 标签属性
      * @return string
      */
-    public function tagLogin($tag, $content)
+    public function tagUser($tag, $content)
     {
         $type  =  !empty($tag['type']) ? $tag['type'] : 'default';
         $id     = isset($tag['id']) ? $tag['id'] : 'field';
         $key     = isset($tag['key']) ? $tag['key'] : 'i';
-        $logouttxt  =  !empty($tag['logouttxt']) ? $tag['logouttxt'] : '';
-        $logoutimg  =  !empty($tag['logoutimg']) ? $tag['logoutimg'] : '';
+        $txt  =  !empty($tag['txt']) ? $tag['txt'] : '';
+        $txt  = $this->varOrvalue($txt);
+        $img  =  !empty($tag['img']) ? $tag['img'] : 'off';
+        $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
 
         $parseStr = '<?php ';
-        $parseStr .= ' $tagLogin = new \think\template\taglib\eyou\TagLogin;';
-        $parseStr .= ' $__LIST__ = $tagLogin->getLogin("'.$type.'","'.$logouttxt.'","'.$logoutimg.'");';
+        $parseStr .= ' $tagUser = new \think\template\taglib\eyou\TagUser;';
+        $parseStr .= ' $__LIST__ = $tagUser->getUser("'.$type.'", "'.$img.'", "'.$currentstyle.'");';
         $parseStr .= '?>';
 
         $parseStr .= '<?php if(!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty())): ?>';

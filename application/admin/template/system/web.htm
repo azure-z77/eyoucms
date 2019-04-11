@@ -29,11 +29,12 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="web_name">网站名称</label>
+                    <label for="web_name">网站简称</label>
                 </dt>
-                <dd class="opt">
-                    <input id="web_name" name="web_name" value="{$config.web_name|default=''}" class="input-txt" type="text" />
-                    <p class="notic"></p>
+                <dd class="opt ui-web_name ui-text">
+                    <input id="web_name" name="web_name" value="{$config.web_name|default=''}" class="input-txt ui-input" type="text" data-num="10" />
+                    <p class="notic">一般不超过10个字符</p>
+                    <p class="ui-big-text none">一般不超过10个字符（<span class="ui-textTips">还可以输入10个字符</span>）</p>
                 </dd>
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
@@ -116,11 +117,12 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="web_title">网站标题</label>
+                    <label for="web_title">首页标题</label>
                 </dt>
-                <dd class="opt">
-                    <input id="web_title" name="web_title" value="{$config.web_title|default=''}" class="input-txt" type="text" />
-                    <p class="notic">展现在首页title，有利于SEO</p>
+                <dd class="opt ui-web_title ui-text">
+                    <input id="web_title" name="web_title" value="{$config.web_title|default=''}" class="input-txt ui-input" type="text" data-num="100" />
+                    <p class="notic">一般不超过80个字符</p>
+                    <p class="ui-big-text none">一般不超过80个字符（<span class="ui-textTips">还可以输入80个字符</span>）</p>
                 </dd>
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
@@ -131,11 +133,12 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="web_keywords">网站关键词</label>
+                    <label for="web_keywords">首页关键词</label>
                 </dt>
-                <dd class="opt ui-keyword">
-                    <input id="web_keywords" name="web_keywords" value="{$config.web_keywords|default=''}" class="input-txt" type="text" />
-                    <p class="notic">多个关键词请用逗号,隔开，建议3到4个关键词。</p>
+                <dd class="opt ui-keyword ui-text">
+                    <input id="web_keywords" name="web_keywords" value="{$config.web_keywords|default=''}" class="input-txt ui-input" type="text" data-num="100" />
+                    <p class="notic">一般不超过100个字符</p>
+                    <p class="ui-big-text none">一般不超过100个字符（<span class="ui-textTips">还可以输入100个字符</span>）</p>
                 </dd>
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
@@ -146,11 +149,12 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="web_description">网站描述</label>
+                    <label for="web_description">首页描述</label>
                 </dt>
-                <dd class="opt ui-text">
-                    <textarea rows="5" cols="60" id="web_description" name="web_description" style="height:60px;" class="ui-input" data-num="100">{$config.web_description|default=''}</textarea>
-                    <p class="notic">（<span class="ui-textTips">还可以输入100个字</span>）</p>
+                <dd class="opt ui-web_description ui-text">
+                    <textarea rows="5" cols="60" id="web_description" name="web_description" style="height:60px;" class="ui-input" data-num="200">{$config.web_description|default=''}</textarea>
+                    <p class="notic">建议不超过200个字符</p>
+                    <p class="ui-big-text none">建议不超过200个字符（<span class="ui-textTips">还可以输入200个字符</span>）</p>
                 </dd>
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">

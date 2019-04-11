@@ -20,7 +20,6 @@ class Ajax extends Base
     /*
      * 初始化操作
      */
-    
     public function _initialize() {
         parent::_initialize();
     }
@@ -130,10 +129,10 @@ class Ajax extends Base
     /**
      * 获取表单令牌
      */
-    public function get_token()
+    public function get_token($name = '__token__')
     {
         if (IS_AJAX) {
-            echo $this->request->token();
+            echo $this->request->token($name);
             exit;
         }
     }
@@ -141,31 +140,52 @@ class Ajax extends Base
     /**
      * 检验会员登录
      */
-    public function check_login()
+    public function check_user()
     {
-        if (IS_AJAX_POST) {
-            $type = input('post.type/s', 'default');
-            $users_id = session('users_id');
-            if (!empty($users_id)) {
-                $users = M('users')->field('username,head_pic')
-                    ->where([
-                        'users_id'  => $users_id,
-                        'lang'      => $this->home_lang,  
-                    ])->find();
-                if (!empty($users)) {
-                    $head_pic = get_head_pic($users['head_pic']);
-                    if ('default' == $type) {
-                        $users['login_html'] = $users['username'];
-                    } else {
-                        $users['login_html'] = "<img class='eyou_head_pic' src='{$head_pic}' />";
+        if (IS_AJAX) {
+            $type = input('param.type/s', 'default');
+            $img = input('param.img/s');
+            if ('login' == $type) {
+                $users_id = session('users_id');
+                if (!empty($users_id)) {
+                    $currentstyle = input('param.currentstyle/s');
+                    $users = M('users')->field('username,head_pic')
+                        ->where([
+                            'users_id'  => $users_id,
+                            'lang'      => $this->home_lang,  
+                        ])->find();
+                    if (!empty($users)) {
+                        $username = $users['username'];
+                        $head_pic = get_head_pic($users['head_pic']);
+                        if ('on' == $img) {
+                            $users['html'] = "<img class='{$currentstyle}' alt='{$username}' src='{$head_pic}' />";
+                        } else {
+                            $users['html'] = $username;
+                        }
+                        $users['ey_is_login'] = 1;
+                        $this->success('请求成功', null, $users);
                     }
-                    $users['eyou_is_login'] = 1;
-                    $this->success('请求成功', null, $users);
-                } else {
-                    $this->error('登录加载失败');
                 }
+                $this->success('请先登录', null, ['ey_is_login'=>0]);
             }
-            $this->success('请先登录', null, ['eyou_is_login'=>0]);
+            else if ('reg' == $type)
+            {
+                if (session('?users_id')) {
+                    $users['ey_is_login'] = 1;
+                } else {
+                    $users['ey_is_login'] = 0;
+                }
+                $this->success('请求成功', null, $users);
+            }
+            else if ('logout' == $type)
+            {
+                if (session('?users_id')) {
+                    $users['ey_is_login'] = 1;
+                } else {
+                    $users['ey_is_login'] = 0;
+                }
+                $this->success('请求成功', null, $users);
+            }
         }
         $this->error('访问错误');
     }

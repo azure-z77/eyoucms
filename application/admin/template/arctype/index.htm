@@ -1,10 +1,10 @@
 {include file="public/layout" /}
+<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; overflow-y: scroll;">
 <style type="text/css">
   .tb_child {
     background:#FFFFDF;
   }
 </style>
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; overflow-y: scroll;">
 <div class="page">
   <form method="post">
     <div class="flexigrid">
@@ -151,7 +151,7 @@
               <td class="sort">
                 <div class="w60 tc pb0">
                   {eq name="'Arctype@edit'|is_check_access" value="1"}
-                  <input type="text" onKeyUp="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'');" onChange="changeTableVal('arctype','id','{$vo.id}','sort_order',this);" size="4" value="{$vo.sort_order}" class="tc" />
+                  <input type="text" onChange="changeTableVal('arctype','id','{$vo.id}','sort_order',this);" size="4" value="{$vo.sort_order}" class="tc" />
                   {else /}
                   {$vo.sort_order}
                   {/eq}

@@ -95,7 +95,8 @@ function changeTableVal(table,id_name,id_value,field,obj)
 
     $.ajax({
         type:'POST',
-        url: url,         
+        url: url,
+        data: {1:1},
         success: function(res){
             if (res.code == 1) {
                 if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){

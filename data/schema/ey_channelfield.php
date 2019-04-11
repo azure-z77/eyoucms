@@ -48,9 +48,9 @@ return array (
   'define' => 
   array (
     'name' => 'define',
-    'type' => 'varchar(128)',
+    'type' => 'text',
     'notnull' => false,
-    'default' => '',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

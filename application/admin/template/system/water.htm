@@ -1,4 +1,5 @@
 {include file="public/layout" /}
+<body style="background-color: #FFF; overflow: auto;">
 <style>
     .span_1 {
         float: left;
@@ -20,8 +21,18 @@
         margin-top: -1px;
         line-height: 40px;
     }
+    #mark_txt_color {
+        /*margin:0;*/
+        /*padding:0;*/
+        border:solid 1px #ccc;
+        width:70px;
+        height:20px;
+        border-right:40px solid green;
+        /*line-height:20px;*/
+    }
 </style>
-<body style="background-color: #FFF; overflow: auto;">
+<script type="text/javascript" src="__PUBLIC__/plugins/colpick/js/colpick.js"></script>
+<link href="__PUBLIC__/plugins/colpick/css/colpick.css" rel="stylesheet" type="text/css"/>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -29,7 +40,7 @@
     <form method="post" id="handlepost" action="{:url('System/water')}">
         <div class="ncap-form-default">
             <dl class="row">
-                <dt class="tit">图片添加水印</dt>
+                <dt class="tit">水印功能</dt>
                 <dd class="opt">
                     <div class="onoff">
                         <label for="is_mark1" class="cb-enable {if condition='isset($config.is_mark) && $config.is_mark eq 1'}selected{/if}" >开启</label>
@@ -49,7 +60,24 @@
                         <input id="mark_type1" onclick="setwarter('text')" name="mark_type" value="text" {if condition="isset($config.mark_type) && $config.mark_type eq 'text'"}checked{/if} type="radio">
                         <input id="mark_type0" onclick="setwarter('img')" name="mark_type"  value="img" {if condition="isset($config.mark_type) && $config.mark_type eq 'img'"}checked{/if} type="radio">
                     </div>
-                    <p class="notic">水印类型</p>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">水印条件</dt>
+                <dd class="opt">
+                    <ul class="nofloat">
+                        <li>
+                            <input onKeyUp="this.value=this.value.replace(/[^\d]/g,'')" onpaste="this.value=this.value.replace(/[^\d]/g,'')" pattern="^\d{1,}$" value="{$config.mark_width|default=''}" name="mark_width" id="mark_width" checked="checked" type="text">
+                            <span class="err">只能输入整数</span>
+                            <label for="mark_width">图片宽度 单位像素(px)</label>
+                        </li>
+                        <li>
+                            <input onKeyUp="this.value=this.value.replace(/[^\d]/g,'')" onpaste="this.value=this.value.replace(/[^\d]/g,'')" pattern="^\d{1,}$" value="{$config.mark_height|default=''}" name="mark_height" id="mark_height" checked="checked" type="text">
+                            <label for="mark_height">图片高度 单位像素(px)</label>
+                        </li>
+                    </ul>
+                    <p class="">提示：图片宽度和高度至少要达到以上像素才能添加水印</p>
                 </dd>
             </dl>
             <dl class="row texttr" style="display:none;">
@@ -58,25 +86,7 @@
                 </dt>
                 <dd class="opt">
                     <input name="mark_txt" id="mark_txt" value="{$config.mark_txt|default=''}" class="input-txt" type="text" />
-                    <p class="notic">水印文字</p>
-                </dd>
-            </dl>
-            <dl class="row texttr" style="display:none;">
-                <dt class="tit">
-                    <label for="mark_txt_size">字体大小</label>
-                </dt>
-                <dd class="opt">
-                    <input name="mark_txt_size" id="mark_txt" value="{$config.mark_txt_size|default=30}" class="input-txt" type="text" />
-                    <p class="notic">字体大小</p>
-                </dd>
-            </dl>
-            <dl class="row texttr" style="display:none;">
-                <dt class="tit">
-                    <label for="mark_txt_color">文字颜色</label>
-                </dt>
-                <dd class="opt">
-                    <input name="mark_txt_color" id="mark_txt" value="{$config.mark_txt_color|default='#000000'}" class="input-txt" type="text" />
-                    <p class="notic">如‘#000000’代表黑色</p>
+                    <p class="notic"></p>
                 </dd>
             </dl>
             <dl class="row imgtr">
@@ -103,21 +113,22 @@
                     <p class="notic">最佳显示尺寸为240*60像素</p>
                 </dd>
             </dl>
-            <dl class="row imgtr">
-                <dt class="tit">水印添加条件</dt>
+            <dl class="row texttr" style="display:none;">
+                <dt class="tit">
+                    <label for="mark_txt_size">字体大小</label>
+                </dt>
                 <dd class="opt">
-                    <ul class="nofloat">
-                        <li>
-                            <input onKeyUp="this.value=this.value.replace(/[^\d]/g,'')" onpaste="this.value=this.value.replace(/[^\d]/g,'')" pattern="^\d{1,}$" value="{$config.mark_width|default=''}" name="mark_width" id="mark_width" checked="checked" type="text">
-                            <span class="err">只能输入整数</span>
-                            <label for="mark_width">图片宽度 单位像素(px)</label>
-                        </li>
-                        <li>
-                            <input onKeyUp="this.value=this.value.replace(/[^\d]/g,'')" onpaste="this.value=this.value.replace(/[^\d]/g,'')" pattern="^\d{1,}$" value="{$config.mark_height|default=''}" name="mark_height" id="mark_height" checked="checked" type="text">
-                            <label for="mark_height">图片高度 单位像素(px)</label>
-                        </li>
-                    </ul>
-                    <p class="notic">水印的宽度和高度</p>
+                    <input name="mark_txt_size" id="mark_txt_size" value="{$config.mark_txt_size|default=30}" class="input-txt" type="text" />
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row texttr" style="display:none;">
+                <dt class="tit">
+                    <label for="mark_txt_color">文字颜色</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="mark_txt_color" value="{$config.mark_txt_color|default='#000000'}" id="mark_txt_color" style="border-color: {$config.mark_txt_color|default='#000000'};" />
+                    <p class="notic"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -202,7 +213,26 @@
         </div>
     </form>
 </div>
-<script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        // 颜色选择
+        $('#mark_txt_color').colpick({
+            flat:false,
+            layout:'rgbhex',
+            submit:0,
+            colorScheme:'light',
+            color:$('#mark_txt_color').val(),
+            onChange:function(hsb,hex,rgb,el,bySetColor) {
+                $(el).css('border-color','#'+hex);
+                // Fill the text box just if the color was set using the picker, and not the colpickSetColor function.
+                if(!bySetColor) $(el).val('#'+hex);
+            }
+        }).keyup(function(){
+            $(this).colpickSetColor('#'+this.value);
+        });
+    });
+
     function adsubmit(){
         layer_loading('正在处理');
         $('#handlepost').submit();

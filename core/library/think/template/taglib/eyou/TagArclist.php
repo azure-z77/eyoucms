@@ -327,6 +327,7 @@ class TagArclist extends Base
         {
             $arcmulti_db = \think\Db::name('arcmulti');
             $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagid])->find();
+            !isset($tag['typeid']) && $tag['typeid'] = $typeid;
             $attstr = addslashes(serialize($tag)); //记录属性,以便分页样式统一调用
 
             $innertext = '';

@@ -547,17 +547,17 @@ function tipsText(){
         var txtElm = _this.find('.ui-textTips');  
         var maxNum = _this.find('.ui-input').attr('data-num') || 500;  
         // console.log($.support.leadingWhitespace);
-        changeNum(elm,txtElm,maxNum);
+        changeNum(elm,txtElm,maxNum,_this);
         if(!$.support.leadingWhitespace){  
             _this.find('textarea').on('propertychange',function(){  
-                changeNum(elm,txtElm,maxNum);  
+                changeNum(elm,txtElm,maxNum,_this);  
             });  
             _this.find('input').on('propertychange',function(){  
-                changeNum(elm,txtElm,maxNum);  
+                changeNum(elm,txtElm,maxNum,_this);  
             });  
         } else {
             _this.on('input',function(){  
-                changeNum(elm,txtElm,maxNum);  
+                changeNum(elm,txtElm,maxNum,_this);  
             });  
         }  
     });  
@@ -565,18 +565,25 @@ function tipsText(){
   
 //获取文字输出字数，可以遍历使用  
 //txtElm动态改变的dom，maxNum获取data-num值默认为120个字，ps数字为最大字数*2  
-function changeNum(elm,txtElm,maxNum) {  
+function changeNum(elm,txtElm,maxNum,_this) {  
     //汉字的个数  
     //var str = (elm.val().replace(/\w/g, "")).length;  
     //非汉字的个数  
     //var abcnum = elm.val().length - str;  
+    var bigtxtElm = _this.find('.ui-big-text');
     total = elm.val().length;  
     if(total <= maxNum ){  
         texts = maxNum - total;  
-        txtElm.html('还可以输入<em>'+texts+'</em>个字');  
+        txtElm.html('还可以输入<em>'+texts+'</em>个字符');  
+        if (bigtxtElm) {
+            bigtxtElm.hide();
+        }
     }else{  
         texts = total - maxNum ;  
-        txtElm.html('已超出<em class="error">'+texts+'</em>个字');  
+        txtElm.html('已超出<em class="error">'+texts+'</em>个字符');
+        if (bigtxtElm) {
+            bigtxtElm.show();
+        }
     }  
     return ;  
 } 

@@ -361,6 +361,8 @@ class RecycleBin extends Base
             }
         }
 
+        $condition['a.channel'] = array('neq', 6); // 排除单页模型
+
         /*多语言*/
         $condition['a.lang'] = array('eq', $this->admin_lang);
         /*--end*/

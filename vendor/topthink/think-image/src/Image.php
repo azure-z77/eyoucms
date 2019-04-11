@@ -491,6 +491,9 @@ class Image
         if (!is_file($font)) {
             throw new ImageException("不存在的字体文件：{$font}");
         }
+
+        $text = $this->to_entities($text); // by 小虎哥
+
         //获取文字信息
         $info = imagettfbbox($size, $angle, $font, $text);
         $minx = min($info[0], $info[2], $info[4], $info[6]);
@@ -578,6 +581,51 @@ class Image
             imagettftext($this->im, $size, $angle, $x + $ox, $y + $oy, $col, $font, $text);
         } while (!empty($this->gif) && $this->gifNext());
         return $this;
+    }
+
+    /**
+     * 解决编译php的时候 --enable-gd-jis-conv 开启这个选项
+     *
+     * @param  string  $text   添加的文字
+     *
+     * @return $string
+     */
+    private function to_entities($string = ''){
+        $len = strlen($string);
+        $buf = "";
+        for($i = 0; $i < $len; $i++){
+            if (ord($string[$i]) <= 127){
+                $buf .= $string[$i];
+            } else if (ord ($string[$i]) <192){
+                //unexpected 2nd, 3rd or 4th byte
+                $buf .= "&#xfffd";
+            } else if (ord ($string[$i]) <224){
+                //first byte of 2-byte seq
+                $buf .= sprintf("&#%d;",
+                    ((ord($string[$i + 0]) & 31) << 6) +
+                    (ord($string[$i + 1]) & 63)
+                );
+                $i += 1;
+            } else if (ord ($string[$i]) <240){
+                //first byte of 3-byte seq
+                $buf .= sprintf("&#%d;",
+                    ((ord($string[$i + 0]) & 15) << 12) +
+                    ((ord($string[$i + 1]) & 63) << 6) +
+                    (ord($string[$i + 2]) & 63)
+                );
+                $i += 2;
+            } else {
+                //first byte of 4-byte seq
+                $buf .= sprintf("&#%d;",
+                    ((ord($string[$i + 0]) & 7) << 18) +
+                    ((ord($string[$i + 1]) & 63) << 12) +
+                    ((ord($string[$i + 2]) & 63) << 6) +
+                    (ord($string[$i + 3]) & 63)
+                );
+                $i += 3;
+            }
+        }
+        return $buf;
     }
 
     /**

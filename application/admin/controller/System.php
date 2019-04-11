@@ -134,6 +134,10 @@ class System extends Base
             $web_weapp_switch = $param['web_weapp_switch'];
             $web_weapp_switch_old = tpCache('web.web_weapp_switch');
             /*--end*/
+            /*会员入口*/
+            $web_users_switch = $param['web_users_switch'];
+            $web_users_switch_old = tpCache('web.web_users_switch');
+            /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
             $param['web_adminbasefile'] = ROOT_DIR.'/'.$adminbasefile; // 支持子目录
@@ -181,7 +185,7 @@ class System extends Base
             /*--end*/
 
             /*更改之后，需要刷新后台的参数*/
-            if ($web_weapp_switch_old != $web_weapp_switch || $web_language_switch_old != $web_language_switch) {
+            if ($web_weapp_switch_old != $web_weapp_switch || $web_language_switch_old != $web_language_switch || $web_users_switch_old != $web_users_switch) {
                 $refresh = true;
             }
             /*--end*/
@@ -551,11 +555,23 @@ class System extends Base
      */
     public function send_email()
     {
-        $param = input('post.');
+        $param = $smtp_config = input('post.');
         $title = '演示标题';
         $content = '演示一串随机数字：' . mt_rand(100000,999999);
-        $res = send_email($param['smtp_from_eamil'], $title, $content, 0);
+        $res = send_email($param['smtp_from_eamil'], $title, $content, 0, $smtp_config);
         if (intval($res['code']) == 1) {
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('smtp', $smtp_config, $val['mark']);
+                }
+            } else {
+                tpCache('smtp',$smtp_config);
+            }
+            /*--end*/
             $this->success($res['msg']);
         } else {
             $this->error($res['msg']);

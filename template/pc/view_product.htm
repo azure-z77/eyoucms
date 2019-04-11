@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -29,10 +29,10 @@
 <!--header-s-->
     {eyou:include file="header.htm"/}
 <!--header-e-->
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -43,10 +43,10 @@
     </div> 
    </div> 
   </section> 
-  <section class="met-column-nav" m-id="subcolumn_nav" m-type="nocontent"> 
+  <section class="ey-column-nav" m-id="subcolumn_nav" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
-     <ul class="clearfix met-column-nav-ul"> 
+     <ul class="clearfix ey-column-nav-ul"> 
       <li> <a href="{$eyou.field.ptypeurl}" title="{eyou:lang name='yybl2' /}" {eyou:gt name="$eyou.field.has_children" value="0"}class="active"{/eyou:gt}>{eyou:lang name='yybl2' /}</a> </li> 
       {eyou:channel type="first" currentstyle="active" id="field"}
       <li class="dropdown"> <a href="{$field.typeurl}" title="{$field.typename}" {eyou:gt name="$field.has_children" value="0"}class="dropdown-toggle" data-toggle="dropdown"{/eyou:gt}>{$field.typename}</a> 
@@ -64,12 +64,12 @@
     </div> 
    </div> 
   </section> 
-  <main class="met-showproduct pagetype1 animsition" m-id="noset"> 
-   <div class="met-showproduct-head page-content block-bg"> 
+  <main class="ey-showproduct pagetype1 animsition" m-id="noset"> 
+   <div class="ey-showproduct-head page-content block-bg"> 
     <div class="container"> 
      <div class="row"> 
       <div class="col-lg-7"> 
-       <div class="met-showproduct-list fngallery cover text-xs-center" id="met-imgs-slick" m-id="noset" m-type="displayimgs"> 
+       <div class="ey-showproduct-list fngallery cover text-xs-center" id="ey-imgs-slick" m-id="noset" m-type="displayimgs"> 
         {eyou:volist name="$eyou.field.image_list"}
         <!--fngallery：启用lightGallery插件的类名--> 
         <div class="slick-slide"> 
@@ -93,17 +93,17 @@
      </div> 
     </div> 
    </div> 
-   <div class="met-showproduct-body page-content"> 
+   <div class="ey-showproduct-body page-content"> 
     <div class="container"> 
      <div class="row"> 
       <div class="col-lg-9 pull-lg-right"> 
        <div class="row"> 
         <div class="panel panel-body m-b-0 product-detail" boxmh-mh=""> 
-         <ul class="nav nav-tabs nav-tabs-line m-b-20 met-showproduct-navtabs"> 
+         <ul class="nav nav-tabs nav-tabs-line m-b-20 ey-showproduct-navtabs"> 
           <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#product-content0" data-get="product-details">{eyou:lang name='yybl9' /}</a> </li> 
          </ul> 
          <article class="tab-content"> 
-          <section class="tab-pane met-editor clearfix animation-fade active" id="product-content0"> {$eyou.field.content}
+          <section class="tab-pane ey-editor clearfix animation-fade active" id="product-content0"> {$eyou.field.content}
           </section>
          </article> 
          <div class="detail_tag font-size-14"> 
@@ -115,7 +115,7 @@
       </div> 
       <div class="col-lg-3"> 
        <div class="row"> 
-        <aside class="panel panel-body m-b-0 product-hot met-sidebar leftsidebar" boxmh-h="" m-id="product_bar"> 
+        <aside class="panel panel-body m-b-0 product-hot ey-sidebar leftsidebar" boxmh-h="" m-id="product_bar"> 
          <div class="sidebar-piclist"> 
           <h3 class="m-0 font-size-16 font-weight-300">{eyou:lang name='yybl8' /}</h3> 
           <ul class="blocks-2 blocks-md-3 blocks-lg-100 m-t-20 text-xs-center imagesize sidebar-piclist-ul" data-scale="x">
@@ -134,13 +134,7 @@
   <!--footer-s-->
   {eyou:include file="footer.htm" /}
   <!--footer-e-->
-  {eyou:static file="skin/js/lightgallery.js" /}
-  {eyou:static file="skin/js/lg-fullscreen.js" /}
-  {eyou:static file="skin/js/lg-thumbnail.js" /}
-  {eyou:static file="skin/js/lg-zoom.js" /}
   {eyou:static file="skin/js/PhotoSwipe.js" /}
-  {eyou:static file="skin/js/PhotoSwipe.ui.js" /}
-  {eyou:static file="skin/js/Swiper.js" /}
   {eyou:ui open='off' /}
  </body>
 </html>

@@ -31,6 +31,28 @@ class View extends Base
      */
     public function index($aid = '')
     {
+        if (!is_numeric($aid) || strval(intval($aid)) !== strval($aid)) {
+            abort(404,'页面不存在');
+        }
+
+        $seo_pseudo = config('ey_config.seo_pseudo');
+
+        /*URL上参数的校验*/
+        if (3 == $seo_pseudo)
+        {
+            if (stristr($this->request->url(), '&c=View&a=index&')) {
+                abort(404,'页面不存在');
+            }
+        }
+        else if (1 == $seo_pseudo)
+        {
+            $seo_dynamic_format = config('ey_config.seo_dynamic_format');
+            if (2 == $seo_dynamic_format && stristr($this->request->url(), '&c=View&a=index&')) {
+                abort(404,'页面不存在');
+            }
+        }
+        /*--end*/
+
         $aid = intval($aid);
         $archivesInfo = M('archives')->field('a.typeid, a.channel, b.nid, b.ctl_name')
             ->alias('a')
@@ -65,9 +87,39 @@ class View extends Base
         $arctypeInfo = $this->fieldLogic->getTableFieldList($arctypeInfo, config('global.arctype_channel_id'));
         /*--end*/
         if (!empty($arctypeInfo)) {
-            $arctypeInfo['typelitpic'] = $arctypeInfo['litpic'];
+
+            /*URL上参数的校验*/
+            if (3 == $seo_pseudo) {
+                $dirname = input('param.dirname/s');
+                $dirname2 = '';
+                $seo_rewrite_format = config('ey_config.seo_rewrite_format');
+                if (1 == $seo_rewrite_format) {
+                    $toptypeRow = model('Arctype')->getAllPid($tid);
+                    $toptypeinfo = current($toptypeRow);
+                    $dirname2 = $toptypeinfo['dirname'];
+                } else if (2 == $seo_rewrite_format) {
+                    $dirname2 = $arctypeInfo['dirname'];
+                }
+                if ($dirname != $dirname2) {
+                    abort(404,'页面不存在');
+                }
+            }
+            /*--end*/
+
             // 是否有子栏目，用于标记【全部】选中状态
             $arctypeInfo['has_children'] = model('Arctype')->hasChildren($tid);
+            // 文档模板文件，不指定文档模板，默认以栏目设置的为主
+            empty($result['tempview']) && $result['tempview'] = $arctypeInfo['tempview'];
+            
+            /*给没有type前缀的字段新增一个带前缀的字段，并赋予相同的值*/
+            foreach ($arctypeInfo as $key => $val) {
+                if (!preg_match('/^type/i',$key)) {
+                    $arctypeInfo['type'.$key] = $val;
+                }
+            }
+            /*--end*/
+        } else {
+            abort(404,'页面不存在');
         }
         $result = array_merge($arctypeInfo, $result);
 
@@ -84,6 +136,7 @@ class View extends Base
 
         // seo
         $result['seo_title'] = set_arcseotitle($result['title'], $result['seo_title'], $result['typename']);
+        $result['seo_description'] = @msubstr(checkStrHtml($result['seo_description']), 0, config('global.arc_seo_description_length'), false);
 
         /*支持子目录*/
         $result['litpic'] = handle_subdir_pic($result['litpic']);
@@ -147,17 +200,16 @@ class View extends Base
         }
         $file_url = is_http_url($result['file_url']) ? $result['file_url'] : realpath($filename);
         if (md5_file($file_url) != $result['md5file']) {
-            $this->error('下载文件包不完整！');
+            $this->error('下载文件包已损坏！');
             exit;
         }
         
-        $downUrl = $result['file_url'];
-
-        /*支持子目录*/
-        $downUrl = handle_subdir_pic($result['file_url']);
-        /*--end*/
-
-        header('Location: '. $downUrl);
-        exit;
+        if (is_http_url($result['file_url'])) {
+            header('Location: '. $downUrl);
+            exit;
+        } else {
+            download_file($result['file_url'], $result['file_mime']);
+            exit;
+        }
     }
 }

@@ -72,7 +72,21 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="site_url">使用https链接</label>
+                    <label for="site_url">会员功能入口</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="web_users_switch1" class="cb-enable {if condition='isset($config.web_users_switch) && $config.web_users_switch eq 1'}selected{/if}">开启</label>
+                        <label for="web_users_switch0" class="cb-disable {if condition='empty($config.web_users_switch)'}selected{/if}">关闭</label>
+                        <input id="web_users_switch1" name="web_users_switch" value="1" type="radio" {if condition="isset($config.web_users_switch) && $config.web_users_switch eq 1"} checked="checked"{/if}>
+                        <input id="web_users_switch0" name="web_users_switch" value="0" type="radio" {if condition="empty($config.web_users_switch)"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic">开启之后，左侧菜单会显示会员管理入口</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="site_url">强制启用https</label>
                 </dt>
                 <dd class="opt">
                     <div class="onoff">
@@ -82,7 +96,7 @@
                         <input id="web_is_https0" name="web_is_https" value="0" type="radio" {if condition="empty($config.web_is_https)"} checked="checked"{/if}>
                     </div>
                     <p class="notic">开启之后，sitemap.xml地图以及全站URL将带有https头协议</p>
-                    <p class="red">兼容部分空间在https协议下ssl证书不能被识别的问题</p>
+                    <p class="red">开启前，请先在空间正确配置SSL证书。<br/>在能正常访问https://域名的情况下，才开启这个功能，使整站的URL都强制采用https协议访问。</p>
                 </dd>
             </dl>
             <dl class="row none">

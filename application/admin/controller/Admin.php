@@ -95,10 +95,18 @@ class Admin extends Base {
         }
 
         if (IS_POST) {
+
+            if (!function_exists('session_start')) {
+                $this->error('请联系空间商，开启php的session扩展！');
+            }
+            if (!testWriteAble(DATA_PATH.'session')) {
+                $this->error('请检查站点目录权限是否为755，以及目录的用户组/所有者的权限，禁止用root:root，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
+            }
+            
             if (1 == $is_vertify) {
                 $verify = new Verify();
                 if (!$verify->check(input('post.vertify'), "admin_login")) {
-                    exit(json_encode(array('status'=>0,'msg'=>'验证码错误')));
+                    $this->error('验证码错误');
                 }
             }
             $condition['user_name'] = input('post.username/s');
@@ -108,7 +116,7 @@ class Admin extends Base {
                 $admin_info = M('admin')->where($condition)->find();
                 if (is_array($admin_info)) {
                     if ($admin_info['status'] == 0) {
-                        exit(json_encode(array('status'=>0,'msg'=>'账号被禁用！')));
+                        $this->error('账号被禁用！');
                     }
 
                     $role_id = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
@@ -147,12 +155,12 @@ class Admin extends Base {
                     session('admin_login_expire', getTime()); // 登录有效期
                     adminLog('后台登录');
                     $url = session('from_url') ? session('from_url') : request()->baseFile();
-                    exit(json_encode(array('status'=>1,'url'=>$url)));
+                    $this->success('账号被禁用！', $url);
                 } else {
-                    exit(json_encode(array('status'=>0,'msg'=>'账号密码不正确')));
+                    $this->error('账号密码不正确');
                 }
             } else {
-                exit(json_encode(array('status'=>0,'msg'=>'请填写账号密码')));
+                $this->error('请填写账号密码');
             }
         }
 
@@ -345,6 +353,10 @@ class Admin extends Base {
                 $data['password'] = func_encrypt($data['password']);
             }
             unset($data['user_name']);
+            
+            if (empty($data['pen_name'])) {
+                $data['pen_name'] = $user_name;
+            }
 
             /*不允许修改自己的权限组*/
             if (isset($data['role_id'])) {

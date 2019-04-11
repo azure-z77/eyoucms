@@ -22,6 +22,9 @@ class Common extends Controller {
     public $view_suffix = 'html';
     public $eyou = array();
 
+    public $users_id = 0;
+    public $users = array();
+
     /**
      * 析构函数
      */
@@ -42,6 +45,7 @@ class Common extends Controller {
      */
     public function _initialize() 
     {
+        session('admin_info'); // 传后台信息到前台，此处可视化用到
         if (!session_id()) {
             Session::start();
         }
@@ -66,6 +70,10 @@ class Common extends Controller {
         $v = trim($v, '/');
         $this->assign('v', $v);
         /*--end*/
+
+        // 判断是否开启注册入口
+        $users_open_register = getUsersConfigData('users.users_open_register');
+        $this->assign('users_open_register', $users_open_register);
     }
 
     /**

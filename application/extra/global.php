@@ -36,13 +36,15 @@ return array(
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','html','public','template','uploads','vendor','weapp'],
     // 禁用的目录名称
-    'disable_dirname' => ['application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search','user','users','member','bbs','shop'],
+    'disable_dirname' => ['application','core','data','extend','html','install','public','plugins','uploads','template','vendor','weapp','tags','search','user','users','member','reg','centre','login'],
     // 发送邮箱默认有效时间，会员中心，邮箱验证时用到
     'email_default_time_out' => 3600,
     // 邮箱发送倒计时 2分钟
     'email_send_time' => 120,
-    // 充值订单默认有效时间，会员中心用到，2天时间
+    // 充值订单默认有效时间，会员中心用到，2小时
     'get_order_validity' => 7200,
+    // 文档SEO描述截取长度，一个字符表示一个汉字或字母
+    'arc_seo_description_length' => 125,
     // 栏目最多级别
     'arctype_max_level' => 3,
     // 模型标识
@@ -79,13 +81,20 @@ return array(
         1   => '账户充值',
         // 2   => '后续添加',
     ),
+    // 充值状态
     'pay_status_arr' => array(
-        0   => '失败',
+        // 0   => '失败',
         1   => '未付款',
-        2   => '已付款',
-        3   => '已完成',
+        // 2   => '已付款',
+        3   => '已充值',
         4   => '订单取消',
         // 5   => '后续添加',
+    ),
+    // 支付方式
+    'pay_method_arr' => array(
+        'wechat'   => '微信',
+        'alipay'   => '支付宝',
+        'artificial'   => '手工充值',
     ),
     // 清理文件时，需要查询的数据表和字段
     'get_tablearray' => array(

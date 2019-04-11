@@ -70,18 +70,32 @@ class TagField extends Base
             $fieldname = current($addfields);
         } else {
             // 获取栏目对应的频道下指定的自定义字段
-            $fieldname = Db::name('channelfield')->where([
+            $row = Db::name('channelfield')->where([
                     'id'            => ['IN', $field_ids],
                     'name'          => ['IN', $addfields],
                     'channel_id'    => $channel,
-                ])->getField('name');
+                ])->field('name')->getAllWithIndex('name');
+            foreach ($addfields as $key => $val) {
+                if (!empty($row[$val])) {
+                    $fieldname = $val;
+                    break;
+                }
+            }
         }
 
         /*附加表*/
         if (!empty($fieldname)) {
+            // 自定义字段的类型
+            $dtype = Db::name('channelfield')->where([
+                    'name'          => ['EQ', $fieldname],
+                    'channel_id'    => $channel,
+                ])->getField('dtype');
             $channelInfo = model('Channeltype')->getInfo($channel);
             $tableContent = $channelInfo['table'].'_content';
             $parseStr = Db::name($tableContent)->where('aid',$aid)->getField($fieldname);
+            if ('htmltext' == $dtype) {
+                $parseStr = htmlspecialchars_decode($parseStr);
+            }
         }
         /*--end*/
 

@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -29,10 +29,10 @@
 <!--header-s-->
     {eyou:include file="header.htm"/}
 <!--header-e-->
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -43,10 +43,10 @@
     </div> 
    </div> 
   </section> 
-  <section class="met-column-nav" m-id="subcolumn_nav" m-type="nocontent"> 
+  <section class="ey-column-nav" m-id="subcolumn_nav" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
-     <ul class="clearfix met-column-nav-ul"> 
+     <ul class="clearfix ey-column-nav-ul"> 
       <li> <a href="{$eyou.field.ptypeurl}" title="{eyou:lang name='yybl2' /}" {eyou:gt name="$eyou.field.has_children" value="0"}class="active"{/eyou:gt}>{eyou:lang name='yybl2' /}</a> </li> 
       {eyou:channel type="first" currentstyle="active" id="field"}
       <li class="dropdown"> <a href="{$field.typeurl}" title="{$field.typename}" {eyou:notempty name="$field.children"}class="dropdown-toggle" data-toggle="dropdown"{/eyou:notempty}>{$field.typename}</a> 
@@ -64,10 +64,10 @@
     </div> 
    </div> 
   </section> 
-  <div class="met-product-list animsition"> 
+  <div class="ey-product-list animsition"> 
    <div class="container"> 
     <div class="less-page-content"> 
-     <ul class="met-product blocks blocks-100 blocks-xlg-5 blocks-md-4 blocks-sm-3 blocks-xs-2 ulstyle met-pager-ajax imagesize" data-scale="400x400" m-id="noset"> 
+     <ul class="ey-product blocks blocks-100 blocks-xlg-5 blocks-md-4 blocks-sm-3 blocks-xs-2 ulstyle ey-pager-ajax imagesize" data-scale="400x400" m-id="noset"> 
       {eyou:list pagesize="8" titlelen="20"}
       <li class=" shown"> 
        <div class="card card-shadow"> 

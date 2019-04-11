@@ -11,10 +11,10 @@
             </div>
             <ul class="tab-base nc-row">
                 {if condition="in_array('pc', $templateArr)"}
-                <li><a href="{eq name="$theme_style" value="pc"}javascript:void(0);{else /}{:U("Uiset/ui_index", array('theme_style'=>'pc'))}{/eq}" class="tab {eq name="$theme_style" value="pc"}current{/eq}"><span>电脑版</span></a></li>
+                <li><a href="{:url("Uiset/ui_index", array('theme_style'=>'pc'))}" class="tab {eq name="$theme_style" value="pc"}current{/eq}"><span>电脑版</span></a></li>
                 {/if}
                 {if condition="in_array('mobile', $templateArr)"}
-                <li><a href="{eq name="$theme_style" value="mobile"}javascript:void(0);{else /}{:U("Uiset/ui_index", array('theme_style'=>'mobile'))}{/eq}" class="tab {eq name="$theme_style" value="mobile"}current{/eq}"><span>手机版</span></a></li>
+                <li><a href="{:url("Uiset/ui_index", array('theme_style'=>'mobile'))}" class="tab {eq name="$theme_style" value="mobile"}current{/eq}"><span>手机版</span></a></li>
                 {/if}
             </ul>
         </div>
@@ -26,16 +26,16 @@
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Uiset/ui_index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" action="{:url('Uiset/ui_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
                         <input type="submit" class="btn" value="搜索">
                     </div>
-                    <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:U('Uiset/ui_index')}';">
-                    </div>
+                    <!-- <div class="sDiv2">
+                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Uiset/ui_index')}';">
+                    </div> -->
                 </div>
             </form>
         </div>
@@ -107,7 +107,7 @@
                             <td class="w120">
                                 <div class="tc">
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0)" data-url="{:U('Uiset/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0)" data-url="{:url('Uiset/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
                             </td>
@@ -127,7 +127,7 @@
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a onclick="batch_del(this, 'ids');" data-url="{:U('Uiset/del')}">
+                    <a onclick="batch_del(this, 'ids');" data-url="{:url('Uiset/del')}">
                         <div class="add" title="批量删除">
                             <span><i class="fa fa-close"></i>批量删除</span>
                         </div>

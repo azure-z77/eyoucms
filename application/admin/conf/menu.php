@@ -148,6 +148,19 @@ if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
 }
 /*--end*/
 
+/*会员管理URl*/
+$users_index_arr = array();
+if ($main_lang == $admin_lang) {
+    if (1 == tpCache('web.web_users_switch')) {
+        $users_index_arr = array(
+            'controller' => 'Member',
+            'action' => 'users_index',
+            'url' => '',
+        );
+    }
+}
+/*--end*/
+
 /**
  * 权限模块属性说明
  * array
@@ -389,20 +402,6 @@ return  array(
                         'is_modules'=>0,
                         'child' => array(),
                     ),
-                    '2004002' => array(
-                        'id'=>2004002,
-                        'parent_id'=>2004,
-                        'name' => '备份还原', 
-                        'controller'=>isset($tools_index_arr['controller']) ? $tools_index_arr['controller'] : '',
-                        'action'=>isset($tools_index_arr['action']) ? $tools_index_arr['action'] : '',
-                        'url'=>isset($tools_index_arr['url']) ? $tools_index_arr['url'] : '',
-                        'target'=>'workspace',
-                        'icon'=>'fa fa-database',
-                        'grade'=>2,
-                        'is_menu'=>1,
-                        'is_modules'=>0,
-                        'child' => array(),
-                    ),
                     '2004003' => array(
                         'id'=>2004003,
                         'parent_id'=>2004,
@@ -412,6 +411,20 @@ return  array(
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-folder-open',
+                        'grade'=>2,
+                        'is_menu'=>1,
+                        'is_modules'=>0,
+                        'child' => array(),
+                    ),
+                    '2004002' => array(
+                        'id'=>2004002,
+                        'parent_id'=>2004,
+                        'name' => '备份还原', 
+                        'controller'=>isset($tools_index_arr['controller']) ? $tools_index_arr['controller'] : '',
+                        'action'=>isset($tools_index_arr['action']) ? $tools_index_arr['action'] : '',
+                        'url'=>isset($tools_index_arr['url']) ? $tools_index_arr['url'] : '',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-database',
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
@@ -434,7 +447,7 @@ return  array(
                     '2004007' => array(
                         'id'=>2004007,
                         'parent_id'=>2004,
-                        'name' => '模型管理',
+                        'name' => '频道模型',
                         'controller'=>isset($channeltype_index_arr['controller']) ? $channeltype_index_arr['controller'] : '',
                         'action'=>isset($channeltype_index_arr['action']) ? $channeltype_index_arr['action'] : '',
                         'url'=>isset($channeltype_index_arr['url']) ? $channeltype_index_arr['url'] : '',
@@ -474,6 +487,20 @@ return  array(
                 'is_menu'=>1,
                 'is_modules'=>0,
                 'child'=>array(),
+            ),
+            '2006' => array(
+                'id'=>2006,
+                'parent_id'=>2000,
+                'name' => '会员管理',
+                'controller'=>isset($users_index_arr['controller']) ? $users_index_arr['controller'] : '',
+                'action'=>isset($users_index_arr['action']) ? $users_index_arr['action'] : '',
+                'url'=>isset($users_index_arr['url']) ? $users_index_arr['url'] : '',
+                'target'=>'workspace',
+                'icon'=>'fa fa-user',
+                'grade'=>1,
+                'is_menu'=>1,
+                'is_modules'=>1,
+                'child' => array(),
             ),
         ),
     ),

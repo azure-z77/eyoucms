@@ -32,29 +32,45 @@ class Lists extends Base
     public function index($tid = '')
     {
         /*获取当前栏目ID以及模型ID*/
-        $dirname = '';
-        if (empty($tid)) {
+        $page_tmp = input('param.page/s', 0);
+        if (empty($tid) || !is_numeric($page_tmp)) {
             abort(404,'页面不存在');
-        } else {
-            if (strval(intval($tid)) != strval($tid)) {
-                $map = array('a.dirname'=>$tid);
-            } else {
-                $map = array('a.id'=>$tid);
-            }
-            $map['a.is_del'] = 0; // 回收站功能
-            $map['a.lang'] = $this->home_lang; // 多语言
-            $row = M('arctype')->field('a.id, a.current_channel, b.nid')
-                ->alias('a')
-                ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
-                ->where($map)
-                ->find();
-            if (empty($row)) {
+        }
+
+        $map = [];
+        /*URL上参数的校验*/
+        $seo_pseudo = config('ey_config.seo_pseudo');
+        if (3 == $seo_pseudo)
+        {
+            if (stristr($this->request->url(), '&c=Lists&a=index&')) {
                 abort(404,'页面不存在');
             }
-            $tid = $row['id'];
-            $this->nid = $row['nid'];
-            $this->channel = intval($row['current_channel']);
+            $map = array('a.dirname'=>$tid);
         }
+        else if (1 == $seo_pseudo)
+        {
+            $seo_dynamic_format = config('ey_config.seo_dynamic_format');
+            if (2 == $seo_dynamic_format && stristr($this->request->url(), '&c=Lists&a=index&')) {
+                abort(404,'页面不存在');
+            } else if (!is_numeric($tid) || strval(intval($tid)) !== strval($tid)) {
+                abort(404,'页面不存在');
+            }
+            $map = array('a.id'=>$tid);
+        }
+        /*--end*/
+        $map['a.is_del'] = 0; // 回收站功能
+        $map['a.lang'] = $this->home_lang; // 多语言
+        $row = M('arctype')->field('a.id, a.current_channel, b.nid')
+            ->alias('a')
+            ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
+            ->where($map)
+            ->find();
+        if (empty($row)) {
+            abort(404,'页面不存在');
+        }
+        $tid = $row['id'];
+        $this->nid = $row['nid'];
+        $this->channel = intval($row['current_channel']);
         /*--end*/
 
         $result = $this->logic($tid); // 模型对应逻辑
@@ -175,6 +191,14 @@ class Lists extends Base
         $result['pageurl'] = request()->url(true);
         /*--end*/
 
+        /*给没有type前缀的字段新增一个带前缀的字段，并赋予相同的值*/
+        foreach ($result as $key => $val) {
+            if (!preg_match('/^type/i',$key)) {
+                $result['type'.$key] = $val;
+            }
+        }
+        /*--end*/
+
         return $result;
     }
 
@@ -219,6 +243,14 @@ class Lists extends Base
 
         if (IS_POST && !empty($typeid)) {
             $post = input('post.');
+
+            $token = '__token__';
+            foreach ($post as $key => $val) {
+                if (preg_match('/^__token__/i', $key)) {
+                    $token = $key;
+                    continue;
+                }
+            }
             $ip = clientIP();
             $map = array(
                 'ip'    => $ip,
@@ -241,8 +273,14 @@ class Lists extends Base
             );
             $data = array_merge($post, $newData);
 
-            // 数据验证            
-            $validate = \think\Loader::validate('Guestbook');
+            // 数据验证
+            $rule = [
+                'typeid'    => 'require|token:'.$token,
+            ];
+            $message = [
+                'typeid.require' => '表单缺少标签属性{$field.hidden}',
+            ];
+            $validate = new \think\Validate($rule, $message);
             if(!$validate->batch()->check($data))
             {
                 $error = $validate->getError();

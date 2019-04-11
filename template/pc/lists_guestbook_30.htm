@@ -21,7 +21,7 @@
  <!--[if lte IE 8]>
     <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
     <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span aria-hidden="true">×</span>
+        <span>×</span>
     </button>
     你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
 <![endif]--> 
@@ -29,10 +29,10 @@
 <!--header-s-->
     {eyou:include file="header.htm"/}
 <!--header-e-->
-  <div class="met-banner-ny vertical-align text-center" m-id="banner"> 
+  <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="met-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -43,15 +43,15 @@
     </div> 
    </div> 
   </section> 
-  <section class="met-message animsition"> 
+  <section class="ey-message animsition"> 
    <div class="container"> 
     <div class="row"> 
-     <div class="col-lg-8 col-md-8 met-message-body panel panel-body m-b-0" boxmh-mh="" m-id="noset" m-type="message_list"> 
+     <div class="col-lg-8 col-md-8 ey-message-body panel panel-body m-b-0" boxmh-mh="" m-id="noset" m-type="message_list"> 
       <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1525860937458&di=c56221383bb26a3a4a1e91490de7264a&imgtype=0&src=http%3A%2F%2Fpic.58pic.com%2F58pic%2F16%2F70%2F56%2F56n58PICevj_1024.jpg" width="100%" />
      </div> 
      <div class="col-lg-4 col-md-4"> 
       <div class="row"> 
-       <div class="met-message-submit rightsidebar panel panel-body m-b-0" m-id="message_form" m-type="message_form" boxmh-h=""> 
+       <div class="ey-message-submit rightsidebar panel panel-body m-b-0" m-id="message_form" m-type="message_form" boxmh-h=""> 
         {eyou:guestbookform type='default'}
           <form method="POST" class="guest-form" enctype="multipart/form-data" action="{$field.action}" onsubmit="return checkForm();">
               <div class="form-group">
