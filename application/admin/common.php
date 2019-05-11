@@ -372,6 +372,8 @@ if (!function_exists('sitemap_xml'))
         /* 分类列表(用于生成列表链接的sitemap) */
         $map = array(
             'status'    => 1,
+            'is_del'    => 0,
+            'lang'      => get_main_lang(),
         );
         if (is_array($sitemap_config)) {
             // 过滤隐藏栏目
@@ -384,10 +386,7 @@ if (!function_exists('sitemap_xml'))
             }
         }
         $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, 'daily' AS changefreq, '1.0' AS priority")
-            ->where([
-                'status'    => 1,
-                'is_del'    => 0,
-            ])
+            ->where($map)
             ->order('sort_order asc')
             ->getAllWithIndex('id');
 
@@ -397,6 +396,7 @@ if (!function_exists('sitemap_xml'))
             'arcrank'   => array('gt', -1),
             'status'    => 1,
             'is_del'    => 0,
+            'lang'      => get_main_lang(),
         );
         if (is_array($sitemap_config)) {
             // 过滤外部模块
@@ -421,40 +421,78 @@ XML;
         $xml = simplexml_load_string($xml_wrapper);
         // $xml = new SimpleXMLElement($xml_wrapper);
 
+        $main_lang = get_main_lang();
+        $langRow = \think\Db::name('language')->order('id asc')
+            ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+            ->select();
+
+        /*去掉入口文件*/
+        $inletStr = '/index.php';
+        $seo_inlet = config('ey_config.seo_inlet');
+        1 == intval($seo_inlet) && $inletStr = '';
+        /*--end*/
+
         /*首页*/
-        $item = $xml->addChild('url'); //使用addChild添加节点
-        foreach (['loc','lastmod','changefreq','priority'] as $key) {
-            if ('loc' == $key) {
-                $row = request()->domain();
-            } else if ('lastmod' == $key) {
-                $row = date('Y-m-d');
-            } else if ('changefreq' == $key) {
-                $row = 'daily';
-            } else if ('priority' == $key) {
-                $row = '1.0';
+        foreach ($langRow as $key => $val) {
+
+            /*单独域名*/
+            $mark = $val['mark'];
+            $url = $val['url'];
+            if (empty($url)) {
+                if (1 == $val['is_home_default']) {
+                    $url = request()->domain().ROOT_DIR.'/'; // 支持子目录
+                } else {
+                    $seoConfig = tpCache('seo', [], $mark);
+                    $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+                    if (1 == $seo_pseudo) {
+                        $url = request()->domain().ROOT_DIR.$inletStr; // 支持子目录
+                        if (!empty($inletStr)) {
+                            $url .= '?';
+                        } else {
+                            $url .= '/?';
+                        }
+                        $url .= http_build_query(['lang'=>$mark]);
+                    } else {
+                        $url = request()->domain().ROOT_DIR.$inletStr.'/'.$mark; // 支持子目录
+                    }
+                }
             }
-            try {
-                $node = $item->addChild($key, $row);
-            } catch (\Exception $e) {}
-            if (isset($attribute_array[$key]) && is_array($attribute_array[$key])) {
-                foreach ($attribute_array[$key] as $akey => $aval) {//设置属性值，我这里为空
-                    $node->addAttribute($akey, $aval);
+            /*--end*/
+
+            $item = $xml->addChild('url'); //使用addChild添加节点
+            foreach (['loc','lastmod','changefreq','priority'] as $key1) {
+                if ('loc' == $key1) {
+                    $row = $url;
+                } else if ('lastmod' == $key1) {
+                    $row = date('Y-m-d');
+                } else if ('changefreq' == $key1) {
+                    $row = 'daily';
+                } else if ('priority' == $key1) {
+                    $row = '1.0';
+                }
+                try {
+                    $node = $item->addChild($key1, $row);
+                } catch (\Exception $e) {}
+                if (isset($attribute_array[$key1]) && is_array($attribute_array[$key1])) {
+                    foreach ($attribute_array[$key1] as $akey => $aval) {//设置属性值，我这里为空
+                        $node->addAttribute($akey, $aval);
+                    }
                 }
             }
         }
         /*--end*/
          
         /*所有栏目*/
-        foreach ($result_arctype as $val) {
-            $item = $xml->addChild('url'); //使用addChild添加节点
-            if (is_array($val)) {
-                foreach ($val as $key => $row) {
+        foreach ($result_arctype as $sub) {
+            if (is_array($sub)) {
+                $item = $xml->addChild('url'); //使用addChild添加节点
+                foreach ($sub as $key => $row) {
                     if (in_array($key, array('loc','lastmod','changefreq','priority'))) {
                         if ($key == 'loc') {
-                            if ($val['is_part'] == 1) {
-                                $row = $val['typelink'];
+                            if ($sub['is_part'] == 1) {
+                                $row = $sub['typelink'];
                             } else {
-                                $row = get_typeurl($val);
+                                $row = get_typeurl($sub);
                             }
                             $row = str_replace('&amp;', '&', $row);
                             $row = str_replace('&', '&amp;', $row);
@@ -477,8 +515,8 @@ XML;
 
         /*所有文档*/
         foreach ($result_archives as $val) {
-            $item = $xml->addChild('url'); //使用addChild添加节点
             if (is_array($val) && isset($result_arctype[$val['typeid']])) {
+                $item = $xml->addChild('url'); //使用addChild添加节点
                 $val = array_merge($result_arctype[$val['typeid']], $val);
                 foreach ($val as $key => $row) {
                     if (in_array($key, array('loc','lastmod','changefreq','priority'))) {

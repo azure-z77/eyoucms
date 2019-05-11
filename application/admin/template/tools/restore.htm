@@ -170,7 +170,7 @@
             }
 
             layer.confirm('此操作不可逆，确认执行？', {
-                title: '<font color="red">重要提示</font>',
+                title: false,//'<font color="red">重要提示</font>',
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 layer_loading('正在处理');
@@ -219,12 +219,12 @@
                 }  else {
                     setTimeout(function(){
                         layer.closeAll();
-                        layer.alert('还原成功！', {icon: 6});
+                        layer.alert('还原成功！', {icon: 6, title:false});
                     }, 1000);
                     window.onbeforeunload = function(){ return null; }
                 }
             } else {
-                layer.alert(data.msg,{icon:2});
+                layer.alert(data.msg,{icon:2, title:false});
             }
         }
     });*/

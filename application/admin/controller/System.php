@@ -19,6 +19,14 @@ use think\Page;
 
 class System extends Base
 {
+    // 选项卡是否显示
+    public $tabase = '';
+    
+    public function _initialize() {
+        parent::_initialize();
+        $this->tabase = input('param.tabase/d');
+    }
+
     public function index()
     {
         $this->redirect(url('System/web'));
@@ -258,6 +266,8 @@ class System extends Base
 
         if (IS_POST) {
             $param = input('post.');
+            $tabase = input('post.tabase/d');
+            unset($param['tabase']);
 
             $mark_img_is_remote = !empty($param['mark_img_is_remote']) ? $param['mark_img_is_remote'] : 0;
             $mark_img = '';
@@ -283,7 +293,7 @@ class System extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
-            $this->success('操作成功', url('System/water'));
+            $this->success('操作成功', url('System/'.$inc_type, ['tabase'=>$tabase]));
         }
 
         $config = tpCache($inc_type);
@@ -293,6 +303,77 @@ class System extends Base
         } else {
             $config['mark_img_is_remote'] = 0;
             $config['mark_img_local'] = handle_subdir_pic($config['mark_img']);
+        }
+
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 缩略图配置
+     */
+    public function thumb()
+    {
+        $this->language_access(); // 多语言功能操作权限
+
+        $inc_type =  'thumb';
+
+        if (IS_POST) {
+            $param = input('post.');
+            $tabase = input('post.tabase/d');
+            unset($param['tabase']);
+            isset($param['thumb_width']) && $param['thumb_width'] = preg_replace('/[^0-9]/', '', $param['thumb_width']);
+            isset($param['thumb_height']) && $param['thumb_height'] = preg_replace('/[^0-9]/', '', $param['thumb_height']);
+
+            $thumbConfig = tpCache('thumb'); // 旧数据
+
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            /*--end*/
+
+            /*校验配置是否改动，若改动将会清空缩略图目录*/
+            unset($param['__token__']);
+            if (md5(serialize($param)) != md5(serialize($thumbConfig))) {
+                delFile(RUNTIME_PATH.'html'); // 清空缓存页面
+                delFile(UPLOAD_PATH.'thumb'); // 清空缩略图
+            }
+            /*--end*/
+
+            $this->success('操作成功', url('System/'.$inc_type, ['tabase'=>$tabase]));
+        }
+
+        $config = tpCache($inc_type);
+
+        // 设置缩略图默认配置
+        if (!isset($config['thumb_open'])) {
+            /*多语言*/
+            $thumbextra = config('global.thumb');
+            $param = [
+                'thumb_open'    => $thumbextra['open'],
+                'thumb_mode'    => $thumbextra['mode'],
+                'thumb_color'   => $thumbextra['color'],
+                'thumb_width'   => $thumbextra['width'],
+                'thumb_height'  => $thumbextra['height'],
+            ];
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            $config = tpCache($inc_type);
+            /*--end*/
         }
 
         $this->assign('config',$config);//当前配置项
@@ -434,6 +515,9 @@ class System extends Base
                 $this->clearSystemCache($post['clearCache']);
             }
 
+            // 清除其他临时文件
+            $this->clearOtherCache();
+
             /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
             $systemTables = ['arctype'];
             $data = Db::name('channeltype')
@@ -467,6 +551,8 @@ class System extends Base
                 }
             }
             /*--end*/
+
+            // cache('admin_ModuleInitBehavior_isset_checkInlet', 1); // 配合ModuleInitBehavior.php行为的checkInlet方法，进行自动隐藏index.php
 
             $request = Request::instance();
             $gourl = $request->baseFile();
@@ -548,6 +634,21 @@ class System extends Base
                 }
             }
         }
+    }
+
+    /**
+     * 清除其他临时文件
+     */
+    private function clearOtherCache()
+    {
+        $arr = [
+            'template',
+        ];
+        foreach ($arr as $key => $val) {
+            delFile(RUNTIME_PATH.$val, true);
+        }
+
+        return true;
     }
       
     /**
@@ -803,5 +904,170 @@ class System extends Base
         }else{
             $this->error('参数有误');
         }
+    }
+
+    /**
+     * 标签调用的弹窗说明
+     */
+    public function ajax_tag_call()
+    {
+        if (IS_AJAX_POST) {
+            $name = input('post.name/s');
+            $msg = '';
+            switch ($name) {
+                case 'web_users_switch': // 会员功能入口标签
+                    {
+                        $msg = '
+<div yne-bulb-block="paragraph">
+    <strong>前台会员登录注册标签调用</strong><br data-filtered="filtered">
+    比如需要在PC通用头部加入会员入口，复制下方代码在\template\pc\header.htm模板文件里找到合适位置粘贴
+</div>
+<br data-filtered="filtered">
+<div yne-bulb-block="paragraph" style="color:red;">
+    <div>
+        {eyou:user type=\'open\'}
+        &nbsp;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'login\'}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;登录&lt;/a&gt;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}</div>
+    <div>
+        &nbsp;&nbsp;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'reg\'}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;注册&lt;/a&gt;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}</div>
+    <div>
+        &nbsp;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'logout\'}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;退出&lt;/a&gt;</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
+    <div>
+        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}
+        &nbsp;</div>
+    <div>
+        {/eyou:user}</div>
+</div>
+';
+                    }
+                    break;
+
+                case 'web_language_switch': // 多语言入口标签
+                    {
+                        $msg = '
+<div yne-bulb-block="paragraph">
+    <strong>前台多语言切换入口标签调用</strong><br data-filtered="filtered">
+    比如需要在PC通用头部加入多语言切换，复制下方代码在\template\pc\header.htm模板文件里找到合适位置粘贴
+</div>
+<br data-filtered="filtered">
+<div yne-bulb-block="paragraph" style="color:red">
+    {eyou:language type=\'default\'}<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;a href="{$field.url}"&gt;&lt;img src="{$field.logo}" alt="{$field.title}"&gt;{$field.title}&lt;/a&gt;<br/>
+    {/eyou:language}</div>
+';
+                    }
+                    break;
+
+                case 'thumb_open':
+                    {
+                        $msg = '
+<div yne-bulb-block="paragraph">
+    <span style="color:red">（温馨提示：高级调用不会受缩略图功能的开关影响！）</span></div>
+<div yne-bulb-block="paragraph">
+    【标签方法的格式】</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;thumb_img=###,宽度,高度,生成方式</div>
+<br data-filtered="filtered">
+<div yne-bulb-block="paragraph">
+    【指定宽高度的调用】</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;列表页/内容页：{$eyou.field.litpic<span style="color:red">|thumb_img=###,500,500</span>}</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;标签arclist/list里：{$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}</div>
+<br data-filtered="filtered">
+<div yne-bulb-block="paragraph">
+    【指定生成方式的调用】</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;生成方式：1 = 拉伸；2 = 留白；3 = 截减；<br data-filtered="filtered">
+    &nbsp;&nbsp;&nbsp;&nbsp;以标签arclist为例：</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图拉伸：{$field.litpic<span style="color:red">|thumb_img=###,500,500,1</span>}</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图留白：{$field.litpic<span style="color:red">|thumb_img=###,500,500,2</span>}</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图截减：{$field.litpic<span style="color:red">|thumb_img=###,500,500,3</span>}</div>
+<div yne-bulb-block="paragraph">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;默&nbsp;认&nbsp;生&nbsp;成：{$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}&nbsp;&nbsp;&nbsp;&nbsp;(以默认全局配置的生成方式)</div>
+';
+                    }
+                    break;
+                
+                case 'shop_open':
+                    {
+                        $msg = '
+<div yne-bulb-block="paragraph">
+    <strong>前台产品内容页的购买入口标签调用</strong><br data-filtered="filtered">
+    比如需要在产品模型的内容页加入购买功能，复制下方代码在\template\pc\view_product.htm模板文件里找到合适位置粘贴
+</div>
+<br data-filtered="filtered">
+<div yne-bulb-block="paragraph" style="color:red">
+  &lt;!--购物车组件start--&gt; 
+  <br data-filtered="filtered">
+  {eyou:sppurchase id=\'field\'}
+  <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;div class="ey-price"&gt;&lt;span&gt;￥{$field.users_price}&lt;/span&gt; &lt;/div&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;div class="ey-number"&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &lt;label&gt;数量&lt;/label&gt;
+        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &lt;div class="btn-input"&gt;
+        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &lt;button class="layui-btn" {$field.ReduceQuantity}&gt;-&lt;/button&gt;
+          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &lt;input type="text" class="layui-input" {$field.UpdateQuantity}&gt;
+          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &lt;button class="layui-btn" {$field.IncreaseQuantity}&gt;+&lt;/button&gt;
+          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &lt;/div&gt;
+        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;/div&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;div class="ey-buyaction"&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;a class="ey-joinin" href="JavaScript:void(0);" {$field.ShopAddCart}&gt;加入购物车&lt;/a&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;a class="ey-joinbuy" href="JavaScript:void(0);" {$field.BuyNow}&gt;立即购买&lt;/a&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;/div&gt;
+      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
+      {$field.hidden}
+      <br data-filtered="filtered">
+  {/eyou:sppurchase}
+  <br data-filtered="filtered">
+  &lt;!--购物车组件end--&gt; 
+</div>
+';
+                    }
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+            $this->success('请求成功', null, ['msg'=>$msg]);
+        }
+        $this->error('非法访问！');
     }
 }

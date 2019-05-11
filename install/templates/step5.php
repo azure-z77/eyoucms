@@ -7,8 +7,8 @@
 <meta http-equiv="Content-Language" content="zh-cn"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 <title><?php echo $Title; ?> - <?php echo $Powered; ?></title>
-<link rel="stylesheet" href="./css/install.css?v=9.0" />
-<script src="js/jquery.js"></script>
+<link rel="stylesheet" href="./css/install.css?v=v1.3.1" />
+<script src="./js/jquery.js?v=v1.3.1"></script> 
 <?php 
 $uri = $_SERVER['REQUEST_URI'];
 $root = substr($uri, 0,strpos($uri, "install"));
@@ -46,8 +46,8 @@ $admin = $root."../login.php";
 $(function(){
     $.ajax({
         type: "POST",
-        url: "<?php echo base64_decode($ajax_url);?>",
-        data: {domain:'<?php echo $host;?>',last_domain:'<?php echo $host;?>',key_num:'<?php echo $curent_version;?>',install_time:'<?php echo $time;?>',serial_number:'<?php echo $mt_rand_str;?>',ip:'<?php echo $ip;?>',phpv:'<?php echo $phpv;?>',web_server:'<?php echo $web_server;?>'},
+        url: "<?php echo $service_ey.base64_decode($ajax_url);?>",
+        data: {domain:'<?php echo $host;?>',last_domain:'<?php echo $host;?>',key_num:'<?php echo $cms_version;?>',install_time:'<?php echo $time;?>',serial_number:'<?php echo $mt_rand_str;?>',ip:'<?php echo $ip;?>',phpv:'<?php echo $phpv;?>',web_server:'<?php echo $web_server;?>'},
         dataType: 'jsonp',
         jsonp: "jsonpCallback",//服务端用于接收callback调用的function名的参数 
         success: function(){}

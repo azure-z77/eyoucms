@@ -60,7 +60,7 @@
         <div class="bDiv" style="height: auto;">
             <div id="flexigrid" cellpadding="0" cellspacing="0" border="0">
                 <form  method="post" id="export-form" action="{:url('Tools/export')}">
-                    <table id="tb_flexigrid">
+                    <table id="tb_flexigrid" style="width: 100%">
                         <tbody>
                         {empty name="list"}
                             <tr>
@@ -149,7 +149,7 @@
         var $form = $("#export-form"), $export = $("#export"), tables
         $export.click(function(){
             if($("input[name^='tables']:checked").length == 0){
-                layer.alert('请选中要备份的数据表', {icon: 2});
+                layer.alert('请选中要备份的数据表', {icon: 2, title:false});
                 return false;
             }
             $export.addClass("disabled");
@@ -157,20 +157,20 @@
             $.post(
                 $form.attr("action"),
                 $form.serialize(),
-                function(data){
-                    if(data.status){
-                        tables = data.tables;
-                        var loading = layer.msg('初始化成功，请不要关闭本页面！', 
+                function(res){
+                    if(res.status){
+                        tables = res.tables;
+                        var loading = layer.msg('正在备份表(<font id="upgrade_backup_table">'+res.tab.table+'</font>)……<font id="upgrade_backup_speed">0.01</font>%', 
                         {
                             icon: 1,
                             time: 3600000, //1小时后后自动关闭
                             shade: [0.2] //0.1透明度的白色背景
                         });
-                        $export.html(data.info + "开始备份，请不要关闭本页面！");
-                        backup(data.tab);
+                        $export.html(res.info + "开始备份，请不要关闭本页面！");
+                        backup(res.tab);
                         window.onbeforeunload = function(){ return "正在备份数据库，请不要关闭！" }
                     } else {
-                        layer.alert(data.info, {icon: 2});
+                        layer.alert(res.info, {icon: 2, title:false});
                         $export.removeClass("disabled");
                         $export.html("立即备份");
                     }
@@ -186,12 +186,8 @@
                 if(data.status){
                     if (tab.table) {
                         showmsg(tab.id, data.info);
-                        var loading = layer.msg('正在备份表('+tab.table+')……'+tab.speed+'%，请不要关闭本页面！', 
-                        {
-                            icon: 1,
-                            time: 3600000, //1小时后后自动关闭
-                            shade: [0.2] //0.1透明度的白色背景
-                        });
+                        $('#upgrade_backup_table').html(tab.table);
+                        $('#upgrade_backup_speed').html(tab.speed);
                         $export.html('初始化成功！正在备份表('+tab.table+')……'+tab.speed+'%，请不要关闭本页面！');
                     } else {
                         $export.html('初始化成功！开始备份……，请不要关闭本页面！');
@@ -207,7 +203,7 @@
                         $export.html("备份完成……100%，点击重新备份");
                         setTimeout(function(){
                             layer.closeAll();
-                            layer.alert('备份成功！', {icon: 6});
+                            layer.alert('备份成功！', {icon: 6, title:false});
                         }, 1000);
                         window.onbeforeunload = function(){ return null }
                         return;

@@ -132,6 +132,7 @@
                     if(data.code == 0){
                         layer.alert('官方发布新的通用语言包，确认同步？', {
                             icon: 3,
+                            title:false,
                             btn: ['立即同步']
                         }, function(){
                             layer_loading('正在处理');
@@ -148,7 +149,7 @@
                                             window.location.reload();
                                         });
                                     }else{
-                                        layer.alert(res.msg, {icon: 2}, function(){
+                                        layer.alert(res.msg, {icon: 2, title:false}, function(){
                                             window.location.reload();
                                         });
                                     }

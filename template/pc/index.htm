@@ -72,7 +72,7 @@
             <li class="item col-xs-12 col-md-6 col-lg-4 col-xxl-3 newpro">
             <div class="content"> <a href="{$field.arcurl}" title="{$field.title}" target="_self"> <img data-original="{$field.litpic}" alt="{$field.title}" src="{$field.litpic}" style="display: inline;">
               <h4>{$field.title}</h4>
-              <p>{$field.seo_description}...</p>
+              <p>{$field.seo_description|html_msubstr=###,0,20,true}</p>
               </a> </div>
           </li>
           {/eyou:arclist}
@@ -83,7 +83,7 @@
             <li class="item col-xs-12 col-md-6 col-lg-4 col-xxl-3 newpro">
             <div class="content"> <a href="{$field2.arcurl}" title="{$field2.title}" target="_self"> <img data-original="{$field2.litpic}" alt="{$field2.title}" src="{$field2.litpic}" style="display: inline;">
               <h4>{$field2.title}</h4>
-              <p>{$field2.seo_description}...</p>
+              <p>{$field2.seo_description|html_msubstr=###,0,20,true}</p>
               </a> </div>
           </li>
           {/eyou:arclist}

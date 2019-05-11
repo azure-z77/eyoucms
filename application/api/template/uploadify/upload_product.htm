@@ -7,6 +7,7 @@
 <script type="text/javascript">
     var eyou_basefile = "{$Request.baseFile}";
     var module_name = "{$Think.const.MODULE_NAME}";
+    var __root_dir__ = "__ROOT_DIR__";
 </script> 
 </head>
 <body>
@@ -131,10 +132,26 @@ $(function(){
         if(callback != "undefined"){    
             if(num > 1){    
                  $("input[name^='fileurl_tmp']").each(function(index,dom){
+                    /*禁止篡改上传图片为远程地址*/
+                    remsg = checkUrl(dom.value);
+                    if (remsg) {
+                        window.parent.layer.closeAll();
+                        window.parent.layer.msg(remsg, {icon: 2,time: 1500});
+                        return false;
+                    }
+                    /*--end*/
                     fileurl_tmp[index] = dom.value;
                  });    
             }else{
                 fileurl_tmp = $("input[name^='fileurl_tmp']").val();    
+                /*禁止篡改上传图片为远程地址*/
+                remsg = checkUrl(fileurl_tmp);
+                if (remsg) {
+                    window.parent.layer.closeAll();
+                    window.parent.layer.msg(remsg, {icon: 2,time: 1500});
+                    return false;
+                }
+                /*--end*/  
             }
             /*防止图片上传过程中用户点击确定，导致获取图片失败 by 小虎哥*/
             if (fileurl_tmp == undefined || fileurl_tmp.length == 0) {
@@ -158,6 +175,17 @@ $(function(){
         window.parent.layer.closeAll();
     });
 
+    function checkUrl(urlString){
+        var remsg = false;
+        if (urlString != "") {
+            var reg = /^((\w)*:)?(\/\/).*$/;
+            if(reg.test(urlString)){
+                remsg = '禁止篡改上传图片为远程地址！';
+            }
+        }
+        return remsg;
+    }
+
     function upload_save_product(aid, a)
     {
         $.ajax({
@@ -170,11 +198,11 @@ $(function(){
                     window.parent.layer.closeAll();
                     window.parent.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2,time: 3000, title:false});
                 }
             },
             error: function(e){
-                layer.alert('网络故障', {icon: 2,time: 3000});
+                layer.alert('网络故障', {icon: 2,time: 3000, title:false});
             }
         });
     }

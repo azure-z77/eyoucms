@@ -29,6 +29,26 @@ class Rewrite extends Base
     public function testing()
     {
         ob_clean();
-        exit('ok');
+        exit('Congratulations on passing');
+    }
+
+    /**
+     * 设置隐藏index.php
+     */
+    public function setInlet()
+    {
+        $seo_inlet = input('param.seo_inlet/d', 1);
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('seo', ['seo_inlet'=>$seo_inlet], $val['mark']);
+            }
+        } else { // 单语言
+            tpCache('seo', ['seo_inlet'=>$seo_inlet]);
+        }
+        /*--end*/
+        ob_clean();
+        exit('Congratulations on passing');
     }
 }

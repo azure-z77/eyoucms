@@ -7,9 +7,9 @@
 <meta http-equiv="Content-Language" content="zh-cn"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 <title><?php echo $Title; ?> - <?php echo $Powered; ?></title>
-<link rel="stylesheet" href="./css/install.css?v=v1.1.8" />
-<script src="./js/jquery.js?v=v1.1.8"></script> 
-<script src="./../public/plugins/layer-v3.1.0/layer.js?v=v1.1.8"></script> 
+<link rel="stylesheet" href="./css/install.css?v=v1.3.1" />
+<script src="./js/jquery.js?v=v1.3.1"></script> 
+<script src="./../public/plugins/layer-v3.1.0/layer.js?v=v1.3.1"></script> 
 </head>
 <body>
 <div class="wrap">
@@ -34,7 +34,7 @@
             <td><input type="text" name="dbport" id="dbport" value="3306" class="input"><div id="J_install_tip_dbport"><span class="gray">一般为3306</span></div></td>
           </tr>
           <tr>
-            <td class="tar">数据库用户名</td>
+            <td class="tar">数据库账号</td>
             <td><input type="text" name="dbuser" id="dbuser" value="root" class="input"><div id="J_install_tip_dbuser"></div></td>
           </tr>
           <tr>
@@ -110,7 +110,8 @@
               {
                   if(connect_db == 1)
                   {
-                    $("#J_install_form").submit(); // ajax 验证通过后再提交表单
+                    ajaxSubmit(); // ajax 验证通过后再提交表单
+                    return false;
                   }   
                   $('#J_install_tip_dbpw').html(res.dbpwmsg);
                   $('#J_install_tip_dbname').html(res.dbnamemsg);
@@ -132,6 +133,31 @@
           },
           error:function(){
               $('#J_install_tip_dbpw').html('<span for="dbname" generated="true" class="tips_error" style="">数据库连接失败，请重新设定</span>');    
+          }
+      });
+  }
+
+  function ajaxSubmit()
+  {
+      $.ajax({
+          // async:false,
+          url: $('#J_install_form').attr('action'),
+          data: $('#J_install_form').serialize(),
+          type:'post',
+          dataType:'json',
+          success:function(res){
+              if (1 == res.code) {
+                  window.location.href = res.url;
+              } else {
+                  layer.closeAll();
+                  layer.alert(res.msg, {icon: 5});
+              }
+              return false;
+          },
+          error:function() {
+              layer.closeAll();
+              layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+              return false;
           }
       });
   }

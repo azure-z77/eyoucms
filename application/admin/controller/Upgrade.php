@@ -119,10 +119,8 @@ class Upgrade extends Controller {
     public function check_authority()
     {
         /*------------------检测目录读写权限----------------------*/
-        $filelist = input('param.filelist/s');
-        if (empty($filelist)) {
-            $this->error('请先清除缓存，再尝试升级！', null, ['code'=>2]);
-        }
+        $filelist = tpCache('system.system_upgrade_filelist');
+        $filelist = base64_decode($filelist);
         $filelist = htmlspecialchars_decode($filelist);
         $filelist = explode('<br>', $filelist);
         $dirs = array();

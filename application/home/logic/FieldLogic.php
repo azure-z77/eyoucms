@@ -115,6 +115,12 @@ class FieldLogic extends Model
                     case 'htmltext':
                     {
                         $val = htmlspecialchars_decode($val);
+
+                        /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
+                        $titleNew = !empty($data['title']) ? $data['title'] : '';
+                        $val = img_style_wh($val, $titleNew);
+                        /*--end*/
+
                         /*支持子目录*/
                         $val = handle_subdir_pic($val, 'html');
                         /*--end*/

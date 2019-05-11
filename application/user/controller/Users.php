@@ -36,6 +36,29 @@ class Users extends Base
 
     }
 
+    // 会员中心首页
+    public function index()
+    {
+        $result = [];
+
+        // 资料信息
+        $result['users_para'] = model('Users')->getDataParaList($this->users_id);
+        $this->assign('users_para',$result['users_para']);
+
+        // 菜单名称
+        $result['title'] = Db::name('users_menu')->where([
+                'mca'   => 'user/Users/index',
+                'lang'  => $this->home_lang,
+            ])->getField('title');
+
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->assign('eyou', $eyou);
+
+        return $this->fetch('users_centre');
+    }
+
     // 登陆
     public function login()
     {
@@ -57,7 +80,7 @@ class Users extends Base
 
             if (empty($post['username'])) {
                 $this->error('用户名不能为空！', null, ['status'=>1]);
-            } else if(!preg_match("/^[\x{4e00}-\x{9fa5}\w-_@#]{2,30}$/u", $post['username'])){
+            } else if(!preg_match("/^[\x{4e00}-\x{9fa5}\w\-\_\@\#]{2,30}$/u", $post['username'])){
                 $this->error('用户名不正确！', null, ['status'=>1]);
             }
 
@@ -155,7 +178,7 @@ class Users extends Base
 
             if (empty($post['username'])) {
                 $this->error('用户名不能为空！', null, ['status'=>1]);
-            } else if(!preg_match("/^[\x{4e00}-\x{9fa5}\w-_@#]{2,30}$/u", $post['username'])){
+            } else if(!preg_match("/^[\x{4e00}-\x{9fa5}\w\-\_\@\#]{2,30}$/u", $post['username'])){
                 $this->error('请输入2-30位的汉字、英文、数字、下划线等组合', null, ['status'=>1]);
             }
 
@@ -341,11 +364,9 @@ class Users extends Base
     // 会员中心
     public function centre()
     {
-        // 资料信息
-        $users_para = model('Users')->getDataParaList($this->users_id);
-        $this->assign('users_para',$users_para);
-
-        return $this->fetch('users_centre');
+        $result = Db::name('users_menu')->where(['is_userpage'=>1,'lang'=>$this->home_lang])->find();
+        $mca = !empty($result['mca']) ? $result['mca'] : 'user/Users/index';
+        $this->redirect($mca);
     }
 
     // 修改资料
@@ -630,21 +651,23 @@ class Users extends Base
     public function edit_users_head_pic(){
         if (IS_AJAX_POST) {
             $filename = input('param.filename/s', '');
-            if (!empty($filename)) {
-                // $head_pic_url = realpath(preg_replace('#^'.ROOT_DIR.'/#i', '', $filename)); // 支持子目录
+            if (!empty($filename) && !is_http_url($filename)) {
                 $head_pic_url = $filename;
                 if (!empty($head_pic_url)) {
                     $usersData['head_pic']    = $head_pic_url;
                     $usersData['update_time'] = getTime();
-                    $return = $this->users_db->where('users_id',$this->users_id)->update($usersData);
+                    $return = $this->users_db->where([
+                            'users_id'  => $this->users_id,
+                            'lang'      => $this->home_lang,
+                        ])->update($usersData);
                 }
                 if ($return) {
                     $this->success('操作成功！');
-                }else{
+                } else {
                     $this->error('操作失败！');
                 }
             }else{
-                $this->error('操作失败！');
+                $this->error('上传本地图片错误！');
             }
         }
     }
@@ -712,6 +735,7 @@ class Users extends Base
 
                         // 修改用户属性表信息
                         $listCount = $this->users_list_db->where([
+                                'para_id'  => $ParaData['para_id'],
                                 'users_id' => ['EQ',$this->users_id],
                                 'lang'     => $this->home_lang,
                             ])->count();
@@ -719,9 +743,9 @@ class Users extends Base
                             $ListData = [
                                 'users_id' => $this->users_id,
                                 'para_id'  => $ParaData['para_id'],
-                                'info'  => $post['email'],
+                                'info'     => $post['email'],
                                 'lang'     => $this->home_lang,
-                                'add_time'   => $time,
+                                'add_time' => $time,
                             ];
                             $IsList = $this->users_list_db->where($ListWhere)->add($ListData);
                         } else {
@@ -731,11 +755,12 @@ class Users extends Base
                                 'lang'     => $this->home_lang,
                             ];
                             $ListData = [
-                                'info'  => $post['email'],
-                                'update_time'   => $time,
+                                'info'        => $post['email'],
+                                'update_time' => $time,
                             ];
                             $IsList = $this->users_list_db->where($ListWhere)->update($ListData);
                         }
+
                         if (!empty($IsList)) {
                             // 同步修改用户表邮箱地址，并绑定邮箱地址到用户账号
                             $UsersData = [

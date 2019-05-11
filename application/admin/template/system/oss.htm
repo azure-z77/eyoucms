@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow-y: scroll;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -85,19 +85,19 @@
     function check_form()
     {
         if(!$('#oss_key_id').val()){
-            layer.alert('AccessKeyId 不能为空！',{icon:2});
+            layer.alert('AccessKeyId 不能为空！',{icon:2, title:false});
             return false;
         }
         if(!$('#oss_key_secret').val()){
-            layer.alert('AccessKeySecret 不能为空！',{icon:2});
+            layer.alert('AccessKeySecret 不能为空！',{icon:2, title:false});
             return false;
         }
         if(!$('#oss_endpoint').val()){
-            layer.alert('Endpoint 不能为空！',{icon:2});
+            layer.alert('Endpoint 不能为空！',{icon:2, title:false});
             return false;
         }
         if(!$('#oss_bucket').val()){
-            layer.alert('Bucket 不能为空！',{icon:2});
+            layer.alert('Bucket 不能为空！',{icon:2, title:false});
             return false;
         }
         layer_loading('正在处理');

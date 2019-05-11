@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow-y: scroll;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -79,12 +79,49 @@
                 </dd>
             </dl>
             {/eq}
-            <div class="bot"><a href="JavaScript:void(0);" onclick="chk_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
+            <div class="bot">
+                <input type="hidden" name="seo_inlet" value="0">
+                <a href="JavaScript:void(0);" onclick="chk_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
+            </div>
         </div>
     </form>
 </div>
 
 <script type="text/javascript">
+
+    $(function() {
+        checkInlet(); // 自动检测隐藏index.php
+        // 自动检测隐藏index.php
+        function checkInlet() {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['0px', '0px'],
+                shade: 0.0,
+                closeBtn: 0,
+                shadeClose: true,
+                content: '//{$Request.host}__ROOT_DIR__/api/Rewrite/setInlet.html',
+                success: function(layero, index){
+                    layer.close(index);
+                    var body = layer.getChildFrame('body', index);
+                    var content = body.html();
+                    if (content.indexOf("Congratulations on passing") == -1)
+                    {
+                        $.ajax({
+                            type : "POST",
+                            url  : "__ROOT_DIR__/index.php?m=api&c=Rewrite&a=setInlet",
+                            data : {seo_inlet:0},
+                            dataType : "JSON",
+                            success: function(res) {
+
+                            }
+                        }); 
+                    }
+                }
+            });
+        }
+    });
+
     function chk_submit()
     {
         if ($('input[name^=clear]:checked').length <= 0) {

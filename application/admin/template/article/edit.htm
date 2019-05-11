@@ -74,7 +74,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                  <label>封面图片</label>
+                  <label>缩略图</label>
                 </dt>
                 <dd class="opt">
                     <div class="input-file-show div_litpic_local" {neq name="$field.is_remote" value="0"}style="display: none;"{/neq}>
@@ -94,7 +94,8 @@
                     &nbsp;
                     <label><input type="checkbox" name="is_remote" id="is_remote" value="1" {eq name="$field.is_remote" value="1"}checked="checked"{/eq} onClick="clickRemote(this, 'litpic');">远程图片</label>
                     <span class="err"></span>
-                    <p class="notic">当没有手动上传图片时候，会自动提取正文的第一张图片作为封面</p>
+                    <p class="notic">当没有手动上传图片时候，会自动提取正文的第一张图片作为缩略图</p>
+                    &nbsp;<a href="javascript:void(0);" onclick="system_thumb();" class="ncap-btn ncap-btn-green">缩略图配置</a>
                 </dd>
             </dl>
             {include file="field/addonextitem" /}
@@ -308,6 +309,21 @@
             area: ['80%', '80%'],
             content: url
         });
+    }
+
+    function system_thumb()
+    {
+        var url = "{:url('System/thumb', ['tabase'=>-1])}";
+        //iframe窗
+        var iframes = layer.open({
+            type: 2,
+            title: '缩略图配置',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            content: url
+        });
+        layer.full(iframes);
     }
 
     // 判断输入框是否为空

@@ -27,7 +27,7 @@
                         if ((browser=="Netscape"||browser=="Microsoft Internet Explorer"))
                         {
                             if(trim_Version == 'MSIE8.0' || trim_Version == 'MSIE7.0' || trim_Version == 'MSIE6.0'){
-                                alert('请使用IE9.0版本以上进行访问');
+                                layer.alert('请使用IE9.0版本以上进行访问', {icon:2, title:false});
                                 return false;
                             }
                         }
@@ -53,7 +53,7 @@
             <div class="box">
                 <form action="" name='theForm' id="theForm" method="post">
                     <label for="inputEmail" class="sr-only">用户名</label>
-                    <input type="text" name="username" autocomplete="off" class="form-control" value="" placeholder="用户名" required autofocus />
+                    <input type="text" name="user_name" autocomplete="off" class="form-control" value="" placeholder="用户名" required autofocus />
                     <label for="inputPassword" class="sr-only">密码</label>
                     <input type="password" name="password" autocomplete="off" class="form-control" value="" placeholder="密码" required />
                     {eq name="$is_vertify" value="1"}
@@ -66,6 +66,7 @@
                     <div class="clearfix text-right">
                         <a href="javascript:void(0);" class="help forget_pwd">忘记密码?</a>
                     </div>
+                    <input type="hidden" name="__token__" value="{$Request.token}" />
                     <input type="button" name="submit" class="btn btn-lg btn-primary btn-block show-dialog" value="登录">
                 </form>
             </div> 
@@ -94,14 +95,14 @@
                 });
 
                 $('#theForm input[name=submit]').on('click',function(){
-                    var username=true;
+                    var user_name=true;
                     var password=true;
                     var vertify=true;
 
-                    if($('#theForm input[name=username]').val() == ''){
+                    if($('#theForm input[name=user_name]').val() == ''){
                         layer.msg('用户名不能为空！', {time: 1000});
-                        $('#theForm input[name=username]').focus();
-                        username = false;
+                        $('#theForm input[name=user_name]').focus();
+                        user_name = false;
                         return false;
                     }
 
@@ -121,7 +122,7 @@
                     }
                     {/eq}
 
-                    if(vertify && $('#theForm input[name=username]').val() != '' && $('#theForm input[name=password]').val() != ''){
+                    if(vertify && $('#theForm input[name=user_name]').val() != '' && $('#theForm input[name=password]').val() != ''){
                         var url = "{:url('Admin/login')}";
                         if (url.indexOf('?') > -1) {
                             url += '&';
@@ -133,7 +134,7 @@
                         $.ajax({
                             async:false,
                             url: url,
-                            data:{'username':$('#theForm input[name=username]').val(),'password':$('#theForm input[name=password]').val(),vertify:$('#theForm input[name=vertify]').val()},
+                            data: $('#theForm').serialize(),
                             type:'post',
                             dataType:'json',
                             success:function(res){
@@ -142,15 +143,15 @@
                                 }else{
                                     layer.closeAll();
                                     fleshVerify();
-                                    username=false;
+                                    user_name=false;
                                     password=false;
-                                    layer.alert(res.msg, {icon: 5});
+                                    layer.alert(res.msg, {icon: 5, title:false});
                                     return false;
                                 }
                             },
                             error : function(XMLHttpRequest, textStatus, errorThrown) {
                                 layer.closeAll();
-                                layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+                                layer.alert('网络失败，请刷新页面后重试', {icon: 5, title:false});
                             }
                         });
                     }else{
@@ -159,7 +160,7 @@
                 });
 
                 $(".forget_pwd").click(function(){
-                    layer.alert('请联系网站管理员！', {icon: 6});
+                    layer.alert('请联系网站管理员！', {icon: 6, title:false});
                 });
             });
             

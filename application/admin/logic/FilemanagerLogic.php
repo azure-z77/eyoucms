@@ -65,7 +65,7 @@ class FilemanagerLogic extends Model
     public function editFile($filename, $activepath = '', $content = '')
     {
         $fileinfo = pathinfo($filename);
-        $ext = $fileinfo['extension'];
+        $ext = strtolower($fileinfo['extension']);
 
         /*不允许越过指定最大级目录的文件编辑*/
         $tmp_max_dir = preg_replace("#\/#i", "\/", $this->maxDir);
@@ -83,9 +83,11 @@ class FilemanagerLogic extends Model
         $filename = str_replace("..", "", $filename);
         $file = $this->baseDir."$activepath/$filename";
         if (!is_writable(dirname($file))) {
-            return "请设置模板文件目录权限为755，为了安全不建议在线编辑，请用FTP上传。";
+            return "请把模板文件目录设置为可写入权限！";
         }
-        $content = stripslashes($content);
+        if ('css' != $ext) {
+            $content = stripslashes($content);
+        }
         $fp = fopen($file, "w");
         fputs($fp, $content);
         fclose($fp);

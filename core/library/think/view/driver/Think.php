@@ -139,7 +139,8 @@ class Think
         } else {
             $template = str_replace(['/', ':'], $depr, substr($template, 1));
         }
-        return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
+        return $path . ltrim($template, $depr) . '.' . ltrim($this->config['view_suffix'], '.'); // 过滤多余的斜杆 by 小虎哥
+        // return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
     /**

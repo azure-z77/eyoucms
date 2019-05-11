@@ -76,7 +76,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                  <label>封面图片</label>
+                  <label>缩略图</label>
                 </dt>
                 <dd class="opt">
                     <div class="input-file-show div_litpic_local">
@@ -96,26 +96,24 @@
                     &nbsp;
                     <label><input type="checkbox" name="is_remote" id="is_remote" value="1" onClick="clickRemote(this, 'litpic');">远程图片</label>
                     <span class="err"></span>
-                    <p class="notic">当没有手动上传图片时候，会自动提取正文的第一张图片作为封面</p>
+                    <p class="notic">当没有手动上传图片时候，会自动提取正文的第一张图片作为缩略图</p>
+                    &nbsp;<a href="javascript:void(0);" onclick="system_thumb();" class="ncap-btn ncap-btn-green">缩略图配置</a>
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label>展示图片</label>
+                    <label>图片集</label>
                 </dt>
                 <dd class="opt">
-                    <div class="tab-pane" id="tab_proimg">
+                    <div class="tab-pane pics" id="tab_proimg">
+                        <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','proimg_call_back');" class="imgupload">
+                            <i class="fa fa-photo"></i>上传图片
+                        </a>
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
                                 <td class="sort-list">
-                                    <div class="images_upload" style="display:inline-block;">
-                                        <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','proimg_call_back');" class="upimg">
-                                        <i class="fa fa-upload"></i>
-                                        上传
-                                        </a>
-                                        <br/>
-                                        <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                    <div class="images_upload">
                                     </div>
                                 </td>
                             </tr>
@@ -124,13 +122,12 @@
                     </div>
                     <!-- 上传图片显示的样板 start -->
                     <div class="images_upload_tpl none">
-                        <div class="images_upload" style="display:inline-block;">
+                        <div class="images_upload">
                             <input type="hidden" name="proimg[]" value="" />
-                            <a href="javascript:void(0);" onClick="" class="upimg">
-                                <img src="__STATIC__/admin/images/add-button.jpg" width="100" height="100" />
+                            <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
+                                <img src="__STATIC__/admin/images/add-button.jpg" width="120" height="120" />
                             </a>
-                            <br/>
-                            <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                            <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
                         </div>
                     </div>
                     <!-- 上传图片显示的样板 end -->
@@ -138,6 +135,45 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
+
+            <!-- 产品价格属性 -->
+            {empty name="$ShopType"}
+                <input type="hidden" name="prom_type" value="0"/>
+            {/empty}
+
+            {eq name="$ShopType" value="1"}
+                <input type="hidden" name="prom_type" value="1"/>
+            {/eq}
+
+            {eq name="$ShopType" value="2"}
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="uname"><em></em>产品类型</label>
+                    </dt>
+                    <dd class="opt">
+                        <label>
+                            <input type="radio" name="prom_type" value="0" checked="checked"/>普通产品
+                        </label>
+                        <br/>
+                        <label>
+                            <input type="radio" name="prom_type" value="1" />虚拟产品
+                        </label>
+                    </dd>
+                </dl>
+            {/eq}
+            
+            <dl class="row">
+                <dt class="tit">
+                    <label for="users_price"><em>*</em>价格</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="users_price" value="" id="users_price" class="input-txt" maxlength="100">
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <!-- 产品价格属性 -->
+
             {include file="field/addonextitem" /}
         </div>
         <!-- 常规信息 -->
@@ -385,6 +421,21 @@
             area: ['80%', '80%'],
             content: url
         });
+    }
+
+    function system_thumb()
+    {
+        var url = "{:url('System/thumb', ['tabase'=>-1])}";
+        //iframe窗
+        var iframes = layer.open({
+            type: 2,
+            title: '缩略图配置',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            content: url
+        });
+        layer.full(iframes);
     }
 
     // 判断输入框是否为空

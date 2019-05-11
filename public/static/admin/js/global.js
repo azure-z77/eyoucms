@@ -44,7 +44,7 @@ function batch_del(obj, name) {
         }
     })
     if(a.length == 0){
-        layer.alert('请至少选择一项', {icon: 2});
+        layer.alert('请至少选择一项', {icon: 2, title:false});
         return;
     }
 
@@ -70,19 +70,13 @@ function batch_del(obj, name) {
                 if(data.code == 1){
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
-                    // layer.alert(data.msg, {
-                    //     icon: 1,
-                    //     closeBtn: 0
-                    // }, function(){
-                    //     window.location.reload();
-                    // });
                 }else{
-                    layer.alert(data.msg, {icon: 2});
+                    layer.alert(data.msg, {icon: 2, title:false});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -118,12 +112,12 @@ function delfun(obj) {
                         window.location.reload();
                         // $(obj).parent().parent().parent().remove();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
                 }
             })
         }, function(index){
@@ -166,7 +160,7 @@ function batch_move(obj, name) {
         }
     })
     if(a.length == 0){
-        layer.alert('请至少选择一项', {icon: 2});
+        layer.alert('请至少选择一项', {icon: 2, title:false});
         return;
     }
     // 删除按钮
@@ -185,12 +179,12 @@ function batch_move(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2});
+                    layer.alert(data.msg, {icon: 2, title:false});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -278,7 +272,7 @@ function GetUploadify(num,elementid,path,callback,url)
             content: upurl
          });
     } else {
-        layer.alert('允许上传0张图片', {icon:2});
+        layer.alert('允许上传0张图片', {icon:2, title:false});
         return false;
     }
 }
@@ -315,7 +309,7 @@ function GetUploadifyFrame(num,elementid,path,callback,url)
             content: upurl
          });
     } else {
-        layer.alert('允许上传0张图片', {icon:2});
+        layer.alert('允许上传0张图片', {icon:2, title:false});
         return false;
     }
 }
@@ -534,6 +528,25 @@ function layer_loading(msg){
     });
     //loading层
     var index = layer.load(3, {
+        shade: [0.1,'#fff'] //0.1透明度的白色背景
+    });
+
+    return loading;
+}
+
+/**
+ * 父窗口 - 封装的加载层
+ */
+function parent_layer_loading(msg){
+    var loading = parent.layer.msg(
+    msg+'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请勿刷新页面', 
+    {
+        icon: 1,
+        time: 3600000, //1小时后后自动关闭
+        shade: [0.2] //0.1透明度的白色背景
+    });
+    //loading层
+    var index = parent.layer.load(3, {
         shade: [0.1,'#fff'] //0.1透明度的白色背景
     });
 

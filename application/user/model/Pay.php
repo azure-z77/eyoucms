@@ -247,6 +247,7 @@ class Pay extends Model
         // 参数拼装
         $config['app_id'] = $alipay['app_id'];
         $config['merchant_private_key'] = $alipay['merchant_private_key'];
+        $config['transaction_type'] = $transaction_type;
         $config['notify_url'] = url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true);
         $config['return_url'] = url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true);
         $config['charset']    = 'UTF-8';

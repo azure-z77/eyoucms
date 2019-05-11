@@ -60,6 +60,20 @@ class Tools extends Base {
         //防止备份数据过程超时
         function_exists('set_time_limit') && set_time_limit(0);
 
+        /*升级完自动备份所有数据表*/
+        if ('all' == $tables) {
+            $dbtables = Db::query('SHOW TABLE STATUS');
+            $list = array();
+            foreach ($dbtables as $k => $v) {
+                if (preg_match('/^'.PREFIX.'/i', $v['Name'])) {
+                    $list[] = $v['Name'];
+                }
+            }
+            $tables = $list;
+            unlink(session('backup_config.path') . 'backup.lock');
+        }
+        /*--end*/
+
         if(IS_POST && !empty($tables) && is_array($tables) && empty($optstep)){ //初始化
             $path = tpCache('global.web_sqldatapath');
             $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
@@ -103,6 +117,7 @@ class Tools extends Base {
             $Database = new Backup($file, $config);
             if(false !== $Database->create()){
                 $speed = (floor((1/count($tables))*10000)/10000*100);
+                $speed = sprintf("%.2f", $speed);
                 $tab = array('id' => 0, 'start' => 0, 'speed'=>$speed, 'table'=>$tables[0], 'optstep'=>1);
                 return json(array('tables' => $tables, 'tab' => $tab, 'info'=>'初始化成功！', 'status'=>1, 'url'=>''));
             } else {
@@ -118,6 +133,7 @@ class Tools extends Base {
             } elseif (0 === $start) { //下一表
                 if(isset($tables[++$id])){
                     $speed = (floor((($id+1)/count($tables))*10000)/10000*100);
+                    $speed = sprintf("%.2f", $speed);
                     $tab = array('id' => $id, 'start' => 0, 'speed' => $speed, 'table'=>$tables[$id], 'optstep'=>1);
                     return json(array('tab' => $tab, 'info'=>'备份完成！', 'status'=>1, 'url'=>''));
                 } else { //备份完成，清空缓存
@@ -128,7 +144,10 @@ class Tools extends Base {
                         require_once($constsant_path);
                         defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
                     }
-                    $install_path = ROOT_PATH.'install_'.$install_time;
+                    $install_path = ROOT_PATH.'install';
+                    if (!is_dir($install_path) || !file_exists($install_path)) {
+                        $install_path = ROOT_PATH.'install_'.$install_time;
+                    }
                     if (is_dir($install_path) && file_exists($install_path)) {
                         $srcfile = session('backup_config.path').session('backup_file.name').'-'.session('backup_file.part').'-'.session('backup_file.version').'.sql';
                         $dstfile = $install_path.'/eyoucms.sql';
@@ -140,7 +159,7 @@ class Tools extends Base {
                                 $tableName = $v['Name'];
                                 if (preg_match('/^'.PREFIX.'/i', $tableName)) {
                                     $eyTableName = preg_replace('/^'.PREFIX.'/i', 'ey_', $tableName);
-                                    $eyouDbStr = str_replace($tableName, $eyTableName, $eyouDbStr);
+                                    $eyouDbStr = str_replace('`'.$tableName.'`', '`'.$eyTableName.'`', $eyouDbStr);
                                 }
                             }
                             @file_put_contents($dstfile, $eyouDbStr);
@@ -159,6 +178,7 @@ class Tools extends Base {
             } else {
                 $rate = floor(100 * ($start[0] / $start[1]));
                 $speed = floor((($id+1)/count($tables))*10000)/10000*100 + ($rate/100);
+                $speed = sprintf("%.2f", $speed);
                 $tab  = array('id' => $id, 'start' => $start[0], 'speed' => $speed, 'table'=>$tables[$id], 'optstep'=>1);
                 return json(array('tab' => $tab, 'info'=>"正在备份...({$rate}%)", 'status'=>1, 'url'=>''));
             }

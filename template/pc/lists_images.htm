@@ -11,9 +11,6 @@
   <link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" /> 
   {eyou:static file="skin/css/basic.css" /} 
   {eyou:static file="skin/css/common.css" /} 
-  <style>
-    body{background-position: center;background-repeat: no-repeat;background-color: ;font-family:;}
-  </style> 
     <!--[if lte IE 9]>
     {eyou:static file="skin/js/lteie9.js" /}
     <![endif]--> 
@@ -32,7 +29,7 @@
   <div class="ey-banner-ny vertical-align text-center"> 
    <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
   </div> 
-  <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
+  <section class="ey-crumbs hidden-sm-down"> 
    <div class="container"> 
     <div class="row"> 
      <div class="border-bottom clearfix"> 
@@ -46,18 +43,18 @@
   <div class="ey-img animsition"> 
    <div class="container"> 
     <div class="row"> 
-     <ul class="blocks-100 blocks-md-2 blocks-lg-4 blocks-xxl-4  no-space ey-pager-ajax imagesize ey-img-list" data-scale="400x400" m-id="noset"> 
+     <ul class="blocks-100 blocks-md-2 blocks-lg-4 blocks-xxl-4  no-space ey-pager-ajax imagesize ey-img-list"> 
       {eyou:list pagesize="8" titlelen="20"}
       <li class="widget "> 
        <div class="cover overlay overlay-hover"> 
-        <a href="{$field.arcurl}" title="{$field.title}" class="btn btn-outline btn-inverse ey-img-showbtn" target="_self"> <img class="cover-image overlay-scale" src="{$field.litpic}" alt="{$field.title}" /> </a> 
+        <a href="{$field.arcurl}" title="{$field.title}" class="btn btn-outline btn-inverse ey-img-showbtn"> <img class="cover-image overlay-scale" src="{$field.litpic}" alt="{$field.title}" /> </a> 
        </div> 
        <div class="cover-title"> 
         <h3><a href="{$field.arcurl}" title="{$field.title}">{$field.title}</a></h3> 
        </div> </li> 
       {/eyou:list}
      </ul> 
-     <div class="m-t-20 text-xs-center hidden-sm-down" m-type="nosysdata"> 
+     <div class="m-t-20 text-xs-center hidden-sm-down"> 
       <ul class="tcdPageCode">
       {eyou:pagelist listitem="index,end,pre,next" listsize="2"/}
       </ul>

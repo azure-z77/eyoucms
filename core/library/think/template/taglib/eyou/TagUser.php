@@ -13,6 +13,8 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
+
 /**
  * 会员中心
  */
@@ -36,7 +38,7 @@ class TagUser extends Base
      * 会员中心
      * @author wengxianhu by 2018-4-20
      */
-    public function getUser($type = 'default', $img = '', $currentstyle = '')
+    public function getUser($type = 'default', $img = '', $currentstyle = '', $txt = '', $txtid = '')
     {
         $result = false;
 
@@ -56,12 +58,42 @@ class TagUser extends Base
         if (1 == intval($web_users_switch)) {
             if (empty($users_open_register)) {
                 $url = '';
+                $t_uniqid = '';
                 switch ($type) {
                     case 'login':
                     case 'centre':
                     case 'reg':
                     case 'logout':
                         $url = url('user/Users/'.$type);
+
+                        $t_uniqid = md5(getTime().uniqid(mt_rand(), TRUE));
+                        // A标签ID
+                        $result['id'] = md5("ey_{$type}_{$this->users_id}_{$t_uniqid}");
+                        // A标签里的文案ID
+                        $result['txtid'] = !empty($txtid) ? md5($txtid) : md5("ey_{$type}_txt_{$this->users_id}_{$t_uniqid}");
+                        // 文字文案
+                        $result['txt'] = $txt;
+                        // IMG标签里的ID
+                        // $result['imgid'] = md5("ey_{$type}_img_{$this->users_id}_{$t_uniqid}");
+                        // 图片文案
+                        $result['img'] = $img;
+                        // 链接
+                        $result['url'] = $url;
+                        // 标签类型
+                        $result['type'] = $type;
+                        // 图片样式类
+                        $result['currentstyle'] = $currentstyle;
+                        break;
+
+                    case 'info':
+                        $t_uniqid = md5(getTime().uniqid(mt_rand(), TRUE));
+                        $result = $this->getUserInfo();
+                        foreach ($result as $key => $val) {
+                            $html_key = md5($key.'-'.$t_uniqid);
+                            $result[$key] = $html_key;
+                        }
+                        $result['t_uniqid'] = $t_uniqid;
+                        $result['id'] = $t_uniqid;
                         break;
 
                     default:
@@ -69,25 +101,8 @@ class TagUser extends Base
                         break;
                 }
 
-                $t = getTime();
-                // A标签ID
-                $result['id'] = "ey_{$type}_{$t}";
-                // A标签里的文案ID
-                $result['txtid'] = "ey_{$type}_txt_{$t}";
-                // 文字文案
-                // $result['txt'] = $txt;
-                // IMG标签里的ID
-                // $result['imgid'] = "ey_{$type}_img_{$t}";
-                // 图片文案
-                $result['img'] = $img;
-                // 链接
-                $result['url'] = $url;
-                // 标签类型
-                $result['type'] = $type;
                 // 子目录
                 $result['root_dir'] = $this->root_dir;
-                // 图片样式类
-                $result['currentstyle'] = $currentstyle;
 
                 $result_json = json_encode($result);
                 $version = getCmsVersion();
@@ -105,15 +120,19 @@ class TagUser extends Base
 </script>
 EOF;
                         break;
+
+                    case 'info':
+                        $hidden = <<<EOF
+<script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_user.js?v={$version}"></script>
+<script type="text/javascript">
+    var tag_user_result_json = {$result_json};
+    tag_user_info(tag_user_result_json);
+</script>
+EOF;
+                        break;
                 }
                 $result['hidden'] = $hidden;
             }
-        }
-
-        switch ($type) {
-            case 'info':
-                return $this->getUserInfo();
-                break;
         }
 
         return $result;
@@ -124,13 +143,16 @@ EOF;
      */
     private function getUserInfo()
     {
-        $users = M('users')->field('b.*, a.*')
-            ->alias('a')
-            ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
-            ->where([
-                'a.users_id' => $this->users_id,
-                'a.lang'     => $this->home_lang,  
-            ])->find();
+        $users = [];
+        $tableFields1 = Db::name('users')->getTableFields();
+        $tableFields2 = Db::name('users_level')->getTableFields();
+        $tableFields = array_merge($tableFields1, $tableFields2);
+        foreach ($tableFields as $key => $val) {
+            $users[$val] = '';
+        }
+        $users['url'] = '';
+        unset($users['password']);
+        unset($users['paypwd']);
 
         return $users;
     }

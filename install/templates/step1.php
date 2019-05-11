@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Language" content="zh-cn"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 <title><?php echo $Title; ?> - <?php echo $Powered; ?></title>
-<link rel="stylesheet" href="./css/install.css?v=9.0" />
+<link rel="stylesheet" href="./css/install.css?v=v1.3.1" />
 </head>
 <body>
 <div class="wrap">
@@ -25,7 +25,7 @@
 <p>EyouCMS使用协议</p>
 
 <p>版权所有 (c)2015-2026，海南赞赞网络科技有限公司 保留所有权利。 </p>
-<p>感谢您选择EyouCMS开源企业网站管理系统（简称EyouCMS），EyouCMS是国内最稳定、最强大、最先进的企业网站管理平台解决方案之一，EyouCMS基于 PHP + MySQL 的技术，采用ThinkPHP框架开发。</p>
+<p>感谢您选择EyouCMS开源企业网站管理系统（简称EyouCMS），EyouCMS是国内最稳定、最强大、最先进的企业网站管理平台解决方案之一，EyouCMS基于 PHP + MySQL 的技术，采用ThinkPHP5框架开发。</p>
 <p>为了使你正确并合法的使用本软件，请你在使用前务必阅读清楚下面的协议条款：</p>
 <p>本授权协议适用且仅适用于EyouCMS任何版本，EyouCMS官方对本授权协议的最终解释权和修改权。</p>
 

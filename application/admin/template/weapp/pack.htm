@@ -103,7 +103,7 @@ application/plugins/model/Sample.php"></textarea>
             }
         }
         $('#additional_file').val(additional_file);
-        var index = layer.alert("请检查打包文件或目录是否完整！", {icon: 6}, function(){
+        var index = layer.alert("请检查打包文件或目录是否完整！", {icon: 6, title:false}, function(){
             layer.close(index);
             $('#additional_file').focus();
         });

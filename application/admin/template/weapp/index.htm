@@ -241,7 +241,10 @@
         var name = $(obj).attr('data-name');
         var status = $(obj).attr('data-status');
         if (0 == status) {
-            layer.alert('请先安装该插件！', {title:name, icon: 0});
+            layer.alert('请先安装该插件！', {
+                title:false,//name,
+                icon: 0
+            });
             return false;
         }
 
@@ -254,7 +257,7 @@
         v = notice + intro + '<br/>' + v;
         //询问框
         layer.confirm(v, {
-            title: '检测插件更新',
+            title: false,//'检测插件更新',
             area: ['580px','400px'],
             btn: ['升级','取消'] //按钮
             
@@ -285,19 +288,19 @@
             data : {code:code},
             error: function(request) {
                 layer.closeAll();
-                layer.alert("升级失败，请第一时间联系技术协助！", {icon: 2}, function(){
+                layer.alert("升级失败，请第一时间联系技术协助！", {icon: 2, title:false}, function(){
                     window.location.reload();
                 });
             },
             success: function(res) {
                 layer.closeAll();
                 if(1 == res.code){
-                    layer.alert('已升级最新版本!', {icon: 1}, function(){
+                    layer.alert('已升级最新版本!', {icon: 1, title:false}, function(){
                         window.location.reload();
                     });
                 }
                 else{
-                    layer.alert(res.msg, {icon: 2}, function(){
+                    layer.alert(res.msg, {icon: 2, title:false}, function(){
                         window.location.reload();
                     });
                 }
@@ -327,8 +330,8 @@
 
         //询问框
         var confirm = layer.confirm('<font color="red">此操作数据不可恢复</font>，是否卸载移除？', {
-                title: name
-                ,btn: ['确定', '取消'] //按钮
+                title: false,//name,
+                btn: ['确定', '取消'] //按钮
 
             }, function(){
                 form2.find('input[name=thorough]').val(0);
@@ -346,7 +349,7 @@
                                 window.location.reload();
                             });
                         }else{
-                            layer.alert(res.msg, {icon: 2});
+                            layer.alert(res.msg, {icon: 2, title:false});
                         }
                     },
                     error: function(e) {
@@ -357,7 +360,7 @@
                                 window.location.reload();
                             });
                         } else {
-                            layer.alert(e.responseText, {icon: 2});
+                            layer.alert(e.responseText, {icon: 2, title:false});
                         }
                     }
                 });
@@ -376,7 +379,7 @@
     function delfun(obj){
         var name = $(obj).attr('data-name');
         layer.confirm('<font color="#ff0000">将移除该插件相关文件</font>，确认移除？', {
-            title: name,
+            title: false,//name,
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -392,7 +395,7 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});  //alert(data);
+                        layer.alert(data.msg, {icon: 2, title:false});  //alert(data);
                     }
                 }
             })

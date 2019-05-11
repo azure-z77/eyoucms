@@ -179,7 +179,10 @@ class Template
             }
         }
         $template = $this->parseTemplateFile($template);
-        if ($template) {
+        if (is_array($template)) { // 引入模板错误的友好提示 by 小虎哥
+            $content = !empty($template['msg']) ? $template['msg'] : '';
+            echo $content;
+        } else if ($template) {
             $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($this->config['layout_name'] . $template) . '.' . ltrim($this->config['cache_suffix'], '.');
             if (!$this->checkCache($cacheFile)) {
                 // 缓存无效 重新模板编译
@@ -325,7 +328,9 @@ class Template
             } else {
                 // 读取布局模板
                 $layoutFile = $this->parseTemplateFile($this->config['layout_name']);
-                if ($layoutFile) {
+                if (is_array($layoutFile)) { // 引入模板的错误友好提示 by 小虎哥
+                    $content = !empty($layoutFile['msg']) ? $layoutFile['msg'] : $content;
+                } else if ($layoutFile) {
                     // 替换布局的主体内容
                     $content = str_replace($this->config['layout_item'], $content, file_get_contents($layoutFile));
                 }
@@ -452,7 +457,9 @@ class Template
             if (!$this->config['layout_on'] || $this->config['layout_name'] != $array['name']) {
                 // 读取布局模板
                 $layoutFile = $this->parseTemplateFile($array['name']);
-                if ($layoutFile) {
+                if (is_array($layoutFile)) { // 引入模板错误的友好提示 by 小虎哥
+                    $content = !empty($layoutFile['msg']) ? $layoutFile['msg'] : $content;
+                } else if ($layoutFile) {
                     $replace = isset($array['replace']) ? $array['replace'] : $this->config['layout_item'];
                     // 替换布局的主体内容
                     $content = str_replace($replace, $content, file_get_contents($layoutFile));
@@ -1089,7 +1096,9 @@ class Template
                 $templateName = $this->get(substr($templateName, 1));
             }
             $template = $this->parseTemplateFile($templateName);
-            if ($template) {
+            if (is_array($template)) {
+                $parseStr .= !empty($template['msg']) ? $template['msg'] : $parseStr;
+            } else if ($template) {
                 // 获取模板文件内容
                 $parseStr .= file_get_contents($template);
             }
@@ -1120,7 +1129,9 @@ class Template
             } else {
                 $path = isset($module) ? APP_PATH . $module . DS . basename($this->config['view_path']) . DS : $this->config['view_path'];
             }
-            $template = realpath($path . $template . '.' . ltrim($this->config['view_suffix'], '.'));
+            $filename = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
+            $template = realpath($filename);
+            $template = !empty($template) ? $template : $filename;
         }
 
         if (is_file($template)) {
@@ -1128,7 +1139,10 @@ class Template
             $this->includeFile[$template] = filemtime($template);
             return $template;
         } else {
-            throw new TemplateNotFoundException('template not exists:' . $template, $template);
+            // throw new TemplateNotFoundException('template not exists: ' . $template, $template);
+            // 引入模板不存在不影响页面的渲染 by 小虎哥
+            $msg = Lang::get('template not exists').': '.$template;
+            return ['code'=>0, 'msg'=>$msg]; 
         }
     }
 

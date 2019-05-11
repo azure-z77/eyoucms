@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -225,17 +225,17 @@
     /*微信支付配置*/
     function wechatset(){
         if($('#postWechatForm input[id=appid]').val() == ''){
-            layer.alert('微信AppId不能为空！', {icon: 2});
+            layer.alert('微信AppId不能为空！', {icon: 2, title:false});
             return false;
         }
 
         if($('#postWechatForm input[id=mchid]').val() == ''){
-            layer.alert('微信MchId不能为空！', {icon: 2});
+            layer.alert('微信MchId不能为空！', {icon: 2, title:false});
             return false;
         }
 
         if($('#postWechatForm input[id=key]').val() == ''){
-            layer.alert('微信KEY值不能为空！', {icon: 2});
+            layer.alert('微信KEY值不能为空！', {icon: 2, title:false});
             return false;
         }
 
@@ -251,7 +251,7 @@
                     layer.msg(res.msg, {icon: 1, time: 1000});
                     return false;
                 } else {
-                    layer.alert(res.msg, {icon: 2});
+                    layer.alert(res.msg, {icon: 2, title:false});
                     return false;
                 }
             },
@@ -268,7 +268,7 @@
         // php_version=1，表示php本版低于5.5.0，不可用新版支付方式
         if (php_version == 1) {
             if (is == true) {
-                layer.alert('PHP版本低于5.5.0，不可用新版支付方式，请使用旧版！', {icon: 2});
+                layer.alert('PHP版本低于5.5.0，不可用新版支付方式，请使用旧版！', {icon: 2, title:false});
             }
             $("#postAlipayForm input[name='alipay[version]'][value=1]").attr("checked","checked");
             return false;
@@ -294,33 +294,33 @@
         if (switch_set == 0) {
             // 新版判断
             if($('#postAlipayForm #app_id').val() == ''){
-                layer.alert('支付APPID不能为空！', {icon: 2});
+                layer.alert('支付APPID不能为空！', {icon: 2, title:false});
                 return false;
             }
 
             if($('#postAlipayForm #merchant_private_key').val() == ''){
-                layer.alert('商户私钥不能为空！', {icon: 2});
+                layer.alert('商户私钥不能为空！', {icon: 2, title:false});
                 return false;
             }
 
             if($('#postAlipayForm #alipay_public_key').val() == ''){
-                layer.alert('支付宝公钥不能为空！', {icon: 2});
+                layer.alert('支付宝公钥不能为空！', {icon: 2, title:false});
                 return false;
             }
         }else if (switch_set == 1) {
             // 旧版判断
             if($('#postAlipayForm #account').val() == ''){
-                layer.alert('支付宝账号不能为空！', {icon: 2});
+                layer.alert('支付宝账号不能为空！', {icon: 2, title:false});
                 return false;
             }
 
             if($('#postAlipayForm #code').val() == ''){
-                layer.alert('交易安全校验码不能为空！', {icon: 2});
+                layer.alert('交易安全校验码不能为空！', {icon: 2, title:false});
                 return false;
             }
 
             if($('#postAlipayForm #id').val() == ''){
-                layer.alert('合作者身份ID不能为空！', {icon: 2});
+                layer.alert('合作者身份ID不能为空！', {icon: 2, title:false});
                 return false;
             }
         }
@@ -337,7 +337,7 @@
                     layer.msg(res.msg, {icon: 1, time: 1000});
                     return false;
                 } else {
-                    layer.alert(res.msg, {icon: 2});
+                    layer.alert(res.msg, {icon: 2, title:false});
                     return false;
                 }
             },

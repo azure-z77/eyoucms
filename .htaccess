@@ -1,7 +1,3 @@
-<Files *.htm>
-    Order Allow,Deny
-    Deny from all
-</Files>
 
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks -Multiviews

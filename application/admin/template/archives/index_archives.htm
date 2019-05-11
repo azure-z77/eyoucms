@@ -23,6 +23,7 @@
                               </a>
                         </div>
                     {/eq}
+                    {include file="archives/tags_btn" /}
 <!--                     <div class="sDiv2">  
                         <select name="typeid" id="typeid" class="select" style="margin:0px 5px;">
                             <option value="">--所有文档--</option>
@@ -146,7 +147,7 @@
                              <td class="sort">
                                 <div class="w60 tc">
                                     {eq name="'Archives@edit'|is_check_access" value="1"}
-                                    <input style="text-align: left;" type="text" onchange="changeTableVal('archives','aid','{$vo.aid}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
+                                    <input type="text" onchange="changeTableVal('archives','aid','{$vo.aid}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
                                     {else /}
                                     {$vo.sort_order}
                                     {/eq}
@@ -227,7 +228,7 @@
             }
         })
         if(a.length == 0){
-            layer.alert('请至少选择一项', {icon: 2});
+            layer.alert('请至少选择一项', {icon: 2, title:false});
             return;
         }
 

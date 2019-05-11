@@ -26,12 +26,41 @@ class Pay extends Base
         parent::_initialize();
         $this->users_db       = Db::name('users');      // 会员数据表
         $this->users_money_db = Db::name('users_money');// 会员金额明细表
+        $this->shop_order_db = Db::name('shop_order'); // 订单主表
+        $this->shop_order_details_db = Db::name('shop_order_details'); // 订单明细表
+
         // 判断PHP版本信息
         if (version_compare(PHP_VERSION,'5.5.0','<')) {
             $this->php_version = 1; // PHP5.5.0以下版本，可使用旧版支付方式
         }else{
             $this->php_version = 0;// PHP5.5.0以上版本，可使用新版支付方式，兼容旧版支付方式
         }
+
+        // 支付功能是否开启
+        $redirect_url = '';
+        $pay_open = getUsersConfigData('pay.pay_open');
+        $web_users_switch = tpCache('web.web_users_switch');
+        if (empty($pay_open)) { 
+            // 支付功能关闭，立马跳到会员中心
+            $redirect_url = url('user/Users/index');
+            $msg = '支付功能尚未开启！';
+        } else if (empty($web_users_switch)) { 
+            // 前台会员中心已关闭，跳到首页
+            $redirect_url = ROOT_DIR.'/';
+            $msg = '会员中心尚未开启！';
+        }
+        if (!empty($redirect_url)) {
+            Db::name('users_menu')->where([
+                    'mca'   => 'user/Pay/pay_consumer_details',
+                    'lang'  => $this->home_lang,
+                ])->update([
+                    'status'    => 0,
+                    'update_time' => getTime(),
+                ]);
+            $this->error($msg, $redirect_url);
+            exit;
+        }
+        // --end
     }
 
     // 消费明细
@@ -64,6 +93,19 @@ class Pay extends Base
         $pay_status_arr     = Config::get('global.pay_status_arr');
         $this->assign('pay_status_arr',$pay_status_arr);
 
+        $result = [];
+
+        // 菜单名称
+        $result['title'] = Db::name('users_menu')->where([
+                'mca'   => 'user/Pay/pay_consumer_details',
+                'lang'  => $this->home_lang,
+            ])->getField('title');
+
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->assign('eyou', $eyou);
+
         return $this->fetch('users/pay_consumer_details');
     }
 
@@ -71,6 +113,16 @@ class Pay extends Base
     public function pay_account_recharge()
     {
         if (IS_AJAX_POST) {
+            // 获取微信配置信息
+            $pay_wechat_config = !empty($this->usersConfig['pay_wechat_config']) ? unserialize($this->usersConfig['pay_wechat_config']) : [];
+            
+            // 获取支付宝配置信息
+            $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
+
+            if (empty($pay_wechat_config) && empty($pay_alipay_config)) {
+                $this->error('网站支付配置未完善，请联系管理员！');
+            }
+
             $money = input('post.money/f');
             $unified_number = input('post.unified_number/s');
             if (!empty($unified_number) && !preg_match('/^\d+$/',$unified_number)) {
@@ -154,13 +206,17 @@ class Pay extends Base
     {
         $querystr   = input('param.querystr/s');
         $querydata  = unserialize(base64_decode($querystr));
-        $moneyid = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
-        $order_number = !empty($querydata['order_number']) ? $querydata['order_number'] : '';
-        if (empty($moneyid)) {
-            $order_id = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
-        }
-        if (empty($order_number)) {
+
+        if (!empty($querydata['moneyid']) && !empty($querydata['order_number'])) {
+            // 充值信息
+            $moneyid = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
+            $order_number = !empty($querydata['order_number']) ? $querydata['order_number'] : '';
+        } else if (!empty($querydata['order_id']) && !empty($querydata['order_code'])) {
+            // 订单信息
+            $order_id   = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
             $order_code = !empty($querydata['order_code']) ? $querydata['order_code'] : '';
+        } else {
+            $this->error('订单不存在！');
         }
 
         if (is_array($querydata) && (!empty($order_id) || !empty($moneyid)) && (!empty($order_number) || !empty($order_code))) {
@@ -170,15 +226,34 @@ class Pay extends Base
             if (!empty($moneyid)) {
                 // 获取会员充值信息
                 $data = $this->users_money_db->where([
-                        'moneyid'     => $moneyid,
+                        'moneyid'      => $moneyid,
                         'order_number' => $order_number,
                         'users_id'     => $this->users_id,
                         'lang'         => $this->home_lang,
                     ])->find();
+                if (empty($data)) {
+                    $this->error('订单不存在！');
+                }
                 $data['transaction_type'] = '1'; // 交易类型，1为充值
                 $data['unified_id']       = $data['moneyid'];
                 $data['unified_amount']   = $data['money'];
                 $data['unified_number']   = $data['order_number'];
+                $this->assign('data',$data);
+            }else if (!empty($order_id)) {
+                $data = $this->shop_order_db->where([
+                        'order_id'     => $order_id,
+                        'order_code'   => $order_code,
+                        'users_id'     => $this->users_id,
+                        'lang'         => $this->home_lang,
+                    ])->find();
+                if (empty($data)) {
+                    $this->error('订单不存在！');
+                }
+                $data['transaction_type'] = '2'; // 交易类型，2为购买
+                $data['unified_id']       = $data['order_id'];
+                $data['unified_amount']   = $data['order_amount'];
+                $data['unified_number']   = $data['order_code'];
+                $data['cause'] = '购买产品';
                 $this->assign('data',$data);
             }
 
@@ -207,9 +282,6 @@ class Pay extends Base
                 }
             }
 
-            if (empty($alipay_url)) {
-                $this->error('网站支付配置未完善，请联系管理员！');
-            }
             $isbrowser = $isweixin = 0;
             if (isMobile() && isWeixin()) {
                 $isbrowser = 1;
@@ -229,12 +301,28 @@ class Pay extends Base
             $this->assign('alipay_url',$alipay_url);
 
             // 是否开启微信支付方式
-            $is_open_wechat = !empty($pay_wechat_config['is_open_wechat']) ? $pay_wechat_config['is_open_wechat'] : 0;
+            $is_open_wechat = 1;
+            if (!empty($pay_wechat_config)) {
+                $is_open_wechat = !empty($pay_wechat_config['is_open_wechat']) ? $pay_wechat_config['is_open_wechat'] : 0;
+            }
             $this->assign('is_open_wechat', $is_open_wechat);
+            if ('1' == $is_open_wechat) {
+                // 若没有配置支付信息，则提示
+                $WechatMsg = '微信支付配置尚未配置完成。<br/>请前往会员中心-支付功能-微信支付配置<br/>填入收款的微信支付配置信息！';
+                $this->assign('WechatMsg', $WechatMsg);
+            }
 
             // 是否开启支付宝支付方式
-            $is_open_alipay = !empty($pay_alipay_config['is_open_alipay']) ? $pay_alipay_config['is_open_alipay'] : 0;
+            $is_open_alipay = 1;
+            if (!empty($pay_alipay_config)) {
+                $is_open_alipay = !empty($pay_alipay_config['is_open_alipay']) ? $pay_alipay_config['is_open_alipay'] : 0;
+            }
             $this->assign('is_open_alipay', $is_open_alipay);
+            if ('1' == $is_open_alipay) {
+                // 若没有配置支付信息，则提示
+                $AlipayMsg = '支付宝支付配置尚未配置完成。<br/>请前往会员中心-支付功能-支付宝支付配置<br/>填入收款的支付宝支付配置信息！';
+                $this->assign('AlipayMsg', $AlipayMsg);
+            }
 
             return $this->fetch('users/pay_recharge_detail');
         }
@@ -248,8 +336,31 @@ class Pay extends Base
             $unified_number = input('post.unified_number/s');
             $unified_id     = input('post.unified_id/d');
             $transaction_type = input('post.transaction_type/d');
-            // 查询条件
-            if ('1' == $transaction_type) {
+            // 跳转链接
+            $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type]));
+            if ('2' == $transaction_type) {
+                // 购买订单
+                // 查询条件
+                $OrderWhere = array(
+                    'order_id'   => $unified_id,
+                    'order_code' => $unified_number,
+                    'users_id'   => $this->users_id,
+                    'lang'       => $this->home_lang,
+                );
+                $OrderRow  = $this->shop_order_db->where($OrderWhere)->field('order_status,pay_name')->find();
+                if (!empty($OrderRow)) {
+                    // 判断返回
+                    if ('alipay' == $OrderRow['pay_name'] && in_array($OrderRow['order_status'], [1])) {
+                        $this->success('订单已在支付宝付款完成！即将跳转~~~', $url);
+                    }else if ('wechat' == $OrderRow['pay_name'] && in_array($OrderRow['order_status'], [1])) {
+                        $this->success('订单已在微信付款完成！即将跳转~~~', $url);
+                    }else if ('balance' == $OrderRow['pay_name'] && in_array($OrderRow['order_status'], [1])) {
+                        $this->success('订单已使用余额支付完成！即将跳转~~~', $url);
+                    }else{
+                        $this->error('等待支付');
+                    }
+                }
+            }else if ('1' == $transaction_type) {
                 // 充值订单
                 // 查询条件
                 $where = array(
@@ -260,8 +371,6 @@ class Pay extends Base
                 );
                 $moneyRow  = $this->users_money_db->where($where)->field('status,pay_method')->find();
                 if (!empty($moneyRow)) {
-                    // 跳转链接
-                    $url = url('user/Pay/pay_success');
                     // 判断返回
                     if ('alipay' == $moneyRow['pay_method'] && in_array($moneyRow['status'], [2,3])) {
                         $this->success('订单已在支付宝付款完成！即将跳转~~~', $url);
@@ -302,7 +411,16 @@ class Pay extends Base
         if (!empty($users_id)) {
             $unified_number   = input('param.unified_number/s');
             $transaction_type = input('param.transaction_type/s');
-            if ('1' == $transaction_type) {
+            if ('2' == $transaction_type) {
+                // 购买订单
+                $where  = array(
+                    'users_id'   => $users_id,
+                    'order_code' => $unified_number,
+                );
+                $data  = $this->shop_order_db->where($where)->find();
+                $out_trade_no = $data['order_code'];
+                $total_fee    = $data['order_amount'];
+            }else if ('1' == $transaction_type) {
                 // 充值订单
                 $where  = array(
                     'users_id'     => $users_id,
@@ -356,7 +474,65 @@ class Pay extends Base
                 // 业务处理
                 if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
                     if ($result['trade_state'] == 'SUCCESS' && !empty($result['transaction_id'])) {
-                        if ('1' == $transaction_type) {
+                        if ('2' == $transaction_type) {
+                            // 付款成功
+                            $order_data = $this->shop_order_db->where([
+                                'order_code' => $result['out_trade_no'],
+                                'users_id'   => $this->users_id,
+                                'lang'       => $this->home_lang,
+                            ])->find();
+
+                            if (empty($order_data)) {
+                                $this->error('支付异常，请刷新页面后重试');
+                            }
+
+                            // 微信付款成功后，订单并未修改状态时，修改订单状态并返回
+                            if (empty($order_data['order_status'])) {
+                                $OrderWhere = [
+                                    'order_id'  => $order_data['order_id'],
+                                    'users_id'  => $this->users_id,
+                                    'lang'      => $this->home_lang,
+                                ];
+                                // 修改会员金额明细表中，对应的订单数据，存入返回的数据，订单已付款
+                                $OrderData = [
+                                    'order_status' => 1,
+                                    'pay_name'     => 'wechat', //微信支付
+                                    'pay_details'  => serialize($result),
+                                    'pay_time'     => getTime(),
+                                    'update_time'  => getTime(),
+                                ];
+                                $order_id = $this->shop_order_db->where($OrderWhere)->update($OrderData);
+
+                                if (!empty($order_id)) {
+                                    $DetailsData['update_time'] = getTime();
+                                    $this->shop_order_details_db->where($OrderWhere)->update($DetailsData);
+
+                                    // 添加订单操作记录
+                                    AddOrderAction($order_id,$this->users_id,'0','1','0','1','支付成功！','会员使用微信完成支付！');
+
+                                    // 订单支付完成
+                                    $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type]));
+                                    $this->success('支付成功，即将跳转~~~', $url, ['status'=>1]);
+                                }
+                            }
+
+                            if ($order_data['order_status'] == 1 && !empty($order_data['pay_details'])) {
+                                // 订单已付款
+                                $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type]));
+                                $this->success('支付成功，即将跳转~~~', $url, ['status'=>1]);
+                            }
+
+                            if ($order_data['order_status'] == 3) {
+                                // 订单已完成，待处理逻辑
+                                // 待处理逻辑..........
+                            }
+
+                            if ($order_data['order_status'] == 4) {
+                                // 订单已取消，待处理逻辑
+                                // 待处理逻辑..........
+                            }
+
+                        }else if ('1' == $transaction_type) {
                             // 付款成功
                             $moneydata = $this->users_money_db->where([
                                 'order_number' => $result['out_trade_no'],
@@ -401,7 +577,7 @@ class Pay extends Base
                                                 'moneyid'  => $moneydata['moneyid'],
                                                 'users_id'  => $this->users_id,
                                             ])->update($data2);
-                                        $url = url('user/Pay/pay_success');
+                                        $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type]));
                                         $this->success('充值成功，即将跳转~~~', $url, ['status'=>1]);
                                     }else{
                                         $this->success('付款成功，但未充值成功，请联系管理员。', null, ['status'=>2]);
@@ -413,7 +589,7 @@ class Pay extends Base
 
                             if ($moneydata['status'] == 2 && !empty($moneydata['pay_details'])) {
                                 // 订单已付款
-                                $url = url('user/Pay/pay_success');
+                                $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type]));
                                 $this->success('充值成功，即将跳转~~~', $url, ['status'=>1]);
                             }
 
@@ -442,6 +618,12 @@ class Pay extends Base
 
     // 微信支付成功后跳转到此页面
     public function pay_success(){
+        if ('1' == input('param.transaction_type')) {
+            $url = urldecode(url('user/Pay/pay_consumer_details'));
+        }else if ('2' == input('param.transaction_type')) {
+            $url = urldecode(url('user/Shop/shop_centre'));
+        }
+        $this->assign('url',$url);
         return $this->fetch('users/pay_success');
     }
 
@@ -463,7 +645,44 @@ class Pay extends Base
         }
         $is_alipay = unserialize($pay_alipay_config);
         if ($is_alipay['version'] == 0) {
-            if ('1' == $param['transaction_type']) {
+            if ('2' == $param['transaction_type']) {
+                if (!empty($param['trade_no']) && !empty($param['out_trade_no'])){
+                    $order_data = $this->shop_order_db->where([
+                        'order_code' => $param['out_trade_no'],
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang,
+                    ])->find();
+                    if (empty($order_data)) {
+                        $this->error('支付异常，请刷新页面后重试');
+                    }
+
+                    // 支付宝付款成功后，订单并未修改状态时，修改订单状态并返回
+                    if (empty($order_data['order_status'])) {
+                        $OrderWhere = [
+                            'order_id'  => $order_data['order_id'],
+                            'users_id'  => $this->users_id,
+                            'lang'      => $this->home_lang,
+                        ];
+                        $OrderData = [
+                            'order_status' => 1,
+                            'pay_name'     => 'alipay', //支付宝支付
+                            'pay_details'  => serialize($param),
+                            'pay_time'     => getTime(),
+                            'update_time'  => getTime(),
+                        ];
+                        $order_id = $this->shop_order_db->where($OrderWhere)->update($OrderData);
+
+                        if (!empty($order_id)) {
+                            $DetailsData['update_time'] = getTime();
+                            $this->shop_order_details_db->where($OrderWhere)->update($DetailsData);
+
+                            // 添加订单操作记录
+                            AddOrderAction($order_id,$this->users_id,'0','1','0','1','支付成功！','会员使用支付宝完成支付！');
+                        }
+                    }
+                }
+                $this->redirect('user/Shop/shop_centre');
+            }else if ('1' == $param['transaction_type']) {
                 if (!empty($param['trade_no']) && !empty($param['out_trade_no'])){
                     // 付款成功
                     $moneydata = $this->users_money_db->where('order_number',$param['out_trade_no'])->find();
@@ -479,9 +698,47 @@ class Pay extends Base
                         }
                     }
                 }
+                $this->redirect('user/Pay/pay_consumer_details');
             }
         }else if($is_alipay['version'] == 1){
-            if ('1' == $param['transaction_type']) {
+            if ('2' == $param['transaction_type']) {
+                if (!empty($param['trade_no']) && !empty($param['out_trade_no'])){
+                    $order_data = $this->shop_order_db->where([
+                        'order_code' => $param['out_trade_no'],
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang,
+                    ])->find();
+                    if (empty($order_data)) {
+                        $this->error('支付异常，请刷新页面后重试');
+                    }
+
+                    // 支付宝付款成功后，订单并未修改状态时，修改订单状态并返回
+                    if (empty($order_data['order_status'])) {
+                        $OrderWhere = [
+                            'order_id'  => $order_data['order_id'],
+                            'users_id'  => $this->users_id,
+                            'lang'      => $this->home_lang,
+                        ];
+                        $OrderData = [
+                            'order_status' => 1,
+                            'pay_name'     => 'alipay', //支付宝支付
+                            'pay_details'  => serialize($param),
+                            'pay_time'     => getTime(),
+                            'update_time'  => getTime(),
+                        ];
+                        $order_id = $this->shop_order_db->where($OrderWhere)->update($OrderData);
+
+                        if (!empty($order_id)) {
+                            $DetailsData['update_time'] = getTime();
+                            $this->shop_order_details_db->where($OrderWhere)->update($DetailsData);
+
+                            // 添加订单操作记录
+                            AddOrderAction($order_id,$this->users_id,'0','1','0','1','支付成功！','会员使用支付宝完成支付！');
+                        }
+                    }
+                }
+                $this->redirect('user/Shop/shop_centre');
+            }else if ('1' == $param['transaction_type']) {
                 if (!empty($param['trade_no']) && $param['trade_status'] == 'TRADE_SUCCESS') {
                     // 付款成功
                     $moneydata = $this->users_money_db->where('order_number',$param['out_trade_no'])->find();
@@ -505,9 +762,68 @@ class Pay extends Base
                 if($param['trade_status'] == 'TRADE_FINISHED'){
                     // 交易结束，不可退款
                 }
+
+                $this->redirect('user/Pay/pay_consumer_details');
             }
         }
-        $this->redirect('user/Pay/pay_consumer_details');
+    }
+
+    // 余额支付
+    public function balance_payment()
+    {
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+            $Data = $this->shop_order_db->field('order_amount')->find($post['unified_id']);
+            if ($this->users['users_money'] >= $Data['order_amount']) {
+                $Where = [
+                    'users_id'   => $this->users_id,
+                    'lang'       => $this->home_lang,
+                ];
+
+                $post['payment_amount'] = $Data['order_amount'];
+                $post['payment_type']   = '余额支付';
+                $OrderData = [
+                    'order_status' => 1,
+                    'pay_name'     => 'balance',//余额支付
+                    'pay_details'  => serialize($post),
+                    'pay_time'     => getTime(),
+                    'update_time'  => getTime(),
+                ];
+                $OrderWhere = [
+                    'order_id'   => $post['unified_id'],
+                    'order_code' => $post['unified_number'],
+                ];
+                $OrderWhere = array_merge($Where, $OrderWhere);
+                $return = $this->shop_order_db->where($OrderWhere)->update($OrderData);
+
+                if (!empty($return)) {
+                    $DetailsWhere = [
+                        'order_id'   => $post['unified_id'],
+                    ];
+                    $DetailsWhere = array_merge($Where, $DetailsWhere);
+                    $DetailsData['update_time'] = getTime();
+                    $this->shop_order_details_db->where($DetailsWhere)->update($DetailsData);
+
+                    $UsersData = [
+                        'users_money' => $this->users['users_money'] - $Data['order_amount'],
+                        'update_time' => getTime(),
+                    ];
+                    $users_id = $this->users_db->where($Where)->update($UsersData);
+                    if (!empty($users_id)) {
+                        // 添加订单操作记录
+                        AddOrderAction($post['unified_id'],$this->users_id,'0','1','0','1','支付成功！','会员使用余额完成支付！');
+
+                        $url = urldecode(url('user/Pay/pay_success', ['transaction_type'=>2]));
+                        $this->success('订单已在余额付款完成！即将跳转~~~', $url);
+                    }
+                }else{
+                    $this->error('订单支付异常，请刷新后再进行支付！');
+                }
+            }else{
+                $url = urldecode(url('user/Pay/pay_account_recharge'));
+                $this->error('余额不足，若要使用余额支付，请去充值！',$url);
+            }
+        }
     }
 
     // 支付宝订单处理流程

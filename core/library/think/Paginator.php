@@ -125,7 +125,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         if (3 == $seo_pseudo) { // 伪静态模式 by 小虎哥
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');
             if (1 == intval($seo_rewrite_format)) {
-                $url .= '/';
+                if (!stristr($url, '.html')) {
+                    $url .= '/';
+                }
             }
             /*--end*/
         } 

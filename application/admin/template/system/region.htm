@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -194,7 +194,7 @@
     }
 
     function delRegion(obj){
-        layer.confirm('确定删除此地区？', {icon: 3, title:'提示删除'}, function(index){
+        layer.confirm('确定删除此地区？', {icon: 3, title:false}, function(index){
             layer.close(index);
             window.location.href = $(obj).attr('data-url');
         });

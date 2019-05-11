@@ -44,7 +44,7 @@ class Sample extends Weapp
     public function __construct(){
         parent::__construct();
         $this->model = new SampleModel;
-        $this->db = db('WeappSample');
+        $this->db = Db::name('WeappSample');
 
         /*插件基本信息*/
         $this->weappInfo = $this->getWeappInfo();

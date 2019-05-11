@@ -41,7 +41,7 @@ class Channeltype extends Base
 
     public function index()
     {
-        model('Channeltype')->setChanneltypeStatus(); // 根据前端模板自动开启系统模型
+        // model('Channeltype')->setChanneltypeStatus(); // 根据前端模板自动开启系统模型
 
         $list = array();
         $param = input('param.');
@@ -56,8 +56,6 @@ class Channeltype extends Base
                 }
             }
         }
-        $condition['status'] = 1;
-        $condition['nid'] = ['NOTIN', ['guestbook']];
 
         $count = $this->channeltype_db->alias('a')->where($condition)->count('id');// 查询满足要求的总记录数
         $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
@@ -316,6 +314,33 @@ class Channeltype extends Base
                 $fileContent = str_replace('CustomModel', $post['ctl_name'], $fileContent);
                 $fileContent = str_replace('custommodel', strtolower($post['nid']), $fileContent);
                 $fileContent = str_replace('CUSTOMMODEL', strtoupper($post['nid']), $fileContent);
+                $view_suffix = config('template.view_suffix');
+                if (stristr($file, 'lists_custommodel.'.$view_suffix)) {
+                    $replace = <<<EOF
+<section class="article-list">
+                    {eyou:list pagesize="10" titlelen="38"}
+                    <article>
+                        {eyou:notempty name="\$field.is_litpic"}
+                        <a href="{\$field.arcurl}" title="{\$field.title}" style="float: left; margin-right: 10px"> <img src="{\$field.litpic}" alt="{\$field.title}" height="100" /> </a>
+                        {/eyou:notempty} 
+                        <h2><a href="{\$field.arcurl}" class="">{\$field.title}</a><span>{\$field.click}°C</span></h2>
+                        <div class="excerpt">
+                            <p>{\$field.seo_description}</p>
+                        </div>
+                        <div class="meta">
+                            <span class="item"><time>{\$field.add_time|MyDate='Y-m-d',###}</time></span>
+                            <span class="item">{\$field.typename}</span>
+                        </div>
+                    </article>
+                    {/eyou:list}
+                </section>
+                <section class="list-pager">
+                    {eyou:pagelist listitem='index,pre,pageno,next,end' listsize='2' /}
+                    <div class="clear"></div>
+                </section>
+EOF;
+                    $fileContent = str_replace("<!-- #list# -->", $replace, $fileContent);
+                }
                 $puts = @file_put_contents($dst, $fileContent);
                 if (!$puts) {
                     $this->error('创建自定义模型生成相关文件失败，请检查站点目录权限！');
@@ -354,5 +379,310 @@ EOF;
         } catch (\Exception $e) {
             $this->error('数据库表创建失败，请检查'.$table.'表是否存在并删除，不行就请求技术支持！');
         }
+    }
+
+    /**
+     * 检测模板并启用与禁用
+     */
+    public function ajax_show()
+    {
+        if (IS_POST) {
+            $id = input('id/d');
+            $status = input('status/d', 0);
+            if(!empty($id)){
+                $row = Db::name('channeltype')->where([
+                        'id'    => $id,
+                    ])->find();
+
+                $nofileArr = [];
+                /*检测模板是否存在*/
+                $tplplan = 'template/pc';
+                $planPath = realpath($tplplan);
+                if (!file_exists($planPath)) {
+                    $this->success('操作成功', null, ['confirm'=>0]);
+                }
+                $view_suffix = config('template.view_suffix');
+                // 检测列表模板是否存在
+                $lists_filename = 'lists_'.$row['nid'].'.'.$view_suffix;
+                if (!file_exists($planPath.DS.$lists_filename)) {
+                    $filename = ROOT_DIR.DS.$tplplan.DS.$lists_filename;
+                    $nofileArr[] = [
+                        'type'  => 'lists',
+                        'title' => '列表模板：',
+                        'file'  => str_replace('\\', '/', $filename),
+                    ];
+                }
+                // 检测文档模板是否存在
+                if (!in_array($row['nid'], ['single','guestbook'])) {
+                    $view_filename = 'view_'.$row['nid'].'.'.$view_suffix;
+                    if (!file_exists($planPath.DS.$view_filename)) {
+                        $filename = ROOT_DIR.DS.$tplplan.DS.$view_filename;
+                        $nofileArr[] = [
+                            'type'  => 'view',
+                            'title' => '文档模板：',
+                            'file'  => str_replace('\\', '/', $filename),
+                        ];
+                    }
+                }
+                /*--end*/
+
+                if (empty($status) || (1 == $status && empty($nofileArr))) {
+                    $r = Db::name('channeltype')->where([
+                            'id'    => $id,
+                        ])
+                        ->cache(true,null,"channeltype")
+                        ->update([
+                            'status'    => $status,
+                            'update_time'   => getTime(),
+                        ]);
+                    if($r){
+                        extra_cache('admin_channeltype_list_logic', NULL);
+                        adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
+                        $this->success('操作成功', null, ['confirm'=>0]);
+                    }else{
+                        $this->error('操作失败', null, ['confirm'=>0]);
+                    }
+                } else {
+                    $tpltype = [];
+                    $msg = "该模型缺少以下模板，系统将自动创建一个简单模板文件：<br/>";
+                    foreach ($nofileArr as $key => $val) {
+                        $msg .= '<font color="red">'.$val['title'].$val['file']."</font><br/>";
+                        $tpltype[] = $val['type'];
+                    }
+                    $this->success($msg, null, ['confirm'=>1,'tpltype'=>base64_encode(json_encode($tpltype))]);
+                }
+            } else {
+                $this->error('参数有误');
+            }
+        }
+        $this->error('非法访问');
+    }
+
+    /**
+     * 启用并创建模板
+     */
+    public function ajax_check_tpl()
+    {
+        if (IS_POST) {
+            $id = input('id/d');
+            $status = input('status/d');
+            if(!empty($id)){
+                $row = Db::name('channeltype')->where([
+                        'id'    => $id,
+                    ])->find();
+                $r = Db::name('channeltype')->where([
+                        'id'    => $id,
+                    ])
+                    ->cache(true,null,"channeltype")
+                    ->update([
+                        'status'    => $status,
+                        'update_time'   => getTime(),
+                    ]);
+                if($r){
+                    $tpltype = input('post.tpltype/s');
+                    $tpltype = json_decode(base64_decode($tpltype), true);
+                    if (!empty($tpltype)) {
+                        $view_suffix = config('template.view_suffix');
+                        $themeStyleArr = ['pc','mobile'];
+                        foreach ($themeStyleArr as $k1 => $theme) {
+                            $tplplan = "template/{$theme}";
+                            $planPath = realpath($tplplan);
+                            if (file_exists($planPath)) {
+                                foreach ($tpltype as $k2 => $val) {
+                                    $source = realpath("data/model/template/{$theme}/{$val}_custommodel.{$view_suffix}");
+                                    $dest = ROOT_PATH."template/{$theme}/{$val}_{$row['nid']}.{$view_suffix}";
+                                    if (!file_exists($dest)) {
+                                        $content = file_get_contents($source);
+                                        if ('lists' == $val) {
+                                            if ('download' == $row['nid'])
+                                            {
+                                                $replace = <<<EOF
+<section class="article-list">
+                    {eyou:list pagesize="10" titlelen="38"}
+                    <article>
+                        {eyou:notempty name="\$field.is_litpic"}
+                        <a href="{\$field.arcurl}" title="{\$field.title}" style="float: left; margin-right: 10px"> <img src="{\$field.litpic}" alt="{\$field.title}" height="100" /> </a>
+                        {/eyou:notempty} 
+                        <h2><a href="{\$field.arcurl}" class="">{\$field.title}</a><span>{\$field.click}°C</span></h2>
+                        <div class="excerpt">
+                            <p>{\$field.seo_description}</p>
+                        </div>
+                        <div class="meta">
+                            <span class="item"><time>{\$field.add_time|MyDate='Y-m-d',###}</time></span>
+                            <span class="item">{\$field.typename}</span>
+                            {eyou:arcview aid='\$field.aid' id='view'}
+                                  {eyou:volist name="\$view.file_list" id='vo'}
+                                  <span class="item"><a class="btn" href="{\$vo.downurl}" title="{\$vo.title}">下载包({\$i})</a></span>
+                                  {/eyou:volist}
+                            {/eyou:arcview}
+                        </div>
+                    </article>
+                    {/eyou:list}
+                </section>
+                <section class="list-pager">
+                    {eyou:pagelist listitem='index,pre,pageno,next,end' listsize='2' /}
+                    <div class="clear"></div>
+                </section>
+EOF;
+                                                $content = str_replace("<!-- #download# -->", $replace, $content);
+                                            }
+                                            else if ('single' == $row['nid']) 
+                                            {
+                                                $replace = <<<EOF
+<article class="content">
+                    <h1>{\$eyou.field.title}</h1>
+                    <div class="post">
+                        {\$eyou.field.content}
+                    </div>
+                </article>
+EOF;
+                                                $content = str_replace("<!-- #single# -->", $replace, $content);
+                                            }
+                                            else if ('guestbook' == $row['nid'])
+                                            {
+                                                $replace = <<<EOF
+<article class="content">
+                    <h1>{\$eyou.field.title}</h1>
+                    <div class="post">
+                        <div class="md_block">
+                            <div style=" color: #ff0000">
+                                制作易优留言表单，主要有三个步骤：<br>1，后台>开启留言模型，建立栏目并选择留言模型。<br>2，打开根目录>template>pc>lists_guestbook.htm模板文件，按照易优表单标签制作，<a href="http://www.eyoucms.com/doc/label/arc/502.html" target="_blank">点击这里查看教程</a><br>3，还有疑问可以加易优交流群（群号：<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=917f9a4cfe50fd94600c55eb75d9c6014a1842089b0479bc616fb79a1d85ae0b">704301718</a>）
+                            </div>
+                        </div>           
+                    </div>
+                </article>
+                <section class="pager"></section>
+EOF;
+                                                $content = str_replace("<!-- #guestbook# -->", $replace, $content);
+                                            } else {
+                                                $replace = <<<EOF
+<section class="article-list">
+                    {eyou:list pagesize="10" titlelen="38"}
+                    <article>
+                        {eyou:notempty name="\$field.is_litpic"}
+                        <a href="{\$field.arcurl}" title="{\$field.title}" style="float: left; margin-right: 10px"> <img src="{\$field.litpic}" alt="{\$field.title}" height="100" /> </a>
+                        {/eyou:notempty} 
+                        <h2><a href="{\$field.arcurl}" class="">{\$field.title}</a><span>{\$field.click}°C</span></h2>
+                        <div class="excerpt">
+                            <p>{\$field.seo_description}</p>
+                        </div>
+                        <div class="meta">
+                            <span class="item"><time>{\$field.add_time|MyDate='Y-m-d',###}</time></span>
+                            <span class="item">{\$field.typename}</span>
+                        </div>
+                    </article>
+                    {/eyou:list}
+                </section>
+                <section class="list-pager">
+                    {eyou:pagelist listitem='index,pre,pageno,next,end' listsize='2' /}
+                    <div class="clear"></div>
+                </section>
+EOF;
+                                                $content = str_replace("<!-- #list# -->", $replace, $content);
+                                            }
+                                        }
+                                        else if ('view' == $val)
+                                        { // 内置模型设有内容字段
+                                            if (1 == $row['ifsystem'])
+                                            {
+                                                $replace = <<<EOF
+<div class="md_block">
+                            {\$eyou.field.content}
+                        </div>
+EOF;
+                                                $content = str_replace('<!-- #content# -->', $replace, $content);
+                                            }
+                                            if ('product' == $row['nid'])
+                                            {
+                                                $replace = <<<EOF
+<div class="md_block">
+                          <!--购物车组件start--> 
+                          {eyou:sppurchase id='field'}
+                              <div class="ey-price"><span>￥{\$field.users_price}</span> </div>
+                              <div class="ey-number">
+                                <label>数量</label>
+                                <div class="btn-input">
+                                  <button class="layui-btn" {\$field.ReduceQuantity}>-</button>
+                                  <input type="text" class="layui-input" {\$field.UpdateQuantity}>
+                                  <button class="layui-btn" {\$field.IncreaseQuantity}>+</button>
+                                </div>
+                              </div>
+                              <div class="ey-buyaction">
+                              <a class="ey-joinin" href="JavaScript:void(0);" {\$field.ShopAddCart}>加入购物车</a>
+                              <a class="ey-joinbuy" href="JavaScript:void(0);" {\$field.BuyNow}>立即购买</a>
+                              </div>
+                              {\$field.hidden}
+                          {/eyou:sppurchase}
+                          <!--购物车组件end--> 
+                        </div>
+                        <div class="md_block">
+                            <fieldset>
+                                <legend>图片集：</legend>
+                                <div class="pic">
+                                    <div class="wrap">
+                                        {eyou:volist name="\$eyou.field.image_list"}
+                                            <img src="{\$field.image_url}" alt="{\$eyou.field.title}" />
+                                        {/eyou:volist}
+                                    </div>
+                                </div> 
+                            </fieldset>
+                        </div>
+                        <div class="md_block">
+                            <fieldset>
+                                <legend>产品属性：</legend>
+                                {eyou:attribute type='auto'}
+                                    {\$attr.name}：{\$attr.value}<br/>
+                                {/eyou:attribute}
+                            </fieldset>
+                        </div>
+EOF;
+                                                $content = str_replace('<!-- #product# -->', $replace, $content);
+                                            } else if ('images' == $row['nid']) {
+                                                $replace = <<<EOF
+<div class="md_block">
+                            <fieldset>
+                                <legend>图片集：</legend>
+                                <div class="pic">
+                                    <div class="wrap">
+                                        {eyou:volist name="\$eyou.field.image_list"}
+                                            <img src="{\$field.image_url}" alt="{\$eyou.field.title}" />
+                                        {/eyou:volist}
+                                    </div>
+                                </div> 
+                            </fieldset>
+                        </div>
+EOF;
+                                                $content = str_replace('<!-- #images# -->', $replace, $content);
+                                            } else if ('download' == $row['nid']) {
+                                                $replace = <<<EOF
+<div class="md_block">
+                            <fieldset>
+                                <legend>下载地址：</legend>
+                                 {eyou:volist name="\$eyou.field.file_list" id="field"}
+                                    <a class="btn" href="{\$field.downurl}" title="{\$field.title}">下载包（{\$i}）</a> 
+                                 {/eyou:volist}
+                            </fieldset>
+                        </div>
+EOF;
+                                                $content = str_replace('<!-- #download# -->', $replace, $content);
+                                            }
+                                        }
+                                        @file_put_contents($dest, $content);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    extra_cache('admin_channeltype_list_logic', NULL);
+                    adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
+                    $this->success('操作成功');
+                }else{
+                    $this->error('操作失败');
+                }
+            } else {
+                $this->error('参数有误');
+            }
+        }
+        $this->error('非法访问');
     }
 }

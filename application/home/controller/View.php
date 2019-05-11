@@ -162,11 +162,10 @@ class View extends Base
         /*--end*/
 
         /*多语言内置模板文件名*/
-        $lang = get_home_lang();
-        if (!empty($lang)) {
-            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+        if (!empty($this->home_lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
             if (file_exists($viewfilepath)) {
-                $viewfile .= "_{$lang}";
+                $viewfile .= "_{$this->home_lang}";
             }
         }
         /*--end*/

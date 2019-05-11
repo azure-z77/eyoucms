@@ -107,9 +107,9 @@ class Index extends Base
         $this->assign('sys_info',$this->get_sys_info());
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
 
-        // 自动纠正蜘蛛抓取文件rotots.txt
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
-        $ajaxLogic->update_robots();
+        $ajaxLogic->update_robots(); // 自动纠正蜘蛛抓取文件rotots.txt
+        $ajaxLogic->update_template('users'); // 升级前台会员中心的模板文件
 
         return $this->fetch();
     }
@@ -123,7 +123,7 @@ class Index extends Base
         $sys_info['curl']           = function_exists('curl_init') ? 'YES' : '<font color="red">NO（请开启 php.ini 中的php-curl扩展）</font>';  
         $sys_info['web_server']     = $_SERVER['SERVER_SOFTWARE'];
         $sys_info['phpv']           = phpversion();
-        $sys_info['ip']             = gethostbyname($_SERVER['SERVER_NAME']);
+        $sys_info['ip']             = serverIP();
         $sys_info['postsize']       = @ini_get('file_uploads') ? ini_get('post_max_size') :'unknown';
         $sys_info['fileupload']     = @ini_get('file_uploads') ? ini_get('upload_max_filesize') :'unknown';
         $sys_info['max_ex_time']    = @ini_get("max_execution_time").'s'; //脚本最大执行时间
@@ -174,15 +174,32 @@ class Index extends Base
             }
             /*--end*/
             if ($result) {
-                $source = realpath('public/static/admin/images/logo_ey.png');
-                $destination = realpath('public/static/admin/images/logo.png');
-                @copy($source, $destination);
+                $domain = config('service_ey');
+                $domain = base64_decode($domain);
+                $vaules = array(
+                    'authortoken_code'   => $web_authortoken,
+                    'client_domain' => urldecode($this->request->host(true)),
+                );
+                $url = $domain.'/index.php?m=api&c=Service&a=check_authortoken&'.http_build_query($vaules);
+                $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+                $response = @file_get_contents($url,false,$context);
+                $params = json_decode($response,true);
+                $msg = '授权成功';
+                $wait = 1;
+                if (false === $response || (is_array($params) && 1 == $params['code'])) {
+                    $source = realpath('public/static/admin/images/logo_ey.png');
+                    $destination = realpath('public/static/admin/images/logo.png');
+                    @copy($source, $destination);
+                } else {
+                    $msg = '保存成功'.$params['msg'];
+                    $wait = 3;
+                }
 
                 session('isset_author', null);
                 adminLog('录入商业授权');
-                $this->success('操作成功', request()->baseFile(), '', 1, [], '_parent');
+                $this->success($msg, request()->baseFile(), '', $wait, [], '_parent');
             }else{
-                $this->error("操作失败!", url('Index/authortoken'));
+                $this->error("授权失败!", url('Index/authortoken'));
             }
             exit;
         }
@@ -228,66 +245,177 @@ class Index extends Base
      * table,id_name,id_value,field,value
      */
     public function changeTableVal()
-    {  
-        $table = input('table'); // 表名
-        $id_name = input('id_name'); // 表主键id名
-        $id_value = input('id_value'); // 表主键id值
-        $field  = input('field'); // 修改哪个字段
-        $value  = input('value', '', null); // 修改字段值  
+    {
+        if (IS_AJAX_POST) {
+            $url = null;
+            $data = [
+                'refresh'   => 0,
+            ];
 
-        switch ($table) {
-            // 会员等级表
-            case 'users_level':
-                {
-                    $return = model('UsersLevel')->isRequired($id_name,$id_value,$field,$value);
-                    if (is_array($return)) {
-                        $this->error($return['msg']);
+            $table = input('post.table/s'); // 表名
+            $id_name = input('post.id_name/s'); // 表主键id名
+            $id_value = input('post.id_value/s'); // 表主键id值
+            $field  = input('post.field/s'); // 修改哪个字段
+            $value  = input('post.value/s', '', null); // 修改字段值  
+
+            switch ($table) {
+                // 会员等级表
+                case 'users_level':
+                    {
+                        $return = model('UsersLevel')->isRequired($id_name,$id_value,$field,$value);
+                        if (is_array($return)) {
+                            $this->error($return['msg']);
+                        }
                     }
-                }
-                break;
+                    break;
+                
+                // 会员属性表
+                case 'users_parameter':
+                    {
+                        $return = model('UsersParameter')->isRequired($id_name,$id_value,$field,$value);
+                        if (is_array($return)) {
+                            $this->error($return['msg']);
+                        }
+                    }
+                    break;
+                
+                // 会员属性表
+                case 'users_menu':
+                    {
+                        Db::name('users_menu')->where('id','gt',0)->update([
+                                'is_userpage'   => 0,
+                                'update_time'   => getTime(),
+                            ]);
+                        $data['refresh'] = 1;
+                    }
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+
+            $savedata = [
+                $field => $value,
+                'update_time'   => getTime(),
+            ];
+            M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
+
+            // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
+            switch ($table) {
+                case 'auth_modular':
+                    extra_cache('admin_auth_modular_list_logic', null);
+                    extra_cache('admin_all_menu', null);
+                    break;
+                
+                default:
+                    // 清除logic逻辑定义的缓存
+                    extra_cache('admin_'.$table.'_list_logic', null);
+                    // 清除一下缓存
+                    // delFile(RUNTIME_PATH.'html'); // 先清除缓存, 否则不好预览
+                    \think\Cache::clear($table);
+                    break;
+            }
+
+            /*清除页面缓存*/
+            // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
+            // $htmlCacheLogic->clear_archives();
+            /*--end*/
             
-            // 会员属性表
-            case 'users_parameter':
-                {
-                    $return = model('UsersParameter')->isRequired($id_name,$id_value,$field,$value);
-                    if (is_array($return)) {
-                        $this->error($return['msg']);
-                    }
-                }
-                break;
+            $this->success('更新成功', $url, $data);
+        }
+    }
 
-            default:
-                # code...
-                break;
+    /**
+     * 功能开关
+     */
+    public function switch_map()
+    {
+        if (IS_POST) {
+            $inc_type = input('post.inc_type/s');
+            $name = input('post.name/s');
+            $value = input('post.value/s');
+
+            $data = [];
+            switch ($inc_type) {
+                case 'pay':
+                case 'shop':
+                    getUsersConfigData($inc_type, [$name => $value]);
+                    if (in_array($name, ['shop_open'])) {
+                        // $data['reload'] = 1;
+                        /*检测是否存在订单中心模板*/
+                        if ('v1.0.1' > getVersion('version_themeshop') && !empty($value)) {
+                            $is_syn = 1;
+                        } else {
+                            $is_syn = 0;
+                        }
+                        $data['is_syn'] = $is_syn;
+                        /*--end*/
+                        // 同步会员中心的左侧菜单
+                        if ('shop_open' == $name) {
+                            Db::name('users_menu')->where([
+                                    'mca'   => 'user/Shop/shop_centre',
+                                    'lang'  => $this->home_lang,
+                                ])->update([
+                                    'status'    => (1 == $value) ? 1 : 0,
+                                    'update_time'   => getTime(),
+                                ]);
+                        }
+                    } else if ('pay_open' == $name) {
+                        // 同步会员中心的左侧菜单
+                        Db::name('users_menu')->where([
+                                'mca'   => 'user/Pay/pay_consumer_details',
+                                'lang'  => $this->home_lang,
+                            ])->update([
+                                'status'    => (1 == $value) ? 1 : 0,
+                                'update_time'   => getTime(),
+                            ]);
+                    }
+                    break;
+
+                case 'web':
+                    /*多语言*/
+                    if (is_language()) {
+                        $langRow = \think\Db::name('language')->order('id asc')
+                            ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                            ->select();
+                        foreach ($langRow as $key => $val) {
+                            tpCache($inc_type, [$name => $value], $val['mark']);
+                        }
+                    } else { // 单语言
+                        tpCache($inc_type, [$name => $value]);
+                    }
+                    /*--end*/
+
+                    if (in_array($name, ['web_users_switch'])) {
+                        // $data['reload'] = 1;
+                        /*检测是否存在会员中心模板*/
+                        if ('v1.0.1' > getVersion('version_themeusers') && !empty($value)) {
+                            $is_syn = 1;
+                        } else {
+                            $is_syn = 0;
+                        }
+                        $data['is_syn'] = $is_syn;
+                        /*--end*/
+                    }
+                    break;
+            }
+
+            $this->success('操作成功', null, $data);
         }
 
-        $savedata = [
-            $field => $value,
-            'update_time'   => getTime(),
-        ];
-        M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
+        $globalConfig = tpCache('global');
+        $this->assign('globalConfig', $globalConfig);
 
-        // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
-        switch ($table) {
-            case 'auth_modular':
-                extra_cache('admin_auth_modular_list_logic', null);
-                extra_cache('admin_all_menu', null);
-                break;
-            
-            default:
-                // 清除logic逻辑定义的缓存
-                extra_cache('admin_'.$table.'_list_logic', null);
-                // 清除一下缓存
-                // delFile(RUNTIME_PATH.'html'); // 先清除缓存, 否则不好预览
-                \think\Cache::clear($table);
-                break;
+        $UsersConfigData = getUsersConfigData('all');
+        $this->assign('userConfig',$UsersConfigData);
+
+        $is_online = 0;
+        if (is_realdomain()) {
+            $is_online = 1;
         }
+        $this->assign('is_online',$is_online);
 
-        /*清除页面缓存*/
-        // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-        // $htmlCacheLogic->clear_archives();
-        /*--end*/
-        
-        $this->success('更新成功');
-    }   
+        return $this->fetch();
+    }
 }

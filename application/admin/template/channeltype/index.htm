@@ -4,21 +4,10 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    <div class="fixed-bar">
-        <div class="item-title">
-            <div class="subject">
-                <h3>模型管理</h3>
-                <h5></h5>
-            </div>
-            <ul class="tab-base nc-row">
-                <li><a href="{:url('Channeltype/index')}" class="tab {eq name='$Request.controller' value='Channeltype'}current{/eq}"><span>模型列表</span></a></li>
-            </ul>
-        </div>
-    </div>
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <h3>模型列表</h3>
+                <h3>频道模型列表</h3>
                 <h5>(共{$pageObj->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
@@ -48,10 +37,10 @@
                         <th abbr="article_time" axis="col6" class="w120">
                             <div class="tc">模型标识</div>
                         </th>
-                        <th abbr="article_time" axis="col6" class="w100">
-                            <div class="tc">更新时间</div>
+                        <th abbr="article_time" axis="col6" class="w50">
+                            <div class="tc">启用</div>
                         </th>
-                        <th axis="col1" class="w230">
+                        <th axis="col1" id="th_handle" class="w160">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -90,20 +79,45 @@
                                 <div class="w120 tc">{$vo.nid}</div>
                             </td>
                             <td>
-                                <div class="w100 tc">
-                                    {$vo.update_time|date='Y-m-d',###}
+                                <div class="tc w50">
+                                {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                    {if condition="$vo['status'] eq 1"}
+                                        <span class="yes" data-id="{$vo.id}" data-status="{eq name='$vo.status' value='1'}0{else /}1{/eq}" data-title="{$vo.title}" onClick="handleShow(this);"><i class="fa fa-check-circle"></i>是</span>
+                                    {else /}
+                                        <span class="no" data-id="{$vo.id}" data-status="{eq name='$vo.status' value='1'}0{else /}1{/eq}" data-title="{$vo.title}" onClick="handleShow(this);"><i class="fa fa-ban"></i>否</span>
+                                    {/if}
+                                {else /}
+                                    {if condition="$vo['status'] eq 1"}是{else /}否{/if}
+                                {/eq}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w230 tc">
+                                <div class="tl {empty name="$vo.ifsystem"}w230{else /}w160{/empty}">
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                    <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o blocki"></i>编辑</a>
-                                    <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-code blocki"></i>内容字段</a>
+                                        {eq name="$vo.nid" value="guestbook"}
+                                        &nbsp;&nbsp;&nbsp;———
+                                        {else /}
+                                        <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o blocki"></i>编辑</a>
+                                        {/eq}
                                     {/eq}
+
+                                    {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                        {eq name="$vo.nid" value="guestbook"}
+                                        &nbsp;&nbsp;&nbsp;&nbsp;—————
+                                        {else /}
+                                        <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-code blocki"></i>内容字段</a>
+                                        {/eq}
+                                    {/eq}
+
                                     {empty name="$vo.ifsystem"}
                                         {eq name="'Channeltype@del'|is_check_access" value="1"}
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o blocki"></i>删除</a>
                                         {/eq}
+                                        <script type="text/javascript">
+                                            $(function(){
+                                                $('#th_handle').removeClass('w160').addClass('w230');
+                                            });
+                                        </script>
                                     {/empty}
                                 </div>
                             </td>
@@ -152,7 +166,7 @@
     function delfun(obj){
         var title = '<font color="#ff0000">重要提示！</font>';
         layer.confirm('<font color="#ff0000">此操作将会删除与该模型所有相关的数据且不可恢复，请谨慎操作！</font>是否确认删除？', {
-            title: title,
+            title: false,
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -168,7 +182,7 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});  //alert(data);
+                        layer.alert(data.msg, {icon: 2, title:false});  //alert(data);
                     }
                 }
             })
@@ -176,6 +190,55 @@
           layer.close(index);
         });
       return false;
+    }
+
+    function handleShow(obj){
+        var title = $(obj).attr('data-title');
+        $.ajax({
+            type : 'post',
+            url : "{:url('Channeltype/ajax_show')}",
+            data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status')},
+            dataType : 'json',
+            success : function(res){
+                if (res.code == 1) {
+                    if (0 == res.data.confirm) {
+                        layer.msg(res.msg, {icon: 1, time:500}, function(){
+                            window.location.reload();
+                        });
+                    } else {
+                        var confirm = layer.confirm(res.msg, {
+                            title: false,
+                            btn: ['启用','取消'] //按钮
+                        }, function(index){
+                            layer.close(index);
+                            layer_loading('正在处理');
+                            // 确定
+                            $.ajax({
+                                type : 'post',
+                                url : "{:url('Channeltype/ajax_check_tpl')}",
+                                data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'),tpltype:res.data.tpltype},
+                                dataType : 'json',
+                                success : function(res){
+                                    layer.closeAll();
+                                    if(res.code == 1){
+                                        layer.msg(res.msg, {icon: 1, time: 500}, function(){
+                                            window.location.reload();
+                                        });
+                                    }else{
+                                        layer.alert(res.msg, {icon: 2, title:false});
+                                    }
+                                }
+                            })
+                        });
+                    }
+                } else {
+                    layer.alert(res.msg, {icon: 2, title:false});
+                }
+            },
+            error:function(){
+                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+            }
+        });
     }
 </script>
 

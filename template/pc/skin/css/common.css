@@ -1687,9 +1687,12 @@ max-height:300px;
 height:calc(100% - 60px);
 }
  #ey-imgs-slick.slick-dotted {
-padding-bottom:60px;
+padding-bottom:45px;
+min-height: auto;
 }
+.ey-showproduct.pagetype1 .ey-showproduct-head{ padding-top:0px; }
  #ey-imgs-slick .swiper-navtab {
+}
 height:47px;
 }
  #ey-imgs-slick .slick-dots {

@@ -295,6 +295,9 @@ class Product extends Base
         $assign_data['gourl'] = $gourl;
         /*--end*/
 
+        $ShopType = getUsersConfigData('shop.shop_type');
+        $assign_data['ShopType'] = $ShopType;
+
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -479,6 +482,19 @@ class Product extends Base
         }
         $assign_data['gourl'] = $gourl;
         /*--end*/
+
+        // 处理产品价格属性
+        $ShopType = getUsersConfigData('shop.shop_type');
+        if (empty($ShopType) || '1' == $ShopType) {
+            if ($ShopType == $assign_data['field']['prom_type']) {
+                $IsSame = '0'; // 相同
+            }else{
+                $IsSame = '1'; // 不相同
+            }
+            $assign_data['IsSame'] = $IsSame;
+        }else{
+            $assign_data['ShopType'] = $ShopType;
+        }
 
         $this->assign($assign_data);
         return $this->fetch();

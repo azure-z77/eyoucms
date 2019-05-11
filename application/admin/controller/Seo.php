@@ -29,17 +29,10 @@ class Seo extends Base
      */
     public function index()
     {
-        /*配置列表*/
-        $group_list = [
-            'seo' => 'SEO基础',
-            'rewrite'     => '伪静态',
-            // 'html'       => '静态页面',
-            'sitemap'      => 'Sitemp',
-        ];      
-        $this->assign('group_list',$group_list);
         $inc_type =  input('get.inc_type','seo');
         $this->assign('inc_type',$inc_type);
         $config = tpCache($inc_type);
+        $config['seo_pseudo'] = tpCache('seo.seo_pseudo');
         if('seo' == $inc_type){
             $seo_pseudo_list = get_seo_pseudo_list();
             $this->assign('seo_pseudo_list', $seo_pseudo_list);
@@ -75,8 +68,16 @@ class Seo extends Base
                 }
             } catch (\Exception $e) {}
             /*--end*/
-            // $param['seo_arcdir'] = rtrim($param['seo_arcdir'], '/');
-        } elseif($inc_type == 'sitemap'){
+            /*强制去除index.php*/
+            if (isset($param['seo_force_inlet'])) {
+                $seo_force_inlet = $param['seo_force_inlet'];
+                $seo_force_inlet_old = tpCache('seo.seo_force_inlet');
+                if ($seo_force_inlet_old != $seo_force_inlet) {
+                    $param['seo_inlet'] = $seo_force_inlet;
+                }
+            }
+            /*--end*/
+        } else if($inc_type == 'sitemap'){
             $param['sitemap_not1'] = isset($param['sitemap_not1']) ? $param['sitemap_not1'] : 0;
             $param['sitemap_not2'] = isset($param['sitemap_not2']) ? $param['sitemap_not2'] : 0;
             $param['sitemap_xml'] = isset($param['sitemap_xml']) ? $param['sitemap_xml'] : 0;

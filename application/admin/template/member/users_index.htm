@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -176,14 +176,14 @@
                             window.location.href = res.url;
                         });
                     }else{
-                        layer.alert(res.msg, {icon: 2}, function(){
+                        layer.alert(res.msg, {icon: 2, title:false}, function(){
                             window.location.reload();
                         });
                     }
                 },
                 error: function(e){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2}, function(){
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false}, function(){
                         window.location.reload();
                     });
                 }
@@ -194,7 +194,7 @@
     // 删除
     function usersdel(obj){
         layer.confirm('此操作不可逆，确认彻底删除？', {
-            title: $(obj).attr('data-username'),
+            title: false,//$(obj).attr('data-username'),
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -210,7 +210,7 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 }
             })
@@ -231,11 +231,12 @@
             }
         })
         if(a.length == 0){
-            layer.alert('请至少选择一项', {icon: 2});
+            layer.alert('请至少选择一项', {icon: 2, title:false});
             return;
         }
         // 删除按钮
         layer.confirm('此操作不可逆，确认批量彻底删除？', {
+            title: false,
             btn: ['确定', '取消'] //按钮
         }, function () {
             layer_loading('正在处理');
@@ -250,12 +251,12 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
                 }
             });
         }, function (index) {

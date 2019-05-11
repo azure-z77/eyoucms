@@ -65,9 +65,9 @@
                     data: $("#admin_form").serialize(),
                     success:function(obj){
                         if(obj.status !=1){
-                            layer.alert(obj.msg, {icon: 5});
+                            layer.alert(obj.msg, {icon: 5, title:false});
                         }else{
-                            layer.alert('操作成功!', {icon: 6}, function(){
+                            layer.alert('操作成功!', {icon: 6, title:false}, function(){
                                 window.location.reload();
                             });
                         }  

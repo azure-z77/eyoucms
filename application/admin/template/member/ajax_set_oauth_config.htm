@@ -114,17 +114,17 @@
 
     function wechatset(){
         if($('input[id=appid]').val() == ''){
-            layer.alert('缺少微信AppId', {icon: 2});
+            layer.alert('缺少微信AppId', {icon: 2, title:false});
             return false;
         }
 
         if($('input[id=mchid]').val() == ''){
-            layer.alert('缺少微信MchId', {icon: 2});
+            layer.alert('缺少微信MchId', {icon: 2, title:false});
             return false;
         }
 
         if($('input[id=key]').val() == ''){
-            layer.alert('缺少微信KEY值', {icon: 2});
+            layer.alert('缺少微信KEY值', {icon: 2, title:false});
             return false;
         }
 

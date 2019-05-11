@@ -58,11 +58,18 @@ class Base extends Common {
             }
         }
 
+        // 订单超过 get_shop_order_validity 设定的时间，则修改订单为已取消状态，无需返回数据
+        model('Shop')->UpdateShopOrderData($this->users_id);
+
+        // 会员功能是否开启
         $logut_redirect_url = '';
         $this->usersConfig = getUsersConfigData('all');
-        if (isset($this->usersConfig['users_open_register']) && $this->usersConfig['users_open_register'] == 1) { // 前台会员中心已关闭
+        $web_users_switch = tpCache('web.web_users_switch');
+        if (empty($web_users_switch) || isset($this->usersConfig['users_open_register']) && $this->usersConfig['users_open_register'] == 1) { 
+            // 前台会员中心已关闭
             $logut_redirect_url = ROOT_DIR.'/';
-        } else if (session('?users_id') && empty($this->users)) { // 登录的会员被后台删除，立马退出会员中心
+        } else if (session('?users_id') && empty($this->users)) { 
+            // 登录的会员被后台删除，立马退出会员中心
             $logut_redirect_url = url('user/Users/centre');
         }
         if (!empty($logut_redirect_url)) {
@@ -70,7 +77,10 @@ class Base extends Common {
             session('users_id', null);
             session('users', null);
             $this->redirect($logut_redirect_url);
+            exit;
         }
+        // --end
+        
         $this->assign('usersConfig', $this->usersConfig);
         
         $this->usersConfig['theme_color'] = $theme_color = !empty($this->usersConfig['theme_color']) ? $this->usersConfig['theme_color'] : '#ff6565'; // 默认主题颜色

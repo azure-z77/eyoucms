@@ -398,7 +398,12 @@ class Arctype extends Model
         if (empty($data)) {
             $data = array();
             $typeid = $id;
-            $arctype_list = M('Arctype')->field('*, id as typeid')->getAllWithIndex('id');
+            $arctype_list = M('Arctype')->field('*, id as typeid')
+                ->where([
+                    'status'    => 1,
+                    'is_del'    => 0,
+                ])
+                ->getAllWithIndex('id');
             if (isset($arctype_list[$typeid])) {
                 // 第一个先装起来
                 $arctype_list[$typeid]['typeurl'] = $this->getTypeUrl($arctype_list[$typeid]);

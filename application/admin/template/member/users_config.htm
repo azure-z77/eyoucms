@@ -2,7 +2,7 @@
 <script src="__SKIN__/js/users_upgrade.js?v={$version}"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/colpick/js/colpick.js"></script>
 <link href="__PUBLIC__/plugins/colpick/css/colpick.css" rel="stylesheet" type="text/css"/>
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <style type="text/css">
 #picker {
     /*margin:0;*/
@@ -19,6 +19,18 @@
 <div class="page">
     {include file="member/bar" /}
     <div class="flexigrid">
+        <div class="mDiv">
+            <div class="ftitle">
+                <h3>功能配置</h3>
+                <h5></h5>
+            </div>
+            <form class="navbar-form form-inline" action="{:url('Member/level_index')}" method="get" onsubmit="layer_loading('正在处理');">
+                {$searchform.hidden|default=''}
+                <div class="sDiv">
+                    {include file="member/users_bar" /}
+                </div>
+            </form>
+        </div>
         <form class="form-horizontal" id="postForm" action="{:url('Member/users_config')}" method="post">
 <!--             <div class="hDiv">
                 <div class="hDivBox">
@@ -134,6 +146,7 @@
                 </div>
             </div>
 
+            <!-- config/users -->
             <div class="ncap-form-default">
                 <dl class="row">
                     <dt class="tit">
@@ -172,44 +185,7 @@
                     </dd>
                 </dl>
             </div>
-
-            <div class="hDiv">
-                <div class="hDivBox">
-                    <table cellspacing="0" cellpadding="0" style="width: 100%">
-                        <thead>
-                        <tr>
-                            <th class="sign w10" axis="col0">
-                                <div class="tc"></div>
-                            </th>
-                            <th abbr="article_title" axis="col3" class="w10">
-                                <div class="tc">支付设置</div>
-                            </th>
-                            <th abbr="ac_id" axis="col4">
-                                <div class=""></div>
-                            </th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="ncap-form-default">
-                <dl class="row">
-                    <dt class="tit">
-                        <label for="uname">支付功能</label>
-                    </dt>
-                    <dd class="opt">
-                        <label>
-                            <input type="radio" name="pay[pay_open]" value="1" {if condition="$info.pay_open == 1"}checked="checked"{/if}/>开启
-                        </label>
-                        &nbsp;&nbsp;&nbsp;
-                        <label>
-                            <input type="radio" name="pay[pay_open]" value="0" {if condition="!isset($info.pay_open) || empty($info.pay_open)"}checked="checked"{/if}/>关闭
-                        </label>
-                        <span style="padding-left: 10px; color: #C0C0C0;">关闭则自动隐藏支付入口。</span>
-                    </dd>
-                </dl>
-            </div>
-
+            <!-- config/theme -->
             <div class="hDiv">
                 <div class="hDivBox">
                     <table cellspacing="0" cellpadding="0" style="width: 100%">
@@ -232,12 +208,23 @@
             <div class="ncap-form-default">
                 <dl class="row">
                     <dt class="tit">
+                        <label for="uname">左侧菜单</label>
+                    </dt>
+                    <dd class="opt">
+                        <a href="javascript:void(0);" onclick="menu_index();" class="ncap-btn ncap-btn-green">管理</a>
+                    </dd>
+                </dl>
+                <dl class="row">
+                    <dt class="tit">
                         <label for="uname">主题颜色</label>
                     </dt>
                     <dd class="opt">
                         <input type="text" name="theme[theme_color]" value="{$info.theme_color|default='#ff6565'}" id="picker" style="border-color: {$info.theme_color|default='#ff6565'};" />
                     </dd>
                 </dl>
+            </div>
+
+            <div class="ncap-form-default">
                 <dl class="row">
                     <div class="bot">
                         <a href="JavaScript:void(0);" onclick="usersset();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
@@ -310,7 +297,7 @@
         //             }
         //         }
         //     }
-        // }); 
+        // });
     });
 
     function email(){
@@ -322,7 +309,7 @@
             success: function(res){
                 if (res.code == 0) {
                     $("input[name='users[users_verification]'][value=0]").attr("checked","checked" );
-                    layer.alert(res.msg, {icon: 2});
+                    layer.alert(res.msg, {icon: 2, title:false});
                     return false;
                 }
             },
@@ -348,6 +335,22 @@
         layer.open({
             type: 2,
             title: title,
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['80%', '80%'],
+            content: url
+        });
+    }
+
+    function menu_index()
+    {
+        var url = "{:url('Member/ajax_menu_index')}";
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: '前台会员中心左侧菜单',
             fixed: true, //不固定
             shadeClose: false,
             shade: 0.3,

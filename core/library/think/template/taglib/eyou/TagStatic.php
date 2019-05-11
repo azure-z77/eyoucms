@@ -30,7 +30,7 @@ class TagStatic extends Base
      * 资源文件加载
      * @author 小虎哥 by 2018-4-20
      */
-    public function getStatic($file = '', $lang = '', $href = '')
+    public function getStatic($file = '', $lang = '', $href = '', $code='')
     {
         if (empty($file)) {
             return '标签static报错：缺少属性 file 或 href 。';
@@ -80,7 +80,11 @@ class TagStatic extends Base
                 
             } else {
                 if (!preg_match('/^\//i',$file)) {
-                    $file = '/template/'.THEME_STYLE.'/'.$file;
+                    if (empty($code)) {
+                        $file = '/template/'.THEME_STYLE.'/'.$file;
+                    } else {
+                        $file = '/template/plugins/'.$code.'/'.THEME_STYLE.'/'.$file;
+                    }
                 }
                 /*多语言内置静态资源文件名*/
                 if (!empty($paramlang)) {

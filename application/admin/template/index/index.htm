@@ -65,6 +65,10 @@
                 <i class="fa fa-home"></i>
                 <span class="hidden-xs">网站首页</span>
               </a>
+              <a class="btn btn-default dropdown-toggle" href="javascript:void(0);" onclick="switch_map();">
+                <i class="fa fa-toggle-on"></i>
+                <span class="hidden-xs">功能开关</span>
+              </a>
               {notempty name="$is_eyou_authortoken"}
               <!-- 商业授权 -->   
               <em class="eyou_tool em_authortoken" data-expanded="close">
@@ -82,9 +86,8 @@
               <!-- 商业授权 -->   
               {/notempty}
 
-              {if condition='0 < intval($web_language_switch)'}
               <!-- 多语言 -->
-              <em class="eyou_tool em_lang" data-expanded="close">
+              <em id="Language_index" class="eyou_tool em_lang" data-expanded="close" {if condition='empty($web_language_switch)'}style="display: none;"{/if}>
                 <a class="btn btn-default dropdown-toggle" title="支持多语言切换" href="javascript:void(0);" onclick="valide(this);">
                   <i class="fa fa-globe"></i>
                   <span class="hidden-xs">{$languages[$admin_lang]['title']|default='简体中文'}</span>
@@ -99,7 +102,6 @@
                 </ul>
                </em>
               <!-- 多语言 -->   
-              {/if}
 
               <!-- 服务器升级 -->   
               <div id="upgrade_filelist" style="display:none;"></div> 
@@ -142,39 +144,6 @@
 </div>
 <script type="text/javascript">
 
-  $(function(){
-      {eq name="$is_syn_theme_users" value="1"}
-          setTimeout(function(){
-              syn_theme_users();
-          },200);
-      {/eq}
-      function syn_theme_users()
-      {
-          layer_loading('会员初始化');
-          // 确定
-          $.ajax({
-              type : 'get',
-              url : "{:url('Member/ajax_syn_theme_users')}",
-              data : {},
-              dataType : 'json',
-              success : function(res){
-                  layer.closeAll();
-                  if(res.code == 1){
-                      layer.msg(res.msg, {icon: 1, time: 1000}, function(){
-                          // workspace.window.location.href = res.url;
-                      });
-                  }else{
-                      layer.alert(res.msg, {icon: 2});
-                  }
-              },
-              error: function(e){
-                  layer.closeAll();
-                  layer.alert('网络失败，请刷新页面后重试', {icon: 2});
-              }
-          })
-      }
-  });
-
   function valide(obj)
   {
     var cls = $(obj).parent().attr('class');
@@ -196,9 +165,16 @@
               });
           } else {
               layer.closeAll();
-              layer.alert(res.msg, {icon:5});
+              layer.alert(res.msg, {icon:5, title:false});
           }
       });
+  }
+
+  // 功能地图
+  function switch_map()
+  {
+      var url = "{:url('Index/switch_map')}";
+      workspace.window.location.href = url;
   }
 </script>
 </body>

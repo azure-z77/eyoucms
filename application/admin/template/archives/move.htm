@@ -83,13 +83,13 @@
                             parent.layer.close(parentObj);
                         });
                     } else {
-                        layer.alert(res.msg, {icon:5});
+                        layer.alert(res.msg, {icon:5, title:false});
                     }
                     return false;
                 },
                 error: function(e){
                     layer.closeAll();
-                    layer.alert('操作失败', {icon:5});
+                    layer.alert('操作失败', {icon:5, title:false});
                     return false;
                 }
             });

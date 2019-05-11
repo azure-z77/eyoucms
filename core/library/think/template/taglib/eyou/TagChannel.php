@@ -317,8 +317,15 @@ class TagChannel extends Base
         /*--end*/
 
         if (count($res) > 0) {
+            $topTypeid = $this->getTopTypeid($this->tid);
             $ctl_name_list = model('Channeltype')->getAll('id,ctl_name', array(), 'id');
-            
+            $currentstyleArr = [
+                'tid'   => 0,
+                'currentstyle'  => '',
+                'grade' => 100,
+                'is_part'   => 0,
+            ]; // 标记选择栏目的数组
+
             foreach ($res as $key => $val) {
                 /*获取指定路由模式下的URL*/
                 if ($val['is_part'] == 1) {
@@ -330,16 +337,40 @@ class TagChannel extends Base
                 /*--end*/
 
                 /*标记栏目被选中效果*/
-                if ($val['id'] == $this->getTopTypeid($this->tid)) {
-                    $val['currentstyle'] = $this->currentstyle;
-                } else {
-                    $val['currentstyle'] = '';
+                $val['currentstyle'] = '';
+                $pageurl = request()->url(true);
+                $typelink = htmlspecialchars_decode($val['typelink']);
+                if ($val['id'] == $topTypeid || (!empty($typelink) && stristr($pageurl, $typelink))) {
+                    $is_currentstyle = false;
+                    if ($topTypeid != $this->tid && 0 == $currentstyleArr['is_part'] && $val['grade'] <= $currentstyleArr['grade']) { // 当前栏目不是顶级栏目，按外部链接优先
+                        $is_currentstyle = true;
+                    }
+                    else if ($topTypeid == $this->tid && $val['grade'] < $currentstyleArr['grade']) 
+                    { // 当前栏目是顶级栏目，按顺序优先
+                        $is_currentstyle = true;
+                    }
+                    if ($is_currentstyle) {
+                        $currentstyleArr = [
+                            'tid'   => $val['id'],
+                            'currentstyle'  => $this->currentstyle,
+                            'grade' => $val['grade'],
+                            'is_part'   => $val['is_part'],
+                        ];
+                    }
                 }
                 /*--end*/
 
                 // 封面图
                 $val['litpic'] = handle_subdir_pic($val['litpic']);
 
+                $res[$key] = $val;
+            }
+
+            // 循环处理选中栏目的标识
+            foreach ($res as $key => $val) {
+                if (!empty($currentstyleArr) && $val['id'] == $currentstyleArr['tid']) {
+                    $val['currentstyle'] = $currentstyleArr['currentstyle'];
+                }
                 $res[$key] = $val;
             }
 

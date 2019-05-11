@@ -87,20 +87,24 @@ function changeTableVal(table,id_name,id_value,field,obj)
         var value = $(obj).val();            
     }
 
-    var url = eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value;
+    var url = eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal";
     var lang = $.cookie('admin_lang');
     if ($.trim(lang) != '') {
         url = url + '&lang=' + lang;
     }
 
     $.ajax({
-        type:'POST',
+        type: 'POST',
         url: url,
-        data: {1:1},
+        data: {table:table,id_name:id_name,id_value:id_value,field:field,value:value},
+        dataType: 'json',
         success: function(res){
             if (res.code == 1) {
                 if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
                     layer.msg(res.msg, {icon: 1});
+                }
+                if (1 == res.data.refresh) {
+                    window.location.reload();
                 }
             } else {
                 layer.msg(res.msg, {icon: 2}, function(){

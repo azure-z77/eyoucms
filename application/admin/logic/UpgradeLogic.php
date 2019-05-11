@@ -54,7 +54,7 @@ class UpgradeLogic extends Model
         }
 
         $url = $this->upgrade_url; 
-        $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+        $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
         $serviceVersionList = @file_get_contents($url,false,$context);    
         $serviceVersionList = json_decode($serviceVersionList,true);
         if(!empty($serviceVersionList))
@@ -85,6 +85,7 @@ class UpgradeLogic extends Model
             }
             $lastupgrade['intro'] = htmlspecialchars_decode($introStr);
             $lastupgrade['upgrade'] = htmlspecialchars_decode($upgradeStr); // 升级提示需要覆盖哪些文件
+            tpCache('system', ['system_upgrade_filelist'=>base64_encode($lastupgrade['upgrade'])]);
             /*升级公告*/
             if (!empty($lastupgrade['notice'])) {
                 $lastupgrade['notice'] = htmlspecialchars_decode($lastupgrade['notice']) . '<br>';
@@ -335,7 +336,7 @@ class UpgradeLogic extends Model
             $msg = "，其中失败 <font color='red'>{$badcp}</font> 个文件，<br />请从升级包目录[<font color='red'>data/backup/{$folderName}/www</font>]中的取出全部文件覆盖到根目录，完成手工升级。";
         }
 
-        // $this->copy_speed($n, $total);
+        $this->copy_speed($n, $total);
 
         return ['code'=>$code, 'msg'=>$msg];
     }
@@ -359,7 +360,7 @@ class UpgradeLogic extends Model
     private function sql_split($sql, $tablepre) {
 
         if ($tablepre != "ey_")
-            $sql = str_replace("ey_", $tablepre, $sql);
+            $sql = str_replace("`ey_", '`'.$tablepre, $sql);
               
         $sql = preg_replace("/TYPE=(InnoDB|MyISAM|MEMORY)( DEFAULT CHARSET=[^; ]+)?/", "ENGINE=\\1 DEFAULT CHARSET=utf8", $sql);
         

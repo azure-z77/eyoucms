@@ -7,6 +7,7 @@
 <script type="text/javascript">
     var eyou_basefile = "{$Request.baseFile}";
     var module_name = "{$Think.const.MODULE_NAME}";
+    var __root_dir__ = "__ROOT_DIR__";
 </script> 
 </head>
 <body>
@@ -131,12 +132,28 @@ $(function(){
         var num = {$info.num|default=1};
         var fileurl_tmp = [];
         if(callback != "undefined"){    
-            if(num > 1){    
+            if(num > 1){
                  $("input[name^='fileurl_tmp']").each(function(index,dom){
+                    /*禁止篡改上传图片为远程地址*/
+                    remsg = checkUrl(dom.value);
+                    if (remsg) {
+                        window.parent.layer.closeAll();
+                        window.parent.layer.msg(remsg, {icon: 2,time: 1500});
+                        return false;
+                    }
+                    /*--end*/
                     fileurl_tmp[index] = dom.value;
                  });    
             }else{
-                fileurl_tmp = $("input[name^='fileurl_tmp']").val();    
+                fileurl_tmp = $("input[name^='fileurl_tmp']").val();
+                /*禁止篡改上传图片为远程地址*/
+                remsg = checkUrl(fileurl_tmp);
+                if (remsg) {
+                    window.parent.layer.closeAll();
+                    window.parent.layer.msg(remsg, {icon: 2,time: 1500});
+                    return false;
+                }
+                /*--end*/
             }
             /*防止图片上传过程中用户点击确定，导致获取图片失败 by 小虎哥*/
             if (fileurl_tmp == undefined || fileurl_tmp.length == 0) {
@@ -149,16 +166,27 @@ $(function(){
             return;
         }                    
         if(num > 1){
-                var fileurl_tmp = "";
-                $("input[name^='fileurl_tmp']").each(function(){
-                    fileurl_tmp += '<li rel="'+ this.value +'"><input class="input-text" type="text" name="{$info.input}[]" value="'+ this.value +'" /><a href="javascript:void(0);" onclick="ClearPicArr(\''+ this.value +'\',\'\')">删除</a></li>'; 
-                });         
-                $(window.parent.document).find("#{$info.input}").append(fileurl_tmp);
+            var fileurl_tmp = "";
+            $("input[name^='fileurl_tmp']").each(function(){
+                fileurl_tmp += '<li rel="'+ this.value +'"><input class="input-text" type="text" name="{$info.input}[]" value="'+ this.value +'" /><a href="javascript:void(0);" onclick="ClearPicArr(\''+ this.value +'\',\'\')">删除</a></li>'; 
+            });         
+            $(window.parent.document).find("#{$info.input}").append(fileurl_tmp);
         }else{
-                $(window.parent.document).find("#{$info.input}").val($("input[name^='fileurl_tmp']").val());
+            $(window.parent.document).find("#{$info.input}").val($("input[name^='fileurl_tmp']").val());
         }
         window.parent.layer.closeAll();
     });
+
+    function checkUrl(urlString){
+        var remsg = false;
+        if (urlString != "") {
+            var reg = /^((\w)*:)?(\/\/).*$/;
+            if(reg.test(urlString)){
+                remsg = '禁止篡改上传图片为远程地址！';
+            }
+        }
+        return remsg;
+    }
 });
 </script>
 </body>

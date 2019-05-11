@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -118,9 +118,9 @@
                             <td class="">
                                 <div class="tc w100">
                                     {if condition='$vo.status == 1'}
-                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="手工充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>手工充值</a>
+                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="手工充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>充值</a>
                                     {elseif condition='$vo.status == 3' /}
-                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="撤销充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>撤销充值</a>
+                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="撤销充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>撤销</a>
                                     {else /}
                                     ————
                                     {/if}
@@ -163,7 +163,7 @@
         }
 
         layer.confirm(msg, {
-            title: $(obj).data('title'),
+            title: false,//$(obj).data('title'),
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -180,12 +180,12 @@
                             window.location.reload();
                         });
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
                 }
             })
         }, function(index){

@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body class="ad_postion" style="overflow-y: scroll;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -7,7 +7,7 @@
     <div class="fixed-bar">
         <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
             <div class="subject">
-                <h3>编辑广告位</h3>
+                <h3>编辑广告</h3>
                 <h5></h5>
             </div>
         </div>
@@ -16,7 +16,7 @@
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
-                    <label for="title"><em>*</em>广告位名称</label>
+                    <label for="title"><em>*</em>广告名称</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="title" value="{$field.title}" id="title" class="input-txt">
@@ -24,29 +24,90 @@
                     <p class="notic">保持唯一性，不可重复</p>
                 </dd>
             </dl>
-            <dl class="row">
+           
+            <dl class="row" style="z-index: 2">
                 <dt class="tit">
-                    <label for="width">广告位宽度</label>
+                    <label>广告内容</label>
                 </dt>
-                <dd class="opt">
-                    <input type="text" name="width" value="{$field.width}" id="width" class="input-txt"> px
-                    <span class="err"></span>
-                    <p class="notic"></p>
+                <dd class="opt">          
+                    <div class="tab-pane" id="tab_imgupload">
+                        <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="imgupload">
+                            <i class="fa fa-photo"></i>上传图片
+                        </a>
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td class="sort-list">
+                                    {volist name="ad_data" id="vo" key="k"}
+                                        <div class="images_upload">
+                                            <div class="ic">
+                                            <a href="{$vo['litpic']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
+                                                <img src="{$vo['litpic']}" />
+                                            </a>
+
+                                            <input type="hidden" name="img_id[{$k}][id]" value="{$vo['id']}"/>
+                                            <span class="span_input">
+                                                <input type="hidden" name="img_litpic[{$k}][litpic]" value="{$vo['litpic']}"/>
+                                            </span>
+                                            <textarea name="img_title[{$k}][title]" placeholder="请输入标题...">{$vo.title}</textarea>
+                                            <textarea name="img_links[{$k}][links]" placeholder="请输入链接网址...">{$vo.links}</textarea>
+
+                                            <div class="operation">
+                                                <a href="javascript:void(0);">
+                                                    <input type="checkbox" name="img_target[{$k}][target]" {eq name="$vo['target']" value="1"} checked="checked" {/eq} title="在新窗口打开" />新窗口
+                                                </a>
+                                                <a href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']})">
+                                                    <i class="fa fa-file-code-o"></i>标签调用
+                                                </a>
+                                                <a href="javascript:void(0)" onclick="ClearPicArr(this,'{$vo['litpic']}')">
+                                                    <i class="fa fa-remove"></i>删除
+                                                </a>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    {/volist}
+                                    <!--
+                                    <div class="images_upload" style="display:inline-block;">
+                                        <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="upimg">
+                                        <i class="fa fa-upload"></i>
+                                        上传
+                                        </a>
+                                        <br/>
+                                        <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                    </div>
+                                    -->
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 上传图片显示的样板 start -->
+                    <div class="images_upload_tpl none">
+                        <div class="images_upload ic">
+                            <div class="ic">
+                            <input type="hidden" name="imgupload[]" value="" />
+                            <a href="javascript:void(0);" onClick="" class="upimg">
+                                <img src="__STATIC__/admin/images/add-button.jpg" />
+                            </a>
+                            <span class="span_input">
+                                <input type="hidden"/>
+                            </span>
+                            <textarea placeholder="请输入标题..."></textarea>
+                            <textarea placeholder="请输入链接网址..."></textarea>
+                            <div class="operation">
+                                <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                <!-- <a href="javascript:void(0)">&nbsp;&nbsp;</a> -->
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 上传图片显示的样板 end -->
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="height">广告位高度</label>
-                </dt>
-                <dd class="opt">
-                    <input type="text" name="height" value="{$field.height}" id="height" class="input-txt"> px
-                    <span class="err"></span>
-                    <p class="notic"></p>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label>描述</label>
+                    <label>广告备注</label>
                 </dt>
                 <dd class="opt">          
                     <textarea rows="5" cols="60" id="intro" name="intro" style="height:60px;">{$field.intro}</textarea>
@@ -71,6 +132,86 @@
         layer_loading('正在处理');
         $('#post_form').submit();
     }
+
+    // 上传图集相册回调函数
+    function imgupload_call_back(paths){
+        console.log(paths);
+        var last_div    = $(".images_upload_tpl").html();
+        var span_inputs = $('.span_input input');
+
+        for (var i=0;i<paths.length ;i++){
+            $(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
+            $(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
+            $(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
+
+            // 处理图片路径
+            if (span_inputs.length > '0') {
+                $(".span_input:eq(0)").find('input:eq(0)').attr('name','img_litpic'+'['+span_inputs.length+']'+'[litpic]');
+                $(".span_input:eq(0)").find('input:eq(0)').attr('value',paths[i]);
+                // 处理标题
+                $(".images_upload:eq(0)").find('textarea:eq(0)').attr('name','img_title'+'['+span_inputs.length+']'+'[title]');
+                // 处理跳转链接
+                $(".images_upload:eq(0)").find('textarea:eq(1)').attr('name','img_links'+'['+span_inputs.length+']'+'[links]');
+                var name = 'img_target'+'['+span_inputs.length+']'+'[target]';
+                // 处理新窗口选项
+                $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<input type=\"checkbox\" name=\""+name+"\" title=\"在新窗口打开\" />新窗口");
+
+                // 处理标签调用
+                // $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"copyToClipBoard()").html("<i class=\"fa fa-file-code-o\"></i>标签调用");
+
+                // 处理删除
+                $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"ClearPicArr(this,'"+paths[i]+"')").html("<i class=\"fa fa-remove\"></i>删除");
+
+                span_inputs.length++;
+            }
+        }
+    }
+
+    // 上传之后删除组图input
+    function ClearPicArr(obj,path)
+    {
+        // 删除数据库记录
+        $.ajax({
+            type:'GET',
+            url:"{:url('AdPosition/del_imgupload')}",
+            data:{filename:path},
+            success:function(){
+                $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片   
+                $.ajax({
+                    type:'GET',
+                    url:"{:url('Uploadify/delupload')}",
+                    data:{action:"del", filename:path},
+                    success:function(){}
+                }); 
+            }
+        });
+    }
+
+    // 代码调用js
+    function copyToClipBoard(id) {
+        var adstr = "{eyou:ad aid='" + id + "'}\r\n   <a href='{$"+"field.links}' {$"+"field.target}><img src='{$"+"field.litpic}' alt='{$"+"field.title}' /></a>\r\n{/eyou:ad";
+        var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px"><dd>标签 ad 调用:</dd>'
+        contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:80px;">' + adstr + '}</textarea>'
+        contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将对应标签代码复制并粘贴到对应模板文件中！</dd></dl></div>'
+        layer.open({
+            title: '代码调用',
+            type: 1,
+            skin: 'layui-layer-demo',
+            area: ['480px', '240px'], //宽高
+            content: contentdiv
+        });
+    }
+
+    // 图集相册的拖动排序相关 js
+    $( ".sort-list" ).sortable({
+        start: function( event, ui) {
+        
+        }
+        ,stop: function( event, ui ) {
+
+        }
+    });
+    $( ".sort-list" ).disableSelection();
 </script>
 
 {include file="public/footer" /}

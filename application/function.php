@@ -39,7 +39,22 @@ if (!function_exists('func_encrypt'))
      * @return array
      */
     function func_encrypt($str){
-        return md5(config("AUTH_CODE").$str);
+        $auth_code = tpCache('system.system_auth_code');
+        if (empty($auth_code)) {
+            $auth_code = \think\Config::get('AUTH_CODE');
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('system', ['system_auth_code'=>$auth_code], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('system', ['system_auth_code'=>$auth_code]);
+            }
+            /*--end*/
+        }
+
+        return md5($auth_code.$str);
     }
 }
    
@@ -937,7 +952,8 @@ if (!function_exists('is_http_url'))
      */
     function is_http_url($url)
     {
-        preg_match("/^(http:\/\/|https:\/\/|\/\/).*$/", $url, $match);
+        // preg_match("/^(http:|https:|ftp:|svn:)?(\/\/).*$/", $url, $match);
+        preg_match("/^((\w)*:)?(\/\/).*$/", $url, $match);
         if (empty($match)) {
             return false;
         } else {
@@ -1968,3 +1984,62 @@ if (!function_exists('GetDatabaseData'))
         return $data;
     }
 }
+
+if (!function_exists('read_bidden_inc')) 
+{
+    /**
+     * 读取被禁止外部访问的配置文件
+     * 
+     */
+    function read_bidden_inc($phpfilepath = '')
+    {
+        $data = @file($phpfilepath);
+        if ($data) {
+            $data = !empty($data[1]) ? json_decode($data[1]) : [];
+        }
+        return $data;
+    }
+}
+
+if (!function_exists('write_bidden_inc')) 
+{
+    /**
+     * 写入被禁止外部访问的配置文件
+     */
+    function write_bidden_inc($arr = array(), $phpfilepath)
+    {
+        $r = tp_mkdir(dirname($phpfilepath));
+        if ($r) {
+            $setting = "<?php die('forbidden'); ?>\n";
+            $setting .= json_encode($arr);
+            $setting = str_replace("\/", "/",$setting);
+            $incFile = fopen($phpfilepath, "w+");
+            if (fwrite($incFile, $setting)) {
+                fclose($incFile);
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+}
+
+// if (!function_exists('get_auth_code')) 
+// {
+//     /**
+//      * 密码加密串
+//      */
+//     function get_auth_code()
+//     {
+//         $auth_code = \think\Config::get('AUTH_CODE');
+//         $filepath = DATA_PATH.'conf/authcode.php';
+//         if(file_exists($filepath)) {
+//             $data = (array)read_bidden_inc($filepath);
+//             $auth_code = !empty($data['auth_code']) ? $data['auth_code'] : $auth_code;
+//         } else {
+//             write_bidden_inc(['auth_code'=>$auth_code], $filepath);
+//         }
+
+//         return $auth_code;
+//     }
+// }

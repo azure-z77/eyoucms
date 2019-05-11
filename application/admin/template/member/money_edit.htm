@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow-y: scroll;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -162,6 +162,7 @@
             var msg = '确定要标记订单为已付款？';
         }
         layer.confirm(msg, {
+            title: false,
             btn: ['确定','取消']
         },function(){
             $('#status_name').val(status_name);

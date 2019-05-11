@@ -51,11 +51,11 @@
                 <dd class="opt">
                     <select class="small form-control" id="current_channel" name="current_channel" onchange="ajax_get_template();">
                         {volist name="channeltype_list" id="vo"}
-                        <option value="{$vo.id}" {eq name="$field['current_channel']" value="$vo.id"}selected="true"{/eq}>{$vo.title}</option>
+                        <option value="{$vo.id}" data-nid="{$vo.nid}" {eq name="$field['current_channel']" value="$vo.id"}selected="true"{/eq}>{$vo.title}</option>
                         {/volist}
                     </select>
                     <span class="err"></span>
-                    <p class="notic"></p>
+                    <p class="" id="notic_current_channel"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -78,7 +78,7 @@
             <input type="hidden" name="channeltype" id="channeltype" value="{$field.channeltype|default=''}" />
             <dl class="row none" id="row_url">
                 <dt class="tit">
-                    <label for="dirpath"><em>*</em>文件保存目录</label>
+                    <label for="dirpath">文件保存目录</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" value="{$field.dirpath|default=$predirpath}" name="dirpath" id="dirpath" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9a-zA-Z\/-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z\/-]/g,''));">&nbsp;<a href="javascript:void(0);" onclick="get_dirpinyin(this);" id="getpinyin" class="ncap-btn ncap-btn-green">获取拼音</a>
@@ -178,7 +178,8 @@
                     <select name="templist" id="templist">
                     </select>
                     <span class="err"></span>
-                    <p class="notic">请选择内容模型，才能自动关联模板文件</p>
+                    <p class="notic">模板命名规则：<br/>lists_<font class="font_nid">模型标识</font>.html<br/>lists_<font class="font_nid">模型标识</font>_自定义.html</p>
+                    &nbsp;<a href="javascript:void(0);" onclick="newtpl('lists');" class="ncap-btn ncap-btn-green">新建模板</a>
                 </dd>
             </dl>
             <dl class="row" id="dl_tempview">
@@ -189,7 +190,8 @@
                     <select name="tempview" id="tempview">
                     </select>
                     <span class="err"></span>
-                    <p class="notic">请选择内容模型，才能自动关联模板文件</p>
+                    <p class="notic">模板命名规则：<br/>view_<font class="font_nid">模型标识</font>.html<br/>view_<font class="font_nid">模型标识</font>_自定义.html</p>
+                    &nbsp;<a href="javascript:void(0);" onclick="newtpl('view');" class="ncap-btn ncap-btn-green">新建模板</a>
                 </dd>
             </dl>
             <dl class="row">
@@ -235,6 +237,9 @@
     </form>
 </div>
 <script type="text/javascript">
+
+    var templateList = {$templateList|json_encode};
+
     $(document).ready(function(){    
         //选项卡切换列表
         $('.tab-base').find('.tab').click(function(){
@@ -264,11 +269,27 @@
         var obj = $('#current_channel');
         var channel = parseInt($(obj).val());
         var js_allow_channel_arr = {$js_allow_channel_arr};
-        var templateList = {$templateList|json_encode};
+        $('#notic_current_channel').html('');
+
+        // 重新定义模板变量，专用于新建模板功能
+        $.ajax({
+            url: "{:url('Arctype/ajax_getTemplateList')}",
+            type: 'GET',
+            dataType: 'JSON',
+            data: {},
+            success: function(res){
+                if (res.code == 1) {
+                    templateList = res.data.templateList;
+                }
+            }
+        });
+        // end
 
         if (templateList[channel] == undefined || templateList[channel] == '') {
             showErrorMsg('模板文件不存在！');
             return false;
+        } else if (templateList[channel]['msg'] != '') {
+            $('#notic_current_channel').html(templateList[channel]['msg']);
         }
 
         $('#templist').html(templateList[channel]['lists']);
@@ -284,6 +305,8 @@
             $('#dl_tempview').show();
         }
         $('#tempview').html(templateList[channel]['view']);
+
+        $('.font_nid').html(templateList[channel]['nid']);
         
         return false;
     }
@@ -358,11 +381,6 @@
             $('input[name=typename]').focus();
             return false;
         }
-        if($('input[name="dirpath"]').val() == ''){
-            showErrorMsg('文件保存目录不能为空！');
-            $('input[name=dirpath]').focus();
-            return false;
-        }
         if ($('input[name=is_part]:checked').val() == 1) {
             if($('input[name=typelink]').val() == ''){
                 showErrorMsg('外部链接不能为空！');
@@ -378,6 +396,12 @@
             return false;
         }
         if($('#templist').val() == ''){
+            $('.tab-base').find('.tab').each(function(){
+                $(this).removeClass('current');
+            });
+            $($('.tab-base').find('.tab').get(1)).addClass('current');
+            $('.tab_div_1').hide();
+            $('.tab_div_2').show();
             showErrorMsg('请选择列表模板');
             $('#templist').focus();
             return false;
@@ -386,6 +410,12 @@
         var channel = parseInt($('#current_channel').val());
         var js_allow_channel_arr = {$js_allow_channel_arr};
         if($('#tempview').val() == '' && $.inArray(channel, js_allow_channel_arr) != -1){
+            $('.tab-base').find('.tab').each(function(){
+                $(this).removeClass('current');
+            });
+            $($('.tab-base').find('.tab').get(1)).addClass('current');
+            $('.tab_div_1').hide();
+            $('.tab_div_2').show();
             showErrorMsg('请选择文档模板');
             $('#tempview').focus();
             return false;
@@ -431,6 +461,35 @@
       $("#litpic_local").val(fileurl_tmp);
       $("#img_a").attr('href', fileurl_tmp);
       $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+    }
+
+    function newtpl(type)
+    {
+        var nid = $('#current_channel').find('option:selected').attr('data-nid');
+        var url = "{:url('Arctype/ajax_newtpl')}";
+        if (url.indexOf('?') > -1) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'type='+type+'&nid='+nid;
+
+        if ('lists' == type) {
+            var title = '新建列表模板';
+        } else {
+            var title = '新建文档模板';
+        }
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: title,
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['90%', '90%'],
+            content: url
+        });
     }
 </script>
 

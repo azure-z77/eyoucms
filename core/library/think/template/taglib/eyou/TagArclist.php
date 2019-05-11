@@ -295,7 +295,7 @@ class TagArclist extends Base
                     } else {
                         $val['is_litpic'] = 1; // 有封面图
                     }
-                    $val['litpic'] = get_default_pic($val['litpic']); // 默认封面图
+                    $val['litpic'] = thumb_img(get_default_pic($val['litpic'])); // 默认封面图
                     /*--end*/
 
                     $result[$key] = $val;

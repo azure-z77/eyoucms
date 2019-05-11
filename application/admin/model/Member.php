@@ -95,6 +95,7 @@ class Member extends Model
             if (isset($post_users[$value['name']])) {
                 $where_2 = [
                     'para_id'  => ['EQ', $value['para_id']],
+                    'info'     => trim($post_users[$value['name']]),
                     'users_id' => ['NEQ', $users_id],
                     'lang'     => $this->admin_lang,
                 ];
@@ -103,7 +104,7 @@ class Member extends Model
                 if (empty($users_id)) { unset($where_2['users_id']); }
 
                 $users_list = M('users_list')->where($where_2)->field('info')->find();
-                if (!empty($users_list['info']) && trim($post_users[$value['name']]) == trim($users_list['info'])) {
+                if (!empty($users_list['info'])) {
                     return $value['title'].'已存在！';
                 }
             }

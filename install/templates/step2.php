@@ -7,7 +7,9 @@
 <meta http-equiv="Content-Language" content="zh-cn"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 <title><?php echo $Title; ?> - <?php echo $Powered; ?></title>
-<link rel="stylesheet" href="./css/install.css?v=9.0" />
+<link rel="stylesheet" href="./css/install.css?v=v1.3.1" />
+<script src="./js/jquery.js?v=v1.3.1"></script> 
+<script src="./../public/plugins/layer-v3.1.0/layer.js?v=v1.3.1"></script> 
 <style type="text/css">
 .btn_a{ width: 58px; }
 #table td{ text-align: center; }
@@ -135,7 +137,7 @@
       <center>
         <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=2" class="btn_b">重新检测</a>
         <?php if($err>0){?>
-        <a href="javascript:void(0)" onClick="javascript:alert('安装环境检测未通过，请检查')" class="btn_a" style="background: gray;">下一步</a> 
+        <a href="javascript:void(0)" onClick="javascript:layer.alert('安装环境检测未通过，请检查', {icon: 5})" class="btn_a" style="background: gray;">下一步</a> 
         <?php }else{?>
         <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=3" class="btn_a">下一步</a> 
         <?php }?>

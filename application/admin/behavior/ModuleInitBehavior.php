@@ -34,7 +34,8 @@ class ModuleInitBehavior {
     private function _initialize() {
         $this->setChanneltypeStatus();
         $this->update_databasefile();
-        $this->checkInlet();
+        // $this->iisInlet();
+        // $this->checkInlet();
     }
 
     /**
@@ -144,7 +145,9 @@ EOF;
         $ctlActStr = self::$controllerName.'@'.self::$actionName;
         $cacheKey = 'admin_ModuleInitBehavior_isset_checkInlet';
         $cacheVal = cache($cacheKey);
-        if (!in_array($ctlActStr, $ctlActArr) || !empty($cacheVal)) {
+        if ('POST' == self::$method && 'System@clear_cache' == $ctlActStr) {
+
+        } else if (!in_array($ctlActStr, $ctlActArr) || !empty($cacheVal)) {
             return true;
         }
         cache($cacheKey, 1);
@@ -155,20 +158,26 @@ EOF;
         /*检测是否支持URL重写隐藏应用的入口文件index.php*/
         try {
             $response = false;
-            $url = request()->domain().ROOT_DIR.'/api/Rewrite/testing.html';
-            $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
-            $response = @file_get_contents($url,false,$context);
 
-            if (false == $response) {
-                $ch = curl_init($url);            
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 3); // 设置cURL允许执行的最长秒数
-                $response = curl_exec ($ch);
-                curl_close ($ch);
+            $seo_force_inlet = tpCache('seo.seo_force_inlet');
+            if (1 == $seo_force_inlet) {
+                $response = 'Congratulations on passing';
+            } else {
+                $url = request()->domain().ROOT_DIR.'/api/Rewrite/testing.html';
+                $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+                $response = @file_get_contents($url,false,$context);
+
+                if (false == $response) {
+                    $ch = curl_init($url);            
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 3); // 设置cURL允许执行的最长秒数
+                    $response = curl_exec ($ch);
+                    curl_close ($ch);
+                }
             }
 
-            if ('ok' == $response) {
+            if ('Congratulations on passing' == $response) {
                 $now_seo_inlet = 1;
             } else if (!empty($response) && !stristr($response, 'not found')) {
                 /*解决部分空间file_get_contents获取不到自身网址数据的问题*/

@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow-y: scroll;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -8,7 +8,7 @@
     <div class="fixed-bar">
         <div class="item-title"><a class="back" href="{$backurl}" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
             <div class="subject">
-                <h3>会员管理 - 编辑用户</h3>
+                <h3>会员中心 - 编辑用户</h3>
                 <h5></h5>
             </div>
         </div>
@@ -59,7 +59,7 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            {if condition="1 == $config.pay_open"}
+            {if condition="1 == $userConfig.pay_open"}
             <dl class="row">
                 <dt class="tit">
                     <label for="users_money">账户余额</label>

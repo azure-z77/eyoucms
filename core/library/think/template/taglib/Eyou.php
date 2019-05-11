@@ -56,11 +56,11 @@ class Eyou extends Taglib
         'ad'         => ['attr' => 'aid,id', 'close'=>1], 
         'adv'        => ['attr' => 'pid,row,order,where,id,empty,key,mod,currentstyle', 'close'=>1],  
         'global'     => ['attr' => 'name', 'close' => 0],
-        'static'     => ['attr' => 'file,lang,href', 'close' => 0], 
+        'static'     => ['attr' => 'file,lang,href,code', 'close' => 0], 
         'prenext'    => ['attr' => 'get,titlelen,id,empty'],
         'field'      => ['attr' => 'name,addfields,aid', 'close' => 0], 
         'searchurl'  => ['attr' => '', 'close' => 0],
-        'searchform' => ['attr' => 'channel,typeid,type,empty,id,mod,key', 'close'=>1], 
+        'searchform' => ['attr' => 'channel,typeid,notypeid,flag,noflag,type,empty,id,mod,key', 'close'=>1], 
         'tag'        => ['attr' => 'aid,name,row,id,key,mod,typeid,getall,sort,empty,style'],
         'flink'      => ['attr' => 'type,row,id,key,mod,titlelen,empty,limit'],
         'language'   => ['attr' => 'type,row,id,key,mod,titlelen,empty,limit,currentstyle'], 
@@ -86,8 +86,29 @@ class Eyou extends Taglib
         'diyfield'   => ['attr' => 'name,id,key,mod,type,empty,limit'],
         'attribute'  => ['attr' => 'aid,type,empty,id,mod,key'],
         'attr'       => ['attr' => 'aid,name', 'close' => 0],
-        'user'       => ['attr' => 'type,id,key,mod,empty,currentstyle,img'],
+        'user'       => ['attr' => 'type,id,key,mod,empty,currentstyle,img,txt,txtid'],
         'weapplist'  => ['attr' => 'type,id,key,mod,empty,currentstyle'], // 网站应用插件列表
+        'usermenu'   => ['attr' => 'row,id,empty,key,mod,currentstyle,limit'], 
+        // 购物行为标签
+        'sppurchase' => ['attr' => 'row,id,key,mod,empty'],
+        // 购物车大标签
+        'spcart'     => ['attr' => 'row,id,key,mod,empty,limit'],
+        // 订单明细大标签
+        'sporder'    => ['attr' => 'row,id,key,mod,empty,limit'],
+        // 订单提交大标签
+        'spsubmitorder'=> ['attr' => 'row,id,key,mod,empty,limit'],
+        // 订单管理页大标签
+        'sporderlist'=> ['attr' => 'row,id,key,mod,empty,limit,pagesize'],
+        // 地址标签
+        'spaddress'  => ['attr' => 'type,row,id,key,mod,empty,limit'],
+        // 订单产品标签
+        'spordergoods'=> ['attr' => 'row,id,key,mod,empty,limit,name,titlelen'],
+        // 订单状态标签
+        'spstatus'   => ['attr' => 'row,id,key,mod,empty,limit'],
+        // 订单管理页，分页标签
+        'sppageorder'  => ['attr' => 'listitem,listsize', 'close' => 0],
+        // 订单管理页搜索标签
+        'spsearch' => ['attr' => 'empty,id,mod,key'],
     ];
 
     /**
@@ -399,12 +420,13 @@ class Eyou extends Taglib
         $href = $this->varOrvalue($href);
         $lang = !empty($tag['lang']) ? $tag['lang'] : '';
         $lang = $this->varOrvalue($lang);
+        $code = !empty($tag['code']) ? $tag['code'] : '';
 
         $parseStr = '<?php ';
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagStatic = new \think\template\taglib\eyou\TagStatic;';
-        $parseStr .= ' $__VALUE__ = $tagStatic->getStatic('.$file.','.$lang.','.$href.');';
+        $parseStr .= ' $__VALUE__ = $tagStatic->getStatic('.$file.','.$lang.','.$href.',"'.$code.'");';
         $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
@@ -915,6 +937,12 @@ class Eyou extends Taglib
         $channel  = $this->varOrvalue($channel);
         $typeid   = !empty($tag['typeid']) ? $tag['typeid'] : '';
         $typeid  = $this->varOrvalue($typeid);
+        $notypeid   = !empty($tag['notypeid']) ? $tag['notypeid'] : '';
+        $notypeid  = $this->varOrvalue($notypeid);
+        $flag   = !empty($tag['flag']) ? $tag['flag'] : '';
+        $flag  = $this->varOrvalue($flag);
+        $noflag   = !empty($tag['noflag']) ? $tag['noflag'] : '';
+        $noflag  = $this->varOrvalue($noflag);
         $type   = !empty($tag['type']) ? $tag['type'] : 'default';
         $id     = isset($tag['id']) ? $tag['id'] : 'field';
         $key    = !empty($tag['key']) ? $tag['key'] : 'i';
@@ -926,7 +954,7 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagSearchform = new \think\template\taglib\eyou\TagSearchform;';
-        $parseStr .= ' $_result = $tagSearchform->getSearchform('.$typeid.','.$channel.');';
+        $parseStr .= ' $_result = $tagSearchform->getSearchform('.$typeid.','.$channel.','.$notypeid.','.$flag.','.$noflag.');';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         $parseStr .= ' $__LIST__ = $_result;';
 
@@ -2356,12 +2384,13 @@ class Eyou extends Taglib
         $key     = isset($tag['key']) ? $tag['key'] : 'i';
         $txt  =  !empty($tag['txt']) ? $tag['txt'] : '';
         $txt  = $this->varOrvalue($txt);
+        $txtid  =  !empty($tag['txtid']) ? $tag['txtid'] : '';
         $img  =  !empty($tag['img']) ? $tag['img'] : 'off';
         $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
 
         $parseStr = '<?php ';
         $parseStr .= ' $tagUser = new \think\template\taglib\eyou\TagUser;';
-        $parseStr .= ' $__LIST__ = $tagUser->getUser("'.$type.'", "'.$img.'", "'.$currentstyle.'");';
+        $parseStr .= ' $__LIST__ = $tagUser->getUser("'.$type.'", "'.$img.'", "'.$currentstyle.'", '.$txt.', "'.$txtid.'");';
         $parseStr .= '?>';
 
         $parseStr .= '<?php if(!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty())): ?>';
@@ -2410,6 +2439,500 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
 
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * usermenu 会员左侧菜单
+     * 格式：
+     * {eyou:usermenu currentstyle=''}
+     *  <a href="{$field:url}">{$field:title}</a>
+     * {/eyou:usermenu}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string
+     */
+    public function tagUsermenu($tag, $content)
+    {
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
+        $row = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit   = !empty($tag['limit']) ? $tag['limit'] : '';
+        if (empty($limit) && !empty($row)) {
+            $limit = "0,{$row}";
+        }
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagUsermenu = new \think\template\taglib\eyou\TagUsermenu;';
+        $parseStr .= ' $_result = $tagUsermenu->getUsermenu("'.$currentstyle.'", "'.$limit.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * sppurchase 标签解析
+     * 在模板中获取会员登录入口
+     * 格式：
+     * {eyou:sppurchase id='field'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:sppurchase}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagSppurchase($tag, $content)
+    {
+        $type  =  !empty($tag['type']) ? $tag['type'] : 'default';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key     = isset($tag['key']) ? $tag['key'] : 'i';
+        $txt  =  !empty($tag['txt']) ? $tag['txt'] : '';
+        $txt  = $this->varOrvalue($txt);
+        $img  =  !empty($tag['img']) ? $tag['img'] : 'off';
+        $currentstyle   = !empty($tag['currentstyle']) ? $tag['currentstyle'] : '';
+
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagSppurchase = new \think\template\taglib\eyou\TagSppurchase;';
+        $parseStr .= ' $__LIST__ = $tagSppurchase->getSppurchase();';
+        $parseStr .= '?>';
+
+        $parseStr .= '<?php if(!empty($__LIST__) || (($__LIST__ instanceof \think\Collection || $__LIST__ instanceof \think\Paginator ) && $__LIST__->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * spcart 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:spcart row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:spcart}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSpcart($tag, $content)
+    {
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit  = !empty($tag['limit']) ? $tag['limit'] : '';
+        if (empty($limit) && !empty($row)) {
+            $limit = "0,{$row}";
+        }
+
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagSpcart = new \think\template\taglib\eyou\TagSpcart;';
+        $parseStr .= ' $_result = $tagSpcart->getSpcart("'.$limit.'");';
+        $parseStr .= '?>';
+
+        $parseStr .= '<?php if(!empty($_result["list"]) || (($_result["list"] instanceof \think\Collection || $_result["list"] instanceof \think\Paginator ) && $_result["list"]->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = $_result["list"]; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+        
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * sporder 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:sporder row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:sporder}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSporder($tag, $content)
+    {
+        $name   = isset($tag['name']) ? $tag['name'] : '';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit  = !empty($tag['limit']) ? $tag['limit'] : '';
+        $order_id  = !empty($tag['order_id']) ? $tag['order_id'] : '';
+        $order_id  = $this->varOrvalue($order_id);
+
+        // 查询数据库获取的数据集
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagSporder = new \think\template\taglib\eyou\TagSporder;';
+        $parseStr .= ' $_result = $tagSporder->getSporder('.$order_id.');';
+        $parseStr .= '?>';
+
+        // 赋值数据
+        $parseStr .= '<?php if(!empty($_result["OrderData"]) || (($_result["OrderData"] instanceof \think\Collection || $_result["OrderData"] instanceof \think\Paginator ) && $_result["OrderData"]->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result["OrderData"]; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = $_result["DetailsData"]; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * spsubmitorder 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:spsubmitorder row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:spsubmitorder}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSpsubmitorder($tag, $content)
+    {
+        $name   = isset($tag['name']) ? $tag['name'] : '';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit  = !empty($tag['limit']) ? $tag['limit'] : '';
+
+        // 查询数据库获取的数据集
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagSpsubmitorder = new \think\template\taglib\eyou\TagSpsubmitorder;';
+        $parseStr .= ' $_result = $tagSpsubmitorder->getSpsubmitorder();';
+        $parseStr .= '?>';
+
+        // 赋值数据
+        $parseStr .= '<?php if(!empty($_result["data"]) || (($_result["data"] instanceof \think\Collection || $_result["data"] instanceof \think\Paginator ) && $_result["data"]->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result["data"]; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = $_result["list"]; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * sporderlist 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:sporderlist row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:sporderlist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSporderlist($tag, $content)
+    {
+        $name   = isset($tag['name']) ? $tag['name'] : '';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit  = !empty($tag['limit']) ? $tag['limit'] : '';
+        $pagesize = !empty($tag['pagesize']) && is_numeric($tag['pagesize']) ? intval($tag['pagesize']) : 10;
+        if (empty($limit) && !empty($row)) {
+            $limit = "0,{$row}";
+        }
+
+        $parseStr = '<?php ';
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSporderlist = new \think\template\taglib\eyou\TagSporderlist;';
+        $parseStr .= ' $_result = $tagSporderlist->getSporderlist("'.$pagesize.'");';
+
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result["list"];';
+        $parseStr .= ' $__PAGES_ORDER__ = $_result["pages"];';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        // 遍及数据
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= ' $__SHOPCART_LIST__ = $' . $id . '["details"];';
+        $parseStr .= ' $mod = ($e % ' . $mod . ' );';
+        $parseStr .= ' $' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * sppageorder 标签解析
+     * 在模板中获取列表的分页
+     * 格式： {eyou:sppageorder listitem='info,index,end,pre,next,pageno' listsize='2'/}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagSppageorder($tag)
+    {
+        $listitem  = !empty($tag['listitem']) ? $tag['listitem'] : '';
+        $listsize  = !empty($tag['listsize']) ? intval($tag['listsize']) : '';
+
+        $parseStr  = ' <?php ';
+        $parseStr .= ' $__PAGES_ORDER__ = isset($__PAGES_ORDER__) ? $__PAGES_ORDER__ : "";';
+        $parseStr .= ' $tagPagelist = new \think\template\taglib\eyou\TagPagelist;';
+        $parseStr .= ' $__VALUE__ = $tagPagelist->getPagelist($__PAGES_ORDER__, "'.$listitem.'", "'.$listsize.'");';
+        $parseStr .= ' echo $__VALUE__;';
+        $parseStr .= ' ?>';
+
+        return $parseStr;
+    }
+
+    /**
+     * spordergoods 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:spordergoods row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:spordergoods}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSpordergoods($tag, $content)
+    {
+        $name   = isset($tag['name']) ? $tag['name'] : '';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row = !empty($tag['row']) ? intval($tag['row']) : 0;
+        // $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
+        $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
+        $row = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 10;
+        if (!empty($tag['limit'])) {
+            $limitArr = explode(',', $tag['limit']);
+            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
+            $row = !empty($limitArr[1]) ? intval($limitArr[1]) : 0;
+        }
+
+        $parseStr = '<?php ';
+
+        if ($name) { // 从模板中传入数据集
+            $symbol     = substr($name, 0, 1);
+            if (':' == $symbol) {
+                $name = $this->autoBuildVar($name);
+                $parseStr .= '$_result=' . $name . ';';
+                $name = '$_result';
+            } else {
+                $name = $this->autoBuildVar($name);
+            }
+
+            $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+            // 设置了输出数组长度
+            if (0 != $offset || 'null' != $row) {
+                $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $row . ', true) : ' . $name . '->slice(' . $offset . ',' . $row . ', true); ';
+            } else {
+                $parseStr .= ' $__LIST__ = ' . $name . ';';
+            }
+
+        } else { // 查询数据库获取的数据集
+            $parseStr .= ' if(isset($__SHOPCART_LIST__) && !empty($__SHOPCART_LIST__)) : $_result = $__SHOPCART_LIST__; else : $_result = []; endif;';
+            $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+            // 设置了输出数组长度
+            if (0 != $offset || 'null' != $row) {
+                $parseStr .= '$__LIST__ = is_array($_result) ? array_slice($_result,' . $offset . ',' . $row . ', true) : $_result->slice(' . $offset . ',' . $row . ', true); ';
+            } else {
+                $parseStr .= ' $__LIST__ = $_result;';
+            }
+        }
+
+        // 查询数据库获取的数据集
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        // $parseStr .= '$' . $id . '["title"] = text_msubstr($' . $id . '["title"], 0, '.$titlelen.', false);';
+        $parseStr .= ' $__LIST__[$key] = $_result[$key] = $' . $id . ';';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * spaddress 标签解析 TAG调用
+     * 格式：sort:排序方式 month，rand，week
+     *       getall:获取类型 0 为当前内容页TAG标记，1为获取全部TAG标记
+     * {eyou:spaddress row='1' titlelen='20'}
+     *  <li><a href='{$field:url}'>{$field:title}</a> </li> 
+     * {/eyou:spaddress}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSpaddress($tag, $content)
+    {
+        $name   = isset($tag['name']) ? $tag['name'] : '';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $limit  = !empty($tag['limit']) ? $tag['limit'] : '';
+        $type   = !empty($tag['type']) ? $tag['type'] : 'data';
+
+        $parseStr = '<?php ';
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSpaddress = new \think\template\taglib\eyou\TagSpaddress;';
+        $parseStr .= ' $_result = $tagSpaddress->getSpaddress("'.$type.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        // 遍及数据
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+
+    /**
+     * spsearch 订单搜索标签解析 TAG调用
+     * {eyou:spsearch id='field'}
+        {$field.searchurl}
+     * {/eyou:spsearch}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSpsearch($tag, $content)
+    {
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSpsearch = new \think\template\taglib\eyou\TagSpsearch;';
+        $parseStr .= ' $_result = $tagSpsearch->getSpsearch();';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach;';
+        $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * spstatus 
+     * 格式：
+     * {eyou:spstatus }
+     *  <em>{$field3.PendingPayment}</em> 
+     * {/eyou:spstatus}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     */
+    public function tagSpstatus($tag, $content)
+    {
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $row    = !empty($tag['row']) ? intval($tag['row']) : 0;
+
+        $parseStr = '<?php ';
+        $parseStr .= ' $tagSporderlist = new \think\template\taglib\eyou\TagSporderlist;';
+        $parseStr .= ' $_result = $tagSporderlist->getSpstatus();';
+        $parseStr .= '?>';
+
+        $parseStr .= '<?php if(!empty($_result) || (($_result instanceof \think\Collection || $_result instanceof \think\Paginator ) && $_result->isEmpty())): ?>';
+        $parseStr .= '<?php $'.$id.' = $_result; ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; ?>';
+        
         if (!empty($parseStr)) {
             return $parseStr;
         }

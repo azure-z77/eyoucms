@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color: #FFF; overflow-y: scroll;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -87,17 +87,17 @@
 
     function check_form(){
         if($('input[name="sms_appkey"]').val() == ''){
-            layer.alert("请填写短信平台[appkey]！",{icon:2});
+            layer.alert("请填写短信平台[appkey]！",{icon:2, title:false});
             flag = false;
             return;
         }
         if($('input[name="sms_secretKey"]').val() == ''){
-            layer.alert("请填写短信平台[secretKey]！",{icon:2});
+            layer.alert("请填写短信平台[secretKey]！",{icon:2, title:false});
             flag = false;
             return;
         }
         if($('input[name="sms_product"]').val() == ''){
-            layer.alert("请填写公司名/品牌名/产品名！",{icon:2});
+            layer.alert("请填写公司名/品牌名/产品名！",{icon:2, title:false});
             flag = false;
             return;
         }
@@ -106,7 +106,7 @@
     function sendMobile() {
         var mobile = $('#test_mobile').val();
         if (mobile == '') {
-            layer.alert("请填写正确的测试手机号码！",{icon:2});
+            layer.alert("请填写正确的测试手机号码！",{icon:2, title:false});
             return;
         } else {
             var loading = layer_loading('发送中');

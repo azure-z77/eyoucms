@@ -8,7 +8,7 @@ return array(
     ),
     // 操作开始执行
     'action_begin' => array(
-        'think\\behavior\\admin\\WeappBehavior',
+        'think\\behavior\\admin\\ActionBeginBehavior',
     ),
     // 视图内容过滤
     'view_filter'  => array(),

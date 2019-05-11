@@ -41,7 +41,12 @@ if (!function_exists('tpCache'))
      * @return array or string or bool
      */
     function tpCache($config_key,$data = array(), $lang = '', $options = null){
+        $tableName = 'config';
+        $table_db = \think\Db::name($tableName);
+
         $param = explode('.', $config_key);
+        $cache_inc_type = $tableName.$param[0];
+        // $cache_inc_type = $param[0];
         $lang = !empty($lang) ? $lang : get_current_lang();
         if (empty($options)) {
             $options['path'] = CACHE_PATH.$lang.DS;
@@ -49,17 +54,17 @@ if (!function_exists('tpCache'))
         if(empty($data)){
             //如$config_key=shop_info则获取网站信息数组
             //如$config_key=shop_info.logo则获取网站logo字符串
-            $config = cache($param[0],'',$options);//直接获取缓存文件
+            $config = cache($cache_inc_type,'',$options);//直接获取缓存文件
             if(empty($config)){
                 //缓存文件不存在就读取数据库
                 if ($param[0] == 'global') {
                     $param[0] = 'global';
-                    $res = M('config')->where([
+                    $res = $table_db->where([
                         'lang'  => $lang,
                         'is_del'    => 0,
                     ])->select();
                 } else {
-                    $res = M('config')->where([
+                    $res = $table_db->where([
                         'inc_type'  => $param[0],
                         'lang'  => $lang,
                         'is_del'    => 0,
@@ -69,7 +74,7 @@ if (!function_exists('tpCache'))
                     foreach($res as $k=>$val){
                         $config[$val['name']] = $val['value'];
                     }
-                    cache($param[0],$config,$options);
+                    cache($cache_inc_type,$config,$options);
                 }
                 // write_global_params($lang, $options);
             }
@@ -81,7 +86,7 @@ if (!function_exists('tpCache'))
             }
         }else{
             //更新缓存
-            $result =  M('config')->where([
+            $result =  $table_db->where([
                 'inc_type'  => $param[0],
                 'lang'  => $lang,
                 'is_del'    => 0,
@@ -104,7 +109,7 @@ if (!function_exists('tpCache'))
                         array_push($add_data, $newArr); //新key数据插入数据库
                     }else{
                         if ($v != $temp[$newK]) {
-                            M('config')->where([
+                            $table_db->where([
                                 'name'  => $newK,
                                 'lang'  => $lang,
                             ])->save($newArr);//缓存key存在且值有变更新此项
@@ -112,10 +117,10 @@ if (!function_exists('tpCache'))
                     }
                 }
                 if (!empty($add_data)) {
-                    M('config')->insertAll($add_data);
+                    $table_db->insertAll($add_data);
                 }
                 //更新后的数据库记录
-                $newRes = M('config')->where([
+                $newRes = $table_db->where([
                     'inc_type'  => $param[0],
                     'lang'  => $lang,
                     'is_del'    => 0,
@@ -135,13 +140,13 @@ if (!function_exists('tpCache'))
                             'update_time'   => time(),
                         );
                     }
-                    M('config')->insertAll($newArr);
+                    $table_db->insertAll($newArr);
                 }
                 $newData = $data;
             }
 
             $result = false;
-            $res = M('config')->where([
+            $res = $table_db->where([
                 'lang'  => $lang,
                 'is_del'    => 0,
             ])->select();
@@ -150,11 +155,11 @@ if (!function_exists('tpCache'))
                 foreach($res as $k=>$val){
                     $global[$val['name']] = $val['value'];
                 }
-                $result = cache('global',$global,$options);
+                $result = cache($tableName.'global',$global,$options);
             } 
 
             if ($param[0] != 'global') {
-                $result = cache($param[0],$newData,$options);
+                $result = cache($cache_inc_type,$newData,$options);
             }
             
             return $result;
@@ -265,8 +270,6 @@ if (!function_exists('write_html_cache'))
                     if (in_array('tid', $val['p'])) {
                         $tid = $param['tid'];
                         if (strval(intval($tid)) != strval($tid)) {
-                            $map = array('dirname'=>$tid);
-                            $map['lang'] = $home_lang; // 多语言
                             $tid = \think\Db::name('arctype')->where([
                                     'dirname'   => $tid,
                                     'lang'  => $home_lang,
@@ -373,8 +376,6 @@ if (!function_exists('read_html_cache'))
                     if (in_array('tid', $val['p'])) {
                         $tid = $param['tid'];
                         if (strval(intval($tid)) != strval($tid)) {
-                            $map = array('dirname'=>$tid);
-                            $map['lang'] = $home_lang; // 多语言
                             $tid = \think\Db::name('arctype')->where([
                                     'dirname'   => $tid,
                                     'lang'  => $home_lang,
@@ -542,92 +543,178 @@ if ( ! function_exists('get_arcrank_list'))
     }
 }
 
-if (!function_exists('product_thum_images')) 
+if (!function_exists('thumb_img')) 
 {
     /**
-     *  产品缩略图 给于标签调用 拿出商品表的 original_img 原始图来裁切出来的
-     * @param type $aid  商品id
+     * 缩略图 从原始图来处理出来
+     * @param type $original_img  图片路径
      * @param type $width     生成缩略图的宽度
      * @param type $height    生成缩略图的高度
+     * @param type $thumb_mode    生成方式
      */
-    function product_thum_images($aid, $width, $height)
+    function thumb_img($original_img = '', $width = '', $height = '', $thumb_mode = '')
     {
-        if (empty($aid)) return '';
-        
-        //判断缩略图是否存在
-        $path = "public/upload/product/thumb/$aid/";
-        $product_thumb_name = "product_thumb_{$aid}_{$width}_{$height}";
+        // 缩略图配置
+        $thumbConfig = tpCache('thumb');
+        $thumbextra = config('global.thumb');
 
-        // 这个商品 已经生成过这个比例的图片就直接返回了
-        if (is_file($path . $product_thumb_name . '.jpg')) return '/' . $path . $product_thumb_name . '.jpg';
-        if (is_file($path . $product_thumb_name . '.jpeg')) return '/' . $path . $product_thumb_name . '.jpeg';
-        if (is_file($path . $product_thumb_name . '.gif')) return '/' . $path . $product_thumb_name . '.gif';
-        if (is_file($path . $product_thumb_name . '.png')) return '/' . $path . $product_thumb_name . '.png';
+        if (!empty($width) || !empty($height) || !empty($thumb_mode)) { // 单独在模板里调用，不受缩略图全局开关影响
 
-        $original_img = M('archives')->cache(true,EYOUCMS_CACHE_TIME,"product")->where("aid", $aid)->getField('litpic');
-        if (empty($original_img)) {
-            return '/public/static/common/images/not_adv.jpg';
+        } else { // 非单独模板调用
+            if (empty($thumbConfig['thumb_open'])) {
+                return $original_img;
+            }
         }
+
+        // 未开启缩略图，或远程图片
+        if (is_http_url($original_img) || stristr($original_img, '/public/static/common/images/not_adv.jpg')) {
+            return $original_img;
+        } else if (empty($original_img)) {
+            return ROOT_DIR.'/public/static/common/images/not_adv.jpg';
+        }
+
+        // 图片文件名
+        $filename = '';
+        $imgArr = explode('/', $original_img);    
+        $imgArr = end($imgArr);
+        $filename = preg_replace("/\.([^\.]+)$/i", "", $imgArr);
+
+        // 如果图片参数是缩略图，则直接获取到原图，并进行缩略处理
+        if (preg_match('/\/uploads\/thumb\/\d{1,}_\d{1,}\//i', $original_img)) {
+            $file_ext = preg_replace("/^(.*)\.([^\.]+)$/i", "$2", $imgArr);
+            $pattern = UPLOAD_PATH.'allimg/*/'.$filename;
+            if (in_array(strtolower($file_ext), ['jpg','jpeg'])) {
+                $pattern .= '.jp*g';
+            } else {
+                $pattern .= '.'.$file_ext;
+            }
+            $original_img_tmp = glob($pattern);
+            if (!empty($original_img_tmp)) {
+                $original_img = '/'.current($original_img_tmp);
+            }
+        }
+        // --end
+
+        $original_img1 = preg_replace('#^'.ROOT_DIR.'#i', '', handle_subdir_pic($original_img));
+        $original_img1 = '.' . $original_img1; // 相对路径
+        //获取图像信息
+        $info = @getimagesize($original_img1);
+        //检测图像合法性
+        if (false === $info || (IMAGETYPE_GIF === $info[2] && empty($info['bits']))) {
+            return $original_img;
+        }
+
+        // 缩略图宽高度
+        empty($width) && $width = !empty($thumbConfig['thumb_width']) ? $thumbConfig['thumb_width'] : $thumbextra['width'];
+        empty($height) && $height = !empty($thumbConfig['thumb_height']) ? $thumbConfig['thumb_height'] : $thumbextra['height'];
+        $width = intval($width);
+        $height = intval($height);
+
+        //判断缩略图是否存在
+        $path = UPLOAD_PATH."thumb/{$width}_{$height}/";
+        $img_thumb_name = "{$filename}";
+
+        // 已经生成过这个比例的图片就直接返回了
+        if (is_file($path . $img_thumb_name . '.jpg')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.jpg';
+        if (is_file($path . $img_thumb_name . '.jpeg')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.jpeg';
+        if (is_file($path . $img_thumb_name . '.gif')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.gif';
+        if (is_file($path . $img_thumb_name . '.png')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.png';
+        if (is_file($path . $img_thumb_name . '.bmp')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.bmp';
         
-        $ossClient = new \app\common\logic\OssLogic;
+/*        $ossClient = new \app\common\logic\OssLogic;
         if (($ossUrl = $ossClient->getProductThumbImageUrl($original_img, $width, $height))) {
             return $ossUrl;
-        }
+        }*/
 
-        $original_img = '.' . $original_img; // 相对路径
-        if (!is_file($original_img)) {
-            return '/public/static/common/images/not_adv.jpg';
+        if (!is_file($original_img1)) {
+            return ROOT_DIR.'/public/static/common/images/not_adv.jpg';
         }
 
         try {
             vendor('topthink.think-image.src.Image');
-            if(strstr(strtolower($original_img),'.gif'))
+            vendor('topthink.think-image.src.image.Exception');
+            if(stristr($original_img1,'.gif'))
             {
                 vendor('topthink.think-image.src.image.gif.Encoder');
                 vendor('topthink.think-image.src.image.gif.Decoder');
                 vendor('topthink.think-image.src.image.gif.Gif');               
             }           
-            $image = \think\Image::open($original_img);
+            $image = \think\Image::open($original_img1);
 
-            $product_thumb_name = $product_thumb_name . '.' . $image->type();
+            $img_thumb_name = $img_thumb_name . '.' . $image->type();
             // 生成缩略图
             !is_dir($path) && mkdir($path, 0777, true);
+            // 填充颜色
+            $thumb_color = !empty($thumbConfig['thumb_color']) ? $thumbConfig['thumb_color'] : $thumbextra['color'];
+            // 生成方式参考 vendor/topthink/think-image/src/Image.php
+            if (!empty($thumb_mode)) {
+                $thumb_mode = intval($thumb_mode);
+            } else {
+                $thumb_mode = !empty($thumbConfig['thumb_mode']) ? $thumbConfig['thumb_mode'] : $thumbextra['mode'];
+            }
+            1 == $thumb_mode && $thumb_mode = 6; // 按照固定比例拉伸
+            2 == $thumb_mode && $thumb_mode = 2; // 填充空白
+            if (3 == $thumb_mode) {
+                $img_width = $image->width();
+                $img_height = $image->height();
+                if ($width < $img_width && $height < $img_height) {
+                    // 先进行缩略图等比例缩放类型，取出宽高中最小的属性值
+                    $min_width = ($img_width < $img_height) ? $img_width : 0;
+                    $min_height = ($img_width > $img_height) ? $img_height : 0;
+                    if ($min_width > $width || $min_height > $height) {
+                        if (0 < intval($min_width)) {
+                            $scale = $min_width / min($width, $height);
+                        } else if (0 < intval($min_height)) {
+                            $scale = $min_height / $height;
+                        } else {
+                            $scale = $min_width / $width;
+                        }
+                        $s_width  = $img_width / $scale;
+                        $s_height = $img_height / $scale;
+                        $image->thumb($s_width, $s_height, 1, $thumb_color)->save($path . $img_thumb_name, NULL, 100); //按照原图的比例生成一个最大为$width*$height的缩略图并保存
+                    }
+                }
+                $thumb_mode = 3; // 截减
+            }
             // 参考文章 http://www.mb5u.com/biancheng/php/php_84533.html  改动参考 http://www.thinkphp.cn/topic/13542.html
-            $image->thumb($width, $height, 2)->save($path . $product_thumb_name, NULL, 100); //按照原图的比例生成一个最大为$width*$height的缩略图并保存
+            $image->thumb($width, $height, $thumb_mode, $thumb_color)->save($path . $img_thumb_name, NULL, 100); //按照原图的比例生成一个最大为$width*$height的缩略图并保存
             //图片水印处理
             $water = tpCache('water');
-            if ($water['is_mark'] == 1) {
-                $imgresource = './' . $path . $goods_thumb_name;
-                if ($width > $water['mark_width'] && $height > $water['mark_height']) {
-                    if ($water['mark_type'] == 'img') {
-                        //检查水印图片是否存在
-                        $waterPath = "." . $water['mark_img'];
-                        if (is_file($waterPath)) {
-                            $quality = $water['mark_quality'] ?: 80;
-                            $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
-                            $image->open($waterPath)->save($waterTempPath, null, $quality);
-                            $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
-                            @unlink($waterTempPath);
+            if($water['is_mark']==1 && $water['is_thumb_mark'] == 1 && $image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
+                $imgresource = '.' . ROOT_DIR . '/' . $path . $img_thumb_name;
+                if($water['mark_type'] == 'text'){
+                    //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
+                    $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
+                    if (file_exists($ttf)) {
+                        $size = $water['mark_txt_size'] ? $water['mark_txt_size'] : 30;
+                        $color = $water['mark_txt_color'] ?: '#000000';
+                        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
+                            $color = '#000000';
                         }
-                    } else {
-                        //检查字体文件是否存在,注意是否有字体文件
-                        $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
-                        if (file_exists($ttf)) {
-                            $size = $water['mark_txt_size'] ?: 30;
-                            $color = $water['mark_txt_color'] ?: '#000000';
-                            if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
-                                $color = '#000000';
-                            }
-                            $transparency = intval((100 - $water['mark_degree']) * (127/100));
-                            $color .= dechex($transparency);
-                            $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
-                        }
+                        $transparency = intval((100 - $water['mark_degree']) * (127/100));
+                        $color .= dechex($transparency);
+                        $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
+                        $return_data['mark_txt'] = $water['mark_txt'];
+                    }
+                }else{
+                    /*支持子目录*/
+                    $water['mark_img'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $water['mark_img']); // 支持子目录
+                    /*--end*/
+                    //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
+                    $waterPath = "." . $water['mark_img'];
+                    if (eyPreventShell($waterPath) && file_exists($waterPath)) {
+                        $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;
+                        $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
+                        $image->open($waterPath)->save($waterTempPath, null, $quality);
+                        $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
+                        @unlink($waterTempPath);
                     }
                 }
             }
-            $img_url = '/' . $path . $product_thumb_name;
+            $img_url = ROOT_DIR.'/' . $path . $img_thumb_name;
 
             return $img_url;
+
         } catch (think\Exception $e) {
 
             return $original_img;
@@ -1292,7 +1379,11 @@ if (!function_exists('getUsersConfigData'))
     // 参数2：data数据，为空则查询，否则为添加或修改。
     // 参数3：多语言标识，为空则获取当前默认语言。
     function getUsersConfigData($config_key,$data=array(),$lang='', $options = null){
+        $tableName = 'users_config';
+        $table_db = \think\Db::name($tableName);
+
         $param = explode('.', $config_key);
+        $cache_inc_type = $tableName.$param[0];
         $lang = !empty($lang) ? $lang : get_current_lang();
         if (empty($options)) {
             $options['path'] = CACHE_PATH.$lang.DS;
@@ -1300,16 +1391,16 @@ if (!function_exists('getUsersConfigData'))
         if(empty($data)){
             //如$config_key=shop_info则获取网站信息数组
             //如$config_key=shop_info.logo则获取网站logo字符串
-            $config = cache($param[0],'',$options);//直接获取缓存文件
+            $config = cache($cache_inc_type,'',$options);//直接获取缓存文件
             if(empty($config)){
                 //缓存文件不存在就读取数据库
                 if ($param[0] == 'all') {
                     $param[0] = 'all';
-                    $res = M('users_config')->where([
+                    $res = $table_db->where([
                         'lang'  => $lang,
                     ])->select();
                 } else {
-                    $res = M('users_config')->where([
+                    $res = $table_db->where([
                         'inc_type'  => $param[0],
                         'lang'  => $lang,
                     ])->select();
@@ -1318,7 +1409,7 @@ if (!function_exists('getUsersConfigData'))
                     foreach($res as $k=>$val){
                         $config[$val['name']] = $val['value'];
                     }
-                    cache($param[0],$config,$options);
+                    cache($cache_inc_type,$config,$options);
                 }
             }
             if(!empty($param) && count($param)>1){
@@ -1329,7 +1420,7 @@ if (!function_exists('getUsersConfigData'))
             }
         }else{
             //更新缓存
-            $result =  M('users_config')->where([
+            $result =  $table_db->where([
                 'inc_type'  => $param[0],
                 'lang'  => $lang,
             ])->select();
@@ -1351,7 +1442,7 @@ if (!function_exists('getUsersConfigData'))
                         array_push($add_data, $newArr); //新key数据插入数据库
                     }else{
                         if ($v != $temp[$newK]) {
-                            M('users_config')->where([
+                            $table_db->where([
                                 'name'  => $newK,
                                 'lang'  => $lang,
                             ])->save($newArr);//缓存key存在且值有变更新此项
@@ -1359,10 +1450,10 @@ if (!function_exists('getUsersConfigData'))
                     }
                 }
                 if (!empty($add_data)) {
-                    M('users_config')->insertAll($add_data);
+                    $table_db->insertAll($add_data);
                 }
                 //更新后的数据库记录
-                $newRes = M('users_config')->where([
+                $newRes = $table_db->where([
                     'inc_type'  => $param[0],
                     'lang'  => $lang,
                 ])->select();
@@ -1381,13 +1472,13 @@ if (!function_exists('getUsersConfigData'))
                             'update_time'   => time(),
                         );
                     }
-                    M('users_config')->insertAll($newArr);
+                    $table_db->insertAll($newArr);
                 }
                 $newData = $data;
             }
 
             $result = false;
-            $res = M('users_config')->where([
+            $res = $table_db->where([
                 'lang'  => $lang,
             ])->select();
             if($res){
@@ -1395,11 +1486,11 @@ if (!function_exists('getUsersConfigData'))
                 foreach($res as $k=>$val){
                     $global[$val['name']] = $val['value'];
                 }
-                $result = cache('all',$global,$options);
+                $result = cache($tableName.'all',$global,$options);
             } 
 
             if ($param[0] != 'all') {
-                $result = cache($param[0],$newData,$options);
+                $result = cache($cache_inc_type,$newData,$options);
             }
             
             return $result;
@@ -1423,6 +1514,186 @@ if (!function_exists('send_email'))
         $emailLogic = new \app\common\logic\EmailLogic($smtp_config);
         $res = $emailLogic->send_email($to, $subject, $data, $scene);
         return $res;
+    }
+}
+
+/**
+ * 获得全部省份列表
+ */
+function get_province_list()
+{
+    $result = extra_cache('global_get_province_list');
+    if ($result == false) {
+        $result = M('region')->field('id, name')
+            ->where('level',1)
+            ->getAllWithIndex('id');
+        extra_cache('global_get_province_list', $result);
+    }
+
+    return $result;
+}
+
+/**
+ * 获得全部城市列表
+ */
+function get_city_list()
+{
+    $result = extra_cache('global_get_city_list');
+    if ($result == false) {
+        $result = M('region')->field('id, name')
+            ->where('level',2)
+            ->getAllWithIndex('id');
+        extra_cache('global_get_city_list', $result);
+    }
+
+    return $result;
+}
+
+/**
+ * 获得全部地区列表
+ */
+function get_area_list()
+{
+    $result = extra_cache('global_get_area_list');
+    if ($result == false) {
+        $result = M('region')->field('id, name')
+            ->where('level',3)
+            ->getAllWithIndex('id');
+        extra_cache('global_get_area_list', $result);
+    }
+
+    return $result;
+}
+
+/**
+ * 根据地区ID获得省份名称
+ */
+function get_province_name($id)
+{
+    $result = get_province_list();
+    return empty($result[$id]) ? '银河系' : $result[$id]['name'];
+}
+
+/**
+ * 根据地区ID获得城市名称
+ */
+function get_city_name($id)
+{
+    $result = get_city_list();
+    return empty($result[$id]) ? '火星' : $result[$id]['name'];
+}
+
+/**
+ * 根据地区ID获得县区名称
+ */
+function get_area_name($id)
+{
+    $result = get_area_list();
+    return empty($result[$id]) ? '部落' : $result[$id]['name'];
+}
+
+if (!function_exists('queryExpress')) 
+{
+    /**
+     * 查询快递，暂时弃用，已跳转至快递100链接查询
+     * @param $postcom  快递公司编码
+     * @param $getNu  快递单号
+     * @return array  物流跟踪信息数组
+     */
+    function queryExpress($param) {
+        if (!empty($param)) {
+            $postdata = [
+                'postid' => $param['express_order'],
+                'id'     => 1,
+                'valicode' => '',
+                'temp'   => str_replace(' ', '', microtime()),
+                'type'   => $param['express_code'],
+                'phone'  => '',
+                'token'  => '',
+                'platform' => 'MWWW',
+            ];
+            $url = urldecode('https://m.kuaidi100.com/query');
+            $result = httpRequest($url,"POST",$postdata);
+            $result = json_decode($result,true);
+            return $result;
+
+            // $url =  urldecode("http://www.kuaidi100.com/chaxun?com=".$param['express_code']."&nu=".$param['express_order']."");
+            // $url = 'https://www.kuaidi100.com/query?type='.$param['express_code'].'&postid='.$param['express_order'].'&id=1&valicode=&temp='.str_replace(' ', '', microtime()).'&phone=';
+            // $curl = curl_init();
+            // curl_setopt($curl, CURLOPT_URL, $url);
+            // curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            // $result = curl_exec($curl);
+            // curl_close($curl);
+            // $result = json_decode($result,ture);
+
+            // 查询快递Code
+            // $url = "https://m.kuaidi100.com/apicenter/kdquerytools.do?method=autoComNum&text={$getNu}";
+            // $resp = httpRequest($url, 'GET');
+            // $resp = json_decode($resp,true);
+            // 查询快递信息
+            // if (!empty($resp)) {
+                // $comCode = !empty($resp['auto'][0]['comCode']) ? $resp['auto'][0]['comCode'] : '';
+                // 业务逻辑
+            // }
+        }
+        
+        return false;
+    }
+}
+
+if (!function_exists('AddOrderAction')) 
+{
+    /**
+     * 添加订单操作表数据
+     * 参数说明：
+     * $OrderId       订单ID或订单ID数组
+     * $UsersId       会员ID，若不为0，则ActionUsers为0
+     * $ActionUsers   操作员ID，为0，表示会员操作，反之则为管理员ID
+     * $OrderStatus   操作时，订单当前状态
+     * $ExpressStatus 操作时，订单当前物流状态
+     * $PayStatus     操作时，订单当前付款状态
+     * $ActionDesc    操作描述
+     * $ActionNote    操作备注
+     * 返回说明：
+     * return 无需返回
+     */
+    function AddOrderAction($OrderId,$UsersId,$ActionUsers='0',$OrderStatus='0',$ExpressStatus='0',$PayStatus='0',$ActionDesc='提交订单！',$ActionNote='会员提交订单成功！')
+    {
+        if (is_array($OrderId) && '4' == $OrderStatus) {
+            // OrderId为数组并且订单状态为过期，则执行
+            foreach ($OrderId as $key => $value) {
+                $ActionData[] = [
+                    'order_id'       => $value['order_id'],
+                    'users_id'       => $UsersId,
+                    'action_user'    => $ActionUsers,
+                    'order_status'   => $OrderStatus,
+                    'express_status' => $ExpressStatus,
+                    'pay_status'     => $PayStatus,
+                    'action_desc'    => $ActionDesc,
+                    'action_note'    => $ActionNote,
+                    'lang'           => get_home_lang(),
+                    'add_time'       => getTime(),
+                ];
+            }
+            // 批量添加
+            M('shop_order_log')->insertAll($ActionData);
+        }else{
+            // OrderId不为数组，则执行
+            $ActionData = [
+                'order_id'       => $OrderId,
+                'users_id'       => $UsersId,
+                'action_user'    => $ActionUsers,
+                'order_status'   => $OrderStatus,
+                'express_status' => $ExpressStatus,
+                'pay_status'     => $PayStatus,
+                'action_desc'    => $ActionDesc,
+                'action_note'    => $ActionNote,
+                'lang'           => get_home_lang(),
+                'add_time'       => getTime(),
+            ];
+            // 单条添加
+            M('shop_order_log')->add($ActionData);
+        }
     }
 }
 
@@ -1458,5 +1729,108 @@ if (!function_exists('download_file'))
         echo fread($file, $file_size);    
         fclose($file);    
         exit();
+    }
+}
+
+if (!function_exists('is_realdomain')) 
+{
+    /**
+     * 简单判断当前访问的域名是否真实
+     * @param string $domain 不带协议的域名
+     * @return boolean
+     */
+    function is_realdomain($domain = '')
+    {
+        $is_real = false;
+        $domain = !empty($domain) ? $domain : request()->host();
+        if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) && 'localhost' != $domain && '127.0.0.1' != serverIP()) {
+            $is_real = true;
+        }
+
+        return $is_real;
+    }
+}
+
+if (!function_exists('img_style_wh')) 
+{
+    /**
+     * 追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面
+     */
+    function img_style_wh($content = '', $title = '')
+    {
+        if (!empty($content)) {
+            preg_match_all('/<img.*(\/)?>/iUs', $content, $imginfo);
+            $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
+            if (!empty($imginfo)) {
+                $num = 1;
+                foreach ($imginfo as $key => $imgstr) {
+                    $imgstrNew = $imgstr;
+                    // 追加style属性
+                    $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"](.*?)[\'|\"]/i', 'style="max-width:100%!important;height:auto;${3}"', $imgstrNew);
+                    if (!preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
+                        // 新增style属性
+                        $imgstrNew = str_ireplace('<img', "<img style=\"max-width:100%!important;height:auto;\" ", $imgstrNew);
+                    }
+
+                    // 移除img中多余的title属性
+                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', '', $imgstrNew);
+
+                    // 追加alt属性
+                    $titleNew = $title."(图{$num})";
+                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'alt="'.$titleNew.'"', $imgstrNew);
+                    if (!preg_match('/<img(.*?)alt(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
+                        // 新增alt属性
+                        $imgstrNew = str_ireplace('<img', "<img alt=\"{$titleNew}\" ", $imgstrNew);
+                    }
+                    // 新的img替换旧的img
+                    $content = str_ireplace($imgstr, $imgstrNew, $content);
+                    $num++;
+                    
+                    // preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstr, $matchs);
+                    // // 提取img中原有的内嵌style属性样式
+                    // $style = !empty($matchs[4]) ? $matchs[4] : '';
+                    // // 整理要追加的新样式
+                    // $styleNew = 'max-width:100%!important;height:auto;'.$style;
+                    // // 去除img中原有的style样式属性
+                    // $valueNew = preg_replace('/style(\s*)=(\s*)[\'|\"]'.$style.'[\'|\"]/i', '', $imgstr);
+                    // // 替换新的内嵌样式属性
+                    // $replace = str_ireplace('<img', "<img style=\"{$styleNew}\" ", $valueNew);
+                    // // 新的img替换旧的img
+                    // $content = str_ireplace($imgstr, $replace, $content);
+                }
+            }
+        }
+
+        return $content;
+    }
+}
+
+if (!function_exists('get_archives_data')) 
+{
+    /**
+     * 查询文档主表信息和文档栏目表信息整合到一个数组中
+     * @param string $array 产品数组信息
+     * @param string $id 产品ID，购物车下单页传入aid，订单列表订单详情页传入product_id
+     * @return return array_new
+     */
+    function get_archives_data($array,$id)
+    {
+        // 目前定义仅订单中心使用
+        
+        if (empty($array) || empty($id)) {
+            return false;
+        }
+        $array_new    = array();
+
+        $aids         = get_arr_column($array, $id);
+        $archivesList = \think\Db::name('archives')->field('*')->where('aid','IN',$aids)->getAllWithIndex('aid');
+        $typeids      = get_arr_column($archivesList, 'typeid');
+        $arctypeList  = \think\Db::name('arctype')->field('*')->where('id','IN',$typeids)->getAllWithIndex('id');
+        
+        foreach ($archivesList as $key2 => $val2) {
+            $array_new[$key2] = array_merge($arctypeList[$val2['typeid']],$val2);
+        }
+
+        return $array_new;
     }
 }

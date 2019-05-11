@@ -87,7 +87,7 @@ class Tags extends Base
         $r = M('tagindex')->where([
                 'lang'  => $this->admin_lang,
             ])->delete();
-        if($r){
+        if(false !== $r){
             M('taglist')->where([
                 'lang'  => $this->admin_lang,
             ])->delete();

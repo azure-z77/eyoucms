@@ -11,9 +11,6 @@
   <link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" /> 
   {eyou:static file="skin/css/basic.css" /} 
   {eyou:static file="skin/css/common.css" /} 
-  <style>
-    body{background-position: center;background-repeat: no-repeat;background-color: ;font-family:;}
-  </style> 
     <!--[if lte IE 9]>
     {eyou:static file="skin/js/lteie9.js" /}
     <![endif]--> 
@@ -44,7 +41,7 @@
     </div> 
    </div> 
   </section> 
-  <section class="ey-column-nav" m-id="subcolumn_nav" m-type="nocontent"> 
+  <section class="ey-column-nav"> 
    <div class="container"> 
     <div class="row"> 
      <ul class="clearfix ey-column-nav-ul"> 
@@ -61,12 +58,12 @@
     <div class="row"> 
      <div class="col-md-9 ey-news-body"> 
       <div class="row"> 
-       <div class="ey-news-list" m-id="noset"> 
+       <div class="ey-news-list"> 
         <ul class="ulstyle ey-pager-ajax imagesize"> 
          {eyou:list pagesize="10" titlelen="30"}
          <li class="media media-lg border-bottom1"> 
           <div class="media-left"> 
-           <a href="{$field.arcurl}" title="{$field.title}"> <img class="media-object" src="{$field.litpic}" alt="{$field.title}" height="100" /></a> 
+           <a href="{$field.arcurl}" title="{$field.title}"> <img class="media-object" src="{$field.litpic}" alt="{$field.title}" /></a> 
           </div> 
           <div class="media-body"> 
            <h4> <a href="{$field.arcurl}" title="{$field.title}" target="_self">{$field.title}</a> </h4> 

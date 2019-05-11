@@ -116,7 +116,7 @@
             dataType: "JSON",
             error: function(request) {
                 layer.closeAll();
-                layer.alert("网络失败，请刷新页面后重试", {icon: 5});
+                layer.alert("网络失败，请刷新页面后重试", {icon: 5, title:false});
                 return false;
             },
             success: function(v) {

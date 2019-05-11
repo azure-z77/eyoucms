@@ -162,6 +162,7 @@ class Filemanager extends Base
         $activepath = str_replace("..", "", $activepath);
         $filename = str_replace("..", "", $filename);
         $path_parts  = pathinfo($filename);
+        $path_parts['extension'] = strtolower($path_parts['extension']);
 
         /*不允许越过指定最大级目录的文件编辑*/
         $tmp_max_dir = preg_replace("#\/#i", "\/", $this->filemanagerLogic->maxDir);
@@ -188,7 +189,9 @@ class Filemanager extends Base
                 $fp = fopen($file, "r");
                 $content = fread($fp, $filesize);
                 fclose($fp);
-                $content = htmlspecialchars($content);
+                if ('css' != $path_parts['extension']) {
+                    $content = htmlspecialchars($content);
+                }
             }
         }
         /*--end*/

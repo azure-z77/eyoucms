@@ -43,6 +43,8 @@ return array(
     'email_send_time' => 120,
     // 充值订单默认有效时间，会员中心用到，2小时
     'get_order_validity' => 7200,
+    // 支付订单默认有效时间，商城中心用到，2小时
+    'get_shop_order_validity' => 7200,
     // 文档SEO描述截取长度，一个字符表示一个汉字或字母
     'arc_seo_description_length' => 125,
     // 栏目最多级别
@@ -92,9 +94,39 @@ return array(
     ),
     // 支付方式
     'pay_method_arr' => array(
-        'wechat'   => '微信',
-        'alipay'   => '支付宝',
-        'artificial'   => '手工充值',
+        'wechat'     => '微信',
+        'alipay'     => '支付宝',
+        'artificial' => '手工充值',
+        'balance'    => '余额',
+        'admin_pay'  => '管理员代付',
+        'delivery_pay' => '货到付款',
+    ),
+    // 缩略图默认宽高度
+    'thumb' => [
+        'open'  => 0,
+        'mode'  => 2,
+        'color' => '#FFFFFF',
+        'width' => 300,
+        'height' => 300,
+    ],
+    // 订单状态
+    'order_status_arr' => array(
+        -1  => '已关闭',
+        0   => '待付款',
+        1   => '待发货',
+        2   => '待收货',
+        3   => '订单完成',
+        4   => '订单过期',
+        // 5   => '后续添加',
+    ),
+    // 订单状态，后台使用
+    'admin_order_status_arr' => array(
+        -1  => '订单关闭',
+        0   => '未付款',
+        1   => '待发货',
+        2   => '已发货',
+        3   => '已完成',
+        4   => '订单过期',
     ),
     // 清理文件时，需要查询的数据表和字段
     'get_tablearray' => array(
@@ -161,6 +193,10 @@ return array(
         15 => array(
             'table' => 'users',
             'field' => 'head_pic',
+        ),
+        16 => array(
+            'table' => 'shop_order_details',
+            'field' => 'litpic',
         ),
         // 后续可持续添加数据表和字段，格式参照以上
     ),

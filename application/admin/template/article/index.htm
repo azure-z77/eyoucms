@@ -15,6 +15,7 @@
             <form class="navbar-form form-inline" action="{:url('Article/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
+                    {include file="archives/tags_btn" /}
                     <div class="sDiv2">  
                         <select name="flag" class="select" style="margin:0px 5px;">
                             <option value="">--属性--</option>
@@ -226,7 +227,7 @@
             }
         })
         if(a.length == 0){
-            layer.alert('请至少选择一项', {icon: 2});
+            layer.alert('请至少选择一项', {icon: 2, title:false});
             return;
         }
 

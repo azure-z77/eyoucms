@@ -244,7 +244,7 @@ return array(
         //  cookie 启用安全传输
         'secure'    => false,
         // httponly设置
-        'httponly'  => '',
+        'httponly'  => true,
         // 是否使用 setcookie
         'setcookie' => true,
     ),
@@ -346,26 +346,26 @@ return array(
         // [普通伪静态]文章
         'home_Article_index'    => ['filename'=>'channel', 'cache'=>7200],
         'home_Article_lists'    => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
-        'home_Article_view'     => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        'home_Article_view'     => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
         // [普通伪静态]产品
         'home_Product_index'    => ['filename'=>'channel', 'cache'=>7200],
         'home_Product_lists'    => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
-        'home_Product_view'     => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        'home_Product_view'     => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
         // [普通伪静态]图集
         'home_Images_index'     => ['filename'=>'channel', 'cache'=>7200],
         'home_Images_lists'     => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
-        'home_Images_view'      => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        'home_Images_view'      => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
         // [普通伪静态]下载
         'home_Download_index'   => ['filename'=>'channel', 'cache'=>7200],
         'home_Download_lists'   => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
-        'home_Download_view'    => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        'home_Download_view'    => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
         // [普通伪静态]单页
         'home_Single_index'     => ['filename'=>'channel', 'cache'=>7200],
         'home_Single_lists'     => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
         // [超短伪静态]列表页
         'home_Lists_index'      => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
         // [超短伪静态]内容页
-        'home_View_index'       => ['filename'=>'view', 'p'=>array('aid'), 'cache'=>7200],
+        'home_View_index'       => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
     ],
 
     // +----------------------------------------------------------------------

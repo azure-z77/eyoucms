@@ -206,7 +206,7 @@ class Arctype extends Base
         /*--end*/
 
         /*模板列表*/
-        $templateList = $this->getTemplateList('add');
+        $templateList = $this->ajax_getTemplateList('add');
         $this->assign('templateList', $templateList);
         /*--end*/
 
@@ -399,7 +399,7 @@ class Arctype extends Base
         /*--end*/
 
         /*模板列表*/
-        $templateList = $this->getTemplateList('edit', $info['templist'], $info['tempview']);
+        $templateList = $this->ajax_getTemplateList('edit', $info['templist'], $info['tempview']);
         $this->assign('templateList', $templateList);
         /*--end*/
 
@@ -665,7 +665,7 @@ class Arctype extends Base
         }
     }
 
-    private function getTemplateList($opt = 'add', $templist = '', $tempview = '')
+    public function ajax_getTemplateList($opt = 'add', $templist = '', $tempview = '')
     {   
         $planPath = 'template/pc';
         $dirRes   = opendir($planPath);
@@ -728,20 +728,51 @@ class Arctype extends Base
                     }
                 }
             }
+            $nofileArr = [];
             if ('add' == $opt) {
-                $lists = !empty($lists) ? $lists : '<option value="">无</option>';
-                $view = !empty($view) ? $view : '<option value="">无</option>';
+                if (empty($lists)) {
+                    $lists = '<option value="">无</option>';
+                    $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
+                }
+                
+                if (empty($view)) {
+                    $view = '<option value="">无</option>';
+                    if (!in_array($v1['nid'], ['single','guestbook'])) {
+                        $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
+                    }
+                }
             } else {
+                if (empty($lists)) {
+                    $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
+                }
                 $lists = '<option value="">请选择模板…</option>'.$lists;
+
+                if (empty($view)) {
+                    if (!in_array($v1['nid'], ['single','guestbook'])) {
+                        $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
+                    }
+                }
                 $view = '<option value="">请选择模板…</option>'.$view;
             }
+
+            $msg = '';
+            if (!empty($nofileArr)) {
+                $msg = '<font color="red">该模型缺少模板文件：'.implode(' 和 ', $nofileArr).'</font>';
+            }
+
             $templateList[$v1['id']] = array(
                 'lists' => $lists,
                 'view' => $view,
+                'msg'    => $msg,
+                'nid'    => $v1['nid'],
             );
         }
 
-        return $templateList;
+        if (IS_AJAX) {
+            $this->success('请求成功', null, ['templateList'=>$templateList]);
+        } else {
+            return $templateList;
+        }
     }
 
     /**
@@ -803,5 +834,58 @@ class Arctype extends Base
                 }
             }
         }
+    }
+
+    /**
+     * 新建模板文件
+     */
+    public function ajax_newtpl()
+    {
+        if (IS_POST) {
+            $post = input('post.', '', null);
+            $content = input('post.content', '', null);
+            $view_suffix = config('template.view_suffix');
+            if (!empty($post['filename'])) {
+                if (!preg_match("/^[\w\-\_]{1,}$/u", $post['filename'])) {
+                    $this->error('文件名称只允许字母、数字、下划线、连接符的任意组合！');
+                }
+                $filename = "{$post['type']}_{$post['nid']}_{$post['filename']}.{$view_suffix}";
+            } else {
+                $filename = "{$post['type']}_{$post['nid']}.{$view_suffix}";
+            }
+
+            $content = !empty($content) ? $content : '';
+            $tpldirpath = !empty($post['tpldir']) ? '/template/'.trim($post['tpldir']) : '/template/pc';
+            if (file_exists(ROOT_PATH.ltrim($tpldirpath, '/').'/'.$filename)) {
+                $this->error('文件名称已经存在，请重新命名！', null, ['focus'=>'filename']);
+            }
+
+            $nosubmit = input('param.nosubmit/d');
+            if (1 == $nosubmit) {
+                $this->success('检测通过');
+            }
+
+            $filemanagerLogic = new \app\admin\logic\FilemanagerLogic;
+            $r = $filemanagerLogic->editFile($filename, $tpldirpath, $content);
+            if ($r === true) {
+                $this->success('操作成功', null, ['filename'=>$filename,'type'=>$post['type']]);
+            } else {
+                $this->error($r);
+            }
+        }
+        $type = input('param.type/s');
+        $nid = input('param.nid/s');
+        $tpldirList = glob('template/*');
+        foreach ($tpldirList as $key => $val) {
+            if (!preg_match('/template\/(pc|mobile)$/i', $val)) {
+                unset($tpldirList[$key]);
+            } else {
+                $tpldirList[$key] = preg_replace('/^(.*)template\/(pc|mobile)$/i', '$2', $val);
+            }
+        }
+        $this->assign('tpldirList', $tpldirList);
+        $this->assign('type', $type);
+        $this->assign('nid', $nid);
+        return $this->fetch();
     }
 }

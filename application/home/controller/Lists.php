@@ -88,11 +88,10 @@ class Lists extends Base
         /*--end*/
 
         /*多语言内置模板文件名*/
-        $lang = get_home_lang();
-        if (!empty($lang)) {
-            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$lang}.".$this->view_suffix;
+        if (!empty($this->home_lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
             if (file_exists($viewfilepath)) {
-                $viewfile .= "_{$lang}";
+                $viewfile .= "_{$this->home_lang}";
             }
         }
         /*--end*/
@@ -111,16 +110,15 @@ class Lists extends Base
         // /*--end*/
 
         // /*多语言内置模板文件名*/
-        // $lang = get_home_lang();
-        // if (!empty($lang)) {
-        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$lang}.".$this->view_suffix;
+        // if (!empty($this->home_lang)) {
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$this->home_lang}.".$this->view_suffix;
         //     if (file_exists($viewfilepath)) {
-        //         $viewfile = $filename."_{$lang}";
+        //         $viewfile = $filename."_{$this->home_lang}";
         //     }
         //     /*每个栏目内置模板文件名*/
-        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}_{$lang}.".$this->view_suffix;
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}_{$this->home_lang}.".$this->view_suffix;
         //     if (file_exists($viewfilepath)) {
-        //         $viewfile = $filename."_{$result['id']}_{$lang}";
+        //         $viewfile = $filename."_{$result['id']}_{$this->home_lang}";
         //     }
         //     /*--end*/
         // }
@@ -262,6 +260,8 @@ class Lists extends Base
             if ($count > 0) {
                 $this->error('同一个IP在60秒之内不能重复提交！');
             }
+
+            $this->channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
 
             $newData = array(
                 'typeid'    => $typeid,

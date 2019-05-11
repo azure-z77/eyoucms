@@ -57,7 +57,7 @@ function checkdir(obj,filelist) {
         data : {filelist:filelist},
         error: function(request) {
             layer.closeAll();
-            layer.alert("检测不通过，可能被服务器防火墙拦截，请添加白名单，或者联系技术协助！", {icon: 2}, function(){
+            layer.alert("检测不通过，可能被服务器防火墙拦截，请添加白名单，或者联系技术协助！", {icon: 2, title:false}, function(){
                 top.location.reload();
             });
         },
@@ -68,7 +68,7 @@ function checkdir(obj,filelist) {
             } else {
                 //提示框
                 if (2 == res.data.code) {
-                    var alert = layer.alert(res.msg, {icon: 2});
+                    var alert = layer.alert(res.msg, {icon: 2, title:false});
                 } else {
                     var confirm = layer.confirm(res.msg, {
                             title: '检测目录结果'
@@ -100,7 +100,7 @@ function upgrade(obj){
         data : {},
         error: function(request) {
             layer.closeAll();
-            layer.alert("模板升级失败，请第一时间联系技术协助！", {icon: 2}, function(){
+            layer.alert("模板升级失败，请第一时间联系技术协助！", {icon: 2, title:false}, function(){
                 top.location.reload();
             });
         },
@@ -111,7 +111,7 @@ function upgrade(obj){
                     var title = '已升级最新版本！';
                     var btn = ['关闭'];
                     var full = layer.alert(title, {
-                            title: '重要提示',
+                            title: false,
                             icon: 1,
                             closeBtn: 0,
                             btn: btn //按钮
@@ -123,7 +123,7 @@ function upgrade(obj){
             }
             else{
                 layer.closeAll();
-                layer.alert(res.msg, {icon: 2}, function(){
+                layer.alert(res.msg, {icon: 2, title:false}, function(){
                     window.location.reload();
                 });
             }

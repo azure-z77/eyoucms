@@ -338,7 +338,7 @@ class TagList extends Base
                     } else {
                         $val['is_litpic'] = 1; // 有封面图
                     }
-                    $val['litpic'] = get_default_pic($val['litpic']); // 默认封面图
+                    $val['litpic'] = thumb_img(get_default_pic($val['litpic'])); // 默认封面图
                     /*--end*/
                     
                     $list[$key] = $val;
@@ -425,7 +425,7 @@ class TagList extends Base
         }
 
         // 应用搜索条件
-        foreach (['keywords','typeid','notypeid','channel'] as $key) {
+        foreach (['keywords','typeid','notypeid','channel','flag','noflag'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ('keywords' == $key) {
                     $keywords = trim($param[$key]);
@@ -436,6 +436,46 @@ class TagList extends Base
                 } elseif ($key == 'notypeid') {
                     $param[$key] = str_replace('，', ',', $param[$key]);
                     $condition['a.typeid'] = array('not in', $param[$key]);
+                } elseif ($key == 'flag') {
+                    $flag_arr = explode(",", $param[$key]);
+                    $where_or_flag = array();
+                    foreach ($flag_arr as $k2 => $v2) {
+                        if ($v2 == "c") {
+                            array_push($where_or_flag, "a.is_recom = 1");
+                        } elseif ($v2 == "h") {
+                            array_push($where_or_flag, "a.is_head = 1");
+                        } elseif ($v2 == "a") {
+                            array_push($where_or_flag, "a.is_special = 1");
+                        } elseif ($v2 == "j") {
+                            array_push($where_or_flag, "a.is_jump = 1");
+                        } elseif ($v2 == "b") {
+                            array_push($where_or_flag, "a.is_b = 1");
+                        }
+                    }
+                    if (!empty($where_or_flag)) {
+                        $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
+                        array_push($condition, $where_flag_str);
+                    } 
+                } elseif ($key == 'noflag') {
+                    $flag_arr = explode(",", $param[$key]);
+                    $where_or_flag = array();
+                    foreach ($flag_arr as $nk2 => $nv2) {
+                        if ($nv2 == "c") {
+                            array_push($where_or_flag, "a.is_recom <> 1");
+                        } elseif ($nv2 == "h") {
+                            array_push($where_or_flag, "a.is_head <> 1");
+                        } elseif ($nv2 == "a") {
+                            array_push($where_or_flag, "a.is_special <> 1");
+                        } elseif ($nv2 == "j") {
+                            array_push($where_or_flag, "a.is_jump <> 1");
+                        } elseif ($nv2 == "b") {
+                            array_push($where_or_flag, "a.is_b <> 1");
+                        }
+                    }
+                    if (!empty($where_or_flag)) {
+                        $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
+                        array_push($condition, $where_flag_str);
+                    }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }
@@ -554,7 +594,7 @@ class TagList extends Base
                 } else {
                     $arcval['is_litpic'] = 1; // 有封面图
                 }
-                $arcval['litpic'] = get_default_pic($arcval['litpic']); // 默认封面图
+                $arcval['litpic'] = thumb_img(get_default_pic($arcval['litpic'])); // 默认封面图
                 /*--end*/
 
                 $list[$key] = $arcval;

@@ -190,6 +190,65 @@ class Ajax extends Base
         $this->error('访问错误');
     }
 
+    /**
+     * 获取用户信息
+     */
+    public function get_tag_user_info()
+    {
+        $t_uniqid = input('param.t_uniqid/s', '');
+        if (IS_AJAX && !empty($t_uniqid)) {
+            $users_id = session('users_id');
+            if (!empty($users_id)) {
+                $users = Db::name('users')->field('b.*, a.*')
+                    ->alias('a')
+                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                    ->where([
+                        'a.users_id' => $users_id,
+                        'a.lang'     => $this->home_lang,
+                    ])->find();
+                if (!empty($users)) {
+                    $users['reg_time'] = MyDate('Y-m-d H:i:s', $users['reg_time']);
+                    $users['update_time'] = MyDate('Y-m-d H:i:s', $users['update_time']);
+                } else {
+                    $users = [];
+                    $tableFields1 = Db::name('users')->getTableFields();
+                    $tableFields2 = Db::name('users_level')->getTableFields();
+                    $tableFields = array_merge($tableFields1, $tableFields2);
+                    foreach ($tableFields as $key => $val) {
+                        $users[$val] = '';
+                    }
+                }
+                $users['url'] = url('user/Users/centre');
+                unset($users['password']);
+                unset($users['paypwd']);
+                $dtypes = [];
+                foreach ($users as $key => $val) {
+                    $html_key = md5($key.'-'.$t_uniqid);
+                    $users[$html_key] = $val;
+
+                    $dtype = 'txt';
+                    if (in_array($key, ['head_pic'])) {
+                        $dtype = 'img';
+                    } else if (in_array($key, ['url'])) {
+                        $dtype = 'href';
+                    }
+                    $dtypes[$html_key] = $dtype;
+
+                    unset($users[$key]);
+                }
+
+                $data = [
+                    'ey_is_login'   => 1,
+                    'users'  => $users,
+                    'dtypes'  => $dtypes,
+                ];
+                $this->success('请求成功', null, $data);
+            }
+            $this->success('请先登录', null, ['ey_is_login'=>0]);
+        }
+        $this->error('访问错误');
+    }
+
     // 验证码获取
     public function vertify()
     {

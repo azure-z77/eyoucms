@@ -22,7 +22,6 @@ class AdPosition extends Base
 
     public function _initialize() {
         parent::_initialize();
-        $this->language_access(); // 多语言功能操作权限
     }
 
     public function index()
@@ -81,30 +80,61 @@ class AdPosition extends Base
 
             $map = array(
                 'title' => trim($post['title']),
+                'lang'  => $this->admin_lang,
             );
+
             if(M('ad_position')->where($map)->count() > 0){
-                $this->error('该广告位名称已存在，请检查', url('AdPosition/index'));
+                $this->error('该广告名称已存在，请检查', url('AdPosition/index'));
             }
 
+            // 添加广告位置表信息
             $data = array(
-                'title'    => trim($post['title']),
-                'width' => $post['width'],
-                'height' => $post['height'],
-                'intro' => $post['intro'],
-                'admin_id'  => session('admin_id'),
-                'lang'  => $this->admin_lang,
-                'add_time'           => getTime(),
-                'update_time'           => getTime(),
+                'title'       => trim($post['title']),
+                'width'       => $post['width'],
+                'height'      => $post['height'],
+                'intro'       => $post['intro'],
+                'admin_id'    => session('admin_id'),
+                'lang'        => $this->admin_lang,
+                'add_time'    => getTime(),
+                'update_time' => getTime(),
             );
             $insertId = M('ad_position')->insertGetId($data);
 
             if ($insertId) {
-
-                /*同步广告位置ID到多语言的模板变量里*/
+                // 同步广告位置ID到多语言的模板变量里，添加多语言广告位
                 $this->syn_add_language_attribute($insertId);
-                /*--end*/
 
-                adminLog('新增广告位：'.$post['title']);
+                // 读取组合广告位的图片及信息
+                $i = '1';
+                foreach ($post['img_litpic'] as $key => $value) {
+                    if (!empty($value['litpic'])) {
+                        // 主要参数
+                        $AdData['litpic']      = $value['litpic'];
+                        $AdData['pid']         = $insertId;
+                        $AdData['title']       = $post['img_title'][$key]['title'];
+                        $AdData['links']       = $post['img_links'][$key]['links'];
+                        if (!empty($post['img_target'][$key]['target'])) {
+                            $target = '1';
+                        }else{
+                            $target = '0';
+                        }
+                        $AdData['target']      = $target;
+                        // 其他参数
+                        $AdData['media_type']  = 1;
+                        $AdData['admin_id']    = session('admin_id');
+                        $AdData['lang']        = $this->admin_lang;
+                        $AdData['sort_order']  = $i++;
+                        $AdData['add_time']    = getTime();
+                        $AdData['update_time'] = getTime();
+                    }
+                    // 添加到广告图表
+                    $ad_id = Db::name('ad')->add($AdData);
+
+                    // 同步多语言
+                    $this->syn_add_ad_language_attribute($ad_id);
+                }
+
+                adminLog('新增广告：'.$post['title']);
                 $this->success("操作成功", url('AdPosition/index'));
             } else {
                 $this->error("操作失败", url('AdPosition/index'));
@@ -124,30 +154,82 @@ class AdPosition extends Base
         if (IS_POST) {
             $post = input('post.');
             if(!empty($post['id'])){
-
                 if(array_key_exists($post['id'], $this->ad_position_system_id)){
                     $this->error("不可更改系统预定义位置", url('AdPosition/edit',array('id'=>$post['id'])));
                 }
+
                 $map = array(
-                    'id' => array('NEQ', $post['id']),
+                    'id'    => array('NEQ', $post['id']),
                     'title' => trim($post['title']),
+                    'lang'  => $this->admin_lang,
                 );
+
                 if(M('ad_position')->where($map)->count() > 0){
-                    $this->error('该广告位名称已存在，请检查', url('AdPosition/index'));
+                    $this->error('该广告名称已存在，请检查', url('AdPosition/index'));
                 }
 
                 $data = array(
-                    'id'       => $post['id'],
-                    'title'    => trim($post['title']),
-                    'width' => $post['width'],
-                    'height' => $post['height'],
-                    'intro' => $post['intro'],
-                    'update_time'       => getTime(),
+                    'id'          => $post['id'],
+                    'title'       => trim($post['title']),
+                    'width'       => $post['width'],
+                    'height'      => $post['height'],
+                    'intro'       => $post['intro'],
+                    'update_time' => getTime(),
                 );
                 $r = M('ad_position')->update($data);
             }
+
             if ($r) {
-                adminLog('编辑广告位：'.$post['title']);
+                $i = '1';
+                $ad_db = Db::name('ad');
+                // 读取组合广告位的图片及信息
+                foreach ($post['img_litpic'] as $key => $value) {
+                    if (!empty($value['litpic'])) {
+                        $ad_id = $post['img_id'][$key]['id'];
+                        if ($ad_db->where('id',$ad_id)->count() > 0) {
+                            // 主要参数
+                            $AdData['id']          = $ad_id;
+                            $AdData['litpic']      = $value['litpic'];
+                            $AdData['title']       = $post['img_title'][$key]['title'];
+                            $AdData['links']       = $post['img_links'][$key]['links'];
+                            if (!empty($post['img_target'][$key]['target'])) {
+                                $target = '1';
+                            }else{
+                                $target = '0';
+                            }
+                            $AdData['target']      = $target;
+                            // 其他参数
+                            $AdData['sort_order']  = $i++;
+                            $AdData['update_time'] = getTime();
+                            $ad_db->update($AdData);
+                        }else{
+                            // 主要参数
+                            $AdData['litpic']      = $value['litpic'];
+                            $AdData['pid']         = $post['id'];
+                            $AdData['title']       = $post['img_title'][$key]['title'];
+                            $AdData['links']       = $post['img_links'][$key]['links'];
+                            if (!empty($post['img_target'][$key]['target'])) {
+                                $target = '1';
+                            }else{
+                                $target = '0';
+                            }
+                            $AdData['target']      = $target;
+                            // 其他参数
+                            $AdData['media_type']  = 1;
+                            $AdData['admin_id']    = session('admin_id');
+                            $AdData['lang']        = $this->admin_lang;
+                            $AdData['sort_order']  = $i++;
+                            $AdData['add_time']    = getTime();
+                            $AdData['update_time'] = getTime();
+
+                            $ad_id = $ad_db->add($AdData);
+                            // 同步多语言
+                            $this->syn_add_ad_language_attribute($ad_id);
+                        }
+                    }
+                }
+
+                adminLog('编辑广告：'.$post['title']);
                 $this->success("操作成功", url('AdPosition/index'));
             } else {
                 $this->error("操作失败");
@@ -162,16 +244,47 @@ class AdPosition extends Base
             ->where(array('a.id'=>$id))
             ->find();
         if (empty($field)) {
-            $this->error('广告位不存在，请联系管理员！');
+            $this->error('广告不存在，请联系管理员！');
             exit;
         }
         $assign_data['field'] = $field;
 
+        // 广告
+        $ad_data = Db::name('ad')->where(array('pid'=>$field['id']))->order('sort_order asc')->select();
+        foreach ($ad_data as $key => $val) {
+            $ad_data[$key]['litpic'] = handle_subdir_pic($val['litpic']); // 支持子目录
+        }
+        $assign_data['ad_data'] = $ad_data;
+        
         $this->assign($assign_data);
         return $this->fetch();
     }
 
-    
+    /**
+     * 删除图集相册图
+     */
+    public function del_imgupload()
+    {
+        $filename= input('filename/s');
+        $filename= str_replace('../','',$filename);
+        $filename= trim($filename,'.');
+        
+        if(eyPreventShell($filename) && !empty($filename)){
+            $filename_new = trim($filename,'/');
+            $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+            $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+            $size = getimagesize($filename_new);
+            $fileInfo = explode('/',$size['mime']);
+            if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                exit;
+            }
+
+            if (!empty($filename)) {
+                Db::name('ad')->where("litpic = '$filename'")->delete();
+            }
+        }
+    }
+
     /**
      * 删除
      */
@@ -221,7 +334,7 @@ class AdPosition extends Base
                 }
                 /*--end*/
 
-                adminLog('删除广告位-id：'.implode(',', $id_arr));
+                adminLog('删除广告-id：'.implode(',', $id_arr));
                 $this->success('删除成功');
             } else {
                 $this->error('删除失败');
@@ -277,6 +390,68 @@ class AdPosition extends Base
                         'attr_group'    => $attr_group,
                         'add_time'      => getTime(),
                         'update_time'   => getTime(),
+                    ];
+                    /*--end*/
+                }
+                if (!empty($data)) {
+                    model('LanguageAttr')->saveAll($data);
+                }
+            }
+        }
+    }
+
+    /**
+     * 同步新增广告ID到多语言的模板变量里
+     */
+   private function syn_add_ad_language_attribute($ad_id)
+    {
+        /*单语言情况下不执行多语言代码*/
+        if (!is_language()) {
+            return true;
+        }
+        /*--end*/
+
+        $attr_group = 'ad';
+        $admin_lang = $this->admin_lang;
+        $main_lang = get_main_lang();
+        $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
+        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
+            $ad_db = Db::name('ad');
+            $result = $ad_db->find($ad_id);
+            $attr_name = 'ad'.$ad_id;
+            $r = Db::name('language_attribute')->save([
+                'attr_title'    => $result['title'],
+                'attr_name'     => $attr_name,
+                'attr_group'    => $attr_group,
+                'add_time'      => getTime(),
+                'update_time'   => getTime(),
+            ]);
+            if (false !== $r) {
+                $data = [];
+                foreach ($languageRow as $key => $val) {
+                    /*同步新广告到其他语言广告列表*/
+                    if ($val['mark'] != $admin_lang) {
+                        $addsaveData = $result;
+                        $addsaveData['lang'] = $val['mark'];
+                        $newPid = Db::name('language_attr')->where([
+                                'attr_name' => 'adp'.$result['pid'],
+                                'attr_group'    => 'ad_position',
+                                'lang'  => $val['mark'],
+                            ])->getField('attr_value');
+                        $addsaveData['pid'] = $newPid;
+                        unset($addsaveData['id']);
+                        $ad_id = $ad_db->insertGetId($addsaveData);
+                    }
+                    /*--end*/
+                    
+                    /*所有语言绑定在主语言的ID容器里*/
+                    $data[] = [
+                        'attr_name'   => $attr_name,
+                        'attr_value'  => $ad_id,
+                        'lang'        => $val['mark'],
+                        'attr_group'  => $attr_group,
+                        'add_time'    => getTime(),
+                        'update_time' => getTime(),
                     ];
                     /*--end*/
                 }

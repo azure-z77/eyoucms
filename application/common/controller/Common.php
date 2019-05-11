@@ -62,9 +62,12 @@ class Common extends Controller {
         $this->global_assign(); // 获取网站全局变量值
         $this->view_suffix = config('template.view_suffix'); // 模板后缀htm
         $this->theme_style = THEME_STYLE; // 模板目录
-        $global = tpCache('global'); //全局变量
-        $this->eyou['global'] = $global; //全局变量
-
+        //全局变量
+        $global = tpCache('global'); 
+        $this->eyou['global'] = $global;
+        // 多语言变量
+        $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+        $this->eyou['lang'] = !empty($langArr) ? $langArr : [];
         /*电脑版与手机版的切换*/
         $v = I('param.v/s', 'pc');
         $v = trim($v, '/');

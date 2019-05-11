@@ -27,7 +27,7 @@
     $(function () {
         $('#typeid').find('option').click(function(){
             if (!$('#typeid').val()) {
-                layer.alert('请选择栏目…！', {icon:5}, function(index){
+                layer.alert('请选择栏目…！', {icon:5, title:false}, function(index){
                     $('#typeid').val('');
                     layer.close(index);
                 });
@@ -50,13 +50,13 @@
                             parent.layer.close(parentObj);
                         });
                     } else {
-                        layer.alert(res.msg, {icon:5});
+                        layer.alert(res.msg, {icon:5, title:false});
                     }
                     return false;
                 },
                 error: function(e){
                     layer.closeAll();
-                    layer.alert('操作失败', {icon:5});
+                    layer.alert('操作失败', {icon:5, title:false});
                     return false;
                 }
             });

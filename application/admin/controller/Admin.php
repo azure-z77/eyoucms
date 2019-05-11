@@ -96,11 +96,13 @@ class Admin extends Base {
 
         if (IS_POST) {
 
+            $post = input('post.');
+
             if (!function_exists('session_start')) {
                 $this->error('请联系空间商，开启php的session扩展！');
             }
             if (!testWriteAble(DATA_PATH.'session')) {
-                $this->error('请检查站点目录权限是否为755，以及目录的用户组/所有者的权限，禁止用root:root，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
+                $this->error('请仔细检查以下问题：<br/>1、磁盘空间大小是否100%；<br/>2、站点目录权限是否为755；<br/>3、站点目录的权限，禁止用root:root ；<br/>4、如还没解决，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
             }
             
             if (1 == $is_vertify) {
@@ -109,7 +111,7 @@ class Admin extends Base {
                     $this->error('验证码错误');
                 }
             }
-            $condition['user_name'] = input('post.username/s');
+            $condition['user_name'] = input('post.user_name/s');
             $condition['password'] = input('post.password/s');
             if (!empty($condition['user_name']) && !empty($condition['password'])) {
                 $condition['password'] = func_encrypt($condition['password']);
@@ -117,6 +119,19 @@ class Admin extends Base {
                 if (is_array($admin_info)) {
                     if ($admin_info['status'] == 0) {
                         $this->error('账号被禁用！');
+                    }
+
+                    // 数据验证
+                    $rule = [
+                        'user_name'    => 'require|token',
+                    ];
+                    $message = [
+                        'user_name.require' => '用户名不能为空！',
+                    ];
+                    $validate = new \think\Validate($rule, $message);
+                    if(!$validate->batch()->check($post))
+                    {
+                        $this->error('登录校验失败，请刷新页面重试~');
                     }
 
                     $role_id = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
@@ -155,7 +170,7 @@ class Admin extends Base {
                     session('admin_login_expire', getTime()); // 登录有效期
                     adminLog('后台登录');
                     $url = session('from_url') ? session('from_url') : request()->baseFile();
-                    $this->success('账号被禁用！', $url);
+                    $this->success('登录成功', $url);
                 } else {
                     $this->error('账号密码不正确');
                 }

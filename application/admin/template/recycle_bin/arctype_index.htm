@@ -125,7 +125,7 @@
     // 还原
     function recovery(obj){
         layer.confirm('<font color="red">如有父级栏目及文档将一起还原</font>，确认还原？', {
-            title: $(obj).attr('data-typename'),
+            title: false,//$(obj).attr('data-typename'),
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -141,7 +141,7 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 }
             })
@@ -154,7 +154,7 @@
     // 删除
     function delfun(obj){
         layer.confirm('<font color="red">如有子栏目及文档将一起清空</font>，确认彻底删除？', {
-            title: $(obj).attr('data-typename'),
+            title: false,//$(obj).attr('data-typename'),
             btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
@@ -170,7 +170,7 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 }
             })
@@ -191,11 +191,12 @@
             }
         })
         if(a.length == 0){
-            layer.alert('请至少选择一项', {icon: 2});
+            layer.alert('请至少选择一项', {icon: 2, title:false});
             return;
         }
         // 删除按钮
         layer.confirm('此操作不可逆，确认批量彻底删除？', {
+            title: false,
             btn: ['确定', '取消'] //按钮
         }, function () {
             layer_loading('正在处理');
@@ -210,12 +211,12 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
                 }
             });
         }, function (index) {

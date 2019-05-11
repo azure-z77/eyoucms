@@ -111,7 +111,7 @@ class TagGuestbookform extends Base
                 /*--end*/
             }
 
-            $token_id = md5('guestbookform_token_'.$typeid.getTime());
+            $token_id = md5('guestbookform_token_'.$typeid.md5(getTime().uniqid(mt_rand(), TRUE)));
             $funname = 'f'.md5("ey_guestbookform_token_{$typeid}");
             $tokenStr = <<<EOF
 <script type="text/javascript">

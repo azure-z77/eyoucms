@@ -96,7 +96,7 @@
                             i = parseInt(i) + 1;
                             setCookies('binghtml_i', i);
                             if (i >= parseInt(res.total)) {
-                                layer.alert('更新完成！', {icon: 1});
+                                layer.alert('更新完成！', {icon: 1, title:false});
                             }
                         },
                         error: function(e){
@@ -110,7 +110,7 @@
             error: function(e){
                 $('.a_btn').attr('data-disabled', 0);
                 layer.closeAll();
-                layer.alert('网络超时！', {icon: 2});
+                layer.alert('网络超时！', {icon: 2, title:false});
             }
         });
     }

@@ -249,4 +249,87 @@ class AjaxLogic extends Model
             /*--end*/
         }
     }
+
+    /**
+     * 升级前台会员中心的模板文件
+     */
+    public function update_template($type = '')
+    {
+        if (!empty($type)) {
+            if ('users' == $type) {
+                if (file_exists(ROOT_PATH.'template/pc/users') || file_exists(ROOT_PATH.'template/mobile/users')) {
+                    /*升级之前，备份涉及的源文件*/
+                    $upgrade = getDirFile(DATA_PATH.'backup'.DS.'tpl');
+                    if (!empty($upgrade) && is_array($upgrade)) {
+                        delFile(DATA_PATH.'backup'.DS.'template_www');
+                        foreach ($upgrade as $key => $val) {
+                            $source_file = ROOT_PATH.$val;
+                            if (file_exists($source_file)) {
+                                $destination_file = DATA_PATH.'backup'.DS.'template_www'.DS.$val;
+                                tp_mkdir(dirname($destination_file));
+                                @copy($source_file, $destination_file);
+                            }
+                        }
+
+                        // 递归复制文件夹
+                        $this->recurse_copy(DATA_PATH.'backup'.DS.'tpl', rtrim(ROOT_PATH, DS));
+                    }
+                    /*--end*/
+                }
+            }
+        }
+    }
+
+    /**
+     * 自定义函数递归的复制带有多级子目录的目录
+     * 递归复制文件夹
+     *
+     * @param string $src 原目录
+     * @param string $dst 复制到的目录
+     * @return string
+     */                        
+    //参数说明：            
+    //自定义函数递归的复制带有多级子目录的目录
+    private function recurse_copy($src, $dst)
+    {
+        $planPath_pc = 'template/pc/';
+        $planPath_m = 'template/mobile/';
+        $dir = opendir($src);
+
+        /*pc和mobile目录存在的情况下，才拷贝会员模板到相应的pc或mobile里*/
+        $dst_tmp = str_replace('\\', '/', $dst);
+        $dst_tmp = rtrim($dst_tmp, '/').'/';
+        if (stristr($dst_tmp, $planPath_pc) && file_exists($planPath_pc)) {
+            tp_mkdir($dst);
+        } else if (stristr($dst_tmp, $planPath_m) && file_exists($planPath_m)) {
+            tp_mkdir($dst);
+        }
+        /*--end*/
+
+        while (false !== $file = readdir($dir)) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                }
+                else {
+                    if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {
+                        /*pc和mobile目录存在的情况下，才拷贝会员模板到相应的pc或mobile里*/
+                        $rs = true;
+                        $src_tmp = str_replace('\\', '/', $src . DIRECTORY_SEPARATOR . $file);
+                        if (stristr($src_tmp, $planPath_pc) && !file_exists($planPath_pc)) {
+                            continue;
+                        } else if (stristr($src_tmp, $planPath_m) && !file_exists($planPath_m)) {
+                            continue;
+                        }
+                        /*--end*/
+                        $rs = @copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+                        if($rs) {
+                            @unlink($src . DIRECTORY_SEPARATOR . $file);
+                        }
+                    }
+                }
+            }
+        }
+        closedir($dir);
+    }
 }

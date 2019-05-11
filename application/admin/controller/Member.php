@@ -25,17 +25,27 @@ class Member extends Base {
      */
     public function __construct(){
         parent::__construct();
-        $this->users_db      = Db::name('users');     // 用户信息表
-        $this->users_list_db  = Db::name('users_list'); // 用户资料表
-        $this->users_level_db = Db::name('users_level');// 用户等级表
-        $this->users_parameter_db = Db::name('users_parameter');// 用户属性表
-        $this->field_type_db = Db::name('field_type');// 字段属性表
-        $this->users_config_db = Db::name('users_config');// 用户配置表
-        $this->users_money_db = Db::name('users_money');// 用户充值表
+        /*会员中心数据表*/
+        $this->users_db        = Db::name('users');         // 用户信息表
+        $this->users_list_db   = Db::name('users_list');    // 用户资料表
+        $this->users_level_db  = Db::name('users_level');   // 用户等级表
+        $this->users_config_db = Db::name('users_config');  // 用户配置表
+        $this->users_money_db  = Db::name('users_money');   // 用户充值表
+        $this->field_type_db   = Db::name('field_type');    // 字段属性表
+        $this->users_parameter_db = Db::name('users_parameter'); // 用户属性表
+        /*结束*/
+
+        /*订单中心数据表*/
+        $this->shop_address_db   = Db::name('shop_address');    // 用户地址表
+        $this->shop_cart_db      = Db::name('shop_cart');       // 用户购物车表
+        $this->shop_order_db     = Db::name('shop_order');      // 用户订单主表
+        $this->shop_order_log_db = Db::name('shop_order_log');  // 用户订单操作记录表
+        $this->shop_order_details_db = Db::name('shop_order_details');  // 用户订单副表
+        /*结束*/
+
         // 是否开启支付功能设置
         $UsersConfigData = getUsersConfigData('all');
-        $this->assign('config',$UsersConfigData);
-
+        $this->assign('userConfig',$UsersConfigData);
     }
 
     // 用户列表
@@ -72,6 +82,10 @@ class Member extends Base {
         $this->assign('list',$list);// 赋值数据集
         $this->assign('pager',$Page);// 赋值分页集
 
+        /*纠正数据*/
+        $web_is_authortoken = tpCache('web.web_is_authortoken');
+        (is_realdomain() && !empty($web_is_authortoken)) && getUsersConfigData('shop', ['shop_open'=>0]);
+        
         /*检测是否存在会员中心模板*/
         if ('v1.0.1' > getVersion('version_themeusers')) {
             $is_syn_theme_users = 1;
@@ -99,6 +113,20 @@ class Member extends Base {
                 }
             }
         }
+
+        /*多语言*/
+        if (is_language()) {
+            $langRow = \think\Db::name('language')->order('id asc')
+                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                ->select();
+            foreach ($langRow as $key => $val) {
+                tpCache('web', ['web_users_switch'=>0], $val['mark']);
+            }
+        } else { // 单语言
+            tpCache('web', ['web_users_switch'=>0]);
+        }
+        /*--end*/
+
         $this->error($msg);
     }
 
@@ -129,7 +157,7 @@ class Member extends Base {
                     'lang'      => $this->admin_lang,
                 ])->column('username');
             foreach ($usernameArr as $key => $val) {
-                if(trim($val) == '' || empty($val) || in_array($val, $usernameList) || !preg_match("/^[\x{4e00}-\x{9fa5}\w-_@#]{2,30}$/u", $val))
+                if(trim($val) == '' || empty($val) || in_array($val, $usernameList) || !preg_match("/^[\x{4e00}-\x{9fa5}\w\-\_\@\#]{2,30}$/u", $val))
                 {
                     continue;
                 }
@@ -390,33 +418,45 @@ class Member extends Base {
     {
         $users_id = input('del_id/a');
         $users_id = eyIntval($users_id);
-
-        $result = $this->users_db->field('username')->where([
+        if (IS_AJAX_POST && !empty($users_id)) {
+            // 删除统一条件
+            $Where = [
                 'users_id'  => ['IN', $users_id],
                 'lang'      => $this->admin_lang,
-            ])->select();
-        $username_list = get_arr_column($result, 'username');
+            ];
 
-        $return = $this->users_db->where([
-                'users_id'  => ['IN', $users_id],
-                'lang'      => $this->admin_lang,
-            ])->delete();
-        if ($return) {
-            // 删除用户下的属性
-            $this->users_list_db->where([
-                    'users_id'  => ['IN', $users_id],
-                    'lang'      => $this->admin_lang,
-                ])->delete();
-            // 删除用户下的属性
-            $this->users_money_db->where([
-                    'users_id'  => ['IN', $users_id],
-                    'lang'      => $this->admin_lang,
-                ])->delete();
-            adminLog('删除用户：'.implode(',', $username_list));
-            $this->success('删除成功');
-        }else{
-            $this->error('删除失败');
+            $result = $this->users_db->field('username')->where($Where)->select();
+            $username_list = get_arr_column($result, 'username');
+
+            $return = $this->users_db->where($Where)->delete();
+            if ($return) {
+                /*删除会员中心关联数据表*/
+                // 删除用户下的属性
+                $this->users_list_db->where($Where)->delete();
+                // 删除用户下的属性
+                $this->users_money_db->where($Where)->delete();
+                /*结束*/
+
+                /*删除订单中心关联数据表*/
+                // 删除用户下的购物车表
+                $this->shop_cart_db->where($Where)->delete();
+                // 删除用户下的收货地址表
+                $this->shop_address_db->where($Where)->delete();
+                // 删除用户下的订单主表
+                $this->shop_order_db->where($Where)->delete();
+                // 删除用户下的订单副表
+                $this->shop_order_log_db->where($Where)->delete();
+                // 删除用户下的订单操作记录表
+                $this->shop_order_details_db->where($Where)->delete();
+                /*结束*/
+
+                adminLog('删除用户：'.implode(',', $username_list));
+                $this->success('删除成功');
+            }else{
+                $this->error('删除失败');
+            }
         }
+        $this->error('参数有误');
     }
 
     // 级别列表
@@ -755,9 +795,15 @@ class Member extends Base {
 
     // 功能设置
     public function users_config()
-    {   
+    {
         if (IS_POST) {
             $post = input('post.');
+
+            /*商城入口*/
+            $shop_open = $post['shop']['shop_open'];
+            $shop_open_old = getUsersConfigData('shop.shop_open');
+            /*--end*/
+
             // 邮件验证的检测
             if (2 == $post['users']['users_verification']) {
                 $users_config_email = $this->users_config_email();
@@ -780,7 +826,16 @@ class Member extends Base {
         // 获取用户配置信息
         $UsersConfigData = getUsersConfigData('all');
         $this->assign('info',$UsersConfigData);
-        
+
+        /*检测是否存在订单中心模板*/
+        if ('v1.0.1' > getVersion('version_themeshop') && !empty($UsersConfigData['shop_open'])) {
+            $is_syn_theme_shop = 1;
+        } else {
+            $is_syn_theme_shop = 0;
+        }
+        $this->assign('is_syn_theme_shop',$is_syn_theme_shop);
+        /*--end*/
+
         return $this->fetch();
     }
 
@@ -806,7 +861,7 @@ class Member extends Base {
         $this->error('参数有误');
     }
         
-    function users_config_email(){
+    private function users_config_email(){
         // 用户属性信息
         $where = array(
             'name'      => ['LIKE', "email_%"],
@@ -875,7 +930,7 @@ class Member extends Base {
 
         return $this->fetch();
     }
-
+    
     // 微信配信信息
     public function wechat_set(){
         if (IS_POST) {
@@ -888,6 +943,17 @@ class Member extends Base {
             }
             if (empty($post['wechat']['key'])) {
                 $this->error('微信KEY值不能为空！');
+            }
+
+            $data = model('Pay')->payForQrcode($post['wechat']);
+            if ($data['return_code'] == 'FAIL') {
+                if ('签名错误' == $data['return_msg']) {
+                    $this->error('微信KEY值错误！');
+                }else if ('appid不存在' == $data['return_msg']) {
+                    $this->error('微信AppId错误！');
+                }else if ('商户号mch_id或sub_mch_id不存在' == $data['return_msg']) {
+                    $this->error('微信MchId错误！');
+                }
             }
 
             foreach ($post as $key => $val) {
@@ -1114,7 +1180,7 @@ class Member extends Base {
     }
 
     // 查询订单付款状态(微信)
-    function check_wechat_order($order_number)
+    private function check_wechat_order($order_number)
     {
         if (!empty($order_number)) {
             // 引入文件
@@ -1151,8 +1217,8 @@ class Member extends Base {
         }
     }
 
-    // 查询订单付款状态(微信)
-    function check_alipay_order($order_number)
+    // 查询订单付款状态(支付宝)
+    private function check_alipay_order($order_number)
     {
         if (!empty($order_number)) {
             // 引入文件
@@ -1249,5 +1315,45 @@ class Member extends Base {
         } else {
             $this->error('检测模板失败', null, ['code'=>1]);
         }
+    }
+
+    // 前台会员左侧菜单
+    public function ajax_menu_index()
+    {
+        $list = array();
+        $condition = array();
+
+        // 多语言
+        $condition['a.lang'] = array('eq', $this->admin_lang);
+
+        /**
+         * 数据查询
+         */
+        $count = Db::name('users_menu')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
+        $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $row = Db::name('users_menu')->field('a.*')
+            ->alias('a')
+            ->where($condition)
+            ->order('a.sort_order asc, a.id asc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
+
+        $list = [];
+        $pay_open = getUsersConfigData('pay.pay_open');
+        foreach ($row as $key => $val) {
+            /*是否开启支付功能*/
+            if (1 != $pay_open && 'user/Pay/pay_consumer_details' == $val['mca']) {
+                continue;
+            }
+            /*--end*/
+            $list[] = $val;
+        }
+
+        $show = $Page->show();// 分页显示输出
+        $this->assign('page',$show);// 赋值分页输出
+        $this->assign('list',$list);// 赋值数据集
+        $this->assign('pager',$Page);// 赋值分页集
+
+        return $this->fetch();
     }
 }

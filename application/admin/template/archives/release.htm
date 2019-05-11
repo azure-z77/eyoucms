@@ -40,7 +40,7 @@
     // 判断输入框是否为空
     function check_submit(){
         if (!$('#typeid').val()) {
-            layer.alert('请选择栏目…！', {icon:5}, function(index){
+            layer.alert('请选择栏目…！', {icon:5, title:false}, function(index){
                 $('#typeid').val('');
                 layer.close(index);
             });
@@ -50,7 +50,7 @@
         current_channel = parseInt(current_channel);
         var js_allow_channel_arr = {$js_allow_channel_arr};
         if ($.inArray(current_channel, js_allow_channel_arr) == -1) {
-            layer.alert('该栏目模型不允许发布文档！', {icon:5}, function(index){
+            layer.alert('该栏目模型不允许发布文档！', {icon:5, title:false}, function(index){
                 $('#typeid').val('');
                 layer.close(index);
             });

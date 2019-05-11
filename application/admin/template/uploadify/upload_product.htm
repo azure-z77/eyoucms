@@ -7,6 +7,7 @@
 <script type="text/javascript">
     var eyou_basefile = "{$Request.baseFile}";
     var module_name = "{$Think.const.MODULE_NAME}";
+    var __root_dir__ = "__ROOT_DIR__";
 </script> 
 </head>
 <body>
@@ -170,11 +171,11 @@ $(function(){
                     window.parent.layer.closeAll();
                     window.parent.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2,time: 3000});
+                    layer.alert(data.msg, {icon: 2,time: 3000, title:false});
                 }
             },
             error: function(e){
-                layer.alert('网络故障', {icon: 2,time: 3000});
+                layer.alert('网络故障', {icon: 2,time: 3000, title:false});
             }
         });
     }

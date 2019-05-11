@@ -45,7 +45,7 @@ class MemberLogic extends Model
         // api_Service_checkVersion
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVVwZ3JhZGUmYT1jaGVja1RoZW1lVmVyc2lvbg==';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
-        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->version;
+        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->version.'&type=theme_users';
         $this->planPath_pc = 'template/pc/';
         $this->planPath_m = 'template/mobile/';
     }
@@ -420,11 +420,11 @@ class MemberLogic extends Model
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
         $file = curl_exec ($ch);
-        curl_close ($ch);                                                            
+        curl_close ($ch);
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);
-        if(!eyPreventShell($saveDir) || !file_exists($saveDir)/* || $md5File != md5_file($saveDir)*/)
+        if(!eyPreventShell($saveDir) || !file_exists($saveDir) || $md5File != md5_file($saveDir))
         {
             return ['code' => 0, 'msg' => '下载保存升级包失败，请检查所有目录的权限以及用户组不能为root'];
         }

@@ -171,6 +171,24 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'users_price' => 
+  array (
+    'name' => 'users_price',
+    'type' => 'decimal(10,2)',
+    'notnull' => false,
+    'default' => '0.00',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'prom_type' => 
+  array (
+    'name' => 'prom_type',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'tempview' => 
   array (
     'name' => 'tempview',

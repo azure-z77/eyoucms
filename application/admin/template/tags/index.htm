@@ -21,7 +21,7 @@
                         <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Tags/index')}';">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="一键清空" onClick="window.location.href='{:url('Tags/clearall')}';">
+                        <input type="button" class="btn" value="一键清空" onClick="clearall();">
                     </div>
                 </div>
             </form>
@@ -122,6 +122,35 @@
             location.href = location.href;
         });
     });
+
+    function clearall()
+    {
+        // 删除按钮
+        layer.confirm('此操作不可逆，确认一键清空？', {
+            title: false,
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            layer_loading('正在处理');
+            $.ajax({
+                type: "POST",
+                url: "{:url('Tags/clearall')}",
+                data: {1:1},
+                dataType: 'json',
+                success: function (res) {
+                    layer.closeAll();
+                    if(res.code == 1){
+                        window.location.reload();
+                    }else{
+                        layer.alert(res.msg, {icon: 2, title:false});
+                    }
+                },
+                error:function(){
+                    layer.closeAll();
+                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                }
+            });
+        });
+    }
 </script>
 
 {include file="public/footer" /}

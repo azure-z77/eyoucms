@@ -285,10 +285,11 @@ class Image
      * @param  integer $width  缩略图最大宽度
      * @param  integer $height 缩略图最大高度
      * @param int      $type   缩略图裁剪类型
+     * @param int      $color   填充颜色
      *
      * @return $this
      */
-    public function thumb($width, $height, $type = self::THUMB_SCALING)
+    public function thumb($width, $height, $type = self::THUMB_SCALING, $color = '#FFFFFF')
     {
         //原图宽度和高度
         $w = $this->info['width'];
@@ -352,11 +353,24 @@ class Image
                 $y    = $this->info['height'] - $h;
                 $posx = ($width - $w * $scale) / 2;
                 $posy = ($height - $h * $scale) / 2;
+                /* 设置填充颜色 by 小虎哥 */
+                if (is_string($color) && 0 === strpos($color, '#')) {
+                    $color = str_split(substr($color, 1), 2);
+                    $color = array_map('hexdec', $color);
+                    if (empty($color[3]) || $color[3] > 127) {
+                        $color[3] = 0;
+                    }
+                } elseif (!is_array($color)) {
+                    $color[0] = 255;
+                    $color[1] = 255;
+                    $color[2] = 255;
+                }
+                /* --end-- */
                 do {
                     //创建新图像
                     $img = imagecreatetruecolor($width, $height);
                     // 调整默认颜色
-                    $color = imagecolorallocate($img, 255, 255, 255);
+                    $color = imagecolorallocate($img, $color[0], $color[1], $color[2]);
                     imagefill($img, 0, 0, $color);
                     //裁剪
                     imagecopyresampled($img, $this->im, $posx, $posy, $x, $y, $neww, $newh, $w, $h);

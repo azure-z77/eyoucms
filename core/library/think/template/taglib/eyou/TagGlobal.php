@@ -115,13 +115,18 @@ class TagGlobal extends Base
                 
                 case 'web_recordnum':
                     if (!empty($value)) {
-                        $value = '<a href="http://www.miibeian.gov.cn/" rel="nofollow">'.$value.'</a>';
+                        $value = '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">'.$value.'</a>';
                     }
                     break;
 
                 case 'web_templets_pc':
                 case 'web_templets_m':
                     $value = $this->root_dir.$value;
+                    break;
+
+                case 'web_thirdcode_pc':
+                case 'web_thirdcode_wap':
+                    $value = '';
                     break;
 
                 default:
