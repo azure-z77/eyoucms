@@ -648,11 +648,6 @@ class Shop extends Base
             $post['district'] = get_area_name($post['district']);
             if (!empty($addr_id)) {
                 $post['addr_id']  = $addr_id;
-                $Where = [
-                    'users_id' => $this->users_id,
-                    'lang'     => $this->home_lang,
-                ];
-                $post['addr_num'] = $this->shop_address_db->where($Where)->count();
                 $this->success('添加成功！','',$post);
             }else{
                 $this->error('数据有误！');

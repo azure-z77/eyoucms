@@ -86,11 +86,11 @@ class TagSpsubmitorder extends Base
         $ConfigData = getUsersConfigData('shop');
         $result['data'] = [
             // 温馨提示内容,为空则不展示
-            'shop_prompt'        => $ConfigData['shop_prompt'],
+            'shop_prompt'        => !empty($ConfigData['shop_prompt']) ? $ConfigData['shop_prompt'] : '',
             // 是否开启线下支付(货到付款)
-            'shop_open_offline'  => $ConfigData['shop_open_offline'],
+            'shop_open_offline'  => !empty($ConfigData['shop_open_offline']) ? $ConfigData['shop_open_offline'] : 0,
             // 是否开启运费设置
-            'shop_open_shipping' => $ConfigData['shop_open_shipping'],
+            'shop_open_shipping' => !empty($ConfigData['shop_open_shipping']) ? $ConfigData['shop_open_shipping'] : 0,
             // 初始化总额
             'TotalAmount'        => 0,
             // 初始化总数

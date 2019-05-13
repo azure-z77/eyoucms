@@ -340,7 +340,25 @@ class Index extends Base
             switch ($inc_type) {
                 case 'pay':
                 case 'shop':
+                {
                     getUsersConfigData($inc_type, [$name => $value]);
+
+                    // 同时开启会员中心
+                    if (1 == $value) {
+                        /*多语言*/
+                        if (is_language()) {
+                            $langRow = \think\Db::name('language')->order('id asc')
+                                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                                ->select();
+                            foreach ($langRow as $key => $val) {
+                                tpCache('web', ['web_users_switch' => 1], $val['mark']);
+                            }
+                        } else { // 单语言
+                            tpCache('web', ['web_users_switch' => 1]);
+                        }
+                        /*--end*/
+                    }
+
                     if (in_array($name, ['shop_open'])) {
                         // $data['reload'] = 1;
                         /*检测是否存在订单中心模板*/
@@ -372,8 +390,10 @@ class Index extends Base
                             ]);
                     }
                     break;
+                }
 
                 case 'web':
+                {
                     /*多语言*/
                     if (is_language()) {
                         $langRow = \think\Db::name('language')->order('id asc')
@@ -399,6 +419,7 @@ class Index extends Base
                         /*--end*/
                     }
                     break;
+                }
             }
 
             $this->success('操作成功', null, $data);
@@ -415,6 +436,24 @@ class Index extends Base
             $is_online = 1;
         }
         $this->assign('is_online',$is_online);
+
+        /*检测是否存在会员中心模板*/
+        if ('v1.0.1' > getVersion('version_themeusers')) {
+            $is_themeusers_exist = 1;
+        } else {
+            $is_themeusers_exist = 0;
+        }
+        $this->assign('is_themeusers_exist',$is_themeusers_exist);
+        /*--end*/
+
+        /*检测是否存在商城中心模板*/
+        if ('v1.0.1' > getVersion('version_themeshop')) {
+            $is_themeshop_exist = 1;
+        } else {
+            $is_themeshop_exist = 0;
+        }
+        $this->assign('is_themeshop_exist',$is_themeshop_exist);
+        /*--end*/
 
         return $this->fetch();
     }

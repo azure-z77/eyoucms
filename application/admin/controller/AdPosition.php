@@ -265,22 +265,24 @@ class AdPosition extends Base
      */
     public function del_imgupload()
     {
-        $filename= input('filename/s');
-        $filename= str_replace('../','',$filename);
-        $filename= trim($filename,'.');
-        
-        if(eyPreventShell($filename) && !empty($filename)){
-            $filename_new = trim($filename,'/');
-            $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-            $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-            $size = getimagesize($filename_new);
-            $fileInfo = explode('/',$size['mime']);
-            if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-                exit;
-            }
+        if (IS_POST) {
+            $filename= input('filename/s');
+            $filename= str_replace('../','',$filename);
+            $filename= trim($filename,'.');
+            
+            if(eyPreventShell($filename) && !empty($filename)){
+                $filename_new = trim($filename,'/');
+                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+                $size = getimagesize($filename_new);
+                $fileInfo = explode('/',$size['mime']);
+                if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                    exit;
+                }
 
-            if (!empty($filename)) {
-                Db::name('ad')->where("litpic = '$filename'")->delete();
+                if (!empty($filename)) {
+                    Db::name('ad')->where("litpic = '$filename'")->delete();
+                }
             }
         }
     }
@@ -292,7 +294,7 @@ class AdPosition extends Base
     {
         $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
-        if(!empty($id_arr)){
+        if(IS_POST && !empty($id_arr)){
             foreach ($id_arr as $key => $val) {
                 if(array_key_exists($val, $this->ad_position_system_id)){
                     $this->error('系统预定义，不能删除');

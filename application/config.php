@@ -244,7 +244,7 @@ return array(
         //  cookie 启用安全传输
         'secure'    => false,
         // httponly设置
-        'httponly'  => true,
+        'httponly'  => '', // 设置为true时，通过阻止 JS 读取 Cookie 来 防止XSS 攻击
         // 是否使用 setcookie
         'setcookie' => true,
     ),

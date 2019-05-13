@@ -505,8 +505,10 @@ class Product extends Base
      */
     public function del()
     {
-        $archivesLogic = new \app\admin\logic\ArchivesLogic;
-        $archivesLogic->del();
+        if (IS_POST) {
+            $archivesLogic = new \app\admin\logic\ArchivesLogic;
+            $archivesLogic->del();
+        }
     }
 
     /**
@@ -514,20 +516,22 @@ class Product extends Base
      */
     public function del_proimg()
     {
-        $filename= input('filename/s');
-        $filename= str_replace('../','',$filename);
-        $filename= trim($filename,'.');
-        if(eyPreventShell($filename) && !empty($filename)){
-            $filename_new = trim($filename,'/');
-            $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-            $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-            $size = getimagesize($filename_new);
-            $fileInfo = explode('/',$size['mime']);
-            if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-                exit;
-            }
-            if (!empty($filename)) {
-                M('product_img')->where("image_url = '$filename'")->delete();
+        if (IS_POST) {
+            $filename= input('filename/s');
+            $filename= str_replace('../','',$filename);
+            $filename= trim($filename,'.');
+            if(eyPreventShell($filename) && !empty($filename)){
+                $filename_new = trim($filename,'/');
+                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+                $size = getimagesize($filename_new);
+                $fileInfo = explode('/',$size['mime']);
+                if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                    exit;
+                }
+                if (!empty($filename)) {
+                    M('product_img')->where("image_url = '$filename'")->delete();
+                }
             }
         }
     }

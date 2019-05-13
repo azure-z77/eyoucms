@@ -4,11 +4,11 @@
 -- Server         : 127.0.0.1_3306
 -- Server Version : 5.5.53
 -- Host           : 127.0.0.1:3306
--- Database       : e12
+-- Database       : eyoucms_release
 -- 
 -- Part : #1
--- Version : #v1.3.3
--- Date : 2019-05-10 12:34:43
+-- Version : #v1.3.4
+-- Date : 2019-05-11 10:57:30
 -- -----------------------------------------
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -6438,8 +6438,8 @@ CREATE TABLE `ey_users_menu` (
 -- Records of `ey_users_menu`
 -- -----------------------------
 INSERT INTO `ey_users_menu` VALUES ('1', '个人信息', 'user/Users/index', '1', '100', '1', 'cn', '1555904190', '1555917737');
-INSERT INTO `ey_users_menu` VALUES ('2', '账户充值', 'user/Pay/pay_consumer_details', '0', '100', '0', 'cn', '1555904190', '1555917761');
-INSERT INTO `ey_users_menu` VALUES ('3', '订单中心', 'user/Shop/shop_centre', '0', '100', '0', 'cn', '1555904190', '1555917761');
+INSERT INTO `ey_users_menu` VALUES ('2', '账户充值', 'user/Pay/pay_consumer_details', '0', '100', '0', 'cn', '1555904190', '1557625970');
+INSERT INTO `ey_users_menu` VALUES ('3', '商城中心', 'user/Shop/shop_centre', '0', '100', '0', 'cn', '1555904190', '1557625953');
 
 -- -----------------------------
 -- Table structure for `ey_users_money`

@@ -1370,7 +1370,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
 /*图集上传 bug修正 2019.4.25*/
 .ui-sortable-placeholder{ display: inline-block; }
 .tab-pane .images_upload {
-	float: left;
+    float: left;
     width: 19%;
     margin-right: 1%;
     margin-top: 15px;
@@ -1386,18 +1386,21 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     background: #fff;
 }
 .tab-pane .images_upload .upimg img{     
-	vertical-align: middle;
+    vertical-align: middle;
     max-width: 100%;
     max-height: 140px;
-    position:absolute;top:50%;
+}
+.tab-pane .images_upload .ic img{
+    position:absolute;
+    top:50%;
     transform:translate(-50%,-50%);
 }
 .tab-pane .images_upload textarea{ 
-	width:100%; 
-	box-sizing: 
-	border-box;
-	margin-top: 5px;
-	font-size: 14px;
+    width:100%; 
+    box-sizing: 
+    border-box;
+    margin-top: 5px;
+    font-size: 14px;
     height: 50px;
     float: left;
     color: #999;
@@ -1409,7 +1412,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
 }
 .tab-pane .table-bordered{ width:100%; }
 .tab-pane a.upimg{ 
-	height: 140px;
+    height: 140px;
     background: #fafafa;
     overflow: hidden;
     text-align: center;
@@ -1428,7 +1431,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
 }
 .tab-pane .operation a input{ display: inline-block; margin-right: 3px; vertical-align:middle; margin-top: -3px;}
 a.imgupload{
-	display: inline-block;
+    display: inline-block;
     padding: .5em 1em;
     vertical-align: middle;
     font-size: 1.0rem;

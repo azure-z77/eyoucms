@@ -42,13 +42,13 @@ class FilemanagerLogic extends Model
         // 替换权限
         $this->replaceImgOpArr = array('gif','jpg','svg');
         // 编辑权限
-        $this->editOpArr = array('txt','htm','php','js','css');
+        $this->editOpArr = array('txt','htm','js','css');
         // 改名权限
-        $this->renameOpArr = array('dir','gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','php','js','css','other');
+        $this->renameOpArr = array('dir','gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','js','css','other');
         // 删除权限
         $this->delOpArr = array('dir','gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','php','js','css','other');
         // 移动权限
-        $this->moveOpArr = array('gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','php','js','css','other');
+        $this->moveOpArr = array('gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','js','css','other');
         // 允许新增/编辑扩展名文件
         $this->editExt = array('htm','js','css','txt');
     }

@@ -59,25 +59,25 @@ function AddHtml(data,types)
     var divhtml = $('#divhtml').html();
     var strings = '';
     // 替换ID值
-    strings = divhtml.replace('#ul_li_id#=""',    " id=\""+data.addr_id+"_ul_li\" ");
-    strings = strings.replace('#consigneeid#=""', " id=\""+data.addr_id+"_consignee\" ");
-    strings = strings.replace('#mobileid#=""',    " id=\""+data.addr_id+"_mobile\" ");
-    strings = strings.replace('#infoid#=""',      " id=\""+data.addr_id+"_info\" ");
-    strings = strings.replace('#addressid#=""',   " id=\""+data.addr_id+"_address\" ");
+    strings = divhtml.replace('#ul_li_id#',    data.addr_id + "_ul_li");
+    strings = strings.replace('#consigneeid#', data.addr_id + "_consignee");
+    strings = strings.replace('#mobileid#',    data.addr_id + "_mobile");
+    strings = strings.replace('#infoid#',      data.addr_id + "_info");
+    strings = strings.replace('#addressid#',   data.addr_id + "_address");
     // 替换地址内容信息
     strings = strings.replace('#consignee#', data.consignee);
     strings = strings.replace('#mobile#',    data.mobile);
     strings = strings.replace('#info#',      data.country+" "+data.province+" "+data.city+" "+data.district);
     strings = strings.replace('#address#',   data.address);
     // 替换JS方法
-    strings = strings.replace('#selected#=""',      " onclick=\"SelectEd('addr_id',"+data.addr_id+");\" ");
-    strings = strings.replace('#setdefault#=""',    " onclick=\"SetDefault(\'"+data.addr_id+"\');\" id=\""+data.addr_id+"_color\" ");
-    strings = strings.replace('#shopeditaddr#=""',  " onclick=\"ShopEditAddress(\'"+data.addr_id+"\');\" ");
-    strings = strings.replace('#shopdeladdr#=""',   " onclick=\"ShopDelAddress(\'"+data.addr_id+"\');\" ");
+    strings = strings.replace('#selected#',     "SelectEd('addr_id','" + data.addr_id + "');");
+    strings = strings.replace('#setdefault#',   "SetDefault('" + data.addr_id + "'); id='" + data.addr_id + "_color");
+    strings = strings.replace('#shopeditaddr#', "ShopEditAddress('" + data.addr_id + "');");
+    strings = strings.replace('#shopdeladdr#',  "ShopDelAddress('" + data.addr_id + "');");
     // 隐藏域，下单页第一次添加收货地址则出现一次，存在则替换数据
-    strings = strings.replace('"#name#"',  "addr_id");
-    strings = strings.replace('"#id#"',    "addr_id");
-    strings = strings.replace('"#value#"', data.addr_id);
+    strings = strings.replace('#name#',  "addr_id");
+    strings = strings.replace('#id#',    "addr_id");
+    strings = strings.replace('#value#', data.addr_id);
     // 追加到页面
     parent.$('#UlHtml').append(strings);
     if ('order' == types) {

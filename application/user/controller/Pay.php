@@ -469,6 +469,10 @@ class Pay extends Base
                 $config = new \WxPayConfig($config_data);
                 $wxpayapi = new \WxPayApi;
 
+                if (empty($config->app_id)) {
+                    $this->error('微信支付配置尚未配置完成。');
+                }
+
                 // 返回结果
                 $result = $wxpayapi->orderQuery($config, $input);
                 // 业务处理

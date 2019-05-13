@@ -57,7 +57,12 @@ class TagSppurchase extends Base
             'lang'    => $this->home_lang,
             'arcrank' => 0,
         ];
-        $price = Db::name('archives')->where($Where)->field('users_price')->find();
+        $archivesInfo = Db::name('archives')->where($Where)->field('channel,users_price')->find();
+        
+        if (!empty($archivesInfo['channel']) && 2 != $archivesInfo['channel']) {
+            echo '标签sppurchase报错：购物功能只能在产品模型的内容页中使用！';
+            return false;
+        }
 
         // JS方式及ID参数
         $t = getTime();
@@ -66,7 +71,7 @@ class TagSppurchase extends Base
         $result['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('+');\" ";
         $result['ShopAddCart']      = " onclick=\"shop_add_cart();\" ";
         $result['BuyNow']           = " onclick=\"BuyNow();\" ";
-        $result['users_price']      = $price['users_price'];
+        $result['users_price']      = $archivesInfo['users_price'];
 
         // 传入JS文件的参数
         $data['aid']                 = $aid;

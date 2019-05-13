@@ -469,7 +469,9 @@ class Article extends Base
      */
     public function del()
     {
-        $archivesLogic = new \app\admin\logic\ArchivesLogic;
-        $archivesLogic->del();
+        if (IS_POST) {
+            $archivesLogic = new \app\admin\logic\ArchivesLogic;
+            $archivesLogic->del();
+        }
     }
 }

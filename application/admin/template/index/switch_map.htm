@@ -72,59 +72,50 @@
                 </span>
             </dd>
         </dl>
-        <div class="{if condition='empty($globalConfig.web_users_switch)'}none{/if}" id="sub_web_users_switch">
-            <dl class="row">
-                <dt class="tit">
-                    <label for="uname">支付功能</label>
-                </dt>
-                <dd class="opt">
-                    <div class="onoff">
-                        <label for="pay_open1" class="cb-enable {if condition="$userConfig.pay_open == 1"}selected{/if}">开启</label>
-                        <label for="pay_open0" class="cb-disable {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"}selected{/if}">关闭</label>
-                        <input id="pay_open1" name="pay[pay_open]" value="1" type="radio" {if condition="$userConfig.pay_open == 1"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
-                        <input id="pay_open0" name="pay[pay_open]" value="0" type="radio" {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
-                    </div>
-                    <p class="notic">关闭则自动隐藏支付入口。</p>
-                    <span id="guide_pay_open" style="{if condition='!isset($userConfig.pay_open) || empty($userConfig.pay_open)'} display: none;{/if}">
-                        &nbsp;<a href="{:url('Member/money_index')}">[充值列表]</a>
-                        &nbsp;<a href="{:url('Member/pay_set')}">[接口配置]</a>
-                    </span>
-                </dd>
-            </dl>
-            <dl class="row">
-                <dt class="tit">
-                    <label for="uname">商城中心</label>
-                </dt>
-                <dd class="opt">
-                    <div class="onoff">
-                        <label for="shop_open1" class="cb-enable {if condition="$userConfig.shop_open == 1"}selected{/if}">开启</label>
-                        <label for="shop_open0" class="cb-disable {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"}selected{/if}">关闭</label>
-                        <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
-                        <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
-                    </div>
-                    <p class="notic">关闭则自动隐藏商城中心入口。</p>
-                    <span id="guide_shop_open" style="{if condition='!isset($userConfig.shop_open) || empty($userConfig.shop_open)'} display: none;{/if}">
-                        &nbsp;<a href="{:url('Shop/index')}">[订单列表]</a>
-                        &nbsp;<a href="{:url('Shop/conf')}">[功能配置]</a>
-                        &nbsp;<a href="javascript:void(0);" onclick="tag_call('shop_open');" class="red">[标签调用]</a>
-                    </span>
-                </dd>
-            </dl>
-        </div>
+        <dl class="row">
+            <dt class="tit">
+                <label for="uname">支付功能</label>
+            </dt>
+            <dd class="opt">
+                <div class="onoff">
+                    <label for="pay_open1" class="cb-enable {if condition="$userConfig.pay_open == 1"}selected{/if}">开启</label>
+                    <label for="pay_open0" class="cb-disable {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"}selected{/if}">关闭</label>
+                    <input id="pay_open1" name="pay[pay_open]" value="1" type="radio" {if condition="$userConfig.pay_open == 1"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
+                    <input id="pay_open0" name="pay[pay_open]" value="0" type="radio" {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
+                </div>
+                <p class="notic">关闭则自动隐藏支付入口。</p>
+                <span id="guide_pay_open" style="{if condition='!isset($userConfig.pay_open) || empty($userConfig.pay_open)'} display: none;{/if}">
+                    &nbsp;<a href="{:url('Member/money_index')}">[充值列表]</a>
+                    &nbsp;<a href="{:url('Member/pay_set')}">[接口配置]</a>
+                </span>
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="tit">
+                <label for="uname">商城中心</label>
+            </dt>
+            <dd class="opt">
+                <div class="onoff">
+                    <label for="shop_open1" class="cb-enable {if condition="$userConfig.shop_open == 1"}selected{/if}">开启</label>
+                    <label for="shop_open0" class="cb-disable {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"}selected{/if}">关闭</label>
+                    <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
+                    <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
+                </div>
+                <p class="notic">关闭则自动隐藏商城中心入口。</p>
+                <span id="guide_shop_open" style="{if condition='!isset($userConfig.shop_open) || empty($userConfig.shop_open)'} display: none;{/if}">
+                    &nbsp;<a href="{:url('Shop/index')}">[订单列表]</a>
+                    &nbsp;<a href="{:url('Shop/conf')}">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" onclick="tag_call('shop_open');" class="red">[标签调用]</a>
+                </span>
+            </dd>
+        </dl>
     </div>
 </div>
-<script type="text/javascript">
 
-    $(function(){
-        $('input[name="web[web_users_switch]"]').click(function(){
-            var web_users_switch = $(this).val();
-            if (1 == web_users_switch) {
-                $('#sub_web_users_switch').show();
-            } else {
-                $('#sub_web_users_switch').hide();
-            }
-        });
-    });
+<input type="hidden" name="is_themeusers_exist" id="is_themeusers_exist" value="{$is_themeusers_exist}">
+<input type="hidden" name="is_themeshop_exist" id="is_themeshop_exist" value="{$is_themeshop_exist}">
+
+<script type="text/javascript">
 
     // 提交表单
     function ajax_submit(obj, inc_type, name){
@@ -132,20 +123,65 @@
         var value = $(obj).val();
         var lmenuid = $(obj).attr('data-lmenuid');
         var url = "{:url('Index/switch_map')}";
+        // 验证
+        switch (name)
+        {
+            case 'shop_open':
+            case 'pay_open':
+                // 第一次使用会员中心，其他功能开关不与会员中心开关关联
+                var web_users_switch = $('input[name="web[web_users_switch]"]:checked').val();
+                if (1 == $('#is_themeusers_exist').val() && 1 != web_users_switch) {
+                    $('label[for='+name+'1]').removeClass('selected');
+                    $('#'+name+'1').attr('checked','');
+                    $('label[for='+name+'0]').addClass('selected');
+                    $('#'+name+'0').attr('checked','checked');
+                    if ('pay_open' == name) {
+                        nameTitle = '支付功能';
+                    } else if ('shop_open' == name) {
+                        nameTitle = '商城功能';
+                    }
+                    parent.layer.alert('使用【<font color="red">'+nameTitle+'</font>】请先开启【<font color="red">会员中心</font>】！', {icon: 3, title:false}, function(){
+                        parent.layer.closeAll();
+                        // $('label[for=web_users_switch0]').removeClass('selected');
+                        // $('#web_users_switch0').attr('checked','');
+                        // $('label[for=web_users_switch1]').addClass('selected');
+                        // $('#web_users_switch1').attr('checked','checked');
+                        // ajax_submit($('#web_users_switch1'), 'web', 'web_users_switch');
+                    });
+                    return false;
+                }
+                // --end
+                if(false == check_shop_open())
+                {
+                    return false;
+                }
+                // 同时开启会员中心
+                if (1 == value) {
+                    $('label[for=web_users_switch0]').removeClass('selected');
+                    $('#web_users_switch0').attr('checked','');
+                    $('label[for=web_users_switch1]').addClass('selected');
+                    $('#web_users_switch1').attr('checked','checked');
+                }
+                break;
+        }
         // 标签调用按钮的显示与隐藏
         if (1 == value) {
             $('#guide_'+name).show();
         } else {
             $('#guide_'+name).hide();
         }
-        // 验证
-        if ('shop_open' == name) {
-            if(false == check_shop_open())
-            {
-                return false;
-            }
+
+        if (1 == $('#is_themeusers_exist').val()) {
+            $('#is_themeusers_exist').val(0)
+            loadmsg = '初始化中';
+        } else if (1 == $('#is_themeshop_exist').val()) {
+            $('#is_themeshop_exist').val(0)
+            loadmsg = '初始化中';
+        } else {
+            loadmsg = '正在处理';
         }
-        parent_layer_loading('正在处理');
+        parent_layer_loading(loadmsg);
+
         $.ajax({
             type: "POST",
             url: url,

@@ -101,7 +101,7 @@ function SelectEd(idname,addr_id)
 {   
     if (addr_id) {
         $('#'+idname).val(addr_id);
-        var lis = $('.shop-address li');
+        var lis = $('#UlHtml li');
         var id  = addr_id+'_ul_li';
         $('#'+id).addClass("selected");
         lis.each(function(){

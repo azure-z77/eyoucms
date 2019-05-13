@@ -89,6 +89,7 @@ function changeTableVal(table,id_name,id_value,field,obj)
 
     var url = eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal";
     var lang = $.cookie('admin_lang');
+    if (!lang) lang = __lang__;
     if ($.trim(lang) != '') {
         url = url + '&lang=' + lang;
     }
