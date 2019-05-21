@@ -17,6 +17,8 @@ use common\util\File;
 use think\log;
 use think\Image;
 use think\Request;
+use think\Db;
+
 /**
  * Class UeditorController
  * @package admin\Controller
@@ -610,6 +612,14 @@ class Ueditor extends Base
         $return_data['original'] = ''; // 这里好像没啥用 暂时注释起来
         $return_data['state'] = $state;
         $return_data['path'] = $path;
+
+        // 是否开启七牛云插件
+        $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
+        if (!empty($data) && 1 == $data['status']) {
+            // 同步图片到七牛云
+            $return_data['url'] = SynchronizeQiniu($return_data['url']);
+        }
+
         respose($return_data,'json');
     }
     

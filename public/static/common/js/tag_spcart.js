@@ -7,7 +7,7 @@ $(function(){
 // 数量加减
 function CartUnifiedAlgorithm(aid,symbol,selected){
     var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
-    var url = JsonData.root_dir + JsonData.cart_unified_algorithm_url;
+    var url = JsonData.cart_unified_algorithm_url;
 
     var NumV         = $('#'+aid+'_num');       //数量
     var PriceV       = $('#'+aid+'_price');     //单价
@@ -71,7 +71,7 @@ function CartUnifiedAlgorithm(aid,symbol,selected){
 // 购物车选中产品
 function Checked(cart_id,selected){
     var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
-    var url = JsonData.root_dir + JsonData.cart_checked_url;
+    var url = JsonData.cart_checked_url;
 
     // html无刷新更新选中状态
     var TotalNumberV = $('#TotalNumber'); // 获取总数对象
@@ -177,7 +177,7 @@ function Checked(cart_id,selected){
 // 删除购物车产品
 function CartDel(cart_id,title){
     var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
-    var url = JsonData.root_dir + JsonData.cart_del_url;
+    var url = JsonData.cart_del_url;
     layer.confirm('确定要删除 <span style="color:red;">'+title+'</span> ？', {
         btn: ['确认', '取消'] //按钮
     }, function () {

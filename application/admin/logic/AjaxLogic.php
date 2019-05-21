@@ -50,6 +50,7 @@ class AjaxLogic extends Model
         $this->renameInstall(); // 重命名安装目录，提高网站安全性
         $this->del_adminlog(); // 只保留最近三个月的操作日志
         $this->syn_smtp_config(); // 同步插件【邮箱发送】的配置信息到内置表中
+        tpversion(); // 统计装载量，请勿删除，谢谢支持！
     }
     
     /**

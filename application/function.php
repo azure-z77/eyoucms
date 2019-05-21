@@ -1738,6 +1738,7 @@ if (!function_exists('strip_sql'))
                 "/\bdelimiter\b/i",
                 "/\bphar:\b/i",
                 "/\bphar\b/i",
+                "/\beval\b/i",
         );
         $replace_arr = array(
                 'ｕｎｉｏｎ',
@@ -1764,6 +1765,7 @@ if (!function_exists('strip_sql'))
                 'ｅｘｅｃ',         
                 'ｄｅｌｉｍｉｔｅｒ',
                 'ｐｈａｒ',
+                'ｅｖａｌ',
         );
      
         return is_array($string) ? array_map('strip_sql', $string) : preg_replace($pattern_arr, $replace_arr, $string);

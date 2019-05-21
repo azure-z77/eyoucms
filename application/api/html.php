@@ -18,6 +18,10 @@ return array(
         'view_path' => './application/api/template/',
         // 模板后缀
         'view_suffix' => 'htm',
+        // 模板引擎禁用函数
+        'tpl_deny_func_list' => 'eval,echo,exit',
+        // 默认模板引擎是否禁用PHP原生代码
+        'tpl_deny_php'       => true,
     ),
     // 视图输出字符串内容替换
     'view_replace_str' => array(

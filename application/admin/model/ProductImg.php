@@ -78,10 +78,12 @@ class ProductImg extends Model
                 if($val == null || empty($val))  continue;
                 
                 $img_info = array();
+                $filesize = 0;
                 if (is_http_url($val)) {
                     $imgurl = $val;
                 } else {
                     $imgurl = ROOT_PATH.ltrim($val, '/');
+                    $filesize = @filesize('.'.$val);
                 }
                 $img_info = @getimagesize($imgurl);
                 $width = isset($img_info[0]) ? $img_info[0] : 0;
@@ -89,7 +91,6 @@ class ProductImg extends Model
                 $type = isset($img_info[2]) ? $img_info[2] : 0;
                 $attr = isset($img_info[3]) ? $img_info[3] : '';
                 $mime = isset($img_info['mime']) ? $img_info['mime'] : '';
-                $filesize = @filesize($val);
                 $title = !empty($post['title']) ? $post['title'] : '';
                 ++$sort_order;
                 $data[] = array(
@@ -98,7 +99,7 @@ class ProductImg extends Model
                     'image_url'   => $val,
                     'width' => $width,
                     'height' => $height,
-                    'filesize'  => ($filesize ? $filesize : 0),
+                    'filesize'  => $filesize,
                     'mime'  => $mime,
                     'sort_order'    => $sort_order,
                     'add_time' => getTime(),

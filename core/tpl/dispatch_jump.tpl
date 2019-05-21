@@ -26,18 +26,18 @@
 </head>
 <body>
     <div class="system-message">
-        <?php switch ($code) {?>
-            <?php case 1:?>
+        {switch name="$code"}
+            {case value="1"}
             <h1 class="glyphicon glyphicon-ok-circle" style="color:#09F"></h1>
-            <p class="success"><?php echo(strip_tags($msg));?></p>
-            <?php break;?>
-            <?php case 0:?>
+            <p class="success">{$msg|strip_tags=###}</p>
+            {/case}
+            {case value="0"}
             <h1 class="glyphicon glyphicon-exclamation-sign" style="color:#F33"></h1>
-            <p class="error"><?php echo(strip_tags($msg));?></p>
-            <?php break;?>
-        <?php } ?>
+            <p class="error">{$msg|strip_tags=###}</p>
+            {/case}
+        {/switch}
         <p class="detail"></p>
-        <p class="jump">页面自动 <a id="href" href="<?php echo($url); ?>" target="<?php $target = !empty($target) ? $target : '_self'; echo($target);?>">跳转</a> 等待时间：<b id="wait"><?php echo($wait);?></b>
+        <p class="jump">页面自动 <a id="href" href="{$url}" target="{empty name='$target'}_self{else /}{$target}{/empty}">跳转</a> 等待时间：<b id="wait">{$wait}</b>
         </p>
     </div>
     <script type="text/javascript">

@@ -5,7 +5,7 @@ function CancelOrder(order_id) {
     }, function () {
         // 确定
         var JsonData = eeb8a85ee533f74014310e0c0d12778;
-        var url = JsonData.root_dir + JsonData.shop_order_cancel;
+        var url = JsonData.shop_order_cancel;
         $.ajax({
             url: url,
             data: {order_id:order_id},
@@ -25,5 +25,17 @@ function CancelOrder(order_id) {
     }, function (index) {
         // 关闭
         layer.closeAll(index);
+    });
+}
+
+function LogisticsInquiry(url){
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: '物流查询',
+        shadeClose: false,
+        maxmin: false, //开启最大化最小化按钮
+        area: ['80%', '80%'],
+        content: url
     });
 }

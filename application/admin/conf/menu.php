@@ -131,6 +131,7 @@ $users_index_arr = array();
 if (1 == tpCache('web.web_users_switch') && $main_lang == $admin_lang) {
     $users_index_arr = array(
         'is_menu' => 1,
+        'is_modules' => 1,
     );
 }
 /*--end*/
@@ -473,6 +474,20 @@ return  array(
                 'icon'=>'fa fa-user',
                 'grade'=>1,
                 'is_menu'=>isset($users_index_arr['is_menu']) ? $users_index_arr['is_menu'] : 0,
+                'is_modules'=>isset($users_index_arr['is_modules']) ? $users_index_arr['is_modules'] : 0,
+                'child' => array(),
+            ),
+            '2007' => array(
+                'id'=>2007,
+                'parent_id'=>2000,
+                'name' => '功能开关',
+                'controller'=>'Index',
+                'action'=>'switch_map',
+                'url'=>'',
+                'target'=>'workspace',
+                'icon'=>'fa fa-toggle-on',
+                'grade'=>1,
+                'is_menu'=>0,
                 'is_modules'=>1,
                 'child' => array(),
             ),

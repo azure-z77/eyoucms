@@ -86,7 +86,9 @@ class FilemanagerLogic extends Model
             return "请把模板文件目录设置为可写入权限！";
         }
         if ('css' != $ext) {
-            $content = stripslashes($content);
+            $content = htmlspecialchars_decode($content, ENT_QUOTES);
+            $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
+            $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
         }
         $fp = fopen($file, "w");
         fputs($fp, $content);

@@ -1,7 +1,7 @@
 // 添加收货地址
 function ShopAddAddress(){
     var JsonData = aeb461fdb660da59b0bf4777fab9eea;
-    var url = JsonData.root_dir + JsonData.shop_add_address;
+    var url = JsonData.shop_add_address;
 
     var url = url;
     if (url.indexOf('?') > -1) {
@@ -24,7 +24,7 @@ function ShopAddAddress(){
 // 更新收货地址
 function ShopEditAddress(addr_id){
     var JsonData = aeb461fdb660da59b0bf4777fab9eea;
-    var url = JsonData.root_dir + JsonData.shop_edit_address;
+    var url = JsonData.shop_edit_address;
 
     var url = url;
     if (url.indexOf('?') > -1) {
@@ -52,7 +52,7 @@ function ShopDelAddress(addr_id){
     }, function () {
         // 是
         var JsonData = aeb461fdb660da59b0bf4777fab9eea;
-        var url = JsonData.root_dir + JsonData.shop_del_address;
+        var url = JsonData.shop_del_address;
 
         $.ajax({
             url: url,
@@ -83,7 +83,7 @@ function SetDefault(addr_id){
     }, function () {
         // 是
         var JsonData = aeb461fdb660da59b0bf4777fab9eea;
-        var url = JsonData.root_dir + JsonData.shop_set_default;
+        var url = JsonData.shop_set_default;
 
         $.ajax({
             url: url,

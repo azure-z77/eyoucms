@@ -212,11 +212,66 @@ class Shop extends Base {
                 'note'          => $post['note'],
                 'virtual_delivery' => $post['virtual_delivery'],
             ];
-            $Note = '使用'.$post['express_name'].'发货成功！';
-            // 虚拟订单，无需发货物流。
-            if ('1' == $post['prom_type']) {
+            
+            // 订单操作记录逻辑
+            $LogWhere = [
+                'order_id'       => $post['order_id'],
+                'express_status' => 1,
+            ];
+            $LogData   = $this->shop_order_log_db->where($LogWhere)->count();
+            if (!empty($LogData)) {
+                // 数据存在则表示为修改发货内容
+                $OrderData = $this->shop_order_db->where($Where)->field('prom_type')->find();
+                $Desc = '修改发货内容！';
+                if ('1' == $post['prom_type']) {
+                    // 提交的数据为虚拟订单
+                    if ($OrderData['prom_type'] != $post['prom_type']) {
+                        // 此处判断后，提交的订单类型和数据库中的订单类型不相同，表示普通订单修改为虚拟订单
+                        $Note = '管理员将普通订单修改为虚拟订单！';
+                        if (!empty($post['virtual_delivery'])) {
+                            // 若存在数据则拼装
+                            $Note .= '给买家回复：'.$post['virtual_delivery'];
+                        }
+                    }else{
+                        // 继续保持为虚拟订单修改
+                        $Note = '虚拟订单，无需物流。';
+                        if (!empty($post['virtual_delivery'])) {
+                            // 若存在数据则拼装
+                            $Note .= '给买家回复：'.$post['virtual_delivery'];
+                        }
+                    }
+                }else{
+                    // 提交的数据为普通订单
+                    if ($OrderData['prom_type'] != $post['prom_type']) {
+                        // 这一段暂时无用，因为发货时，暂时无法选择将虚拟订单修改为普通订单
+                        $Note = '管理员将虚拟订单修改为普通订单！';
+                        if (!empty($post['virtual_delivery'])) {
+                            // 若存在数据则拼装
+                            $Note .= '给买家回复：'.$post['virtual_delivery'];
+                        }
+                    }else{
+                        // 继续保持为普通订单修改
+                        $Note = '使用'.$post['express_name'].'发货成功！';
+                    }
+                }
                 $UpdateData['prom_type'] = $post['prom_type'];
-                $Note = '订单为虚拟订单，无需物流。';
+            }else{
+                // 数据不存在则表示为初次发货，拼装发货内容
+                $Desc = '发货成功！';
+                $Note = '使用'.$post['express_name'].'发货成功！';
+                if ('1' == $post['prom_type']) {
+                    // 若为虚拟订单，无需发货物流。
+                    $UpdateData['prom_type'] = $post['prom_type'];
+                    $Note = '虚拟订单，无需物流。';
+                    if (!empty($post['virtual_delivery'])) {
+                        // 若存在数据则拼装
+                        $Note .= '给买家回复：'.$post['virtual_delivery'];
+                    }
+                }
+            }
+
+            if (empty($post['prom_type']) && empty($post['express_order'])) {
+                $this->error('配送单号不能为空！');
             }
 
             // 更新订单主表信息
@@ -226,7 +281,7 @@ class Shop extends Base {
                 $Data['update_time'] = getTime();
                 $this->shop_order_details_db->where('order_id',$post['order_id'])->update($Data);
                 // 添加订单操作记录
-                AddOrderAction($post['order_id'],'0',session('admin_id'),'2','1','1','发货成功！',$Note);
+                AddOrderAction($post['order_id'],'0',session('admin_id'),'2','1','1',$Desc,$Note);
                 $this->success('发货成功');
             } else {
                 $this->error('发货失败');
@@ -493,7 +548,12 @@ class Shop extends Base {
         }else{
             $OrderData['prom_type_name'] = '虚拟订单';
         }
+
+        // 移动端查询物流链接
+        $MobileExpressUrl = "https://m.kuaidi100.com/index_all.html?type=".$OrderData['express_code']."&postid=".$OrderData['express_order'];
+
         // 加载数据
+        $this->assign('MobileExpressUrl', $MobileExpressUrl);
         $this->assign('OrderData', $OrderData);
         $this->assign('DetailsData', $DetailsData);
         $this->assign('UsersData', $UsersData);

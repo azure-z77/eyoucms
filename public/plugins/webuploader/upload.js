@@ -973,7 +973,7 @@ $(function() {
 		
 		del:function(obj){
 			if(!confirm('确定删除吗?')) return false;
-		    $.get(eyou_basefile+"?m="+module_name+"&c=Uploadify&a=delupload",{action:"del", filename:$(obj).attr('data-img')},function(res){
+		    $.post(eyou_basefile+"?m="+module_name+"&c=Uploadify&a=delupload",{action:"del", filename:$(obj).attr('data-img')},function(res){
 					if(res == 1){
 			    		var id = $(obj).parents('.state-complete').attr('id');
 						removeFileById(id);

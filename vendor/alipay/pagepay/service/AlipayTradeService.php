@@ -136,6 +136,52 @@ class AlipayTradeService {
 	}
 	
 	/**
+	 * 用于后台验证新版支付宝信息是否正确
+	 * @param $builder 业务参数，使用buildmodel中的对象生成。
+	 * @return $response 支付宝返回的信息
+ 	*/
+	function IsQuery($builder,$admin_pay){
+		$biz_content=$builder->getBizContent();
+		//打印业务参数
+		$this->writeLog($biz_content);
+		$request = new AlipayTradeQueryRequest();
+		$request->setBizContent ( $biz_content );
+
+		$response = $this->aopclientRequestExecute_new($request,$admin_pay);
+		if ('支付宝APPID错误！' == $response) {
+			return $response;
+		}
+		if ('支付宝公钥错误！' == $response) {
+			return $response;
+		}
+		$response = $response->alipay_trade_query_response;
+		return $response;
+	}
+
+	/**
+	 * 用于后台验证新版支付宝信息是否正确
+	 * @param $request 接口请求参数对象。
+	 * @return $response 支付宝返回的信息
+ 	*/
+	function aopclientRequestExecute_new($request,$admin_pay) {
+		$aop = new AopClient ();
+		$aop->gatewayUrl = $this->gateway_url;
+		$aop->appId = $this->appid;
+		$aop->rsaPrivateKey =  $this->private_key;
+		$aop->alipayrsaPublicKey = $this->alipay_public_key;
+		$aop->apiVersion ="1.0";
+		$aop->postCharset = $this->charset;
+		$aop->format= $this->format;
+		$aop->signType=$this->signtype;
+		// 开启页面信息输出
+		$aop->debugInfo=true;
+
+		$result = $aop->Execute($request,'','',$admin_pay);
+		return $result;
+	}
+
+
+	/**
 	 * alipay.trade.refund (统一收单交易退款接口)
 	 * @param $builder 业务参数，使用buildmodel中的对象生成。
 	 * @return $response 支付宝返回的信息

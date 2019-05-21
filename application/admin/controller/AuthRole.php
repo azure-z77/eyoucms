@@ -122,7 +122,11 @@ class AuthRole extends Base {
         $this->assign('arctype_array', $arctype_array);
 
         // 插件
-        $plugins = model('Weapp')->getList(['status'=>1]);
+        $plugins = false;
+        $web_weapp_switch = tpCache('web.web_weapp_switch');
+        if (1 == $web_weapp_switch) {
+            $plugins = model('Weapp')->getList(['status'=>1]);
+        }
         $this->assign('plugins', $plugins);
 
         return $this->fetch();
@@ -202,7 +206,11 @@ class AuthRole extends Base {
         $this->assign('arctype_array', $arctype_array);
 
         // 插件
-        $plugins = model('Weapp')->getList(['status'=>1]);
+        $plugins = false;
+        $web_weapp_switch = tpCache('web.web_weapp_switch');
+        if (1 == $web_weapp_switch) {
+            $plugins = model('Weapp')->getList(['status'=>1]);
+        }
         $this->assign('plugins', $plugins);
 
         return $this->fetch();

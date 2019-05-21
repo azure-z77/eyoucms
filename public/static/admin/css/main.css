@@ -4,7 +4,7 @@ body { background: #FFF; min-width: 1000px; }
 html, body { height: 100%; overflow: hidden; }
 html { -webkit-text-size-adjust: none; }
 body, td, input, textarea, select,
-button { color: #555; font-size: 12px; font-family: "Microsoft Yahei", "Lucida Grande", Verdana, Lucida, Helvetica, Arial, sans-serif; }
+button { color: #555; font-size: 13px; font-family: "Microsoft Yahei", "Lucida Grande", Verdana, Lucida, Helvetica, Arial, sans-serif; }
 body, ul, ol, li, dl, dt, dd, p, h1, h2, h3, h4, h5, h6, form, fieldset { margin: 0; padding: 0; }
 ul, ol, li { list-style-image: none; list-style-type: none; }
 h1, h2, h3, h4, h5, h6 { font-size: 12px; }
@@ -557,7 +557,7 @@ cursor: pointer; }
 .flexigrid .bDiv td.sign input,.flexigrid .hDiv th.sign input{ margin: 5px 8px; }
 .flexigrid .bDiv td div {}
 .flexigrid .bDiv a { color: #3b639f; }
-.flexigrid .bDiv a:hover { text-decoration: underline; color: #ff6600; }
+.flexigrid .bDiv a:hover { text-decoration: underline;}
 .flexigrid .bDiv td i.ico-check { background: url(../images/flexigrid_pic.png) no-repeat 0 0; display: inline-block; width: 20px; height: 20px; }
 .flexigrid .bDiv .trSelected td i.ico-check { background-position: -20px 0; }
 .flexigrid .bDiv td .on,
@@ -1213,14 +1213,14 @@ img.layer_tips_img {
     max-height: 250px;
 }
 
-.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #ff6f06;border-color: #ff5606; border-radius: 3px;}
-.flexigrid .mDiv .fbutton div.add:hover{ background-color: #ff5606;border-color: #ff5606;}
+.flexigrid .mDiv .fbutton div.add{padding: 2px 16px;color: #fff;background-color: #FF6666;border-color: #FF6666; border-radius: 3px;}
+.flexigrid .mDiv .fbutton div.add:hover{ background-color: #FF534D;border-color: #FF534D;}
 .flexigrid .mDiv .fbutton{ float: right; padding-right: 0px; margin-right: 0px;}
 div.addartbtn{ border:none !important; }
-.addartbtn input.btn{ color: #fff;background-color: #ff6f06;border:1px solid #ff6f06 !important; height: 28px !important;} 
-.addartbtn input.btn:hover{background-color: #ff5606 !important;}
+.addartbtn input.btn{ color: #fff;background-color: #FF6666;border:1px solid #FF6666 !important; height: 28px !important;} 
+.addartbtn input.btn:hover{background-color: #FF534D !important;}
 .addartbtn input.btn.current{background: #e7e7e7;color: #000; border:none !important;}
-.addartbtn input.btn.current:hover{ background: #ff6f06 !important; color:#fff; /* cursor: default; */ }
+.addartbtn input.btn.current:hover{ background: #FF6666 !important; color:#fff; /* cursor: default; */ }
 div.probtn{ float: left; margin-right: 6px; }
 div.probtn input.btn{ color: #fff;background-color: #25C6FC; border:none !important;border:1px solid #25C6FC !important;}
 div.probtn input.btn:hover{background-color: #3f6fb6 !important;}
@@ -1385,6 +1385,10 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     float: left;
     background: #fff;
 }
+.tab-pane .images_upload .cover-bg{ background: #000; opacity: 0.5; width:100%; height: 100%; position: absolute; z-index: 2 }
+.tab-pane .images_upload .icaction{position: absolute; top:50%; margin-top: -15px; text-align: center; width:100%; z-index: 111}
+.tab-pane .images_upload .icaction span{ height: 28px; line-height: 28px; padding: 0 8px; background: #FF6666;  color: #fff; display: inline-block; cursor: pointer;}
+
 .tab-pane .images_upload .upimg img{     
     vertical-align: middle;
     max-width: 100%;
@@ -1394,6 +1398,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     position:absolute;
     top:50%;
     transform:translate(-50%,-50%);
+    z-index: 1;
 }
 .tab-pane .images_upload textarea{ 
     width:100%; 
@@ -1411,7 +1416,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1) 0s;
 }
 .tab-pane .table-bordered{ width:100%; }
-.tab-pane a.upimg{ 
+.tab-pane a.upimg,.tab-pane div.upimg{ 
     height: 140px;
     background: #fafafa;
     overflow: hidden;
@@ -1448,12 +1453,16 @@ a.imgupload{
     background-color: #3bb4f2;
     border-color: #3bb4f2;
 }
+.tab-pane .operation a label{
+     cursor: pointer;
+}
 a.imgupload i{font-size: 1.0rem;}
 a.imgupload:hover{ background-image: linear-gradient(160deg, #3bb4f2 20%,#008cff 80%);}
 
  @media (max-width:1680px) {
 .tab-pane .images_upload{width: 24%;}
 .tab-pane .operation a{ font-size: 12px; }
+.tab-pane .operation a label{cursor: pointer;}
 }
 div.tab-pane.pics a.upimg{ height: auto; padding: 8px; padding-bottom:0px; }
 div.tab-pane.pics .images_upload{ width:auto; }

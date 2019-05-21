@@ -31,9 +31,12 @@
                 </dt>
                 <dd class="opt">          
                     <div class="tab-pane" id="tab_imgupload">
+                        {eq name='$main_lang' value='$admin_lang'}
                         <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="imgupload">
                             <i class="fa fa-photo"></i>上传图片
                         </a>
+                        {/eq}
+                        <input type="hidden" id="ImagesId">
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
@@ -41,41 +44,50 @@
                                     {volist name="ad_data" id="vo" key="k"}
                                         <div class="images_upload">
                                             <div class="ic">
-                                            <a href="{$vo['litpic']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
-                                                <img src="{$vo['litpic']}" />
-                                            </a>
+                                                <div class='upimg' title="拖动修改排序" >
+                                                    <div class='icaction' style="display: none" >
+                                                        <span class="load_images" onclick="Images('{$vo['litpic']}');">
+                                                            <a href="javascript:void(0);" style="color:white">
+                                                                <i class='fa fa-search-plus'></i>查看大图
+                                                            </a>
+                                                        </span>
+                                                        <span class="load_images mr5" onclick="LoadImagesId('{$vo['id']}');">
+                                                            <i class='fa fa-photo'></i>更换图片
+                                                        </span>
+                                                    </div>
+                                                    <div class='cover-bg' style="display: none" ></div>
+                                                    <img id="{$vo['id']}_Id" src="{$vo['litpic']}"/>
+                                                </div>
 
-                                            <input type="hidden" name="img_id[{$k}][id]" value="{$vo['id']}"/>
-                                            <span class="span_input">
-                                                <input type="hidden" name="img_litpic[{$k}][litpic]" value="{$vo['litpic']}"/>
-                                            </span>
-                                            <textarea name="img_title[{$k}][title]" placeholder="请输入标题...">{$vo.title}</textarea>
-                                            <textarea name="img_links[{$k}][links]" placeholder="请输入链接网址...">{$vo.links}</textarea>
+                                                <input type="hidden" name="img_id[]" value="{$vo['id']}"/>
+                                                <span class="span_input">
+                                                    <input type="hidden" id="{$vo['id']}_Litpic" name="img_litpic[]" value="{$vo['litpic']}"/>
+                                                </span>
+                                                <textarea name="img_title[]" placeholder="请输入标题...">{$vo.title}</textarea>
+                                                <textarea name="img_links[]" placeholder="请输入链接网址...">{$vo.links}</textarea>
 
-                                            <div class="operation">
-                                                <a href="javascript:void(0);">
-                                                    <input type="checkbox" name="img_target[{$k}][target]" {eq name="$vo['target']" value="1"} checked="checked" {/eq} title="在新窗口打开" />新窗口
-                                                </a>
-                                                <a href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']})">
-                                                    <i class="fa fa-file-code-o"></i>标签调用
-                                                </a>
-                                                <a href="javascript:void(0)" onclick="ClearPicArr(this,'{$vo['litpic']}')">
-                                                    <i class="fa fa-remove"></i>删除
-                                                </a>
-                                            </div>
+                                                <div class="operation">
+                                                    <a href="javascript:void(0);">
+                                                        <label>
+                                                            <input type="checkbox" {eq name="$vo['target']" value="1"} checked="checked" {/eq} title="在新窗口打开" onclick="CheckedTarget(this)"/>新窗口
+                                                            <input type="hidden" name="img_target[]" value="{$vo['target']}">
+                                                        </label>
+                                                    </a>
+                                                    <a href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']})">
+                                                        <i class="fa fa-file-code-o"></i>标签调用
+                                                    </a>
+                                                    {eq name='$main_lang' value='$admin_lang'}
+                                                        <a href="javascript:void(0)" onclick="ClearPicArr(this,'{$vo['litpic']}','{$vo['id']}')">
+                                                            <i class="fa fa-remove"></i>删除
+                                                        </a>
+                                                    {/eq}
+                                                </div>
+
                                             </div>
                                         </div>
                                     {/volist}
-                                    <!--
-                                    <div class="images_upload" style="display:inline-block;">
-                                        <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="upimg">
-                                        <i class="fa fa-upload"></i>
-                                        上传
-                                        </a>
-                                        <br/>
-                                        <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                    <div class="images_upload">
                                     </div>
-                                    -->
                                 </td>
                             </tr>
                             </tbody>
@@ -85,20 +97,27 @@
                     <div class="images_upload_tpl none">
                         <div class="images_upload ic">
                             <div class="ic">
-                            <input type="hidden" name="imgupload[]" value="" />
-                            <a href="javascript:void(0);" onClick="" class="upimg">
-                                <img src="__STATIC__/admin/images/add-button.jpg" />
-                            </a>
-                            <span class="span_input">
+                                <div class='upimg' title="拖动修改排序" >
+                                    <div class='icaction' style="display: none">
+                                        <span class="load_images" onclick="">
+                                            <a href="javascript:void(0);" style="color: white">
+                                                <i class='fa fa-search-plus'></i>查看大图
+                                            </a>
+                                        </span>
+                                    </div>
+                                    <div class='cover-bg' style="display: none"></div>
+                                    <img src="__STATIC__/admin/images/add-button.jpg"/>
+                                </div>
                                 <input type="hidden"/>
-                            </span>
-                            <textarea placeholder="请输入标题..."></textarea>
-                            <textarea placeholder="请输入链接网址..."></textarea>
-                            <div class="operation">
-                                <a href="javascript:void(0)">&nbsp;&nbsp;</a>
-                                <a href="javascript:void(0)">&nbsp;&nbsp;</a>
-                                <!-- <a href="javascript:void(0)">&nbsp;&nbsp;</a> -->
-                            </div>
+                                <span class="span_input">
+                                    <input type="hidden"/>
+                                </span>
+                                <textarea placeholder="请输入标题..."></textarea>
+                                <textarea placeholder="请输入链接网址..."></textarea>
+                                <div class="operation">
+                                    <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                    <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -123,6 +142,64 @@
     </form>
 </div>
 <script type="text/javascript">
+    // 勾选新窗口打开链接
+    function CheckedTarget(t){
+        if ($(t).is(':checked')) {
+            $(t).parent().find('input[name="img_target[]"]').val(1);
+        }else{
+            $(t).parent().find('input[name="img_target[]"]').val(0);
+        }
+    }
+
+    // 鼠标事件，加载查看大图和更新图片
+    $(document).ready(function(){
+       $(".upimg").live('mouseover', function(){
+            $(this).find('div.icaction').show();
+            $(this).find('div.cover-bg').show();
+       }).live('mouseout', function(){
+            $(this).find('div.icaction').hide();
+            $(this).find('div.cover-bg').hide();
+       });
+    });
+
+    // 查看大图
+    function Images(links){
+        var max_width = 900;
+        var max_height = 600;
+        var img = "<img src='"+links+"'/>";
+        $(img).load(function() {
+            width  = this.width;
+            height = this.height;
+            if (width > height) {
+                if (width > max_width) {
+                    width = max_width;
+                }
+                width += 'px';
+            } else {
+                width = 'auto';
+            }
+            if (width < height) {
+                if (height > max_height) {
+                    height = max_height;
+                }
+                height += 'px';
+            } else {
+                height = 'auto';
+            }
+
+            var links_img = "<img style='width:"+width+";height:"+height+";' src="+links+">";
+            
+            layer.open({
+                type: 1,
+                title: false,
+                closeBtn: true,
+                area: [width, height],
+                skin: 'layui-layer-nobg', //没有背景色
+                content: links_img
+            });
+        });
+    }
+
     // 判断输入框是否为空
     function checkForm(){
         if($('input[name=title]').val() == ''){
@@ -133,50 +210,62 @@
         $('#post_form').submit();
     }
 
+    // 获取点击更新图片的ID并加载隐藏域
+    function LoadImagesId(id){
+        // 加载ID到隐藏域
+        $('#ImagesId').val(id);
+        // 调用图片上传JS
+        GetUploadify(1,'','allimg','UpdataImages');
+    }
+
+    // 更新图片
+    function UpdataImages(path){
+        // 获取点击的ID
+        var id = $('#ImagesId').val();
+        // 加载图片到显示层
+        $("#"+id+"_Id").attr('src', path);
+        // 加载图片到提交的隐藏域
+        $("#"+id+"_Litpic").val(path);
+    }
+
     // 上传图集相册回调函数
     function imgupload_call_back(paths){
-        console.log(paths);
-        var last_div    = $(".images_upload_tpl").html();
-        var span_inputs = $('.span_input input');
-
+        var last_div = $(".images_upload_tpl").html();
+        var inputs   = $('.span_input input');
+        // 图片数据处理
         for (var i=0;i<paths.length ;i++){
             $(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
-            $(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
-            $(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-
-            // 处理图片路径
-            if (span_inputs.length > '0') {
-                $(".span_input:eq(0)").find('input:eq(0)').attr('name','img_litpic'+'['+span_inputs.length+']'+'[litpic]');
-                $(".span_input:eq(0)").find('input:eq(0)').attr('value',paths[i]);
+            // 修改他的链接地址
+            $(".images_upload:eq(0)").find('span:eq(0)').attr('onclick',"Images('"+paths[i]+"');");
+            // 修改他的图片路径
+            $(".images_upload:eq(0)").find('img').attr('src',paths[i]);
+            // 处理图片路径及隐藏域
+            if (inputs.length > '0') {
+                // 修改隐藏域
+                $(".images_upload:eq(0)").find('input:eq(0)').attr('name','img_id[]').attr('value','');
+                $(".span_input:eq(0)").find('input:eq(0)').attr('name','img_litpic[]').attr('value',paths[i]);
                 // 处理标题
-                $(".images_upload:eq(0)").find('textarea:eq(0)').attr('name','img_title'+'['+span_inputs.length+']'+'[title]');
+                $(".images_upload:eq(0)").find('textarea:eq(0)').attr('name','img_title[]');
                 // 处理跳转链接
-                $(".images_upload:eq(0)").find('textarea:eq(1)').attr('name','img_links'+'['+span_inputs.length+']'+'[links]');
-                var name = 'img_target'+'['+span_inputs.length+']'+'[target]';
-                // 处理新窗口选项
-                $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<input type=\"checkbox\" name=\""+name+"\" title=\"在新窗口打开\" />新窗口");
-
-                // 处理标签调用
-                // $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"copyToClipBoard()").html("<i class=\"fa fa-file-code-o\"></i>标签调用");
-
-                // 处理删除
-                $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"ClearPicArr(this,'"+paths[i]+"')").html("<i class=\"fa fa-remove\"></i>删除");
-
-                span_inputs.length++;
+                $(".images_upload:eq(0)").find('textarea:eq(1)').attr('name','img_links[]');
+                // 提交新窗口选项
+                $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<label><input type='checkbox' title='在新窗口打开' onclick='CheckedTarget(this)'/>新窗口<input type='hidden' name='img_target[]' value='0'></label>");
+                // 删除按钮
+                $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"ClearPicArr(this,'"+paths[i]+"')").html("<i class='fa fa-remove'></i>删除");
             }
         }
     }
 
     // 上传之后删除组图input
-    function ClearPicArr(obj,path)
+    function ClearPicArr(obj,path,id='')
     {
         // 删除数据库记录
         $.ajax({
             type:'POST',
             url:"{:url('AdPosition/del_imgupload')}",
-            data:{filename:path},
+            data:{del_id:id},
             success:function(){
-                $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片   
+                $(obj).parent().parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片
                 $.ajax({
                     type:'POST',
                     url:"{:url('Uploadify/delupload')}",

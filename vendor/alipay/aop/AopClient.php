@@ -428,7 +428,7 @@ class AopClient {
 	}
 
 
-	public function execute($request, $authToken = null, $appInfoAuthtoken = null) {
+	public function execute($request, $authToken = null, $appInfoAuthtoken = null,$admin_pay = null) {
 
 		$this->setupCharsets($request);
 
@@ -550,8 +550,16 @@ class AopClient {
 			return false;
 		}
 
-		// 验签
-		$this->checkResponseSign($request, $signData, $resp, $respObject);
+		if (!empty($admin_pay)) {
+			// 验签，用于后台支付宝配置信息判断
+			$resultS = $this->checkResponseSign_new($request, $signData, $resp, $respObject);
+			if (!empty($resultS)) {
+				return $resultS;
+			}
+		}else{
+			// 验签
+			$this->checkResponseSign($request, $signData, $resp, $respObject);
+		}
 
 		// 解密
 		if (method_exists($request,"getNeedEncrypt") &&$request->getNeedEncrypt()){
@@ -1055,6 +1063,38 @@ class AopClient {
 			}
 
 
+		}
+	}
+
+	/**
+	 * 验签，用于后台支付宝配置验证
+	 * @param $request
+	 * @param $signData
+	 * @param $resp
+	 * @param $respObject
+	 * @throws Exception
+	 */
+	public function checkResponseSign_new($request, $signData, $resp, $respObject) {
+		if (!$this->checkEmpty($this->alipayPublicKey) || !$this->checkEmpty($this->alipayrsaPublicKey)) {
+			if ($signData == null || $this->checkEmpty($signData->sign) || $this->checkEmpty($signData->signSourceData)) {
+				return '支付宝APPID错误！';
+			}
+			// 获取结果sub_code
+			$responseSubCode = $this->parserResponseSubCode($request, $resp, $respObject, $this->format);
+			if (!$this->checkEmpty($responseSubCode) || ($this->checkEmpty($responseSubCode) && !$this->checkEmpty($signData->sign))) {
+				$checkResult = $this->verify($signData->signSourceData, $signData->sign, $this->alipayPublicKey, $this->signType);
+				if (!$checkResult) {
+					if (strpos($signData->signSourceData, "\\/") > 0) {
+						$signData->signSourceData = str_replace("\\/", "/", $signData->signSourceData);
+						$checkResult = $this->verify($signData->signSourceData, $signData->sign, $this->alipayPublicKey, $this->signType);
+						if (!$checkResult) {
+							throw new Exception("check sign Fail! [sign=" . $signData->sign . ", signSourceData=" . $signData->signSourceData . "]");
+						}
+					} else {
+						return '支付宝公钥错误！';
+					}
+				}
+			}
 		}
 	}
 

@@ -37,7 +37,6 @@ class TagSpaddress extends Base
             $AddressData[0]['ShopAddAddr'] = " onclick=\"ShopAddAddress();\" ";
             $AddressData[0]['UlHtmlId']    = " id=\"UlHtml\" ";
             // 传入JS参数
-            $data['root_dir']          = $this->root_dir;
             $data['shop_add_address']  = url('user/Shop/shop_add_address');
             $data['shop_edit_address'] = url('user/Shop/shop_edit_address');
             $data['shop_del_address']  = url('user/Shop/shop_del_address');

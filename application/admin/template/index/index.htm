@@ -66,10 +66,12 @@
                 <i class="fa fa-home"></i>
                 <span class="hidden-xs">网站首页</span>
               </a>
+              {eq name="'Index@switch_map'|is_check_access" value="1"}
               <a class="btn btn-default dropdown-toggle" href="javascript:void(0);" onclick="switch_map();">
                 <i class="fa fa-toggle-on"></i>
                 <span class="hidden-xs">功能开关</span>
               </a>
+              {/eq}
               {notempty name="$is_eyou_authortoken"}
               <!-- 商业授权 -->   
               <em class="eyou_tool em_authortoken" data-expanded="close">
@@ -121,7 +123,9 @@
               <div class="title">
                 <h4>最后登录</h4>
                 <a href="javascript:void(0);" onClick="CUR_DIALOG = ajax_form('modifypw', '修改密码', '{:url('Admin/admin_pwd',array('admin_id'=>$admin_info['admin_id']))}');" class="edit-password" title="修改密码">修改密码</a> </div>
-              <div class="login-date"> <?php echo date('Y-m-d H:i:s',session('admin_info.last_login'));?> <span>(IP: <?php echo session('admin_info.last_ip');?> )</span> </div>
+              <div class="login-date"> 
+                {php}echo date('Y-m-d H:i:s',session('admin_info.last_login'));{/php} <span>(IP: {php}echo session('admin_info.last_ip');{/php} )</span> 
+              </div>
               <div class="title">
                 <h4>常用操作</h4>
                 <!-- <a href="javascript:void(0);" onClick="openItem('Admin|modular')" class="add-menu">新增菜单</a> -->

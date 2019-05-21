@@ -77,6 +77,9 @@ class TagSpcart extends Base
             // 产品内页地址
             $list[$key]['arcurl'] = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$value['product_id']]));
             
+            // 图片处理
+            $list[$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
+            
             // 产品属性处理
             if (!empty($value['product_id'])) {
                 $attrData = M("product_attr")->where('aid',$value['product_id'])->field('attr_value,attr_id')->select();
@@ -125,7 +128,6 @@ EOF;
         $result['TotalAmountId'] = " id=\"TotalAmount\" ";
          
         // 传入JS文件的参数
-        $data['root_dir']                   = $this->root_dir;
         $data['cart_unified_algorithm_url'] = url('user/Shop/cart_unified_algorithm');
         $data['cart_checked_url']           = url('user/Shop/cart_checked');
         $data['cart_del_url']               = url('user/Shop/cart_del');

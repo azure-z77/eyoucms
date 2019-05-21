@@ -75,6 +75,8 @@ class AdPosition extends Base
         //防止php超时
         function_exists('set_time_limit') && set_time_limit(0);
 
+        $this->language_access(); // 多语言功能操作权限
+
         if (IS_POST) {
             $post = input('post.');
 
@@ -82,7 +84,6 @@ class AdPosition extends Base
                 'title' => trim($post['title']),
                 'lang'  => $this->admin_lang,
             );
-
             if(M('ad_position')->where($map)->count() > 0){
                 $this->error('该广告名称已存在，请检查', url('AdPosition/index'));
             }
@@ -107,17 +108,17 @@ class AdPosition extends Base
                 // 读取组合广告位的图片及信息
                 $i = '1';
                 foreach ($post['img_litpic'] as $key => $value) {
-                    if (!empty($value['litpic'])) {
-                        // 主要参数
-                        $AdData['litpic']      = $value['litpic'];
-                        $AdData['pid']         = $insertId;
-                        $AdData['title']       = $post['img_title'][$key]['title'];
-                        $AdData['links']       = $post['img_links'][$key]['links'];
-                        if (!empty($post['img_target'][$key]['target'])) {
+                    if (!empty($value)) {
+                        if (!empty($post['img_target'][$key])) {
                             $target = '1';
                         }else{
                             $target = '0';
                         }
+                        // 主要参数
+                        $AdData['litpic']      = $value;
+                        $AdData['pid']         = $insertId;
+                        $AdData['title']       = trim($post['img_title'][$key]);
+                        $AdData['links']       = $post['img_links'][$key];
                         $AdData['target']      = $target;
                         // 其他参数
                         $AdData['media_type']  = 1;
@@ -126,14 +127,12 @@ class AdPosition extends Base
                         $AdData['sort_order']  = $i++;
                         $AdData['add_time']    = getTime();
                         $AdData['update_time'] = getTime();
+                        // 添加到广告图表
+                        $ad_id = Db::name('ad')->add($AdData);
+                        // 同步多语言
+                        $this->syn_add_ad_language_attribute($ad_id);
                     }
-                    // 添加到广告图表
-                    $ad_id = Db::name('ad')->add($AdData);
-
-                    // 同步多语言
-                    $this->syn_add_ad_language_attribute($ad_id);
                 }
-
                 adminLog('新增广告：'.$post['title']);
                 $this->success("操作成功", url('AdPosition/index'));
             } else {
@@ -164,19 +163,17 @@ class AdPosition extends Base
                     'lang'  => $this->admin_lang,
                 );
 
-                if(M('ad_position')->where($map)->count() > 0){
+                if(Db::name('ad_position')->where($map)->count() > 0){
                     $this->error('该广告名称已存在，请检查', url('AdPosition/index'));
                 }
 
                 $data = array(
                     'id'          => $post['id'],
                     'title'       => trim($post['title']),
-                    'width'       => $post['width'],
-                    'height'      => $post['height'],
                     'intro'       => $post['intro'],
                     'update_time' => getTime(),
                 );
-                $r = M('ad_position')->update($data);
+                $r = Db::name('ad_position')->update($data);
             }
 
             if ($r) {
@@ -184,35 +181,56 @@ class AdPosition extends Base
                 $ad_db = Db::name('ad');
                 // 读取组合广告位的图片及信息
                 foreach ($post['img_litpic'] as $key => $value) {
-                    if (!empty($value['litpic'])) {
-                        $ad_id = $post['img_id'][$key]['id'];
-                        if ($ad_db->where('id',$ad_id)->count() > 0) {
-                            // 主要参数
-                            $AdData['id']          = $ad_id;
-                            $AdData['litpic']      = $value['litpic'];
-                            $AdData['title']       = $post['img_title'][$key]['title'];
-                            $AdData['links']       = $post['img_links'][$key]['links'];
-                            if (!empty($post['img_target'][$key]['target'])) {
-                                $target = '1';
+                    if (!empty($value)) {
+                        // 是否新窗口打开
+                        if (!empty($post['img_target'][$key])) {
+                            $target = '1';
+                        }else{
+                            $target = '0';
+                        }
+                        // 广告位ID，为空则表示添加
+                        $ad_id = $post['img_id'][$key];
+                        if (!empty($ad_id)) {
+                            // 查询更新条件
+                            $where = [
+                                'id'   => $ad_id,
+                                'lang' => $this->admin_lang,
+                            ];
+                            if ($ad_db->where($where)->count() > 0) {
+                                // 主要参数
+                                $AdData['litpic']      = $value;
+                                $AdData['title']       = $post['img_title'][$key];
+                                $AdData['links']       = $post['img_links'][$key];
+                                $AdData['target']      = $target;
+                                // 其他参数
+                                $AdData['sort_order']  = $i++;
+                                $AdData['update_time'] = getTime();
+                                // 更新，不需要同步多语言
+                                $ad_db->where($where)->update($AdData);
                             }else{
-                                $target = '0';
+                                // 主要参数
+                                $AdData['litpic']      = $value;
+                                $AdData['pid']         = $post['id'];
+                                $AdData['title']       = $post['img_title'][$key];
+                                $AdData['links']       = $post['img_links'][$key];
+                                $AdData['target']      = $target;
+                                // 其他参数
+                                $AdData['media_type']  = 1;
+                                $AdData['admin_id']    = session('admin_id');
+                                $AdData['lang']        = $this->admin_lang;
+                                $AdData['sort_order']  = $i++;
+                                $AdData['add_time']    = getTime();
+                                $AdData['update_time'] = getTime();
+                                $ad_id = $ad_db->add($AdData);
+                                // 同步多语言
+                                $this->syn_add_ad_language_attribute($ad_id);
                             }
-                            $AdData['target']      = $target;
-                            // 其他参数
-                            $AdData['sort_order']  = $i++;
-                            $AdData['update_time'] = getTime();
-                            $ad_db->update($AdData);
                         }else{
                             // 主要参数
-                            $AdData['litpic']      = $value['litpic'];
+                            $AdData['litpic']      = $value;
                             $AdData['pid']         = $post['id'];
-                            $AdData['title']       = $post['img_title'][$key]['title'];
-                            $AdData['links']       = $post['img_links'][$key]['links'];
-                            if (!empty($post['img_target'][$key]['target'])) {
-                                $target = '1';
-                            }else{
-                                $target = '0';
-                            }
+                            $AdData['title']       = $post['img_title'][$key];
+                            $AdData['links']       = $post['img_links'][$key];
                             $AdData['target']      = $target;
                             // 其他参数
                             $AdData['media_type']  = 1;
@@ -221,7 +239,6 @@ class AdPosition extends Base
                             $AdData['sort_order']  = $i++;
                             $AdData['add_time']    = getTime();
                             $AdData['update_time'] = getTime();
-
                             $ad_id = $ad_db->add($AdData);
                             // 同步多语言
                             $this->syn_add_ad_language_attribute($ad_id);
@@ -261,28 +278,49 @@ class AdPosition extends Base
     }
 
     /**
-     * 删除图集相册图
+     * 删除广告图片
      */
     public function del_imgupload()
     {
-        if (IS_POST) {
-            $filename= input('filename/s');
-            $filename= str_replace('../','',$filename);
-            $filename= trim($filename,'.');
-            
-            if(eyPreventShell($filename) && !empty($filename)){
-                $filename_new = trim($filename,'/');
-                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-                $size = getimagesize($filename_new);
-                $fileInfo = explode('/',$size['mime']);
-                if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-                    exit;
-                }
+        $this->language_access(); // 多语言功能操作权限
+        $id_arr = input('del_id/a');
+        $id_arr = eyIntval($id_arr);
+        if(IS_POST && !empty($id_arr)){
+            /*多语言*/
+            $attr_name_arr = [];
+            foreach ($id_arr as $key => $val) {
+                $attr_name_arr[] = 'ad'.$val;
+            }
 
-                if (!empty($filename)) {
-                    Db::name('ad')->where("litpic = '$filename'")->delete();
+            if (is_language()) {
+                $new_id_arr = Db::name('language_attr')->where([
+                        'attr_name'  => ['IN', $attr_name_arr],
+                        'attr_group'    => 'ad',
+                    ])->column('attr_value');
+                !empty($new_id_arr) && $id_arr = $new_id_arr;
+            }
+            /*--end*/
+
+            $r = Db::name('ad')->where([
+                    'id' => ['IN', $id_arr],
+                ])
+                ->cache(true,null,'ad')
+                ->delete();
+            if ($r) {
+                /*多语言*/
+                if (!empty($attr_name_arr)) {
+                    Db::name('language_attr')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
+
+                    Db::name('language_attribute')->where([
+                            'attr_name' => ['IN', $attr_name_arr],
+                            'attr_group'    => 'ad',
+                        ])->delete();
                 }
+                /*--end*/
+                adminLog('删除广告-id：'.implode(',', $id_arr));
             }
         }
     }
@@ -292,6 +330,8 @@ class AdPosition extends Base
      */
     public function del()
     {
+        $this->language_access(); // 多语言功能操作权限
+
         $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
         if(IS_POST && !empty($id_arr)){
@@ -378,7 +418,8 @@ class AdPosition extends Base
                     /*同步新广告位置到其他语言广告位置列表*/
                     if ($val['mark'] != $admin_lang) {
                         $addsaveData = $result;
-                        $addsaveData['lang'] = $val['mark'];
+                        $addsaveData['lang']  = $val['mark'];
+                        $addsaveData['title'] = $val['mark'].$addsaveData['title'];
                         unset($addsaveData['id']);
                         $adp_id = $ad_position_db->insertGetId($addsaveData);
                     }
@@ -440,7 +481,8 @@ class AdPosition extends Base
                                 'attr_group'    => 'ad_position',
                                 'lang'  => $val['mark'],
                             ])->getField('attr_value');
-                        $addsaveData['pid'] = $newPid;
+                        $addsaveData['pid']   = $newPid;
+                        $addsaveData['title'] = $val['mark'].$addsaveData['title'];
                         unset($addsaveData['id']);
                         $ad_id = $ad_db->insertGetId($addsaveData);
                     }

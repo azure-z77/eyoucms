@@ -47,15 +47,17 @@ class TagSporder extends Base
             // 订单主表
             $result['OrderData'] = Db::name("shop_order")->field('*')->where($Where)->find();
             // 获取当前链接及参数，用于手机端查询快递时返回页面，进行urlencode编码
-            $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+            // $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
             // 封装查询物流链接
-            $result['OrderData']['PcExpressUrl'] = $result['OrderData']['MobileExpressUrl'] = '';
+            $result['OrderData']['LogisticsInquiry'] = $MobileExpressUrl = '';
             if (('2' == $result['OrderData']['order_status'] || '3' == $result['OrderData']['order_status']) && empty($result['OrderData']['prom_type'])) {
                 // PC端查询物流链接
-                $result['OrderData']['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order'];
+                // $result['OrderData']['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order'];
 
                 // 移动端查询物流链接
-                $result['OrderData']['MobileExpressUrl'] = "http://m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
+                $MobileExpressUrl = "http://m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order'];
+
+                $result['OrderData']['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$MobileExpressUrl}');\" ";
             }
             // 是否移动端，1表示移动端，0表示PC端
             $result['OrderData']['IsMobile'] = isMobile() ? 1 : 0;
@@ -84,6 +86,9 @@ class TagSporder extends Base
                     
                     // 产品内页地址
                     $result['DetailsData'][$key]['arcurl']   = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$value['product_id']]));
+
+                    // 图片处理
+                    $result['DetailsData'][$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
 
                     // 小计
                     $result['DetailsData'][$key]['subtotal'] = $value['product_price'] * $value['num'];
@@ -126,7 +131,6 @@ class TagSporder extends Base
                 $result['OrderData']['ConsigneeInfo'] = $result['OrderData']['consignee'].' '.$result['OrderData']['mobile'].' '.$result['OrderData']['country'].' '.$result['OrderData']['province'].' '.$result['OrderData']['city'].' '.$result['OrderData']['district'].' '.$result['OrderData']['address'];
 
                 // 传入JS参数
-                $data['root_dir']          = $this->root_dir;
                 $data['shop_order_cancel'] = url('user/Shop/shop_order_cancel');
                 $data_json = json_encode($data);
                 $version   = getCmsVersion();

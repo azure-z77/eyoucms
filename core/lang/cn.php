@@ -30,7 +30,7 @@ return [
     'not support total'                                         => '简洁模式下不能获取数据总数',
     'not support last'                                          => '简洁模式下不能获取最后一页',
     'error session handler'                                     => '错误的SESSION处理器类',
-    'not allow php tag'                                         => '模板不允许使用PHP语法',
+    'not allow php tag'                                         => '报错提示：模板不允许使用原生的PHP语法',
     'not support'                                               => '不支持',
     'redisd master'                                             => 'Redisd 主服务器错误',
     'redisd slave'                                              => 'Redisd 从服务器错误',

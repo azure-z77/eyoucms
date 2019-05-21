@@ -53,9 +53,10 @@ class Field extends Model
      * @param intval $channel_id 模型ID
      * @param intval $ifmain 是否主表、附加表
      * @param intval $aid 表主键ID
+     * @param array $archivesInfo 主表数据
      * @author 小虎哥 by 2018-7-25
      */
-    public function getChannelFieldList($channel_id, $ifmain = false, $aid = '')
+    public function getChannelFieldList($channel_id, $ifmain = false, $aid = '', $archivesInfo = [])
     {
         $hideField = array('id','aid','add_time','update_time'); // 不显示在发布表单的字段
         $channel_id = intval($channel_id);
@@ -81,7 +82,7 @@ class Field extends Model
         }
         /*--end*/
 
-        $list = $this->showViewFormData($row, 'addonFieldExt', $addonRow);
+        $list = $this->showViewFormData($row, 'addonFieldExt', $addonRow, $archivesInfo);
         return $list;
     }
 
@@ -120,9 +121,10 @@ class Field extends Model
      * @param array $list 自定义字段列表
      * @param array $formFieldStr 表单元素名称的统一数组前缀
      * @param array $addonRow 自定义字段的数据
+     * @param array $archivesInfo 主表数据
      * @author 小虎哥 by 2018-7-25
      */
-    public function showViewFormData($list, $formFieldStr, $addonRow = array())
+    public function showViewFormData($list, $formFieldStr, $addonRow = array(), $archivesInfo = [])
     {
         if (!empty($list)) {
             foreach ($list as $key => $val) {
@@ -224,6 +226,18 @@ class Field extends Model
                     case 'htmltext':
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
+
+                        /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
+                        $title = '';
+                        if (!empty($archivesInfo['title'])) {
+                            $title = $archivesInfo['title'];
+                        } else {
+                            $title = !empty($archivesInfo['typename']) ? $archivesInfo['typename'] : '';
+                        }
+                        $content = htmlspecialchars_decode($val['dfvalue']);
+                        $val['dfvalue'] = htmlspecialchars(img_style_wh($content, $title));
+                        /*--end*/
+
                         /*支持子目录*/
                         $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');
                         /*--end*/
@@ -314,6 +328,21 @@ class Field extends Model
                         $money1 = !empty($moneyArr[0]) ? intval($moneyArr[0]) : '0';
                         $money2 = !empty($moneyArr[1]) ? intval(msubstr($moneyArr[1], 0, 2)) : '00';
                         $val = $money1.'.'.$money2;
+                        break;
+                    }
+
+                    case 'htmltext':
+                    {
+                        /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
+                        $title = '';
+                        if (!empty($data['title'])) {
+                            $title = $data['title'];
+                        } else {
+                            $title = !empty($data['typename']) ? $data['typename'] : '';
+                        }
+                        $content = htmlspecialchars_decode($val);
+                        $val = htmlspecialchars(img_style_wh($content, $title));
+                        /*--end*/
                         break;
                     }
                     

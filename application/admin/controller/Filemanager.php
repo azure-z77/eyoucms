@@ -190,7 +190,9 @@ class Filemanager extends Base
                 $content = fread($fp, $filesize);
                 fclose($fp);
                 if ('css' != $path_parts['extension']) {
-                    $content = htmlspecialchars($content);
+                    $content = htmlspecialchars($content, ENT_QUOTES);
+                    $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
+                    $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
                 }
             }
         }

@@ -121,6 +121,9 @@ class TagSpsubmitorder extends Base
             // 产品页面链接
             $result['list'][$key]['arcurl'] = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$value['aid']]));
 
+            // 图片处理
+            $result['list'][$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
+            
             // 产品属性处理
             if (!empty($value['aid'])) { 
                 $attrData   = Db::name('product_attr')->where('aid',$value['aid'])->field('attr_value,attr_id')->select();
@@ -168,7 +171,6 @@ class TagSpsubmitorder extends Base
         $result['data']['TokenValue'] = " <input type=\"hidden\" name=\"__token__\" value=\"{$token}\"/> ";
 
         // 传入JS参数
-        $data['root_dir']          = $this->root_dir;
         $data['shop_add_address']  = url('user/Shop/shop_add_address');
         $data['shop_edit_address'] = url('user/Shop/shop_edit_address');
         $data['shop_del_address']  = url('user/Shop/shop_del_address');

@@ -450,7 +450,7 @@ class CustomModel extends Base
         /*--end*/
         
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id);
+        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
         $channelfieldBindRow = Db::name('channelfield_bind')->where([
                 'typeid'    => ['IN', [0,$typeid]],
             ])->column('field_id');

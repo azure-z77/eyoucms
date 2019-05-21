@@ -249,7 +249,7 @@ if (!function_exists('tpversion'))
         $install_time = DEFAULT_INSTALL_DATE;
         $serial_number = DEFAULT_SERIALNUMBER;
 
-        $constsant_path = APP_PATH.MODULE_NAME.'/conf/constant.php';
+        $constsant_path = APP_PATH.'admin/conf/constant.php';
         if (file_exists($constsant_path)) {
             require_once($constsant_path);
             defined('INSTALL_DATE') && $install_time = INSTALL_DATE;
@@ -260,7 +260,6 @@ if (!function_exists('tpversion'))
         $mysql_version  = $mysqlinfo[0]['version'];
         $vaules = array(            
             'domain'=>$_SERVER['HTTP_HOST'], 
-            'last_domain'=>$_SERVER['HTTP_HOST'], 
             'key_num'=>$curent_version, 
             'install_time'=>$install_time, 
             'serial_number'=>$serial_number,
@@ -268,13 +267,14 @@ if (!function_exists('tpversion'))
             'phpv'  => urlencode(phpversion()),
             'mysql_version' => urlencode($mysql_version),
             'web_server'    => urlencode($_SERVER['SERVER_SOFTWARE']),
+            'web_title' => tpCache('web.web_title'),
         );
         // api_Service_user_push
         $service_ey = config('service_ey');
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT11c2VyX3B1c2gm';
         $url = base64_decode($service_ey).base64_decode($tmp_str).http_build_query($vaules);
         stream_context_set_default(array('http' => array('timeout' => $timeout)));
-        file_get_contents($url);
+        @file_get_contents($url);
     }
 }
 
@@ -419,7 +419,10 @@ if (!function_exists('sitemap_xml'))
 XML;
 
         $xml = simplexml_load_string($xml_wrapper);
-        // $xml = new SimpleXMLElement($xml_wrapper);
+        !$xml && $xml = new SimpleXMLElement($xml_wrapper);
+        if (!$xml) {
+            return true;
+        }
 
         $main_lang = get_main_lang();
         $langRow = \think\Db::name('language')->order('id asc')

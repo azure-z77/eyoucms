@@ -454,6 +454,7 @@ class Arctype extends Base
                 }
                 $updateData = array(
                     'aid'   => $aid,
+                    'typename' => $info['typename'],
                     'addonFieldExt' => $post['addonFieldExt'],
                 );
                 model('Single')->afterSave($aid, $updateData, 'edit');
@@ -481,7 +482,7 @@ class Arctype extends Base
         $assign_data['info'] = $info;
 
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList(6, 0, $typeid);
+        $addonFieldExtList = model('Field')->getChannelFieldList(6, 0, $typeid, $info);
         $channelfieldBindRow = Db::name('channelfield_bind')->where([
                 'typeid'    => ['IN', [0,$typeid]],
             ])->column('field_id');

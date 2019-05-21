@@ -73,19 +73,11 @@
                             <p class="notic"></p>
                         </dd>
                     </dl>
-                    {else/}
-                    <dl class="row">
-                        <dt class="tit">
-                            <label>给买家回复</label>
-                        </dt>
-                        <dd class="opt">          
-                            <textarea rows="5" cols="60" name="virtual_delivery" style="height:60px;">{$OrderData.virtual_delivery}</textarea>
-                            <span class="err"></span>
-                            <p class="notic"></p>
-                        </dd>
-                    </dl>
+                {else/}
+                    <input type="hidden" name="prom_type" value="1">
                 {/eq}
-                <div class="{eq name="$OrderData.prom_type" value="1"}none{/eq}" id="ShippingInfo">
+
+                <div class="{eq name='$OrderData.prom_type' value='1'}none{/eq}" id="ShippingInfo">
                     <dl class="row">
                         <dt class="tit">
                             <label>物流公司</label>
@@ -115,8 +107,21 @@
                         </dd>
                     </dl>
                 </div>
-            </div>
 
+                <div class="{eq name='$OrderData.prom_type' value='0'}none{/eq}" id="VirtualDelivery">
+                    <dl class="row">
+                        <dt class="tit">
+                            <label>给买家回复</label>
+                        </dt>
+                        <dd class="opt">          
+                            <textarea rows="5" cols="60" name="virtual_delivery" style="height:60px;">{$OrderData.virtual_delivery}</textarea>
+                            <span class="err"></span>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            
             <div class="hDiv">
                 <div class="hDivBox">
                     <table cellspacing="0" cellpadding="0" style="width: 100%">
@@ -214,8 +219,10 @@
             var prom_type = $(this).val();
             if (1 == prom_type) {
                 $('#ShippingInfo').hide();
+                $('#VirtualDelivery').show();
             } else {
                 $('#ShippingInfo').show();
+                $('#VirtualDelivery').hide();
             }
         });
     });

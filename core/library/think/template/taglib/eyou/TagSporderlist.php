@@ -101,10 +101,13 @@ class TagSporderlist extends Base
 
                     // 产品内页地址
                     $result['list'][$key]['details'][$kk]['arcurl'] = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$vv['product_id']]));
+
+                    // 图片处理
+                    $result['list'][$key]['details'][$kk]['litpic'] = handle_subdir_pic(get_default_pic($vv['litpic']));
                 }
 
                 // 获取当前链接及参数，用于手机端查询快递时返回页面，进行urlencode编码
-                $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+                // $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 
                 if (empty($value['order_status'])) {
                     // 付款地址处理，对ID和订单号加密，拼装url路径
@@ -142,13 +145,15 @@ class TagSporderlist extends Base
                 $result['list'][$key]['Confirm'] = " onclick=\"Confirm('{$value['order_id']}','{$value['order_code']}');\" ";
 
                 // 封装查询物流链接
-                $result['list'][$key]['PcExpressUrl'] = $result['list'][$key]['MobileExpressUrl'] = '';
+                $result['list'][$key]['LogisticsInquiry'] = $MobileExpressUrl = '';
                 if (('2' == $value['order_status'] || '3' == $value['order_status']) && empty($value['prom_type'])) {
                     // PC端查询物流链接
-                    $result['list'][$key]['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$value['express_code']."&nu=".$value['express_order'];
+                    // $result['list'][$key]['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$value['express_code']."&nu=".$value['express_order'];
 
                     // 移动端查询物流链接
-                    $result['list'][$key]['MobileExpressUrl'] = "http://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order']."&callbackurl=".$ReturnUrl;
+                    $MobileExpressUrl = "http://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order'];
+
+                    $result['list'][$key]['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$MobileExpressUrl}');\" ";
                 }
 
                 // 默认为空
@@ -156,7 +161,6 @@ class TagSporderlist extends Base
             }
 
             // 传入JS参数
-            $data['root_dir']            = $this->root_dir;
             $data['shop_member_confirm'] = url('user/Shop/shop_member_confirm');
             $data['shop_order_remind']   = url('user/Shop/shop_order_remind');
             $data_json = json_encode($data);

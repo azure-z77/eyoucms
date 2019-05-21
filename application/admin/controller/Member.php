@@ -978,6 +978,12 @@ class Member extends Base {
                 if (empty($post['alipay']['alipay_public_key'])) {
                     $this->error('支付宝公钥不能为空！');
                 }
+
+                $order_number = getTime();
+                $return = $this->check_alipay_order($order_number,'admin_pay',$post['alipay']);
+                if ('ok' != $return) {
+                    $this->error($return);
+                }
             }else if (1 == $php_version) {
                 if (empty($post['alipay']['account'])) {
                     $this->error('支付宝账号不能为空！');
@@ -1218,7 +1224,7 @@ class Member extends Base {
     }
 
     // 查询订单付款状态(支付宝)
-    private function check_alipay_order($order_number)
+    private function check_alipay_order($order_number,$admin_pay='',$alipay='')
     {
         if (!empty($order_number)) {
             // 引入文件
@@ -1231,12 +1237,14 @@ class Member extends Base {
             $RequestBuilder->setOutTradeNo($out_trade_no);
 
             // 处理支付宝配置数据
-            $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
-            if (empty($pay_alipay_config)) {
-                return false;
+            if (empty($alipay)) {
+                $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
+                if (empty($pay_alipay_config)) {
+                    return false;
+                }
+                $alipay = unserialize($pay_alipay_config);
             }
-            $alipay = unserialize($pay_alipay_config);
-            $config['app_id'] = $alipay['app_id'];
+            $config['app_id']     = $alipay['app_id'];
             $config['merchant_private_key'] = $alipay['merchant_private_key'];
             $config['charset']    = 'UTF-8';
             $config['sign_type']  = 'RSA2';
@@ -1247,16 +1255,34 @@ class Member extends Base {
             $aop = new \AlipayTradeService($config);
 
             // 返回结果
-            $result = $aop->Query($RequestBuilder);
-            $result = json_decode( json_encode( $result),true);
-            
+            if (!empty($admin_pay)) {
+                $result = $aop->IsQuery($RequestBuilder,$admin_pay);
+            }else{
+                $result = $aop->Query($RequestBuilder);
+            }
+
+            $result = json_decode(json_encode($result),true);
+
             // 判断结果
             if ('40004' == $result['code'] && 'Business Failed' == $result['msg']) {
+                // 用于支付宝支付配置验证
+                if (!empty($admin_pay)) { return 'ok'; }
+                // 用于订单查询
                 return '订单在支付宝中不存在！';
             }else if ('10000' == $result['code'] && 'WAIT_BUYER_PAY' == $result['trade_status']) {
                 return '订单在支付宝中生成，但并未支付完成！';
             }else if ('10000' == $result['code'] && 'TRADE_SUCCESS' == $result['trade_status']) {
                 return '订单已使用支付宝支付完成！';
+            }
+
+            // 用于支付宝支付配置验证
+            if (!empty($admin_pay) && !empty($result)) {
+                if ('40001' == $result['code'] && 'Missing Required Arguments' == $result['msg']) {
+                    return '商户私钥错误！';
+                }
+                if (!is_array($result)) {
+                    return $result;
+                }
             }
         }
     }

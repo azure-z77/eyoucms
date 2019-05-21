@@ -40,7 +40,9 @@ class TagSppurchase extends Base
     {
         $result = false;
         $aid    = input('param.aid/d');
-        if (empty($aid) || $this->home_lang != $this->main_lang) {
+        $shop_open = getUsersConfigData('shop.shop_open');
+        $web_users_switch = tpCache('web.web_users_switch');
+        if (empty($aid) || $this->home_lang != $this->main_lang || empty($shop_open) || empty($web_users_switch)) {
             return $result;
         }
 
@@ -76,11 +78,10 @@ class TagSppurchase extends Base
         // 传入JS文件的参数
         $data['aid']                 = $aid;
         $data['quantity']            = "quantity_{$t}";
-        $data['root_dir']            = $this->root_dir;
         $data['shop_add_cart_url']   = url('user/Shop/shop_add_cart');
         $data['shop_buy_now_url']    = url('user/Shop/shop_buy_now');
         $data['shop_cart_list_url']  = url('user/Shop/shop_cart_list');
-        $data['login_url']           = url('user/Shop/login');
+        $data['login_url']           = url('user/Users/login');
 
         $data_json = json_encode($data);
         $version   = getCmsVersion();

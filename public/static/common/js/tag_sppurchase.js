@@ -4,7 +4,7 @@ function shop_add_cart() {
     var QuantityObj = document.getElementById(JsonData.quantity);
     var aid = JsonData.aid;
     var num = QuantityObj.value;
-    var url = JsonData.root_dir + JsonData.shop_add_cart_url;
+    var url = JsonData.shop_add_cart_url;
     var ajaxdata = 'aid='+aid+'&num='+num;
 
     //创建异步对象
@@ -37,7 +37,7 @@ function BuyNow(aid){
     var QuantityObj = document.getElementById(JsonData.quantity);
     var aid = JsonData.aid;
     var num = QuantityObj.value;
-    var url = JsonData.root_dir + JsonData.shop_buy_now_url;
+    var url = JsonData.shop_buy_now_url;
     var ajaxdata = 'aid='+aid+'&num='+num;
 
     //创建异步对象

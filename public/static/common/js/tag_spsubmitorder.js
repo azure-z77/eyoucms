@@ -22,7 +22,7 @@ function ColorS(css){
 // 添加收货地址
 function ShopAddAddress(){
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
-    var url = JsonData.root_dir + JsonData.shop_add_address;
+    var url = JsonData.shop_add_address;
 
     var url = url;
     if (url.indexOf('?') > -1) {
@@ -45,7 +45,7 @@ function ShopAddAddress(){
 // 更新收货地址
 function ShopEditAddress(addr_id){
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
-    var url = JsonData.root_dir + JsonData.shop_edit_address;
+    var url = JsonData.shop_edit_address;
 
     var url = url;
     if (url.indexOf('?') > -1) {
@@ -73,7 +73,7 @@ function ShopDelAddress(addr_id){
     }, function () {
         // 是
         var JsonData = b1decefec6b39feb3be1064e27be2a9;
-        var url = JsonData.root_dir + JsonData.shop_del_address;
+        var url = JsonData.shop_del_address;
 
         $.ajax({
             url: url,
@@ -113,7 +113,7 @@ function SelectEd(idname,addr_id)
 
         // 查询运费
         var JsonData = b1decefec6b39feb3be1064e27be2a9;
-        var url = JsonData.root_dir + JsonData.shop_inquiry_shipping;
+        var url = JsonData.shop_inquiry_shipping;
         
         $.ajax({
             url : url,
@@ -137,7 +137,7 @@ function SelectEd(idname,addr_id)
 function ShopPaymentPage(){
     layer_loading('正在处理');
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
-    var url = JsonData.root_dir + JsonData.shop_payment_page;
+    var url = JsonData.shop_payment_page;
     
     $.ajax({
         url : url,

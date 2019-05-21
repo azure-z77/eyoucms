@@ -433,9 +433,32 @@ class Template
     {
         // 短标签的情况要将<?标签用echo方式输出 否则无法正常输出xml标识
         $content = preg_replace('/(<\?(?!php|=|$))/i', '<?php echo \'\\1\'; ?>' . "\n", $content);
+
+        // 过滤eval函数，防止被注入执行任意代码 by 小虎哥
+        $view_replace_str = config('view_replace_str');
+        if (isset($view_replace_str['__EVAL__'])) {
+            preg_match_all('/{eyou\:php}.*{\/eyou\:php}/iUs', $content, $matchs);
+            $matchs = !empty($matchs[0]) ? $matchs[0] : [];
+            if (!empty($matchs)) {
+                foreach($matchs as $key => $val){
+                    $valNew = preg_replace('/{(\/)?eyou\:php}/i', '', $val);
+                    $valNew = preg_replace("/([\W]+)eval(\s*)\(/i", 'intval(', $valNew);
+                    $valNew = preg_replace("/^eval(\s*)\(/i", 'intval(', $valNew);
+                    $valNew = "{eyou:php}{$valNew}{/eyou:php}";
+                    $content = str_ireplace($val, $valNew, $content);
+                }
+            }
+        }
+        // end
+
         // PHP语法检查
         if ($this->config['tpl_deny_php'] && false !== strpos($content, '<?php')) {
-            throw new Exception('not allow php tag', 11600);
+            // 调试模式下中断模板渲染 by 小虎哥
+            if (config('app_debug')) {
+                throw new Exception('not allow php tag', 11600);
+            } else { // 运营模式下继续模板渲染 by 小虎哥
+                echo(lang('not allow php tag'));
+            }
         }
         return;
     }

@@ -6,7 +6,7 @@ function Confirm(order_id,order_code) {
     }, function () {
         // 是
         var JsonData = d62a4a8743a94dc0250be0c53f833b;
-        var url = JsonData.root_dir + JsonData.shop_member_confirm;
+        var url = JsonData.shop_member_confirm;
         $.ajax({
             url: url,
             data: {order_id:order_id,order_code:order_code},
@@ -35,7 +35,7 @@ function OrderRemind(order_id,order_code) {
     }, function () {
         // 是
         var JsonData = d62a4a8743a94dc0250be0c53f833b;
-        var url = JsonData.root_dir + JsonData.shop_order_remind;
+        var url = JsonData.shop_order_remind;
         $.ajax({
             url: url,
             data: {order_id:order_id,order_code:order_code},
@@ -53,5 +53,17 @@ function OrderRemind(order_id,order_code) {
     }, function (index) {
         // 否
         layer.closeAll(index);
+    });
+}
+
+function LogisticsInquiry(url){
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: '物流查询',
+        shadeClose: false,
+        maxmin: false, //开启最大化最小化按钮
+        area: ['80%', '80%'],
+        content: url
     });
 }

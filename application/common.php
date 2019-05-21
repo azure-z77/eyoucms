@@ -245,8 +245,15 @@ if (!function_exists('write_html_cache'))
             } else {
                 isset($param['tid']) && $param['tid'] = input('param.tid/s');
             }
-            isset($param['aid']) && $param['aid'] = input('param.aid/d');
             isset($param['page']) && $param['page'] = input('param.page/d');
+
+            // aid唯一性的处理
+            if (isset($param['aid'])) {
+                if (strval(intval($param['aid'])) !== strval($param['aid'])) {
+                    abort(404,'页面不存在');
+                }
+                $param['aid'] = intval($param['aid']);
+            }
 
             $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
             $m_c_a_str = strtolower($m_c_a_str);
@@ -351,8 +358,15 @@ if (!function_exists('read_html_cache'))
             } else {
                 isset($param['tid']) && $param['tid'] = input('param.tid/s');
             }
-            isset($param['aid']) && $param['aid'] = input('param.aid/d');
             isset($param['page']) && $param['page'] = input('param.page/d');
+
+            // aid唯一性的处理
+            if (isset($param['aid'])) {
+                if (strval(intval($param['aid'])) !== strval($param['aid'])) {
+                    abort(404,'页面不存在');
+                }
+                $param['aid'] = intval($param['aid']);
+            }
 
             $m_c_a_str = $request->module().'_'.$request->controller().'_'.$request->action(); // 模块_控制器_方法
             $m_c_a_str = strtolower($m_c_a_str);
@@ -505,6 +519,52 @@ if (!function_exists('handle_subdir_pic'))
                     // } else { // 子目录与根目录切换
                         // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
                     // }
+                }else if (is_http_url($str) && !empty($str)) {
+                    // 图片路径处理
+                    $str     = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
+                    $StrData = parse_url($str);
+                    $strlen  = strlen($root_dir);
+                    if (empty($StrData['scheme'])) {
+                        if ('/uploads/'==substr($StrData['path'],$strlen,9) || '/public/upload/'==substr($StrData['path'],$strlen,15)) {
+                            // 七牛云配置处理
+                            static $Qiniuyun = null;
+                            if (null == $Qiniuyun) {
+                                // 需要填写你的 Access Key 和 Secret Key
+                                $data     = M('weapp')->where('code','Qiniuyun')->field('data,status')->find();
+                                $Qiniuyun = json_decode($data['data'], true);
+                                $Qiniuyun['status'] = $data['status'];
+                            }
+
+                            // 是否开启图片加速
+                            if ('1' == $Qiniuyun['status']) {
+                                // 开启
+                                if ($Qiniuyun['domain'] == $StrData['host']) {
+                                    $tcp = !empty($Qiniuyun['tcp']) ? $Qiniuyun['tcp'] : '';
+                                    switch ($tcp) {
+                                        case '2':
+                                            $tcp = 'https://';
+                                            break;
+
+                                        case '3':
+                                            $tcp = '//';
+                                            break;
+                                        
+                                        case '1':
+                                        default:
+                                            $tcp = 'http://';
+                                            break;
+                                    }
+                                    $str = $tcp.$Qiniuyun['domain'].$StrData['path'];
+                                }else{
+                                    // 若切换了存储空间或访问域名，与数据库中存储的图片路径域名不一致时，访问本地路径，保证图片正常
+                                    $str = $StrData['path'];
+                                }
+                            }else{
+                                // 关闭
+                                $str = $StrData['path'];
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -620,11 +680,6 @@ if (!function_exists('thumb_img'))
         if (is_file($path . $img_thumb_name . '.gif')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.gif';
         if (is_file($path . $img_thumb_name . '.png')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.png';
         if (is_file($path . $img_thumb_name . '.bmp')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.bmp';
-        
-/*        $ossClient = new \app\common\logic\OssLogic;
-        if (($ossUrl = $ossClient->getProductThumbImageUrl($original_img, $width, $height))) {
-            return $ossUrl;
-        }*/
 
         if (!is_file($original_img1)) {
             return ROOT_DIR.'/public/static/common/images/not_adv.jpg';
@@ -1592,55 +1647,6 @@ function get_area_name($id)
     return empty($result[$id]) ? '部落' : $result[$id]['name'];
 }
 
-if (!function_exists('queryExpress')) 
-{
-    /**
-     * 查询快递，暂时弃用，已跳转至快递100链接查询
-     * @param $postcom  快递公司编码
-     * @param $getNu  快递单号
-     * @return array  物流跟踪信息数组
-     */
-    function queryExpress($param) {
-        if (!empty($param)) {
-            $postdata = [
-                'postid' => $param['express_order'],
-                'id'     => 1,
-                'valicode' => '',
-                'temp'   => str_replace(' ', '', microtime()),
-                'type'   => $param['express_code'],
-                'phone'  => '',
-                'token'  => '',
-                'platform' => 'MWWW',
-            ];
-            $url = urldecode('https://m.kuaidi100.com/query');
-            $result = httpRequest($url,"POST",$postdata);
-            $result = json_decode($result,true);
-            return $result;
-
-            // $url =  urldecode("http://www.kuaidi100.com/chaxun?com=".$param['express_code']."&nu=".$param['express_order']."");
-            // $url = 'https://www.kuaidi100.com/query?type='.$param['express_code'].'&postid='.$param['express_order'].'&id=1&valicode=&temp='.str_replace(' ', '', microtime()).'&phone=';
-            // $curl = curl_init();
-            // curl_setopt($curl, CURLOPT_URL, $url);
-            // curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            // $result = curl_exec($curl);
-            // curl_close($curl);
-            // $result = json_decode($result,ture);
-
-            // 查询快递Code
-            // $url = "https://m.kuaidi100.com/apicenter/kdquerytools.do?method=autoComNum&text={$getNu}";
-            // $resp = httpRequest($url, 'GET');
-            // $resp = json_decode($resp,true);
-            // 查询快递信息
-            // if (!empty($resp)) {
-                // $comCode = !empty($resp['auto'][0]['comCode']) ? $resp['auto'][0]['comCode'] : '';
-                // 业务逻辑
-            // }
-        }
-        
-        return false;
-    }
-}
-
 if (!function_exists('AddOrderAction')) 
 {
     /**
@@ -1763,6 +1769,7 @@ if (!function_exists('img_style_wh'))
             $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
             if (!empty($imginfo)) {
                 $num = 1;
+                $title = preg_replace('/("|\')/i', '', $title);
                 foreach ($imginfo as $key => $imgstr) {
                     $imgstrNew = $imgstr;
                     // 追加style属性
@@ -1773,30 +1780,27 @@ if (!function_exists('img_style_wh'))
                     }
 
                     // 移除img中多余的title属性
-                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', '', $imgstrNew);
+                    // $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', '', $imgstrNew);
 
                     // 追加alt属性
-                    $titleNew = $title."(图{$num})";
-                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'alt="'.$titleNew.'"', $imgstrNew);
+                    $altNew = $title."(图{$num})";
+                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'alt="'.$altNew.'"', $imgstrNew);
                     if (!preg_match('/<img(.*?)alt(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
+                        // 新增alt属性
+                        $imgstrNew = str_ireplace('<img', "<img alt=\"{$altNew}\" ", $imgstrNew);
+                    }
+
+                    // 追加title属性
+                    $titleNew = $title."(图{$num})";
+                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'title="'.$titleNew.'"', $imgstrNew);
+                    if (!preg_match('/<img(.*?)title(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                         // 新增alt属性
                         $imgstrNew = str_ireplace('<img', "<img alt=\"{$titleNew}\" ", $imgstrNew);
                     }
+                    
                     // 新的img替换旧的img
                     $content = str_ireplace($imgstr, $imgstrNew, $content);
                     $num++;
-                    
-                    // preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstr, $matchs);
-                    // // 提取img中原有的内嵌style属性样式
-                    // $style = !empty($matchs[4]) ? $matchs[4] : '';
-                    // // 整理要追加的新样式
-                    // $styleNew = 'max-width:100%!important;height:auto;'.$style;
-                    // // 去除img中原有的style样式属性
-                    // $valueNew = preg_replace('/style(\s*)=(\s*)[\'|\"]'.$style.'[\'|\"]/i', '', $imgstr);
-                    // // 替换新的内嵌样式属性
-                    // $replace = str_ireplace('<img', "<img style=\"{$styleNew}\" ", $valueNew);
-                    // // 新的img替换旧的img
-                    // $content = str_ireplace($imgstr, $replace, $content);
                 }
             }
         }
@@ -1832,5 +1836,80 @@ if (!function_exists('get_archives_data'))
         }
 
         return $array_new;
+    }
+}
+
+if (!function_exists('SynchronizeQiniu')) 
+{
+    /**
+     * 参数说明：
+     * $images   本地图片地址
+     * $Qiniuyun 七牛云插件配置信息
+     * $is_tcp 是否携带协议
+     * 返回说明：
+     * return false 没有配置齐全
+     * return true  同步成功
+     */
+    function SynchronizeQiniu($images,$Qiniuyun=null,$is_tcp=false)
+    {
+        static $Qiniuyun = null;
+        // 若没有传入配信信息则读取数据库
+        if (null == $Qiniuyun) {
+            // 需要填写你的 Access Key 和 Secret Key
+            $data     = M('weapp')->where('code','Qiniuyun')->field('data')->find();
+            $Qiniuyun = json_decode($data['data'], true);
+        }
+        // 配置为空则返回原图片路径
+        if (empty($Qiniuyun)) {
+            return $images;
+        }
+
+        //引入七牛云的相关文件
+        weapp_vendor('Qiniu.src.Qiniu.Auth', 'Qiniuyun');
+        weapp_vendor('Qiniu.src.Qiniu.Storage.UploadManager', 'Qiniuyun');
+        require_once ROOT_PATH.'weapp/Qiniuyun/vendor/Qiniu/autoload.php';
+
+        // 配置信息
+        $accessKey = $Qiniuyun['access_key'];
+        $secretKey = $Qiniuyun['secret_key'];
+        $bucket    = $Qiniuyun['bucket'];
+        $domain    = $Qiniuyun['domain'];
+        // 图片处理，去除图片途径中的第一个斜杠
+        $images    = ltrim($images, '/'); 
+        // 构建鉴权对象
+        $auth      = new Qiniu\Auth($accessKey, $secretKey);
+        // 生成上传 Token
+        $token     = $auth->uploadToken($bucket);
+        // 要上传文件的本地路径
+        $filePath  = ROOT_PATH.$images;
+        // 上传到七牛后保存的文件名
+        $key       = $images;
+        // 初始化 UploadManager 对象并进行文件的上传。
+        $uploadMgr = new Qiniu\Storage\UploadManager;
+        // 调用 UploadManager 的 putFile 方法进行文件的上传。
+        list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
+        // list($ret, $err) = $uploadMgr->put($token, $key, $filePath);
+        if (empty($err) || $err === null) {
+            $tcp = '//';
+            if ($is_tcp) {
+                $tcp = !empty($Qiniuyun['tcp']) ? $Qiniuyun['tcp'] : '';
+                switch ($tcp) {
+                    case '2':
+                        $tcp = 'https://';
+                        break;
+
+                    case '3':
+                        $tcp = '//';
+                        break;
+                    
+                    case '1':
+                    default:
+                        $tcp = 'http://';
+                        break;
+                }
+            }
+            return $tcp.$domain.'/'.$images;
+        }
+        return $images;
     }
 }

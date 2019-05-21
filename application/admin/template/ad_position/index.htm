@@ -29,20 +29,20 @@
                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                     <thead>
                     <tr>
+                        {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
                             <div class="tc">选择</div>
                         </th>
+                        {/eq}
                         <th abbr="article_title" axis="col3" class="w60">
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="article_title" axis="col3">
                             <div class="tl" style="width: 100%">广告名称</div>
                         </th>
-               
                         <th axis="col1" class="w250">
                             <div class="tc">操作</div>
                         </th>
-                        
                     </tr>
                     </thead>
                 </table>
@@ -61,9 +61,13 @@
                     {else/}
                         {foreach name="list" item="vo" key="k" }
                         <tr>
+                            {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                <div class="w40 tc">
+                                    <input type="checkbox" name="ids[]" value="{$vo.id}">
+                                </div>
                             </td>
+                            {/eq}
                             <td class="">
                                 <div class="w60 tc">
                                     {$vo.id}
@@ -85,9 +89,11 @@
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
                                     <a href="{:url('AdPosition/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
+                                {eq name='$main_lang' value='$admin_lang'}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                                     <a class="btn red"  href="javascript:void(0);" data-url="{:url('AdPosition/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
+                                {/eq}
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']}, 1)">标签调用</a>
                                 </div>
                             </td>
@@ -102,6 +108,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
+            {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
@@ -123,6 +130,7 @@
                     </a>
                 </div>
                 {/eq}
+            {/eq}
             </div>
             <div style="clear:both"></div>
         </div>
