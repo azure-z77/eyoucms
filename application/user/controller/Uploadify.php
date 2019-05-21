@@ -65,30 +65,32 @@ class Uploadify extends Base {
      */
     public function delupload()
     {
-        $action = input('action','del');                
-        $filename= input('filename/s');
-        $filename= empty($filename) ? input('url') : $filename;
-        $filename= str_replace('../','',$filename);
-        $filename= trim($filename,'.');
-        $filename= trim($filename,'/');
-        if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists($filename)){
-            $fileArr = explode('/', $filename);
-            if ($fileArr[3] != $this->users_id) {
-                return false;
-            }
-            $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-            $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-            $size = getimagesize($filename);
-            $fileInfo = explode('/',$size['mime']);
-            if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+        if (IS_POST) {
+            $action = input('post.action/s','del');                
+            $filename= input('post.filename/s');
+            $filename= empty($filename) ? input('url') : $filename;
+            $filename= str_replace('../','',$filename);
+            $filename= trim($filename,'.');
+            $filename= trim($filename,'/');
+            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists($filename)){
+                $fileArr = explode('/', $filename);
+                if ($fileArr[2] != $this->users_id) {
+                    return false;
+                }
+                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+                $size = getimagesize($filename);
+                $fileInfo = explode('/',$size['mime']);
+                if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                    exit;
+                }
+                if(@unlink($filename)){
+                    echo 1;
+                }else{
+                    echo 0;
+                }  
                 exit;
             }
-            if(@unlink($filename)){
-                echo 1;
-            }else{
-                echo 0;
-            }  
-            exit;
         }
     }
     
@@ -609,7 +611,12 @@ class Uploadify extends Base {
      * @function imageUp
      */
     public function imageUp()
-    {       
+    {
+        if (!IS_POST) {
+            $return_data['state'] = '非法上传';
+            respose($return_data,'json');
+        }
+
         $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         // 上传图片框中的描述表单名称，
         $pictitle = input('pictitle');

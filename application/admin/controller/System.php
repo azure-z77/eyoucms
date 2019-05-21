@@ -230,6 +230,15 @@ class System extends Base
 
         if (IS_POST) {
             $param = input('post.');
+
+            // 禁止php扩展名的附件类型
+            $param['image_type'] = str_ireplace('|php|', '|', '|'.$param['image_type'].'|');
+            $param['image_type'] = trim($param['image_type'], '|');
+            $param['file_type'] = str_ireplace('|php|', '|', '|'.$param['file_type'].'|');
+            $param['file_type'] = trim($param['file_type'], '|');
+            $param['media_type'] = str_ireplace('|php|', '|', '|'.$param['media_type'].'|');
+            $param['media_type'] = trim($param['media_type'], '|');
+
             /*多语言*/
             if (is_language()) {
                 $newParam['basic_indexname'] = $param['basic_indexname'];

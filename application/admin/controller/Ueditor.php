@@ -503,7 +503,12 @@ class Ueditor extends Base
      * @function imageUp
      */
     public function imageUp()
-    {       
+    {
+        if (!IS_POST) {
+            $return_data['state'] = '非法上传';
+            respose($return_data,'json');
+        }
+        
         $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         // 上传图片框中的描述表单名称，
         $pictitle = input('pictitle');
@@ -739,6 +744,14 @@ class Ueditor extends Base
         } else {
             $fileName = uniqid("file_");
         }
+        // 提取文件名后缀
+        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+        // 过滤后的新文件名
+        $fileName = $newfileName.'.'.$file_ext;
 
         $upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         if ($fileSize >= $upload_limit_size) {
@@ -754,7 +767,6 @@ class Ueditor extends Base
         $file_type = tpCache('basic.file_type');
         $file_type = !empty($file_type) ? $file_type : 'zip|gz|rar|iso|doc|xsl|ppt|wps';
         $file_type_arr = explode('|', $file_type);
-        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
         if (!in_array($file_ext, $file_type_arr)) {
             respose(array(
                 'jsonrpc'   => '2.0',
@@ -767,6 +779,7 @@ class Ueditor extends Base
         }
 
         if ($this->nowFileName == -1) {
+            // 提取出文件名，不包括扩展名
             $this->nowFileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
         }
         $filePath = $targetDir . '/' . $fileName;
@@ -977,6 +990,14 @@ class Ueditor extends Base
         } else {
             $fileName = uniqid("file_");
         }
+        // 提取文件名后缀
+        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+        // 过滤后的新文件名
+        $fileName = $newfileName.'.'.$file_ext;
 
         $upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         if ($fileSize >= $upload_limit_size) {
@@ -992,7 +1013,6 @@ class Ueditor extends Base
         $file_type = tpCache('basic.file_type');
         $file_type = !empty($file_type) ? $file_type : 'zip|gz|rar|iso|doc|xsl|ppt|wps';
         $file_type_arr = explode('|', $file_type);
-        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
         if (!in_array($file_ext, $file_type_arr)) {
             respose(array(
                 'jsonrpc'   => '2.0',
@@ -1020,6 +1040,7 @@ class Ueditor extends Base
         }
 
         if ($this->nowFileName == -1) {
+            // 提取出文件名，不包括扩展名
             $this->nowFileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
         }
 

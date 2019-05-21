@@ -1182,7 +1182,7 @@ if (!function_exists('func_common'))
      * @param     string  $file_ext  图片后缀名
      * @return    string
      */
-    function func_common($fileElementId = 'uploadImage', $path = 'temp', $file_ext = "gif|jpg|png|jpeg"){
+    function func_common($fileElementId = 'uploadImage', $path = 'temp', $file_ext = "jpg|gif|png|bmp|jpeg"){
         $file = request()->file($fileElementId);
 
         if (empty($file)) {
@@ -1217,14 +1217,23 @@ if (!function_exists('func_common'))
         }
         /*--end*/ 
         
-        $ext    =   pathinfo($_FILES[$fileElementId]['name'], PATHINFO_EXTENSION);/* 获取上传文件后缀 */
-        $savePath =  $path .'/'.date('Y') . '/' . date('m') . '/' . date('d').'/';
+        $fileName = $_FILES[$fileElementId]['name'];
+        // 提取文件名后缀
+        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+        // 过滤后的新文件名
+        $fileName = $newfileName.'.'.$file_ext;
+
+        $savePath =  $path .'/'.date('Ymd/');
         $return_url = "";
 
         $ossConfig = tpCache('oss');
         if ($ossConfig['oss_switch']) {
             //图片可选择存放在oss
-            $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.$ext;
+            $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.$file_ext;
             $ossClient = new \app\common\logic\OssLogic;
             $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
             if (!$return_url) {
@@ -1440,8 +1449,10 @@ if (!function_exists('MyDate'))
      */
     function MyDate($format = 'Y-m-d', $t = '')
     {
-        $t = !empty($t) ? $t : getTime();
-        return date($format, $t);
+        if (!empty($t)) {
+            $t = date($format, $t);
+        }
+        return $t;
     }
 }
 
