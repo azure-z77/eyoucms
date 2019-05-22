@@ -437,16 +437,33 @@ class Template
         // 过滤eval函数，防止被注入执行任意代码 by 小虎哥
         $view_replace_str = config('view_replace_str');
         if (isset($view_replace_str['__EVAL__'])) {
-            preg_match_all('/{eyou\:php}.*{\/eyou\:php}/iUs', $content, $matchs);
-            $matchs = !empty($matchs[0]) ? $matchs[0] : [];
-            if (!empty($matchs)) {
-                foreach($matchs as $key => $val){
-                    $valNew = preg_replace('/{(\/)?eyou\:php}/i', '', $val);
-                    $valNew = preg_replace("/([\W]+)eval(\s*)\(/i", 'intval(', $valNew);
-                    $valNew = preg_replace("/^eval(\s*)\(/i", 'intval(', $valNew);
-                    $valNew = "{eyou:php}{$valNew}{/eyou:php}";
-                    $content = str_ireplace($val, $valNew, $content);
+            if (stristr($content, '{eyou:php}')) { // 针对{eyou:php}标签语法处理
+                preg_match_all('/{eyou\:php}.*{\/eyou\:php}/iUs', $content, $matchs);
+                $matchs = !empty($matchs[0]) ? $matchs[0] : [];
+                if (!empty($matchs)) {
+                    foreach($matchs as $key => $val){
+                        $valNew = preg_replace('/{(\/)?eyou\:php}/i', '', $val);
+                        $valNew = preg_replace("/([\W]+)eval(\s*)\(/i", 'intval(', $valNew);
+                        $valNew = preg_replace("/^eval(\s*)\(/i", 'intval(', $valNew);
+                        $valNew = "{eyou:php}{$valNew}{/eyou:php}";
+                        $content = str_ireplace($val, $valNew, $content);
+                    }
                 }
+            } else if (stristr($content, '{php}')) { // 针对{php}标签语法处理
+                preg_match_all('/{php}.*{\/php}/iUs', $content, $matchs);
+                $matchs = !empty($matchs[0]) ? $matchs[0] : [];
+                if (!empty($matchs)) {
+                    foreach($matchs as $key => $val){
+                        $valNew = preg_replace('/{(\/)?php}/i', '', $val);
+                        $valNew = preg_replace("/([\W]+)eval(\s*)\(/i", 'intval(', $valNew);
+                        $valNew = preg_replace("/^eval(\s*)\(/i", 'intval(', $valNew);
+                        $valNew = "{php}{$valNew}{/php}";
+                        $content = str_ireplace($val, $valNew, $content);
+                    }
+                }
+            } else if (false !== strpos($content, '<?php')) { // 针对原生php语法处理
+                $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
+                $this->config['tpl_deny_php'] && $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
             }
         }
         // end

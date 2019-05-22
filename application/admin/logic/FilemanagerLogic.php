@@ -88,7 +88,7 @@ class FilemanagerLogic extends Model
         if ('css' != $ext) {
             $content = htmlspecialchars_decode($content, ENT_QUOTES);
             $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
-            $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
+            // $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
         }
         $fp = fopen($file, "w");
         fputs($fp, $content);
