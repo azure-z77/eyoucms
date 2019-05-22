@@ -539,6 +539,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -718,6 +719,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -800,6 +802,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -859,6 +862,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ';
         $parseStr .= ' endif; ?>';
         $parseStr .= '<?php echo $_result["js"]; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -967,6 +971,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach;';
         $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1027,6 +1032,7 @@ class Eyou extends Taglib
         $parseStr .= '?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         /*--end*/
 
         if (!empty($parseStr)) {
@@ -1082,6 +1088,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         /*--end*/
 
         if (!empty($parseStr)) {
@@ -1148,6 +1155,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1200,6 +1208,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1251,6 +1260,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1321,6 +1331,7 @@ class Eyou extends Taglib
         $parseStr .= '?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo "";endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1381,6 +1392,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1441,6 +1453,8 @@ class Eyou extends Taglib
             $parseStr .= '<?php endif; ?>';
         }
 
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
         if (!empty($parseStr)) {
             return $parseStr;
         }
@@ -1490,6 +1504,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach;';
         $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -1927,6 +1942,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2274,6 +2290,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2325,6 +2342,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach;';
         $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2397,6 +2415,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2438,6 +2457,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2485,6 +2505,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2522,6 +2543,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php $'.$id.' = $__LIST__; ?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2565,6 +2587,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
         $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2610,6 +2633,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
         $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2653,6 +2677,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
         $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2706,6 +2731,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $__SHOPCART_LIST__ = ""; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2808,6 +2834,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2854,6 +2881,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2897,6 +2925,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach;';
         $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -2932,6 +2961,7 @@ class Eyou extends Taglib
         $parseStr .= '<?php $'.$id.' = $_result; ?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         
         if (!empty($parseStr)) {
             return $parseStr;

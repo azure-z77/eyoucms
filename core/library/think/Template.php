@@ -453,8 +453,7 @@ class Template
 
         // PHP语法检查
         if ($this->config['tpl_deny_php'] && false !== strpos($content, '<?php')) {
-            // 调试模式下中断模板渲染 by 小虎哥
-            if (config('app_debug')) {
+            if (config('app_debug')) { // 调试模式下中断模板渲染 by 小虎哥
                 throw new Exception('not allow php tag', 11600);
             } else { // 运营模式下继续模板渲染 by 小虎哥
                 echo(lang('not allow php tag'));

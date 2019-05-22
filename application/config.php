@@ -11,6 +11,15 @@
  * Date: 2018-4-3
  */
 
+// session随机存放目录名称
+$serial_number = DEFAULT_SERIALNUMBER;
+$constsant_path = APP_PATH.'admin/conf/constant.php';
+if (file_exists($constsant_path)) {
+    require_once($constsant_path);
+    $serial_number = substr(SERIALNUMBER, -8);
+}
+// end
+
 return array(
     // +----------------------------------------------------------------------
     // | 应用设置
@@ -226,7 +235,7 @@ return array(
         // 'host'           => '127.0.0.1',
         // 端口
         // 'port'           => 11211,
-        'path'  => 'data/session',
+        'path'  => 'data/session_'.$serial_number,
     ),
 
     // +----------------------------------------------------------------------
