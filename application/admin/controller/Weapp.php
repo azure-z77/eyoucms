@@ -662,6 +662,8 @@ class Weapp extends Base
                     if (file_exists($configfile)) {
                         $configdata = include($configfile);
                         $code = isset($configdata['code']) ? $configdata['code'] : 'error_'.date('Ymd');
+                        Db::name('weapp')->where(['code'=>$code])->delete();
+
                         $addData = [
                             'code'          => $code,
                             'name'          => isset($configdata['name']) ? $configdata['name'] : '配置信息不完善',

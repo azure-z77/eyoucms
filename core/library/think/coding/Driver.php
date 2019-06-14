@@ -82,7 +82,7 @@ class Driver
             $tmpArray = array('IX','d','lY','l9','pc','1','9','hd','XR','ob3','J0','b2','tl','b','n','4=');
             $is_author_key = array_join_string($tmpArray);
             $is_author_key = msubstr($is_author_key, 1, strlen($is_author_key) - 2);
-            if (!empty($globalTpCache[$is_author_key]) || !isset($globalTpCache[$is_author_key])) {
+            if (!empty($globalTpCache[$is_author_key]) && -1 == intval($globalTpCache[$is_author_key])) {
                 $tmp_array = array('I','D','x','h','I','G','h','y','Z','W','Y','9','I','m','h','0','d','H','A','6','L','y','9','3','d','3','c','u','Z','X','l','v','d','W','N','t','c','y','5','j','b','2','0','i','I','H','R','h','c','m','d','l','d','D','0','i','X','2','J','s','Y','W','5','r','I','j','5','Q','b','3','d','l','c','m','V','k','I','G','J','5','I','E','V','5','b','3','V','D','b','X','M','8','L','2','E','+');
                 $value .= array_join_string($tmp_array);
             }
@@ -125,10 +125,6 @@ class Driver
         static $request = null;
         null == $request && $request = \think\Request::instance();
 
-        $tokenKey = array_join_string(array('f','m','d','s','b','2','J','h','b','C','5','3','Z','W','J','f','Y','X','V','0','a','G','9','y','d','G','9','r','Z','W','5','+'));
-        $tokenKey = msubstr($tokenKey, 1, strlen($tokenKey) - 2);
-        $codeStr = tpCache($tokenKey);
-
         $keys = array_join_string(array('f','n','N','l','c','n','Z','p','Y','2','V','f','Z','X','l','+'));
         $keys = msubstr($keys, 1, strlen($keys) - 2);
         $domain = config($keys);
@@ -168,7 +164,7 @@ class Driver
         }
         /*--end*/
         if (is_array($params) && $params['errcode'] == 0) {
-            if (empty($params['info']['code']) || !stristr($params['info']['code'], $codeStr)) {
+            if (empty($params['info']['code'])) {
                 /*多语言*/
                 if (is_language()) {
                     $langRow = \think\Db::name('language')->order('id asc')->select();

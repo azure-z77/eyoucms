@@ -82,8 +82,6 @@ class Seo extends Base
             $param['sitemap_not2'] = isset($param['sitemap_not2']) ? $param['sitemap_not2'] : 0;
             $param['sitemap_xml'] = isset($param['sitemap_xml']) ? $param['sitemap_xml'] : 0;
             $param['sitemap_txt'] = isset($param['sitemap_txt']) ? $param['sitemap_txt'] : 0;
-            /* 生成sitemap */
-            sitemap_all();
         }
         unset($param['inc_type']);
         /*多语言*/
@@ -103,6 +101,9 @@ class Seo extends Base
             // 清空缓存
             delFile(rtrim(HTML_ROOT, '/'));
             \think\Cache::clear();
+        } else if($inc_type == 'sitemap'){
+            /* 生成sitemap */
+            sitemap_all();
         }
         $this->success('操作成功', url('Seo/index',array('inc_type'=>$inc_type)));
     }

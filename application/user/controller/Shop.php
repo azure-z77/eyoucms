@@ -34,11 +34,12 @@ class Shop extends Base
         $this->product_attr_db       = Db::name('product_attr');        // 产品属性表
         $this->product_attribute_db  = Db::name('product_attribute');   // 产品属性标题表
 
-        $this->region_db             = Db::name('region');              // 三级联动地址总表
-
+        $this->region_db             = Db::name('region');                 // 三级联动地址总表
         $this->shipping_template_db  = Db::name('shop_shipping_template'); // 运费模板表
 
         $this->shop_model = model('Shop');  // 商城模型
+	    // 商城微信配置信息
+        $this->pay_wechat_config = unserialize(getUsersConfigData('pay.pay_wechat_config'));
 
         // 订单中心是否开启
         $redirect_url = '';
@@ -84,7 +85,7 @@ class Shop extends Base
         $select_status = input('param.select_status');
         // 查询订单是否为空
         $result['data'] = $this->shop_model->GetOrderIsEmpty($this->users_id,$keywords,$select_status);
-        // 是否移动端，1表示移动端，0表示PC端
+        // 是否移动端，1表示手机端，0表示PC端
         $result['IsMobile'] = isMobile() ? 1 : 0;
         // 菜单名称
         $result['title'] = Db::name('users_menu')->where([
@@ -116,6 +117,8 @@ class Shop extends Base
         if (empty($error)) {
             $this->error('没有提交数据！');
         }
+        // 获取当前页面URL，存入session，若操作添加地址后返回当前页面
+        session($this->users_id.'_EyouShopOrderUrl', $this->request->url(true));
         // 数据由标签调取生成
         return $this->fetch('users/shop_under_order');
     }
@@ -123,6 +126,8 @@ class Shop extends Base
     // 收货地址管理列表
     public function shop_address_list()
     {
+        // 获取当前页面URL，存入session，若操作添加地址后返回当前页面
+        session($this->users_id.'_EyouShopOrderUrl', $this->request->url(true));
         // 数据由标签调取生成
         return $this->fetch('users/shop_address_list');
     }
@@ -163,12 +168,12 @@ class Shop extends Base
         if (IS_AJAX_POST) {
             $param = input('param.');
             // 数量不可为空
-            if (empty($param['num'])) {
+            if (empty($param['num']) || 0 > $param['num']) {
                 $this->error('请选择数量！');
             }
             // 查询条件
             $archives_where = [
-                'arcrank' => array('egt','0'), //带审核稿件不查询(同等伪删除)
+                'arcrank' => array('egt','0'), //带审核稿件不查询
                 'aid'     => $param['aid'],
                 'lang'    => $this->home_lang,
             ];
@@ -197,12 +202,12 @@ class Shop extends Base
         if (IS_AJAX_POST) {
             $param = input('param.');
             // 数量不可为空
-            if (empty($param['num'])) {
+            if (empty($param['num']) || 0 > $param['num']) {
                 $this->error('请选择数量！');
             }
             // 查询条件
             $archives_where = [
-                'arcrank' => array('egt','0'), //带审核稿件不查询(同等伪删除)
+                'arcrank' => array('egt','0'), //带审核稿件不查询
                 'aid'     => $param['aid'],
                 'lang'    => $this->home_lang,
             ];
@@ -215,10 +220,10 @@ class Shop extends Base
                     'product_id' => $param['aid'],
                     'lang'       => $this->home_lang,
                 ];
-                $cart_data = $this->shop_cart_db->where($cart_where)->field('product_num')->find();
-                if (!empty($cart_data)) {
+                $product_num = $this->shop_cart_db->where($cart_where)->getField('product_num');
+                if (!empty($product_num)) {
                     // 购物车内已有相同产品，进行数量更新。
-                    $data['product_num'] = $param['num'] + $cart_data['product_num']; //与购物车数量进行叠加
+                    $data['product_num'] = $param['num'] + $product_num; //与购物车数量进行叠加
                     $data['update_time'] = getTime();
                     $cart_id = $this->shop_cart_db->where($cart_where)->update($data);
                 }else{
@@ -237,7 +242,6 @@ class Shop extends Base
             }else{
                 $this->error('该商品不存在或已下架！');
             }
-
         }else {
             $this->error('非法访问！');
         }
@@ -268,14 +272,14 @@ class Shop extends Base
                 if ('-' == $symbol) {
                     $cart_where['product_num'] = array('gt','1');
                 }
-                $cart_data = $this->shop_cart_db->where($cart_where)->field('product_num')->find();
+                $product_num = $this->shop_cart_db->where($cart_where)->getField('product_num');
                 // 处理购物车产品数量
-                if (!empty($cart_data)) {
+                if (!empty($product_num)) {
                     // 更新数组
                     if ('+' == $symbol) {
-                        $data['product_num'] = $cart_data['product_num'] + 1;
+                        $data['product_num'] = $product_num + 1;
                     }else if ('-' == $symbol) {
-                        $data['product_num'] = $cart_data['product_num'] - 1;
+                        $data['product_num'] = $product_num - 1;
                     }else if ('change' == $symbol) {
                         $data['product_num'] = $num;
                     }
@@ -283,13 +287,12 @@ class Shop extends Base
                     // 更新数据
                     $cart_id = $this->shop_cart_db->where($cart_where)->update($data);
 
+                    // 计算金额数量
                     $CaerWhere = [
                         'a.users_id' => $this->users_id,
                         'a.lang'     => $this->home_lang,
                         'a.selected' => 1,
                     ];
-
-                    // 计算金额数量
                     $CartData = $this->shop_cart_db
                         ->field('sum(a.product_num) as num, sum(a.product_num * b.users_price) as price')
                         ->alias('a') 
@@ -298,7 +301,7 @@ class Shop extends Base
                         ->find();
                     if (empty($CartData['num']) && empty($CartData['price'])) {
                         $CartData['num']   = '0';
-                        $CartData['price'] = '0';
+                        $CartData['price'] = '0.00';
                     }
                     if (!empty($cart_id)) {
                         $this->success('操作成功！','',['NumberVal'=>$CartData['num'],'AmountVal'=>$CartData['price']]);
@@ -372,14 +375,27 @@ class Shop extends Base
         }
     }
 
+    public function shop_wechat_pay_select()
+    {
+        $ReturnOrderData = session($this->users_id.'_ReturnOrderData');
+        if (empty($ReturnOrderData)) {
+            $url = session($this->users_id.'_EyouShopOrderUrl');
+            $this->error('订单支付异常，请刷新重新下单~',$url);
+        }
+        $eyou = [
+            'field' => $ReturnOrderData,
+        ];
+        $this->assign('eyou',$eyou);
+        return $this->fetch('users/shop_wechat_pay_select');
+    }
+
     // 订单提交处理逻辑，添加商品信息及计算价格等
     public function shop_payment_page()
     {
         if (IS_POST) {
             // 提交的订单信息判断
             $post = input('post.');
-
-            if (empty($post)) { 
+            if (empty($post)) {
                 $this->error('订单生成失败，商品数据有误！'); 
             }
             if (!empty($post['aid'])) {
@@ -421,9 +437,9 @@ class Shop extends Base
                     ->alias('a') 
                     ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
                     ->where($cart_where)
-                    ->select();
+                    ->select();                 
             }
-
+            
             // 没有相应的产品
             if (empty($list)) {
                 $this->error('订单生成失败，没有相应的产品！');
@@ -450,7 +466,15 @@ class Shop extends Base
             if (empty($PromType)) {
                 // 没有选择收货地址
                 if (empty($post['addr_id'])) {
-                    $this->error('订单生成失败，请添加收货地址！');
+                    // 在微信端并且不在小程序中
+                    if (isWeixin() && !isWeixinApplets()) {
+                        // 跳转至收货地址添加选择页
+                        $get_addr_url = url('user/Shop/shop_get_wechat_addr');
+                        $is_gourl['is_gourl'] = 1;
+                        $this->success('101:选择添加地址方式',$get_addr_url,$is_gourl);exit;
+                    }else{
+                        $this->error('订单生成失败，请添加收货地址！');
+                    }
                 }
 
                 // 查询收货地址
@@ -461,21 +485,27 @@ class Shop extends Base
                 ];
                 $AddressData = $this->shop_address_db->where($AddrWhere)->find();
                 if (empty($AddressData)) {
-                    $this->error('订单生成失败，请添加收货地址！');
+                    if (isWeixin() && !isWeixinApplets()) {
+                        // 跳转至收货地址添加选择页
+                        $get_addr_url = url('user/Shop/shop_get_wechat_addr');
+                        $is_gourl['is_gourl'] = 1;
+                        $this->success('102:选择添加地址方式',$get_addr_url,$is_gourl);exit;
+                    }else{
+                        $this->error('订单生成失败，请添加收货地址！');
+                    }
                 }
 
-                $Shipping = getUsersConfigData('shop.shop_open_shipping');
-                if (!empty($Shipping)) {
+                $shop_open_shipping = getUsersConfigData('shop.shop_open_shipping');
+                $template_money = '0.00';
+                if (!empty($shop_open_shipping)) {
                     // 通过省份获取运费模板中的运费价格
-                    $shipping  = $this->shipping_template_db->where('province_id',$AddressData['province'])->field('template_money')->find();
-                    if ('0.00' == $shipping['template_money']) {
+                    $template_money = $this->shipping_template_db->where('province_id',$AddressData['province'])->getField('template_money');
+                    if ('0.00' == $template_money) {
                         // 省份运费价格为0时，使用统一的运费价格，固定ID为100000
-                        $shipping = $this->shipping_template_db->where('province_id','100000')->field('template_money')->find();
+                        $template_money = $this->shipping_template_db->where('province_id','100000')->getField('template_money');
                     }
                     // 合计金额加上运费价格
-                    $TotalAmount += $shipping['template_money'];
-                }else{
-                    $shipping['template_money'] = '0.00';
+                    $TotalAmount += $template_money;
                 }
 
                 // 拼装数组
@@ -487,7 +517,7 @@ class Shop extends Base
                     'district'     => $AddressData['district'],
                     'address'      => $AddressData['address'],
                     'mobile'       => $AddressData['mobile'],
-                    'shipping_fee' => $shipping['template_money'],
+                    'shipping_fee' => $template_money,
                 ];
             }
 
@@ -496,7 +526,7 @@ class Shop extends Base
             $OrderData = [
                 'order_code'        => date('Ymd').$time.rand(10,100), //订单生成规则
                 'users_id'          => $this->users_id,
-                'order_status'      => 0,
+                'order_status'      => 0, // 订单未付款
                 'add_time'          => $time,
                 'payment_method'    => $post['payment_method'],
                 'order_total_amount'=> $TotalAmount,
@@ -509,7 +539,12 @@ class Shop extends Base
             
             // 存在收货地址则追加合并到主表数组
             if (!empty($AddrData)) {
-                $OrderData = array_merge($OrderData, $AddrData); 
+                $OrderData = array_merge($OrderData, $AddrData);
+            }
+
+            if (isMobile() && isWeixin()) {
+                $OrderData['pay_name'] = 'wechat';// 如果在微信端中则默认为微信支付
+                $OrderData['wechat_pay_type'] = 'WeChatInternal';// 如果在微信端中则默认为微信端调起支付
             }
 
             if ('1' == $post['payment_method']) {
@@ -517,6 +552,7 @@ class Shop extends Base
                 $OrderData['order_status'] = 1; // 标记已付款
                 $OrderData['pay_time']     = $time;
                 $OrderData['pay_name']     = 'delivery_pay';// 货到付款
+                $OrderData['wechat_pay_type'] = ''; // 选择货到付款，则去掉微信端调起支付标记
                 $OrderData['update_time']  = $time;
             }
 
@@ -529,11 +565,10 @@ class Shop extends Base
             ];
             $validate = new \think\Validate($rule, $message);
             if(!$validate->check($post)){
-                $this->error('非法操作！');
+                $this->error('不可连续提交订单！');
             }
 
             $OrderId = $this->shop_order_db->add($OrderData);
-
             if (!empty($OrderId)) {
                 $cart_ids   = '';
                 $attr_value = '';
@@ -592,21 +627,64 @@ class Shop extends Base
 
                     // 添加订单操作记录
                     AddOrderAction($OrderId,$this->users_id);
+
                     if ('0' == $post['payment_method']) {
-                        // 在线付款时，跳转至付款页
-                        // 对ID和订单号加密，拼装url路径
-                        $querydata = [
-                            'order_id'   => $OrderId,
-                            'order_code' => $OrderData['order_code'],
-                        ];
-                        $querystr   = base64_encode(serialize($querydata));
-                        $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['querystr'=>$querystr]));
+                        // 选择在线付款并且在手机微信端、小程序中则返回订单ID，订单号，订单交易类型
+                        if (isMobile() && isWeixin()) {
+                            if (!empty($this->users['open_id'])) {
+                                $ReturnOrderData = [
+                                    'unified_id'       => $OrderId,
+                                    'unified_number'   => $OrderData['order_code'],
+                                    'transaction_type' => 2, // 订单支付购买
+                                    'order_total_amount' => $TotalAmount,
+                                    'order_source'     => 1, // 提交订单页
+                                    'is_gourl'         => 1,
+                                ];
+                                if ($this->users['users_money'] <= '0.00') {
+                                    // 余额为0
+                                    $ReturnOrderData['is_gourl'] = 0;
+                                    $this->success('订单已生成！', null, $ReturnOrderData);
+                                }else{
+                                    // 余额不为0
+                                    $url = url('user/Shop/shop_wechat_pay_select');
+                                    session($this->users_id.'_ReturnOrderData',$ReturnOrderData);
+                                    $this->success('订单已生成！', $url, $ReturnOrderData);
+                                }
+                            }else{
+                                // 如果会员没有openid则跳转到支付页面进行支付
+                                // 在线付款时，跳转至付款页
+                                // 对ID和订单号加密，拼装url路径
+                                $querydata = [
+                                    'order_id'   => $OrderId,
+                                    'order_code' => $OrderData['order_code'],
+                                ];
+                                $querystr   = base64_encode(serialize($querydata));
+                                $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['querystr'=>$querystr]));
+                                $ReturnOrderData = [
+                                    'is_gourl'         => 1,
+                                ];
+                                $this->success('订单已生成！',$PaymentUrl,$ReturnOrderData);
+                            }
+                        }else{
+                            // 在线付款时，跳转至付款页
+                            // 对ID和订单号加密，拼装url路径
+                            $querydata = [
+                                'order_id'   => $OrderId,
+                                'order_code' => $OrderData['order_code'],
+                            ];
+                            $querystr   = base64_encode(serialize($querydata));
+                            $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['querystr'=>$querystr]));
+                        }
                     }else{
                         // 无需跳转付款页，直接跳转订单列表页
                         $PaymentUrl = urldecode(url('user/Shop/shop_centre'));
                         
                         // 货到付款时，再次添加一条订单操作记录
                         AddOrderAction($OrderId,$this->users_id,'0','1','0','1','货到付款！','会员选择货到付款，款项由快递代收！');
+                        $ReturnOrderData = [
+                            'is_gourl'         => 1,
+                        ];
+                        $this->success('订单已生成！',$PaymentUrl,$ReturnOrderData);
                     }
                     $this->success('订单已生成！',$PaymentUrl);
                 }else{
@@ -636,10 +714,26 @@ class Shop extends Base
                 $this->error('详细地址不可为空！');
             }
             // 添加数据
-            $post['users_id']   = $this->users_id;
-            $post['add_time']   = getTime();
-            $post['lang']       = $this->home_lang;
+            $post['users_id'] = $this->users_id;
+            $post['add_time'] = getTime();
+            $post['lang']     = $this->home_lang;
+            if (isMobile() && isWeixin()) {
+                // 在手机微信端、小程序中则把新增的收货地址设置为默认地址
+                $post['is_default'] = 1;// 设置为默认地址
+            }
             $addr_id = $this->shop_address_db->add($post);
+            if (isMobile() && isWeixin() && !empty($addr_id)) {
+                // 把对应会员下的所有地址改为非默认
+                $AddressWhere = [
+                    'addr_id'  => array('NEQ',$addr_id),
+                    'users_id' => $this->users_id,
+                    'lang'     => $this->home_lang,
+                ];
+                $data_new['is_default']  = 0;// 设置为非默认地址
+                $data_new['update_time'] = getTime();
+                $this->shop_address_db->where($AddressWhere)->update($data_new);
+                $this->success('添加成功！',session($this->users_id.'_EyouShopOrderUrl'));exit;
+            }
 
             // 根据地址ID查询相应的中文名字
             $post['country']  = '中国';
@@ -647,7 +741,7 @@ class Shop extends Base
             $post['city']     = get_city_name($post['city']);
             $post['district'] = get_area_name($post['district']);
             if (!empty($addr_id)) {
-                $post['addr_id']  = $addr_id;
+                $post['addr_id'] = $addr_id;
                 $this->success('添加成功！','',$post);
             }else{
                 $this->error('数据有误！');
@@ -655,7 +749,7 @@ class Shop extends Base
         }
 
         $types = input('param.type');
-        if ('list' == $types || 'order' == $types) {
+        if ('list' == $types || 'order' == $types || 'order_new' == $types) {
             $Where = [
                 'users_id' => $this->users_id,
                 'lang'     => $this->home_lang,
@@ -735,7 +829,7 @@ class Shop extends Base
         $AddrData['City']     = $this->region_db->where('parent_id',$AddrData['province'])->select(); // 城市
         $AddrData['District'] = $this->region_db->where('parent_id',$AddrData['city'])->select(); // 县/区/镇
         $eyou = [
-            'field'    => $AddrData,
+            'field' => $AddrData,
         ];
         $this->assign('eyou',$eyou);
         return $this->fetch('users/shop_edit_address');
@@ -749,7 +843,7 @@ class Shop extends Base
             $Where = [
                 'addr_id'  => $addr_id,
                 'users_id' => $this->users_id,
-                'lang'     => $this->admin_lang,
+                'lang'     => $this->home_lang,
             ];
             $return = $this->shop_address_db->where($Where)->delete();
             if ($return) {
@@ -798,9 +892,9 @@ class Shop extends Base
     public function shop_inquiry_shipping()
     {
         if (IS_AJAX_POST) {
-            $Shipping = getUsersConfigData('shop.shop_open_shipping');
-            if (empty($Shipping)) {
-                $this->success('','',0);
+            $shop_open_shipping = getUsersConfigData('shop.shop_open_shipping');
+            if (empty($shop_open_shipping)) {
+                $this->success('未开启运费！','',0);
             }
             // 查询会员收货地址，获取省份
             $addr_id = input('post.addr_id');
@@ -809,15 +903,15 @@ class Shop extends Base
                 'users_id' => $this->users_id,
                 'lang'     => $this->home_lang,
             ];
-            $data  = $this->shop_address_db->where($where)->field('province')->find();
+            $province = $this->shop_address_db->where($where)->getField('province');
 
             // 通过省份获取运费模板中的运费价格
-            $data  = $this->shipping_template_db->where('province_id',$data['province'])->field('template_money')->find();
-            if ('0.00' == $data['template_money']) {
+            $template_money = $this->shipping_template_db->where('province_id',$province)->getField('template_money');
+            if ('0.00' == $template_money) {
                 // 省份运费价格为0时，使用统一的运费价格，固定ID为100000
-                $data = $this->shipping_template_db->where('province_id','100000')->field('template_money')->find();
+                $template_money = $this->shipping_template_db->where('province_id','100000')->getField('template_money');
             }
-            $this->success('','',$data['template_money']);
+            $this->success('查询成功！','',$template_money);
         }else{
             $this->error('订单号错误');
         }
@@ -836,53 +930,6 @@ class Shop extends Base
         }
         echo json_encode($html);
     }
-
-    // 查询物流，暂时弃用，已跳转至快递100链接查询
-    // public function shop_query_express()
-    // {
-    //     $param = input('param.');
-    //     if (!empty($param)) {
-    //         $order_id = $param['order_id'];
-    //         if (!empty($order_id)) {
-    //             // 查询是否存在订单信息
-    //             $OrderData = $this->shop_order_db->field('order_status,express_data')
-    //                 ->where('order_id',$order_id)
-    //                 ->find();
-    //         }else{
-    //             $this->error('产品ID不存在，请联系商家');
-    //         }
-
-    //         if ('3' == $OrderData['order_status']) {
-    //             // 订单已完成，物流信息通过数据库查询返回
-    //             $Data = unserialize($OrderData['express_data']);
-    //             $ExpressData = $Data['data'];
-    //         }else{
-    //             // 判断查询信息是否齐全
-    //             if (empty($param['mobile'])) {
-    //                 $this->error('物流信息不全，缺少手机号，请联系商家');
-    //             }else if (empty($param['express_order'])) {
-    //                 $this->error('物流信息不全，缺少运单号，请联系商家');
-    //             }else if (empty($param['express_code'])) {
-    //                 $this->error('物流信息不全，缺少Code，请联系商家');
-    //             }
-    //             // 查询实时物流信息
-    //             $return = queryExpress($param);
-    //             if ('ok' == $return['message']) {
-    //                 // 返回实时查询的物流信息
-    //                 $ExpressData = $return['data'];
-    //                 $Data['express_data'] = serialize($return);
-    //                 $Data['update_time']  = getTime();
-    //                 $this->shop_order_db->where('order_id',$order_id)->update($Data);
-    //             }else{
-    //                 // 物流接口错误，查询数据库返回当前节点物流信息
-    //                 $Data = unserialize($OrderData['express_data']);
-    //                 $ExpressData = $Data['data'];
-    //             }
-    //         }
-    //         $this->assign('ExpressData',$ExpressData);
-    //         return $this->fetch('users/shop_query_express');
-    //     } 
-    // }
 
     // 会员提醒收货
     public function shop_order_remind()
@@ -916,7 +963,6 @@ class Shop extends Base
             ];
             // 更新订单主表
             $return = $this->shop_order_db->where($Where)->update($Data);
-
             if (!empty($return)) {
                 // 更新数据
                 $Data = [
@@ -929,6 +975,165 @@ class Shop extends Base
                 $this->success('会员确认收货');
             }else{
                 $this->error('订单号错误');
+            }
+        }
+    }
+	
+    // 获取微信收货地址
+    public function shop_get_wechat_addr()
+    {
+        if (IS_AJAX_POST) {
+            // 微信配置信息
+            $appid     = $this->pay_wechat_config['appid'];
+            $appsecret = $this->pay_wechat_config['appsecret'];
+            if (empty($appid)) {
+                $this->error('后台微信配置尚未配置AppId，不可以获取微信地址！');
+            }else if (empty($appsecret)) {
+                $this->error('后台微信配置尚未配置AppSecret，不可以获取微信地址！');
+            }
+
+            // 当前时间戳
+            $time = getTime();
+            // 微信access_token和jsapi_ticket信息
+            $WechatData  = getUsersConfigData('wechat');
+            // access_token信息判断
+            $accesstoken = $WechatData['wechat_token_value'];
+            if (empty($accesstoken)) {
+                // 如果配置表中的accesstoken为空则执行
+                // 获取公众号access_token，接口限制10万次/天
+                $return = $this->shop_model->GetWeChatAccessToken($appid,$appsecret);
+                if (empty($return['status'])) {
+                    $this->error($return['prompt']);
+                }else{
+                    $accesstoken = $return['token'];
+                }
+            }else if ($time > ($WechatData['wechat_token_time']+7000)) {
+                // 如果配置表中的时间超过过期时间则执行
+                // 获取公众号access_token，接口限制10万次/天
+                $return = $this->shop_model->GetWeChatAccessToken($appid,$appsecret);
+                if (empty($return['status'])) {
+                    $this->error($return['prompt']);
+                }else{
+                    $accesstoken = $return['token'];
+                }
+            }
+
+            // jsapi_ticket信息判断
+            $jsapi_ticket = $WechatData['wechat_ticket_value'];
+            if (empty($jsapi_ticket)) {
+                // 获取公众号jsapi_ticket，接口限制500万次/天
+                $return = $this->shop_model->GetWeChatJsapiTicket($accesstoken);
+                if (empty($return['status'])) {
+                    $this->error($return['prompt']);
+                }else{
+                    $jsapi_ticket = $return['ticket'];
+                }
+            }else if ($time > ($WechatData['wechat_ticket_time']+7000)) {
+                // 获取公众号jsapi_ticket，接口限制500万次/天
+                $return = $this->shop_model->GetWeChatJsapiTicket($accesstoken);
+                if (empty($return['status'])) {
+                    $this->error($return['prompt']);
+                }else{
+                    $jsapi_ticket = $return['ticket'];
+                }
+            }
+
+            // <---- 加密参数开始 
+            // 微信公众号jsapi_ticket
+            // $jsapi_ticket = $jsapi_ticket;
+            // 随机字符串
+            $noncestr  = $this->shop_model->GetRandomString('16');
+            $noncestr  = "$noncestr";
+            // 当前时间戳
+            $timestamp = time();
+            $timestamp = "$timestamp";
+            // 当前访问接口URL
+            $url       = $this->request->url(true);
+            // 加密参数结束 ----->
+            
+            // 参数加密，顺序固定不可改变
+            $string    = 'jsapi_ticket='.$jsapi_ticket.'&noncestr='.$noncestr.'&timestamp='.$timestamp.'&url='.$url;
+            $signature = SHA1($string);
+
+            // 返回结果
+            $result = [
+                // 用于调试，不影响正常业务(如不需要，可直接清理)
+                'token'     => $accesstoken,
+                'ticket'    => $jsapi_ticket,
+                'url'       => $url, // 传入接口调用参数(必须返回)
+                'appid'     => $appid,
+                'timestamp' => $timestamp,
+                'noncestr'  => $noncestr,
+                'signature' => $signature,
+            ];
+            $this->success('数据获取！',null,$result);
+        }
+
+        $result = [
+            'wechat_url'   => url("user/Shop/shop_get_wechat_addr"),
+            'add_addr_url' => url("user/Shop/shop_add_address"),
+        ];
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->assign('eyou', $eyou);
+        return $this->fetch('users/shop_get_wechat_addr');
+    }
+
+    // 添加微信的收货地址到数据库
+    public function add_wechat_addr()
+    {
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+            // 省
+            $province = $this->region_db->where('name',$post['provinceName'])->getField('id');
+            // 市
+            $city     = $this->region_db->where('name',$post['cityName'])->getField('id');
+            // 县
+            $district = $this->region_db->where('name',$post['countryName'])->getField('id');
+
+            // 查询这个收货地址是否存在
+            $where  = [
+                'users_id'   => $this->users_id,
+                'consignee'  => $post['userName'],
+                'mobile'     => $post['telNumber'],
+                'province'   => $province,
+                'city'       => $city,
+                'district'   => $district,
+                'address'    => $post['detailInfo'],
+                'lang'       => $this->home_lang,
+            ];
+            $return = $this->shop_address_db->where($where)->find();
+            if (!empty($return)) {
+                $this->success('获取成功！',session($this->users_id.'_EyouShopOrderUrl'));
+            }else{
+                $data = [
+                    'users_id'   => $this->users_id,
+                    'consignee'  => $post['userName'],
+                    'mobile'     => $post['telNumber'],
+                    'province'   => $province,
+                    'city'       => $city,
+                    'district'   => $district,
+                    'address'    => $post['detailInfo'],
+                    'is_default' => 1, // 设置为默认地址
+                    'lang'       => $this->home_lang,
+                    'add_time'   => getTime(),
+                ];
+                $addr_id = $this->shop_address_db->add($data);
+                if (!empty($addr_id)) {
+                    // 把对应会员下的所有地址改为非默认
+                    $AddressWhere = [
+                        'addr_id'  => array('NEQ',$addr_id),
+                        'users_id' => $this->users_id,
+                        'lang'     => $this->home_lang,
+                    ];
+                    $data_new['is_default']  = '0';// 设置为非默认地址
+                    $data_new['update_time'] = getTime();
+                    $this->shop_address_db->where($AddressWhere)->update($data_new);
+                    $this->success('获取成功！',session($this->users_id.'_EyouShopOrderUrl'));
+                }else{
+                    $this->success('获取失败，请刷新后重试！');
+                }
             }
         }
     }

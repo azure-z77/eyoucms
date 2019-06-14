@@ -57,29 +57,31 @@
                     <label for="file_size">附件上传大小</label>
                 </dt>
                 <dd class="opt">
-                    <select id="file_size" name="file_size">
-                        <option value="1" {if condition="$config['file_size'] eq 1"}selected="selected"{/if}>1M</option>
-                        <option value="2" {if condition="$config['file_size'] eq 2"}selected="selected"{/if}>2M</option>
-                        <option value="3" {if condition="$config['file_size'] eq 3"}selected="selected"{/if}>3M</option>
-                        <option value="5" {if condition="$config['file_size'] eq 4"}selected="selected"{/if}>5M</option>
-                        <option value="10" {if condition="$config['file_size'] eq 10"}selected="selected"{/if}>10M</option>
-                        <option value="50" {if condition="$config['file_size'] eq 50"}selected="selected"{/if}>50M</option>
-                        <option value="100" {if condition="$config['file_size'] eq 100"}selected="selected"{/if}>100M</option>
-                        <option value="300" {if condition="$config['file_size'] eq 300"}selected="selected"{/if}>300M</option>
-                        <option value="500" {if condition="$config['file_size'] eq 500"}selected="selected"{/if}>500M</option>
-                        <option value="1000" {if condition="$config['file_size'] eq 1000"}selected="selected"{/if}>1000M</option>
-                    </select>
+                    <input id="file_size" name="file_size" value="{$config.file_size|default=$max_filesize}" type="text" style="width: 60px;" /> {$max_sizeunit}
                     <p class="notic">附件上传大小限制，如果空间不支持，请与空间商联系修改php.ini部分参数</p>
                 </dd>
             </dl>
             {/eq}
-            <div class="bot"><a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a></div>
+            <div class="bot">
+                <input type="hidden" name="max_filesize" id="max_filesize" value="{$max_filesize}">
+                <input type="hidden" name="max_sizeunit" id="max_sizeunit" value="{$max_sizeunit}">
+                <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a>
+            </div>
         </div>
     </form>
 </div>
 
 <script type="text/javascript">
     function adsubmit(){
+        var file_size = parseInt($('#file_size').val());
+        var max_filesize = parseInt($('#max_filesize').val());
+        var max_sizeunit = $('#max_sizeunit').val();
+        if (0 < max_filesize && max_filesize < file_size) {
+            showErrorMsg('附件上传大小超过空间的最大限制'+max_filesize+max_sizeunit);
+            $('input[name=file_size]').focus();
+            return false;
+        }
+
         layer_loading("正在处理");
         $('#handlepost').submit();
     }

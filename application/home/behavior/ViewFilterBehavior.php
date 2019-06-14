@@ -41,12 +41,13 @@ class ViewFilterBehavior {
      */
     private function thirdcode(&$params)
     {
-        /*PC端与手机端的变量名自适应，可彼此通用*/
-        $name = 'web_thirdcode_' . (isMobile() ? 'wap' : 'pc');
-        /*--end*/
-        $web_thirdcode = tpCache('web.'.$name);
-        if (!empty($web_thirdcode)) {
-            $params = str_ireplace('</body>', htmlspecialchars_decode($web_thirdcode)."\n</body>", $params);
+        // 排除小程序端，其他场景都显示统计代码和商桥代码
+        if (!isWeixinApplets()) {
+            $name = 'web_thirdcode_' . (isMobile() ? 'wap' : 'pc'); // PC端与手机端的变量名自适应，可彼此通用
+            $web_thirdcode = tpCache('web.'.$name);
+            if (!empty($web_thirdcode)) {
+                $params = str_ireplace('</body>', htmlspecialchars_decode($web_thirdcode)."\n</body>", $params);
+            }
         }
     }
 }

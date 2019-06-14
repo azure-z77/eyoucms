@@ -460,6 +460,34 @@ if (!function_exists('read_html_cache'))
         }
     }
 }
+ 
+if (!function_exists('is_local_images')) 
+{
+    /**
+     * 判断远程链接是否属于本地图片，并返回本地图片路径
+     *
+     * @param string $pic_url 图片地址
+     * @param boolean $returnbool 返回类型，false 返回图片路径，true 返回布尔值
+     */
+    function is_local_images($pic_url = '', $returnbool = false)
+    {
+        $picPath  = parse_url($pic_url, PHP_URL_PATH);
+        // if (preg_match('/^([^:]*):?\/\/([^\/]+)(.*)\/(uploads\/allimg|public\/upload)\/(.*)\.([^\.]+)$/i', $pic_url) && file_exists('.'.$picPath)) {
+        if (!empty($picPath) && file_exists('.'.$picPath)) {
+            $picPath = preg_replace('#^'.ROOT_DIR.'/#i', '/', $picPath);
+            $pic_url = ROOT_DIR.$picPath;
+            if (true == $returnbool) {
+                return $pic_url;
+            }
+        }
+
+        if (true == $returnbool) {
+            return false;
+        } else {
+            return $pic_url;
+        }
+    }
+}
 
 if (!function_exists('get_head_pic')) 
 {
@@ -620,11 +648,14 @@ if (!function_exists('thumb_img'))
 
         if (!empty($width) || !empty($height) || !empty($thumb_mode)) { // 单独在模板里调用，不受缩略图全局开关影响
 
-        } else { // 非单独模板调用
+        } else { // 非单独模板调用，比如内置的arclist\list标签里
             if (empty($thumbConfig['thumb_open'])) {
                 return $original_img;
             }
         }
+
+        // 缩略图优先级别高于七牛云，自动把七牛云的图片路径转为本地图片路径，并且进行缩略图
+        $original_img = is_local_images($original_img);
 
         // 未开启缩略图，或远程图片
         if (is_http_url($original_img) || stristr($original_img, '/public/static/common/images/not_adv.jpg')) {
@@ -1769,14 +1800,27 @@ if (!function_exists('img_style_wh'))
             $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
             if (!empty($imginfo)) {
                 $num = 1;
+                $appendStyle = "max-width:100%!important;height:auto;";
                 $title = preg_replace('/("|\')/i', '', $title);
                 foreach ($imginfo as $key => $imgstr) {
                     $imgstrNew = $imgstr;
+                    
+                    /* 兼容已存在的多重追加样式，处理去重 */
+                    if (stristr($imgstrNew, $appendStyle.$appendStyle)) {
+                        $imgstrNew = preg_replace('/'.$appendStyle.$appendStyle.'/i', '', $imgstrNew);
+                    }
+                    if (stristr($imgstrNew, $appendStyle)) {
+                        $content = str_ireplace($imgstr, $imgstrNew, $content);
+                        $num++;
+                        continue;
+                    }
+                    /* end */
+
                     // 追加style属性
-                    $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"](.*?)[\'|\"]/i', 'style="max-width:100%!important;height:auto;${3}"', $imgstrNew);
+                    $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"](.*?)[\'|\"]/i', 'style="'.$appendStyle.'${3}"', $imgstrNew);
                     if (!preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                         // 新增style属性
-                        $imgstrNew = str_ireplace('<img', "<img style=\"max-width:100%!important;height:auto;\" ", $imgstrNew);
+                        $imgstrNew = str_ireplace('<img', "<img style=\"".$appendStyle."\" ", $imgstrNew);
                     }
 
                     // 移除img中多余的title属性

@@ -49,6 +49,11 @@ $user_config = array(
         'Users@vertify', // 验证码
         'Users@retrieve_password', // 忘记密码
         'Users@reset_password', // 忘记密码
+        'Users@get_wechat_info', // 微信登陆
+        'Users@users_select_login', // 选择登陆方式
+        'Users@ajax_wechat_login', // 授权微信登陆
+        'Users@pc_wechat_login',   // PC端微信扫码登陆
+        'Pay@alipay_return',   // 支付宝异步通知
         'Smtpmail@*', // 邮箱发送
         'LoginApi@*', // 第三方登录
     ),

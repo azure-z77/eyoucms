@@ -48,15 +48,81 @@ class Pay extends Model
     }
 
     /*
+     *   微信端H5支付，手机微信直接调起微信支付
+     *   @params string $openid : 用户的openid
+     *   @params string $out_trade_no : 商户订单号
+     *   @params number $total_fee : 订单金额，单位分
+     *   return string  $ReturnData : 微信支付所需参数数组
+     */
+    public function getWechatPay($openid,$out_trade_no,$total_fee,$body="支付",$attach="微信端H5支付")
+    {
+        // 获取微信配置信息
+        $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+        if (empty($pay_wechat_config)) {
+            return false;
+        }
+        $wechat = unserialize($pay_wechat_config);
+        $this->key = $wechat['key'];
+
+        //支付数据
+        $data['body']             = $body;
+        $data['attach']           = $attach;
+        $data['out_trade_no']     = $out_trade_no;
+        $data['total_fee']        = $total_fee * 100;
+        $data['nonce_str']        = getTime();
+        $data['spbill_create_ip'] = $this->get_client_ip();
+        $data['appid']            = $wechat['appid'];
+        $data['mch_id']           = $wechat['mchid'];
+        $data['trade_type']       = "JSAPI";
+        $data['notify_url']       = url('users/Pay/mobile_pay_notify');
+        $data['openid']           = $openid;
+
+        $sign = $this->getParam($data);
+        $dataXML = "<xml>
+           <appid>".$data['appid']."</appid>
+           <attach>".$data['attach']."</attach>
+           <body>".$data['body']."</body>
+           <mch_id>".$data['mch_id']."</mch_id>
+           <nonce_str>".$data['nonce_str']."</nonce_str>
+           <notify_url>".$data['notify_url']."</notify_url>
+           <openid>".$data['openid']."</openid>
+           <out_trade_no>".$data['out_trade_no']."</out_trade_no>
+           <spbill_create_ip>".$data['spbill_create_ip']."</spbill_create_ip>
+           <total_fee>".$data['total_fee']."</total_fee>
+           <trade_type>".$data['trade_type']."</trade_type>
+           <sign>".$sign."</sign>
+        </xml>";
+
+        $url    = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        $result =  $this->https_post($url,$dataXML);
+        $ret    =  $this->xmlToArray($result);
+        if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+            $timeStamp  = getTime();
+            $ReturnData = [
+                'appId'     => $wechat['appid'],
+                'timeStamp' => "$timeStamp",
+                'nonceStr'  => $this->GetRandomString(12),
+                'package'   => 'prepay_id='.$ret['prepay_id'],
+                'signType'  => 'MD5',
+            ];
+            $ReturnSign = $this->getParam($ReturnData);
+            $ReturnData['paySign'] = $ReturnSign;
+            return $ReturnData;
+        }else{
+            return false;
+        }
+
+    }
+
+    /*
      *   微信H5支付，手机浏览器调起微信支付
      *   @params string $openid : 用户的openid
      *   @params string $out_trade_no : 商户订单号
      *   @params number $total_fee : 订单金额，单位分
-     *   return string $code_url : 二维码URL链接
+     *   return string $mweb_url : 二维码URL链接
      */
-    public function getMobilePay($out_trade_no,$total_fee,$body="充值",$attach="微信扫码支付")
+    public function getMobilePay($out_trade_no,$total_fee,$body="支付",$attach="手机浏览器微信H5支付")
     {
-
         // 获取微信配置信息
         $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
         if (empty($pay_wechat_config)) {
@@ -98,6 +164,9 @@ class Pay extends Model
         $result =  $this->https_post($url,$dataXML);
         $ret = $this->xmlToArray($result);
         if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+            if (!empty($ret['err_code'])) {
+                return $ret['err_code_des'];
+            }
             return $ret['mweb_url'];
         } else {
             return $ret;
@@ -111,7 +180,7 @@ class Pay extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string $code_url : 二维码URL链接
      */
-    public function payForQrcode($out_trade_no,$total_fee,$body="充值",$attach="微信扫码支付")
+    public function payForQrcode($out_trade_no,$total_fee,$body="支付",$attach="微信扫码支付")
     {
         // 获取微信配置信息
         $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
@@ -233,6 +302,11 @@ class Pay extends Model
         return $val;
     }
 
+    /*
+     *   支付宝新版支付，生成支付链接方法。
+     *   @params string $data   : 订单表数据，必须传入
+     *   return string $alipay_url : 支付宝支付链接
+     */
     public function getNewAliPayPayUrl($data){
         // 引入SDK文件
         vendor('alipay.pagepay.service.AlipayTradeService');
@@ -259,15 +333,16 @@ class Pay extends Model
         $aop               = new \AlipayTradeService($config);
 
         $out_trade_no = trim($data['unified_number']);//商户订单号，商户网站订单系统中唯一订单号，必填
-        $subject      = trim('充值');//订单名称，必填
+        $subject      = trim('支付');//订单名称，必填
         $total_amount = trim($data['unified_amount']);//付款金额，必填
-        $body         = trim('支付宝充值');//商品描述，可空
+        $body         = trim('支付宝支付');//商品描述，可空
         //构造参数
         $payRequestBuilder->setBody($body);
         $payRequestBuilder->setSubject($subject);
         $payRequestBuilder->setTotalAmount($total_amount);
         $payRequestBuilder->setOutTradeNo($out_trade_no);
 
+        // 调用SDK进行支付宝支付
         $response = $aop->pagePay($payRequestBuilder,$config['return_url'],$config['notify_url']);
     }
 
@@ -346,4 +421,15 @@ class Pay extends Model
         return $alipay_url;
     }
 
+    // 获取随机字符串
+    // 长度 length
+    // 结果 str
+    public function GetRandomString($length){
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $str   = "";
+        for ($i = 0; $i < $length; $i++) {
+          $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
 }

@@ -64,7 +64,14 @@ class TagUser extends Base
                     case 'centre':
                     case 'reg':
                     case 'logout':
-                        $url = url('user/Users/'.$type);
+                    case 'cart':
+                        if ('cart' == $type) {
+                            $shop_open = getUsersConfigData('shop.shop_open');
+                            if (empty($shop_open)) return false; // 关闭商城中心，同时隐藏购物车入口
+                            $url = url('user/Shop/shop_cart_list');
+                        } else {
+                            $url = url('user/Users/'.$type);
+                        }
 
                         $t_uniqid = md5(getTime().uniqid(mt_rand(), TRUE));
                         // A标签ID
@@ -96,9 +103,19 @@ class TagUser extends Base
                         $result['id'] = $t_uniqid;
                         break;
 
-                    default:
-                        # code...
+                    case 'open':
                         break;
+
+                    default:
+                        return false;
+                        break;
+                }
+
+                if ('login' == $type) {
+                    if (isMobile() && isWeixin()) {
+                        // 微信端和小程序则使用这个url
+                        $result['url'] = url('user/Users/users_select_login');
+                    }
                 }
 
                 // 子目录

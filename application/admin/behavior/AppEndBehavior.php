@@ -114,7 +114,7 @@ class AppEndBehavior {
                         'channel_id'    => $ctlArr[self::$controllerName]['id'],
                         'dtype'         => 'htmltext',
                     ])->getField('name');
-                if (!empty($_POST['addonFieldExt'][$contentField])) {
+                if (empty($_POST['seo_description']) && !empty($_POST['addonFieldExt'][$contentField])) {
                     $content = $_POST['addonFieldExt'][$contentField];
                     $seo_description = @msubstr(checkStrHtml($content), 0, \think\Config::get('global.arc_seo_description_length'), false);
                     $saveData = [

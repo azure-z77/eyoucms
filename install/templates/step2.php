@@ -137,9 +137,9 @@
       <center>
         <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=2" class="btn_b">重新检测</a>
         <?php if($err>0){?>
-        <a href="javascript:void(0)" onClick="javascript:layer.alert('安装环境检测未通过，请检查', {icon: 5})" class="btn_a" style="background: gray;">下一步</a> 
+        <a id="next_submit" href="javascript:void(0)" onClick="javascript:layer.alert('安装环境检测未通过，请检查', {icon: 5, title: false})" class="btn_a" style="background: gray;">下一步</a> 
         <?php }else{?>
-        <a href="<?php echo $_SERVER['PHP_SELF']; ?>?step=3" class="btn_a">下一步</a> 
+        <a id="next_submit" href="<?php echo $_SERVER['PHP_SELF']; ?>?step=3" class="btn_a">下一步</a> 
         <?php }?>
       </center>
     </div>
@@ -147,5 +147,11 @@
 </div>
  <div class="blank20"></div>
 <?php require './templates/footer.php';?>
+
+<script type="text/javascript">
+  $(function(){
+    $('#next_submit').focus();
+  });
+</script>
 </body>
 </html>

@@ -146,7 +146,14 @@ class TagSpsubmitorder extends Base
         // 封装订单支付方式隐藏域
         $result['data']['PayTypeHidden']  = '<input type="hidden" name="payment_method" id="payment_method" value="0">';
         // 封装添加收货地址JS
-        $result['data']['ShopAddAddr']    = " onclick=\"ShopAddAddress();\" ";
+        if (isWeixin() && !isWeixinApplets()) {
+            $result['data']['ShopAddAddr'] = " onclick=\"GetWeChatAddr();\" ";
+            $data['shop_add_address']        = url('user/Shop/shop_get_wechat_addr');
+        }else{
+            $result['data']['ShopAddAddr']  = " onclick=\"ShopAddAddress();\" ";
+            $data['shop_add_address']       = url('user/Shop/shop_add_address');
+        }
+
         // 封装UL的ID,用于添加收货地址
         $result['data']['UlHtmlId']       = " id=\"UlHtml\" ";
         // 封装选择支付方式JS
@@ -171,11 +178,17 @@ class TagSpsubmitorder extends Base
         $result['data']['TokenValue'] = " <input type=\"hidden\" name=\"__token__\" value=\"{$token}\"/> ";
 
         // 传入JS参数
-        $data['shop_add_address']  = url('user/Shop/shop_add_address');
         $data['shop_edit_address'] = url('user/Shop/shop_edit_address');
         $data['shop_del_address']  = url('user/Shop/shop_del_address');
         $data['shop_inquiry_shipping']  = url('user/Shop/shop_inquiry_shipping');
         $data['shop_payment_page'] = url('user/Shop/shop_payment_page');
+        if (isWeixin() || isMobile()) {
+            $data['addr_width']  = '100%';
+            $data['addr_height'] = '100%';
+        }else{
+            $data['addr_width']  = '350px';
+            $data['addr_height'] = '550px';
+        }
         $data_json = json_encode($data);
         $version   = getCmsVersion();
         // 循环中第一个数据带上JS代码加载

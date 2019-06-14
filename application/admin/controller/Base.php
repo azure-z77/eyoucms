@@ -113,7 +113,6 @@ class Base extends Controller {
      */
     public function global_assign()
     {
-        $this->assign('version', getCmsVersion());
         $this->assign('global', tpCache('global'));
     } 
     

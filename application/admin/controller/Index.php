@@ -156,58 +156,39 @@ class Index extends Base
      */
     public function authortoken()
     {
-        $inc_type = 'web';
-        if (IS_POST) {
-            $web_authortoken = input('post.web_authortoken/s', '');
-            $web_authortoken = trim($web_authortoken);
-            $result = false;
+        $domain = config('service_ey');
+        $domain = base64_decode($domain);
+        $vaules = array(
+            'client_domain' => urldecode($this->request->host(true)),
+        );
+        $url = $domain.'/index.php?m=api&c=Service&a=check_authortoken&'.http_build_query($vaules);
+        $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+        $response = @file_get_contents($url,false,$context);
+        $params = json_decode($response,true);
+        if (false === $response || (is_array($params) && 1 == $params['code'])) {
+            $web_authortoken == $params['msg'];
             /*多语言*/
             if (is_language()) {
                 $langRow = Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
                     ->order('id asc')
                     ->select();
                 foreach ($langRow as $key => $val) {
-                    $result = tpCache($inc_type, ['web_authortoken'=>$web_authortoken], $val['mark']);
+                    tpCache('web', ['web_authortoken'=>$web_authortoken], $val['mark']);
                 }
             } else { // 单语言
-                $result = tpCache($inc_type, array('web_authortoken'=>$web_authortoken));
+                tpCache('web', array('web_authortoken'=>$web_authortoken));
             }
             /*--end*/
-            if ($result) {
-                $domain = config('service_ey');
-                $domain = base64_decode($domain);
-                $vaules = array(
-                    'authortoken_code'   => $web_authortoken,
-                    'client_domain' => urldecode($this->request->host(true)),
-                );
-                $url = $domain.'/index.php?m=api&c=Service&a=check_authortoken&'.http_build_query($vaules);
-                $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
-                $response = @file_get_contents($url,false,$context);
-                $params = json_decode($response,true);
-                $msg = '授权成功';
-                $wait = 1;
-                if (false === $response || (is_array($params) && 1 == $params['code'])) {
-                    $source = realpath('public/static/admin/images/logo_ey.png');
-                    $destination = realpath('public/static/admin/images/logo.png');
-                    @copy($source, $destination);
-                } else {
-                    $msg = '保存成功'.$params['msg'];
-                    $wait = 3;
-                }
 
-                session('isset_author', null);
-                adminLog('录入商业授权');
-                $this->success($msg, request()->baseFile(), '', $wait, [], '_parent');
-            }else{
-                $this->error("授权失败!", url('Index/authortoken'));
-            }
-            exit;
+            $source = realpath('public/static/admin/images/logo_ey.png');
+            $destination = realpath('public/static/admin/images/logo.png');
+            @copy($source, $destination);
+
+            session('isset_author', null);
+            adminLog('验证商业授权');
+            $this->success('授权成功', request()->baseFile(), '', 1, [], '_parent');
         }
-        $web_authortoken = tpCache($inc_type.'.web_authortoken');
-        $this->assign('web_authortoken', $web_authortoken);
-        $this->assign('inc_type', $inc_type);
-
-        return $this->fetch();
+        $this->error('验证授权失败', request()->baseFile(), '', 3, [], '_parent');
     }
 
     /**

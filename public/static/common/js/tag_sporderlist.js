@@ -63,7 +63,7 @@ function LogisticsInquiry(url){
         title: '物流查询',
         shadeClose: false,
         maxmin: false, //开启最大化最小化按钮
-        area: ['80%', '80%'],
+        area: ['90%', '90%'],
         content: url
     });
 }

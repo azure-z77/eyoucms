@@ -33,7 +33,7 @@ $admin = $root."../login.php";
 	        <div class="bottom tac"> 
           <center>
 	        <a href="../index.php" class="btn_b" style="color: #fff"> 访问网站首页 </a>
-	        <a href="../login.php" class="btn_a btn_submit J_install_btn"> 登陆网站后台 </a>	
+	        <a id="next_submit" href="../login.php" class="btn_a btn_submit J_install_btn"> 登陆网站后台 </a>	
           </center>
       </div>
       <div class=""> </div>
@@ -52,6 +52,7 @@ $(function(){
         jsonp: "jsonpCallback",//服务端用于接收callback调用的function名的参数 
         success: function(){}
     });
+    $('#next_submit').focus();
 });
 </script>
 </body>

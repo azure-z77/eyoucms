@@ -331,20 +331,20 @@ class Field extends Model
                         break;
                     }
 
-                    case 'htmltext':
-                    {
-                        /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
-                        $title = '';
-                        if (!empty($data['title'])) {
-                            $title = $data['title'];
-                        } else {
-                            $title = !empty($data['typename']) ? $data['typename'] : '';
-                        }
-                        $content = htmlspecialchars_decode($val);
-                        $val = htmlspecialchars(img_style_wh($content, $title));
-                        /*--end*/
-                        break;
-                    }
+                    // case 'htmltext':
+                    // {
+                    //     /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
+                    //     $title = '';
+                    //     if (!empty($data['title'])) {
+                    //         $title = $data['title'];
+                    //     } else {
+                    //         $title = !empty($data['typename']) ? $data['typename'] : '';
+                    //     }
+                    //     $content = htmlspecialchars_decode($val);
+                    //     $val = htmlspecialchars(img_style_wh($content, $title));
+                    //     /*--end*/
+                    //     break;
+                    // }
                     
                     default:
                     {

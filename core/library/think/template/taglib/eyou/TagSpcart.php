@@ -79,8 +79,9 @@ class TagSpcart extends Base
             
             // 图片处理
             $list[$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
-            
+
             // 产品属性处理
+            $list[$key]['attr_value'] = '';
             if (!empty($value['product_id'])) {
                 $attrData = M("product_attr")->where('aid',$value['product_id'])->field('attr_value,attr_id')->select();
                 $attr_value = '';

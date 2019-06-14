@@ -163,13 +163,14 @@ class Member extends Base {
                 }
 
                 $addData[] = [
-                    'username'          => $val,
-                    'password'          => $password,
-                    'level'             => $post['level'],
-                    'register_place'    => 1,
-                    'reg_time'          => getTime(),
-                    'lang'              => $this->admin_lang,
-                    'add_time'          => getTime(),
+                    'username'       => $val,
+                    'nickname'       => $val,
+                    'password'       => $password,
+                    'level'          => $post['level'],
+                    'register_place' => 1,
+                    'reg_time'       => getTime(),
+                    'lang'           => $this->admin_lang,
+                    'add_time'       => getTime(),
                 ];
             }
             if (!empty($addData)) {
@@ -939,10 +940,13 @@ class Member extends Base {
                 $this->error('微信AppId不能为空！');
             }
             if (empty($post['wechat']['mchid'])) {
-                $this->error('微信MchId不能为空！');
+                $this->error('微信商户号不能为空！');
             }
             if (empty($post['wechat']['key'])) {
                 $this->error('微信KEY值不能为空！');
+            }
+            if (empty($post['wechat']['appsecret'])) {
+                $this->error('微信AppSecret值不能为空！');
             }
 
             $data = model('Pay')->payForQrcode($post['wechat']);
@@ -952,7 +956,7 @@ class Member extends Base {
                 }else if ('appid不存在' == $data['return_msg']) {
                     $this->error('微信AppId错误！');
                 }else if ('商户号mch_id或sub_mch_id不存在' == $data['return_msg']) {
-                    $this->error('微信MchId错误！');
+                    $this->error('微信商户号错误！');
                 }
             }
 

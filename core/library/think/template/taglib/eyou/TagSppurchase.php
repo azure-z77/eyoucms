@@ -81,7 +81,12 @@ class TagSppurchase extends Base
         $data['shop_add_cart_url']   = url('user/Shop/shop_add_cart');
         $data['shop_buy_now_url']    = url('user/Shop/shop_buy_now');
         $data['shop_cart_list_url']  = url('user/Shop/shop_cart_list');
-        $data['login_url']           = url('user/Users/login');
+        if (isMobile() && isWeixin()) {
+            // 微信端和小程序则使用这个url
+            $data['login_url'] = url('user/Users/users_select_login');
+        }else{
+            $data['login_url'] = url('user/Users/login');
+        }
 
         $data_json = json_encode($data);
         $version   = getCmsVersion();

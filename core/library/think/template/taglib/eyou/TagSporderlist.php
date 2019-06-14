@@ -84,6 +84,8 @@ class TagSporderlist extends Base
         if (!empty($result['list'])) {
             // 订单数据处理
             $controller_name = 'Product';
+            // 获取当前链接及参数，用于手机端查询快递时返回页面
+            $ReturnUrl = request()->url(true);
             foreach ($result['list'] as $key => $value) {
                 $DetailsWhere['users_id'] = $value['users_id'];
                 $DetailsWhere['order_id'] = $value['order_id'];
@@ -105,9 +107,6 @@ class TagSporderlist extends Base
                     // 图片处理
                     $result['list'][$key]['details'][$kk]['litpic'] = handle_subdir_pic(get_default_pic($vv['litpic']));
                 }
-
-                // 获取当前链接及参数，用于手机端查询快递时返回页面，进行urlencode编码
-                // $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 
                 if (empty($value['order_status'])) {
                     // 付款地址处理，对ID和订单号加密，拼装url路径
@@ -147,13 +146,12 @@ class TagSporderlist extends Base
                 // 封装查询物流链接
                 $result['list'][$key]['LogisticsInquiry'] = $MobileExpressUrl = '';
                 if (('2' == $value['order_status'] || '3' == $value['order_status']) && empty($value['prom_type'])) {
-                    // PC端查询物流链接
-                    // $result['list'][$key]['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$value['express_code']."&nu=".$value['express_order'];
-
-                    // 移动端查询物流链接
-                    $MobileExpressUrl = "http://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order'];
-
-                    $result['list'][$key]['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$MobileExpressUrl}');\" ";
+                    // 物流查询接口
+                    $ExpressUrl = "https://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order']."&callbackurl=".$ReturnUrl;
+                    // 微信端、小程序使用跳转方式进行物流查询
+                    $result['list'][$key]['MobileExpressUrl'] = $ExpressUrl;
+                    // PC端，手机浏览器使用弹框方式进行物流查询
+                    $result['list'][$key]['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$ExpressUrl}');\" ";
                 }
 
                 // 默认为空

@@ -43,37 +43,45 @@ function GetUploadify(num,elementid,path,callback,url)
 // 手机端上传头像
 function GetUploadify_mobile(num,url)
 {
-    if (layer_GetUploadify){
-        layer.close(layer_GetUploadify);
+    var scriptUrl = '/public/plugins/layer_mobile/layer.js';
+    // 支持子目录
+    if (typeof __root_dir__ != "undefined") {
+        scriptUrl = __root_dir__ + scriptUrl;
     }
-    if (num > 0) {
-        if (!url) {
-            url = GetUploadify_url;
-        }
-        
-        if (url.indexOf('?') > -1) {
-            url += '&';
-        } else {
-            url += '?';
-        }
+    if (typeof __version__ != "undefined") {
+        scriptUrl = scriptUrl + '?v=' + __version__;
+    }
+    // end
+    $.getScript(scriptUrl, function(){
+        if (num > 0) {
+            if (!url) {
+                url = GetUploadify_url;
+            }
+            
+            if (url.indexOf('?') > -1) {
+                url += '&';
+            } else {
+                url += '?';
+            }
 
-        var content = $('#update_mobile_file').html();
-        content = content.replace(/up_f/g, 'upfile');
-        content = content.replace(/form1/g,'form2'); 
-        layer_GetUploadify = layer.open({
-            type:1,
-            title:'头像',
-            anim:'up',
-            style:'position:fixed; bottom:0; left:0; width: 100%; padding:10px 0; border:none;max-width: 100%;',
-            content:content,
-         });
-    } else {
-        layer.open({
-            content: '允许上传0张图片',
-            skin: 'footer',
-        });
-        return false;
-    }
+            var content = $('#update_mobile_file').html();
+            content = content.replace(/up_f/g, 'upfile');
+            content = content.replace(/form1/g,'form2'); 
+            layer_GetUploadify = layer.open({
+                type:1,
+                title:'头像',
+                anim:'up',
+                style:'position:fixed; bottom:0; left:0; width: 100%; padding:10px 0; border:none;max-width: 100%;',
+                content:content,
+             });
+        } else {
+            layer.open({
+                content: '允许上传0张图片',
+                skin: 'footer',
+            });
+            return false;
+        }
+    });
 }
 
 // 加载层

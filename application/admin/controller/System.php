@@ -228,8 +228,24 @@ class System extends Base
     {
         $inc_type =  'basic';
 
+        // 文件上传最大限制
+        $maxFileupload = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 0;
+        if (0 !== $maxFileupload) {
+            $max_filesize = unformat_bytes($maxFileupload);
+            $max_filesize = $max_filesize / 1024 / 1024; // 单位是MB的大小
+        } else {
+            $max_filesize = 500;
+        }
+        $max_sizeunit = 'MB';
+        $maxFileupload = $max_filesize.$max_sizeunit;
+
         if (IS_POST) {
             $param = input('post.');
+            $param['file_size'] = intval($param['file_size']);
+
+            if (0 < $max_filesize && $max_filesize < $param['file_size']) {
+                $this->error("附件上传大小超过空间的最大限制".$maxFileupload);
+            }
 
             // 禁止php扩展名的附件类型
             $param['image_type'] = str_ireplace('|php|', '|', '|'.$param['image_type'].'|');
@@ -261,6 +277,8 @@ class System extends Base
 
         $config = tpCache($inc_type);
         $this->assign('config',$config);//当前配置项
+        $this->assign('max_filesize',$max_filesize);// 文件上传最大字节数
+        $this->assign('max_sizeunit',$max_sizeunit);// 文件上传最大字节的单位
         return $this->fetch();
     }
 

@@ -179,6 +179,13 @@ class Article extends Base
             }
             $post['litpic'] = $litpic;
 
+            /*是否有封面图*/
+            if (empty($post['litpic'])) {
+                $is_litpic = 0; // 无封面图
+            } else {
+                $is_litpic = 1; // 有封面图
+            }
+
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
@@ -209,6 +216,7 @@ class Article extends Base
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'     => $is_jump,
+                'is_litpic'     => $is_litpic,
                 'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
@@ -320,6 +328,13 @@ class Article extends Base
             }
             $post['litpic'] = $litpic;
 
+            /*是否有封面图*/
+            if (empty($post['litpic'])) {
+                $is_litpic = 0; // 无封面图
+            } else {
+                $is_litpic = $post['is_litpic']; // 有封面图
+            }
+
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
@@ -352,6 +367,7 @@ class Article extends Base
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'   => $is_jump,
+                'is_litpic'     => $is_litpic,
                 'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,

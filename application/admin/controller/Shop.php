@@ -550,7 +550,7 @@ class Shop extends Base {
         }
 
         // 移动端查询物流链接
-        $MobileExpressUrl = "https://m.kuaidi100.com/index_all.html?type=".$OrderData['express_code']."&postid=".$OrderData['express_order'];
+        $MobileExpressUrl = "//m.kuaidi100.com/index_all.html?type=".$OrderData['express_code']."&postid=".$OrderData['express_order'];
 
         // 加载数据
         $this->assign('MobileExpressUrl', $MobileExpressUrl);

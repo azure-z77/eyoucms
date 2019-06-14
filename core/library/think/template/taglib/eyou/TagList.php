@@ -153,6 +153,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special = 1");
                         } elseif ($v2 == "j") {
                             array_push($where_or_flag, "a.is_jump = 1");
+                        } elseif ($v2 == "p") {
+                            array_push($where_or_flag, "a.is_litpic = 1");
                         } elseif ($v2 == "b") {
                             array_push($where_or_flag, "a.is_b = 1");
                         }
@@ -173,6 +175,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special <> 1");
                         } elseif ($nv2 == "j") {
                             array_push($where_or_flag, "a.is_jump <> 1");
+                        } elseif ($nv2 == "p") {
+                            array_push($where_or_flag, "a.is_litpic <> 1");
                         } elseif ($nv2 == "b") {
                             array_push($where_or_flag, "a.is_b <> 1");
                         }
@@ -333,11 +337,11 @@ class TagList extends Base
                     }
                     /*--end*/
                     /*封面图*/
-                    if (empty($val['litpic'])) {
+/*                    if (empty($val['litpic'])) {
                         $val['is_litpic'] = 0; // 无封面图
                     } else {
                         $val['is_litpic'] = 1; // 有封面图
-                    }
+                    }*/
                     $val['litpic'] = thumb_img(get_default_pic($val['litpic'])); // 默认封面图
                     /*--end*/
                     
@@ -448,6 +452,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special = 1");
                         } elseif ($v2 == "j") {
                             array_push($where_or_flag, "a.is_jump = 1");
+                        } elseif ($v2 == "p") {
+                            array_push($where_or_flag, "a.is_litpic = 1");
                         } elseif ($v2 == "b") {
                             array_push($where_or_flag, "a.is_b = 1");
                         }
@@ -468,6 +474,8 @@ class TagList extends Base
                             array_push($where_or_flag, "a.is_special <> 1");
                         } elseif ($nv2 == "j") {
                             array_push($where_or_flag, "a.is_jump <> 1");
+                        } elseif ($nv2 == "p") {
+                            array_push($where_or_flag, "a.is_litpic <> 1");
                         } elseif ($nv2 == "b") {
                             array_push($where_or_flag, "a.is_b <> 1");
                         }
@@ -589,11 +597,11 @@ class TagList extends Base
                 }
                 /*--end*/
                 /*封面图*/
-                if (empty($arcval['litpic'])) {
+                /*if (empty($arcval['litpic'])) {
                     $arcval['is_litpic'] = 0; // 无封面图
                 } else {
                     $arcval['is_litpic'] = 1; // 有封面图
-                }
+                }*/
                 $arcval['litpic'] = thumb_img(get_default_pic($arcval['litpic'])); // 默认封面图
                 /*--end*/
 

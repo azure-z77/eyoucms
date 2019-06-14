@@ -91,8 +91,6 @@ class AdPosition extends Base
             // 添加广告位置表信息
             $data = array(
                 'title'       => trim($post['title']),
-                'width'       => $post['width'],
-                'height'      => $post['height'],
                 'intro'       => $post['intro'],
                 'admin_id'    => session('admin_id'),
                 'lang'        => $this->admin_lang,

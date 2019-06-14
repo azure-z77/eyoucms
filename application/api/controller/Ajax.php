@@ -149,18 +149,21 @@ class Ajax extends Base
                 $users_id = session('users_id');
                 if (!empty($users_id)) {
                     $currentstyle = input('param.currentstyle/s');
-                    $users = M('users')->field('username,head_pic')
+                    $users = M('users')->field('username,nickname,head_pic')
                         ->where([
                             'users_id'  => $users_id,
                             'lang'      => $this->home_lang,  
                         ])->find();
                     if (!empty($users)) {
-                        $username = $users['username'];
+                        $nickname = $users['nickname'];
+                        if (empty($nickname)) {
+                            $nickname = $users['username'];
+                        }
                         $head_pic = get_head_pic($users['head_pic']);
                         if ('on' == $img) {
-                            $users['html'] = "<img class='{$currentstyle}' alt='{$username}' src='{$head_pic}' />";
+                            $users['html'] = "<img class='{$currentstyle}' alt='{$nickname}' src='{$head_pic}' />";
                         } else {
-                            $users['html'] = $username;
+                            $users['html'] = $nickname;
                         }
                         $users['ey_is_login'] = 1;
                         $this->success('请求成功', null, $users);

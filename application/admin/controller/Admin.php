@@ -170,6 +170,7 @@ class Admin extends Base {
                     session('admin_login_expire', getTime()); // 登录有效期
                     adminLog('后台登录');
                     $url = session('from_url') ? session('from_url') : request()->baseFile();
+                    session('isset_author', null); // 内置勿动
                     $this->success('登录成功', $url);
                 } else {
                     $this->error('账号密码不正确');
@@ -384,12 +385,14 @@ class Admin extends Base {
             $r = M('admin')->where('admin_id', $id)->save($data);
             if ($r) {
                 /*过滤存储在session文件的敏感信息*/
-                $admin_info = session('admin_info');
-                $admin_info = array_merge($admin_info, $data);
-                foreach (['user_name','true_name','password','password2'] as $key => $val) {
-                    unset($newData[$val]);
+                if ($id == session('admin_info.admin_id')) {
+                    $admin_info = session('admin_info');
+                    $admin_info = array_merge($admin_info, $data);
+                    foreach (['user_name','true_name','password','password2'] as $key => $val) {
+                        unset($admin_info[$val]);
+                    }
+                    session('admin_info', $admin_info);
                 }
-                session('admin_info', $admin_info);
                 /*--end*/
                 adminLog('编辑管理员：'.$user_name);
                 $this->success("操作成功",url('Admin/index'));

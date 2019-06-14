@@ -75,7 +75,7 @@
       <div class="bottom tac">
         <center>
         <a href="./index.php?step=2" class="btn_b">上一步</a>
-        <button type="button" onClick="checkForm();" class="btn btn_submit J_install_btn">创建数据</button>
+        <button id="next_submit" type="button" onClick="checkForm();" class="btn btn_submit J_install_btn">创建数据</button>
         </center>
       </div>
       <div class="blank20"></div>
@@ -150,13 +150,13 @@
                   window.location.href = res.url;
               } else {
                   layer.closeAll();
-                  layer.alert(res.msg, {icon: 5});
+                  layer.msg(res.msg, {icon: 5});
               }
               return false;
           },
           error:function() {
               layer.closeAll();
-              layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+              layer.alert('网络失败，请刷新页面后重试', {icon: 5, title: false});
               return false;
           }
       });
@@ -183,7 +183,7 @@
           success: function(res){
               if (-1 == res.code) {
                   layer.closeAll();
-                  layer.alert(res.msg, {icon: 5});
+                  layer.msg(res.msg, {icon: 5});
               } else {
                   flag = true;
               }
@@ -192,7 +192,7 @@
           },
           error:function(){
               layer.closeAll();
-              layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+              layer.alert('网络失败，请刷新页面后重试', {icon: 5, title: false});
           }
       });
 
@@ -201,23 +201,68 @@
 
   function checkForm()
   {
+      dbhost = $.trim($('#dbhost').val());        //数据库地址
+      dbport = $.trim($('#dbport').val());        //数据库端口
+      dbuser = $.trim($('#dbuser').val());        //数据库账号
+      dbpw = $.trim($('#dbpw').val());        //数据库密码
+      dbname = $.trim($('#dbname').val());        //数据库名
+      dbprefix = $.trim($('#dbprefix').val());        //数据库表前缀
       manager = $.trim($('#manager').val());        //用户名表单
       manager_pwd = $.trim($('#manager_pwd').val());        //密码表单
       manager_ckpwd = $.trim($('#manager_ckpwd').val());    //密码提示区
        
+      if(dbhost.length == 0 )
+      {
+        $('#dbhost').focus();
+        layer.msg('数据库地址不能为空', {icon: 5, time: 1500});
+        return false;
+      }
+      if(dbport.length == 0 )
+      {
+        $('#dbport').focus();
+        layer.msg('数据库端口不能为空', {icon: 5, time: 1500});
+        return false;
+      }
+      if(dbuser.length == 0 )
+      {
+        $('#dbuser').focus();
+        layer.msg('数据库账号不能为空', {icon: 5, time: 1500});
+        return false;
+      }
+      if(dbpw.length == 0 )
+      {
+        $('#dbpw').focus();
+        layer.msg('数据库密码不能为空', {icon: 5, time: 1500});
+        return false;
+      }
+      if(dbname.length == 0 )
+      {
+        $('#dbname').focus();
+        layer.msg('数据库名不能为空', {icon: 5, time: 1500});
+        return false;
+      }
+      if(dbprefix.length == 0 )
+      {
+        $('#dbprefix').focus();
+        layer.msg('数据库表前缀不能为空', {icon: 5, time: 1500});
+        return false;
+      }
       if(manager.length == 0 )
       {
-        layer.alert('管理员账号不能为空', {icon: 5});
+        $('#manager').focus();
+        layer.msg('管理员账号不能为空', {icon: 5, time: 1500});
         return false;
       }
       if(manager_pwd.length < 5 )
       {
-        layer.alert('管理员密码必须5位数以上', {icon: 5});
+        $('#manager_pwd').focus();
+        layer.msg('管理员密码必须5位数以上', {icon: 5, time: 1500});
         return false;
       } 
       if(manager_ckpwd !=  manager_pwd)
       {
-        layer.alert('两次密码不一致', {icon: 5});
+        $('#manager_ckpwd').focus();
+        layer.msg('两次密码不一致', {icon: 5, time: 1500});
         return false;
       }
       layer_loading('正在安装');
@@ -244,5 +289,17 @@
 </script> 
 </div>
 <?php require './templates/footer.php';?>
+
+<script type="text/javascript">
+  $(function(){
+    $('#next_submit').focus();
+    $(document).keydown(function(event){
+        if(event.keyCode ==13){
+            checkForm();
+            return false;
+        }
+    });
+  });
+</script>
 </body>
 </html>

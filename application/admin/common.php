@@ -369,6 +369,16 @@ if (!function_exists('sitemap_xml'))
         $modelu_name = 'home';
         $filename = ROOT_PATH . "sitemap.xml";
 
+        // 更新频率
+        $sitemap_changefreq_index = !empty($sitemap_config['sitemap_changefreq_index']) ? $sitemap_config['sitemap_changefreq_index'] : 'always';
+        $sitemap_changefreq_list = !empty($sitemap_config['sitemap_changefreq_list']) ? $sitemap_config['sitemap_changefreq_list'] : 'hourly';
+        $sitemap_changefreq_view = !empty($sitemap_config['sitemap_changefreq_view']) ? $sitemap_config['sitemap_changefreq_view'] : 'daily';
+
+        // 优先级别
+        $sitemap_priority_index = !empty($sitemap_config['sitemap_priority_index']) ? $sitemap_config['sitemap_priority_index'] : '1.0';
+        $sitemap_priority_list = !empty($sitemap_config['sitemap_priority_list']) ? $sitemap_config['sitemap_priority_list'] : '0.8';
+        $sitemap_priority_view = !empty($sitemap_config['sitemap_priority_view']) ? $sitemap_config['sitemap_priority_view'] : '0.5';
+
         /* 分类列表(用于生成列表链接的sitemap) */
         $map = array(
             'status'    => 1,
@@ -385,7 +395,7 @@ if (!function_exists('sitemap_xml'))
                 $map['is_part'] = 0;
             }
         }
-        $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, 'daily' AS changefreq, '1.0' AS priority")
+        $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, '{$sitemap_changefreq_list}' AS changefreq, '{$sitemap_priority_list}' AS priority")
             ->where($map)
             ->order('sort_order asc')
             ->getAllWithIndex('id');
@@ -404,7 +414,7 @@ if (!function_exists('sitemap_xml'))
                 $map['is_jump'] = 0;
             }
         }
-        $field = "aid, channel, is_jump, jumplinks, add_time, update_time, typeid, aid AS loc, add_time AS lastmod, 'daily' AS changefreq, '1.0' AS priority";
+        $field = "aid, channel, is_jump, jumplinks, add_time, update_time, typeid, aid AS loc, add_time AS lastmod, '{$sitemap_changefreq_view}' AS changefreq, '{$sitemap_priority_view}' AS priority";
         $result_archives = M('archives')->field($field)
             ->where($map)
             ->order('aid desc')
@@ -469,9 +479,9 @@ XML;
                 } else if ('lastmod' == $key1) {
                     $row = date('Y-m-d');
                 } else if ('changefreq' == $key1) {
-                    $row = 'daily';
+                    $row = $sitemap_changefreq_index;
                 } else if ('priority' == $key1) {
-                    $row = '1.0';
+                    $row = $sitemap_priority_index;
                 }
                 try {
                     $node = $item->addChild($key1, $row);

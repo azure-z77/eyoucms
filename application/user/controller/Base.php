@@ -40,7 +40,13 @@ class Base extends Common {
             session('users',$users);  //覆盖session 中的 users
             $this->users = $users;
             $this->users_id = $users['users_id'];
-
+            
+            $nickname = $this->users['nickname'];
+            if (empty($nickname)) {
+                $nickname = $this->users['username'];
+            }
+            $this->assign('nickname',$nickname);
+            
             $this->assign('users',$users); //存储用户信息
             $this->assign('users_id',$this->users_id);
         } else {
@@ -52,8 +58,15 @@ class Base extends Common {
                 if (IS_AJAX) {
                     $this->error('请先登录！');
                 } else {
-                    $this->redirect('user/Users/login');
-                    exit;
+                    if (isWeixin()) {
+                        //微信端
+                        $this->redirect('user/Users/users_select_login');
+                        exit;
+                    }else{
+                        // 其他端
+                        $this->redirect('user/Users/login');
+                        exit;
+                    }
                 }
             }
         }
@@ -86,10 +99,25 @@ class Base extends Common {
         $this->usersConfig['theme_color'] = $theme_color = !empty($this->usersConfig['theme_color']) ? $this->usersConfig['theme_color'] : '#ff6565'; // 默认主题颜色
         $this->assign('theme_color', $theme_color);
 
-        $is_mobile = '2';// PC端
+        // 是否为手机端
+        $is_mobile = 2;     // 其他端
         if (isMobile()) {
-            $is_mobile = '1'; //手机端
+            $is_mobile = 1; // 手机端
         }
         $this->assign('is_mobile',$is_mobile);
+        
+        // 是否为端微信
+        $is_wechat = 2;     // 其他端
+        if (isWeixin()) {
+            $is_wechat = 1; // 微信端
+        }
+        $this->assign('is_wechat',$is_wechat);
+
+        // 是否为微信端小程序
+        $is_wechat_applets = 0;     // 不在微信小程序中
+        if (isWeixinApplets()) {
+            $is_wechat_applets = 1; // 在微信小程序中
+        }
+        $this->assign('is_wechat_applets',$is_wechat_applets);
     }
 }

@@ -184,6 +184,13 @@ class Product extends Base
             }
             $post['litpic'] = $litpic;
 
+            /*是否有封面图*/
+            if (empty($post['litpic'])) {
+                $is_litpic = 0; // 无封面图
+            } else {
+                $is_litpic = 1; // 有封面图
+            }
+
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
@@ -214,6 +221,7 @@ class Product extends Base
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'     => $is_jump,
+                'is_litpic'     => $is_litpic,
                 'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
@@ -295,8 +303,9 @@ class Product extends Base
         $assign_data['gourl'] = $gourl;
         /*--end*/
 
-        $ShopType = getUsersConfigData('shop.shop_type');
-        $assign_data['ShopType'] = $ShopType;
+        // 商城配置
+        $shopConfig = getUsersConfigData('shop');
+        $assign_data['shopConfig'] = $shopConfig;
 
         $this->assign($assign_data);
 
@@ -332,6 +341,13 @@ class Product extends Base
             }
             $post['litpic'] = $litpic;
 
+            /*是否有封面图*/
+            if (empty($post['litpic'])) {
+                $is_litpic = 0; // 无封面图
+            } else {
+                $is_litpic = $post['is_litpic']; // 有封面图
+            }
+
             // SEO描述
             $seo_description = '';
             if (empty($post['seo_description']) && !empty($content)) {
@@ -364,6 +380,7 @@ class Product extends Base
                 'is_special'      => empty($post['is_special']) ? 0 : $post['is_special'],
                 'is_recom'      => empty($post['is_recom']) ? 0 : $post['is_recom'],
                 'is_jump'   => $is_jump,
+                'is_litpic'     => $is_litpic,
                 'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
@@ -483,18 +500,20 @@ class Product extends Base
         $assign_data['gourl'] = $gourl;
         /*--end*/
 
+        // 商城配置
+        $shopConfig = getUsersConfigData('shop');
+        $assign_data['shopConfig'] = $shopConfig;
+
         // 处理产品价格属性
-        $ShopType = getUsersConfigData('shop.shop_type');
-        if (empty($ShopType) || '1' == $ShopType) {
-            if ($ShopType == $assign_data['field']['prom_type']) {
+        $IsSame = '';
+        if (empty($shopConfig['shop_type']) || 1 == $shopConfig['shop_type']) {
+            if ($shopConfig['shop_type'] == $assign_data['field']['prom_type']) {
                 $IsSame = '0'; // 相同
             }else{
                 $IsSame = '1'; // 不相同
             }
-            $assign_data['IsSame'] = $IsSame;
-        }else{
-            $assign_data['ShopType'] = $ShopType;
         }
+        $assign_data['IsSame'] = $IsSame;
 
         $this->assign($assign_data);
         return $this->fetch();

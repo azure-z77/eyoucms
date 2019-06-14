@@ -21,6 +21,20 @@ class Index extends Base
 
     public function index()
     {
+        // 快递100返回时，重定向关闭父级弹框
+        $coname = input('coname', '');
+        $m = input('m', '');
+        if (!empty($coname) || 'user' == $m) {
+            if (isWeixin()) {
+                $this->redirect(url('user/Shop/shop_centre'));
+                exit;
+            }else{
+                $this->redirect(url('api/Rewrite/close_parent_layer'));
+                exit;
+            }
+        }
+        // end
+
         if (config('is_https')) {
             $filename = 'indexs.html';
         } else {

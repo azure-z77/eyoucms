@@ -12,11 +12,11 @@
 </head>
 <body>
 <div class="upload-box" style="height: 90%;">
-<!--     <ul class="tabs">
+    <ul class="tabs">
         <li class="checked" id="upload_tab">本地上传</li>
-        <li id="manage_tab">在线管理</li>
-        <li id="search_tab">文件搜索</li>
-    </ul> -->
+        <a href="javascript:void(0);" onclick="picture_folder(this);" data-url="{:url('Uploadify/picture_folder',['num'=>$info['num'],'input'=>$info['input'],'path'=>$info['path'],'func'=>$info['func']])}"><li>在线管理</li></a>
+        <!-- <li id="search_tab">文件搜索</li> -->
+    </ul>
     <div class="container">
         <div class="area upload-area area-checked" id="upload_area">
             <div id="uploader">
@@ -87,10 +87,12 @@
         </div>
     </div>
 </div>
+
 <script type="text/javascript" src="__STATIC__/common/js/jquery.min.js"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js?v={$version|default='1.2.9'}"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/upload.js?v={$version|default='1.2.9'}"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js?v={$version|default='1.2.9'}"></script>
+<script src="__SKIN__/js/global.js?v={$version}"></script>
 <script type="text/javascript">
 $(function(){
     var config = {
@@ -163,6 +165,13 @@ $(function(){
         window.parent.layer.closeAll();
     });
 });
+
+function picture_folder(obj)
+{
+    var url = $(obj).attr('data-url');
+    layer_loading('正在跳转');
+    window.location.href = url;
+}
 </script>
 </body>
 </html>

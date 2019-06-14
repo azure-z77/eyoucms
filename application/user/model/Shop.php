@@ -40,8 +40,10 @@ class Shop extends Model
             'add_time'     => array('<',$time),
         );
         $data = [
-            'order_status' => 4, // 订单取消
-            'update_time'  => getTime(),
+            'order_status'    => 4,  // 状态修改为订单过期
+            'pay_name'        => '', // 订单过期则清空支付方式标记
+            'wechat_pay_type' => '', // 订单过期则清空微信支付类型标记
+            'update_time'     => getTime(),
         ];
 
         // 查询订单id数组用于添加订单操作记录
@@ -131,9 +133,7 @@ class Shop extends Model
         $order = Db::name('shop_order')->where($OrderWhere)->count();
         // 查询存在数据，则返回1
         if (!empty($order)) {
-            $data = '1';
-            return $data;
-            exit;
+            return 1; exit;
         }
         
         // 查询订单明细表
@@ -146,15 +146,13 @@ class Shop extends Model
             $DetailsData = Db::name('shop_order_details')->field('order_id')->where($DetailsWhere)->select();
             // 查询无数据，则返回0
             if (empty($DetailsData)) {
-                $data = '0';
-                return $data;
-                exit;
+                return 0; exit;
             }
 
             $order_ids = '';
             // 处理订单ID，查询订单主表信息
             foreach ($DetailsData as $key => $value) {
-                if ('0' < $key) {
+                if (0 < $key) {
                     $order_ids .= ',';
                 }
                 $order_ids .= $value['order_id'];
@@ -168,12 +166,81 @@ class Shop extends Model
 
             $order2 = Db::name('shop_order')->where($OrderWhere)->count();
             if (!empty($order2)) {
-                $data = '1';
-                return $data;
+                return 1; exit;
             }else{
-                $data = '0';
-                return $data;
+                return 0; exit;
             }
         }
+    }
+
+    // 获取微信公众号access_token
+    // 传入微信公众号appid
+    // 传入微信公众号secret
+    // 返回data
+    public function GetWeChatAccessToken($appid,$secret){
+        // 获取公众号access_token，接口限制10万次/天
+        $time = getTime();
+        $get_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.$appid.'&secret='.$secret;
+        $TokenData = httpRequest($get_token_url);
+        $TokenData = json_decode($TokenData, true);
+        if (!empty($TokenData['access_token'])) {
+            // 存入缓存配置
+            $WechatData  = [
+                'wechat_token_value' => $TokenData['access_token'],
+                'wechat_token_time'  => $time,
+            ];
+            getUsersConfigData('wechat',$WechatData);
+            $data = [
+                'status' => true,
+                'token'  => $WechatData['wechat_token_value'],
+            ];
+        }else{
+            $data = [
+                'status' => false,
+                'prompt' => '错误提示：101，后台配置配置AppId或AppSecret不正确，请检查！',
+            ];
+        }
+        return $data;
+    }
+
+    // 获取微信公众号jsapi_ticket
+    // 传入微信公众号accesstoken
+    // 返回data
+    public function GetWeChatJsapiTicket($accesstoken){
+        // 获取公众号jsapi_ticket
+        $time = getTime();
+        $get_ticket_url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token='.$accesstoken.'&type=jsapi';
+        $TicketData = httpRequest($get_ticket_url);
+        $TicketData = json_decode($TicketData, true);
+        if (!empty($TicketData['ticket'])) {
+            // 存入缓存配置
+            $WechatData  = [
+                'wechat_ticket_value' => $TicketData['ticket'],
+                'wechat_ticket_time'  => $time,
+            ];
+            getUsersConfigData('wechat',$WechatData);
+            $data = [
+                'status' => true,
+                'ticket' => $WechatData['wechat_ticket_value'],
+            ];
+        }else{
+            $data = [
+                'status' => false,
+                'prompt' => '错误提示：102，后台配置配置AppId或AppSecret不正确，请检查！',
+            ];
+        }
+        return $data;
+    }
+
+    // 获取随机字符串
+    // 长度 length
+    // 结果 str
+    public function GetRandomString($length){
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $str   = "";
+        for ($i = 0; $i < $length; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
     }
 }

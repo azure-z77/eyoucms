@@ -3283,18 +3283,6 @@ padding-bottom:.425rem
 .navbar-divider::before {
 content:'\00a0'
 }
-.navbar-toggler {
-	font-size:1.286rem;
-	line-height:1;
-	width:2.5em;
-	height:2em;
-padding:.5rem .75rem;
-	border:1px solid transparent;
-border-radius:.215rem;
-	background:transparent no-repeat center center;
-	-webkit-background-size:24px 24px;
-	background-size:24px 24px
-}
 .navbar-toggler:focus, .navbar-toggler:hover {
 	text-decoration:none
 }

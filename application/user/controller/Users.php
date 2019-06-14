@@ -14,7 +14,6 @@
 namespace app\user\controller;
 
 use think\Db;
-// use think\Session;
 use think\Config;
 use think\Verify;
 use app\user\logic\SmtpmailLogic;
@@ -33,14 +32,15 @@ class Users extends Base
         $this->users_config_db= Db::name('users_config');// 用户配置表
         $this->users_money_db = Db::name('users_money');// 用户金额明细表
         $this->smtp_record_db = Db::name('smtp_record');// 发送邮箱记录表
-
+	
+	    // 微信配置信息
+        $this->pay_wechat_config = unserialize(getUsersConfigData('pay.pay_wechat_config'));
     }
 
     // 会员中心首页
     public function index()
     {
         $result = [];
-
         // 资料信息
         $result['users_para'] = model('Users')->getDataParaList($this->users_id);
         $this->assign('users_para',$result['users_para']);
@@ -59,6 +59,141 @@ class Users extends Base
         return $this->fetch('users_centre');
     }
 
+    // 用户选择登陆方式界面
+    public function users_select_login()
+    {
+        // 若存在则调转至会员中心
+        if ($this->users_id > 0) {
+            $this->redirect('user/Users/centre');
+            exit;
+        }
+        // 跳转链接
+        $referurl  = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : url("user/Users/centre");
+        session('eyou_referurl',$referurl);
+        
+        // 拼装url
+        $result = [
+            'wechat_url'  => url("user/Users/ajax_wechat_login"),
+            'website_url' => url("user/Users/login",['website'=>'website']),
+        ];
+
+        // 若后台功能设置-登录设置中，微信端本站登录为关闭状态，则直接跳转到微信授权页面
+        if (isset($this->usersConfig['users_open_website_login']) && empty($this->usersConfig['users_open_website_login'])) {
+            $this->redirect($result['wechat_url']);
+            exit;
+        }
+
+        // 数据加载
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->assign('eyou', $eyou);
+        return $this->fetch('users_select_login');
+    }
+
+    // 使用ajax微信授权登陆
+    public function ajax_wechat_login()
+    {
+        // 微信授权登陆
+        if (!empty($this->pay_wechat_config['appsecret'])) {
+            if (isMobile() && isWeixin()) {
+                // 判断登陆成功跳转的链接，若为空则默认会员中心链接并存入session
+                $referurl = session('eyou_referurl');
+                if (empty($referurl)) {
+                    $referurl = url('user/Users/index', '', true, true);
+                    session('eyou_referurl',$referurl);
+                }
+
+                // 获取微信配置授权登陆
+                $appid     = $this->pay_wechat_config['appid'];
+                $NewUrl    = urlencode(url('user/Users/get_wechat_info', '', true, true));
+                $ReturnUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=".$appid."&redirect_uri=".$NewUrl."&response_type=code&scope=snsapi_userinfo&state=eyoucms&#wechat_redirect";
+
+                if (isset($this->usersConfig['users_open_website_login']) && empty($this->usersConfig['users_open_website_login'])) {
+                    $this->redirect($ReturnUrl);exit;
+                }else{
+                    $this->success('授权成功！',$ReturnUrl);
+                }
+            }
+            $this->error('非手机端微信、小程序，不可以使用微信登陆，请选择本站登陆！');
+        }
+        $this->error('后台微信配置尚未配置AppSecret，不可以微信登陆，请选择本站登陆！');
+        
+    }
+
+    // 授权之后，获取用户信息
+    public function get_wechat_info(){
+        // 微信配置信息
+        $appid  = $this->pay_wechat_config['appid']; 
+        $secret = $this->pay_wechat_config['appsecret']; 
+        $code   = input('param.code/s');
+
+        // 获取到用户openid
+        $get_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='.$appid.'&secret='.$secret.'&code='.$code.'&grant_type=authorization_code';
+        $data       = httpRequest($get_token_url);
+        $WeChatData = json_decode($data, true);
+        // 查询这个openid是否已注册
+        $where = [
+            'open_id' => $WeChatData['openid'],
+            'lang'    => $this->home_lang,
+        ];
+        $Users = $this->users_db->where($where)->find();
+        if (!empty($Users)) {
+            // 已注册
+            session('users_id',$Users['users_id']);
+            session('open_id', $Users['open_id']);
+            session('users',   $Users);
+            setcookie('users_id',$Users['users_id'],null);
+            $this->redirect(session('eyou_referurl'));
+        }else{
+            // 未注册
+            $username = substr($WeChatData['openid'],6,8);
+            // 查询用户名是否已存在
+            $result   = $this->users_db->where('username',$username)->count();
+            if (!empty($result)) {
+                $username = $username.rand('100,999');
+            }
+            // 获取用户信息
+            $get_userinfo = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$WeChatData["access_token"].'&openid='.$WeChatData["openid"].'&lang=zh_CN';
+            $UserInfo = httpRequest($get_userinfo);
+            $UserInfo = json_decode($UserInfo, true);
+            // 新增用户和微信绑定
+            $UsersData = [
+                'username'       => $username,
+                'nickname'       => $UserInfo['nickname'],
+                'open_id'        => $WeChatData['openid'],
+                'password'       => '', // 密码默认为空
+                'last_ip'        => clientIP(),
+                'reg_time'       => getTime(),
+                'last_login'     => getTime(),
+                'is_activation'  => 1, // 微信注册用户，默认开启激活
+                'register_place' => 2, // 前台微信注册用户
+                'login_count'    => Db::raw('login_count+1'),
+                'head_pic'       => $UserInfo['headimgurl'],
+                'lang'           => $this->home_lang,
+            ];
+            // 查询默认会员级别，存入会员表
+            $level_id = $this->users_level_db->where([
+                    'is_system' => 1,
+                    'lang'      => $this->home_lang,
+                ])->getField('level_id');
+            $UsersData['level']  = $level_id;
+
+            $users_id = $this->users_db->add($UsersData);
+            if (!empty($users_id)) {
+                // 新增成功，将用户信息存入session
+                $GetUsers = $this->users_db->where('users_id',$users_id)->find();
+                session('users_id',$GetUsers['users_id']);
+                session('open_id', $GetUsers['open_id']);
+                session('users',   $GetUsers);
+                setcookie('users_id',$GetUsers['users_id'],null);
+                $this->redirect(session('eyou_referurl'));
+            }else{
+                $this->error('网络错误，请刷新后再试~~');
+            }
+        }
+    }
+
     // 登陆
     public function login()
     {
@@ -67,7 +202,14 @@ class Users extends Base
             exit;
         }
 
-        $is_vertify = 1; // 默认开启验证码
+        $website = input('param.website/s');
+        if (isWeixin() && empty($website)) {
+            $this->redirect('user/Users/users_select_login');
+            exit;
+        }
+
+        // 默认开启验证码
+        $is_vertify = 1;
         $users_login_captcha = config('captcha.users_login');
         if (!function_exists('imagettftext') || empty($users_login_captcha['is_on'])) {
             $is_vertify = 0; // 函数不存在，不符合开启的条件
@@ -140,20 +282,20 @@ class Users extends Base
                         'login_count'   => Db::raw('login_count+1'),
                     ];
                     $this->users_db->where('users_id',$users_id)->update($data);
-
+                    // 回跳路径
                     $url =  input('post.referurl/s', null, 'htmlspecialchars_decode,urldecode');
                     $this->success('登录成功', $url);
                 }else{
-                    $this->error('用户名或密码不正确！', null, ['status'=>1]);
+                    $this->error('密码不正确！', null, ['status'=>1]);
                 }
             }else{
                 $this->error('该用户名不存在，请注册！', null, ['status'=>1]);
             }
         }
-
-        $referurl = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : url("user/Users/centre");
+        
+        // 跳转链接
+        $referurl  = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : url("user/Users/centre");
         $this->assign('referurl', $referurl);
-
         return $this->fetch('users_login');
     }
 
@@ -272,6 +414,7 @@ class Users extends Base
 
             // 添加用户到用户表
             $data['username']       = $post['username'];
+            $data['nickname']       = !empty($post['nickname']) ? $post['nickname'] : $post['username'];
             $data['password']       = func_encrypt($post['password']);
             $data['last_ip']        = clientIP();
             $data['reg_time']       = getTime();
@@ -374,6 +517,20 @@ class Users extends Base
     {
         if (IS_AJAX_POST) {
             $post = input('post.');
+            if (empty($this->users['password'])) {
+                // 密码为空则表示第三方注册用户，强制设置密码
+                if(empty($post['password'])){
+                    $this->error('微信注册用户，为确保账号安全，请设置密码。');
+                }else{
+                    $password_new = func_encrypt($post['password']);
+                }
+            }
+            
+            $nickname = trim($post['nickname']);
+            if (!empty($post['nickname']) && empty($nickname)) {
+                $this->error('昵称不可为纯空格！');
+            }
+
             $ParaData = [];
             if (is_array($post['users_'])) {
                 $ParaData = $post['users_'];
@@ -435,6 +592,10 @@ class Users extends Base
             
             // 查询属性表的手机和邮箱信息，同步修改用户信息
             $usersData = model('Users')->getUsersListData('*',$this->users_id);
+            $usersData['nickname'] = trim($post['nickname']);
+            if (!empty($password_new)) {
+                $usersData['password'] = $password_new;
+            }
             $usersData['update_time'] = getTime();
             $return = $this->users_db->where('users_id',$this->users_id)->update($usersData);
             if ($return) {
@@ -789,6 +950,7 @@ class Users extends Base
     public function logout()
     {
         session('users_id', null);
+        session('open_id',null);
         setcookie('users_id','',getTime()-3600);
         $this->redirect(ROOT_DIR.'/');
     }

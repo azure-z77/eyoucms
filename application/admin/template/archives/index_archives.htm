@@ -257,7 +257,7 @@
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
             area: ['600px', '520px'],
-            content: "{:url('Archives/release', array('iframe'=>2))}",
+            content: "//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=release&iframe=2&lang={$Request.param.lang}",
             success: function(layero, index){
                 // var body = layer.getChildFrame('body', index);
                 // var gourl = $('.curSelectedNode').attr('href');

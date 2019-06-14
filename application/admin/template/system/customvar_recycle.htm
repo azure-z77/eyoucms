@@ -91,7 +91,7 @@
         layer_loading('正在处理');
         $.ajax({
             type : 'post',
-            url : "{:U('System/customvar_recovery')}",
+            url : "{:url('System/customvar_recovery')}",
             data : {del_id:$(obj).attr('data-id')},
             dataType : 'json',
             success : function(data){
@@ -112,7 +112,7 @@
         layer_loading('正在处理');
         $.ajax({
             type : 'post',
-            url : "{:U('System/customvar_del_thorough')}",
+            url : "{:url('System/customvar_del_thorough')}",
             data : {del_id:$(obj).attr('data-id')},
             dataType : 'json',
             success : function(data){

@@ -63,12 +63,6 @@ if ((int) $_SERVER['SERVER_PORT'] != 80) {
 }
 $domain = $domain . $rootpath;
 
-$session_id = session_id();
-if (empty($session_id)) {
-    session_start();
-    $session_id = session_id();
-}
-
 switch ($step) {
 
     case '1':
@@ -76,10 +70,9 @@ switch ($step) {
         exit();
 
     case '2':
-        if (!empty($session_id)) {
-            $_SESSION['install_step'] = 1;
-            $_SESSION['isset_author'] = null;
-        }
+        session_start();
+        $_SESSION['isset_author'] = null;
+        session_destroy();
 
         if (phpversion() < 5) {
             die('本系统需要PHP5.4.0以上 + MYSQL >= 5.0环境，当前PHP版本为：' . phpversion());
@@ -158,11 +151,6 @@ switch ($step) {
         //     $scandir = '<img src="images/del.png">';
         //     $err++;
         // }
-
-        // 禁止忽略第二步，直接进入第三步
-        if (empty($err)) {
-            !empty($session_id) && $_SESSION['install_step'] = 2;
-        }
         
         $folder = array(
             'install',
@@ -176,17 +164,6 @@ switch ($step) {
         exit();
 
     case '3':
-        if (!empty($session_id)) {
-            $install_step = isset($_SESSION['install_step']) ? $_SESSION['install_step'] : 0;
-            if (4 == $install_step) {
-                header("Location: ".$_SERVER['PHP_SELF']."?step=3");
-                exit;
-            } else if (2 != $install_step) {
-                header("Location: ".$_SERVER['PHP_SELF']."?step=2");
-                exit;
-            }
-        }
-
         $dbName = trim(addslashes($_POST['dbName']));
         $dbUser = trim(addslashes($_POST['dbUser']));
         $dbport = !empty($_POST['dbport']) ? addslashes($_POST['dbport']) : '3306';
@@ -292,21 +269,6 @@ switch ($step) {
         exit();
 
     case '4':
-        // 禁止忽略第三步，直接进入第四步
-        if (!empty($session_id)) {
-            if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST)) {
-                $_SESSION['install_step'] = 3;
-            }
-            $install_step = isset($_SESSION['install_step']) ? $_SESSION['install_step'] : 0;
-            if (3 != $install_step) {
-                $_SESSION['install_step'] = 1;
-                header("Location: ".$_SERVER['PHP_SELF']."?step=2");
-                exit;
-            }
-        }
-
-        !empty($session_id) && $_SESSION['install_step'] = 2;
-
         $arr = array();
 
         $dbHost = trim(addslashes($_POST['dbhost']));
@@ -520,9 +482,6 @@ switch ($step) {
         $password = md5($auth_code.trim($_POST['manager_pwd']));
         mysqli_query($conn, " INSERT INTO `{$dbPrefix}admin` (`user_name`,`true_name`,`password`,`last_login`,`last_ip`,`login_cnt`,`status`,`add_time`) VALUES ('$username','$username','$password','0','$ip','1','1','$time')");
 
-        // 禁止忽略第四步，直接进入第五步
-        !empty($session_id) && $_SESSION['install_step'] = 4;
-
         $url = $_SERVER['PHP_SELF']."?step=5";
 
         $arr['code'] = 1;
@@ -532,15 +491,6 @@ switch ($step) {
         exit;
 
     case '5':
-        if (!empty($session_id)) {
-            $install_step = isset($_SESSION['install_step']) ? $_SESSION['install_step'] : 0;
-            if (4 != $install_step) {
-                $_SESSION['install_step'] = 1;
-                header("Location: ".$_SERVER['PHP_SELF']."?step=2");
-                exit;
-            }
-        }
-
         $ip = get_server_ip();
         $host = $_SERVER['HTTP_HOST'];
         $create_date = date("Ymdhis");
@@ -555,9 +505,6 @@ switch ($step) {
         @file_put_contents(SITEDIR . 'application/admin/conf/constant.php', $str_constant);
         include_once ("./templates/step5.php");
         @touch('./install.lock');
-
-        !empty($session_id) && session_destroy();
-
         exit();
 }
 

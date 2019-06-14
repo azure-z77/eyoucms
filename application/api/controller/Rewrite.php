@@ -51,4 +51,23 @@ class Rewrite extends Base
         ob_clean();
         exit('Congratulations on passing');
     }
+
+    /**
+     * 关闭父弹框
+     */
+    public function close_parent_layer()
+    {
+        $version = getCmsVersion();
+        $str = <<<EOF
+    <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/jquery.min.js?v={$version}"></script>
+    <script type="text/javascript" src="{$this->root_dir}/public/plugins/layer-v3.1.0/layer.js?v={$version}"></script>
+    <script type="text/javascript">
+        $(function(){
+            parent.layer.closeAll();
+        });
+    </script>
+EOF;
+        echo $str;
+        exit;
+    }
 }

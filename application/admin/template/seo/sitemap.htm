@@ -40,6 +40,97 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label>更新频率</label>
+                </dt>
+                <dd class="opt">
+                    首页
+                    <select name="sitemap_changefreq_index">
+                        <option value="always" {if condition="empty($config.sitemap_changefreq_index) || $config.sitemap_changefreq_index eq 'always'"}selected="true"{/if}>经常</option>
+                        <option value="hourly" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'hourly'"}selected="true"{/if}>每小时</option>
+                        <option value="daily" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'daily'"}selected="true"{/if}>每天</option>
+                        <option value="weekly" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'weekly'"}selected="true"{/if}>每周</option>
+                        <option value="monthly" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'monthly'"}selected="true"{/if}>每月</option>
+                        <option value="yearly" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'yearly'"}selected="true"{/if}>每年</option>
+                        <option value="never" {if condition="!empty($config.sitemap_changefreq_index) && $config.sitemap_changefreq_index eq 'never'"}selected="true"{/if}>从不</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    列表页
+                    <select name="sitemap_changefreq_list">
+                        <option value="always" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'always'"}selected="true"{/if}>经常</option>
+                        <option value="hourly" {if condition="empty($config.sitemap_changefreq_list) || $config.sitemap_changefreq_list eq 'hourly'"}selected="true"{/if}>每小时</option>
+                        <option value="daily" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'daily'"}selected="true"{/if}>每天</option>
+                        <option value="weekly" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'weekly'"}selected="true"{/if}>每周</option>
+                        <option value="monthly" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'monthly'"}selected="true"{/if}>每月</option>
+                        <option value="yearly" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'yearly'"}selected="true"{/if}>每年</option>
+                        <option value="never" {if condition="!empty($config.sitemap_changefreq_list) && $config.sitemap_changefreq_list eq 'never'"}selected="true"{/if}>从不</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    内容页
+                    <select name="sitemap_changefreq_view">
+                        <option value="always" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'always'"}selected="true"{/if}>经常</option>
+                        <option value="hourly" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'hourly'"}selected="true"{/if}>每小时</option>
+                        <option value="daily" {if condition="empty($config.sitemap_changefreq_view) || $config.sitemap_changefreq_view eq 'daily'"}selected="true"{/if}>每天</option>
+                        <option value="weekly" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'weekly'"}selected="true"{/if}>每周</option>
+                        <option value="monthly" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'monthly'"}selected="true"{/if}>每月</option>
+                        <option value="yearly" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'yearly'"}selected="true"{/if}>每年</option>
+                        <option value="never" {if condition="!empty($config.sitemap_changefreq_view) && $config.sitemap_changefreq_view eq 'never'"}selected="true"{/if}>从不</option>
+                    </select>
+                    <span class="err"></span>
+                    <p class="notic">XML地图文件使用，你输入的网站的网页内容更新的频率。</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label>优先级别</label>
+                </dt>
+                <dd class="opt">
+                    首页
+                    <select name="sitemap_priority_index">
+                        <option value="0.1" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.1'"}selected="true"{/if}>0.1</option>
+                        <option value="0.2" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.2'"}selected="true"{/if}>0.2</option>
+                        <option value="0.3" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.3'"}selected="true"{/if}>0.3</option>
+                        <option value="0.4" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.4'"}selected="true"{/if}>0.4</option>
+                        <option value="0.5" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.5'"}selected="true"{/if}>0.5</option>
+                        <option value="0.6" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.6'"}selected="true"{/if}>0.6</option>
+                        <option value="0.7" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.7'"}selected="true"{/if}>0.7</option>
+                        <option value="0.8" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.8'"}selected="true"{/if}>0.8</option>
+                        <option value="0.9" {if condition="!empty($config.sitemap_priority_index) && $config.sitemap_priority_index eq '0.9'"}selected="true"{/if}>0.9</option>
+                        <option value="1.0" {if condition="empty($config.sitemap_priority_index) || $config.sitemap_priority_index eq '1.0'"}selected="true"{/if}>1.0</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    列表页
+                    <select name="sitemap_priority_list">
+                        <option value="0.1" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.1'"}selected="true"{/if}>0.1</option>
+                        <option value="0.2" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.2'"}selected="true"{/if}>0.2</option>
+                        <option value="0.3" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.3'"}selected="true"{/if}>0.3</option>
+                        <option value="0.4" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.4'"}selected="true"{/if}>0.4</option>
+                        <option value="0.5" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.5'"}selected="true"{/if}>0.5</option>
+                        <option value="0.6" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.6'"}selected="true"{/if}>0.6</option>
+                        <option value="0.7" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.7'"}selected="true"{/if}>0.7</option>
+                        <option value="0.8" {if condition="empty($config.sitemap_priority_list) || $config.sitemap_priority_list eq '0.8'"}selected="true"{/if}>0.8</option>
+                        <option value="0.9" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '0.9'"}selected="true"{/if}>0.9</option>
+                        <option value="1.0" {if condition="!empty($config.sitemap_priority_list) && $config.sitemap_priority_list eq '1.0'"}selected="true"{/if}>1.0</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    内容页
+                    <select name="sitemap_priority_view">
+                        <option value="0.1" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.1'"}selected="true"{/if}>0.1</option>
+                        <option value="0.2" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.2'"}selected="true"{/if}>0.2</option>
+                        <option value="0.3" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.3'"}selected="true"{/if}>0.3</option>
+                        <option value="0.4" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.4'"}selected="true"{/if}>0.4</option>
+                        <option value="0.5" {if condition="empty($config.sitemap_priority_view) || $config.sitemap_priority_view eq '0.5'"}selected="true"{/if}>0.5</option>
+                        <option value="0.6" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.6'"}selected="true"{/if}>0.6</option>
+                        <option value="0.7" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.7'"}selected="true"{/if}>0.7</option>
+                        <option value="0.8" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.8'"}selected="true"{/if}>0.8</option>
+                        <option value="0.9" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '0.9'"}selected="true"{/if}>0.9</option>
+                        <option value="1.0" {if condition="!empty($config.sitemap_priority_view) && $config.sitemap_priority_view eq '1.0'"}selected="true"{/if}>1.0</option>
+                    </select>
+                    <span class="err"></span>
+                    <p class="notic">XML地图文件使用，所抓取页面在您网站的重要性，告诉搜索引擎抓取的优先级。数值越大，优先级越高。</p>
+                </dd>
+            </dl>
             <dl class="row zzbaidu">
                 <dt class="tit">
                     <label for="sitemap_zzbaidutoken">实时推送Url的token</label>

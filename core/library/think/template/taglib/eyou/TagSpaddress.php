@@ -33,14 +33,29 @@ class TagSpaddress extends Base
     public function getSpaddress($type = '')
     {
         if ($type == 'add') {
+            $UlHtmlId = 'UlHtml';
             // 封装删除收货地址JS
             $AddressData[0]['ShopAddAddr'] = " onclick=\"ShopAddAddress();\" ";
-            $AddressData[0]['UlHtmlId']    = " id=\"UlHtml\" ";
+            $AddressData[0]['UlHtmlId']    = " id=\"{$UlHtmlId}\" ";
             // 传入JS参数
+            $shop_get_wechat_addr_url = '';
+            if (isMobile() && isWeixin()) {
+                // 用于获取微信收货地址
+                $shop_get_wechat_addr_url  = url('user/Shop/shop_get_wechat_addr');
+            }
+            $data['UlHtmlId']  = $UlHtmlId;
+            $data['shop_get_wechat_addr_url'] = $shop_get_wechat_addr_url;
             $data['shop_add_address']  = url('user/Shop/shop_add_address');
             $data['shop_edit_address'] = url('user/Shop/shop_edit_address');
             $data['shop_del_address']  = url('user/Shop/shop_del_address');
             $data['shop_set_default']  = url('user/Shop/shop_set_default_address');
+            if (isWeixin() || isMobile()) {
+                $data['addr_width']  = '100%';
+                $data['addr_height'] = '100%';
+            }else{
+                $data['addr_width']  = '350px';
+                $data['addr_height'] = '550px';
+            }
             $data_json = json_encode($data);
             $version   = getCmsVersion();
             // 循环中第一个数据带上JS代码加载
@@ -50,7 +65,8 @@ class TagSpaddress extends Base
 </script>
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_spaddress.js?v={$version}"></script>
 EOF;
-        return $AddressData; exit;    
+            return $AddressData;
+            exit;    
         }
 
         // 查询条件
@@ -81,7 +97,7 @@ EOF;
             $AddressData[$key]['ul_il_id'] = " id=\"{$value['addr_id']}_ul_li\" ";
 
             // 封装设置默认JS
-            $AddressData[$key]['SetDefault'] = " onclick=\"SetDefault('{$value['addr_id']}');\" id=\"{$value['addr_id']}_color\" ";
+            $AddressData[$key]['SetDefault'] = " onclick=\"SetDefault(this, '{$value['addr_id']}');\" data-is_default=\"{$value['is_default']}\" id=\"{$value['addr_id']}_color\" ";
 
             // 封装修改收货地址JS
             $AddressData[$key]['ShopEditAddr'] = " onclick=\"ShopEditAddress('{$value['addr_id']}');\" ";

@@ -617,6 +617,20 @@ if (!function_exists('isWeixin'))
     }
 }
 
+if (!function_exists('isWeixinApplets')) 
+{
+    /**
+     * 是否微信端小程序访问
+     *
+     * @return boolean
+     */
+    function isWeixinApplets() {
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'miniProgram') !== false) {
+            return true;
+        } return false;
+    }
+}
+
 if (!function_exists('isQq')) 
 {
     /**
@@ -939,6 +953,36 @@ if (!function_exists('format_bytes'))
         $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
         for ($i = 0; $size >= 1024 && $i < 5; $i++) $size /= 1024;
         return round($size, 2) . $delimiter . $units[$i];
+    }
+}
+
+if (!function_exists('unformat_bytes')) 
+{
+    /**
+     * 反格式化字节大小
+     *
+     * @param  number $size      格式化带单位的大小
+     */
+    function unformat_bytes($formatSize)
+    {
+        $size = 0;
+        if (preg_match('/^\d+P/i', $formatSize)) {
+            $size = intval($formatSize) * 1024 * 1024 * 1024 * 1024 * 1024;
+        } else if (preg_match('/^\d+T/i', $formatSize)) {
+            $size = intval($formatSize) * 1024 * 1024 * 1024 * 1024;
+        } else if (preg_match('/^\d+G/i', $formatSize)) {
+            $size = intval($formatSize) * 1024 * 1024 * 1024;
+        } else if (preg_match('/^\d+M/i', $formatSize)) {
+            $size = intval($formatSize) * 1024 * 1024;
+        } else if (preg_match('/^\d+K/i', $formatSize)) {
+            $size = intval($formatSize) * 1024;
+        } else if (preg_match('/^\d+B/i', $formatSize)) {
+            $size = intval($formatSize);
+        }
+
+        $size = strval($size);
+
+        return $size;
     }
 }
 
@@ -1747,8 +1791,9 @@ if (!function_exists('strip_sql'))
                 // "/\bcall\b/i", 
                 "/\bexec\b/i",         
                 "/\bdelimiter\b/i",
-                "/\bphar:\b/i",
+                "/\bphar\b\:/i",
                 "/\bphar\b/i",
+                "/\@(\s*)\beval\b/i",
                 "/\beval\b/i",
         );
         $replace_arr = array(
@@ -1776,6 +1821,8 @@ if (!function_exists('strip_sql'))
                 'ｅｘｅｃ',         
                 'ｄｅｌｉｍｉｔｅｒ',
                 'ｐｈａｒ',
+                'ｐｈａｒ',
+                '＠ｅｖａｌ',
                 'ｅｖａｌ',
         );
      
@@ -2056,3 +2103,32 @@ if (!function_exists('write_bidden_inc'))
 //         return $auth_code;
 //     }
 // }
+
+
+if (!function_exists('get_urltodomain')) 
+{
+    /**
+     * 取得根域名
+     * @param type $domain 域名
+     * @return string 返回根域名
+     */
+    function get_urltodomain($domain = '') {
+        if (empty($domain) || !stristr($domain, '.')) {
+            return '';
+        }
+        $re_domain = '';
+        $domain_postfix_cn_array = array("com", "net", "org", "gov", "edu", "com.cn", "cn");
+        $array_domain = explode(".", $domain);
+        $array_num = count($array_domain) - 1;
+        if ($array_domain[$array_num] == 'cn') {
+            if (in_array($array_domain[$array_num - 1], $domain_postfix_cn_array)) {
+                $re_domain = $array_domain[$array_num - 2] . "." . $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+            } else {
+                $re_domain = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+            }
+        } else {
+            $re_domain = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+        }
+        return $re_domain;
+    }
+}

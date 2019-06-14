@@ -315,7 +315,17 @@ class App
                     foreach ($weapp_behavior_list as $key => $file) {
                         if (is_file($file)) {
                             try {
-                                Hook::import(include $file);
+                                $configFile = preg_replace('#^('.WEAPP_DIR_NAME.'\/)([^\/]+)(\/)(.*)$#i', '${1}${2}${3}config.php', str_replace('\\', '/', $file));
+                                if (file_exists($configFile)) {
+                                    $configData = include $configFile;
+                                    if (0 == $configData['scene']) { // PC与手机端
+                                        Hook::import(include $file);
+                                    } else if (1 == $configData['scene'] && isMobile()) { // 手机端
+                                        Hook::import(include $file);
+                                    } else if (2 == $configData['scene'] && !isMobile()) { // PC端
+                                        Hook::import(include $file);
+                                    }
+                                }
                             } catch (\Exception $e) {
                                 throw new \Exception("插件行为扩展文件语法出错：{$file}");
                             }

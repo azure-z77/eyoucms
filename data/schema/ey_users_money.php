@@ -72,6 +72,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'wechat_pay_type' => 
+  array (
+    'name' => 'wechat_pay_type',
+    'type' => 'varchar(20)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'pay_details' => 
   array (
     'name' => 'pay_details',

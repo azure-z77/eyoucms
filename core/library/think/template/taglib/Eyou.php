@@ -631,8 +631,8 @@ class Eyou extends Taglib
         $notypeid     = !empty($tag['notypeid']) ? $tag['notypeid'] : '';
         $notypeid  = $this->varOrvalue($notypeid);
 
-        $channeltype   = isset($tag['channelid']) ? $tag['channelid'] : '';
-        $channeltype  = $this->varOrvalue($channeltype);
+        $channelid   = isset($tag['channelid']) ? $tag['channelid'] : '';
+        $channelid  = $this->varOrvalue($channelid);
 
         $addfields     = isset($tag['addfields']) ? $tag['addfields'] : '';
         $addfields  = $this->varOrvalue($addfields);
@@ -666,7 +666,7 @@ class Eyou extends Taglib
         $parseStr .= ' if(empty($typeid) && isset($channelartlist["id"]) && !empty($channelartlist["id"])) : $typeid = intval($channelartlist["id"]); endif; ';
         /*--end*/
         $parseStr .= ' if(isset($ui_row) && !empty($ui_row)) : $row = $ui_row; else: $row = '.$row.'; endif;';
-        $parseStr .= ' $channeltype = '.$channeltype.';';
+        $parseStr .= ' $channelid = '.$channelid.';';
 
         if ($name) { // 从模板中传入数据集
             $symbol     = substr($name, 0, 1);
@@ -692,7 +692,7 @@ class Eyou extends Taglib
             $parseStr .= '      "notypeid"=> '.$notypeid.',';
             $parseStr .= '      "flag"=> "'.$flag.'",';
             $parseStr .= '      "noflag"=> "'.$noflag.'",';
-            $parseStr .= '      "channel"=> $channeltype,';
+            $parseStr .= '      "channel"=> $channelid,';
             $parseStr .= ' );';
             $parseStr .= ' $tag = '.var_export($tag,true).';';
             $parseStr .= ' $tagArclist = new \think\template\taglib\eyou\TagArclist;';
@@ -747,8 +747,8 @@ class Eyou extends Taglib
         $notypeid     = !empty($tag['notypeid']) ? $tag['notypeid'] : '';
         $notypeid  = $this->varOrvalue($notypeid);
 
-        $channeltype   = isset($tag['channelid']) ? $tag['channelid'] : '';
-        $channeltype  = $this->varOrvalue($channeltype);
+        $channelid   = isset($tag['channelid']) ? $tag['channelid'] : '';
+        $channelid  = $this->varOrvalue($channelid);
         
         $addfields     = isset($tag['addfields']) ? $tag['addfields'] : '';
         $addfields  = $this->varOrvalue($addfields);
@@ -779,7 +779,7 @@ class Eyou extends Taglib
         $parseStr .= '      "notypeid"=> '.$notypeid.',';
         $parseStr .= '      "flag"=> "'.$flag.'",';
         $parseStr .= '      "noflag"=> "'.$noflag.'",';
-        $parseStr .= '      "channel"=> '.$channeltype.',';
+        $parseStr .= '      "channel"=> '.$channelid.',';
         $parseStr .= ' );';
         // $parseStr .= ' $orderby = "'.$orderby.'";';
         $parseStr .= ' $tagList = new \think\template\taglib\eyou\TagList;';

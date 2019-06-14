@@ -261,6 +261,13 @@ function GetUploadify(num,elementid,path,callback,url)
             url += '?';
         }
 
+        var width = '85%';
+        var height = '85%';
+        if ('adminlogo' == path) { // 上传后台logo
+            width = '50%';
+            height = '66%';
+        }
+
         var upurl = url+'num='+num+'&input='+elementid+'&path='+path+'&func='+callback;
         layer_GetUploadify = layer.open({
             type: 2,
@@ -268,7 +275,7 @@ function GetUploadify(num,elementid,path,callback,url)
             shadeClose: false,
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
-            area: ['50%', '60%'],
+            area: [width, height],
             content: upurl
          });
     } else {
@@ -305,7 +312,7 @@ function GetUploadifyFrame(num,elementid,path,callback,url)
             shadeClose: false,
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
-            area: ['50%', '66%'],
+            area: ['85%', '85%'],
             content: upurl
          });
     } else {

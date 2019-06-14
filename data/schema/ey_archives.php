@@ -99,6 +99,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'is_litpic' => 
+  array (
+    'name' => 'is_litpic',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'author' => 
   array (
     'name' => 'author',

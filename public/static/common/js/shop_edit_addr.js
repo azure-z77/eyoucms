@@ -15,6 +15,7 @@ function GetRegionData(t,type){
             if ('province' == type) {
                 res = '<option value="0">请选择城市</option>'+ res;
                 $('#city').empty().html(res);
+                $('#district').empty().html('<option value="0">请选择县/区/镇</option>');
             } else if ('city' == type) {
                 res = '<option value="0">请选择县/区/镇</option>'+ res;
                 $('#district').empty().html(res);

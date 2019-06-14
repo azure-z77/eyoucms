@@ -155,7 +155,7 @@
                 shade: 0.3,
                 maxmin: true, //开启最大化最小化按钮
                 area: ['600px', '520px'],
-                content: "{:url('Archives/release', array('iframe'=>1))}",
+                content: "//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=release&iframe=1&lang={$Request.param.lang}",
                 success: function(layero, index){
                     // var body = layer.getChildFrame('body', index);
                     // var gourl = $('.curSelectedNode').attr('href');
@@ -173,6 +173,6 @@
         <h3><a href="javascript:void(0);" onclick="quick_release();"><i class="fa fa-edit"></i>快捷发布文档</a></h3>
         <div id="tree" class="ztree"></div>
     </div>
-    <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="{:url('Archives/index_archives')}" width="100%" height="100%" frameborder="0"></iframe></div>
+    <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=index_archives&lang={$Request.param.lang}" width="100%" height="100%" frameborder="0"></iframe></div>
 </body>
 </html>

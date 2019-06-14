@@ -70,7 +70,7 @@ return array(
     // 栏目表原始字段
     'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','admin_id','is_del','del_method','status','lang','add_time','update_time'),
     // 网络图片扩展名
-    'image_ext' => 'jpg,jpeg,gif,bmp,ico,png',
+    'image_ext' => 'jpg,jpeg,gif,bmp,ico,png,webp',
     // 后台语言Cookie变量
     'admin_lang' => 'admin_lang',
     // 前台语言Cookie变量

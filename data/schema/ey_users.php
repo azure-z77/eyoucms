@@ -27,6 +27,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'nickname' => 
+  array (
+    'name' => 'nickname',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'is_mobile' => 
   array (
     'name' => 'is_mobile',
@@ -204,6 +213,15 @@ return array (
     'type' => 'tinyint(1)',
     'notnull' => false,
     'default' => '2',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'open_id' => 
+  array (
+    'name' => 'open_id',
+    'type' => 'varchar(30)',
+    'notnull' => false,
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),

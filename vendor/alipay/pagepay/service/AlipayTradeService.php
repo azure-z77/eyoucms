@@ -155,6 +155,12 @@ class AlipayTradeService {
 			return $response;
 		}
 		$response = $response->alipay_trade_query_response;
+		if (empty($response)) {
+			$error = $response->alipay_eco_mycar_parking_parkinglotinfo_create_response;
+			if (!empty($error)) {
+				$response = '验签出错，建议检查签名字符串或签名私钥与应用公钥是否匹配。';
+			}
+		}
 		return $response;
 	}
 

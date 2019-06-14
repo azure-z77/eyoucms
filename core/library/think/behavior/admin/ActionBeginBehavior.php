@@ -113,12 +113,12 @@ class ActionBeginBehavior {
         if (in_array(self::$controllerName.'@'.self::$actionName, [$ca,$ca2])) {
             $name = array_join_string(array('d2','Vi','X','2l','zX2','F1d','G','hv','cnR','va','2V','u'));
             $value = session($name);
-            $value = !empty($value) ? $value : 0;
+            $value = !empty($value) ? intval($value) : 0;
             $key1 = array_join_string(array('c','2h','vc','A','=','='));
             $key2 = array_join_string(array('c2','h','v','cF','9v','cG','V','u'));
             $domain = request()->host();
             $server_ip = gethostbyname($_SERVER["SERVER_NAME"]);
-            if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || empty($value)) {
+            if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || -1 != $value) {
 
             } else {
                 $data = ['code' => 0];
@@ -144,10 +144,10 @@ class ActionBeginBehavior {
         if ($c == self::$controllerName) {
             $name = array_join_string(array('d2','Vi','X','2l','zX2','F1d','G','hv','cnR','va','2V','u'));
             $value = session($name);
-            $value = !empty($value) ? $value : 0;
+            $value = !empty($value) ? intval($value) : 0;
             $domain = request()->host();
             $server_ip = gethostbyname($_SERVER["SERVER_NAME"]);
-            if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || empty($value)) {
+            if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || -1 != $value) {
 
             } else {
                 $msg = array_join_string(array('6','K6','i','5Y','2V','5Y','q','f6','I','O9','5Y','+','q','6Z','mQ','5L','qO','5o6','I5','p2D','5','Z+','f5Z','CN','77','yB'));

@@ -52,6 +52,16 @@ class Controller
     public $home_lang = 'cn';
 
     /**
+     * 子目录路径
+     */
+    public $root_dir = ROOT_DIR;
+
+    /**
+     * CMS版本号
+     */
+    public $version = null;
+
+    /**
      * 构造方法
      * @access public
      * @param Request $request Request 对象
@@ -110,9 +120,11 @@ class Controller
         $this->home_lang = get_home_lang();
         $this->admin_lang = get_admin_lang();
         $this->main_lang = get_main_lang();
+        $this->version == null && $this->version = getCmsVersion();
         $this->assign('home_lang', $this->home_lang);
         $this->assign('admin_lang', $this->admin_lang);
         $this->assign('main_lang', $this->main_lang);
+        $this->assign('version', $this->version);
         /*--end*/
         
         $param = $this->request->param();

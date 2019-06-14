@@ -46,16 +46,15 @@ class TagSporder extends Base
 
             // 订单主表
             $result['OrderData'] = Db::name("shop_order")->field('*')->where($Where)->find();
-            // 获取当前链接及参数，用于手机端查询快递时返回页面，进行urlencode编码
-            // $ReturnUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+            // 获取当前链接及参数，用于手机端查询快递时返回页面
+            $ReturnUrl = request()->url(true);
             // 封装查询物流链接
             $result['OrderData']['LogisticsInquiry'] = $MobileExpressUrl = '';
             if (('2' == $result['OrderData']['order_status'] || '3' == $result['OrderData']['order_status']) && empty($result['OrderData']['prom_type'])) {
-                // PC端查询物流链接
-                // $result['OrderData']['PcExpressUrl']     = "http://www.kuaidi100.com/chaxun?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order'];
-
                 // 移动端查询物流链接
-                $MobileExpressUrl = "http://m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order'];
+                $result['OrderData']['MobileExpressUrl'] = "//m.kuaidi100.com/app/query/?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
+
+                $MobileExpressUrl = "//m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
 
                 $result['OrderData']['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$MobileExpressUrl}');\" ";
             }

@@ -19,11 +19,18 @@ function ColorS(css){
     }
 }
 
+// 在微信端时，跳转至选择添加收货地址方式页面
+function GetWeChatAddr(){
+    var JsonData = b1decefec6b39feb3be1064e27be2a9;
+    window.location.href = JsonData.shop_add_address;
+}
+
 // 添加收货地址
 function ShopAddAddress(){
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
     var url = JsonData.shop_add_address;
-
+    var width  = JsonData.addr_width;
+    var height = JsonData.addr_height;
     var url = url;
     if (url.indexOf('?') > -1) {
         url += '&';
@@ -37,7 +44,7 @@ function ShopAddAddress(){
         title: '添加收货地址',
         shadeClose: false,
         maxmin: false, //开启最大化最小化按钮
-        area: ['350px', '550px'],
+        area: [width, height],
         content: url
     });
 }
@@ -46,7 +53,8 @@ function ShopAddAddress(){
 function ShopEditAddress(addr_id){
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
     var url = JsonData.shop_edit_address;
-
+    var width  = JsonData.addr_width;
+    var height = JsonData.addr_height;
     var url = url;
     if (url.indexOf('?') > -1) {
         url += '&';
@@ -60,7 +68,7 @@ function ShopEditAddress(addr_id){
         title: '添加收货地址',
         shadeClose: false,
         maxmin: false, //开启最大化最小化按钮
-        area: ['350px', '550px'],
+        area: [width, height],
         content: url
     });
 }
