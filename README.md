@@ -18,10 +18,8 @@
 
 1. 在线浏览：http://demo.eyoucms.com
 2. 后台登录：http://demo.eyoucms.com/login.php
-3. 后台账号：admin
-4. 后台密码：admin
-5. Demo下载：http://www.eyoucms.com/plus/down.php
-6. 更多模板：http://www.eyoucms.com/moban/
+3. Demo下载：http://www.eyoucms.com/plus/down.php
+4. 更多模板：http://www.eyoucms.com/moban/
 
 #### 安装教程
 
