@@ -35,19 +35,15 @@ class Index extends Base
         }
         // end
 
-        if (config('is_https')) {
-            $filename = 'indexs.html';
+        $filename = 'index.html';
+
+        // 生成静态页面代码 - PC端动态访问跳转到静态
+        $seo_pseudo = config('ey_config.seo_pseudo');
+        if (file_exists($filename) && 2 == $seo_pseudo && !isMobile() && !isset($_GET['clear'])) {
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location:index.html');
+            exit;
         } else {
-            $filename = 'index.html';
-        }
-
-        if (file_exists($filename)) {
-            @unlink($filename);
-        }
-
-        //自动生成HTML版
-        if(isset($_GET['clear']) || !file_exists($filename))
-        {
             /*获取当前页面URL*/
             $result['pageurl'] = request()->url(true);
             /*--end*/
@@ -71,13 +67,13 @@ class Index extends Base
             /*--end*/
 
             $html = $this->fetch(":{$viewfile}");
-            // @file_put_contents($filename, $html);
+
+            // 生成静态页面代码
+            // if (2 == $seo_pseudo && !file_exists($filename)) {
+            //     @file_put_contents($filename, $html);
+            // }
+            
             return $html;
-        }
-        else
-        {
-            // header('HTTP/1.1 301 Moved Permanently');
-            // header('Location:'.$filename);
         }
     }
 }
