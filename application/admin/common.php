@@ -642,12 +642,12 @@ if (!function_exists('get_arcurl'))
         if (2 == $seo_pseudo && $admin) {
             static $lang = null;
             null === $lang && $lang = input('param.lang/s', 'cn');
-            $arcurl = ROOT_DIR."/index.php/?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&t=".getTime();
+            $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&t=".getTime();
         } else {
             $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+            // 自动隐藏index.php入口文件
+            $arcurl = auto_hide_index($arcurl);
         }
-        // 自动隐藏index.php入口文件
-        $arcurl = auto_hide_index($arcurl);
 
         return $arcurl;
     }

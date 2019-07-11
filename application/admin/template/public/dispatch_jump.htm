@@ -41,6 +41,12 @@
 {switch name="$code"}
     {case value="1"}
         {php}
+            $post = $_POST;
+            isset($post['typeid']) && $post['tid'] = $post['typeid'];
+            if (!empty($data) && is_array($data)) {
+                $post = array_merge($post, $data);
+            }
+            $data = $post;
             $row = \think\DB::name('archives')
                 ->field("b.*, a.*, a.aid as aid")
                 ->alias('a')
