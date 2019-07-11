@@ -301,14 +301,14 @@ if (!function_exists('push_zzbaidu'))
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                 ->find($aid);
-            $arcurl = get_arcurl($res);
+            $arcurl = get_arcurl($res, false);
             array_push($urlsArr, $arcurl);
         }
         if (0 < $typeid) {
             $res = M('arctype')->field('a.*')
                 ->alias('a')
                 ->find($typeid);
-            $typeurl = get_typeurl($res);
+            $typeurl = get_typeurl($res, false);
             array_push($urlsArr, $typeurl);
         }
 
