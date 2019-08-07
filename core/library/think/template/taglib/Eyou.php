@@ -31,9 +31,9 @@ class Eyou extends Taglib
         'php'        => ['attr' => ''],
         'channel'    => ['attr' => 'typeid,reid,type,row,currentstyle,id,name,key,empty,mod,titlelen,offset,limit'],
         'channelartlist' => ['attr' => 'typeid,type,row,id,key,empty,titlelen,mod'],
-        'arclist'    => ['attr' => 'channelid,typeid,notypeid,row,offset,titlelen,limit,orderby,orderWay,noflag,flag,infolen,empty,mod,name,id,key,addfields,tagid,pagesize'],
+        'arclist'    => ['attr' => 'channelid,typeid,notypeid,row,offset,titlelen,limit,orderby,orderWay,noflag,flag,infolen,empty,mod,name,id,key,addfields,tagid,pagesize,thumb'],
         'arcpagelist'=> ['attr' => 'tagid,pagesize,id,tips,loading'],
-        'list'       => ['attr' => 'channelid,typeid,notypeid,pagesize,titlelen,orderby,orderWay,noflag,flag,infolen,empty,mod,id,key,addfields'],
+        'list'       => ['attr' => 'channelid,typeid,notypeid,pagesize,titlelen,orderby,orderWay,noflag,flag,infolen,empty,mod,id,key,addfields,thumb'],
         'pagelist'   => ['attr' => 'listitem,listsize', 'close' => 0],
         'position'   => ['attr' => 'symbol,style', 'close' => 0],
         'type'       => ['attr' => 'typeid,type,empty,dirname,id,addfields,addtable'],
@@ -111,7 +111,7 @@ class Eyou extends Taglib
         'spsearch' => ['attr' => 'empty,id,mod,key'],
 
         // 筛选搜索
-        'screening' => ['attr' => 'empty,id,mod,key,currentstyle,addfields,addfieldids,alltxt'],
+        'screening' => ['attr' => 'empty,id,mod,key,currentstyle,addfields,addfieldids,alltxt,typeid'],
     ];
 
     /**
@@ -652,6 +652,7 @@ class Eyou extends Taglib
         $noflag    = isset($tag['noflag']) ? $tag['noflag'] : '';
         $tagid    = isset($tag['tagid']) ? $tag['tagid'] : ''; // 标签ID
         $pagesize = !empty($tag['pagesize']) && is_numeric($tag['pagesize']) ? intval($tag['pagesize']) : 0;
+        $thumb   = !empty($tag['thumb']) ? $tag['thumb'] : 'on';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
         $infolen = !empty($tag['infolen']) && is_numeric($tag['infolen']) ? intval($tag['infolen']) : 160;
         $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
@@ -699,7 +700,7 @@ class Eyou extends Taglib
             $parseStr .= ' );';
             $parseStr .= ' $tag = '.var_export($tag,true).';';
             $parseStr .= ' $tagArclist = new \think\template\taglib\eyou\TagArclist;';
-            $parseStr .= ' $_result = $tagArclist->getArclist($param, $row, "'.$orderby.'", '.$addfields.',"'.$orderWay.'","'.$tagid.'",$tag,"'.$pagesize.'");';
+            $parseStr .= ' $_result = $tagArclist->getArclist($param, $row, "'.$orderby.'", '.$addfields.',"'.$orderWay.'","'.$tagid.'",$tag,"'.$pagesize.'","'.$thumb.'");';
 
             $parseStr .= 'if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
             // 设置了输出数组长度
@@ -762,6 +763,7 @@ class Eyou extends Taglib
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $pagesize = !empty($tag['pagesize']) && is_numeric($tag['pagesize']) ? intval($tag['pagesize']) : 10;
+        $thumb   = !empty($tag['thumb']) ? $tag['thumb'] : 'on';
         $orderby    = isset($tag['orderby']) ? $tag['orderby'] : '';
         $orderWay    = isset($tag['orderWay']) ? $tag['orderWay'] : 'desc';
         $flag    = isset($tag['flag']) ? $tag['flag'] : '';
@@ -786,7 +788,7 @@ class Eyou extends Taglib
         $parseStr .= ' );';
         // $parseStr .= ' $orderby = "'.$orderby.'";';
         $parseStr .= ' $tagList = new \think\template\taglib\eyou\TagList;';
-        $parseStr .= ' $_result_tmp = $tagList->getList($param, '.$pagesize.', "'.$orderby.'", '.$addfields.', "'.$orderWay.'");';
+        $parseStr .= ' $_result_tmp = $tagList->getList($param, '.$pagesize.', "'.$orderby.'", '.$addfields.', "'.$orderWay.'", "'.$thumb.'");';
 
         $parseStr .= 'if(is_array($_result_tmp) || $_result_tmp instanceof \think\Collection || $_result_tmp instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         $parseStr .= ' $__LIST__ = $_result = $_result_tmp["list"];';
@@ -1452,6 +1454,7 @@ class Eyou extends Taglib
 
             $parseStr .= '<?php if(!empty($_result) || (($_result instanceof \think\Collection || $_result instanceof \think\Paginator ) && $_result->isEmpty())): ?>';
             $parseStr .= '<?php $'.$id.' = $_result; ?>';
+            $parseStr .= '<?php $' . $id . '["title"] = text_msubstr($' . $id . '["title"], 0, '.$titlelen.', false); ?>';
             $parseStr .= $content;
             $parseStr .= '<?php endif; ?>';
         }
@@ -1943,6 +1946,12 @@ class Eyou extends Taglib
         $parseStr .= '$mod = ($e % ' . $mod . ' );';
         $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= $content;
+
+        /*用于下载模型的ajax下载文件*/
+        $parseStr .= '<?php echo isset($'.$id.'["ey_1563185380"])?$'.$id.'["ey_1563185380"]:""; ?>';
+        $parseStr .= '<?php echo (1 == $e && isset($'.$id.'["ey_1563185376"]))?$'.$id.'["ey_1563185376"]:""; ?>';
+        /*end*/
+        
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
@@ -2969,11 +2978,14 @@ class Eyou extends Taglib
         $alltxt = isset($tag['alltxt']) ? $tag['alltxt'] : '';
         $alltxt = $this->varOrvalue($alltxt);
 
+        // 指定栏目ID，若有数据则优先展示指定栏目内容
+        $typeid = isset($tag['typeid']) ? $tag['typeid'] : '';
+
         $parseStr = '<?php ';
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagScreening = new \think\template\taglib\eyou\TagScreening;';
-        $parseStr .= ' $_result = $tagScreening->getScreening("'.$currentstyle.'", '.$addfields.', '.$addfieldids.', '.$alltxt.');';
+        $parseStr .= ' $_result = $tagScreening->getScreening("'.$currentstyle.'", '.$addfields.', '.$addfieldids.', '.$alltxt.', "'.$typeid.'");';
         $parseStr .= '?>';
 
         $parseStr .= '<?php if(!empty($_result["list"]) || (($_result["list"] instanceof \think\Collection || $_result["list"] instanceof \think\Paginator ) && $_result["list"]->isEmpty())): ?>';

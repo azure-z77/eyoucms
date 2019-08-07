@@ -184,7 +184,7 @@ class Tools extends Base {
             }
 
         } else {//出错
-            return json(array('info'=>'参数有误', 'status'=>0, 'url'=>''));
+            return json(array('info'=>'参数有误', 'tab'=>['speed'=>-1], 'status'=>0, 'url'=>''));
         }
     }
         

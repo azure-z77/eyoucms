@@ -4417,6 +4417,103 @@ li.ey-login a.navlog{padding-left: 15px;}
 .navbar-nav{ margin: 0rem -.9375rem; }
 }
 
+/*------条件筛选样式--20190617---*/
+.filter-box{
+	padding: 15px;
+	background: #fff;
+	margin-bottom: 20px;
+	overflow:hidden;
+}
+.filter-box a{
+	display: inline-block;
+	margin-right: 16px;
+	line-height: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.filter-box .filter-tit{
+	float:left; 
+	color: #888;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.filter-box .filter-cen{
+	float:left;
+}
+.filter-box a.active{
+	color:#ff6600;
+}
+.filter-box .filter-cen a:hover{
+	color:#ff6600;
+	font-weight: bold;
+}
+.filter-box .filter-boxs{
+	margin-bottom: 6px;
+	overflow:hidden;
+}
+.filter-box .filter-bt{
+	width: 100%;
+	overflow: hidden;
+}
+.filter-box .filter-bt{
+	text-align: center;
+	width: 100px;
+	height: 26px;
+    margin: 0 auto;
+}
+.filter-box .filter-bt a{
+	color: #888;
+}
+.filter-box .filter-bt input{
+	margin-left: 50%;
+	background-color:#f6f6f6;
+	border: 1px solid #ddd;
+}
+ @media (max-width:767px) {
+  
+	.filter-box{
+	 border-top:10px solid #f2f2f2;
+   } 
+	.filter-box .filter-tit{
+	width: 22%;
+   }
+  .filter-box .filter-cen{
+	width: 78%;
+   }
+}
+ @media (min-width:768px) {
+   .filter-box .filter-tit{
+	width: 7%;
+   }
+  .filter-box .filter-cen{
+	width: 93%;
+   }
+}
 
+@media (min-width: 768px) and (max-width: 991px) {
+  .filter-box .filter-tit{
+	width: 11%;
+   }
+  .filter-box .filter-cen{
+	width: 89%;
+   }
+}
+ @media (min-width:1024px) and (max-width:1366px){
+   .filter-box .filter-tit{
+	width: 8%;
+   }
+  .filter-box .filter-cen{
+	width: 92%;
+   }
+}
 
+.filter-box .filter-select{
+	margin-bottom: 4px;
+	overflow:hidden;
+}
+
+.filter-box .filter-select select{
+	border: 1px solid #ccc;
+	color: #333;
+}
 

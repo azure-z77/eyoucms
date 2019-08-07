@@ -28,6 +28,7 @@ class Article extends Base
         parent::_initialize();
         $channeltype_list = config('global.channeltype_list');
         $this->channeltype = $channeltype_list[$this->nid];
+        empty($this->channeltype) && $this->channeltype = 1;
         $this->assign('nid', $this->nid);
         $this->assign('channeltype', $this->channeltype);
     }
@@ -147,15 +148,11 @@ class Article extends Base
         $tab = input('param.tab/d', 3);
         $assign_data['tab'] = $tab;
         /*--end*/
+        
+        /*前台URL模式*/
+        $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo');
 
         $this->assign($assign_data);
-        
-        /* 生成静态页面代码 */
-        $aid = input('param.aid/d',0);
-        $this->assign('aid',$aid);
-        $tid = input('param.tid/d',0);
-        $this->assign('typeid',$tid);
-        /* end */
         
         return $this->fetch();
     }

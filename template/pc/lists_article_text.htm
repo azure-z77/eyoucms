@@ -56,6 +56,37 @@
   </section> 
   <section class="ey-news animsition"> 
    <div class="container"> 
+
+    <!--筛选组件start--> 
+    {eyou:screening id='field' currentstyle='active' alltxt='不限' }
+    <div class="row">
+        <div class="filter-box">
+            <!-- 筛选项栏目循环 -->
+            {eyou:volist name='$field.list' id='vo'}
+              <div class="filter-boxs">
+                <!-- 筛选项标题 -->
+                <div class="filter-tit">
+                 {$vo.title} ： 
+                </div>
+                <!-- 筛选的可选值循环 -->
+                 <div class="filter-cen">
+                {eyou:volist name='$vo.dfvalue' id='val'}
+                    <a {$val.onClick} class="{$val.currentstyle}">{$val.name}</a>&nbsp;
+                {/eyou:volist}
+                </div>
+                <!-- 筛选的可选值循环结束 -->
+              </div>
+            {/eyou:volist}
+            <!-- 筛选项栏目循环结束 -->
+            <!-- 清除所有筛选条件按钮 -->
+            <div class="filter-bt"><a href="{$field.resetUrl}">清除筛选条件</a></div>
+        </div>
+        <!-- 隐藏域 -->
+        {$field.hidden}
+    </div>
+    {/eyou:screening}
+    <!--筛选组件end--> 
+
     <div class="row"> 
      <div class="col-md-9 ey-news-body"> 
       <div class="row"> 

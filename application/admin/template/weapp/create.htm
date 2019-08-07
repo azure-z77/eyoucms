@@ -102,7 +102,7 @@
      * @param str
      */
     function checkVersion(str){
-        var reg = /^v([0-9]+)\.([0-9]+)\.([0-9]+)$/i;
+        var reg = /^v\d+\.\d+\.\d+([0-9\.]*)$/i;
         if(reg.test(str)){
             return true;
         }else{

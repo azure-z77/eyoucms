@@ -30,6 +30,9 @@ class Field extends Base
         $this->language_access(); // 多语言功能操作权限
         $this->fieldLogic = new FieldLogic();
         $this->arctype_channel_id = config('global.arctype_channel_id');
+
+        $userConfig = getUsersConfigData('users');
+        $this->assign('userConfig',$userConfig);
     }
 
     /**
@@ -153,14 +156,16 @@ class Field extends Base
             if (empty($post['dtype']) || empty($post['title']) || empty($post['name'])) {
                 $this->error("缺少必填信息！");
             }
+
             if (1 == preg_match('/^([_]+|[0-9]+)$/', $post['name'])) {
                 $this->error("字段名称格式不正确！");
             } else if (preg_match('/^type/', $post['name'])) {
                 $this->error("模型字段名称不允许以type开头！");
             }
 
-            /*去除中文逗号，过滤左右空格与空值*/
+            /*去除中文逗号，过滤左右空格与空值、以及单双引号*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue = func_preg_replace(['"','\''], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -377,6 +382,7 @@ class Field extends Base
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue = func_preg_replace(['"','\''], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -777,6 +783,7 @@ class Field extends Base
 
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue = func_preg_replace(['"','\''], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -885,6 +892,7 @@ class Field extends Base
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue = func_preg_replace(['"','\''], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);

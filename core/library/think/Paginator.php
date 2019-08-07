@@ -136,24 +136,6 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
                 }
             }
             /*--end*/
-        } else {
-            static $is_mobile = null;
-            null === $is_mobile && $is_mobile = isMobile();
-            static $upcache = null;
-            null === $upcache && $upcache = input('param.upcache/d', 0);
-            // 生成静态模式下的手机端URL模式 by 小虎哥
-            if (2 == $seo_pseudo && ($is_mobile || !empty($upcache))) { 
-                if (!isset($this->options['query'][$url_screen_var])) {
-                    static $is_fix_pathinfo = null;
-                    null === $is_fix_pathinfo && $is_fix_pathinfo = check_fix_pathinfo();
-                    if (true === $is_fix_pathinfo) {
-                        if (!stristr($url, '.html')) {
-                            $url .= '/';
-                        }
-                    }
-                }
-                /*--end*/
-            } 
         }
         /*------------------------end*/
 

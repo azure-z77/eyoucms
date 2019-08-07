@@ -103,19 +103,76 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                  <label>上传附件</label>
+                  <label>下载限制</label>
                 </dt>
                 <dd class="opt">
-                    <div id="uploader" class="wu-example">
-                        <!--用来存放文件信息-->
-                        <div id="thelist" class="uploader-list"></div>
-                        <div class="btns left">
-                            <div id="picker">选择文件</div>
-                            <input type="button" id="ctlBtn" class="btn btn-default" value="开始上传" />
+                    <select name="arc_level_id" id="arc_level_id">
+                        <option value="0">不限会员</option>
+                        {volist name="users_level" id="vo"}
+                            <option value="{$vo.level_id}">{$vo.level_name}</option>
+                        {/volist}
+                    </select>
+                </dd>
+            </dl>
+
+            <dl class="row">
+                <dt class="tit">
+                  <label>上传文件</label>
+                </dt>
+                <dd class="opt">
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn layui-btn-normal" id="buttonList">选择多文件</button>
+                        <label><input type="checkbox" value="1" onclick="ClickRemoteFile(this);">远程地址</label>
+
+                        <a href="javascript:void(0);" data-url="{:url('Download/template_set')}" onclick="TemplateSet(this);" style="display: none;" id='TemplateSet'>[参数设置]</a>
+
+                        <div class="layui-upload-list">
+                            <table class="layui-table">
+                                <thead>
+                                    <tr>
+                                        <th>文件名</th>
+                                        <th>大小</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="demoList"></tbody>
+                            </table>
                         </div>
+
+                        <div style="display: none;" id='ClickRemoteFile'>
+                            <div id='Template'>
+                                <div class="template_div">
+                                    远程地址1：<input type="text" name="remote_file[]" value="" placeholder="http://" style="width: 50%;">
+                                    {volist name="attr_field" id="vo"}
+                                        <span class="ey_{$vo.field_name}">
+                                            <span class="title_{$vo.field_name}">{$vo.field_title}</span>：<input type="text" name="{$vo.field_name}[]" style="width: 7%;">
+                                        </span>
+                                    {/volist}
+                                </div>
+                                <div class="template_div">
+                                    远程地址2：<input type="text" name="remote_file[]" value="" placeholder="http://" style="width: 50%;">
+                                    {volist name="attr_field" id="vo"}
+                                        <span class="ey_{$vo.field_name}">
+                                            <span class="title_{$vo.field_name}">{$vo.field_title}</span>：<input type="text" name="{$vo.field_name}[]" style="width: 7%;">
+                                        </span>
+                                    {/volist}
+                                </div>
+                                <div class="template_div">
+                                    远程地址3：<input type="text" name="remote_file[]" value="" placeholder="http://" style="width: 50%;">
+                                    {volist name="attr_field" id="vo"}
+                                        <span class="ey_{$vo.field_name}">
+                                            <span class="title_{$vo.field_name}">{$vo.field_title}</span>：<input type="text" name="{$vo.field_name}[]" style="width: 7%;">
+                                        </span>
+                                    {/volist}
+                                </div>
+                            </div>
+                            <a onclick="GetTemplateAddr(2);">
+                                更多远程地址
+                            </a>
+                        </div>
+                        <button style="display:none;" type="button" class="layui-btn" id="buttonListAction">批量重传</button>
                     </div>
-                    <span class="err"></span>
-                    <p class="notic">只允许上传文件的类型：{$global.file_type|default=''}</p>
                 </dd>
             </dl>
             {include file="field/addonextitem" /}
@@ -244,15 +301,203 @@
                 <input type="hidden" name="gourl" value="{$gourl}">
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
-        </div> 
+        </div>
     </form>
 </div>
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft','nowfilename'=>-1))}";
+    var server_url   = "{:url('Ueditor/DownloadUploadFile',array('savepath'=>'soft'))}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script>
+
+<script type="text/javascript">
+    // 远程/本地上传文件切换
+    function ClickRemoteFile(obj)
+    {   
+        if ($(obj).is(':checked')) {
+            $('#ClickRemoteFile').show();
+            $('#TemplateSet').show();
+        } else {
+            $('#ClickRemoteFile').hide();
+            $('#TemplateSet').hide();
+        }
+    }
+
+    // 远程地址参数设置
+    function TemplateSet(th){
+        var url = $(th).attr('data-url');
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: '参数设置',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['40%', '60%'],
+            content: url
+        });
+    }
+
+    // 获取模板属性数据
+    function GetTemplateAddr(num = 1){
+        $.ajax({
+            url: "{:url('Download/get_template')}",
+            data: {num:num},
+            type:'post',
+            dataType:'json',
+            success: function(res){
+                // 拼装模板属性并追加
+                AddTemplateAddr(num,res.data);
+            },
+        });
+    }
+
+    // 删除对应的文件及文件信息
+    function DeleteFile(obj){
+        $(obj).parent().parent().remove();
+    }
+
+    // 拼装模板属性并追加
+    function AddTemplateAddr(num = 1,data = ''){
+        // 获取指定div数量
+        var SerialNum = $('#Template div').length;
+        // 初始化数组
+        var html_div = [];
+        // 拼装html
+        if (num > 1) {
+            for (var i = 0; i < num; i++) {                            
+                SerialNum++;
+                html_div += 
+                [
+                    '<div class="template_div">'+
+                        '远程地址'+SerialNum+'：<input type="text" name="remote_file[]" value="" placeholder="http://" style="width: 50%;"> '
+                ];
+
+                if (data) {
+                    for (var j = 0; j < data.length; j++) {
+                        html_div += 
+                        [
+                            '<span class="ey_'+data[j]['field_name']+'"> '+
+                                '<span class="title_'+data[j]['field_name']+'"> '+data[j]['field_title']+'</span>：<input type="text" name="'+data[j]['field_name']+'[]" style="width: 7%;">'+
+                            '</span>'
+                        ];
+                    }
+                }
+                
+                html_div += 
+                [
+                    '</div>'
+                ];
+            }
+        }else{
+            SerialNum++;
+            html_div += 
+            [
+                '<div class="template_div">'+
+                    '远程地址'+SerialNum+'：<input type="text" name="remote_file[]" value="" placeholder="http://" style="width: 50%;">'
+            ];
+            
+            if (data) {
+                for (var j = 0; j < data.length; j++) {
+                    html_div += 
+                    [
+                        '<span class="ey_'+data[j]['field_name']+'">'+
+                            '<span class="title_'+data[j]['field_name']+'"> '+data[j]['field_title']+'</span>：<input type="text" name="'+data[j]['field_name']+'[]" style="width: 7%;">'+
+                        '</span>'
+                    ];
+                }
+            }
+
+            html_div += 
+            [
+                '</div>'
+            ];
+        }
+
+        // 追加html
+        $('#Template').append(html_div);
+    }
+
+    // 文件上传JS
+    layui.use('upload', function(){
+        var $ = layui.jquery,upload = layui.upload;
+        // 多文件列表示例
+        var demoListView = $('#demoList'),uploadListIns = upload.render({
+            elem: '#buttonList',
+            url: server_url,
+            accept: 'file',
+            multiple: true,
+            auto: true,
+            bindAction: '#buttonListAction',
+            choose: function(obj){
+                // 将每次选择的文件追加到文件队列
+                var files = this.files = obj.pushFile();
+
+                // 读取本地文件
+                obj.preview(function(index, file, result){
+                    var tr = $(
+                    [
+                        '<tr id="upload-'+ index +'">',
+                            '<td>'+ file.name +'</td>',
+                            '<td>'+ (file.size/1014).toFixed(1) +' KB</td>',
+                            '<td>等待上传</td>',
+                            '<td>',
+                                // '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>',
+                                '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">移除</button>',
+                            '</td>',
+                        '</tr>'
+                    ].join(''));
+                
+                    // 单个重传
+                    tr.find('.demo-reload').on('click', function(){
+                        obj.upload(index, file);
+                    });
+                    
+                    // 删除
+                    tr.find('.demo-delete').on('click', function(){
+                        // 删除对应的文件
+                        delete files[index];
+                        tr.remove();
+                        // 清空 input file 值，以免删除后出现同名文件不可选
+                        uploadListIns.config.elem.next()[0].value = '';
+                    });
+                    demoListView.append(tr);
+                });
+            },
+            done: function(res, index, upload){
+                if(res.code == 0){
+                    // 上传成功
+                    var html = '';
+                    html += '<input type="hidden" name="fileupload[file_url][]" value="'+res.file_url+'">';
+                    html += '<input type="hidden" name="fileupload[file_mime][]" value="'+res.file_mime+'">';
+                    html += '<input type="hidden" name="fileupload[file_name][]" value="'+res.file_name+'">';
+                    html += '<input type="hidden" name="fileupload[file_ext][]" value="'+res.file_ext+'">';
+                    html += '<input type="hidden" name="fileupload[file_size][]" value="'+res.file_size+'">';
+                    html += '<input type="hidden" name="fileupload[uhash][]" value="'+res.uhash+'">';
+                    html += '<input type="hidden" name="fileupload[md5file][]" value="'+res.md5file+'">';
+
+                    var tr = demoListView.find('tr#upload-'+ index),
+                    tds = tr.children();
+                    tds.eq(0).html(res.file_name);
+                    tds.eq(2).html('<span style="color: #5FB878;">'+res.msg+'</span>');
+                    tds.eq(3).html('<span class="layui-btn layui-btn-xs layui-btn-danger" onclick="DeleteFile(this);">移除</span>'+html);
+
+                    // 清空操作
+                    return delete this.files[index];// 删除文件队列已经上传成功的文件
+                }
+                this.error(res, index, upload);
+            },
+            error: function(res, index, upload){
+                var tr = demoListView.find('tr#upload-'+ index),
+                tds = tr.children();
+                tds.eq(2).html('<span style="color: #FF5722;">'+res.msg+'</span>');
+            }
+        });
+    });
+</script>
+
 <script type="text/javascript">
     $(function () {
         $('#add_time').layDate();   

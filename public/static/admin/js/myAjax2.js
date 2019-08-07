@@ -101,11 +101,45 @@ function changeTableVal(table,id_name,id_value,field,obj)
         dataType: 'json',
         success: function(res){
             if (res.code == 1) {
-                if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
-                    layer.msg(res.msg, {icon: 1});
-                }
-                if (1 == res.data.refresh) {
-                    window.location.reload();
+                var seo_pseudo = $(obj).attr('data-seo_pseudo');
+                if(table == 'archives' && 2 == seo_pseudo){
+                    /*生成静态页面代码*/
+                    layer_loading('生成页面');
+                    var typeid = $(obj).attr('data-typeid');
+                    $.ajax({
+                        url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                        type:'POST',
+                        dataType:'json',
+                        data:{aid:id_value,typeid:typeid,type:'view',ctl_name:'Archives',_ajax:1},
+                        success:function(res1){
+                            $.ajax({
+                                url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                                type:'POST',
+                                dataType:'json',
+                                data:{aid:id_value,typeid:typeid,type:'lists',ctl_name:'Archives',_ajax:1},
+                                success:function(res2){
+                                    layer.closeAll();
+                                    layer.msg('生成完成', {icon: 1, time: 1500});
+                                },
+                                error: function(e){
+                                    layer.closeAll();
+                                    layer.alert('生成当前栏目HTML失败，请手工生成栏目静态！', {icon: 5, title: false});
+                                }
+                            });
+                        },
+                        error: function(e){
+                            layer.closeAll();
+                            layer.alert('生成HTML失败，请手工生成静态HTML！', {icon: 5, title: false});
+                        }
+                    });
+                    /*end*/
+                } else {
+                    if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
+                        layer.msg(res.msg, {icon: 1});
+                    }
+                    if (1 == res.data.refresh) {
+                        window.location.reload();
+                    }
                 }
             } else {
                 layer.msg(res.msg, {icon: 2}, function(){

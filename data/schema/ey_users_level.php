@@ -50,7 +50,16 @@ return array (
     'name' => 'discount',
     'type' => 'int(10)',
     'notnull' => false,
-    'default' => '0',
+    'default' => '100',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'posts_count' => 
+  array (
+    'name' => 'posts_count',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '5',
     'primary' => false,
     'autoinc' => false,
   ),

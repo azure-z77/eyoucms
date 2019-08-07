@@ -292,7 +292,7 @@ class Field extends Model
      */
     public function dealChannelPostData($channel_id, $data = array(), $dataExt = array())
     {
-        if (!empty($dataExt) && !empty($channel_id)) {
+        if (!empty($channel_id)) {
 
             $nowDataExt = array();
             $fieldTypeList = model('Channelfield')->getListByWhere(array('channel_id'=>$channel_id), 'name,dtype', 'name');
@@ -384,14 +384,14 @@ class Field extends Model
                 'add_time'   => getTime(),
                 'update_time'   => getTime(),
             );
-            $nowDataExt = array_merge($nowDataExt, $nowData);
+            !empty($nowDataExt) && $nowData = array_merge($nowDataExt, $nowData);
             $tableExt = M('channeltype')->where('id', $channel_id)->getField('table');
             $tableExt .= '_content';
             $count = M($tableExt)->where('aid', $data['aid'])->count();
             if (empty($count)) {
-                M($tableExt)->insert($nowDataExt);
+                M($tableExt)->insert($nowData);
             } else {
-                M($tableExt)->where('aid', $data['aid'])->save($nowDataExt);
+                M($tableExt)->where('aid', $data['aid'])->save($nowData);
             }
         }
     }

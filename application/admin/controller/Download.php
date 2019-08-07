@@ -27,6 +27,7 @@ class Download extends Base
         parent::_initialize();
         $channeltype_list = config('global.channeltype_list');
         $this->channeltype = $channeltype_list[$this->nid];
+        empty($this->channeltype) && $this->channeltype = 4;
         $this->assign('nid', $this->nid);
         $this->assign('channeltype', $this->channeltype);
     }
@@ -135,13 +136,6 @@ class Download extends Base
         /*--end*/
 
         $this->assign($assign_data);
-        
-        /* 生成静态页面代码 */
-        $aid = input('param.aid/d',0);
-        $this->assign('aid',$aid);
-        $tid = input('param.tid/d',0);
-        $this->assign('typeid',$tid);
-        /* end */
         
         return $this->fetch();
     }
@@ -289,6 +283,15 @@ class Download extends Base
         $this->assign('tempview', $tempview);
         /*--end*/
 
+        /*会员等级信息*/
+        $assign_data['users_level'] = DB::name('users_level')->field('level_id,level_name')->where('lang',$this->admin_lang)->select();
+        /*--end*/
+
+        /*下载模型自定义属性字段*/
+        $attr_field = Db::name('download_attr_field')->where('field_use',1)->select();
+        $assign_data['attr_field'] = $attr_field;
+        /*--end*/
+        
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -438,6 +441,16 @@ class Download extends Base
         $downfile_list = model('DownloadFile')->getDownFile($id);
         $assign_data['downfile_list'] = $downfile_list;
 
+        // 下载文件中是否存在远程链接
+        $is_remote_file = 0;
+        foreach ($downfile_list as $key => $value) {
+            if (1 == $value['is_remote']) {
+                $is_remote_file = 1;
+                break;
+            }
+        }
+        $assign_data['is_remote_file'] = $is_remote_file;
+
         /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/
         $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
@@ -475,6 +488,15 @@ class Download extends Base
         $this->assign('tempview', $tempview);
         /*--end*/
 
+        /*会员等级信息*/
+        $assign_data['users_level'] = DB::name('users_level')->field('level_id,level_name')->where('lang',$this->admin_lang)->select();
+        /*--end*/
+
+        /*下载模型自定义属性字段*/
+        $attr_field = Db::name('download_attr_field')->where('field_use',1)->select();
+        $assign_data['attr_field'] = $attr_field;
+        /*--end*/
+
         $this->assign($assign_data);
         return $this->fetch();
     }
@@ -487,6 +509,42 @@ class Download extends Base
         if (IS_POST) {
             $archivesLogic = new \app\admin\logic\ArchivesLogic;
             $archivesLogic->del();
+        }
+    }
+
+    public function template_set()
+    {
+
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+
+            // 修改是否使用
+            if (!empty($post) && isset($post['field_use'])) {
+                $data['field_use']   = $post['field_use'];
+                $data['update_time'] = getTime();
+                Db::name('download_attr_field')->where('field_id',$post['field_id'])->update($data);
+                $this->success("更新成功！");
+            }
+            // 修改标题
+            if (!empty($post) && isset($post['field_title'])) {
+                $data['field_title'] = $post['field_title'];
+                $data['update_time'] = getTime();
+                Db::name('download_attr_field')->where('field_id',$post['field_id'])->update($data);
+                $this->success("更新成功！");
+            }
+        }
+
+        $list = Db::name('download_attr_field')->select();
+        $assign_data['list'] = $list;
+        $this->assign($assign_data);
+        return $this->fetch();
+    }
+
+    public function get_template()
+    {
+        if (IS_AJAX_POST) {
+            $list = Db::name('download_attr_field')->where('field_use',1)->select();
+            $this->success("查询成功！", null, $list);
         }
     }
 }

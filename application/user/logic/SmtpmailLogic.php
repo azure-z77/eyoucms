@@ -30,8 +30,8 @@ class SmtpmailLogic extends Model
     /**
      * 初始化操作
      */
-    public function _initialize() {
-        parent::_initialize();
+    public function initialize() {
+        parent::initialize();
         $this->home_lang = get_home_lang();
     }
 

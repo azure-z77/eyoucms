@@ -36,6 +36,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'extract_code' => 
+  array (
+    'name' => 'extract_code',
+    'type' => 'varchar(20)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'file_size' => 
   array (
     'name' => 'file_size',
@@ -87,6 +96,15 @@ return array (
     'type' => 'varchar(200)',
     'notnull' => false,
     'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'is_remote' => 
+  array (
+    'name' => 'is_remote',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),

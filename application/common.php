@@ -637,6 +637,11 @@ if ( ! function_exists('get_arcrank_list'))
             ->cache(true,0,"arcrank")
             ->getAllWithIndex('rank');
 
+        // 等级分类
+        $LevelData = \think\Db::name('users_level')->field('level_name as `name`, level_value as `rank`')->order('level_value asc, level_id asc')->select();
+        if (!empty($LevelData)) {
+            $result = array_merge($result, $LevelData);
+        }
         return $result;
     }
 }
@@ -1671,6 +1676,8 @@ if (!function_exists('download_file'))
      */
     function download_file($down_path = '', $file_mime = '')
     {
+        $down_path = iconv("utf-8","gb2312//IGNORE",$down_path);
+        
         /*支持子目录*/
         $down_path = handle_subdir_pic($down_path, 'soft');
         /*--end*/
@@ -2251,10 +2258,11 @@ if (!function_exists('getAllAttrInfo'))
         return $info;
     }
 }
+
 if (!function_exists('getOrderBy'))
 {
     //根据tags-list规则，获取查询排序
-    function getOrderBy($orderby,$orderWay){
+    function getOrderBy($orderby,$orderWay,$isrand=false){
         switch ($orderby) {
             case 'hot':
             case 'click':
@@ -2279,7 +2287,11 @@ if (!function_exists('getOrderBy'))
                 break;
 
             case 'rand':
-                $orderby = "a.aid {$orderWay}";  //"rand()";
+                if (true === $isrand) {
+                    $orderby = "rand()";
+                } else {
+                    $orderby = "a.aid {$orderWay}";
+                }
                 break;
 
             default:
@@ -2304,6 +2316,7 @@ if (!function_exists('getOrderBy'))
         return $orderby;
     }
 }
+
 if (!function_exists('getLocationPages'))
 {
     /*
@@ -2326,5 +2339,150 @@ if (!function_exists('getLocationPages'))
             }
         }
         return false;
+    }
+}
+
+if (!function_exists('home_allow_release_arctype')) 
+{
+    /**
+     * 允许发布文档的栏目列表
+     */
+    function home_allow_release_arctype($selected = 0, $allow_release_channel = array(), $selectform = true)
+    {
+        $where = [];
+
+        $where['c.lang']   = get_current_lang(); // 多语言 by 小虎哥
+        $where['c.is_del'] = 0; // 回收站功能
+        // $where['c.is_hidden'] = 0; // 显示的栏目
+
+        if (!is_array($selected)) {
+            $selected = [$selected];
+        }
+
+        $cacheKey = json_encode($selected).json_encode($allow_release_channel).$selectform.json_encode($where);
+        $select_html = cache($cacheKey);
+        if (empty($select_html) || false == $selectform) {
+            /*允许发布文档的模型*/
+            $allow_release_channel = !empty($allow_release_channel) ? $allow_release_channel : config('global.allow_release_channel');
+
+            /*所有栏目分类*/
+            $arctype_max_level = intval(config('global.arctype_max_level'));
+            $where['c.status'] = 1;
+            $fields = "c.id, c.parent_id, c.current_channel, c.typename, c.grade, count(s.id) as has_children, '' as children";
+            $res = db('arctype')
+                ->field($fields)
+                ->alias('c')
+                ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
+                ->where($where)
+                ->group('c.id')
+                ->order('c.parent_id asc, c.sort_order asc, c.id')
+                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
+                ->select();
+            /*--end*/
+            if (empty($res)) {
+                return '';
+            }
+
+            /*过滤掉第三级栏目属于不允许发布的模型下*/
+            foreach ($res as $key => $val) {
+                if ($val['grade'] == ($arctype_max_level - 1) && !in_array($val['current_channel'], $allow_release_channel)) {
+                    unset($res[$key]);
+                }
+            }
+            /*--end*/
+
+            /*所有栏目列表进行层次归类*/
+            $arr = group_same_key($res, 'parent_id');
+            for ($i=0; $i < $arctype_max_level; $i++) {
+                foreach ($arr as $key => $val) {
+                    foreach ($arr[$key] as $key2 => $val2) {
+                        if (!isset($arr[$val2['id']])) {
+                            $arr[$key][$key2]['has_children'] = 0;
+                            continue;
+                        }
+                        $val2['children'] = $arr[$val2['id']];
+                        $arr[$key][$key2] = $val2;
+                    }
+                }
+            }
+            /*--end*/
+
+            /*过滤掉第二级不包含允许发布模型的栏目*/
+            $nowArr = $arr[0];
+            foreach ($nowArr as $key => $val) {
+                if (!empty($nowArr[$key]['children'])) {
+                    foreach ($nowArr[$key]['children'] as $key2 => $val2) {
+                        if (empty($val2['children']) && !in_array($val2['current_channel'], $allow_release_channel)) {
+                            unset($nowArr[$key]['children'][$key2]);
+                        }
+                    }
+                }
+                if (empty($nowArr[$key]['children']) && !in_array($nowArr[$key]['current_channel'], $allow_release_channel)) {
+                    unset($nowArr[$key]);
+                    continue;
+                }
+            }
+            /*--end*/
+
+            /*组装成层级下拉列表框*/
+            $select_html = '';
+            if (false == $selectform) {
+                $select_html = $nowArr;
+            } else if (true == $selectform) {
+                foreach ($nowArr AS $key => $val)
+                {
+                    $select_html .= '<option value="' . $val['id'] . '" data-grade="' . $val['grade'] . '" data-current_channel="' . $val['current_channel'] . '"';
+                    $select_html .= (in_array($val['id'], $selected)) ? ' selected="ture"' : '';
+                    if (!empty($allow_release_channel) && !in_array($val['current_channel'], $allow_release_channel)) {
+                        $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                    }
+                    $select_html .= '>';
+                    if ($val['grade'] > 0)
+                    {
+                        $select_html .= str_repeat('&nbsp;', $val['grade'] * 4);
+                    }
+                    $select_html .= htmlspecialchars(addslashes($val['typename'])) . '</option>';
+
+                    if (empty($val['children'])) {
+                        continue;
+                    }
+                    foreach ($nowArr[$key]['children'] as $key2 => $val2) {
+                        $select_html .= '<option value="' . $val2['id'] . '" data-grade="' . $val2['grade'] . '" data-current_channel="' . $val2['current_channel'] . '"';
+                        $select_html .= (in_array($val2['id'], $selected)) ? ' selected="ture"' : '';
+                        if (!empty($allow_release_channel) && !in_array($val2['current_channel'], $allow_release_channel)) {
+                            $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                        }
+                        $select_html .= '>';
+                        if ($val2['grade'] > 0)
+                        {
+                            $select_html .= str_repeat('&nbsp;', $val2['grade'] * 4);
+                        }
+                        $select_html .= htmlspecialchars(addslashes($val2['typename'])) . '</option>';
+
+                        if (empty($val2['children'])) {
+                            continue;
+                        }
+                        foreach ($nowArr[$key]['children'][$key2]['children'] as $key3 => $val3) {
+                            $select_html .= '<option value="' . $val3['id'] . '" data-grade="' . $val3['grade'] . '" data-current_channel="' . $val3['current_channel'] . '"';
+                            $select_html .= (in_array($val3['id'], $selected)) ? ' selected="ture"' : '';
+                            if (!empty($allow_release_channel) && !in_array($val3['current_channel'], $allow_release_channel)) {
+                                $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
+                            }
+                            $select_html .= '>';
+                            if ($val3['grade'] > 0)
+                            {
+                                $select_html .= str_repeat('&nbsp;', $val3['grade'] * 4);
+                            }
+                            $select_html .= htmlspecialchars(addslashes($val3['typename'])) . '</option>';
+                        }
+                    }
+                }
+
+                cache($cacheKey, $select_html, null, 'admin_archives_release');
+                
+            }
+        }
+
+        return $select_html;
     }
 }

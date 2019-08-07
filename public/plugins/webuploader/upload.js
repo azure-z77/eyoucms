@@ -904,7 +904,7 @@ $(function() {
 
 			$file.find('div.file-panel').css('display', 'none');
 
-			var data = {url : file.url, name : file.name, mtime : file.mtime};
+			var data = {url : file.url, name : file.name, mtime : file.mtime, action : 'del'};
 
 			data = $.extend(data, this.opts.formData);
 
@@ -913,6 +913,8 @@ $(function() {
 				url : this.opts.delPath,
 
 				data : data,
+
+				type : 'POST',
 
 				success : function(data){
 

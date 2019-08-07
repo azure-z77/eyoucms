@@ -486,12 +486,12 @@ class System extends Base
                 
                 $r = Db::name('smtp_tpl')->where([
                         'tpl_id'    => $post['tpl_id'],
-                        'lang'      => $this->home_lang,
+                        'lang'      => $this->admin_lang,
                     ])->update($saveData);
                 if ($r) {
                     $tpl_name = Db::name('smtp_tpl')->where([
                             'tpl_id'    => $post['tpl_id'],
-                            'lang'      => $this->home_lang,
+                            'lang'      => $this->admin_lang,
                         ])->getField('tpl_name');
                     adminLog('编辑邮件模板：'.$tpl_name); // 写入操作日志
                     $this->success("操作成功", url('System/smtp_tpl'));
@@ -503,7 +503,7 @@ class System extends Base
         $id = input('id/d', 0);
         $row = Db::name('smtp_tpl')->where([
                 'tpl_id'    => $id,
-                'lang'      => $this->home_lang,
+                'lang'      => $this->admin_lang,
             ])->find();
         if (empty($row)) {
             $this->error('数据不存在，请联系管理员！');

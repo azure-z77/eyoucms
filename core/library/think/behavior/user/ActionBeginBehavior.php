@@ -46,7 +46,8 @@ class ActionBeginBehavior {
     private function checkspview()
     {
         $c = array_join_string(array('U','2h','v','cA','=','='));
-        if ($c == self::$controllerName) {
+        $c1 = array_join_string(array('VX','N','lc','nNS','Z','Wx','l','YX','N','l'));
+        if (in_array(self::$controllerName, [$c,$c1])) {
             $name = array_join_string(array('d','2','V','i','X','2','l','zX','2','F1','d','G','h','v','c','nR','v','a','2','V','u'));
             $inc_type = array_join_string(array('d','2','V','i'));
             $value = tpCache($inc_type.'.'.$name);
@@ -56,7 +57,13 @@ class ActionBeginBehavior {
             if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || -1 != $value) {
 
             } else {
-                $msg = array_join_string(array('6','K','6','i','5','Y','2','V','5','Yq','f6','I','O9','5Y','+','q','6Z','mQ','5L','qO','5','o6','I5','p2','D','5','Z+','f5','Z','CN','7','7','yB'));
+                if ($c == self::$controllerName) {
+                    $msg = array_join_string(array('5Z','WG','5','Z+','O5','Yq','f','6','IO','95','Y','+','q','6','Z','mQ','5L','qO5','o','6','I5','p2','D','5','Z','+f','5','ZC','N','7','7y','B'));
+                } else if ($c1 == self::$controllerName) {
+                    $msg = array_join_string(array('5o','qV','5','6i','/','5Y','q','f6','IO','9','5Y','+','q6','ZmQ','5','Lq','O5','o','6I','5p','2D5','Z','+f','5Z','C','N7','7y','B'));
+                } else {
+                    $msg = array_join_string(array('6K','+l','5','Yq','f6','IO','95','Y+q','6','Zm','Q5L','qO','5o','6I','5p','2D5','Z+','f5','ZC','N7','7','yB'));
+                }
                 $this->error($msg);
             }
         }

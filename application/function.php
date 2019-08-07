@@ -686,8 +686,8 @@ if (!function_exists('getFirstCharter'))
           }
           $fchar=ord($str{0});
           if($fchar>=ord('A')&&$fchar<=ord('z')) return strtoupper($str{0});
-          $s1=iconv('UTF-8','gb2312',$str);
-          $s2=iconv('gb2312','UTF-8',$s1);
+          $s1=@iconv('UTF-8','gb2312',$str);
+          $s2=@iconv('gb2312','UTF-8',$s1);
           $s=$s2==$str?$s1:$str;
           $asc=ord($s{0})*256+ord($s{1})-65536;
          if($asc>=-20319&&$asc<=-20284) return 'A';
@@ -1175,7 +1175,7 @@ if (!function_exists('saveRemote'))
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/",$imgUrl,$m);
 
-        $dirname = './'.UPLOAD_PATH.'remote/'.date('Y/m/d').'/';
+        $dirname = './'.UPLOAD_PATH.'remote/'.date('Ymd').'/';
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr('remote.png','.'));
@@ -1223,7 +1223,7 @@ if (!function_exists('saveRemote'))
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //图片可选择存放在oss
-                $savePath = $savePath.date('Y/m/d/');
+                $savePath = $savePath.date('Ymd/');
                 $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
                 $getRealPath = ltrim($data['url'], '/');
                 $ossClient = new \app\common\logic\OssLogic;
@@ -1977,118 +1977,6 @@ if (!function_exists('uncamelize'))
     }
 }
 
-if (!function_exists('GetDatabaseData')) 
-{
-    /**
-     * 获取数据中指定数据表的图片和文件路径
-     * 思路:
-     * 
-     */
-    function GetDatabaseData($array)
-    {
-        $data  = $hello = array();
-        $i = '0';
-        foreach ($array as $value) {
-            $where  = $value['field']."<>''";
-            $result = M($value['table'])->field($value['field'])->where($where)->select();
-            // 查找多余未使用文件
-            foreach ($result as $vv) {
-                if ('litpic' == $value['field']) {
-                    $path = parse_url($vv['litpic']);
-                    if ($path['host']) {
-                        $data[$i] = ROOT_DIR.$path['path'];
-                    }else{
-                        $data[$i] = $path['path'];
-                    }
-                    $i++;
-                } else if ('image_url' == $value['field']) {
-                    $path = parse_url($vv['image_url']);
-                    if ($path['host']) {
-                        $data[$i] = ROOT_DIR.$path['path'];
-                    }else{
-                        $data[$i] = $path['path'];
-                    }
-                    $i++;
-                } else if ('logo' == $value['field']) {
-                    $path = parse_url($vv['logo']);
-                    if ($path['host']) {
-                        $data[$i] = ROOT_DIR.$path['path'];
-                    }else{
-                        $data[$i] = $path['path'];
-                    }
-                    $i++;
-                } else if ('file_url' == $value['field']) {
-                    $path = parse_url($vv['file_url']);
-                    if ($path['host']) {
-                        $data[$i] = ROOT_DIR.$path['path'];
-                    }else{
-                        $data[$i] = $path['path'];
-                    }
-                    $i++;
-                } else if ('head_pic' == $value['field']) {
-                    $path = parse_url($vv['head_pic']);
-                    if ($path['host']) {
-                        $data[$i] = ROOT_DIR.$path['path'];
-                    }else{
-                        $data[$i] = $path['path'];
-                    }
-                    $i++;
-                } else if ('intro' == $value['field']) {
-                    $str = htmlspecialchars_decode($vv['intro']);
-                    $str = strip_tags($str, '<img>');
-                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
-                    $match = $matches[2];
-                    foreach ($match as $vvv) {
-                        $data[$i] = $vvv;
-                        $i++;
-                    }
-                } else if ('content' == $value['field']) {
-                    $str = htmlspecialchars_decode($vv['content']);
-                    $str = strip_tags($str, '<img>');
-                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
-                    $match = $matches[2];
-                    foreach ($match as $vvv) {
-                        $data[$i] = $vvv;
-                        $i++;
-                    }
-                } else if ('config' == $value['table']) {
-                    $strlen = strlen(ROOT_DIR);
-                    if (substr($vv['value'], $strlen, 7 ) == '/public' || substr($vv['value'], $strlen, 7 ) == '/upload') {
-                        $data[$i] = $vv['value'];
-                        $i++;
-                    }
-                } else if ('ui_config' == $value['table']) {
-                    $values = json_decode($vv['value'],true);
-                    $str = htmlspecialchars_decode($values['info']['value']);
-                    $str = strip_tags($str, '<img>');
-                    preg_match_all('/\<img(.*?)src\=[\'|\"]([\w:\/\.]+)[\'|\"]/i', $str, $matches);
-                    $match = $matches[2];
-                    foreach ($match as $vvv) {
-                        $data[$i] = $vvv;
-                        $i++;
-                    }
-                } else if($value['channel_id']){
-                    if ('imgs' == $value['dtype']) {
-                        $hello = explode(',',$vv[$value['field']]);
-                    } else if ('img' == $value['dtype']) {
-                        $path = parse_url($vv[$value['field']]);
-                        if ($path['host']) {
-                            $data[$i] = ROOT_DIR.$path['path'];
-                        }else{
-                            $data[$i] = $path['path'];
-                        }
-                        $i++;
-                    }
-                }
-            }
-        }
-
-        $data = array_merge($data,$hello);
-        $data = array_unique($data);
-        return $data;
-    }
-}
-
 if (!function_exists('read_bidden_inc')) 
 {
     /**
@@ -2217,5 +2105,44 @@ if (!function_exists('check_fix_pathinfo'))
         }
 
         return $is_fix_pathinfo;
+    }
+}
+
+/**
+ *  生成一个随机字符
+ *
+ * @access    public
+ * @param     string  $ddnum
+ * @return    string
+ */
+if ( ! function_exists('dd2char'))
+{
+    function dd2char($ddnum)
+    {
+        $ddnum = strval($ddnum);
+        $slen = strlen($ddnum);
+        $okdd = '';
+        $nn = '';
+        for($i=0;$i<$slen;$i++)
+        {
+            if(isset($ddnum[$i+1]))
+            {
+                $n = $ddnum[$i].$ddnum[$i+1];
+                if( ($n>96 && $n<123) || ($n>64 && $n<91) )
+                {
+                    $okdd .= chr($n);
+                    $i++;
+                }
+                else
+                {
+                    $okdd .= $ddnum[$i];
+                }
+            }
+            else
+            {
+                $okdd .= $ddnum[$i];
+            }
+        }
+        return $okdd;
     }
 }

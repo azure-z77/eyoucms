@@ -310,9 +310,9 @@ return array(
             'is_on' => 1, // 开关
             'config' => [],
         ],
-        // 表单提交验证码配置
-        'form_submit'   => [
-            'is_on' => 1, // 开关
+        // 留言提交验证码配置
+        'guestbook'   => [
+            'is_on' => 0, // 开关
             'config' => [],
         ],
         // 会员登录验证码配置

@@ -14,9 +14,6 @@
 namespace app\admin\controller;
 
 use common\util\File;
-use think\log;
-use think\Image;
-use think\Request;
 use think\Db;
 
 /**
@@ -130,8 +127,20 @@ class Ueditor extends Base
                 $list = array();
                 isset($_POST[$fieldName]) ? $source = $_POST[$fieldName] : $source = $_GET[$fieldName];
                 
+                /*编辑器七牛云同步*/
+                $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
+                /* END */
+                
                 foreach($source as $imgUrl){
                     $info = json_decode($this->saveRemote($config,$imgUrl),true);
+
+                    /*编辑器七牛云同步*/
+                    if (!empty($data) && 1 == $data['status']) {
+                        // 同步图片到七牛云
+                        $info['url'] = SynchronizeQiniu($info['url']);
+                    }
+                    /* END */
+
                     array_push($list, array(
                         "state" => $info["state"],
                         "url" => $info["url"],
@@ -587,7 +596,7 @@ class Ueditor extends Base
         }
         
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
-            if(true || $this->savePath=='news/'){ // 添加水印
+            if(true && $this->savePath!='adminlogo/'){ // 添加水印
                 $imgresource = ".".$return_url;
                 $image = \think\Image::open($imgresource);
                 $water = tpCache('water');
@@ -1190,5 +1199,72 @@ class Ueditor extends Base
         fclose($rh);
 
         return md5( $part1.$part2 );
+    }
+
+    //上传文件
+    public function DownloadUploadFile(){
+        header('Content-Type: text/html; charset=utf-8');
+        // 获取定义的上传最大参数
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        // 获取上传的文件信息
+        $files = request()->file();
+        // 若获取不到则定义为空
+        $file  = !empty($files['file']) ? $files['file'] : '';
+
+        /*判断上传文件是否存在错误*/
+        if(empty($file)){
+            echo json_encode(['msg' => '文件过大或文件已损坏！']);exit;
+        }
+        $error = $file->getError();
+        if(!empty($error)){
+            echo json_encode(['msg' => $error]);exit;
+        }
+        $result = $this->validate(
+            ['file' => $file], 
+            ['file'=>'fileSize:'.$max_file_size],
+            ['file.fileSize' => '上传文件过大']
+        );
+        if (true !== $result || empty($file)) {
+            echo json_encode(['msg' => $result]);exit;
+        }
+        /*--end*/
+
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $this->savePath = $this->savePath.date('Ymd/');
+        // 定义文件名
+        $fileName    = $file->getInfo('name');
+        // 提取文件名后缀
+        $file_ext    = pathinfo($fileName, PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+        // 过滤后的新文件名
+        $fileName = $newfileName.'.'.$file_ext;
+        // 中文转码
+        $this->fileName = iconv("utf-8","gb2312//IGNORE",$fileName);
+
+        // 使用自定义的文件保存规则
+        $info = $file->rule(function ($file) {
+            return  $this->fileName;
+        })->move(UPLOAD_PATH.$this->savePath);
+        if($info){
+            // 拼装数据存入session
+            $file_path = UPLOAD_PATH.$this->savePath.$info->getSaveName();
+            $return = array(
+                'code'      => 0,
+                'msg'       => '上传成功',
+                'file_url'  => '/' . UPLOAD_PATH.$this->savePath.$fileName,
+                'file_mime' => $file->getInfo('type'),
+                'file_name' => $fileName,
+                'file_ext'  => '.' . $file_ext,
+                'file_size' => $info->getSize(),
+                'uhash'     => $this->uhash($file_path),
+                'md5file'   => md5_file($file_path),
+            );
+        }else{
+            $return = array('msg' => $info->getError());
+        }
+        echo json_encode($return);
     }
 }

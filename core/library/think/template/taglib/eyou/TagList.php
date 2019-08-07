@@ -52,7 +52,7 @@ class TagList extends Base
      * 获取分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = '')
+    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
     {
         $module_name_tmp = strtolower(request()->module());
         $ctl_name_tmp = strtolower(request()->controller());
@@ -62,13 +62,13 @@ class TagList extends Base
         /*自定义字段筛选*/
         $url_screen_var = input('param.'.$this->url_screen_var.'/d');
         if (1 == $url_screen_var) {
-            return $this->GetFieldScreeningList($param,$pagesize, $orderby, $addfields, $orderWay);
+            return $this->GetFieldScreeningList($param,$pagesize, $orderby, $addfields, $orderWay, $thumb);
         }
         /*--end*/
 
         /*搜索、标签搜索*/
         if (in_array($ctl_name_tmp, array('search','tags'))) {
-            return $this->getSearchList($pagesize, $orderby, $addfields, $orderWay);
+            return $this->getSearchList($pagesize, $orderby, $addfields, $orderWay, $thumb);
         }
         /*--end*/
 
@@ -279,7 +279,7 @@ class TagList extends Base
                         $query_get = array();
                     }
                 } elseif ($seo_pseudo == 2) {
-                    $query_get = array();
+                    $query_get = $get_arr;
                 }
                 /*--end*/
 
@@ -326,7 +326,10 @@ class TagList extends Base
                     } else {
                         $val['is_litpic'] = 1; // 有封面图
                     }*/
-                    $val['litpic'] = thumb_img(get_default_pic($val['litpic'])); // 默认封面图
+                    $val['litpic'] = get_default_pic($val['litpic']); // 默认封面图
+                    if ('on' == $thumb) { // 属性控制是否使用缩略图
+                        $val['litpic'] = thumb_img($val['litpic']);
+                    }
                     /*--end*/
                     
                     $list[$key] = $val;
@@ -390,7 +393,7 @@ class TagList extends Base
      * 获取搜索分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '', $orderWay = '')
+    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
     {
         $result = false;
         empty($orderWay) && $orderWay = 'desc';
@@ -479,49 +482,7 @@ class TagList extends Base
         $condition['a.is_del'] = array('eq', 0); // 回收站功能
 
         // 给排序字段加上表别名
-        switch ($orderby) {
-            case 'hot':
-            case 'click':
-                $orderby = "a.click {$orderWay}";
-                break;
-
-            case 'now':
-            case 'aid':
-                $orderby = "a.aid {$orderWay}";
-                break;
-
-            case 'pubdate':
-            case 'add_time':
-                $orderby = "a.add_time {$orderWay}";
-                break;
-
-            case 'sortrank':
-            case 'sort_order':
-                $orderby = "a.sort_order {$orderWay}";
-                break;
-                
-            case 'rand':
-                $orderby = "rand()";
-                break;
-            
-            default:
-                {
-                    if (empty($orderby)) {
-                        $orderby = 'a.sort_order asc, a.aid desc';
-                    } elseif (trim($orderby) != 'rand()') {
-                        $orderbyArr = explode(',', $orderby);
-                        foreach ($orderbyArr as $key => $val) {
-                            $val = trim($val);
-                            if (preg_match('/^([a-z]+)\./i', $val) == 0) {
-                                $val = 'a.'.$val;
-                                $orderbyArr[$key] = $val;
-                            }
-                        }
-                        $orderby = implode(',', $orderbyArr);
-                    }
-                }
-                break;
-        }
+        $orderby = getOrderBy($orderby,$orderWay);
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -586,7 +547,10 @@ class TagList extends Base
                 } else {
                     $arcval['is_litpic'] = 1; // 有封面图
                 }*/
-                $arcval['litpic'] = thumb_img(get_default_pic($arcval['litpic'])); // 默认封面图
+                $arcval['litpic'] = get_default_pic($arcval['litpic']); // 默认封面图
+                if ('on' == $thumb) { // 属性控制是否使用缩略图
+                    $arcval['litpic'] = thumb_img($arcval['litpic']);
+                }
                 /*--end*/
 
                 $list[$key] = $arcval;
@@ -628,7 +592,7 @@ class TagList extends Base
      * 获取搜索分页列表
      * @author 陈风任 by 2019-6-11
      */
-    public function GetFieldScreeningList($param = array(),$pagesize = 10, $orderby = '', $addfields = '', $orderWay = '')
+    public function GetFieldScreeningList($param = array(),$pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
     {
         $result = false;
         empty($orderWay) && $orderWay = 'desc';
@@ -822,49 +786,7 @@ class TagList extends Base
         }
 
         // 给排序字段加上表别名
-        switch ($orderby) {
-            case 'hot':
-            case 'click':
-                $orderby = "a.click {$orderWay}";
-                break;
-
-            case 'now':
-            case 'aid':
-                $orderby = "a.aid {$orderWay}";
-                break;
-
-            case 'pubdate':
-            case 'add_time':
-                $orderby = "a.add_time {$orderWay}";
-                break;
-
-            case 'sortrank':
-            case 'sort_order':
-                $orderby = "a.sort_order {$orderWay}";
-                break;
-                
-            case 'rand':
-                $orderby = "rand()";
-                break;
-            
-            default:
-                {
-                    if (empty($orderby)) {
-                        $orderby = 'a.sort_order asc, a.aid desc';
-                    } elseif (trim($orderby) != 'rand()') {
-                        $orderbyArr = explode(',', $orderby);
-                        foreach ($orderbyArr as $key => $val) {
-                            $val = trim($val);
-                            if (preg_match('/^([a-z]+)\./i', $val) == 0) {
-                                $val = 'a.'.$val;
-                                $orderbyArr[$key] = $val;
-                            }
-                        }
-                        $orderby = implode(',', $orderbyArr);
-                    }
-                }
-                break;
-        }
+        $orderby = getOrderBy($orderby,$orderWay);
 
         /**
          * 数据查询，搜索出主键ID的值

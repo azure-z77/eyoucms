@@ -180,6 +180,24 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'open_level_time' => 
+  array (
+    'name' => 'open_level_time',
+    'type' => 'int(11) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'level_maturity_days' => 
+  array (
+    'name' => 'level_maturity_days',
+    'type' => 'varchar(20)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'discount' => 
   array (
     'name' => 'discount',
@@ -229,6 +247,15 @@ return array (
   array (
     'name' => 'is_lock',
     'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'admin_id' => 
+  array (
+    'name' => 'admin_id',
+    'type' => 'int(10)',
     'notnull' => false,
     'default' => '0',
     'primary' => false,

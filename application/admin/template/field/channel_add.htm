@@ -99,6 +99,23 @@
                     <p class="notic">比如：元、个、件等等</p>
                 </dd>
             </dl>
+            <dl class="row" id='IsRelease' {eq name='$userConfig.users_open_release' value='0'} style="display: none;" {/eq}>
+                <dt class="tit">
+                    <label>应用于投稿</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="IsRelease_1" class="cb-enable">是</label>
+                        <input id="IsRelease_1" name="is_release" value="1" type="radio">
+                        
+                        <label for="IsRelease_0" class="cb-disable selected">否</label>
+                        <input id="IsRelease_0" name="is_release" value="0" type="radio">
+                    </div>
+                    &nbsp;
+                    <span class="err"></span>
+                    <p class="notic">是否应用于会员投稿中</p>
+                </dd>
+            </dl>
             <dl class="row" id='IsScreening' style="display: none;">
                 <dt class="tit">
                     <label>应用于筛选</label>

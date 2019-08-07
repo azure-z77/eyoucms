@@ -142,18 +142,22 @@ class FieldLogic extends Model
         else if("checkbox" == $dtype)
         {
             $maxlen = 0;
+            $dfvalueArr = explode(',', $dfvalue);
+            $default_value = !empty($dfvalueArr[0]) ? $dfvalueArr[0] : '';
             $dfvalue = str_replace(',', "','", $dfvalue);
             $dfvalue = "'".$dfvalue."'";
-            $fields[0] = " `$fieldname` SET($dfvalue) NULL COMMENT '$fieldtitle';";
+            $fields[0] = " `$fieldname` SET($dfvalue) NULL DEFAULT '{$default_value}' COMMENT '$fieldtitle';";
             $fields[1] = "SET($dfvalue)";
             $fields[2] = $maxlen;
         }
         else if("select" == $dtype || "radio" == $dtype)
         {
             $maxlen = 0;
+            $dfvalueArr = explode(',', $dfvalue);
+            $default_value = !empty($dfvalueArr[0]) ? $dfvalueArr[0] : '';
             $dfvalue = str_replace(',', "','", $dfvalue);
             $dfvalue = "'".$dfvalue."'";
-            $fields[0] = " `$fieldname` enum($dfvalue) NULL COMMENT '$fieldtitle';";
+            $fields[0] = " `$fieldname` enum($dfvalue) NULL DEFAULT '{$default_value}' COMMENT '$fieldtitle';";
             $fields[1] = "enum($dfvalue)";
             $fields[2] = $maxlen;
         }

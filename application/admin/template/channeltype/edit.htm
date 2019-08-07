@@ -60,6 +60,22 @@
                     <p class="notic">新增/编辑文档时，是否允许标题的重复</p>
                 </dd>
             </dl>
+            {eq name='$field.nid' value='article'}
+                <dl class="row">
+                    <dt class="tit">
+                        <label>缩略图用于会员投稿</label>
+                    </dt>
+                    <dd class="opt">
+                        <div class="onoff">
+                            <label for="is_litpic_users_release1" class="cb-enable {if condition='!isset($field.is_litpic_users_release) || $field.is_litpic_users_release eq 1'}selected{/if}">允许</label>
+                            <label for="is_litpic_users_release0" class="cb-disable {if condition='isset($field.is_litpic_users_release) && $field.is_litpic_users_release eq 0'}selected{/if}">不允许</label>
+                            <input id="is_litpic_users_release1" name="is_litpic_users_release" value="1" type="radio" {if condition="!isset($field.is_litpic_users_release) || $field.is_litpic_users_release eq 1"} checked="checked"{/if}>
+                            <input id="is_litpic_users_release0" name="is_litpic_users_release" value="0" type="radio" {if condition="isset($field.is_litpic_users_release) && $field.is_litpic_users_release eq 0"} checked="checked"{/if}>
+                        </div>
+                        <p class="notic">会员投稿时，是否允许填写缩略图选项</p>
+                    </dd>
+                </dl>
+            {/eq}
             <div class="bot">
                 <input type="hidden" name="id" value="{$field.id}">
                 <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>

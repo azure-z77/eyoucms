@@ -153,7 +153,7 @@ function upgrade(obj){
         },
         error: function(request) {
             parent.layer.closeAll();
-            parent.layer.alert("升级失败，请第一时间联系技术协助！", {icon: 2, title:false}, function(){
+            parent.layer.alert("空间超时请稍后再试，或手工升级！", {icon: 2, title:false}, function(){
                 top.location.reload();
             });
         },

@@ -247,6 +247,11 @@ class Buildhtml extends Base
         $this->request->post(['tid'=>$result['typeid']]);
 
         $arctypeInfo = $arctypeRow[$result['typeid']];
+        /*排除文档模型与栏目模型对不上的文档*/
+        if ($arctypeInfo['current_channel'] != $result['channel']) {
+            return false;
+        }
+        /*--end*/
         $arctypeInfo = model('Arctype')->parentAndTopInfo($result['typeid'], $arctypeInfo);
         /*自定义字段的数据格式处理*/
         $arctypeInfo = $this->fieldLogic->getTableFieldList($arctypeInfo, config('global.arctype_channel_id'));

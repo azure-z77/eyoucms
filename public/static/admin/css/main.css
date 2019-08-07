@@ -1399,6 +1399,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     top:50%;
     transform:translate(-50%,-50%);
     z-index: 1;
+    left:50%;
 }
 .tab-pane .images_upload textarea{ 
     width:100%; 
@@ -1468,4 +1469,4 @@ div.tab-pane.pics a.upimg{ height: auto; padding: 8px; padding-bottom:0px; }
 div.tab-pane.pics .images_upload{ width:auto; }
 div.tab-pane.pics .delect{ text-align: center; display: block; background: #fafafa }
 
-
+.template_div{margin: 5px 0px;}

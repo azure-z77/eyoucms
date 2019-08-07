@@ -117,6 +117,7 @@ class AdPosition extends Base
                         $AdData['pid']         = $insertId;
                         $AdData['title']       = trim($post['img_title'][$key]);
                         $AdData['links']       = $post['img_links'][$key];
+                        $AdData['intro']       = $post['img_intro'][$key];
                         $AdData['target']      = $target;
                         // 其他参数
                         $AdData['media_type']  = 1;
@@ -199,6 +200,7 @@ class AdPosition extends Base
                                 $AdData['litpic']      = $value;
                                 $AdData['title']       = $post['img_title'][$key];
                                 $AdData['links']       = $post['img_links'][$key];
+                                $AdData['intro']       = $post['img_intro'][$key];
                                 $AdData['target']      = $target;
                                 // 其他参数
                                 $AdData['sort_order']  = $i++;
@@ -211,6 +213,7 @@ class AdPosition extends Base
                                 $AdData['pid']         = $post['id'];
                                 $AdData['title']       = $post['img_title'][$key];
                                 $AdData['links']       = $post['img_links'][$key];
+                                $AdData['intro']       = $post['img_intro'][$key];
                                 $AdData['target']      = $target;
                                 // 其他参数
                                 $AdData['media_type']  = 1;
@@ -229,6 +232,7 @@ class AdPosition extends Base
                             $AdData['pid']         = $post['id'];
                             $AdData['title']       = $post['img_title'][$key];
                             $AdData['links']       = $post['img_links'][$key];
+                            $AdData['intro']       = $post['img_intro'][$key];
                             $AdData['target']      = $target;
                             // 其他参数
                             $AdData['media_type']  = 1;

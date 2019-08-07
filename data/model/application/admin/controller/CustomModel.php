@@ -35,6 +35,9 @@ class CustomModel extends Base
         
         $channeltype_list = config('global.channeltype_list');
         $this->channeltype = $channeltype_list[$this->nid];
+        if (empty($this->channeltype)) {
+            $this->channeltype = Db::name('channeltype')->where(['nid'=>['eq',$this->nid]])->getField('id');
+        }
         $this->assign('nid', $this->nid);
         $this->assign('channeltype', $this->channeltype);
     }
@@ -156,13 +159,6 @@ class CustomModel extends Base
         /*--end*/
 
         $this->assign($assign_data);
-        
-        /* 生成静态页面代码 */
-        $aid = input('param.aid/d',0);
-        $this->assign('aid',$aid);
-        $tid = input('param.tid/d',0);
-        $this->assign('typeid',$tid);
-        /* end */
         
         return $this->fetch();
     }

@@ -101,7 +101,7 @@ class Admin extends Base {
             if (!function_exists('session_start')) {
                 $this->error('请联系空间商，开启php的session扩展！');
             }
-            if (!testWriteAble(DATA_PATH.'session')) {
+            if (!testWriteAble(ROOT_PATH.config('session.path').'/')) {
                 $this->error('请仔细检查以下问题：<br/>1、磁盘空间大小是否100%；<br/>2、站点目录权限是否为755；<br/>3、站点目录的权限，禁止用root:root ；<br/>4、如还没解决，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
             }
             
@@ -175,6 +175,66 @@ class Admin extends Base {
                     adminLog('后台登录');
                     $url = session('from_url') ? session('from_url') : request()->baseFile();
                     session('isset_author', null); // 内置勿动
+
+                    /*同步追加一个后台管理员到会员用户表*/
+                    $where_new = [
+                        'admin_id' => $admin_info['admin_id'],
+                    ];
+                    $users_id = Db::name('users')->where($where_new)->getField('users_id');
+                    try {
+                        if (empty($users_id) && empty($admin_info['syn_users_id'])) {
+                            // 获取要添加的用户名
+                            $username = $this->GetUserName(input('post.user_name/s'));
+                            $AddData = [
+                                'username' => $username,
+                                'nickname' => $username,
+                                'password' => func_encrypt('eyoucms').getTime(),
+                                'level'    => 1,
+                                'lang'     => $this->admin_lang,
+                                'reg_time' => getTime(),
+                                'add_time' => getTime(),
+                                'register_place' => 1,
+                                'admin_id' => $admin_info['admin_id'],
+                            ];
+                            $users_id = Db::name('users')->insertGetId($AddData);
+                            if (!empty($users_id)) {
+								/*
+                                Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
+                                        'syn_users_id'  => $users_id,
+                                        'update_time'   => getTime(),
+                                    ]);
+                                $admin_info['syn_users_id'] = $users_id;
+                                session('admin_info', $admin_info);
+								*/
+                            }
+                        } else if (!empty($users_id) && empty($admin_info['syn_users_id'])) {
+							/*
+                            Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
+                                    'syn_users_id'  => $users_id,
+                                    'update_time'   => getTime(),
+                                ]);
+                            $admin_info['syn_users_id'] = $users_id;
+                            session('admin_info', $admin_info);
+							*/
+                        }
+                    } catch (\Exception $e) {
+                        
+                    }
+                    // 加载前台session
+                    if (!empty($users_id)) {
+                        $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
+                            ->alias('a')
+                            ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                            ->where([
+                                'a.users_id'        => $users_id,
+                                'a.lang'            => $this->admin_lang,
+                                'a.is_activation'   => 1,
+                            ])->find();
+                        session('users',$users);
+                        session('users_id',$users_id);
+                    }
+                    /* END */
+
                     $this->success('登录成功', $url);
                 } else {
                     $this->error('账号密码不正确');
@@ -304,6 +364,36 @@ class Admin extends Base {
                 $admin_id = M('admin')->insertGetId($data);
                 if ($admin_id) {
                     adminLog('新增管理员：'.$data['user_name']);
+
+                    /*同步追加一个后台管理员到会员用户表*/
+                    try {
+                        // 获取要添加的用户名
+                        $username = $this->GetUserName($data['user_name']);
+                        $AddData = [
+                            'username' => $username,
+                            'nickname' => $username,
+                            'password' => func_encrypt('eyoucms').getTime(),
+                            'level'    => 1,
+                            'lang'     => $this->admin_lang,
+                            'reg_time' => getTime(),
+                            'add_time' => getTime(),
+                            'register_place' => 1,
+                            'admin_id' => $admin_id,
+                        ];
+                        $users_id = Db::name('users')->insertGetId($AddData);
+                        if (!empty($users_id)) {
+							/*
+                            Db::name('admin')->where(['admin_id'=>$admin_id])->update([
+                                    'syn_users_id'  => $users_id,
+                                    'update_time'   => getTime(),
+                                ]);
+							*/
+                        }
+                    } catch (\Exception $e) {
+                        
+                    }
+                    /* END */
+
                     $this->success("操作成功", url('Admin/index'));
                 } else {
                     $this->error("操作失败");
@@ -479,6 +569,11 @@ class Admin extends Base {
                 $r = M('admin')->where("admin_id",'IN',$id_arr)->delete();
                 if($r){
                     adminLog('删除管理员：'.implode(',', $user_names));
+
+                    /*同步删除管理员关联的前台会员*/
+                    Db::name('users')->where(['admin_id'=>['IN', $id_arr],'lang'=>$this->admin_lang])->delete();
+                    /*end*/
+
                     $this->success('删除成功');
                 }else{
                     $this->error('删除失败');
@@ -543,5 +638,17 @@ class Admin extends Base {
             }
         }
         $this->error('操作失败');
+    }
+
+    // 确保用户名唯一
+    private function GetUserName($username = null)
+    {
+        $count = Db::name('users')->where('username',$username)->count();
+        if (!empty($count)) {
+            $username_new = $username.rand(1000,9999);
+            $username = $this->GetUserName($username_new);
+        }
+
+        return $username;
     }
 }

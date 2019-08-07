@@ -8,7 +8,7 @@
  */
 var layer_GetUploadify;
 // PC端上传头像
-function GetUploadify(num,elementid,path,callback,url)
+function GetUploadify(num,elementid,path,callback,url='',title='上传头像')
 {
     if (layer_GetUploadify){
         layer.close(layer_GetUploadify);
@@ -27,7 +27,7 @@ function GetUploadify(num,elementid,path,callback,url)
         var upurl = url+'num='+num+'&input='+elementid+'&path='+path+'&func='+callback;
         layer_GetUploadify = layer.open({
             type: 2,
-            title: '上传头像',
+            title: title,
             shadeClose: false,
             shade: 0.3,
             maxmin: true, //开启最大化最小化按钮
@@ -41,7 +41,7 @@ function GetUploadify(num,elementid,path,callback,url)
 }
 
 // 手机端上传头像
-function GetUploadify_mobile(num,url)
+function GetUploadify_mobile(num, url='', title='头像')
 {
     var scriptUrl = '/public/plugins/layer_mobile/layer.js';
     // 支持子目录
@@ -67,9 +67,14 @@ function GetUploadify_mobile(num,url)
             var content = $('#update_mobile_file').html();
             content = content.replace(/up_f/g, 'upfile');
             content = content.replace(/form1/g,'form2'); 
+            if ('缩略图' == title) {
+                content += '<input type="hidden" id="UpFileType" value="1">';
+            }else{
+                content += '<input type="hidden" id="UpFileType" value="0">';
+            }
             layer_GetUploadify = layer.open({
                 type:1,
-                title:'头像',
+                title:title,
                 anim:'up',
                 style:'position:fixed; bottom:0; left:0; width: 100%; padding:10px 0; border:none;max-width: 100%;',
                 content:content,

@@ -398,7 +398,7 @@ if (!function_exists('sitemap_xml'))
         }
         $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, '{$sitemap_changefreq_list}' AS changefreq, '{$sitemap_priority_list}' AS priority")
             ->where($map)
-            ->order('sort_order asc')
+            ->order('sort_order asc, id asc')
             ->getAllWithIndex('id');
 
         /* 文章列表(用于生成文章详情链接的sitemap) */
@@ -418,7 +418,7 @@ if (!function_exists('sitemap_xml'))
         $field = "aid, channel, is_jump, jumplinks, add_time, update_time, typeid, aid AS loc, add_time AS lastmod, '{$sitemap_changefreq_view}' AS changefreq, '{$sitemap_priority_view}' AS priority";
         $result_archives = M('archives')->field($field)
             ->where($map)
-            ->order('aid desc')
+            ->order('update_time desc, aid desc')
             ->limit(48000)
             ->select();
 
@@ -639,10 +639,21 @@ if (!function_exists('get_arcurl'))
         null === $seoConfig && $seoConfig = tpCache('seo');
         $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
         $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
-        if (2 == $seo_pseudo && $admin) {
-            static $lang = null;
-            null === $lang && $lang = input('param.lang/s', 'cn');
-            $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&t=".getTime();
+        if ($admin) {
+            if (2 == $seo_pseudo) {
+                static $lang = null;
+                null === $lang && $lang = input('param.lang/s', 'cn');
+                $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&admin_id=".session('admin_id')."&t=".getTime();
+            } else {
+                $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+                // 自动隐藏index.php入口文件
+                $arcurl = auto_hide_index($arcurl);
+                if (stristr($arcurl, '?')) {
+                    $arcurl .= '&admin_id='.session('admin_id')."&t=".getTime();
+                } else {
+                    $arcurl .= '?admin_id='.session('admin_id')."&t=".getTime();
+                }
+            }
         } else {
             $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
             // 自动隐藏index.php入口文件

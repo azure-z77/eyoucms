@@ -20,8 +20,8 @@
             <span title="收起提示" id="explanationZoom" style="display: block;"></span>
         </div>
         <ul>
-            <li>由于用户升级是以等级值由低向高升级的，因此增加组别时需注意此值的设置。</li>
-            <li>如果你增加新的用户组的等级值低于10，将自动被视为普通的注册会员。</li>
+            <li>由于会员升级是以等级值由低向高升级的，因此增加组别时需注意此值的设置。</li>
+            <li>如果你增加新的会员组的等级值低于10，将自动被视为普通的注册会员。</li>
         </ul>
     </div>
     <form class="form-horizontal" id="postForm" action="{:url('Member/level_add')}" method="post">
@@ -41,7 +41,7 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" name="amount" id="amount" class="input-txt">
-                    <p class="notic">设置用户等级所需要的消费额度，单位：元</p>
+                    <p class="notic">设置会员等级所需要的消费额度，单位：元</p>
                 </dd>
             </dl>
             <dl class="row">
@@ -50,12 +50,12 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" name="discount" id="discount" class="input-txt">
-                    <p class="notic">折扣率单位为百分比，如输入90，表示该用户等级的用户可以以商品原价的90%购买</p>
+                    <p class="notic">折扣率单位为百分比，如输入90，表示该会员等级的会员可以以商品原价的90%购买</p>
                 </dd>
             </dl> -->
             <dl class="row">
                 <dt class="tit">
-                    <label for="discount"><em>*</em>用户等级值</label>
+                    <label for="discount"><em>*</em>会员等级值</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="level_value" id="level_value" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9]/g,'');">
@@ -78,7 +78,7 @@
             return false;
         }
         if($('input[name=level_value]').val() == ''){
-            showErrorMsg('用户等级值不能为空！');
+            showErrorMsg('会员等级值不能为空！');
             $('input[name=level_value]').focus();
             return false;
         }

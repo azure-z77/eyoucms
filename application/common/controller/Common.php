@@ -74,6 +74,23 @@ class Common extends Controller {
         $this->assign('v', $v);
         /*--end*/
 
+        /*多语言开关限制 - 不开某个语言情况下，报404 */
+        if ($this->main_lang != $this->home_lang) {
+            if (1 != $global['web_language_switch']) {
+                abort(404,'页面不存在');
+            } else {
+                $langInfo = Db::name('language')->field('id')
+                    ->where([
+                        'mark'      => $this->home_lang,
+                        'status'    => 1,
+                    ])->find();
+                if (empty($langInfo)) {
+                    abort(404,'页面不存在');
+                }
+            }
+        }
+        /*--end*/
+
         // 判断是否开启注册入口
         $users_open_register = getUsersConfigData('users.users_open_register');
         $this->assign('users_open_register', $users_open_register);

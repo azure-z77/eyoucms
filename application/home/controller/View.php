@@ -36,7 +36,6 @@ class View extends Base
         }
 
         $seo_pseudo = config('ey_config.seo_pseudo');
-        $upcache = input('param.upcache/d', 0); // 生成静态页面代码 - PC端带这个参数可以访问非静态页面
         /*URL上参数的校验*/
         if (3 == $seo_pseudo)
         {
@@ -44,10 +43,10 @@ class View extends Base
                 abort(404,'页面不存在');
             }
         }
-        else if (1 == $seo_pseudo || (2 == $seo_pseudo && (isMobile() || !empty($upcache))))
+        else if (1 == $seo_pseudo || (2 == $seo_pseudo && isMobile()))
         {
             $seo_dynamic_format = config('ey_config.seo_dynamic_format');
-            if (2 == $seo_dynamic_format && stristr($this->request->url(), '&c=View&a=index&')) {
+            if (1 == $seo_pseudo && 2 == $seo_dynamic_format && stristr($this->request->url(), '&c=View&a=index&')) {
                 abort(404,'页面不存在');
             }
         }
@@ -62,7 +61,7 @@ class View extends Base
                 'a.is_del'      => 0,
             ])
             ->find();
-        if (empty($archivesInfo)) {
+        if (empty($archivesInfo) || !in_array($archivesInfo['channel'], config('global.allow_release_channel'))) {
             abort(404,'页面不存在');
             // $this->redirect('/public/static/errpage/404.html', 301);
         }
@@ -71,8 +70,11 @@ class View extends Base
         $this->modelName = $archivesInfo['ctl_name'];
 
         $result = model($this->modelName)->getInfo($aid);
-        if ($result['arcrank'] == -1) {
-            $this->success('待审核稿件，你没有权限阅读！');
+        // 若是管理员则不受限制
+        if (session('?admin_id')) {
+            if ($result['arcrank'] == -1 && $result['users_id'] != session('users_id')) {
+                $this->success('待审核稿件，你没有权限阅读！');
+            }
         }
         // 外部链接跳转
         if ($result['is_jump'] == 1) {
@@ -144,7 +146,7 @@ class View extends Base
         /*自定义字段的数据格式处理*/
         $result = $this->fieldLogic->getChannelFieldList($result, $this->channel);
         /*--end*/
-
+        
         $eyou = array(
             'type'  => $arctypeInfo,
             'field' => $result,
@@ -175,37 +177,93 @@ class View extends Base
      */
     public function downfile()
     {
-        $file_id = I('param.id/d', 0);
-        $uhash = I('param.uhash/s', '');
+        $file_id = input('param.id/d', 0);
+        $uhash = input('param.uhash/s', '');
 
         if (empty($file_id) || empty($uhash)) {
             $this->error('下载地址出错！');
             exit;
         }
 
-        $map = array(
-            'file_id'   => $file_id,
-            'uhash' => $uhash,
-        );
-        $result = M('download_file')->where($map)->find();
-        $filename = isset($result['file_url']) ? trim($result['file_url'], '/') : '';
         clearstatcache();
-        if (empty($result) || !is_file(realpath($filename))) {
+
+        // 查询信息
+        $map = array(
+            'a.file_id'   => $file_id,
+            'a.uhash' => $uhash,
+        );
+        $result = M('download_file')
+            ->alias('a')
+            ->field('a.*,b.arc_level_id')
+            ->join('__ARCHIVES__ b', 'a.aid = b.aid', 'LEFT')
+            ->where($map)
+            ->find();
+
+        $file_url_gbk = iconv("utf-8","gb2312//IGNORE",$result['file_url']);
+        if (empty($result) || (!is_http_url($result['file_url']) && !is_file('.'.$file_url_gbk))) {
             $this->error('下载文件不存在！');
             exit;
         }
-        $file_url = is_http_url($result['file_url']) ? $result['file_url'] : realpath($filename);
-        if (md5_file($file_url) != $result['md5file']) {
-            $this->error('下载文件包已损坏！');
-            exit;
+
+        // 判断会员信息
+        if (0 < intval($result['arc_level_id'])) {
+            $UsersData = session('users');
+            if (empty($UsersData['users_id'])) {
+                $this->error('请登录后下载！');
+                exit;
+            }else{
+                /*判断会员是否可下载该文件--2019-06-21 陈风任添加*/
+                // 查询会员信息
+                $users = M('users')
+                    ->alias('a')
+                    ->field('a.users_id,b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                    ->where(['a.users_id'=>$UsersData['users_id']])
+                    ->find();
+                // 查询下载所需等级值
+                $file_level = M('archives')
+                    ->alias('a')
+                    ->field('b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                    ->where(['a.aid'=>$result['aid']])
+                    ->find();
+                if ($users['level_value'] < $file_level['level_value']) {
+                    $msg = '文件为【'.$file_level['level_name'].'】可下载，您当前为【'.$users['level_name'].'】，请先升级！';
+                    $this->error($msg);
+                    exit;
+                }
+                /*--end*/
+            }
         }
-        
+
+        // 外部下载链接
         if (is_http_url($result['file_url'])) {
-            header('Location: '. $downUrl);
-            exit;
-        } else {
-            download_file($result['file_url'], $result['file_mime']);
-            exit;
+            if ($result['uhash'] != md5($result['file_url'])) {
+                $this->error('下载地址出错！');
+            } else {
+                $this->success('开始下载中……', $result['file_url']);
+            }
+        } 
+        // 本站链接
+        else
+        {
+            if (md5_file('.'.$file_url_gbk) != $result['md5file']) {
+                $this->error('下载文件包已损坏！');
+            }
+
+            $url = $this->root_dir."/index.php?m=home&c=View&a=download_file&file_id={$file_id}";
+            $this->success('开始下载中……', $url);
         }
+    }
+
+    public function download_file()
+    {
+        $file_id = input('param.file_id/d');
+        $map = array(
+            'file_id'   => $file_id,
+        );
+        $result = M('download_file')->field('file_url,file_mime')->where($map)->find();
+        download_file($result['file_url'], $result['file_mime']);
+        exit;
     }
 }

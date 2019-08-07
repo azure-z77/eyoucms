@@ -31,7 +31,7 @@
                 <dd class="opt">
                     <div class="tab-pane" id="tab_imgupload">
                         <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="imgupload">
-                            <i class="fa fa-photo"></i>上传图片
+                            <i class="fa fa-cloud-upload"></i>新增广告
                         </a>
                         <table class="table table-bordered">
                             <tbody>
@@ -63,8 +63,9 @@
                                 <span class="span_input">
                                     <input type="hidden"/>
                                 </span>
-                                <textarea placeholder="请输入标题..."></textarea>
-                                <textarea placeholder="请输入链接网址..."></textarea>
+                                <textarea placeholder="请输入标题..." style="height: 28px;"></textarea>
+                                <textarea placeholder="请输入链接网址..." style="height: 28px;"></textarea>
+                                <textarea placeholder="<p>扩展项：支持HTML代码</p>" style="height: 64px;"></textarea>
                                 <div class="operation">
                                     <a href="javascript:void(0)">&nbsp;&nbsp;</a>
                                     <a href="javascript:void(0)">&nbsp;&nbsp;</a>
@@ -179,6 +180,8 @@
                 $(".images_upload:eq(0)").find('textarea:eq(0)').attr('name','img_title[]');
                 // 提交跳转链接
                 $(".images_upload:eq(0)").find('textarea:eq(1)').attr('name','img_links[]');
+                // 处理内容描述
+                $(".images_upload:eq(0)").find('textarea:eq(2)').attr('name','img_intro[]');
                 // 提交新窗口选项
                 $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<label><input type='checkbox' title='在新窗口打开' onclick='CheckedTarget(this)'/>新窗口<input type='hidden' name='img_target[]' value='0'></label>");
                 // 删除按钮
@@ -194,7 +197,7 @@
         $.ajax({
             type:'POST',
             url:"{:url('Uploadify/delupload')}",
-            data:{action:"del", filename:path},
+            data:{action:"del", filename:path, _ajax:1},
             success:function(){}
         }); 
     }
@@ -223,6 +226,7 @@
 
         }
     });
+    //因为他们要拖动，所以尽量设置他们的文字不能选择。  
     $( ".sort-list" ).disableSelection();
 </script>
 

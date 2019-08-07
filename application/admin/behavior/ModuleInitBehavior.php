@@ -54,7 +54,8 @@ class ModuleInitBehavior {
         }
         /*--end*/
         
-        model('Channeltype')->setChanneltypeStatus();
+        // 根据前端模板自动开启系统模型
+        // model('Channeltype')->setChanneltypeStatus();
     }
 
     /**

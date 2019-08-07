@@ -298,29 +298,32 @@ class Uploadify extends Base
     public function delupload()
     {
         if (IS_POST) {
+            $action = input('action','del');  
+            $filename= input('filename/s');
+            $filename= empty($filename) ? input('url') : $filename;
+            $filename= str_replace('../','',$filename);
+            $filename= trim($filename,'.');
+            $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/admin/logo/)#i', '$2', $filename);
+            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){
+                if (stristr($filename, '/admin/logo/')) {
+                    $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+                    $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+                    $size = getimagesize('.'.$filename);
+                    $fileInfo = explode('/',$size['mime']);
+                    if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                        exit;
+                    }
+                    if(@unlink('.'.$filename)){
+                        echo 1;
+                    }else{
+                        echo 0;
+                    }  
+                    exit;
+                }
+            }
+
             echo 1;
             exit;
-            // $action = input('action','del');                
-            // $filename= input('filename/s');
-            // $filename= empty($filename) ? input('url') : $filename;
-            // $filename= str_replace('../','',$filename);
-            // $filename= trim($filename,'.');
-            // $filename= trim($filename,'/');
-            // if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists($filename)){
-            //     $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-            //     $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-            //     $size = getimagesize($filename);
-            //     $fileInfo = explode('/',$size['mime']);
-            //     if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-            //         exit;
-            //     }
-            //     if(@unlink($filename)){
-            //         echo 1;
-            //     }else{
-            //         echo 0;
-            //     }  
-            //     exit;
-            // }
         }
     }
     
@@ -462,7 +465,7 @@ class Uploadify extends Base
         }
         if (!empty($mydir)) {
             foreach ($mydir as $key => $dir) {
-                if (stristr("$dir/", 'uploads/soft_tmp/')) {
+                if (stristr("$dir/", 'uploads/soft_tmp/') || stristr("$dir/", 'uploads/tmp/')) {
                     continue;
                 }
                 $num++;

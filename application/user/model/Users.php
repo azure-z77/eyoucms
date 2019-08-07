@@ -33,6 +33,38 @@ class Users extends Model
         $this->home_lang = get_home_lang();
     }
 
+    public function UpUsersData($users_id = null)
+    {
+        $users = [];
+        // 查询系统初始的默认级别
+        // $LevelWhere = [
+        //     'level_id'  => 1,
+        //     'is_system' => 1,
+        //     'lang'      => $this->home_lang,
+        // ];
+        // $level_id = M('users_level')->where($LevelWhere)->getField('level_id');
+        $level_id = 1;
+        // 更新信息
+        $usersUp = [
+            'level' => $level_id,
+            'open_level_time' => 0,
+            'level_maturity_days' => 0,
+        ];
+        $return = M('users')->where('users_id',$users_id)->update($usersUp);
+        if (!empty($return)) {
+            $users = M('users')->field('a.*,b.level_name')
+                ->alias('a')
+                ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                ->where([
+                    'a.users_id'        => $users_id,
+                    'a.lang'            => $this->home_lang,
+                    'a.is_activation'   => 1,
+                ])->find();
+        }
+
+        return $users;
+    }
+
     // 判断会员属性中必填项是否为空
     // 传入参数：
     // $post_users ：会员属性信息数组

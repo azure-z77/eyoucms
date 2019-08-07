@@ -89,7 +89,16 @@ class TagArcview extends Base
         }
         $tableContent = $channeltype_table.'_content';
         $row = M($tableContent)->field($addfields)->where('aid',$aid)->find();
-        $result = array_merge($result, $row);
+        if (is_array($row)) {
+            $result = array_merge($result, $row);
+        } else {
+            $saveData = [
+                'aid'           => $aid,
+                'add_time'      => getTime(),
+                'update_time'   => getTime(),
+            ];
+            M($tableContent)->save($saveData);
+        }
         $result = $this->fieldLogic->getChannelFieldList($result, $result['channel']); // 自定义字段的数据格式处理
         /*--end*/
 

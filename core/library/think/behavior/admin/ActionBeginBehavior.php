@@ -110,7 +110,7 @@ class ActionBeginBehavior {
     private function checksp()
     {
         $ca = array_join_string(array('SW','5k','Z','Xh','Ac3','d','pd','GN','oX2','1','hc','A=','='));
-        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca,$ca2])) {
+        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca])) {
             $name = array_join_string(array('d2','Vi','X','2l','zX2','F1d','G','hv','cnR','va','2V','u'));
             $value = session($name);
             $value = !empty($value) ? intval($value) : 0;
@@ -141,7 +141,8 @@ class ActionBeginBehavior {
     private function checkspview()
     {
         $c = array_join_string(array('U','2h','v','cA','=','='));
-        if ($c == self::$controllerName) {
+        $c1 = array_join_string(array('VX','N','lc','nNS','Z','Wx','l','YX','N','l'));
+        if (in_array(self::$controllerName, [$c,$c1])) {
             $name = array_join_string(array('d2','Vi','X','2l','zX2','F1d','G','hv','cnR','va','2V','u'));
             $value = session($name);
             $value = !empty($value) ? intval($value) : 0;
@@ -150,7 +151,13 @@ class ActionBeginBehavior {
             if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $server_ip || -1 != $value) {
 
             } else {
-                $msg = array_join_string(array('6','K6','i','5Y','2V','5Y','q','f6','I','O9','5Y','+','q','6Z','mQ','5L','qO','5o6','I5','p2D','5','Z+','f5Z','CN','77','yB'));
+                if ($c == self::$controllerName) {
+                    $msg = array_join_string(array('5','ZW','G','5Z','+O','5Yq','f6','IO','95Y','+','q6','Zm','Q5L','q','O5','o6','I5','p2','D5','Z+','f','5Z','CN7','7','y','B'));
+                } else if ($c1 == self::$controllerName) {
+                    $msg = array_join_string(array('5','o','qV','5','6i','/','5','Y','q','f6','IO9','5Y','+','q6','ZmQ','5','Lq','O5','o','6I','5p','2D5','Z','+f','5Z','C','N7','7y','B'));
+                } else {
+                    $msg = array_join_string(array('6','K','+l','5','Y','q','f6','IO','95','Y+q','6','Zm','Q5L','qO','5o','6I','5p','2D5','Z+','f5','ZC','N','7','7','yB'));
+                }
                 $this->error($msg);
             }
         }

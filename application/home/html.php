@@ -19,8 +19,8 @@ $global = tpCache('global');
 $web_cmsmode = isset($global['web_cmsmode']) ? $global['web_cmsmode'] : 2;
 /*页面缓存有效期*/
 $app_debug = true;
-$web_htmlcache_expires_in = -1;
-if (1 == $web_cmsmode) { // 运营模式
+$uiset = input('param.uiset/s', 'off');
+if (1 == $web_cmsmode && 'on' != $uiset) { // 运营模式
     $app_debug = false;
     $html_cache_arr = config('HTML_CACHE_ARR');
 }

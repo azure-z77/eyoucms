@@ -24,12 +24,14 @@ use think\Db;
 class AjaxLogic extends Model
 {
     private $request = null;
+    private $admin_lang = 'cn';
 
     /**
      * 析构函数
      */
     function  __construct() {
         $this->request = request();
+        $this->admin_lang = get_admin_lang();
     }
 
     /**
@@ -342,5 +344,76 @@ class AjaxLogic extends Model
             }
         }
         closedir($dir);
+    }
+
+    /**
+     * 第一次同步会员等级数据和会员产品分类 【1.4.1版本可以删掉这个方法，以及调用这个方法的代码】
+     */
+    public function sys_level_data()
+    {
+        $system_synleveldata = tpCache('system.system_synleveldata');
+        if (empty($system_synleveldata)) {
+            $levelRow = Db::name('users_level')->where(['is_system'=>0])->select();
+            if (empty($levelRow)) {
+                $saveData = [
+                    [
+                        'level_name'    => '中级会员',
+                        'level_value'   => 50,
+                        'is_system'     => 0,
+                        'discount'      => 100,
+                        'posts_count'   => 10,
+                        'lang'          => $this->admin_lang,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ],
+                    [
+                        'level_name'    => '高级会员',
+                        'level_value'   => 100,
+                        'is_system'     => 0,
+                        'discount'      => 100,
+                        'posts_count'   => 20,
+                        'lang'          => $this->admin_lang,
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ],
+                ];
+                Db::name('users_level')->insertAll($saveData);
+            }
+
+            $count = Db::name('users_type_manage')->count();
+            if (empty($count)) {
+                $levelRow = Db::name('users_level')->where(['is_system'=>0])->select();
+                if (!empty($levelRow)) {
+                    $saveData = [];
+                    foreach ($levelRow as $key => $val) {
+                        $saveData[] = [
+                            'type_name'     => '升级为本站'.$val['level_name'],
+                            'level_id'      => $val['level_id'],
+                            'price'         => intval($val['level_value']) * 2,
+                            'limit_id'      => intval($key) + 2,
+                            'sort_order'    => 100,
+                            'lang'          => $this->admin_lang,
+                            'add_time'      => getTime(),
+                            'update_time'   => getTime(),
+                        ];
+                    }
+                    $r = Db::name('users_type_manage')->insertAll($saveData);
+                    if ($r) {
+                        /*多语言*/
+                        if (is_language()) {
+                            $langRow = \think\Db::name('language')->order('id asc')
+                                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                                ->select();
+                            foreach ($langRow as $key => $val) {
+                                tpCache('system', ['system_synleveldata'=>1], $val['mark']);
+                            }
+                        } else { // 单语言
+                            tpCache('system', ['system_synleveldata'=>1]);
+                        }
+                        /*--end*/
+                    }
+                }
+            }
+        }
     }
 }

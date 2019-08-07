@@ -115,6 +115,17 @@ class TagGuestbookform extends Base
             $funname = 'f'.md5("ey_guestbookform_token_{$typeid}");
             $tokenStr = <<<EOF
 <script type="text/javascript">
+    function ey_fleshVerify(id)
+    {
+        var src = "{$this->root_dir}/index.php?m=api&c=Ajax&a=vertify&type=guestbook&lang={$this->home_lang}";
+        if (src.indexOf('?') > -1) {
+            src += '&';
+        } else {
+            src += '?';
+        }
+        src += 'r='+ Math.floor(Math.random()*100);
+        document.getElementById(id).src = src;
+    }
     function {$funname}()
     {
         //步骤一:创建异步对象
@@ -141,6 +152,21 @@ EOF;
 
             $action = url('home/Lists/gbook_submit');
             $newAttribute['action'] = $action;
+
+            /*验证码处理*/
+            // 默认开启验证码
+            $IsVertify = 1;
+            $guestbook_captcha = config('captcha.guestbook');
+            if (!function_exists('imagettftext') || empty($guestbook_captcha['is_on'])) {
+                $IsVertify = 0; // 函数不存在，不符合开启的条件
+            }
+            $newAttribute['IsVertify'] = $IsVertify;
+            if (1 == $IsVertify) {
+                // 留言验证码数据
+                $VertifyUrl = url('api/Ajax/vertify',['type'=>'guestbook','token'=>'__token__'.$token_id,'r'=>mt_rand(0,10000)]);
+                $newAttribute['VertifyData'] = " src='{$VertifyUrl}' id='verify_{$token_id}' onclick='ey_fleshVerify(\"verify_{$token_id}\");' ";
+            }
+            /* END */
 
             $result[0] = $newAttribute;
         }

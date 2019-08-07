@@ -110,6 +110,7 @@ class Index extends Base
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
         $ajaxLogic->update_robots(); // 自动纠正蜘蛛抓取文件rotots.txt
         $ajaxLogic->update_template('users'); // 升级前台会员中心的模板文件
+        $ajaxLogic->sys_level_data(); // 第一次同步会员等级数据和会员产品分类
 
         return $this->fetch();
     }
@@ -184,6 +185,7 @@ class Index extends Base
             $destination = realpath('public/static/admin/images/logo.png');
             @copy($source, $destination);
 
+            delFile(RUNTIME_PATH.'html'); // 清空缓存页面
             session('isset_author', null);
             adminLog('验证商业授权');
             $this->success('授权成功', request()->baseFile(), '', 1, [], '_parent');
@@ -260,7 +262,7 @@ class Index extends Base
                     }
                     break;
                 
-                // 会员属性表
+                // 会员中心菜单表
                 case 'users_menu':
                     {
                         Db::name('users_menu')->where('id','gt',0)->update([
@@ -268,6 +270,28 @@ class Index extends Base
                                 'update_time'   => getTime(),
                             ]);
                         $data['refresh'] = 1;
+                    }
+                    break;
+                
+                // 会员投稿功能
+                case 'archives':
+                    {
+                        if ('arcrank' == $field) {
+                            if (0 == $value) {
+                                $value = -1;
+                            }else{
+                                $value = 0;
+                            }
+                        }
+                    }
+                    break;
+
+                // 会员产品类型表
+                case 'users_type_manage':
+                    {
+                        if (empty($value)) {
+                            $this->error('不可为空');
+                        }
                     }
                     break;
 
@@ -372,7 +396,7 @@ class Index extends Base
                         if ('shop_open' == $name) {
                             Db::name('users_menu')->where([
                                     'mca'   => 'user/Shop/shop_centre',
-                                    'lang'  => $this->home_lang,
+                                    'lang'  => $this->admin_lang,
                                 ])->update([
                                     'status'    => (1 == $value) ? 1 : 0,
                                     'update_time'   => getTime(),
@@ -382,11 +406,73 @@ class Index extends Base
                         // 同步会员中心的左侧菜单
                         Db::name('users_menu')->where([
                                 'mca'   => 'user/Pay/pay_consumer_details',
-                                'lang'  => $this->home_lang,
+                                'lang'  => $this->admin_lang,
                             ])->update([
                                 'status'    => (1 == $value) ? 1 : 0,
                                 'update_time'   => getTime(),
                             ]);
+                    }
+                    break;
+                }
+
+                case 'users':
+                {
+                    // 会员投稿
+                    $r = Db::name('users_menu')->where([
+                        'mca'  => 'user/UsersRelease/release_centre',
+                        'lang' => $this->admin_lang,
+                    ])->update([
+                        'status'      => (1 == $value) ? 1 : 0,
+                        'update_time' => getTime(),
+                    ]);
+                    if ($r) {
+                        getUsersConfigData($inc_type, [$name => $value]);
+
+                        if (1 == $value) {
+                            /*多语言 - 同时开启会员中心*/
+                            if (is_language()) {
+                                $langRow = \think\Db::name('language')->order('id asc')
+                                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                                    ->select();
+                                foreach ($langRow as $key => $val) {
+                                    tpCache('web', ['web_users_switch' => 1], $val['mark']);
+                                }
+                            } else { // 单语言
+                                tpCache('web', ['web_users_switch' => 1]);
+                            }
+                            /*--end*/
+                        }
+                    }
+                    break;
+                }
+
+                case 'level':
+                {
+                    // 会员升级
+                    $r = Db::name('users_menu')->where([
+                        'mca'  => 'user/Level/level_centre',
+                        'lang' => $this->admin_lang,
+                    ])->update([
+                        'status'      => (1 == $value) ? 1 : 0,
+                        'update_time' => getTime(),
+                    ]);
+                    if ($r) {
+                        getUsersConfigData($inc_type, [$name => $value]);
+
+                        if (1 == $value) {
+                            /*多语言 - 同时开启会员中心*/
+                            if (is_language()) {
+                                $langRow = \think\Db::name('language')->order('id asc')
+                                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                                    ->select();
+                                foreach ($langRow as $key => $val) {
+                                    tpCache('web', ['web_users_switch' => 1], $val['mark']);
+                                }
+                            } else { // 单语言
+                                tpCache('web', ['web_users_switch' => 1]);
+                            }
+                            /*--end*/
+                        }
                     }
                     break;
                 }

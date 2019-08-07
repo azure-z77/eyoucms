@@ -317,13 +317,20 @@ class Pay extends Model
             return false;
         }
         $alipay = unserialize($pay_alipay_config);
-        $transaction_type = $data['transaction_type'];
+        $type = $data['transaction_type'];
         // 参数拼装
         $config['app_id'] = $alipay['app_id'];
         $config['merchant_private_key'] = $alipay['merchant_private_key'];
-        $config['transaction_type'] = $transaction_type;
-        $config['notify_url'] = url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true);
-        $config['return_url'] = url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true);
+        $config['transaction_type'] = $type;
+
+        // 异步地址
+        $notify_url = request()->domain().'/index.php?transaction_type='.$type.'&is_ailpay_notify=1';
+        $config['notify_url'] = $notify_url;
+
+        // 同步地址
+        $return_url = url('user/Pay/alipay_return', ['transaction_type'=>$type,'is_ailpay_notify'=>2], true, true);
+        $config['return_url'] = $return_url;
+
         $config['charset']    = 'UTF-8';
         $config['sign_type']  = 'RSA2';
         $config['gatewayUrl'] = 'https://openapi.alipay.com/gateway.do';
@@ -333,7 +340,7 @@ class Pay extends Model
         $aop               = new \AlipayTradeService($config);
 
         $out_trade_no = trim($data['unified_number']);//商户订单号，商户网站订单系统中唯一订单号，必填
-        $subject      = trim('支付');//订单名称，必填
+        $subject      = trim('订单支付');//订单名称，必填
         $total_amount = trim($data['unified_amount']);//付款金额，必填
         $body         = trim('支付宝支付');//商品描述，可空
         //构造参数
@@ -364,12 +371,10 @@ class Pay extends Model
         $charset               = 'utf-8';  //编码格式
         $real_method           = '2';      //调用方式
         $agent                 = 'C4335994340215837114'; //代理机构
-
         $seller_email          = $alipay['account'];//支付宝用户账号
         $security_check_code   = $alipay['code'];   //交易安全校验码
         $partner               = $alipay['id'];     //合作者身份ID
 
-        $transaction_type      = $data['transaction_type']; //自定义，用于验证
         switch ($real_method){
             case '0':
                 $service = 'trade_create_by_buyer';
@@ -381,15 +386,21 @@ class Pay extends Model
                 $service = 'create_direct_pay_by_user';
                 break;
         }
-        
+
+        $type       = $data['transaction_type']; //自定义，用于验证
+        // 异步地址
+        $notify_url = request()->domain().'/index.php?transaction_type='.$type.'&is_ailpay_notify=1';
+        // 同步地址
+        $return_url = url('user/Pay/alipay_return', ['transaction_type'=>$type,'is_ailpay_notify'=>2], true, true);
+        // 参数拼装
         $parameter = array(
           'agent'             => $agent,
           'service'           => $service,
           //合作者ID
           'partner'           => $partner,
           '_input_charset'    => $charset,
-          'notify_url'        => url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true),
-          'return_url'        => url('user/Pay/alipay_return', ['transaction_type'=>$transaction_type], true, true),
+          'notify_url'        => $notify_url,
+          'return_url'        => $return_url,
           /* 业务参数 */
           'subject'           => "支付订单号:".$order['out_trade_no'],
           'out_trade_no'      => $order['out_trade_no'],

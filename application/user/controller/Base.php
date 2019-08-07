@@ -37,6 +37,33 @@ class Base extends Common {
                     'a.lang'            => $this->home_lang,
                     'a.is_activation'   => 1,
                 ])->find();
+
+            /*会员级别*/
+            if ($users['level_maturity_days'] >= '36600') {
+                $users['maturity_code'] = 1;
+                $users['maturity_date'] = '终身';
+            }else if (0 == $users['open_level_time'] && 0 == $users['level_maturity_days']) {
+                $users['maturity_code'] = 0;
+                $users['maturity_date'] = '未升级会员';
+            }else{
+                /*计算剩余天数*/
+                $days = $users['open_level_time'] + ($users['level_maturity_days'] * 86400);
+                // 取整
+                $days = ceil(($days - getTime()) / 86400);
+                if (0 >= $days) {
+                    /*更新会员的级别*/
+                    $users = model('Users')->UpUsersData($users_id);
+                    /* END */
+                    $users['maturity_code'] = 2;
+                    $users['maturity_date'] = '未升级会员';
+                }else{
+                    $users['maturity_code'] = 3;
+                    $users['maturity_date'] = $days.' 天';
+                }
+                /* end */
+            }
+            /* end */
+
             session('users',$users);  //覆盖session 中的 users
             $this->users = $users;
             $this->users_id = $users['users_id'];
@@ -47,7 +74,7 @@ class Base extends Common {
             }
             $this->assign('nickname',$nickname);
             
-            $this->assign('users',$users); //存储用户信息
+            $this->assign('users',$users); //存储会员信息
             $this->assign('users_id',$this->users_id);
         } else {
             //过滤不需要登陆的行为

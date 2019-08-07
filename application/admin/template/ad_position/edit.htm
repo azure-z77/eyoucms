@@ -33,7 +33,7 @@
                     <div class="tab-pane" id="tab_imgupload">
                         {eq name='$main_lang' value='$admin_lang'}
                         <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="imgupload">
-                            <i class="fa fa-photo"></i>上传图片
+                            <i class="fa fa-cloud-upload"></i>新增广告
                         </a>
                         {/eq}
                         <input type="hidden" id="ImagesId">
@@ -63,8 +63,9 @@
                                                 <span class="span_input">
                                                     <input type="hidden" id="{$vo['id']}_Litpic" name="img_litpic[]" value="{$vo['litpic']}"/>
                                                 </span>
-                                                <textarea name="img_title[]" placeholder="请输入标题...">{$vo.title}</textarea>
-                                                <textarea name="img_links[]" placeholder="请输入链接网址...">{$vo.links}</textarea>
+                                                <textarea name="img_title[]" placeholder="请输入标题..." style="height: 28px;">{$vo.title}</textarea>
+                                                <textarea name="img_links[]" placeholder="请输入链接网址..." style="height: 28px;">{$vo.links}</textarea>
+                                                <textarea name="img_intro[]" placeholder="<p>扩展项：支持HTML代码</p>" style="height: 64px;">{$vo.intro}</textarea>
 
                                                 <div class="operation">
                                                     <a href="javascript:void(0);">
@@ -73,11 +74,11 @@
                                                             <input type="hidden" name="img_target[]" value="{$vo['target']}">
                                                         </label>
                                                     </a>
-                                                    <a href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']})">
+                                                    <a href="javascript:void(0);" onclick="copyToClipBoard({$vo['id']});">
                                                         <i class="fa fa-file-code-o"></i>标签调用
                                                     </a>
                                                     {eq name='$main_lang' value='$admin_lang'}
-                                                        <a href="javascript:void(0)" onclick="ClearPicArr(this,'{$vo['litpic']}','{$vo['id']}')">
+                                                        <a href="javascript:void(0);" onclick="ClearPicArr(this,'{$vo['litpic']}','{$vo['id']}');">
                                                             <i class="fa fa-remove"></i>删除
                                                         </a>
                                                     {/eq}
@@ -112,8 +113,9 @@
                                 <span class="span_input">
                                     <input type="hidden"/>
                                 </span>
-                                <textarea placeholder="请输入标题..."></textarea>
-                                <textarea placeholder="请输入链接网址..."></textarea>
+                                <textarea placeholder="请输入标题..." style="height: 28px;"></textarea>
+                                <textarea placeholder="请输入链接网址..." style="height: 28px;"></textarea>
+                                <textarea placeholder="<p>扩展项：支持HTML代码</p>" style="height: 64px;"></textarea>
                                 <div class="operation">
                                     <a href="javascript:void(0)">&nbsp;&nbsp;</a>
                                     <a href="javascript:void(0)">&nbsp;&nbsp;</a>
@@ -248,28 +250,30 @@
                 $(".images_upload:eq(0)").find('textarea:eq(0)').attr('name','img_title[]');
                 // 处理跳转链接
                 $(".images_upload:eq(0)").find('textarea:eq(1)').attr('name','img_links[]');
+                // 处理内容描述
+                $(".images_upload:eq(0)").find('textarea:eq(2)').attr('name','img_intro[]');
                 // 提交新窗口选项
-                $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<label><input type='checkbox' title='在新窗口打开' onclick='CheckedTarget(this)'/>新窗口<input type='hidden' name='img_target[]' value='0'></label>");
+                $(".images_upload:eq(0)").find('div.operation a:eq(0)').html("<label><input type='checkbox' title='在新窗口打开' onclick='CheckedTarget(this);'/>新窗口<input type='hidden' name='img_target[]' value='0'></label>");
                 // 删除按钮
-                $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"ClearPicArr(this,'"+paths[i]+"')").html("<i class='fa fa-remove'></i>删除");
+                $(".images_upload:eq(0)").find('div.operation a:eq(1)').attr('onclick',"ClearPicArr(this,'"+paths[i]+"',0);").html("<i class='fa fa-remove'></i>删除");
             }
         }
     }
 
     // 上传之后删除组图input
-    function ClearPicArr(obj,path,id='')
+    function ClearPicArr(obj,path,id)
     {
         // 删除数据库记录
         $.ajax({
             type:'POST',
             url:"{:url('AdPosition/del_imgupload')}",
-            data:{del_id:id},
+            data:{del_id:id,_ajax:1},
             success:function(){
                 $(obj).parent().parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片
                 $.ajax({
                     type:'POST',
                     url:"{:url('Uploadify/delupload')}",
-                    data:{action:"del", filename:path},
+                    data:{action:"del", filename:path,_ajax:1},
                     success:function(){}
                 }); 
             }
@@ -279,9 +283,9 @@
     // 代码调用js
     function copyToClipBoard(id) {
         var adstr = "{eyou:ad aid='" + id + "'}\r\n   <a href='{$"+"field.links}' {$"+"field.target}><img src='{$"+"field.litpic}' alt='{$"+"field.title}' /></a>\r\n{/eyou:ad";
-        var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px"><dd>标签 ad 调用:</dd>'
-        contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:80px;">' + adstr + '}</textarea>'
-        contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将对应标签代码复制并粘贴到对应模板文件中！</dd></dl></div>'
+        var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px"><dd>标签 ad 调用:</dd>';
+        contentdiv += '<textarea rows="4" cols="60" style="width:400px;height:80px;">' + adstr + '}</textarea>';
+        contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color: #F60;">请将对应标签代码复制并粘贴到对应模板文件中！</dd></dl></div>';
         layer.open({
             title: '代码调用',
             type: 1,
@@ -300,6 +304,7 @@
 
         }
     });
+    //因为他们要拖动，所以尽量设置他们的文字不能选择。  
     $( ".sort-list" ).disableSelection();
 </script>
 

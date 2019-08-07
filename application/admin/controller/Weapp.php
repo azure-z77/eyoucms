@@ -39,6 +39,12 @@ class Weapp extends Base
      */
     public function _initialize() {
         parent::_initialize();
+
+        $web_weapp_switch = tpCache('web.web_weapp_switch');
+        if (1 != $web_weapp_switch) {
+            $this->error('插件功能没有开启！');
+        }
+
         $this->weappM = model('Weapp');
         $this->weappLogic = new WeappLogic();
         //  更新插件
@@ -620,7 +626,7 @@ class Weapp extends Base
                     /*解压文件*/
                     $zip = new \ZipArchive();//新建一个ZipArchive的对象
                     if ($zip->open($savePath.$fileName) != true) {
-                        $this->error("插件压缩包读取失败!");
+                        $this->error("插件压缩包读取失败!", url('Weapp/index'));
                     }
                     $zip->extractTo($savePath.$folderName.DS);//假设解压缩到在当前路径下插件名称文件夹内
                     $zip->close();//关闭处理的zip文件
@@ -630,7 +636,9 @@ class Weapp extends Base
                     $dirList = glob($savePath.$folderName.DS.WEAPP_DIR_NAME.DS.'*');
                     $weappPath = !empty($dirList) ? $dirList[0] : '';
                     if (empty($weappPath)) {
-                        $this->error('插件压缩包缺少目录文件');
+                        @unlink(realpath($savePath.$fileName));
+                        delFile($savePath.$folderName, true);
+                        $this->error('插件压缩包缺少目录文件', url('Weapp/index'));
                     }
                     
                     $weappPath = str_replace("\\", DS, $weappPath);
@@ -639,6 +647,31 @@ class Weapp extends Base
                     // if (is_dir(ROOT_PATH.WEAPP_DIR_NAME.DS.$weappName)) {
                     //     $this->error("已存在同名插件{$weappName}，请手工移除".WEAPP_DIR_NAME.DS.$weappName."目录");
                     // }
+                    /*--end*/
+
+                    /*修复非法插件上传，导致任意文件上传的漏洞*/
+                    $configfile = $savePath.$folderName.DS.WEAPP_DIR_NAME.DS.$weappName.'/config.php';
+                    if (!file_exists($configfile)) {
+                        @unlink(realpath($savePath.$fileName));
+                        delFile($savePath.$folderName, true);
+                        $this->error('插件不符合标准！', url('Weapp/index'));
+                    } else {
+                        $configdata = include($configfile);
+                        if (empty($configdata) || !is_array($configdata)) {
+                            @unlink(realpath($savePath.$fileName));
+                            delFile($savePath.$folderName, true);
+                            $this->error('插件不符合标准！', url('Weapp/index'));
+                        } else {
+                            $sampleConfig = include(DATA_NAME.DS.'weapp'.DS.'Sample'.DS.'weapp'.DS.'Sample'.DS.'config.php');
+                            foreach ($configdata as $key => $val) {
+                                if ('permission' != $key && !isset($sampleConfig[$key])) {
+                                    @unlink(realpath($savePath.$fileName));
+                                    delFile($savePath.$folderName, true);
+                                    $this->error('插件不符合标准！', url('Weapp/index'));
+                                }
+                            }
+                        }
+                    }
                     /*--end*/
 
                     // 递归复制文件夹            
@@ -722,7 +755,7 @@ class Weapp extends Base
             if ('Sample' == $code) {
                 $this->error('插件标识已被占用！');
             }
-            if (!preg_match('/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/', $post['version'])) {
+            if (!preg_match('/^v\d+\.\d+\.\d+([0-9\.]*)$/', $post['version'])) {
                 $this->error('插件版本号格式不正确！');
             }
             if (empty($post['min_version'])) {

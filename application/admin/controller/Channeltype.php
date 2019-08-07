@@ -436,7 +436,7 @@ EOF;
                             'update_time'   => getTime(),
                         ]);
                     if($r){
-                        extra_cache('admin_channeltype_list_logic', NULL);
+                        delFile(CACHE_PATH, true);
                         adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
                         $this->success('操作成功', null, ['confirm'=>0]);
                     }else{
@@ -449,6 +449,7 @@ EOF;
                         $msg .= '<font color="red">'.$val['title'].$val['file']."</font><br/>";
                         $tpltype[] = $val['type'];
                     }
+                    delFile(CACHE_PATH, true);
                     $this->success($msg, null, ['confirm'=>1,'tpltype'=>base64_encode(json_encode($tpltype))]);
                 }
             } else {

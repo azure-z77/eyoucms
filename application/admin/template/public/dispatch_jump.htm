@@ -59,6 +59,7 @@
             $listurl = cookie('ENV_LIST_URL')."&typeid=".$data['tid'];
             $env_is_uphtml = cookie('ENV_IS_UPHTML');
             $action_name = request()->action();
+            $ctl_name = request()->controller();
             if ('add' == $action_name) {
                 $msg = '发布';
                 $msg1 = '继续发布';
@@ -106,12 +107,13 @@
         /* 生成静态页面代码 */
         var aid = "{$data['aid']}";
         var typeid = "{$data['tid']}";
+		var ctl_name = "{$ctl_name}";
         if(aid > 0){
             $.ajax({
                 url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
                 type:'POST',
                 dataType:'json',
-                data:{aid:aid,typeid:typeid,type:'view',_ajax:1},
+                data:{aid:aid,typeid:typeid,type:'view',ctl_name:ctl_name,_ajax:1},
                 success:function(res){
                     layer.closeAll();
                     $('#tips').html('生成文档HTML成功，正在生成栏目……');
@@ -119,7 +121,7 @@
                         url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
                         type:'POST',
                         dataType:'json',
-                        data:{aid:aid,typeid:typeid,type:'lists',_ajax:1},
+                        data:{aid:aid,typeid:typeid,type:'lists',ctl_name:ctl_name,_ajax:1},
                         success:function(res){
                             layer.closeAll();
                             $('#tips').html('');

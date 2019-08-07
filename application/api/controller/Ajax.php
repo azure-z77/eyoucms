@@ -255,7 +255,9 @@ class Ajax extends Base
     // 验证码获取
     public function vertify()
     {
+        $time = getTime();
         $type = input('param.type/s', 'default');
+        $token = input('param.token/s', '');
         $configList = \think\Config::get('captcha');
         $captchaArr = array_keys($configList);
         if (in_array($type, $captchaArr)) {
@@ -265,7 +267,11 @@ class Ajax extends Base
             /*--end*/
             ob_clean(); // 清空缓存，才能显示验证码
             $Verify = new \think\Verify($config);
-            $Verify->entry($type);
+            if (!empty($token)) {
+                $Verify->entry($token);
+            } else {
+                $Verify->entry($type);
+            }
         }
         exit();
     }
@@ -319,6 +325,56 @@ class Ajax extends Base
                 $this->success($res['msg']);
             } else {
                 $this->error($res['msg']);
+            }
+        }
+    }
+
+    // 判断文章内容阅读权限
+    public function get_arcrank()
+    {
+        $aid = input('param.aid/d');
+        if (!empty($aid) && IS_AJAX) {
+            // 用户ID
+            $users_id = session('users_id');
+            // 文章查看所需等级值
+            $Arcrank = M('archives')->alias('a')
+                ->field('a.users_id, a.arcrank, b.level_value, b.level_name')
+                ->join('__USERS_LEVEL__ b', 'a.arcrank = b.level_value', 'LEFT')
+                ->where(['a.aid' => $aid])
+                ->find();
+
+            if (!empty($users_id)) {
+                // 会员级别等级值
+                $UsersDataa = Db::name('users')->alias('a')
+                    ->field('a.users_id,b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                    ->where(['a.users_id'=>$users_id])
+                    ->find();
+                if (0 == $Arcrank['arcrank']) {
+                    $this->success('允许查阅！');
+                }else if (-1 == $Arcrank['arcrank']) {
+                    if ($users_id == $Arcrank['users_id']) {
+                        $this->success('允许查阅！');
+                    }else{
+                        $msg = '待审核稿件，你没有权限阅读！';
+                    }
+                }else if ($UsersDataa['level_value'] < $Arcrank['level_value']) {
+                    $msg = '内容需要【'.$Arcrank['level_name'].'】才可以查看，您为【'.$UsersDataa['level_name'].'】，请先升级！';
+                }else{
+                   $this->success('允许查阅！');
+                }
+                $this->error($msg);
+            }else{
+                if (0 == $Arcrank['arcrank']) {
+                    $this->success('允许查阅！');
+                }else if (-1 == $Arcrank['arcrank']) {
+                    $msg = '待审核稿件，你没有权限阅读！';
+                }else if (!empty($Arcrank['level_name'])) {
+                    $msg = '文章需要【'.$Arcrank['level_name'].'】才可以查看，游客不可查看，请登录！';
+                }else{
+                    $msg = '游客不可查看，请登录！';
+                }
+                $this->error($msg);
             }
         }
     }

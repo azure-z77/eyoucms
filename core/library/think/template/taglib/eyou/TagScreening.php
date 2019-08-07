@@ -46,7 +46,7 @@ class TagScreening extends Base
     /**
      * 获取搜索表单
      */
-    public function getScreening($currentstyle='', $addfields='', $addfieldids='', $alltxt='')
+    public function getScreening($currentstyle='', $addfields='', $addfieldids='', $alltxt='', $typeid='')
     {
         if ($this->home_lang != $this->main_lang) {
             return false;
@@ -68,7 +68,9 @@ class TagScreening extends Base
         }else{
             $this->tid = input('param.tid/d');
         }
-
+        if (!empty($typeid)) {
+            $this->tid = $typeid;
+        }
         // 查询数据条件
         $where = [
             'a.is_screening' => 1,
@@ -184,7 +186,19 @@ class TagScreening extends Base
                     unset($param_query[$url_screen_var]);
                     $param_query[$url_screen_var] = 1;
                     /* end */
-                    $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                    if (!empty($typeid)) {
+                        // 存在typeid表示在首页展示
+                        unset($param_query['m']);
+                        unset($param_query['c']);
+                        unset($param_query['a']);
+                        unset($param_query['tid']);
+                        if (empty($param_query['page'])) {
+                            $param_query['page'] = 1;
+                        }
+                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.http_build_query($param_query);
+                    }else{
+                        $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                    }
                     $url = urldecode($url);
                     $url = $this->auto_hide_index($url);
                     // 拼装onClick事件
@@ -272,7 +286,19 @@ class TagScreening extends Base
                     $param_query[$url_screen_var] = 1;
                     /* end */
                     // 参数拼装URL
-                    $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                    if (!empty($typeid)) {
+                        // 存在typeid表示在首页展示
+                        unset($param_query['m']);
+                        unset($param_query['c']);
+                        unset($param_query['a']);
+                        unset($param_query['tid']);
+                        if (empty($param_query['page'])) {
+                            $param_query['page'] = 1;
+                        }
+                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.http_build_query($param_query);
+                    }else{
+                        $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                    }
                     $url = urldecode($url);
                     $url = $this->auto_hide_index($url);
                     // 封装onClick

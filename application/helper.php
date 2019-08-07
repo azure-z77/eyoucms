@@ -274,10 +274,7 @@ if (!function_exists('typeurl')) {
             $eyouUrl .= $vars;
         } elseif ('on' != $uiset && 2 == $seo_pseudo) { // 生成静态页面代码
             
-            static $upcache = null;
-            null === $upcache && $upcache = input('param.upcache/d', 0);
-            
-            if (isMobile() || !empty($upcache)) { // 手机端访问非静态页面
+            if (isMobile()) { // 手机端访问非静态页面
                 if (is_array($param)) {
                     $vars = array(
                         'tid'   => $param['id'],
@@ -288,17 +285,7 @@ if (!function_exists('typeurl')) {
                 }
                 static $home_lang = null;
                 null == $home_lang && $home_lang = get_home_lang(); // 前台语言 by 小虎哥
-                static $seo_inlet = null;
-                null == $seo_inlet && $seo_inlet = config('ey_config.seo_inlet');
-                static $seo_inlet_str = null;
-                if (null === $seo_inlet_str) {
-                    if (1 == $seo_inlet) {
-                        $seo_inlet_str = '/';
-                    } else {
-                        $seo_inlet_str = '/index.php';
-                    }
-                }
-                $eyouUrl = ROOT_DIR.$seo_inlet_str.'?m=home&c=Lists&a=index&'.$vars.'&lang='.$home_lang;
+                $eyouUrl = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&'.$vars.'&lang='.$home_lang;
             }
             else
             { // PC端访问是静态页面
@@ -407,10 +394,7 @@ if (!function_exists('arcurl')) {
             $eyouUrl .= $vars;
         } elseif ($seo_pseudo == 2 && $uiset != 'on') { // 生成静态页面代码
             
-            static $upcache = null;
-            null === $upcache && $upcache = input('param.upcache/d', 0);
-            
-            if (isMobile() || !empty($upcache)) { // 手机端访问非静态页面
+            if (isMobile()) { // 手机端访问非静态页面
                 if (is_array($param)) {
                     $vars = array(
                         'aid'   => $param['aid'],
@@ -421,17 +405,7 @@ if (!function_exists('arcurl')) {
                 }
                 static $home_lang = null;
                 null == $home_lang && $home_lang = get_home_lang(); // 前台语言 by 小虎哥
-                static $seo_inlet = null;
-                null == $seo_inlet && $seo_inlet = config('ey_config.seo_inlet');
-                static $seo_inlet_str = null;
-                if (null === $seo_inlet_str) {
-                    if (1 == $seo_inlet) {
-                        $seo_inlet_str = '/';
-                    } else {
-                        $seo_inlet_str = '/index.php';
-                    }
-                }
-                $eyouUrl = ROOT_DIR.$seo_inlet_str.'?m=home&c=View&a=index&'.$vars.'&lang='.$home_lang;
+                $eyouUrl = ROOT_DIR.'/index.php?m=home&c=View&a=index&'.$vars.'&lang='.$home_lang;
             }
             else
             { // PC端访问是静态页面

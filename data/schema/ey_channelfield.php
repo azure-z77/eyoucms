@@ -99,6 +99,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'is_release' => 
+  array (
+    'name' => 'is_release',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'ifeditable' => 
   array (
     'name' => 'ifeditable',

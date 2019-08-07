@@ -124,7 +124,8 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            <dl class="row {if condition="empty($config['seo_inlet']) OR (1 == $config['seo_inlet'] AND 1 == $config['seo_force_inlet'])"}{else /}none{/if}" id="dl_seo_force_inlet">
+            <!-- <dl class="row {if condition="empty($config['seo_inlet']) OR (1 == $config['seo_inlet'] AND 1 == $config['seo_force_inlet'])"}{else /}none{/if}" id="dl_seo_force_inlet"> -->
+            <dl class="row none" id="dl_seo_force_inlet">
                 <dt class="tit">
                     <label for="site_url">强制去除index.php</label>
                 </dt>
@@ -320,6 +321,10 @@
                     if (content.indexOf("Congratulations on passing") == -1)
                     {
                         $('#seo_inlet').val(0);
+                        $('label[for=seo_force_inlet1]').removeClass('selected');
+                        $('#seo_force_inlet1').attr('checked','');
+                        $('label[for=seo_force_inlet0]').addClass('selected');
+                        $('#seo_force_inlet0').attr('checked','checked');
                         if (2 != $('input[name=seo_pseudo]:checked').val()) {
                             $('#dl_seo_force_inlet').show();
                         }
@@ -335,6 +340,10 @@
                     } else {
                         $('#seo_inlet').val(1);
                         $('#dl_seo_force_inlet').hide();
+                        $('label[for=seo_force_inlet0]').removeClass('selected');
+                        $('#seo_force_inlet0').attr('checked','');
+                        $('label[for=seo_force_inlet1]').addClass('selected');
+                        $('#seo_force_inlet1').attr('checked','checked');
                     }
                 }
             });

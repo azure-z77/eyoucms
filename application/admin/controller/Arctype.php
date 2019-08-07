@@ -382,10 +382,7 @@ class Arctype extends Base
         $this->assign('hasChildren',$hasChildren);
 
         /* 模型 */
-        $map = array(
-            'status'    => 1,
-        );
-        $channeltype_list = model('Channeltype')->getAll('id,title,nid,ctl_name', $map, 'id');
+        $channeltype_list = model('Channeltype')->getAll('id,title,nid,ctl_name', [], 'id');
         // 模型对应模板文件不存在报错
         if (!isset($channeltype_list[$info['current_channel']])) {
             $row = model('Channeltype')->getInfo($info['current_channel']);

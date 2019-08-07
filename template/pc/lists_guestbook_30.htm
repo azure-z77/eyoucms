@@ -68,6 +68,17 @@
                   {/eyou:volist}
                 </select>
               </div>
+
+              <div class="form-group">
+              {eyou:eq name='$field.IsVertify' value='1'}
+                  <div class="form-group">
+                    <input type="text" name="vertify" autocomplete="off" class="form-control" placeholder="图片验证码" style="width: 100px;float: left;" />
+                    <img {$field.VertifyData} title="看不清？点击更换验证码" class="chicuele" align="absmiddle" style="margin-left: 2px;width: 80px;height: 35px;" >
+                    看不清？<a href="javascript:void(0);" id="a_vertify" {$field.VertifyData}>点击更换</a>
+                  </div>
+              {/eyou:eq}
+              </div>
+
               <div class="div-guest-submit"><input type="submit" class="btn btn-primary btn-block btn-squared" value="提交"></div>
               {$field.hidden}
           </form>

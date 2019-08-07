@@ -15,9 +15,9 @@ $cacheKey = "extra_global_channeltype";
 $channeltype_row = \think\Cache::get($cacheKey);
 if (empty($channeltype_row)) {
     $channeltype_row = \think\Db::name('channeltype')->field('id,nid')
-        ->where([
-            'status' => 1,
-        ])
+        // ->where([
+        //     'status' => 1,
+        // ])
         ->order('id asc')
         ->select();
     \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
@@ -77,9 +77,9 @@ return array(
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
     'parse_url_param'   => ['uiset','v','lang'],
-    // 用户金额明细类型
+    // 会员金额明细类型
     'pay_cause_type_arr' => array(
-        0   => '消费',
+        0   => '升级消费',
         1   => '账户充值',
         // 2   => '后续添加',
     ),
@@ -87,7 +87,7 @@ return array(
     'pay_status_arr' => array(
         // 0   => '失败',
         1   => '未付款',
-        // 2   => '已付款',
+        2   => '已完成',
         3   => '已充值',
         4   => '订单取消',
         // 5   => '后续添加',
@@ -134,6 +134,44 @@ return array(
     'field_region_all_type' => ['-1','0','1','338','10543','31929'],
     // URL中筛选标识变量
     'url_screen_var' => 'ZXljbXM',
+    // 会员投稿发布的文章状态，前台使用
+    'home_article_arcrank' => array(
+        -1  => '未审核',
+        0   => '审核通过',
+    ),
+    // 会员期限，后台使用
+    'admin_member_limit_arr' => array(
+        1 => array(
+            'limit_id'   => 1,
+            'limit_name' => '一周',
+            'maturity_days'  => 7,
+        ),
+        2 => array(
+            'limit_id'   => 2,
+            'limit_name' => '一个月',
+            'maturity_days'  => 30,
+        ),
+        3 => array(
+            'limit_id'   => 3,
+            'limit_name' => '三个月',
+            'maturity_days'  => 90,
+        ),
+        4 => array(
+            'limit_id'   => 4,
+            'limit_name' => '半年',
+            'maturity_days'  => 183,
+        ),
+        5 => array(
+            'limit_id'   => 5,
+            'limit_name' => '一年',
+            'maturity_days'  => 366,
+        ),
+        6 => array(
+            'limit_id'   => 6,
+            'limit_name' => '终身',
+            'maturity_days'  => 36600,
+        ),
+    ),
     // 清理文件时，需要查询的数据表和字段
     'get_tablearray' => array(
         0 => array(

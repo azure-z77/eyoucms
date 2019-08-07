@@ -14,6 +14,7 @@
 namespace app\home\controller;
 
 use think\Db;
+use think\Verify;
 
 class Lists extends Base
 {
@@ -43,7 +44,6 @@ class Lists extends Base
         /*URL上参数的校验*/
         $seo_pseudo = config('ey_config.seo_pseudo');
         $url_screen_var = config('global.url_screen_var');
-        $upcache = input('param.upcache/d', 0); // 生成静态页面代码 - PC端带这个参数可以访问非静态页面
         if (!isset($param[$url_screen_var]) && 3 == $seo_pseudo)
         {
             if (stristr($this->request->url(), '&c=Lists&a=index&')) {
@@ -51,10 +51,10 @@ class Lists extends Base
             }
             $map = array('a.dirname'=>$tid);
         }
-        else if (isset($param[$url_screen_var]) || 1 == $seo_pseudo || (2 == $seo_pseudo && (isMobile() || !empty($upcache))))
+        else if (isset($param[$url_screen_var]) || 1 == $seo_pseudo || (2 == $seo_pseudo && isMobile()))
         {
             $seo_dynamic_format = config('ey_config.seo_dynamic_format');
-            if (2 == $seo_dynamic_format && stristr($this->request->url(), '&c=Lists&a=index&')) {
+            if (1 == $seo_pseudo && 2 == $seo_dynamic_format && stristr($this->request->url(), '&c=Lists&a=index&')) {
                 abort(404,'页面不存在');
             } else if (!is_numeric($tid) || strval(intval($tid)) !== strval($tid)) {
                 abort(404,'页面不存在');
@@ -273,6 +273,24 @@ class Lists extends Base
             if ($count > 0) {
                 $this->error('同一个IP在60秒之内不能重复提交！');
             }
+
+            /* 处理判断验证码 */
+            $is_vertify = 1; // 默认开启验证码
+            $guestbook_captcha = config('captcha.guestbook');
+            if (!function_exists('imagettftext') || empty($guestbook_captcha['is_on'])) {
+                $is_vertify = 0; // 函数不存在，不符合开启的条件
+            }
+            if (1 == $is_vertify) {
+                if (empty($post['vertify'])) {
+                    $this->error('图片验证码不能为空！');
+                }
+
+                $verify = new Verify();
+                if (!$verify->check($post['vertify'], $token)) {
+                    $this->error('图片验证码不正确！');
+                }
+            }
+            /* END */
 
             $this->channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
 

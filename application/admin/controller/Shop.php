@@ -27,7 +27,7 @@ class Shop extends Base {
      */
     public function __construct(){
         parent::__construct();
-        $this->users_db              = Db::name('users');                   // 用户信息表
+        $this->users_db              = Db::name('users');                   // 会员信息表
         $this->shop_order_db         = Db::name('shop_order');              // 订单主表
         $this->shop_order_details_db = Db::name('shop_order_details');      // 订单明细表
         $this->shop_address_db       = Db::name('shop_address');            // 收货地址表

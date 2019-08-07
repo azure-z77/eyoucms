@@ -58,7 +58,7 @@ class TagArclist extends Base
      * @param     string  $pagesize  分页显示条数
      * @return    array
      */
-    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderWay = '', $tagid = '', $tag = '', $pagesize = 0)
+    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderWay = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '')
     {
         $result = false;
 
@@ -94,9 +94,9 @@ class TagArclist extends Base
 
         $typeid = $param['typeid'];
 
+        $allow_release_channel = config('global.allow_release_channel');
         /*不指定模型ID、栏目ID，默认显示所有可以发布文档的模型ID下的文档*/
         if (("" === $channeltype && empty($typeid)) || 0 === $channeltype) {
-            $allow_release_channel = config('global.allow_release_channel');
             $channeltype = $param['channel'] = implode(',', $allow_release_channel);
         }
         /*--end*/
@@ -115,7 +115,11 @@ class TagArclist extends Base
                         return false;
                     }
                     $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : ''; // 当前栏目ID所属模型ID
-
+                    /*当前模型ID不属于含有列表模型，直接返回无数据*/
+                    if (false === array_search($channeltype, $allow_release_channel)) {
+                        return false;
+                    }
+                    /*end*/
                     /*获取当前栏目下的所有同模型的子孙栏目*/
                     $arctype_list = model("Arctype")->getHasChildren($channel_info['id']);
                     foreach ($arctype_list as $key => $val) {
@@ -212,51 +216,7 @@ class TagArclist extends Base
         }
 
         // 给排序字段加上表别名
-        switch ($orderby) {
-            case 'hot':
-            case 'click':
-                $orderby = "a.click {$orderWay}";
-                break;
-
-            case 'id': // 兼容织梦的写法
-            case 'aid':
-                $orderby = "a.aid {$orderWay}";
-                break;
-
-            case 'now':
-            case 'new': // 兼容织梦的写法
-            case 'pubdate': // 兼容织梦的写法
-            case 'add_time':
-                $orderby = "a.add_time {$orderWay}";
-                break;
-                
-            case 'sortrank': // 兼容织梦的写法
-            case 'sort_order':
-                $orderby = "a.sort_order {$orderWay}";
-                break;
-                
-            case 'rand':
-                $orderby = "rand()";
-                break;
-            
-            default:
-                {
-                    if (empty($orderby)) {
-                        $orderby = "a.sort_order asc, a.aid desc";
-                    } elseif (trim($orderby) != 'rand()') {
-                        $orderbyArr = explode(',', $orderby);
-                        foreach ($orderbyArr as $key => $val) {
-                            $val = trim($val);
-                            if (preg_match('/^([a-z]+)\./i', $val) == 0) {
-                                $val = 'a.'.$val;
-                                $orderbyArr[$key] = $val;
-                            }
-                        }
-                        $orderby = implode(',', $orderbyArr);
-                    }
-                }
-                break;
-        }
+        $orderby = getOrderBy($orderby,$orderWay,true);
 
         // 获取查询的控制器名
         $channeltype_info = model('Channeltype')->getInfo($channeltype);
@@ -314,7 +274,10 @@ class TagArclist extends Base
                     } else {
                         $val['is_litpic'] = 1; // 有封面图
                     }*/
-                    $val['litpic'] = thumb_img(get_default_pic($val['litpic'])); // 默认封面图
+                    $val['litpic'] = get_default_pic($val['litpic']); // 默认封面图
+                    if ('on' == $thumb) { // 属性控制是否使用缩略图
+                        $val['litpic'] = thumb_img($val['litpic']);
+                    }
                     /*--end*/
 
                     $result[$key] = $val;

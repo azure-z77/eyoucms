@@ -52,7 +52,7 @@
                             <div class="tc">所属栏目</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w50">
-                            <div class="tc">推荐</div>
+                            <div class="tc">审核</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w60">
                             <div class="tc">浏览量</div>
@@ -111,10 +111,10 @@
                             </td>
                             <td>
                                 <div class="tc w50">
-                                    {if condition="$vo['is_recom'] eq 1"}
-                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
+                                    {if condition="$vo['arcrank'] eq -1"}
+                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-ban"></i>否</span>
                                     {else /}
-                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('archives','aid','{$vo.aid}','is_recom',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-check-circle"></i>是</span>
                                     {/if}
                                 </div>
                             </td>

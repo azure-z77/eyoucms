@@ -234,14 +234,10 @@ class Archives extends Base
         $assign_data['arctype_html'] = allow_release_arctype($typeid, array());
         /*--end*/
         
+        /*前台URL模式*/
+        $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo');
+
         $this->assign($assign_data);
-        
-        /* 生成静态页面代码 */
-        $aid = input('param.aid/d',0);
-        $this->assign('aid',$aid);
-        $tid = input('param.tid/d',0);
-        $this->assign('typeid',$tid);
-        /* end */
         
         return $this->fetch('index_archives');
     }

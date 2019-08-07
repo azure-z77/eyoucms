@@ -25,12 +25,12 @@ class Users extends Base
     public function _initialize() {
         parent::_initialize();
         $this->smtpmailLogic = new SmtpmailLogic;
-        $this->users_db       = Db::name('users');      // 用户数据表
-        $this->users_level_db = Db::name('users_level'); // 用户等级表
-        $this->users_parameter_db  = Db::name('users_parameter'); // 用户属性表
-        $this->users_list_db  = Db::name('users_list'); // 用户属性信息表
-        $this->users_config_db= Db::name('users_config');// 用户配置表
-        $this->users_money_db = Db::name('users_money');// 用户金额明细表
+        $this->users_db       = Db::name('users');      // 会员数据表
+        $this->users_level_db = Db::name('users_level'); // 会员等级表
+        $this->users_parameter_db  = Db::name('users_parameter'); // 会员属性表
+        $this->users_list_db  = Db::name('users_list'); // 会员属性信息表
+        $this->users_config_db= Db::name('users_config');// 会员配置表
+        $this->users_money_db = Db::name('users_money');// 会员金额明细表
         $this->smtp_record_db = Db::name('smtp_record');// 发送邮箱记录表
 	
 	    // 微信配置信息
@@ -59,7 +59,7 @@ class Users extends Base
         return $this->fetch('users_centre');
     }
 
-    // 用户选择登陆方式界面
+    // 会员选择登陆方式界面
     public function users_select_login()
     {
         // 若存在则调转至会员中心
@@ -121,14 +121,14 @@ class Users extends Base
         
     }
 
-    // 授权之后，获取用户信息
+    // 授权之后，获取会员信息
     public function get_wechat_info(){
         // 微信配置信息
         $appid  = $this->pay_wechat_config['appid']; 
         $secret = $this->pay_wechat_config['appsecret']; 
         $code   = input('param.code/s');
 
-        // 获取到用户openid
+        // 获取到会员openid
         $get_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='.$appid.'&secret='.$secret.'&code='.$code.'&grant_type=authorization_code';
         $data       = httpRequest($get_token_url);
         $WeChatData = json_decode($data, true);
@@ -153,11 +153,11 @@ class Users extends Base
             if (!empty($result)) {
                 $username = $username.rand('100,999');
             }
-            // 获取用户信息
+            // 获取会员信息
             $get_userinfo = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$WeChatData["access_token"].'&openid='.$WeChatData["openid"].'&lang=zh_CN';
             $UserInfo = httpRequest($get_userinfo);
             $UserInfo = json_decode($UserInfo, true);
-            // 新增用户和微信绑定
+            // 新增会员和微信绑定
             $UsersData = [
                 'username'       => $username,
                 'nickname'       => $UserInfo['nickname'],
@@ -166,8 +166,8 @@ class Users extends Base
                 'last_ip'        => clientIP(),
                 'reg_time'       => getTime(),
                 'last_login'     => getTime(),
-                'is_activation'  => 1, // 微信注册用户，默认开启激活
-                'register_place' => 2, // 前台微信注册用户
+                'is_activation'  => 1, // 微信注册会员，默认开启激活
+                'register_place' => 2, // 前台微信注册会员
                 'login_count'    => Db::raw('login_count+1'),
                 'head_pic'       => $UserInfo['headimgurl'],
                 'lang'           => $this->home_lang,
@@ -181,7 +181,7 @@ class Users extends Base
 
             $users_id = $this->users_db->add($UsersData);
             if (!empty($users_id)) {
-                // 新增成功，将用户信息存入session
+                // 新增成功，将会员信息存入session
                 $GetUsers = $this->users_db->where('users_id',$users_id)->find();
                 session('users_id',$GetUsers['users_id']);
                 session('open_id', $GetUsers['open_id']);
@@ -242,8 +242,13 @@ class Users extends Base
                     'lang'      => $this->home_lang,
                 ])->find();
             if (!empty($users)) {
+                if (!empty($users['admin_id'])) {
+                    // 后台账号不允许在前台通过账号密码登录，只能后台登录时同步到前台
+                    $this->error('前台禁止管理员登录！', null, ['status'=>1]);
+                }
+
                 if (empty($users['is_activation'])) {
-                    $this->error('该用户尚未激活，请联系管理员！', null, ['status'=>1]);
+                    $this->error('该会员尚未激活，请联系管理员！', null, ['status'=>1]);
                 }
 
                 $users_id = $users['users_id'];
@@ -257,7 +262,7 @@ class Users extends Base
                         }
                     }
 
-                    // 判断是前台还是后台注册的用户，后台注册不受注册验证影响，1为后台注册，2为前台注册。
+                    // 判断是前台还是后台注册的会员，后台注册不受注册验证影响，1为后台注册，2为前台注册。
                     if (2 == $users['register_place']) {
                         $usersVerificationRow = M('users_config')->where([
                                 'name'  => 'users_verification',
@@ -271,7 +276,7 @@ class Users extends Base
                         }
                     }
 
-                    // 用户users_id存入session
+                    // 会员users_id存入session
                     session('users_id',$users_id);
                     session('users',$users);
                     setcookie('users_id',$users_id,null);
@@ -299,7 +304,7 @@ class Users extends Base
         return $this->fetch('users_login');
     }
 
-    // 用户注册
+    // 会员注册
     public function reg()
     {
         if ($this->users_id > 0) {
@@ -317,7 +322,14 @@ class Users extends Base
         if (IS_AJAX_POST) {
             $post = input('post.');
             $post['username'] = trim($post['username']);
-
+            
+            $users_reg_notallow = explode(',', getUsersConfigData('users.users_reg_notallow'));
+            if (!empty($users_reg_notallow)) {
+                if (in_array($post['username'], $users_reg_notallow)) {
+                    $this->error('用户名为系统禁止注册！', null, ['status'=>1]);
+                }
+            }
+            
             if (empty($post['username'])) {
                 $this->error('用户名不能为空！', null, ['status'=>1]);
             } else if(!preg_match("/^[\x{4e00}-\x{9fa5}\w\-\_\@\#]{2,30}$/u", $post['username'])){
@@ -354,23 +366,23 @@ class Users extends Base
                 }
             }
             
-            // 处理用户属性数据
+            // 处理会员属性数据
             $ParaData = [];
             if (is_array($post['users_'])) {
                 $ParaData = $post['users_'];
             }
             unset($post['users_']);
 
-            // 处理提交的用户属性中必填项是否为空
-            // 必须传入提交的用户属性数组
+            // 处理提交的会员属性中必填项是否为空
+            // 必须传入提交的会员属性数组
             $EmptyData = model('Users')->isEmpty($ParaData);
             if (!empty($EmptyData)) {
                 $this->error($EmptyData, null, ['status'=>1]);
             }
 
-            // 处理提交的用户属性中邮箱和手机是否已存在
+            // 处理提交的会员属性中邮箱和手机是否已存在
             // IsRequired方法传入的参数有2个
-            // 第一个必须传入提交的用户属性数组
+            // 第一个必须传入提交的会员属性数组
             // 第二个users_id，注册时不需要传入，修改时需要传入。
             $RequiredData = model('Users')->isRequired($ParaData);
             if (!empty($RequiredData)) {
@@ -388,7 +400,7 @@ class Users extends Base
             }
 
             if (!empty($RequiredData)) {
-                // 查询用户输入的邮箱并且为找回密码来源的所有验证码
+                // 查询会员输入的邮箱并且为找回密码来源的所有验证码
                 $RecordWhere = [
                     'source'   => 2,
                     'email'    => $RequiredData['email'],
@@ -404,7 +416,7 @@ class Users extends Base
                 $this->smtp_record_db->where($RecordWhere)->update($RecordData);
             }
 
-            // 用户设置
+            // 会员设置
             $users_verification = !empty($this->usersConfig['users_verification']) ? $this->usersConfig['users_verification'] : 0;
 
             // 处理判断是否为后台审核，verification=1为后台审核。
@@ -412,11 +424,12 @@ class Users extends Base
                 $data['is_activation'] = 0;
             }
 
-            // 添加用户到用户表
+            // 添加会员到会员表
             $data['username']       = $post['username'];
             $data['nickname']       = !empty($post['nickname']) ? $post['nickname'] : $post['username'];
             $data['password']       = func_encrypt($post['password']);
             $data['last_ip']        = clientIP();
+            $data['head_pic']       = ROOT_DIR . '/public/static/common/images/dfboy.png';
             $data['reg_time']       = getTime();
             $data['last_login']     = getTime();
             $data['register_place'] = 2;  // 注册位置，后台注册不受注册验证影响，1为后台注册，2为前台注册。
@@ -430,9 +443,9 @@ class Users extends Base
 
             $users_id = $this->users_db->add($data);
 
-            // 判断用户是否添加成功
+            // 判断会员是否添加成功
             if (!empty($users_id)) {
-                // 批量添加用户属性到属性信息表
+                // 批量添加会员属性到属性信息表
                 if (!empty($ParaData)) {
                     $betchData = [];
                     $usersparaRow = $this->users_parameter_db->where([
@@ -466,10 +479,10 @@ class Users extends Base
                 $UsersListData['login_count'] = 1;
                 $UsersListData['update_time'] = getTime();
                 if (2 == $users_verification) {
-                    // 若开启邮箱验证并且通过邮箱验证则绑定到用户
+                    // 若开启邮箱验证并且通过邮箱验证则绑定到会员
                     $UsersListData['is_email'] = 1;
                 }
-                // 同步修改用户信息
+                // 同步修改会员信息
                 $this->users_db->where('users_id',$users_id)->update($UsersListData);
 
                 session('users_id',$users_id);
@@ -497,7 +510,7 @@ class Users extends Base
             $this->error('注册失败', null, ['status'=>4]);
         }
 
-        // 用户属性资料信息
+        // 会员属性资料信息
         $users_para = model('Users')->getDataPara();
         $this->assign('users_para',$users_para);
 
@@ -518,9 +531,9 @@ class Users extends Base
         if (IS_AJAX_POST) {
             $post = input('post.');
             if (empty($this->users['password'])) {
-                // 密码为空则表示第三方注册用户，强制设置密码
+                // 密码为空则表示第三方注册会员，强制设置密码
                 if(empty($post['password'])){
-                    $this->error('微信注册用户，为确保账号安全，请设置密码。');
+                    $this->error('微信注册会员，为确保账号安全，请设置密码。');
                 }else{
                     $password_new = func_encrypt($post['password']);
                 }
@@ -537,16 +550,16 @@ class Users extends Base
             }
             unset($post['users_']);
 
-            // 处理提交的用户属性中必填项是否为空
-            // 必须传入提交的用户属性数组
+            // 处理提交的会员属性中必填项是否为空
+            // 必须传入提交的会员属性数组
             $EmptyData = model('Users')->isEmpty($ParaData);
             if ($EmptyData) {
                 $this->error($EmptyData);
             }
 
-            // 处理提交的用户属性中邮箱和手机是否已存在
+            // 处理提交的会员属性中邮箱和手机是否已存在
             // IsRequired方法传入的参数有2个
-            // 第一个必须传入提交的用户属性数组
+            // 第一个必须传入提交的会员属性数组
             // 第二个users_id，注册时不需要传入，修改时需要传入。
             $RequiredData = model('Users')->isRequired($ParaData,$this->users_id);
             if ($RequiredData) {
@@ -590,7 +603,7 @@ class Users extends Base
                 }
             }
             
-            // 查询属性表的手机和邮箱信息，同步修改用户信息
+            // 查询属性表的手机和邮箱信息，同步修改会员信息
             $usersData = model('Users')->getUsersListData('*',$this->users_id);
             $usersData['nickname'] = trim($post['nickname']);
             if (!empty($password_new)) {
@@ -676,7 +689,7 @@ class Users extends Base
                 $this->error('邮箱验证码不能为空！');
             }
 
-            // 判断用户输入的邮箱是否存在
+            // 判断会员输入的邮箱是否存在
             $ListWhere = array(
                 'info' => array('eq',$post['email']),
                 'lang' => array('eq',$this->home_lang),
@@ -686,7 +699,7 @@ class Users extends Base
                 $this->error('邮箱不存在，不能找回密码！');
             }
 
-            // 判断用户输入的邮箱是否已绑定
+            // 判断会员输入的邮箱是否已绑定
             $UsersWhere = array(
                 'email'    => array('eq',$post['email']),
                 'lang'     => array('eq',$this->home_lang),
@@ -696,7 +709,7 @@ class Users extends Base
                 $this->error('邮箱未绑定，不能找回密码！');
             }
 
-            // 查询用户输入的邮箱验证码是否存在
+            // 查询会员输入的邮箱验证码是否存在
             $RecordWhere = [
                 'code'  => $post['email_code'],
                 'lang'  => $this->home_lang,
@@ -730,14 +743,14 @@ class Users extends Base
 
         session('users_retrieve_password_email', null); // 标识邮箱验证通过
 
-        /*检测用户邮箱属性是否开启*/
+        /*检测会员邮箱属性是否开启*/
         $usersparamRow = $this->users_parameter_db->where([
                 'name'  => ['LIKE', 'email_%'],
                 'is_hidden' => 1,
                 'lang'  => $this->home_lang,
             ])->find();
         if (!empty($usersparamRow)) {
-            $this->error('用户邮箱属性已关闭，请联系网站管理员 ！');
+            $this->error('会员邮箱属性已关闭，请联系网站管理员 ！');
         }
         /*--end*/
 
@@ -790,7 +803,7 @@ class Users extends Base
             ])->find();
 
         if (!empty($users)) {
-            // 查询用户输入的邮箱并且为找回密码来源的所有验证码
+            // 查询会员输入的邮箱并且为找回密码来源的所有验证码
             $RecordWhere = [
                 'source'   => 4,
                 'email'    => $email,
@@ -870,7 +883,7 @@ class Users extends Base
                         // 验证码不可用
                         $this->error('邮箱验证码已被使用或超时，请重新发送！');
                     }else{
-                        // 查询用户输入的邮箱并且为绑定邮箱来源的所有验证码
+                        // 查询会员输入的邮箱并且为绑定邮箱来源的所有验证码
                         $RecordWhere = [
                             'source'   => 3,
                             'email'    => $RecordData['email'],
@@ -894,13 +907,13 @@ class Users extends Base
                         ];
                         $ParaData = $this->users_parameter_db->where($ParaWhere)->field('para_id')->find();
 
-                        // 修改用户属性表信息
+                        // 修改会员属性表信息
                         $listCount = $this->users_list_db->where([
                                 'para_id'  => $ParaData['para_id'],
                                 'users_id' => ['EQ',$this->users_id],
                                 'lang'     => $this->home_lang,
                             ])->count();
-                        if (empty($listCount)) { // 后台新增用户，没有用户属性记录的情况
+                        if (empty($listCount)) { // 后台新增会员，没有会员属性记录的情况
                             $ListData = [
                                 'users_id' => $this->users_id,
                                 'para_id'  => $ParaData['para_id'],
@@ -923,7 +936,7 @@ class Users extends Base
                         }
 
                         if (!empty($IsList)) {
-                            // 同步修改用户表邮箱地址，并绑定邮箱地址到用户账号
+                            // 同步修改会员表邮箱地址，并绑定邮箱地址到会员账号
                             $UsersData = [
                                 'users_id'    => $this->users_id,
                                 'is_email'    => '1',
@@ -950,6 +963,7 @@ class Users extends Base
     public function logout()
     {
         session('users_id', null);
+        session('users', null);
         session('open_id',null);
         setcookie('users_id','',getTime()-3600);
         $this->redirect(ROOT_DIR.'/');

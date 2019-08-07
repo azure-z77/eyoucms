@@ -39,9 +39,9 @@ return array (
   'cause' => 
   array (
     'name' => 'cause',
-    'type' => 'varchar(60)',
+    'type' => 'text',
     'notnull' => false,
-    'default' => '',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

@@ -8,7 +8,7 @@
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <h3>用户列表</h3>
+                <h3>会员列表</h3>
                 <h5>(共{$pager->totalRows}条记录)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
@@ -41,7 +41,7 @@
                             <div class="">用户名</div>
                         </th>
                         <th abbr="ac_id" axis="col4" class="w100">
-                            <div class="tc">用户级别</div>
+                            <div class="tc">会员级别</div>
                         </th>
                         <th abbr="ac_id" axis="col4" class="w60">
                             <div class="tc">是否激活</div>
@@ -104,7 +104,7 @@
                                         <a href="{:url('Member/users_edit',array('id'=>$vo['users_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
                                     {/eq}
                                     {eq name="'Member@users_del'|is_check_access" value="1"}
-                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Member/users_del')}" data-id="{$vo.users_id}" data-username="{$vo.username}" onClick="usersdel(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Member/users_del')}" data-id="{$vo.users_id}" data-admin_id="{$vo.admin_id}" data-username="{$vo.username}" onClick="usersdel(this);"><i class="fa fa-trash-o"></i>删除</a>
                                     {/eq}
                                 </div>
                             </td>
@@ -193,7 +193,13 @@
 
     // 删除
     function usersdel(obj){
-        layer.confirm('此操作不可逆，确认彻底删除？', {
+        var admin_id = $(obj).data('admin_id');
+        if (0 < admin_id) {
+            var title = "系统管理员前台ID，删除不可恢复？";
+        } else {
+            var title = "此操作不可逆，确认彻底删除？";
+        }
+        layer.confirm(title, {
             title: false,//$(obj).attr('data-username'),
             btn: ['确定','取消'] //按钮
         }, function(){

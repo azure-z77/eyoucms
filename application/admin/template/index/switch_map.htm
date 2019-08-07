@@ -31,7 +31,7 @@
                 </div>
                 <p class="notic">开启之后，左侧菜单会显示插件应用入口</p>
                 <span id="guide_web_weapp_switch" style="{if condition='1 != $globalConfig.web_weapp_switch'} display: none;{/if}">
-                    &nbsp;<a href="{:url('Weapp/index')}">[上传管理]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Weapp/index')}" data-leftmenu="Weapp_index" onclick="gourl(this);">[上传管理]</a>
                 </span>
             </dd>
         </dl>
@@ -53,6 +53,7 @@
                 </span>
             </dd>
         </dl>
+        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="site_url">会员中心</label>
@@ -66,12 +67,15 @@
                 </div>
                 <p class="notic">开启之后，左侧菜单会显示会员中心入口</p>
                 <span id="guide_web_users_switch" style="{if condition='empty($globalConfig.web_users_switch)'} display: none;{/if}">
-                    &nbsp;<a href="{:url('Member/users_index')}">[用户列表]</a>
-                    &nbsp;<a href="{:url('Member/users_config')}">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_config')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
                     &nbsp;<a href="javascript:void(0);" onclick="tag_call('web_users_switch');" class="red">[标签调用]</a>
                 </span>
             </dd>
         </dl>
+        {/eq}
+
+        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">支付功能</label>
@@ -80,16 +84,19 @@
                 <div class="onoff">
                     <label for="pay_open1" class="cb-enable {if condition="$userConfig.pay_open == 1"}selected{/if}">开启</label>
                     <label for="pay_open0" class="cb-disable {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"}selected{/if}">关闭</label>
-                    <input id="pay_open1" name="pay[pay_open]" value="1" type="radio" {if condition="$userConfig.pay_open == 1"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
-                    <input id="pay_open0" name="pay[pay_open]" value="0" type="radio" {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');">
+                    <input id="pay_open1" name="pay[pay_open]" value="1" type="radio" {if condition="$userConfig.pay_open == 1"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');" data-lmenuid="Member_users_index">
+                    <input id="pay_open0" name="pay[pay_open]" value="0" type="radio" {if condition="!isset($userConfig.pay_open) || empty($userConfig.pay_open)"} checked="checked"{/if} onclick="ajax_submit(this, 'pay', 'pay_open');" data-lmenuid="Member_users_index">
                 </div>
                 <p class="notic">关闭则自动隐藏支付入口。</p>
                 <span id="guide_pay_open" style="{if condition='!isset($userConfig.pay_open) || empty($userConfig.pay_open)'} display: none;{/if}">
-                    &nbsp;<a href="{:url('Member/money_index')}">[充值列表]</a>
-                    &nbsp;<a href="{:url('Member/pay_set')}">[接口配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/money_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[充值列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/pay_set')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[接口配置]</a>
                 </span>
             </dd>
         </dl>
+        {/eq}
+
+        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">商城中心</label>
@@ -98,17 +105,59 @@
                 <div class="onoff">
                     <label for="shop_open1" class="cb-enable {if condition="$userConfig.shop_open == 1"}selected{/if}">开启</label>
                     <label for="shop_open0" class="cb-disable {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"}selected{/if}">关闭</label>
-                    <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
-                    <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_index">
+                    <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Member_users_index">
+                    <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Member_users_index">
                 </div>
                 <p class="notic">关闭则自动隐藏商城中心入口。</p>
                 <span id="guide_shop_open" style="{if condition='!isset($userConfig.shop_open) || empty($userConfig.shop_open)'} display: none;{/if}">
-                    &nbsp;<a href="{:url('Shop/index')}">[订单列表]</a>
-                    &nbsp;<a href="{:url('Shop/conf')}">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[订单列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/conf')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
                     &nbsp;<a href="javascript:void(0);" onclick="tag_call('shop_open');" class="red">[标签调用]</a>
                 </span>
             </dd>
         </dl>
+        {/eq}
+        
+        {eq name='$main_lang' value='$admin_lang'}
+        <dl class="row">
+            <dt class="tit">
+                <label for="uname">会员升级</label>
+            </dt>
+            <dd class="opt">
+                <div class="onoff">
+                    <label for="level_member_upgrade1" class="cb-enable {if condition="$userConfig.level_member_upgrade == 1"}selected{/if}">开启</label>
+                    <label for="level_member_upgrade0" class="cb-disable {if condition="!isset($userConfig.level_member_upgrade) || empty($userConfig.level_member_upgrade)"}selected{/if}">关闭</label>
+                    <input id="level_member_upgrade1" name="level[level_member_upgrade]" value="1" type="radio" {if condition="$userConfig.level_member_upgrade == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'level', 'level_member_upgrade');" data-lmenuid="Member_users_index">
+                    <input id="level_member_upgrade0" name="level[level_member_upgrade]" value="0" type="radio" {if condition="!isset($userConfig.level_member_upgrade) || empty($userConfig.level_member_upgrade)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'level', 'level_member_upgrade');" data-lmenuid="Member_users_index">
+                </div>
+                <p class="notic">关闭则自动隐藏会员升级入口。</p>
+                <span id="guide_level_member_upgrade" style="{if condition='!isset($userConfig.level_member_upgrade) || empty($userConfig.level_member_upgrade)'} display: none;{/if}">
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员产品分类]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/upgrade_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员业务记录]</a>
+                </span>
+            </dd>
+        </dl>
+        {/eq}
+
+        {eq name='$main_lang' value='$admin_lang'}
+        <dl class="row">
+            <dt class="tit">
+                <label for="uname">会员投稿</label>
+            </dt>
+            <dd class="opt">
+                <div class="onoff">
+                    <label for="users_open_release1" class="cb-enable {if condition="$userConfig.users_open_release == 1"}selected{/if}">开启</label>
+                    <label for="users_open_release0" class="cb-disable {if condition="!isset($userConfig.users_open_release) || empty($userConfig.users_open_release)"}selected{/if}">关闭</label>
+                    <input id="users_open_release1" name="users[users_open_release]" value="1" type="radio" {if condition="$userConfig.users_open_release == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'users', 'users_open_release');" data-lmenuid="Member_users_index">
+                    <input id="users_open_release0" name="users[users_open_release]" value="0" type="radio" {if condition="!isset($userConfig.users_open_release) || empty($userConfig.users_open_release)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'users', 'users_open_release');" data-lmenuid="Member_users_index">
+                </div>
+                <p class="notic">关闭则自动隐藏会员投稿入口。</p>
+                <span id="guide_users_open_release" style="{if condition='!isset($userConfig.users_open_release) || empty($userConfig.users_open_release)'} display: none;{/if}">
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('UsersRelease/conf')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
+                </span>
+            </dd>
+        </dl>
+        {/eq}
     </div>
 </div>
 
@@ -123,11 +172,14 @@
         var value = $(obj).val();
         var lmenuid = $(obj).attr('data-lmenuid');
         var url = "{:url('Index/switch_map', ['_ajax'=>1])}";
+        var syn_open_users = false; // 是否同步开启会员中心
         // 验证
         switch (name)
         {
             case 'shop_open':
             case 'pay_open':
+            case 'users_open_release':
+            case 'level_member_upgrade':
                 // 第一次使用会员中心，其他功能开关不与会员中心开关关联
                 var web_users_switch = $('input[name="web[web_users_switch]"]:checked').val();
                 if (1 == $('#is_themeusers_exist').val() && 1 != web_users_switch) {
@@ -139,6 +191,10 @@
                         nameTitle = '支付功能';
                     } else if ('shop_open' == name) {
                         nameTitle = '商城功能';
+                    } else if ('users_open_release' == name) {
+                        nameTitle = '会员投稿';
+                    } else if ('level_member_upgrade' == name) {
+                        nameTitle = '会员升级';
                     }
                     parent.layer.alert('使用【<font color="red">'+nameTitle+'</font>】请先开启【<font color="red">会员中心</font>】！', {icon: 3, title:false}, function(){
                         parent.layer.closeAll();
@@ -151,18 +207,33 @@
                     return false;
                 }
                 // --end
-                if(false == check_shop_open())
-                {
-                    return false;
-                }
-                // 同时开启会员中心
+				if ($.inArray(name, ['shop_open','pay_open']))
+				{
+					if(false == check_shop_open())
+					{
+						return false;
+					}
+				} else if ($.inArray(name, ['users_open_release','level_member_upgrade']))
+				{
+					if(false == check_users_open_release())
+					{
+						return false;
+					}
+				}
+                // 是否同时开启会员中心
                 if (1 == value) {
-                    $('label[for=web_users_switch0]').removeClass('selected');
-                    $('#web_users_switch0').attr('checked','');
-                    $('label[for=web_users_switch1]').addClass('selected');
-                    $('#web_users_switch1').attr('checked','checked');
+                    syn_open_users = true;
+                } else {
+                    syn_open_users = false;
                 }
                 break;
+        }
+        // 同时开启会员中心
+        if (true == syn_open_users) {
+            $('label[for=web_users_switch0]').removeClass('selected');
+            $('#web_users_switch0').attr('checked','');
+            $('label[for=web_users_switch1]').addClass('selected');
+            $('#web_users_switch1').attr('checked','checked');
         }
         // 标签调用按钮的显示与隐藏
         if (1 == value) {
@@ -209,8 +280,12 @@
                     }
                 }else{
                     if (1 == res.data.code) {
+                        $('label[for=shop_open1]').removeClass('selected');
+                        $('#shop_open1').attr('checked','');
+                        $('label[for=shop_open0]').addClass('selected');
+                        $('#shop_open0').attr('checked','checked');
                         _parent.layer.closeAll();
-                        _parent.layer.alert(res.msg, {btn: ['购买授权'], icon: 2, title:false}, function(){
+                        _parent.layer.alert(res.msg, {btn: ['购买授权'], icon: 4, title:false}, function(){
                             _parent.layer.closeAll();
                             window.location.reload();
                             window.open('http://www.eyoucms.com/buy');
@@ -335,6 +410,31 @@
         return true;
     }
 
+    function check_users_open_release()
+    {
+        var obj = $('input[name="users[users_open_release]"]:checked');
+        var is_online = $(obj).attr('data-is_online');
+        if (1 == is_online) {
+            var users_open_release = $(obj).val();
+            if (1 == users_open_release && $(obj).attr('data-authortoken') == -1) {
+                $('label[for=users_open_release1]').removeClass('selected');
+                $('#users_open_release1').attr('checked','');
+                $('label[for=users_open_release0]').addClass('selected');
+                $('#users_open_release0').attr('checked','checked');
+                var alert1 = layer.alert('会员投稿功能只限于授权域名！', {
+                    icon: 4,
+                    title:false,
+                    btn: ['购买授权']
+                }, function(){
+                    window.open('http://www.eyoucms.com/buy');
+                    layer.close(alert1);
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+
     function tag_call(name)
     {
         $.ajax({
@@ -362,6 +462,15 @@
                 layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
             }
         });
+    }
+
+    function gourl(obj)
+    {
+        var leftmenu = $(obj).data('leftmenu');
+        var href = $(obj).data('href');
+        $('.eycms_cont_left .sub-menu a', window.parent.document).removeClass('on');
+        $('#'+leftmenu, window.parent.document).addClass('on');
+        window.location.href = href;
     }
 </script>
 {include file="public/footer" /}
