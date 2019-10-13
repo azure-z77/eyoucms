@@ -54,6 +54,11 @@
 
         {eyou:user type='open'}
           <li class="nav-item m-l-10 ey-login">
+            {eyou:user type='cart'}
+              <a href="{$field.url}" id="{$field.id}" class="navlog">购物车</a><span>|</span>
+              {$field.hidden}
+            {/eyou:user}
+            
             {eyou:user type='login'}
               <a href="{$field.url}" id="{$field.id}" class="navlog">登录</a><span>|</span>
               {$field.hidden}

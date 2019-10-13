@@ -7,11 +7,11 @@
 -- Database       : eyoucms_release
 -- 
 -- Part : #1
--- Version : #v1.3.7
--- Date : 2019-06-28 10:46:28
+-- Version : #v1.3.9
+-- Date : 2019-08-31 16:44:59
 -- -----------------------------------------
 
-SET FOREIGN_KEY_CHECKS=0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- Table structure for ey_ad
