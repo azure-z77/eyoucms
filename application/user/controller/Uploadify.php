@@ -438,11 +438,16 @@ class Uploadify extends Base {
         if (true !== $result || empty($file)) {
             $state = "ERROR：" . $result;
         } else {
-            $savePath = $this->upload_path.$this->savePath.$this->sub_name;
+            if ('weapp/' == $this->savePath) {
+                $savePath = UPLOAD_PATH . $this->savePath . 'user/' . $this->users_id .'/' . $this->sub_name;
+            } else {
+                $savePath = $this->upload_path.$this->savePath.$this->sub_name;
+            }
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //商品图片可选择存放在oss
-                $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+                // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+                $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
                 $ossClient = new \app\common\logic\OssLogic;
                 $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
                 if (!$return_url) {
@@ -455,7 +460,8 @@ class Uploadify extends Base {
             } else {
                 // 移动到框架应用根目录/public/uploads/ 目录下
                 $info = $file->rule(function ($file) {
-                    return  md5(mt_rand()); // 使用自定义的文件保存规则
+                    // return  md5(mt_rand()); // 使用自定义的文件保存规则
+                    return session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
                 })->move($savePath);
                 if ($info) {
                     $state = "SUCCESS";

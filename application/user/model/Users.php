@@ -33,7 +33,8 @@ class Users extends Model
         $this->home_lang = get_home_lang();
     }
 
-    public function UpUsersData($users_id = null)
+    // 用户信息变动后，及时更新Session信息
+    public function UpUsersSessionData($users_id = null)
     {
         $users = [];
         // 查询系统初始的默认级别
@@ -49,10 +50,11 @@ class Users extends Model
             'level' => $level_id,
             'open_level_time' => 0,
             'level_maturity_days' => 0,
+            'update_time'   => getTime(),
         ];
         $return = M('users')->where('users_id',$users_id)->update($usersUp);
         if (!empty($return)) {
-            $users = M('users')->field('a.*,b.level_name')
+            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
                 ->alias('a')
                 ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
                 ->where([
@@ -60,6 +62,7 @@ class Users extends Model
                     'a.lang'            => $this->home_lang,
                     'a.is_activation'   => 1,
                 ])->find();
+            session('users',$users);
         }
 
         return $users;

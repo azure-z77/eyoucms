@@ -33,7 +33,7 @@ class TagSpsearch extends Base
     {
         $hidden = '';
         $ey_config = config('ey_config'); // URL模式
-        if (1 == $ey_config['seo_pseudo'] && 1 == $ey_config['seo_dynamic_format']) {
+        if (2 == $ey_config['seo_pseudo'] || (1 == $ey_config['seo_pseudo'] && 1 == $ey_config['seo_dynamic_format'])) {
             $hidden .= '<input type="hidden" name="m" value="user" />';
             $hidden .= '<input type="hidden" name="c" value="Shop" />';
             $hidden .= '<input type="hidden" name="a" value="shop_centre" />';

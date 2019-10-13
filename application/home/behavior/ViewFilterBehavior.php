@@ -65,7 +65,7 @@ class ViewFilterBehavior {
         $ca = self::$controllerName.'@'.self::$actionName;
         $is_appendJs = false;
         $data['ClosePage'] = 0;
-        if (!empty($aid) && 'View@index' == $ca) {
+        if (!empty($aid) && ('View@index' == $ca || 'view' == self::$actionName)) {
             if (!empty($admin_id)) {
                 $data['ClosePage'] = 1;
             }

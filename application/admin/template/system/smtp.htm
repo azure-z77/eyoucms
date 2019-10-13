@@ -21,34 +21,17 @@
                 </div>
             </div>
         </div>
-        <div class="hDiv" style="margin-bottom: 5px;">
-            <div class="hDivBox">
-                <table cellspacing="0" cellpadding="0" style="width: 100%">
-                    <thead>
-                    <tr>
-                        <th class="sign w10" axis="col0">
-                            <div class="tc"></div>
-                        </th>
-                        <th abbr="article_title" axis="col3" class="w80">
-                            <div class="tc">
-                                <span class="btn current">邮件配置</span>
-                            </div>
-                        </th>
-                        <th abbr="article_title" axis="col3" class="w80">
-                            <div class="tc">
-                                <a href="javascript:void(0);" onclick="smtp_tpl_list();" class="ncap-btn ncap-btn-green">邮件模板</a>
-                            </div>
-                        </th>
-                        <th abbr="ac_id" axis="col4">
-                            <div class=""></div>
-                        </th>
-                    </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
         <form method="post" id="handlepost" action="{:url('System/smtp')}">
             <div class="ncap-form-default">
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="smtp_server">发送邮件内容</label>
+                    </dt>
+                    <dd class="opt">
+                        [<a href="javascript:void(0);" onclick="smtp_tpl_list();">配置模板</a>]
+                        <p class=""></p>
+                    </dd>
+                </dl>
                 <dl class="row">
                     <dt class="tit">
                         <label for="smtp_server"><em>*</em>邮件发送服务器(SMTP)</label>
@@ -151,7 +134,7 @@
                 type: "post",
                 data: $('#handlepost').serialize(),
                 dataType: 'json',
-                url: "{:url('System/send_email')}",
+                url: "{:url('System/send_email', ['_ajax'=>1])}",
                 success: function (res) {
                     layer.closeAll();
                     if (res.code == 1) {

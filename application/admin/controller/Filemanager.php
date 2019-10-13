@@ -94,11 +94,13 @@ class Filemanager extends Base
                 $this->error('请选择上传图片！');
                 exit;
             } else {
+                $image_type = tpCache('basic.image_type');
+                $fileExt = !empty($image_type) ? str_replace('|', ',', $image_type) : config('global.image_ext');
                 $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
                 $result = $this->validate(
-                    ['file' => $file],
-                    ['file'=>'image|fileSize:'.$image_upload_limit_size],
-                    ['file.image' => '上传文件必须为图片','file.fileSize' => '上传图片过大']
+                    ['file' => $file], 
+                    ['file'=>'image|fileSize:'.$image_upload_limit_size.'|fileExt:'.$fileExt],
+                    ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$fileExt]
                 );
                 if (true !== $result || empty($file)) {
                     $this->error($result);
@@ -245,12 +247,13 @@ class Filemanager extends Base
 
         $activepath = input('param.activepath/s', '', null);
         $activepath = $this->filemanagerLogic->replace_path($activepath, ':', true);
-        $filename = 'newfile.txt';
+        $filename = 'newfile.htm';
         $content = "";
         $info = array(
             'filename'  => $filename,
             'activepath'=> $activepath,
             'content'   => $content,
+            'extension' => 'text/html',
         );
         $this->assign('info', $info);
         return $this->fetch();

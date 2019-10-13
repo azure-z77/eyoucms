@@ -52,23 +52,23 @@ class TagList extends Base
      * 获取分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
+    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderway = '', $thumb = '')
     {
         $module_name_tmp = strtolower(request()->module());
         $ctl_name_tmp = strtolower(request()->controller());
         $action_name_tmp = strtolower(request()->action());
-        empty($orderWay) && $orderWay = 'desc';
+        empty($orderway) && $orderway = 'desc';
 
         /*自定义字段筛选*/
         $url_screen_var = input('param.'.$this->url_screen_var.'/d');
         if (1 == $url_screen_var) {
-            return $this->GetFieldScreeningList($param,$pagesize, $orderby, $addfields, $orderWay, $thumb);
+            return $this->GetFieldScreeningList($param,$pagesize, $orderby, $addfields, $orderway, $thumb);
         }
         /*--end*/
 
         /*搜索、标签搜索*/
         if (in_array($ctl_name_tmp, array('search','tags'))) {
-            return $this->getSearchList($pagesize, $orderby, $addfields, $orderWay, $thumb);
+            return $this->getSearchList($pagesize, $orderby, $addfields, $orderway, $thumb);
         }
         /*--end*/
 
@@ -228,7 +228,7 @@ class TagList extends Base
         }
 
         // 给排序字段加上表别名
-        $orderby = getOrderBy($orderby,$orderWay);
+        $orderby = getOrderBy($orderby,$orderway);
 
         // 获取查询的表名
         $channeltype_info = model('Channeltype')->getInfo($channeltype);
@@ -393,10 +393,10 @@ class TagList extends Base
      * 获取搜索分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
+    public function getSearchList($pagesize = 10, $orderby = '', $addfields = '', $orderway = '', $thumb = '')
     {
         $result = false;
-        empty($orderWay) && $orderWay = 'desc';
+        empty($orderway) && $orderway = 'desc';
 
         $condition = array();
         // 获取到所有URL参数
@@ -482,7 +482,7 @@ class TagList extends Base
         $condition['a.is_del'] = array('eq', 0); // 回收站功能
 
         // 给排序字段加上表别名
-        $orderby = getOrderBy($orderby,$orderWay);
+        $orderby = getOrderBy($orderby,$orderway);
 
         /**
          * 数据查询，搜索出主键ID的值
@@ -592,10 +592,10 @@ class TagList extends Base
      * 获取搜索分页列表
      * @author 陈风任 by 2019-6-11
      */
-    public function GetFieldScreeningList($param = array(),$pagesize = 10, $orderby = '', $addfields = '', $orderWay = '', $thumb = '')
+    public function GetFieldScreeningList($param = array(),$pagesize = 10, $orderby = '', $addfields = '', $orderway = '', $thumb = '')
     {
         $result = false;
-        empty($orderWay) && $orderWay = 'desc';
+        empty($orderway) && $orderway = 'desc';
 
         $condition = array();
         // 获取到所有URL参数
@@ -786,7 +786,7 @@ class TagList extends Base
         }
 
         // 给排序字段加上表别名
-        $orderby = getOrderBy($orderby,$orderWay);
+        $orderby = getOrderBy($orderby,$orderway);
 
         /**
          * 数据查询，搜索出主键ID的值

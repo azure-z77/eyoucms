@@ -31,14 +31,16 @@ class TagScreening extends Base
     }
 
     // URL中隐藏index.php入口文件，此方法仅此控制器使用到
-    private function auto_hide_index($url = '')
+    private function auto_hide_index($url = '', $seo_pseudo = 1)
     {
-        if (empty($url)) return false;
-        // 是否开启去除index.php文件
-        $seo_inlet = null;
-        $seo_inlet === null && $seo_inlet = config('ey_config.seo_inlet');
-        if (1 == $seo_inlet) {
-            $url = str_replace('/index.php', '/', $url);
+        if (2 != $seo_pseudo) {
+            if (empty($url)) return false;
+            // 是否开启去除index.php文件
+            $seo_inlet = null;
+            $seo_inlet === null && $seo_inlet = config('ey_config.seo_inlet');
+            if (1 == $seo_inlet) {
+                $url = str_replace('/index.php', '/', $url);
+            }
         }
         return $url;
     }
@@ -200,7 +202,7 @@ class TagScreening extends Base
                         $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
                     }
                     $url = urldecode($url);
-                    $url = $this->auto_hide_index($url);
+                    $url = $this->auto_hide_index($url, $seo_pseudo);
                     // 拼装onClick事件
                     $RegionData[$kk]['onClick'] = $row[$key]['onClick']." data-url='{$url}'";
                     // 拼装onchange参数
@@ -300,7 +302,7 @@ class TagScreening extends Base
                         $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
                     }
                     $url = urldecode($url);
-                    $url = $this->auto_hide_index($url);
+                    $url = $this->auto_hide_index($url, $seo_pseudo);
                     // 封装onClick
                     $data_new[$kk]['onClick'] = $row[$key]['onClick']." data-url='{$url}'";
                     // 封装onchange事件

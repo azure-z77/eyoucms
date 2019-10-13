@@ -111,10 +111,14 @@ class UpgradeLogic extends Model
             return ['code' => 0, 'msg' => "请联系空间商，开启 php.ini 中的php-zip扩展"];
         }
 
-        $serviceVersionList = file_get_contents($this->upgrade_url);
-        $serviceVersionList = json_decode($serviceVersionList,true);
-        if (empty($serviceVersionList)) {
-            return ['code' => 0, 'msg' => "没找到升级信息"];
+        $serviceVersionList = @file_get_contents($this->upgrade_url);
+        if (false === $serviceVersionList) {
+            return ['code' => 0, 'msg' => "无法连接远程升级服务器！"];
+        } else {
+            $serviceVersionList = json_decode($serviceVersionList,true);
+            if (empty($serviceVersionList)) {
+                return ['code' => 0, 'msg' => "当前没有可升级的版本！"];
+            }
         }
         
         clearstatcache(); // 清除文件夹权限缓存

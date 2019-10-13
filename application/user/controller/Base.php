@@ -29,7 +29,7 @@ class Base extends Common {
         if(session('?users_id'))
         {
             $users_id = session('users_id');
-            $users = M('users')->field('a.*,b.level_name')
+            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
                 ->alias('a')
                 ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
                 ->where([
@@ -52,7 +52,7 @@ class Base extends Common {
                 $days = ceil(($days - getTime()) / 86400);
                 if (0 >= $days) {
                     /*更新会员的级别*/
-                    $users = model('Users')->UpUsersData($users_id);
+                    $users = model('Users')->UpUsersSessionData($users_id);
                     /* END */
                     $users['maturity_code'] = 2;
                     $users['maturity_date'] = '未升级会员';

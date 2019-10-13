@@ -36,6 +36,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'intro' => 
+  array (
+    'name' => 'intro',
+    'type' => 'varchar(2000)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'width' => 
   array (
     'name' => 'width',

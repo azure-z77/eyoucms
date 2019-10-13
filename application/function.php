@@ -1179,7 +1179,13 @@ if (!function_exists('saveRemote'))
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr('remote.png','.'));
-        $file['name'] = uniqid().$file['ext'];
+        $users_id = 1;
+        if (session('?users_id')) {
+            $users_id = session('users_id');
+        } else if (session('?admin_id')) {
+            $users_id = session('admin_id');
+        }
+        $file['name'] = $users_id.'-'.dd2char(date("ymdHis").mt_rand(100,999)).$file['ext'];
         $file['fullName'] = $dirname.$file['name'];
         $fullName = $file['fullName'];
 
@@ -1224,7 +1230,15 @@ if (!function_exists('saveRemote'))
             if ($ossConfig['oss_switch']) {
                 //图片可选择存放在oss
                 $savePath = $savePath.date('Ymd/');
-                $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
+                // $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
+                $users_id = 1;
+                if (session('?users_id')) {
+                    $users_id = session('users_id');
+                } else if (session('?admin_id')) {
+                    $users_id = session('admin_id');
+                }
+                $filename = $users_id.'-'.dd2char(date("ymdHis").mt_rand(100,999));
+                $object = UPLOAD_PATH.$savePath.$filename.'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
                 $getRealPath = ltrim($data['url'], '/');
                 $ossClient = new \app\common\logic\OssLogic;
                 $return_url = $ossClient->uploadFile($getRealPath, $object);
@@ -1303,7 +1317,15 @@ if (!function_exists('func_common'))
         $ossConfig = tpCache('oss');
         if ($ossConfig['oss_switch']) {
             //图片可选择存放在oss
-            $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.$file_ext;
+            // $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.$file_ext;
+            $users_id = 1;
+            if (session('?users_id')) {
+                $users_id = session('users_id');
+            } else if (session('?admin_id')) {
+                $users_id = session('admin_id');
+            }
+            $filename = $users_id.'-'.dd2char(date("ymdHis").mt_rand(100,999));
+            $object = UPLOAD_PATH.$savePath.$filename.'.'.$file_ext;
             $ossClient = new \app\common\logic\OssLogic;
             $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
             if (!$return_url) {
@@ -1314,7 +1336,16 @@ if (!function_exists('func_common'))
             }
             @unlink($file->getRealPath());
         } else { // 使用自定义的文件保存规则
-            $info = $file->rule(function($file){return md5(mt_rand());})->move(UPLOAD_PATH.$savePath);
+            $info = $file->rule(function($file){
+                // return md5(mt_rand());
+                $users_id = 1;
+                if (session('?users_id')) {
+                    $users_id = session('users_id');
+                } else if (session('?admin_id')) {
+                    $users_id = session('admin_id');
+                }
+                return $users_id.'-'.dd2char(date("ymdHis").mt_rand(100,999));
+            })->move(UPLOAD_PATH.$savePath);
             if($info){
                 $return_url =  '/'.UPLOAD_PATH.$savePath.$info->getSaveName();
             }
@@ -2071,10 +2102,10 @@ if (!function_exists('get_urltodomain'))
             return '';
         }
         $re_domain = '';
-        $domain_postfix_cn_array = array("com", "net", "org", "gov", "edu", "com.cn", "cn");
+        $domain_postfix_cn_array = array("com", "net", "org", "gov", "edu", "com.cn", "cn", "co");
         $array_domain = explode(".", $domain);
         $array_num = count($array_domain) - 1;
-        if (in_array($array_domain[$array_num], ['cn','tw','hk'])) {
+        if (in_array($array_domain[$array_num], ['cn','tw','hk','nz'])) {
             if (in_array($array_domain[$array_num - 1], $domain_postfix_cn_array)) {
                 $re_domain = $array_domain[$array_num - 2] . "." . $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
             } else {
@@ -2144,5 +2175,100 @@ if ( ! function_exists('dd2char'))
             }
         }
         return $okdd;
+    }
+}
+
+if ( ! function_exists('friend_date'))
+{
+    /**
+     * 友好时间显示
+     * @param $time
+     * @return bool|string
+     */
+    function friend_date($time)
+    {
+        if (!$time)
+            return false;
+        $fdate = '';
+        $d = time() - intval($time);
+        $ld = $time - mktime(0, 0, 0, 0, 0, date('Y')); //得出年
+        $md = $time - mktime(0, 0, 0, date('m'), 0, date('Y')); //得出月
+        $byd = $time - mktime(0, 0, 0, date('m'), date('d') - 2, date('Y')); //前天
+        $yd = $time - mktime(0, 0, 0, date('m'), date('d') - 1, date('Y')); //昨天
+        $dd = $time - mktime(0, 0, 0, date('m'), date('d'), date('Y')); //今天
+        $td = $time - mktime(0, 0, 0, date('m'), date('d') + 1, date('Y')); //明天
+        $atd = $time - mktime(0, 0, 0, date('m'), date('d') + 2, date('Y')); //后天
+        if ($d == 0) {
+            $fdate = '刚刚';
+        } else {
+            switch ($d) {
+                case $d < $atd:
+                    $fdate = date('Y年m月d日', $time);
+                    break;
+                case $d < $td:
+                    $fdate = '后天' . date('H:i', $time);
+                    break;
+                case $d < 0:
+                    $fdate = '明天' . date('H:i', $time);
+                    break;
+                case $d < 60:
+                    $fdate = $d . '秒前';
+                    break;
+                case $d < 3600:
+                    $fdate = floor($d / 60) . '分钟前';
+                    break;
+                case $d < $dd:
+                    $fdate = floor($d / 3600) . '小时前';
+                    break;
+                case $d < $yd:
+                    $fdate = '昨天' . date('H:i', $time);
+                    break;
+                case $d < $byd:
+                    $fdate = '前天' . date('H:i', $time);
+                    break;
+                case $d < $md:
+                    $fdate = date('m月d日 H:i', $time);
+                    break;
+                case $d < $ld:
+                    $fdate = date('m月d日', $time);
+                    break;
+                default:
+                    $fdate = date('Y年m月d日', $time);
+                    break;
+            }
+        }
+        return $fdate;
+    }
+}
+
+/**
+ *  检查验证是否最新的模板
+ * @param   $Url    查询的模板路径
+ * @param   $String 查询是否存在的字符串
+ * @return  返回错误的字符串
+ */
+if (!function_exists('VerifyLatestTemplate'))
+{
+    function VerifyLatestTemplate($Url = null, $String = [])
+    {
+        // 查询的模板路径
+        $Url = !empty($Url) ? $Url : './template/'.THEME_STYLE.'/view_product.htm';
+
+        // 查询是否存在的字符串
+        $String = !empty($String) ? $String : ['ReturnData','spec_name','spec_value','SpecClass','SpecData'];
+
+        // 获取出文件内容
+        $GetHtml = @file_get_contents($Url);
+
+        // 查询是否匹配
+        $ResultData = [];
+        foreach ($String as $value) {
+            if(strpos($GetHtml, $value) === false){ 
+                array_push($ResultData, $value);
+            }
+        }
+
+        // 返回结果
+        return $ResultData;
     }
 }

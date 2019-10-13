@@ -175,7 +175,8 @@ class Guestbook extends Base
                 if ($key == 'keywords') {
                     $condition['a.attr_name'] = array('LIKE', "%{$get[$key]}%");
                 } else if ($key == 'typeid') {
-                    $condition['a.typeid'] = array('eq', $get[$key]);
+                    $typeids = model('Arctype')->getHasChildren($get[$key]);
+                    $condition['a.typeid'] = array('IN', array_keys($typeids));
                 } else {
                     $condition['a.'.$key] = array('eq', $get[$key]);
                 }
@@ -229,6 +230,18 @@ class Guestbook extends Base
         $assign_data['page'] = $show; // 赋值分页输出
         $assign_data['list'] = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
+
+        /*获取当前模型栏目*/
+        $selected = $typeid;
+        $arctypeLogic = new ArctypeLogic();
+        $map = array(
+            'channeltype'   => $this->channeltype,
+            'is_del'        => 0,
+        );
+        $arctype_max_level = intval(config('global.arctype_max_level'));
+        $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);
+        $this->assign('select_html',$select_html);
+        /*--end*/
 
         // 栏目ID
         $assign_data['typeid'] = $typeid; // 栏目ID

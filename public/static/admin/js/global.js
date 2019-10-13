@@ -16,6 +16,7 @@ var ueditor_toolbars = [[
 ]];
 
 var layer_tips; // 全局提示框的对象
+var ey_unknown_error = '未知错误，无法继续！';
 
 $(function(){
     auto_notic_tips();
@@ -53,26 +54,89 @@ function batch_del(obj, name) {
 
     var deltype = $(obj).attr('data-deltype');
     if ('pseudo' == deltype) {
-        title = '删除到回收站，确认批量删除？';
+        batch_del_pseudo(obj, a);
     } else {
-        title = '此操作不可逆，确认批量删除？';
+        title = '此操作不可恢复，确定批量删除？';
+        btn = ['确定', '取消']; //按钮
+        // 删除按钮
+        layer.confirm(title, {
+            title: false,
+            btn: btn //按钮
+        }, function () {
+            layer_loading('正在处理');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {del_id:a, _ajax:1},
+                dataType: 'json',
+                success: function (data) {
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        //window.location.reload();
+                
+                        /* 生成静态页面代码 */
+                        var slice_start = url.indexOf('m=admin&c=');
+                        slice_start = parseInt(slice_start) + 10;
+                        var slice_end = url.indexOf('&a=');
+                        var ctl_name = url.slice(slice_start,slice_end);
+                        $.ajax({
+                            url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                            type:'POST',
+                            dataType:'json',
+                            data: {del_ids:a,ctl_name:ctl_name,_ajax:1},
+                            success:function(data){
+                                window.location.reload();
+                            },
+                            error: function(){
+                                window.location.reload();
+                            }
+                        });
+                        /* end */
+                                
+                        // layer.alert(data.msg, {
+                        //     icon: 1,
+                        //     closeBtn: 0
+                        // }, function(){
+                        //     window.location.reload();
+                        // });
+                    }else{
+                        layer.alert(data.msg, {icon: 2, title:false});
+                    }
+                },
+                error:function(){
+                    layer.closeAll();
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
+                }
+            });
+        }, function (index) {
+            layer.closeAll(index);
+        });
     }
+}
+
+/**
+ * 批量删除-针对临时存放在回收站的数据
+ */
+function batch_del_pseudo(obj, a) {
+
+    var url = $(obj).attr('data-url');
 
     // 删除按钮
-    layer.confirm(title, {
-        btn: ['确定', '取消'] //按钮
+    layer.confirm('删除到回收站，确认批量删除？', {
+        title: false,
+        btn: ['直接删除', '确定'] //按钮
     }, function () {
         layer_loading('正在处理');
         $.ajax({
             type: "POST",
             url: url,
-            data: {del_id:a, _ajax:1},
+            data: {del_id:a, thorough:1, _ajax:1},
             dataType: 'json',
             success: function (data) {
                 layer.closeAll();
                 if(data.code == 1){
                     layer.msg(data.msg, {icon: 1});
-                    //window.location.reload();
             
                     /* 生成静态页面代码 */
                     var slice_start = url.indexOf('m=admin&c=');
@@ -92,24 +156,54 @@ function batch_del(obj, name) {
                         }
                     });
                     /* end */
-                            
-                    // layer.alert(data.msg, {
-                    //     icon: 1,
-                    //     closeBtn: 0
-                    // }, function(){
-                    //     window.location.reload();
-                    // });
                 }else{
                     layer.alert(data.msg, {icon: 2, title:false});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
             }
         });
     }, function (index) {
-        layer.closeAll(index);
+        layer_loading('正在处理');
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: {del_id:a, _ajax:1},
+            dataType: 'json',
+            success: function (data) {
+                layer.closeAll();
+                if(data.code == 1){
+                    layer.msg(data.msg, {icon: 1});
+            
+                    /* 生成静态页面代码 */
+                    var slice_start = url.indexOf('m=admin&c=');
+                    slice_start = parseInt(slice_start) + 10;
+                    var slice_end = url.indexOf('&a=');
+                    var ctl_name = url.slice(slice_start,slice_end);
+                    $.ajax({
+                        url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                        type:'POST',
+                        dataType:'json',
+                        data: {del_ids:a,ctl_name:ctl_name,_ajax:1},
+                        success:function(data){
+                            window.location.reload();
+                        },
+                        error: function(){
+                            window.location.reload();
+                        }
+                    });
+                    /* end */
+                }else{
+                    layer.alert(data.msg, {icon: 2, title:false});
+                }
+            },
+            error:function(){
+                layer.closeAll();
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            }
+        });
     });
 }
 
@@ -122,14 +216,114 @@ function delfun(obj) {
     
     var deltype = $(obj).attr('data-deltype');
     if ('pseudo' == deltype) {
-        title = '删除到回收站，确认删除？';
+        delfun_pseudo(obj);
     } else {
-        title = '此操作不可逆，确认删除？';
-    }
+        title = '此操作不可恢复，确定批量删除？';
+        btn = ['确定', '取消']; //按钮
+        layer.confirm(title, {
+                title: false,
+                btn: btn //按钮
+            }, function(){
+                // 确定
+                layer_loading('正在处理');
+                $.ajax({
+                    type : 'POST',
+                    url : url,
+                    data : {del_id:$(obj).attr('data-id'), _ajax:1},
+                    dataType : 'json',
+                    success : function(data){
+                        layer.closeAll();
+                        if(data.code == 1){
+                            layer.msg(data.msg, {icon: 1});
+                            //window.location.reload();
 
-    layer.confirm(title, {
-          btn: ['确定','取消'] //按钮
+                            /* 生成静态页面代码 */
+                            var slice_start = url.indexOf('m=admin&c=');
+                            slice_start = parseInt(slice_start) + 10;
+                            var slice_end = url.indexOf('&a=');
+                            var ctl_name = url.slice(slice_start,slice_end);
+                            $.ajax({
+                                url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                                type:'POST',
+                                dataType:'json',
+                                data: {del_ids:$(obj).attr('data-id'),ctl_name:ctl_name,_ajax:1},
+                                success:function(data){
+                                     window.location.reload();
+                                },
+                                error: function(){
+                                    window.location.reload();
+                                }
+                            });
+                            /* end */
+                        }else{
+                            layer.alert(data.msg, {icon: 2, title:false});
+                        }
+                    },
+                    error:function(){
+                        layer.closeAll();
+                        layer.alert(ey_unknown_error, {icon: 2, title:false});
+                    }
+                })
+            }, function(index){
+                layer.close(index);
+                return false;// 取消
+            }
+        );
+    }
+}
+
+/**
+ * 单个删除-针对临时存放在回收站的数据
+ */
+function delfun_pseudo(obj) {
+
+    var url = $(obj).attr('data-url');
+
+    layer.confirm('删除到回收站，确认批量删除？', {
+            title: false,
+            btn: ['直接删除', '确定'] //按钮
         }, function(){
+            // 直接删除
+            layer_loading('正在处理');
+            $.ajax({
+                type : 'POST',
+                url : url,
+                data : {del_id:$(obj).attr('data-id'), thorough:1, _ajax:1},
+                dataType : 'json',
+                success : function(data){
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+
+                        /* 生成静态页面代码 */
+                        var slice_start = url.indexOf('m=admin&c=');
+                        slice_start = parseInt(slice_start) + 10;
+                        var slice_end = url.indexOf('&a=');
+                        var ctl_name = url.slice(slice_start,slice_end);
+                        $.ajax({
+                            url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
+                            type:'POST',
+                            dataType:'json',
+                            data: {del_ids:$(obj).attr('data-id'),ctl_name:ctl_name,_ajax:1},
+                            success:function(data){
+                                 window.location.reload();
+                            },
+                            error: function(){
+                                window.location.reload();
+                            }
+                        });
+                        /* end */
+                    }else{
+                        layer.alert(data.msg, {icon: 2, title:false});
+                    }
+                },
+                error:function(){
+                    layer.closeAll();
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
+                }
+            })
+
+        }, function(index){
             // 确定
             layer_loading('正在处理');
             $.ajax({
@@ -167,12 +361,9 @@ function delfun(obj) {
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
                 }
             })
-        }, function(index){
-            layer.close(index);
-            return false;// 取消
         }
     );
 }
@@ -237,7 +428,7 @@ function batch_move(obj, name) {
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -435,7 +626,7 @@ function get_select_options(t,next){
         url  : url,
         data : {_ajax:1},
         error: function(request) {
-            alert("网络失败，请刷新页面后重试");
+            alert(ey_unknown_error);
             return;
         },
         success: function(v) {

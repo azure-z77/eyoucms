@@ -9,7 +9,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>留言表单回收列表</h3>
-                <h5>(共{$pageObj->totalRows}条记录)</h5>
+                <h5>(共{$pageObj->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form id="search_form" class="navbar-form form-inline" action="{:url('RecycleBin/gbookattr_index')}" method="get" onsubmit="layer_loading('正在处理');">
@@ -162,7 +162,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id')},
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -203,7 +203,7 @@
             $.ajax({
                 type: "POST",
                 url: $(obj).attr('data-url'),
-                data: {del_id:a},
+                data: {del_id:a, _ajax:1},
                 dataType: 'json',
                 success: function (data) {
                     layer.closeAll();
@@ -216,7 +216,7 @@
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
                 }
             });
         }, function (index) {
@@ -226,7 +226,7 @@
 
     // 删除
     function delfun(obj){
-        layer.confirm('此操作不可逆，确认彻底删除？', {
+        layer.confirm('此操作不可恢复，确认彻底删除？', {
             title: false,//$(obj).data('attr_name'),
             btn: ['确定','取消'] //按钮
         }, function(){
@@ -235,7 +235,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id')},
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -268,7 +268,7 @@
             return;
         }
         // 删除按钮
-        layer.confirm('此操作不可逆，确认批量彻底删除？', {
+        layer.confirm('此操作不可恢复，确认批量彻底删除？', {
             title: false,
             btn: ['确定', '取消'] //按钮
         }, function () {
@@ -276,7 +276,7 @@
             $.ajax({
                 type: "POST",
                 url: $(obj).attr('data-url'),
-                data: {del_id:a},
+                data: {del_id:a, _ajax:1},
                 dataType: 'json',
                 success: function (data) {
                     layer.closeAll();
@@ -289,7 +289,7 @@
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
                 }
             });
         }, function (index) {

@@ -123,11 +123,14 @@
                     <!-- 上传图片显示的样板 start -->
                     <div class="images_upload_tpl none">
                         <div class="images_upload">
-                            <input type="hidden" name="imgupload[]" value="" />
-                            <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
-                                <img src="__STATIC__/admin/images/add-button.jpg" width="120" height="120" />
-                            </a>
-                            <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
+                            <div style="position: relative; height: 130px;">
+                                <input type="hidden" name="imgupload[]" value="" />
+                                <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
+                                    <img src="__STATIC__/admin/images/add-button.jpg" width="120" height="120" />
+                                </a>
+                                <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
+                            </div>
+                            <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 136px;" placeholder="图片注释"></textarea>
                         </div>
                     </div>
                     <!-- 上传图片显示的样板 end -->
@@ -320,7 +323,7 @@
                         }
                     },
                     error: function(e){
-                        showErrorMsg('网络失败，请刷新页面后重试');
+                        showErrorMsg(ey_unknown_error);
                         return false;
                     }
                 });
@@ -410,7 +413,7 @@
             url:"{:url('Images/del_imgupload')}",
             data:{filename:path},
             success:function(){
-                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片   
+                $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片   
                 $.ajax({
                     type:'POST',
                     url:"{:url('Uploadify/delupload')}",

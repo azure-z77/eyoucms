@@ -1,5 +1,5 @@
 
-{volist name="$addonFieldList" id="vo"}
+{volist name="$addonFieldExtList" id="vo"}
     {if !isset($vo.ifeditable) || $vo.ifeditable}
         {switch name="vo.dtype"}
             {case value="hidden"}
@@ -24,7 +24,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt">
-                        <input type="text" class="input-txt" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.dfvalue|default=''}">{$vo.dfvalue_unit|default=''}
+                        <input type="text" class="input-txt" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.dfvalue|default=''}">&nbsp;{$vo.dfvalue_unit|default=''}
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
@@ -165,28 +165,27 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt">
-                        <div class="tab-pane" id="tab_{$vo.fieldArr}_{$vo.name|default=''}">
+                        <div class="tab-pane pics" id="tab_{$vo.fieldArr}_{$vo.name|default=''}">
+                            <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="imgupload">
+                                <i class="fa fa-photo"></i>上传图片
+                            </a>
                             <table class="table table-bordered">
                                 <tbody>
                                 <tr>
                                     <td class="sort-list-{$vo.fieldArr}_{$vo.name|default=''}">
                                         {volist name="$vo[$vo['name'].'_eyou_imgupload_list']" id="v2" key="k2"}
-                                        <div class="fieldext_upload" style="display:inline-block;">
-                                            <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2}">
-                                            <a href="{$v2}" onclick="" class="upimg" target="_blank">
-                                                <img src="{$v2}" width="100" height="100">
-                                            </a>
-                                            <br>
-                                            <a href="javascript:void(0)" onclick="{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'{$v2}')">删除</a>
+                                        <div class="images_upload" style="display:inline-block;">
+                                            <div style="position: relative; height: 130px;">
+                                                <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2['image_url']}">
+                                                <a href="{$v2['image_url']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
+                                                    <img src="{$v2['image_url']}" width="100" height="100">
+                                                </a>
+                                                <a href="javascript:void(0)" onclick="{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'{$v2['image_url']}')" class="delect">删除</a>
+                                            </div>
+                                            <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释">{$v2.intro}</textarea>
                                         </div>
                                         {/volist}
-                                        <div class="fieldext_upload" style="display:inline-block;">
-                                            <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="upimg">
-                                            <i class="fa fa-upload"></i>
-                                            上传
-                                            </a>
-                                            <br/>
-                                            <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                                        <div class="images_upload">
                                         </div>
                                     </td>
                                 </tr>
@@ -195,13 +194,15 @@
                         </div>
                         <!-- 上传图片显示的样板 start -->
                         <div class="{$vo.fieldArr}_{$vo.name|default=''}_upload_tpl none">
-                            <div class="fieldext_upload" style="display:inline-block;">
-                                <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="" />
-                                <a href="javascript:void(0);" onClick="" class="upimg">
-                                    <img src="__STATIC__/admin/images/add-button.jpg" width="100" height="100" />
-                                </a>
-                                <br/>
-                                <a href="javascript:void(0)">&nbsp;&nbsp;</a>
+                            <div class="images_upload" style="display:inline-block;">
+                                <div style="position: relative; height: 130px;">
+                                    <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="" />
+                                    <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
+                                        <img src="__STATIC__/admin/images/add-button.jpg" width="100" height="100" />
+                                    </a>
+                                    <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
+                                </div>
+                                <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释"></textarea>
                             </div>
                         </div>
                         <!-- 上传图片显示的样板 end -->
@@ -214,11 +215,11 @@
                         var  last_div = $(".{$vo.fieldArr}_{$vo.name|default=''}_upload_tpl").html();
                         for (var i=0;i<paths.length ;i++ )
                         {
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".fieldext_upload:eq(0)").before(last_div);  // 插入一个 新图片
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".fieldext_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".fieldext_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".fieldext_upload:eq(0)").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('删除');
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".fieldext_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('删除');
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
                         }             
                     }
                     /*
@@ -234,13 +235,13 @@
                             url:"{:url('Field/del_arctypeimgs')}",
                             data:{filename:path,fieldname:"{$vo.name}",typeid:"{$aid|default='0'}"},
                             success:function(){
-                                $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
+                                $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片
                                 $.ajax({
                                     type:'GET',
                                     url:"{:url('Uploadify/delupload')}",
                                     data:{action:"del", filename:path},
                                     success:function(){}
-                                });      
+                                });
                             }
                         });    
                     }
@@ -255,6 +256,7 @@
 
                         }
                     });
+                    //因为他们要拖动，所以尽量设置他们的文字不能选择。 
                     $( ".sort-list-{$vo.fieldArr}_{$vo.name|default=''}" ).disableSelection();
                 </script>
                 <!-- 多张图 end -->
@@ -267,7 +269,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt"> 
-                        <input type="text" value="{$vo.dfvalue|default='0'}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="只允许纯数字" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9]/g,''));">{$vo.dfvalue_unit|default=''}
+                        <input type="text" value="{$vo.dfvalue|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="只允许纯数字" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9]/g,''));">&nbsp;{$vo.dfvalue_unit|default=''}
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
@@ -282,7 +284,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt"> 
-                        <input type="text" value="{$vo.dfvalue|default='0'}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="允许带有小数点的数值" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9\.]/g,''));">{$vo.dfvalue_unit|default=''}
+                        <input type="text" value="{$vo.dfvalue|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="允许带有小数点的数值" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9\.]/g,''));">&nbsp;{$vo.dfvalue_unit|default=''}
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
@@ -297,7 +299,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt"> 
-                        <input type="text" value="{$vo.dfvalue|default='0.00'}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="允许带有小数点的数值" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9\.]/g,''));">{$vo.dfvalue_unit|default=''}
+                        <input type="text" value="{$vo.dfvalue|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" placeholder="允许带有小数点的金额" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9\.]/g,''));">&nbsp;{$vo.dfvalue_unit|default=''}
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
@@ -312,7 +314,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt"> 
-                        <input type="text" class="input-txt" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" value="{php}if(empty($vo['dfvalue'])){echo date('Y-m-d H:i:s');}else{echo $vo['dfvalue'];}{/php}">        
+                        <input type="text" class="input-txt" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" value="{$vo['dfvalue']}">        
                         <span class="add-on input-group-addon">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                         </span> 

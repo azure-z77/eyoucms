@@ -18,7 +18,7 @@ class Url
      * @param string    $seo_pseudo_format URL格式
      * @return string
      */
-    public static function build($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null)
+    public static function build($url = '', $vars = '', $suffix = true, $domain = false, $seo_pseudo = null, $seo_pseudo_format = null, $seo_inlet = null)
     {
         static $request = null;
         if (null == $request) {
@@ -32,7 +32,7 @@ class Url
 
         /*自动识别系统环境隐藏入口文件 by 小虎哥*/
         self::root($request->baseFile().'/');
-        $seo_inlet = config('ey_config.seo_inlet');
+        null === $seo_inlet && $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {
             if ('admin' != $module) { // 排除后台分组模块
                 self::root(ROOT_DIR.'/');
@@ -191,9 +191,10 @@ class Url
                 $seo_pseudo_format = $ey_config['seo_rewrite_format'];
             }
         }
-        if (1 == $seo_pseudo && 1 == $seo_pseudo_format) {
+        if ((1 == $seo_pseudo && 1 == $seo_pseudo_format) || 2 == $seo_pseudo) {
             /*默认兼容模式，支持不开启pathinfo模式*/
-            $urlinfo = explode('/', $url);
+            $urlinfo = $mca;
+            // $urlinfo = explode('/', $url);
             $len = count($urlinfo);
             $m = !empty($urlinfo[$len - 3]) ? $urlinfo[$len - 3] : $request->module();
             $c = !empty($urlinfo[$len - 2]) ? $urlinfo[$len - 2] : $request->controller();
@@ -204,6 +205,9 @@ class Url
             $url = $domain . rtrim(self::$root ?: $request->root(), '/');
             if (1 == $seo_inlet && 'admin' != $m) {
                 $url .= "/";
+                if (2 == $seo_pseudo) {
+                    $url .= "index.php";
+                }
             }
             $url .= "?m={$m}&c={$c}&a={$a}";
             /*URL全局参数（比如：可视化uiset、多模板v、多语言lang）*/

@@ -34,7 +34,7 @@ class TagSearchurl extends Base
     {
         $url = url("home/Search/lists");
         $ey_config = config('ey_config'); // URL模式
-        if (1 == $ey_config['seo_pseudo'] && 1 == $ey_config['seo_dynamic_format']) {
+        if (2 == $ey_config['seo_pseudo'] || (1 == $ey_config['seo_pseudo'] && 1 == $ey_config['seo_dynamic_format'])) {
             $result = '';
             $result .= $url.'"><input type="hidden" name="m" value="home" />';
             $result .= '<input type="hidden" name="c" value="Search" />';

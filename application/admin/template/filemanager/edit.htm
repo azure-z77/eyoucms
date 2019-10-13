@@ -18,7 +18,7 @@
     <form class="form-horizontal" id="post_form" action="{:url('Filemanager/edit')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
-                <dt class="tit">工作目录</dt>
+                <dt class="tit"><em>*</em>工作目录</dt>
                 <dd class="opt">
                     <input type="text" name="activepath" value="{$info['activepath']|default=''}" id="activepath" class="input-txt">
                     <span class="err"></span>
@@ -27,7 +27,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="url">文件名称</label>
+                    <label for="url"><em>*</em>文件名称</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="filename" value="{$info['filename']|default=''}" id="filename" class="input-txt">
@@ -54,6 +54,7 @@
     var editor = CodeMirror.fromTextArea(document.getElementById('content'), {
         lineNumbers: true,
         lineWrapping: true,
+        autofocus:true,  //自动聚焦
         mode: '{$info.extension}'
     });
 

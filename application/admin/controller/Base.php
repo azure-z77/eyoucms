@@ -58,8 +58,10 @@ class Base extends Controller {
         if (in_array($ctl_act, $filter_login_action) || in_array($ctl_all, $filter_login_action)) {
             //return;
         }else{
-            $admin_login_expire = session('admin_login_expire'); // 登录有效期
-            if (getTime() - intval($admin_login_expire) < config('login_expire')) {
+            $web_login_expiretime = tpCache('web.web_login_expiretime');
+            empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
+            $admin_login_expire = session('admin_login_expire'); // 登录有效期web_login_expiretime
+            if (getTime() - intval($admin_login_expire) < $web_login_expiretime) {
                 session('admin_login_expire', getTime()); // 登录有效期
                 $this->check_priv();//检查管理员菜单操作权限
             }else{
@@ -77,14 +79,14 @@ class Base extends Controller {
         /* 增、改的跳转提示页，只限制于发布文档的模型和自定义模型 */
         $channeltype_list = config('global.channeltype_list');
         $controller_name = $this->request->controller();
-        if (isset($channeltype_list[strtolower($controller_name)])) {
+        if (isset($channeltype_list[strtolower($controller_name)]) || 'Custom' == $controller_name) {
             if (in_array($this->request->action(), ['add','edit'])) {
                 \think\Config::set('dispatch_success_tmpl', 'public/dispatch_jump');
                 $id = input('param.id/d', input('param.aid/d'));
                 ('GET' == $this->request->method()) && cookie('ENV_IS_UPHTML', 0);
             } else if (in_array($this->request->action(), ['index'])) {
                 cookie('ENV_GOBACK_URL', $this->request->url());
-                cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c={$controller_name}&a=index&tab=3&lang=".$this->admin_lang);
+                cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c={$controller_name}&a=index&lang=".$this->admin_lang);
             }
         }
         if ('Archives' == $controller_name && in_array($this->request->action(), ['index_archives'])) {
@@ -92,6 +94,14 @@ class Base extends Controller {
             cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c=Archives&a=index_archives&lang=".$this->admin_lang);
         }
         /* end */
+
+        /*会员投稿设置*/
+        $IsOpenRelease = Db::name('users_menu')->where([
+            'mca'  => 'user/UsersRelease/release_centre',
+            'lang' => $this->admin_lang,
+        ])->getField('status');
+        $this->assign('IsOpenRelease',$IsOpenRelease);
+        /* END */
     }
     
     public function check_priv()

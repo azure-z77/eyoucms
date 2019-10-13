@@ -96,7 +96,13 @@ class Buildhtml extends Base
         $templateConfig['view_path'] = "./template/pc/";
         $template = "./template/{$model}/{$tpl}.{$templateConfig['view_suffix']}";
         $content = $this->fetch($template, [], [], $templateConfig);
-        
+
+        /*解决模板里没有设置编码的情况*/
+        if (!stristr($content, 'utf-8')) {
+            $content = str_ireplace('<head>', "<head>\n<meta charset='utf-8'>", $content);
+        }
+        /*end*/
+
         if($pages>0){
             $page = "/<a(.*?)href(\s*)=(\s*)[\'|\"](.*?)page=([0-9]*)(.*?)data-ey_fc35fdc=[\'|\"]html[\'|\"](.*?)>/i";
             preg_match_all($page,$content,$matchpage);
@@ -530,7 +536,7 @@ class Buildhtml extends Base
         $channeltypeRow = Db::name('channeltype')
             ->where('nid','NOT IN', ['guestbook','single'])
             ->column('ctl_name');
-        array_push($channeltypeRow, 'Archives', 'Arctype');
+        array_push($channeltypeRow, 'Archives', 'Arctype', 'Custom');
         if (!in_array($ctl_name, $channeltypeRow)) {
             $this->error("排除非发布文档的模型");
         }
@@ -631,7 +637,7 @@ class Buildhtml extends Base
                     $result_new = $this->readContentFirst($tid);
                     // 阅读权限 或 外部链接跳转
                     if ($result_new['arcrank'] == -1 || $result_new['is_part'] == 1) {
-                        return fasle;
+                        return false;
                     }
                     /*自定义字段的数据格式处理*/
                     $result_new = $this->fieldLogic->getChannelFieldList($result_new, $result_new['current_channel']);

@@ -102,7 +102,7 @@ class Admin extends Base {
                 $this->error('请联系空间商，开启php的session扩展！');
             }
             if (!testWriteAble(ROOT_PATH.config('session.path').'/')) {
-                $this->error('请仔细检查以下问题：<br/>1、磁盘空间大小是否100%；<br/>2、站点目录权限是否为755；<br/>3、站点目录的权限，禁止用root:root ；<br/>4、如还没解决，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
+                $this->error('请仔细检查以下问题：<br/>1、磁盘空间大小是否100%；<br/>2、站点目录权限是否为755；<br/>3、站点所有目录的权限，禁止用root:root ；<br/>4、如还没解决，请点击：<a href="http://www.eyoucms.com/wenda/6958.html" target="_blank">查看教程</a>');
             }
             
             if (1 == $is_vertify) {
@@ -111,14 +111,47 @@ class Admin extends Base {
                     $this->error('验证码错误');
                 }
             }
-            $condition['user_name'] = input('post.user_name/s');
-            $condition['password'] = input('post.password/s');
+
+            $user_name = input('post.user_name/s');
+            $password = input('post.password/s');
+
+            /*登录错误次数的限制*/
+/*            $ststem_login_errnum_key = 'system_'.md5('login_errnum_'.$user_name);
+            $ststem_login_errtime_key = 'system_'.md5('login_errtime_'.$user_name);
+            $loginErrtotal = config('login_errtotal'); // 限定最大的登录错误次数
+            $loginErrexpire = config('login_errexpire'); // 限定登录错误锁定有效时间
+            $loginErrnum = tpCache('system.'.$ststem_login_errnum_key); // 登录错误次数
+            $loginErrtime = tpCache('system.'.$ststem_login_errtime_key); // 最后一次登录错误时间
+            if (intval($loginErrnum) >= intval($loginErrtotal)) {
+                if (getTime() < $loginErrtime + $loginErrexpire) {
+                    $this->error("登录错误次数超限，用户名被锁定15分钟！");
+                } else {
+                    // 重置登录错误次数
+                    $loginErrnum = 0;
+                    $loginErrtime = 0;
+                    tpCache('system', [$ststem_login_errnum_key => $loginErrnum]);
+                    tpCache('system', [$ststem_login_errtime_key => $loginErrtime]);
+                }
+            }*/
+            /*end*/
+
+            $condition['user_name'] = $user_name;
+            $condition['password'] = $password;
             if (!empty($condition['user_name']) && !empty($condition['password'])) {
                 $condition['password'] = func_encrypt($condition['password']);
                 $admin_info = M('admin')->where($condition)->find();
-                if (is_array($admin_info)) {
+                if (empty($admin_info)) {
+                    /*记录登录错误次数*/
+                    /*$login_num = intval($loginErrtotal) - intval($loginErrnum);
+                    $ststem_login_errnum = $loginErrnum + 1;
+                    tpCache('system', [$ststem_login_errnum_key=>$ststem_login_errnum]);
+                    tpCache('system', [$ststem_login_errtime_key=>getTime()]);
+                    $this->error("用户名或密码错误，您还可以尝试[{$login_num}]次！");*/
+                    $this->error("用户名或密码错误！");
+                    /*end*/
+                } else {
                     if ($admin_info['status'] == 0) {
-                        $this->error('账号被禁用！');
+                        $this->error('用户名被禁用！');
                     }
 
                     // 数据验证
@@ -131,12 +164,18 @@ class Admin extends Base {
                     $validate = new \think\Validate($rule, $message);
                     if(!$validate->batch()->check($post))
                     {
-                        $this->error('登录校验失败，请刷新页面重试~');
+                        $this->error('登录校验失败，请检查站点权限问题~');
                     }
 
                     $role_id = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
                     $auth_role_info = array();
-                    $role_name = !empty($admin_info['parent_id']) ? '超级管理员' : '创始人';
+                    if (!empty($admin_info['parent_id'])) {
+                        $role_name = '超级管理员';
+                        $isFounder = 0;
+                    } else {
+                        $role_name = '创始人';
+                        $isFounder = 1;
+                    }
                     if (0 < intval($role_id)) {
                         $auth_role_info = M('auth_role')
                             ->field("a.*, a.name AS role_name")
@@ -160,87 +199,41 @@ class Admin extends Base {
                     $admin_info['last_login'] = $last_login_time;
                     $admin_info['last_ip'] = $last_login_ip;
 
-                    session('admin_id',$admin_info['admin_id']);
+                    // 头像
+                    empty($admin_info['head_pic']) && $admin_info['head_pic'] = get_head_pic($admin_info['head_pic'], true);
+
+                    $admin_info_new = $admin_info;
                     /*过滤存储在session文件的敏感信息*/
                     foreach (['user_name','true_name','password'] as $key => $val) {
-                        unset($admin_info[$val]);
+                        unset($admin_info_new[$val]);
                     }
                     /*--end*/
 
-                    // 头像
-                    empty($admin_info['head_pic']) && $admin_info['head_pic'] = get_head_pic($admin_info['head_pic']);
-
-                    session('admin_info', $admin_info);
+                    session('admin_id',$admin_info['admin_id']);
+                    session('admin_info', $admin_info_new);
                     session('admin_login_expire', getTime()); // 登录有效期
+
+                    /*检查密码复杂度*/
+                    $admin_login_pwdlevel = checkPasswordLevel($password);
+                    session('admin_login_pwdlevel', $admin_login_pwdlevel);
+                    /*end*/
+
+                    // 重置登录错误次数
+                    /*tpCache('system', [$ststem_login_errnum_key=>0]);
+                    tpCache('system', [$ststem_login_errtime_key=>0]);*/
+
                     adminLog('后台登录');
-                    $url = session('from_url') ? session('from_url') : request()->baseFile();
+                    $url = session('from_url') ? session('from_url') : $this->request->baseFile();
                     session('isset_author', null); // 内置勿动
 
                     /*同步追加一个后台管理员到会员用户表*/
-                    $where_new = [
-                        'admin_id' => $admin_info['admin_id'],
-                    ];
-                    $users_id = Db::name('users')->where($where_new)->getField('users_id');
-                    try {
-                        if (empty($users_id) && empty($admin_info['syn_users_id'])) {
-                            // 获取要添加的用户名
-                            $username = $this->GetUserName(input('post.user_name/s'));
-                            $AddData = [
-                                'username' => $username,
-                                'nickname' => $username,
-                                'password' => func_encrypt('eyoucms').getTime(),
-                                'level'    => 1,
-                                'lang'     => $this->admin_lang,
-                                'reg_time' => getTime(),
-                                'add_time' => getTime(),
-                                'register_place' => 1,
-                                'admin_id' => $admin_info['admin_id'],
-                            ];
-                            $users_id = Db::name('users')->insertGetId($AddData);
-                            if (!empty($users_id)) {
-								/*
-                                Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
-                                        'syn_users_id'  => $users_id,
-                                        'update_time'   => getTime(),
-                                    ]);
-                                $admin_info['syn_users_id'] = $users_id;
-                                session('admin_info', $admin_info);
-								*/
-                            }
-                        } else if (!empty($users_id) && empty($admin_info['syn_users_id'])) {
-							/*
-                            Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
-                                    'syn_users_id'  => $users_id,
-                                    'update_time'   => getTime(),
-                                ]);
-                            $admin_info['syn_users_id'] = $users_id;
-                            session('admin_info', $admin_info);
-							*/
-                        }
-                    } catch (\Exception $e) {
-                        
-                    }
-                    // 加载前台session
-                    if (!empty($users_id)) {
-                        $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
-                            ->alias('a')
-                            ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
-                            ->where([
-                                'a.users_id'        => $users_id,
-                                'a.lang'            => $this->admin_lang,
-                                'a.is_activation'   => 1,
-                            ])->find();
-                        session('users',$users);
-                        session('users_id',$users_id);
-                    }
+                    $this->syn_users_login($admin_info, $isFounder);
                     /* END */
 
                     $this->success('登录成功', $url);
-                } else {
-                    $this->error('账号密码不正确');
                 }
             } else {
-                $this->error('请填写账号密码');
+                $this->error('请填写用户名/密码');
             }
         }
 
@@ -301,6 +294,10 @@ class Admin extends Base {
                 );
                 $row = M('admin')->where('admin_id' , $admin_id)->save($data);
                 if($row){
+                    /*检查密码复杂度*/
+                    $admin_login_pwdlevel = checkPasswordLevel($newPwd);
+                    session('admin_login_pwdlevel', $admin_login_pwdlevel);
+                    /*end*/
                     adminLog('修改管理员密码');
                     exit(json_encode(array('status'=>1,'msg'=>'操作成功')));
                 }else{
@@ -328,7 +325,29 @@ class Admin extends Base {
         cookie('admin-treeClicked', null); // 清除并恢复栏目列表的展开方式
         $this->success("安全退出", request()->baseFile());
     }
-    
+
+    /**
+     * 新增管理员时，检测用户名是否与前台用户名相同
+     */
+    public function ajax_add_user_name()
+    {
+        if (IS_AJAX_POST) {
+            $user_name = input('post.user_name/s');
+            if (M('admin')->where("user_name", $user_name)->count()) {
+                $this->error("此用户名已被注册，请更换！");
+            }
+            $row = Db::name('users')->field('users_id')->where([
+                    'username'  => $user_name,
+                    'lang'      => $this->admin_lang,
+                ])->find();
+            if (!empty($row)) {
+                $this->error('已有相同会员名，将其转为系统账号？');
+            } else {
+                $this->success('会员名不存在，无需提示！');
+            }
+        }
+    }
+
     /**
      * 新增管理员
      */
@@ -367,31 +386,44 @@ class Admin extends Base {
 
                     /*同步追加一个后台管理员到会员用户表*/
                     try {
-                        // 获取要添加的用户名
-                        $username = $this->GetUserName($data['user_name']);
-                        $AddData = [
-                            'username' => $username,
-                            'nickname' => $username,
-                            'password' => func_encrypt('eyoucms').getTime(),
-                            'level'    => 1,
-                            'lang'     => $this->admin_lang,
-                            'reg_time' => getTime(),
-                            'add_time' => getTime(),
-                            'register_place' => 1,
-                            'admin_id' => $admin_id,
-                        ];
-                        $users_id = Db::name('users')->insertGetId($AddData);
+                        $usersInfo = Db::name('users')->field('users_id')->where([
+                                'username'  => $data['user_name'],
+                                'lang'      => $this->admin_lang,
+                            ])->find();
+                        if (!empty($usersInfo)) {
+                            $r = Db::name('users')->where(['users_id'=>$usersInfo['users_id']])->update([
+                                    'nickname'      => $data['user_name'],
+                                    'admin_id'      => $admin_id,
+                                    'is_activation' => 1,
+                                    'is_lock'       => 0,
+                                    'is_del'        => 0,
+                                    'update_time'   => getTime(),
+                                ]);
+                            !empty($r) && $users_id = $usersInfo['users_id'];
+                        } else {
+                            // 获取要添加的用户名
+                            $username = $this->GetUserName($data['user_name']);
+                            $AddData = [
+                                'username' => $username,
+                                'nickname' => $username,
+                                'password' => func_encrypt(getTime()),
+                                'level'    => 1,
+                                'lang'     => $this->admin_lang,
+                                'reg_time' => getTime(),
+                                'add_time' => getTime(),
+                                'head_pic' => ROOT_DIR . '/public/static/common/images/dfboy.png',
+                                'register_place' => 1,
+                                'admin_id' => $admin_id,
+                            ];
+                            $users_id = Db::name('users')->insertGetId($AddData);
+                        }
                         if (!empty($users_id)) {
-							/*
                             Db::name('admin')->where(['admin_id'=>$admin_id])->update([
                                     'syn_users_id'  => $users_id,
                                     'update_time'   => getTime(),
                                 ]);
-							*/
                         }
-                    } catch (\Exception $e) {
-                        
-                    }
+                    } catch (\Exception $e) {}
                     /* END */
 
                     $this->success("操作成功", url('Admin/index'));
@@ -450,17 +482,18 @@ class Admin extends Base {
                 $this->error('禁止更改别人的信息！');
             }
 
-            if (!empty($data['password']) || !empty($data['password2'])) {
-                if ($data['password'] != $data['password2']) {
+            $password = $data['password'];
+            if (!empty($password) || !empty($data['password2'])) {
+                if ($password != $data['password2']) {
                     $this->error("两次密码输入不一致！");
                 }
             }
 
             $user_name = $data['user_name'];
-            if(empty($data['password'])){
+            if(empty($password)){
                 unset($data['password']);
             }else{
-                $data['password'] = func_encrypt($data['password']);
+                $data['password'] = func_encrypt($password);
             }
             unset($data['user_name']);
             
@@ -478,6 +511,13 @@ class Admin extends Base {
             $data['update_time'] = getTime();
             $r = M('admin')->where('admin_id', $id)->save($data);
             if ($r) {
+                /*检查密码复杂度*/
+                if ($id == session('admin_info.admin_id')) {
+                    $admin_login_pwdlevel = checkPasswordLevel($password);
+                    session('admin_login_pwdlevel', $admin_login_pwdlevel);
+                }
+                /*end*/
+
                 /*过滤存储在session文件的敏感信息*/
                 if ($id == session('admin_info.admin_id')) {
                     $admin_info = session('admin_info');
@@ -640,6 +680,23 @@ class Admin extends Base {
         $this->error('操作失败');
     }
 
+    /*
+     * 检测密码的复杂程度
+     */
+    public function ajax_checkPasswordLevel()
+    {
+        $password = input('post.password/s');
+        if (IS_AJAX_POST && !empty($password)) {
+            $pwdLevel = checkPasswordLevel($password);
+            if (3 >= $pwdLevel) {
+                $this->success("<font color='red'>当前密码复杂度为 {$pwdLevel} ，建议复杂度在 4~7 范围内，避免容易被暴力破解！</font>", null, ['pwdLevel'=>$pwdLevel]);
+            } else {
+                $this->success("<font color='green'>当前密码复杂度为 {$pwdLevel} ，在系统设定 4~7 安全范围内！</font>", null, ['pwdLevel'=>$pwdLevel]);
+            }
+        }
+        $this->error('操作失败');
+    }
+
     // 确保用户名唯一
     private function GetUserName($username = null)
     {
@@ -650,5 +707,93 @@ class Admin extends Base {
         }
 
         return $username;
+    }
+
+    /**
+     * 同步追加一个后台管理员到会员用户表，并同步前台登录
+     */
+    private function syn_users_login($admin_info = [], $isFounder = 0)
+    {
+        $where_new = [
+            'admin_id'  => $admin_info['admin_id'],
+            'lang'      => $this->admin_lang,
+        ];
+        $users_id = Db::name('users')->where($where_new)->getField('users_id');
+        try {
+            if (empty($users_id) && empty($admin_info['syn_users_id'])) {
+                $usersInfo = [];
+                if (1 == $isFounder) {
+                    // 如果是创始人，强制将与会员名相同的改为管理员前台用户名
+                    $usersInfo = Db::name('users')->field('users_id')->where([
+                            'username'  => $admin_info['user_name'],
+                            'lang'      => $this->admin_lang,
+                        ])->find();
+                }
+                if (!empty($usersInfo)) {
+                    $r = Db::name('users')->where(['users_id'=>$usersInfo['users_id']])->update([
+                            'nickname'      => $admin_info['user_name'],
+                            'admin_id'      => $admin_info['admin_id'],
+                            'is_activation' => 1,
+                            'is_lock'       => 0,
+                            'is_del'        => 0,
+                            'update_time'   => getTime(),
+                            'last_login'    => getTime(),
+                        ]);
+                    !empty($r) && $users_id = $usersInfo['users_id'];
+                } else {
+                    // 获取要添加的用户名
+                    $username = $this->GetUserName($admin_info['user_name']);
+                    $AddData = [
+                        'username' => $username,
+                        'nickname' => $username,
+                        'password' => func_encrypt(getTime()),
+                        'level'    => 1,
+                        'lang'     => $this->admin_lang,
+                        'reg_time' => getTime(),
+                        'head_pic' => ROOT_DIR . '/public/static/common/images/dfboy.png',
+                        'add_time' => getTime(),
+                        'last_login' => getTime(),
+                        'register_place' => 1,
+                        'admin_id' => $admin_info['admin_id'],
+                    ];
+                    $users_id = Db::name('users')->insertGetId($AddData);
+                }
+                if (!empty($users_id)) {
+                    Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
+                            'syn_users_id'  => $users_id,
+                            'update_time'   => getTime(),
+                        ]);
+                    $admin_info['syn_users_id'] = $users_id;
+                    session('admin_info', $admin_info);
+                }
+            } else if (!empty($users_id) && empty($admin_info['syn_users_id'])) {
+                Db::name('admin')->where(['admin_id'=>$admin_info['admin_id']])->update([
+                        'syn_users_id'  => $users_id,
+                        'update_time'   => getTime(),
+                    ]);
+                $admin_info['syn_users_id'] = $users_id;
+                session('admin_info', $admin_info);
+            }
+        } catch (\Exception $e) {}
+        
+        // 加载前台session
+        if (!empty($users_id)) {
+            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
+                ->alias('a')
+                ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                ->where([
+                    'a.users_id'        => $users_id,
+                    'a.lang'            => $this->admin_lang,
+                    'a.is_activation'   => 1,
+                ])->find();
+            if (!empty($users)) {
+                session('users',$users);
+                session('users_id',$users_id);
+                Db::name('users')->where(['users_id'=>$users_id])->update([
+                        'update_time'   => getTime(),
+                        'last_login'    => getTime(),
+                    ]);
+            }
+        }
     }
 }

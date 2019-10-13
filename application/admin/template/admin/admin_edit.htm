@@ -35,7 +35,8 @@
                 </dt>
                 <dd class="opt">
                     <input type="password" name="password" value="" id="password" autocomplete="off" class="input-txt">
-                    <p class="notic"></p>
+                    <p class="notic">推荐密码至少是以大写字母、小写字母、数字等组合！</p>
+                    <p id="password_tips"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -443,6 +444,22 @@
       $("#head_pic").val(fileurl_tmp);
       $("#img_head_pic").attr('src', fileurl_tmp);
     }
+
+    $('#password').keyup(function(){
+        var password = $(this).val();
+        $.ajax({
+            url: "{:url('Admin/ajax_checkPasswordLevel')}",
+            type: "POST",
+            dataType: "JSON",
+            data: {password:password, _ajax:1},
+            success: function(res){
+                $('#password_tips').removeAttr('class');
+                if (1 == res.code) {
+                    $('#password_tips').addClass('rank r'+res.data.pwdLevel);
+                }
+            }
+        });
+    });
 
     // 判断输入框是否为空
     function adsubmit(){

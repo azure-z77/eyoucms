@@ -182,7 +182,7 @@ class FilemanagerLogic extends Model
         $fileArr = $dirArr = $parentArr = array();
 
         $mydir = dir($directory);
-        while($file = $mydir->read())
+        while(false !== $file = $mydir->read())
         {
             $filesize = $filetime = $intro = '';
             $filemine = 'file';

@@ -9,7 +9,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>模板语言变量</h3>
-                <h5>(共{$pageObj->totalRows}条记录)</h5>
+                <h5>(共{$pageObj->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:url('Language/pack_index')}" method="get" onsubmit="layer_loading('正在处理');">
@@ -193,7 +193,7 @@
           $.ajax({
             type : 'post',
             url : $(obj).attr('data-url'),
-            data : {del_id:$(obj).attr('data-id')},
+            data : {del_id:$(obj).attr('data-id'), _ajax:1},
             dataType : 'json',
             success : function(data){
               layer.closeAll();

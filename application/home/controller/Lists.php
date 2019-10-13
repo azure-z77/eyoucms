@@ -162,7 +162,16 @@ class Lists extends Base
                     }
                     // 外部链接跳转
                     if ($result_new['is_part'] == 1) {
-                        header('Location: '.$result_new['typelink']);
+                        $result_new['typelink'] = htmlspecialchars_decode($result_new['typelink']);
+                        if (!is_http_url($result_new['typelink'])) {
+                            $typeurl = '//'.$this->request->host();
+                            if (!preg_match('#^'.ROOT_DIR.'(.*)$#i', $result_new['typelink'])) {
+                                $typeurl .= ROOT_DIR;
+                            }
+                            $typeurl .= '/'.trim($result_new['typelink'], '/');
+                            $result_new['typelink'] = $typeurl;
+                        }
+                        $this->redirect($result_new['typelink']);
                         exit;
                     }
                     /*自定义字段的数据格式处理*/
@@ -180,6 +189,16 @@ class Lists extends Base
             default:
             {
                 $result = model('Arctype')->getInfo($tid);
+                /*外部链接跳转*/
+                if ($result['is_part'] == 1) {
+                    $result['typelink'] = htmlspecialchars_decode($result['typelink']);
+                    if (!is_http_url($result['typelink'])) {
+                        $result['typelink'] = '//'.$this->request->host().ROOT_DIR.'/'.trim($result['typelink'], '/');
+                    }
+                    $this->redirect($result['typelink']);
+                    exit;
+                }
+                /*end*/
                 break;
             }
         }

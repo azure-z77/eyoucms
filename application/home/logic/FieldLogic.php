@@ -97,8 +97,33 @@ class FieldLogic extends Model
                         break;
                     }
 
-                    case 'checkbox':
                     case 'imgs':
+                    {
+                        if (!is_array($val)) {
+                            $eyou_imgupload_list = @unserialize($val);
+                            if (false === $eyou_imgupload_list) {
+                                $eyou_imgupload_list = [];
+                                $eyou_imgupload_data = explode(',', $val);
+                                foreach ($eyou_imgupload_data as $k1 => $v1) {
+                                    $eyou_imgupload_list[$k1] = [
+                                        'image_url' => handle_subdir_pic($v1),
+                                        'intro'     => '',
+                                    ];
+                                }
+                            }
+                        } else {
+                            $eyou_imgupload_list = [];
+                            $eyou_imgupload_data = $val;
+                            foreach ($eyou_imgupload_data as $k1 => $v1) {
+                                $v1['image_url'] = handle_subdir_pic($v1['image_url']);
+                                $eyou_imgupload_list[$k1] = $v1;
+                            }
+                        }
+                        $val = $eyou_imgupload_list;
+                        break;
+                    }
+
+                    case 'checkbox':
                     case 'files':
                     {
                         if (!is_array($val)) {

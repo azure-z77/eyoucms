@@ -11,12 +11,11 @@
 -- Date : 2019-06-28 10:46:28
 -- -----------------------------------------
 
-SET FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS=0;
 
-
--- -----------------------------
--- Table structure for `ey_ad`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_ad
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_ad`;
 CREATE TABLE `ey_ad` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '广告id',
@@ -46,9 +45,9 @@ CREATE TABLE `ey_ad` (
   KEY `status` (`status`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='广告表';
 
--- -----------------------------
--- Records of `ey_ad`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_ad
+-- ----------------------------
 INSERT INTO `ey_ad` VALUES ('1', '1', '1', '共展蓝图', 'http://www.eyoucms.com', '/uploads/allimg/20190320/ef04db4998198aa3dfdf3e503ae9f22e.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '0', '0', 'cn', '1524215652', '1553046530');
 INSERT INTO `ey_ad` VALUES ('2', '1', '1', '易优模板库', 'http://www.eyoucms.com', '/uploads/allimg/20190320/def47fdd6212ad6f7f037b9dbb9cd63e.jpg', '0', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '0', '0', 'cn', '1524214017', '1553046638');
 INSERT INTO `ey_ad` VALUES ('3', '2', '1', 'en共展蓝图', 'http://www.eyoucms.com', '/uploads/allimg/20190320/ef04db4998198aa3dfdf3e503ae9f22e.jpg', '1524215594', '0', '&lt;p&gt;填写广告的备注信息，方便于后期的跟进&lt;/p&gt;', '', '', '', '0', '', '1', '100', '0', '0', '0', 'en', '1524215652', '1527824535');
@@ -56,34 +55,9 @@ INSERT INTO `ey_ad` VALUES ('4', '2', '1', 'en易优模板库', 'http://www.eyou
 INSERT INTO `ey_ad` VALUES ('5', '1', '1', '第三组广告', 'http://www.eyoucms.com', '/uploads/allimg/20190320/364ec7c31e6068cd49afb2e84445fb0c.jpg', '0', '0', '', '', '', '', '0', '', '1', '100', '1', '1', '0', 'cn', '1553046945', '1553046945');
 INSERT INTO `ey_ad` VALUES ('6', '2', '1', '第三组广告', 'http://www.eyoucms.com', '/uploads/allimg/20190320/364ec7c31e6068cd49afb2e84445fb0c.jpg', '0', '0', '', '', '', '', '0', '', '1', '100', '1', '1', '0', 'en', '1553046945', '1553046945');
 
--- -----------------------------
--- Table structure for `ey_ad_position`
--- -----------------------------
-DROP TABLE IF EXISTS `ey_ad_position`;
-CREATE TABLE `ey_ad_position` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(60) NOT NULL DEFAULT '' COMMENT '广告位置名称',
-  `width` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位宽度',
-  `height` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位高度',
-  `intro` text NOT NULL COMMENT '广告描述',
-  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '0关闭1开启',
-  `lang` varchar(50) NOT NULL DEFAULT 'cn' COMMENT '多语言',
-  `admin_id` int(10) NOT NULL DEFAULT '0' COMMENT '管理员ID',
-  `is_del` tinyint(1) NOT NULL DEFAULT '0' COMMENT '伪删除，1=是，0=否',
-  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '新增时间',
-  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='广告位置表';
-
--- -----------------------------
--- Records of `ey_ad_position`
--- -----------------------------
-INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '0', '0', '1524209276', '1524209365');
-INSERT INTO `ey_ad_position` VALUES ('2', 'en首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'en', '0', '0', '1524209276', '1524209365');
-
--- -----------------------------
--- Table structure for `ey_admin`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_admin
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_admin`;
 CREATE TABLE `ey_admin` (
   `admin_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户id',
@@ -102,20 +76,21 @@ CREATE TABLE `ey_admin` (
   `role_id` int(10) NOT NULL DEFAULT '-1' COMMENT '角色组ID（-1表示超级管理员）',
   `mark_lang` varchar(50) DEFAULT 'cn' COMMENT '当前语言标识',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(0=屏蔽，1=正常)',
+  `syn_users_id` int(10) DEFAULT '0' COMMENT '同步注册到会员表',
   `add_time` int(11) DEFAULT '0' COMMENT '添加时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`admin_id`),
   KEY `user_name` (`user_name`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='管理员表';
 
--- -----------------------------
--- Records of `ey_admin`
--- -----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '', '1561689978', '127.0.0.1', '11', 'edsr9u5efi6l1uatoagtvb31r7', '0', '-1', 'cn', '1', '1547516761', '0');
+-- ----------------------------
+-- Records of ey_admin
+-- ----------------------------
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '7959ec68e999edd0380ff0809f76fa42', '', '1561689978', '127.0.0.1', '11', 'edsr9u5efi6l1uatoagtvb31r7', '0', '-1', 'cn', '1', '0', '1547516761', '0');
 
--- -----------------------------
--- Table structure for `ey_admin_log`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_admin_log
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_admin_log`;
 CREATE TABLE `ey_admin_log` (
   `log_id` bigint(16) unsigned NOT NULL AUTO_INCREMENT COMMENT '表id',
@@ -128,10 +103,38 @@ CREATE TABLE `ey_admin_log` (
   KEY `admin_id` (`admin_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
+-- ----------------------------
+-- Records of ey_admin_log
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_archives`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_ad_position
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_ad_position`;
+CREATE TABLE `ey_ad_position` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(60) NOT NULL DEFAULT '' COMMENT '广告位置名称',
+  `width` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位宽度',
+  `height` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位高度',
+  `intro` text NOT NULL COMMENT '广告描述',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '0关闭1开启',
+  `lang` varchar(50) NOT NULL DEFAULT 'cn' COMMENT '多语言',
+  `admin_id` int(10) NOT NULL DEFAULT '0' COMMENT '管理员ID',
+  `is_del` tinyint(1) NOT NULL DEFAULT '0' COMMENT '伪删除，1=是，0=否',
+  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='广告位置表';
+
+-- ----------------------------
+-- Records of ey_ad_position
+-- ----------------------------
+INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '0', '0', '1524209276', '1524209365');
+INSERT INTO `ey_ad_position` VALUES ('2', 'en首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'en', '0', '0', '1524209276', '1524209365');
+
+-- ----------------------------
+-- Table structure for ey_archives
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_archives`;
 CREATE TABLE `ey_archives` (
   `aid` int(10) NOT NULL AUTO_INCREMENT,
@@ -155,6 +158,9 @@ CREATE TABLE `ey_archives` (
   `seo_keywords` varchar(200) DEFAULT '' COMMENT 'SEO关键词',
   `seo_description` text COMMENT 'SEO描述',
   `users_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '会员价',
+  `old_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '产品旧价',
+  `stock_count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '商品库存量',
+  `stock_show` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '商品库存在产品详情页是否显示，1为显示，0为不显示',
   `prom_type` tinyint(1) unsigned DEFAULT '0' COMMENT '产品类型：0普通产品，1虚拟产品',
   `tempview` varchar(200) DEFAULT '' COMMENT '文档模板文件名',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(0=屏蔽，1=正常)',
@@ -165,73 +171,74 @@ CREATE TABLE `ey_archives` (
   `arc_level_id` int(10) DEFAULT '0' COMMENT '文档会员权限ID',
   `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，1=是，0=否',
   `del_method` tinyint(1) DEFAULT '0' COMMENT '伪删除状态，1为主动删除，2为跟随上级栏目被动删除',
+  `joinaid` int(10) DEFAULT '0' COMMENT '关联文档ID',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`),
   KEY `aid` (`typeid`,`channel`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=72 DEFAULT CHARSET=utf8 COMMENT='文档主表';
 
--- -----------------------------
--- Records of `ey_archives`
--- -----------------------------
-INSERT INTO `ey_archives` VALUES ('1', '1', '6', '0', '关于我们', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526539465', '1527836335');
-INSERT INTO `ey_archives` VALUES ('2', '8', '6', '0', '公司简介', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526540452', '1527836706');
-INSERT INTO `ey_archives` VALUES ('3', '13', '6', '0', '单页面', '', '0', '0', '0', '0', '0', '0', '', '4', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526540573', '1531710225');
-INSERT INTO `ey_archives` VALUES ('4', '11', '1', '1', 'seo是什么？', '/uploads/allimg/20190114/716fd8917b02cf71176639d7ad69da9c.png', '0', '0', '0', '0', '0', '1', '', '131', '0', '', '0', '', '', '在了解seo是什么意思之后，才能学习seo。什么是seo，从官方解释来看，seo=Search（搜索）Engine（引擎）Optimization（优化），即搜索引擎优化。使用过百度或其他搜索引擎，在', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526545072', '1547462541');
-INSERT INTO `ey_archives` VALUES ('39', '12', '1', '0', '回顾中国饮料40年发展史，总有一款是你儿时记忆的味道', '', '0', '0', '0', '0', '0', '0', '', '178', '0', '', '0', '', '', '对于记忆来说，味道往往是最美的，儿时喝过的饮料，至今回想起来依然觉得津津有味。今天是六一儿童节，青山资本梳理了中国40年来饮料发展的简史，权当节日的小消遣，顺便看看能否找到你记忆深处的那个味道？第一阶段：国人味蕾的开启时代百事可乐在华第一家工厂开业1981年，可口可乐在中国第一条生产线正式投产，主要供应旅游饭店，卖给外国人收取外汇，百事可乐也在深圳建立了第一家罐装厂。1982年，国家把饮料纳入“国家计划管理产品”，可口可乐开始在北京市场进行内销。', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1527824652', '1531709817');
-INSERT INTO `ey_archives` VALUES ('9', '10', '1', '0', '用户界面设计和体验设计的差别', '', '0', '0', '0', '0', '0', '0', '', '169', '0', '', '0', '', '', '有时候我们需要获取图集中的第一张图片，下面给出解决办法： 第一步：修改include/extend.func.php 添加  // 提取图集第一张大图', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526552582', '1531711820');
-INSERT INTO `ey_archives` VALUES ('10', '10', '1', '0', '新手科普文！什么是用户界面和体验设计？', '', '0', '0', '0', '0', '0', '0', '', '130', '0', '', '0', '', '', '在仿站时，我们常常会自定义很多字段，那么如何在首页调用呢，下面给出方法：一、指定channelid属性（channelid=\'17\' 17是指内容模型里面指定的模型ID) 二、指定要调用出来的字段ad', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526552685', '1531711845');
-INSERT INTO `ey_archives` VALUES ('12', '10', '1', '1', '一文读懂互联网女皇和她的报告：互联网领域的投资圣经、选股指南', '/uploads/allimg/20190114/c0ee7f49917d9e1a8f834b625970a9d0.png', '0', '0', '0', '0', '0', '1', '', '267', '0', '', '0', '', '', '北京时间 5 月 31 日凌晨，有“互联网女皇”之称的玛丽·米克尔发布了 2018 年的互联网趋势报告，这也是她第 23 年公布互联网报告。\r\n每年的互联网女皇报告几乎都会成为每个互联网创业者的必读报告。那么，互联网女皇是谁?为什么她的报告会如此受关注呢?', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526552714', '1547462473');
-INSERT INTO `ey_archives` VALUES ('13', '12', '1', '0', '网站建设的五大核心要素', '/uploads/allimg/20190114/d09702880ccf6d5ab5893c3116f1a5f0.jpg', '0', '0', '0', '0', '0', '1', '', '160', '0', '', '0', 'SEO标', 'O关键', 'SEO描述', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526608216', '1547462639');
-INSERT INTO `ey_archives` VALUES ('14', '10', '1', '0', '网站建设，静态页面和动态页面如何选择', '/uploads/allimg/20190114/1621fb9e84a97e78b1c1cac6ec6b37bd.png', '0', '0', '0', '0', '0', '1', '', '150', '0', '', '0', '', '', '网站建设，静态页面和动态页面如何选择　　电商网站建设为什么要使用静态页面制作。我们都知道，网站制作有分为静态页面制作和动态网页制作，那么建设电商网站采用哪种网站设计技术更好呢?　　我们建设网站最终目的', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526609496', '1547462449');
-INSERT INTO `ey_archives` VALUES ('19', '12', '1', '0', '从三方面完美的体验企业网站的核心价值', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '1', '', '146', '0', '', '0', '', '', '从三方面完美的体验企业网站的核心价值　　随着互联网的迅猛发展，一个企业的发展离不开互联网的发展，企业注重企业网站建设，那么必然会给其带来不错的效果。企业网站建设其核心价值直接体现在网站对于用户和商家而', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526610848', '1526610848');
-INSERT INTO `ey_archives` VALUES ('20', '11', '1', '0', 'CMS是如何应运而生的？', '', '0', '0', '0', '0', '0', '0', '', '178', '0', '', '0', '', '', '随着网络应用的丰富和发展，很多网站往往不能迅速跟进大量信息衍生及业务模式变革的脚步，常常需要花费许多时间、人力和物力来处理信息更新和维护工作；遇到网站扩充的时候，整合内外网及分支网站的工作就变得更加复', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526611606', '1527557542');
-INSERT INTO `ey_archives` VALUES ('21', '11', '1', '0', '网站设计与SEO的关系，高手是从这4个维度分析的！', '', '0', '0', '0', '0', '0', '0', '', '289', '0', '', '0', '', '', 'SEO（搜索引擎优化）和有效的网站设计是齐头并进的。好的网站设计是关于创建一个吸引目标受众的网站，并让他们采取某种行动。但是，如果该网站不遵循目前的SEO最佳做法，它的排名将会受到影响，从而会导致真正', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526611744', '1531709637');
-INSERT INTO `ey_archives` VALUES ('22', '23', '3', '0', '新闻模型下的图集', '/uploads/allimg/20190114/e00be6cd175d973a064bbd42f76bd7cf.jpg', '0', '0', '0', '0', '0', '1', '', '193', '0', '', '0', '', '', '新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526612277', '1547462752');
-INSERT INTO `ey_archives` VALUES ('23', '23', '3', '0', '新闻模型下的图集二', '/uploads/allimg/20190114/5c9151abf9ab18003f8cc47887bc2b5c.jpg', '0', '0', '0', '0', '0', '1', '', '289', '0', '', '0', '', '', '新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526612316', '1547462702');
-INSERT INTO `ey_archives` VALUES ('27', '24', '2', '0', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/ef3caff1fe91f367fe4939d664a8a5da.jpg', '0', '0', '0', '0', '0', '1', '', '289', '0', '', '0', '', '', '全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康全向录音/指向回放、定向免提、指关节手势、分屏多窗', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526613043', '1552987268');
-INSERT INTO `ey_archives` VALUES ('28', '26', '2', '0', '小米笔记本Air 13.3', '/uploads/allimg/20190114/66109e989148356eadb4ff1eee285826.jpg', '0', '0', '0', '0', '0', '1', '', '149', '0', '', '0', '', '', '轻薄全金属机身/256GBSSD/第八代Intel酷睿i5处理器/FHD全贴合屏幕/指纹解锁/office激活不支持7天无理由退货...', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526613271', '1547462162');
-INSERT INTO `ey_archives` VALUES ('29', '27', '2', '0', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/252a53e6fbc8f441b2570f755d2bbeb8.jpg', '0', '0', '0', '0', '0', '1', '', '211', '0', '', '0', '', '', '特性M3平板定制AKG品牌高保真耳机，配合M3平板享受HiFi音质...', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526613739', '1552992589');
-INSERT INTO `ey_archives` VALUES ('30', '5', '4', '0', '工程机械推土挖掘机类网站模板', '/uploads/allimg/20190114/4873105f54a14f3785047bd8ecc8b5ac.jpg', '0', '0', '0', '0', '0', '1', '', '243', '0', '', '0', '', '', '宅男女神一号，多懂得...', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526614069', '1547463959');
-INSERT INTO `ey_archives` VALUES ('31', '5', '4', '0', '职业教育培训机构网站模板', '', '0', '0', '0', '0', '0', '0', '', '168', '0', '', '0', '', '', '宅男女神二号种子，高手多是不懂的...', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1526614168', '1547463404');
-INSERT INTO `ey_archives` VALUES ('40', '12', '1', '0', '社交媒体时代，如何对粉丝估值？', '/uploads/allimg/20190114/0e4da9d3f8f983a36b7357b97ef4adad.jpg', '0', '0', '0', '0', '0', '1', '', '180', '0', '', '0', '', '', '约翰·奎尔奇说，社交媒体有很多营销挑战，如何为粉丝来估值是一个大问题。从营销角度来思考，要关注强纽带和弱纽带。你可能以为，强纽带的密友产生最大的营销影响，研究发现不是这样的，产生更大的影响反而是跟你更疏远的人。演讲者｜约翰·奎尔奇（哈佛商学院教授，曾任伦敦商学院院长、中欧国际工商学院副院长）非常感谢大家在周日早上回来听我讲课。对于你们这些创业者，或者希望成为创业者的人，我今天准备了一个特别的讲座。很多创业者没有把最终愿景很好界定，所以每天都忙于灭火，忙于生存。创业营销，你必须做好规划今天将从创业营销这个话题开始，包括你如何生存和成功。创业营销包括四个关键领域，你必须很好地去规划：要有正确的目标客户和最终用户；要有正确的产品和服务要有一个非常好的人才团队，使得商业创意能够实现；要有好的合作伙伴，不是分销商，而是会计、律师等服务伙伴。那么，何为创业营销？？第一，这是从愿景到行动的逆向工程设计当星巴克只有5家店时，创始人就有一个愿景，让星巴克成为你生活中的第三空间。对创业者要从愿景开始，向后进行逆向工程的设计：看一下需要有什么样的行动，才能实现愿景。很多创业者没有把最终愿景很好界定，所以每天', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1527824837', '1547462596');
-INSERT INTO `ey_archives` VALUES ('37', '24', '2', '0', '华为无线快充手机', '/uploads/allimg/20190319/8a405e72e2acf9c5a29da7341a0eff89.jpg', '0', '0', '0', '0', '0', '1', '', '300', '0', '', '0', '', '', '全身都是科技亮点！7nm麒麟芯片，问鼎性能巅峰，4000万超广角徕卡三摄，随手捕捉大场面', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1527507844', '1552986270');
-INSERT INTO `ey_archives` VALUES ('38', '11', '1', '0', '商梦网校：单页SEO站群技术，用10个网站优化排名！', 'http://www.eyoucms.com/uploads/allimg/180505/3-1P505101H3447.png', '0', '0', '0', '0', '0', '1', '', '113', '0', '', '0', '', '', 'SEO很多伙伴都了解，就是搜索引擎排名优化，通过对网站内部和外部进行优化当用户搜索相应关键词时网站能够排名在搜索引擎前面，具体可以百度搜索“网络营销课程”查看商梦网校操作的案例！但单页SEO很多伙伴可能会有点陌生，单页SEO是将单页网站与内容内容结合为一体的SEO优化方案，主要是提升网站流量利用率让用户打开网站就能看到目标页面，转换更多订单，创造更多收益。单页SEO的操作理念也是由商梦网校提出，并一起推荐操作大家的模式。那什么又是单页SEO站群呢，因为操作SEO成功率并不是100%，也就是意味着你做了并不会绝对有排名。因为在任何时候搜索引擎，特别是百度的索引数据库里，只有60%的网页数量。也就是说，大量的网页它是没有收录进来，它本身的能力所限无法做到中文的所有几百亿个网页都收录进来。所以，对于大部分网站，都有被删除网页，没有排名，或被K的经历，或没有排名。处理办法：坦然面对这一切。一个网站的成本才多少钱？如果因此对SEO失去信心，那就是最大的失去了。不过我们也想到了一个更好的解决方案，这个方案在最早期我们开始操作，并且取得了非常不错的成绩就是“站群”，我们可以假设一个网站排名的机会为1', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1527555069', '1531709578');
-INSERT INTO `ey_archives` VALUES ('41', '12', '1', '0', '《颠覆营销:大数据时代的商业革命》：大数据“多即少，少即多”', '', '0', '0', '0', '0', '0', '0', '', '184', '0', '', '0', '', '', '各种行销手段早已令人眼花缭乱，但究其本质都是在研究客户（消费者），研究客户的所想、所需，使产品或服务有的放矢。大数据时代又给它赋予了新名词：精准营销。大数据最先应用的领域多为面对客户的行业，最先应用的情景也多为精准营销。“酒好也怕巷子深”，产品或服务的信息要送达客户才可能促成交易。一般认为，向客户传达产品或服务信息要靠广告。广告古已有之，“三碗不过岗”的酒幌子就是广告。没有互联网的时代，我们熟悉的是电视广告、广播广告、印刷品平面广告、户外广告牌等，当然，也包括吆喝叫卖。但过去的广告是千人一面、不区分受众的。后来商家对客户的信息有所采集就有了CRM，经过客户分类，可以更好地服务于不同的客户群体。互联网+大数据时代让CRM有了新的发展机遇，管理客户不再是简单的数字统计和没有个性的（或简单聚类的）直邮、定投。随着商家对客户知道更多、了解更深，便有机会为客户提供个性化的营销方案，进一步改善客户体验，成为了个性化营销或叫精准营销。大数据时代，让很多过去的不可能变为可能，营销活动也赢来了新的发展机遇。时代不同，商业经营的形式会变化，但本质就是两件事：开源，节流。开源是开拓新客户，发现新商机；节流是', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1527825125', '1527825125');
-INSERT INTO `ey_archives` VALUES ('42', '4', '3', '0', '客户案例一', '/uploads/allimg/20190114/ada4963a2dba414c6a5d2f4d983d5cfb.jpg', '0', '0', '0', '0', '0', '1', '', '255', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1531731387', '1547462847');
-INSERT INTO `ey_archives` VALUES ('43', '4', '3', '0', '客户案例二', '/uploads/allimg/20190114/a5552ebb7d08351c8ab5a39596c34db1.jpg', '0', '0', '0', '0', '0', '1', '', '269', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1531732591', '1547462829');
-INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/uploads/allimg/20190114/5e82997411262b71dc9b34bf2ce96dff.jpg', '0', '0', '0', '0', '0', '1', '', '291', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '1531732811', '1547462806');
-INSERT INTO `ey_archives` VALUES ('45', '31', '6', '0', 'About Us', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '1545267531', '1545272580');
-INSERT INTO `ey_archives` VALUES ('46', '32', '6', '0', 'Company Profile', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '1545267531', '1545272565');
-INSERT INTO `ey_archives` VALUES ('47', '39', '6', '0', 'Single page', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '1545267531', '1545270877');
-INSERT INTO `ey_archives` VALUES ('48', '52', '4', '0', 'Construction machinery bulldozer website template', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '1', '', '163', '0', '', '0', '', '', 'Construction machinery bulldozer website template, download address：http://www.eyoucms.com/moban/16/668.html', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268101', '1547463855');
-INSERT INTO `ey_archives` VALUES ('49', '52', '4', '0', 'Website Template of Vocational Education and Training Institutions', '', '0', '0', '0', '0', '0', '0', '', '135', '0', '', '0', '', '', 'Web template for vocational education and training institutions, download address: http://www.eyoucms.com/moban/10/673.html', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268178', '1545268305');
-INSERT INTO `ey_archives` VALUES ('50', '51', '3', '0', 'Customer Case I', '/uploads/allimg/20181220/a0efe0c4c085eb9d900d580a2fc8b60d.jpg', '0', '0', '0', '0', '0', '1', '', '181', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268344', '1545268466');
-INSERT INTO `ey_archives` VALUES ('51', '51', '3', '0', 'Customer Case II', '/uploads/allimg/20181220/d7a2dfa72e8fad4b8c05ec5a2fb299b5.jpg', '0', '0', '0', '0', '0', '1', '', '220', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268484', '1545268514');
-INSERT INTO `ey_archives` VALUES ('52', '51', '3', '0', 'Customer Case III', '/uploads/allimg/20181220/3139826d5d18b0143de1f0888fcc12dc.jpg', '0', '0', '0', '0', '0', '1', '', '197', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268516', '1545268563');
-INSERT INTO `ey_archives` VALUES ('53', '48', '2', '0', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/ed065072e34504da0ff9eb9c104f2d07.jpg', '0', '0', '0', '0', '0', '1', '', '201', '0', '', '0', '', '', 'Feature M3 Tablet Customized AKG Brand High Fidelity Headphones, with M3 Tablet Enjoy HiFi Sound Quality...', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545268730', '1545270011');
-INSERT INTO `ey_archives` VALUES ('54', '46', '2', '0', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/bb7a7206605841a2db4af30ba3585506.jpg', '0', '0', '0', '0', '0', '1', '', '295', '0', '', '0', '', '', 'Light and thin all-metal fuselage / 256GBSSD / 8th generation Intel Core i5 processor / FHD full-fit screen / fingerprint unlock / Office activation does not support 7 days without reason to return goods...', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270060', '1545270139');
-INSERT INTO `ey_archives` VALUES ('55', '43', '2', '0', 'HUAWEI NOTE 8', '/uploads/allimg/20181220/c63c2b41520e21784fdb272abfc77453.jpg', '0', '0', '0', '0', '0', '1', '', '278', '0', '', '0', '', '', 'Omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window, voice control, situational intelligence, single-handed operation, magazine lock screen, mobile phone retrieval, wireless WIFI printing, student mode, multi-screen interaction, sports health omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270266', '1545270361');
-INSERT INTO `ey_archives` VALUES ('56', '43', '2', '0', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/ebbf9bd058529bfd47d2830835427e57.jpg', '0', '0', '0', '0', '0', '1', '', '175', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270365', '1545270643');
-INSERT INTO `ey_archives` VALUES ('57', '40', '3', '0', 'Atlas under News Model', '/uploads/allimg/20181220/d543bd229a479794186ec78b42753d6e.jpg', '0', '0', '0', '0', '0', '1', '', '228', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270757', '1545270783');
-INSERT INTO `ey_archives` VALUES ('58', '40', '3', '0', 'Atlas II under News Model', '/uploads/allimg/20181220/3dd707090ed329fb39e75c48292b7923.jpg', '0', '0', '0', '0', '0', '1', '', '276', '0', '', '0', '', '', '', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270788', '1545270816');
-INSERT INTO `ey_archives` VALUES ('59', '38', '1', '0', 'Five Core Elements of Website Construction', '/uploads/allimg/20181220/39229581e20d2e22e750df528a43fe71.jpg', '0', '0', '0', '0', '0', '1', '', '245', '0', '', '0', '', '', 'Five Core Elements of Website Construction　　In order to implement network marketing, enterprises need to make websites first. Website is composed of many Web pages, and the design of these pages directly affects whether the website can be welcomed by users. To judge the design of a homepage, we should consider it comprehensively from many aspects, not only whether it is vividly and beautifully designed, but also whether the website can be considered for users to the greatest extent.　　3. Product ', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270896', '1547463745');
-INSERT INTO `ey_archives` VALUES ('60', '38', '1', '0', 'Experience the Core Value of Enterprise Website Perfectly from Three Aspects', '/uploads/allimg/20181220/4d466f39dde9e64d762cd50b51566286.jpg', '0', '0', '0', '0', '0', '1', '', '226', '0', '', '0', '', '', 'Experience the Core Value of Enterprise Website Perfectly from Three Aspects　　With the rapid development of the Internet, the development of an enterprise can not be separated from the development of the Internet. Enterprises pay attention to the construction of enterprise websites, then it will inevitably bring good results. The core value of enterprise website construction is directly reflected in whether the website can satisfy the interests and needs of users and businessmen, improve the dev', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545270965', '1545270965');
-INSERT INTO `ey_archives` VALUES ('61', '38', '1', '0', 'Looking back on the 40-year history of beverages in China, there is always a taste of your childhood', '', '0', '0', '0', '0', '0', '0', '', '244', '0', '', '0', '', '', 'Looking back on the 40-year history of Chinese beverage development, there is always a taste of your childhood memory. For memory, the taste is often the most beautiful. The beverage you drank in childhood is still enjoyable in retrospect.Today is the June 1 children&#39;s day. Qingshan capital has compiled a brief history of China&#39;s beverage development in the past 40 years, and it can be a holiday pastime. By the way, can you find the smell in your memory?The First Stage: The Opening Age o', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545271038', '1545271038');
-INSERT INTO `ey_archives` VALUES ('62', '38', '1', '0', 'How to value fans in the age of social media?', '/uploads/allimg/20181220/040eb84875a8067b81c27177cd7ec95b.jpg', '0', '0', '0', '0', '0', '1', '', '215', '0', '', '0', '', '', 'John Quilch says that social media has many marketing challenges, and how to value fans is a big problem. From the marketing point of view, we should pay attention to strong ties and weak ties. You may think that strong bonds have the greatest marketing impact. Research has found that it&#39;s not like this, but people who are more distant from you.Speaker John Quilch(Professor of Harvard Business School, former Dean of London Business School and Vice Dean of CEIBS)Thank you very much for coming', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545271071', '1545271071');
-INSERT INTO `ey_archives` VALUES ('63', '38', '1', '0', '&quot;Subversive Marketing: Business Revolution in the Big Data Age&quot;: Big Data &quot;More Is Less, Less Is Mor', '', '0', '0', '0', '0', '0', '0', '', '227', '0', '', '0', '', '', 'Various marketing methods have long been dazzling, but the essence is to study customers (consumers), research the needs and needs of customers, and make products or services targeted. The era of big data has given it a new term: precision marketing. The first areas where big data is applied are mostly for the customer-facing industry. The first application scenarios are mostly precision marketing.“Wine is good, and the alley is deep.” Information about products or services should be delivered t', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545271135', '1545271135');
-INSERT INTO `ey_archives` VALUES ('64', '37', '1', '0', 'What is seo?', '/uploads/allimg/20181220/381e3fccc694fff578a861c93628ce15.jpg', '0', '0', '0', '0', '0', '1', '', '126', '0', '', '0', '', '', 'After learning what seo means, you can learn seo.What is seo, from the official explanation, seo=Search Engine Optimization, which is search engine optimization.Use Baidu or other search engines, enter a certain keyword in the search box, such as the wrought iron gate, the top is with the ad typeface, the background is slightly different is the bidding position, which is commonly known as the sem position.Seo is an online marketing method based on search engine marketing. Through seo technology,', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545271278', '1545271278');
-INSERT INTO `ey_archives` VALUES ('65', '37', '1', '0', 'How did CMS come into being?', '', '0', '0', '0', '0', '0', '0', '', '106', '0', '', '0', '', '', 'With the enrichment and development of web applications, many websites often cannot quickly follow the footsteps of a large amount of information derivation and business model changes. It often takes a lot of time, manpower and material resources to handle information update and maintenance work. When encountering website expansion, The integration of internal and external networks and branch sites has become more complicated, and even the need to rebuild the website; so, users continue to upgra', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545271999', '1545271999');
-INSERT INTO `ey_archives` VALUES ('66', '37', '1', '0', 'The relationship between website design and SEO, the master is analyzed from these four dimensions!', '', '0', '0', '0', '0', '0', '0', '', '113', '0', '', '0', '', '', 'SEO (Search Engine Optimization) and effective website design go hand in hand. Good website design is about creating a website that appeals to your target audience and letting them take some action. However, if the site does not follow current SEO best practices, its ranking will be affected, resulting in fewer visitors actually participating in the site.Conversely, if you focus on search engine optimization and how to please search engine spiders, then the site may rank high and get a lot of se', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272020', '1545272020');
-INSERT INTO `ey_archives` VALUES ('67', '37', '1', '0', 'Shangmeng.com: Single-page SEO station group technology, with 10 websites to optimize the ranking!', '/uploads/allimg/20181220/b20b37ff3af3fad04716faa97b5bb584.png', '0', '0', '0', '0', '0', '1', '', '167', '0', '', '0', '', '', 'Many SEO partners understand that search engine ranking optimization is optimized by internal and external websites. When users search for corresponding keywords, the website can be ranked in front of the search engine. Specifically, Baidu search &quot;network marketing course&quot; to view the operation of Shangmeng. Case!But a single page SEO many partners may be a bit strange, single-page SEO is a SEO optimization program that combines a single-page website with content content, mainly to imp', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272059', '1545272059');
-INSERT INTO `ey_archives` VALUES ('68', '36', '1', '0', 'Differences in user interface design and experience design', '', '0', '0', '0', '0', '0', '0', '', '172', '0', '', '0', '', '', 'Note: The User Interface (UI) design is one of several interdisciplinary topics involved in designing software products. Whether it is user experience (UX, User Experience), interaction design (ID, Interaction Design), or visual / graphic design (Visual / Graphic Design), can involve user interface design.First, what is the user interface design?Broadly speaking, the user interface is the medium through which people interact with machines. The user issues an instruction to the machine, and the m', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272146', '1545272146');
-INSERT INTO `ey_archives` VALUES ('69', '36', '1', '0', 'Novice science! What is the user interface and experience design?', '', '0', '0', '0', '0', '0', '0', '', '203', '0', '', '0', '', '', 'Z Yuhan: User Interface (UI) design is one of several interdisciplinary topics involved in designing software products. Whether it is user experience (UX, User Experience), interaction design (ID, Interaction Design), or visual / graphic design (Visual / Graphic Design), can involve user interface design.First, what is the user interface design?Broadly speaking, the user interface is the medium through which people interact with machines. The user issues an instruction to the machine, and the ma', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272183', '1545272183');
-INSERT INTO `ey_archives` VALUES ('70', '36', '1', '0', 'Read the Internet Queen and her report: Investment in the Internet, Bible, stock selection guide', '/uploads/allimg/20181220/bd62f1623a6a7b4b3a32e6045bff14a3.jpg', '0', '0', '0', '0', '0', '1', '', '166', '0', '', '0', '', '', 'In the early morning of May 31st, Beijing time, Mary Mickel, who is known as the “Queen of the Internet”, published the Internet Trend Report for 2018, which is the 23rd year of her Internet report.The annual Internet Queen&#39;s report will almost always become a must-read report for every Internet entrepreneur. So, who is the Internet Queen? Why is her report so concerned?Internet Queen: The symbol of Wall Street in the 90sIn September 1958, Mary Meeker was born in Indiana, USA.In 1982, Mikel ', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272227', '1545272227');
-INSERT INTO `ey_archives` VALUES ('71', '36', '1', '0', 'Website construction, static pages and dynamic pages how to choose', '/uploads/allimg/20181220/4e7474448185b797c4c1d796b3e581fe.jpg', '0', '0', '0', '0', '0', '1', '', '151', '0', '', '0', '', '', 'Website construction, static pages and dynamic pages how to chooseWhy should e-commerce website construction use static page production? We all know that website production is divided into static page production and dynamic web page production. So which website design technology is better for building e-commerce websites?The ultimate goal of our website is to provide users with a view, so it is most practical to think from the user\'s point of view. Although the dynamic webpage creation techn', '0.00', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '1545272283', '1547463680');
+-- ----------------------------
+-- Records of ey_archives
+-- ----------------------------
+INSERT INTO `ey_archives` VALUES ('1', '1', '6', '0', '关于我们', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526539465', '1527836335');
+INSERT INTO `ey_archives` VALUES ('2', '8', '6', '0', '公司简介', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526540452', '1527836706');
+INSERT INTO `ey_archives` VALUES ('3', '13', '6', '0', '单页面', '', '0', '0', '0', '0', '0', '0', '', '4', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526540573', '1531710225');
+INSERT INTO `ey_archives` VALUES ('4', '11', '1', '1', 'seo是什么？', '/uploads/allimg/20190114/716fd8917b02cf71176639d7ad69da9c.png', '0', '0', '0', '0', '0', '1', '', '131', '0', '', '0', '', '', '在了解seo是什么意思之后，才能学习seo。什么是seo，从官方解释来看，seo=Search（搜索）Engine（引擎）Optimization（优化），即搜索引擎优化。使用过百度或其他搜索引擎，在', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526545072', '1547462541');
+INSERT INTO `ey_archives` VALUES ('39', '12', '1', '0', '回顾中国饮料40年发展史，总有一款是你儿时记忆的味道', '', '0', '0', '0', '0', '0', '0', '', '178', '0', '', '0', '', '', '对于记忆来说，味道往往是最美的，儿时喝过的饮料，至今回想起来依然觉得津津有味。今天是六一儿童节，青山资本梳理了中国40年来饮料发展的简史，权当节日的小消遣，顺便看看能否找到你记忆深处的那个味道？第一阶段：国人味蕾的开启时代百事可乐在华第一家工厂开业1981年，可口可乐在中国第一条生产线正式投产，主要供应旅游饭店，卖给外国人收取外汇，百事可乐也在深圳建立了第一家罐装厂。1982年，国家把饮料纳入“国家计划管理产品”，可口可乐开始在北京市场进行内销。', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1527824652', '1531709817');
+INSERT INTO `ey_archives` VALUES ('9', '10', '1', '0', '用户界面设计和体验设计的差别', '', '0', '0', '0', '0', '0', '0', '', '169', '0', '', '0', '', '', '有时候我们需要获取图集中的第一张图片，下面给出解决办法： 第一步：修改include/extend.func.php 添加  // 提取图集第一张大图', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526552582', '1531711820');
+INSERT INTO `ey_archives` VALUES ('10', '10', '1', '0', '新手科普文！什么是用户界面和体验设计？', '', '0', '0', '0', '0', '0', '0', '', '130', '0', '', '0', '', '', '在仿站时，我们常常会自定义很多字段，那么如何在首页调用呢，下面给出方法：一、指定channelid属性（channelid=\'17\' 17是指内容模型里面指定的模型ID) 二、指定要调用出来的字段ad', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526552685', '1531711845');
+INSERT INTO `ey_archives` VALUES ('12', '10', '1', '1', '一文读懂互联网女皇和她的报告：互联网领域的投资圣经、选股指南', '/uploads/allimg/20190114/c0ee7f49917d9e1a8f834b625970a9d0.png', '0', '0', '0', '0', '0', '1', '', '267', '0', '', '0', '', '', '北京时间 5 月 31 日凌晨，有“互联网女皇”之称的玛丽·米克尔发布了 2018 年的互联网趋势报告，这也是她第 23 年公布互联网报告。\r\n每年的互联网女皇报告几乎都会成为每个互联网创业者的必读报告。那么，互联网女皇是谁?为什么她的报告会如此受关注呢?', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526552714', '1547462473');
+INSERT INTO `ey_archives` VALUES ('13', '12', '1', '0', '网站建设的五大核心要素', '/uploads/allimg/20190114/d09702880ccf6d5ab5893c3116f1a5f0.jpg', '0', '0', '0', '0', '0', '1', '', '160', '0', '', '0', 'SEO标', 'O关键', 'SEO描述', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526608216', '1547462639');
+INSERT INTO `ey_archives` VALUES ('14', '10', '1', '0', '网站建设，静态页面和动态页面如何选择', '/uploads/allimg/20190114/1621fb9e84a97e78b1c1cac6ec6b37bd.png', '0', '0', '0', '0', '0', '1', '', '150', '0', '', '0', '', '', '网站建设，静态页面和动态页面如何选择　　电商网站建设为什么要使用静态页面制作。我们都知道，网站制作有分为静态页面制作和动态网页制作，那么建设电商网站采用哪种网站设计技术更好呢?　　我们建设网站最终目的', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526609496', '1547462449');
+INSERT INTO `ey_archives` VALUES ('19', '12', '1', '0', '从三方面完美的体验企业网站的核心价值', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '1', '', '146', '0', '', '0', '', '', '从三方面完美的体验企业网站的核心价值　　随着互联网的迅猛发展，一个企业的发展离不开互联网的发展，企业注重企业网站建设，那么必然会给其带来不错的效果。企业网站建设其核心价值直接体现在网站对于用户和商家而', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526610848', '1526610848');
+INSERT INTO `ey_archives` VALUES ('20', '11', '1', '0', 'CMS是如何应运而生的？', '', '0', '0', '0', '0', '0', '0', '', '178', '0', '', '0', '', '', '随着网络应用的丰富和发展，很多网站往往不能迅速跟进大量信息衍生及业务模式变革的脚步，常常需要花费许多时间、人力和物力来处理信息更新和维护工作；遇到网站扩充的时候，整合内外网及分支网站的工作就变得更加复', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526611606', '1527557542');
+INSERT INTO `ey_archives` VALUES ('21', '11', '1', '0', '网站设计与SEO的关系，高手是从这4个维度分析的！', '', '0', '0', '0', '0', '0', '0', '', '289', '0', '', '0', '', '', 'SEO（搜索引擎优化）和有效的网站设计是齐头并进的。好的网站设计是关于创建一个吸引目标受众的网站，并让他们采取某种行动。但是，如果该网站不遵循目前的SEO最佳做法，它的排名将会受到影响，从而会导致真正', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526611744', '1531709637');
+INSERT INTO `ey_archives` VALUES ('22', '23', '3', '0', '新闻模型下的图集', '/uploads/allimg/20190114/e00be6cd175d973a064bbd42f76bd7cf.jpg', '0', '0', '0', '0', '0', '1', '', '193', '0', '', '0', '', '', '新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526612277', '1547462752');
+INSERT INTO `ey_archives` VALUES ('23', '23', '3', '0', '新闻模型下的图集二', '/uploads/allimg/20190114/5c9151abf9ab18003f8cc47887bc2b5c.jpg', '0', '0', '0', '0', '0', '1', '', '289', '0', '', '0', '', '', '新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526612316', '1547462702');
+INSERT INTO `ey_archives` VALUES ('27', '24', '2', '0', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/ef3caff1fe91f367fe4939d664a8a5da.jpg', '0', '0', '0', '0', '0', '1', '', '289', '0', '', '0', '', '', '全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康全向录音/指向回放、定向免提、指关节手势、分屏多窗', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526613043', '1552987268');
+INSERT INTO `ey_archives` VALUES ('28', '26', '2', '0', '小米笔记本Air 13.3', '/uploads/allimg/20190114/66109e989148356eadb4ff1eee285826.jpg', '0', '0', '0', '0', '0', '1', '', '149', '0', '', '0', '', '', '轻薄全金属机身/256GBSSD/第八代Intel酷睿i5处理器/FHD全贴合屏幕/指纹解锁/office激活不支持7天无理由退货...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526613271', '1547462162');
+INSERT INTO `ey_archives` VALUES ('29', '27', '2', '0', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/252a53e6fbc8f441b2570f755d2bbeb8.jpg', '0', '0', '0', '0', '0', '1', '', '211', '0', '', '0', '', '', '特性M3平板定制AKG品牌高保真耳机，配合M3平板享受HiFi音质...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526613739', '1552992589');
+INSERT INTO `ey_archives` VALUES ('30', '5', '4', '0', '工程机械推土挖掘机类网站模板', '/uploads/allimg/20190114/4873105f54a14f3785047bd8ecc8b5ac.jpg', '0', '0', '0', '0', '0', '1', '', '243', '0', '', '0', '', '', '宅男女神一号，多懂得...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526614069', '1547463959');
+INSERT INTO `ey_archives` VALUES ('31', '5', '4', '0', '职业教育培训机构网站模板', '', '0', '0', '0', '0', '0', '0', '', '168', '0', '', '0', '', '', '宅男女神二号种子，高手多是不懂的...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1526614168', '1547463404');
+INSERT INTO `ey_archives` VALUES ('40', '12', '1', '0', '社交媒体时代，如何对粉丝估值？', '/uploads/allimg/20190114/0e4da9d3f8f983a36b7357b97ef4adad.jpg', '0', '0', '0', '0', '0', '1', '', '180', '0', '', '0', '', '', '约翰·奎尔奇说，社交媒体有很多营销挑战，如何为粉丝来估值是一个大问题。从营销角度来思考，要关注强纽带和弱纽带。你可能以为，强纽带的密友产生最大的营销影响，研究发现不是这样的，产生更大的影响反而是跟你更疏远的人。演讲者｜约翰·奎尔奇（哈佛商学院教授，曾任伦敦商学院院长、中欧国际工商学院副院长）非常感谢大家在周日早上回来听我讲课。对于你们这些创业者，或者希望成为创业者的人，我今天准备了一个特别的讲座。很多创业者没有把最终愿景很好界定，所以每天都忙于灭火，忙于生存。创业营销，你必须做好规划今天将从创业营销这个话题开始，包括你如何生存和成功。创业营销包括四个关键领域，你必须很好地去规划：要有正确的目标客户和最终用户；要有正确的产品和服务要有一个非常好的人才团队，使得商业创意能够实现；要有好的合作伙伴，不是分销商，而是会计、律师等服务伙伴。那么，何为创业营销？？第一，这是从愿景到行动的逆向工程设计当星巴克只有5家店时，创始人就有一个愿景，让星巴克成为你生活中的第三空间。对创业者要从愿景开始，向后进行逆向工程的设计：看一下需要有什么样的行动，才能实现愿景。很多创业者没有把最终愿景很好界定，所以每天', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1527824837', '1547462596');
+INSERT INTO `ey_archives` VALUES ('37', '24', '2', '0', '华为无线快充手机', '/uploads/allimg/20190319/8a405e72e2acf9c5a29da7341a0eff89.jpg', '0', '0', '0', '0', '0', '1', '', '300', '0', '', '0', '', '', '全身都是科技亮点！7nm麒麟芯片，问鼎性能巅峰，4000万超广角徕卡三摄，随手捕捉大场面', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1527507844', '1552986270');
+INSERT INTO `ey_archives` VALUES ('38', '11', '1', '0', '商梦网校：单页SEO站群技术，用10个网站优化排名！', 'http://www.eyoucms.com/uploads/allimg/180505/3-1P505101H3447.png', '0', '0', '0', '0', '0', '1', '', '113', '0', '', '0', '', '', 'SEO很多伙伴都了解，就是搜索引擎排名优化，通过对网站内部和外部进行优化当用户搜索相应关键词时网站能够排名在搜索引擎前面，具体可以百度搜索“网络营销课程”查看商梦网校操作的案例！但单页SEO很多伙伴可能会有点陌生，单页SEO是将单页网站与内容内容结合为一体的SEO优化方案，主要是提升网站流量利用率让用户打开网站就能看到目标页面，转换更多订单，创造更多收益。单页SEO的操作理念也是由商梦网校提出，并一起推荐操作大家的模式。那什么又是单页SEO站群呢，因为操作SEO成功率并不是100%，也就是意味着你做了并不会绝对有排名。因为在任何时候搜索引擎，特别是百度的索引数据库里，只有60%的网页数量。也就是说，大量的网页它是没有收录进来，它本身的能力所限无法做到中文的所有几百亿个网页都收录进来。所以，对于大部分网站，都有被删除网页，没有排名，或被K的经历，或没有排名。处理办法：坦然面对这一切。一个网站的成本才多少钱？如果因此对SEO失去信心，那就是最大的失去了。不过我们也想到了一个更好的解决方案，这个方案在最早期我们开始操作，并且取得了非常不错的成绩就是“站群”，我们可以假设一个网站排名的机会为1', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1527555069', '1531709578');
+INSERT INTO `ey_archives` VALUES ('41', '12', '1', '0', '《颠覆营销:大数据时代的商业革命》：大数据“多即少，少即多”', '', '0', '0', '0', '0', '0', '0', '', '184', '0', '', '0', '', '', '各种行销手段早已令人眼花缭乱，但究其本质都是在研究客户（消费者），研究客户的所想、所需，使产品或服务有的放矢。大数据时代又给它赋予了新名词：精准营销。大数据最先应用的领域多为面对客户的行业，最先应用的情景也多为精准营销。“酒好也怕巷子深”，产品或服务的信息要送达客户才可能促成交易。一般认为，向客户传达产品或服务信息要靠广告。广告古已有之，“三碗不过岗”的酒幌子就是广告。没有互联网的时代，我们熟悉的是电视广告、广播广告、印刷品平面广告、户外广告牌等，当然，也包括吆喝叫卖。但过去的广告是千人一面、不区分受众的。后来商家对客户的信息有所采集就有了CRM，经过客户分类，可以更好地服务于不同的客户群体。互联网+大数据时代让CRM有了新的发展机遇，管理客户不再是简单的数字统计和没有个性的（或简单聚类的）直邮、定投。随着商家对客户知道更多、了解更深，便有机会为客户提供个性化的营销方案，进一步改善客户体验，成为了个性化营销或叫精准营销。大数据时代，让很多过去的不可能变为可能，营销活动也赢来了新的发展机遇。时代不同，商业经营的形式会变化，但本质就是两件事：开源，节流。开源是开拓新客户，发现新商机；节流是', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1527825125', '1527825125');
+INSERT INTO `ey_archives` VALUES ('42', '4', '3', '0', '客户案例一', '/uploads/allimg/20190114/ada4963a2dba414c6a5d2f4d983d5cfb.jpg', '0', '0', '0', '0', '0', '1', '', '255', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1531731387', '1547462847');
+INSERT INTO `ey_archives` VALUES ('43', '4', '3', '0', '客户案例二', '/uploads/allimg/20190114/a5552ebb7d08351c8ab5a39596c34db1.jpg', '0', '0', '0', '0', '0', '1', '', '269', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1531732591', '1547462829');
+INSERT INTO `ey_archives` VALUES ('44', '4', '3', '0', '客户案例三', '/uploads/allimg/20190114/5e82997411262b71dc9b34bf2ce96dff.jpg', '0', '0', '0', '0', '0', '1', '', '291', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '0', '0', '0', '1531732811', '1547462806');
+INSERT INTO `ey_archives` VALUES ('45', '31', '6', '0', 'About Us', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '0', '1545267531', '1545272580');
+INSERT INTO `ey_archives` VALUES ('46', '32', '6', '0', 'Company Profile', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '0', '1545267531', '1545272565');
+INSERT INTO `ey_archives` VALUES ('47', '39', '6', '0', 'Single page', '', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '0', '0', '0', '0', '0', '0', '1545267531', '1545270877');
+INSERT INTO `ey_archives` VALUES ('48', '52', '4', '0', 'Construction machinery bulldozer website template', 'http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg', '0', '0', '0', '0', '0', '1', '', '163', '0', '', '0', '', '', 'Construction machinery bulldozer website template, download address：http://www.eyoucms.com/moban/16/668.html', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268101', '1547463855');
+INSERT INTO `ey_archives` VALUES ('49', '52', '4', '0', 'Website Template of Vocational Education and Training Institutions', '', '0', '0', '0', '0', '0', '0', '', '135', '0', '', '0', '', '', 'Web template for vocational education and training institutions, download address: http://www.eyoucms.com/moban/10/673.html', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268178', '1545268305');
+INSERT INTO `ey_archives` VALUES ('50', '51', '3', '0', 'Customer Case I', '/uploads/allimg/20181220/a0efe0c4c085eb9d900d580a2fc8b60d.jpg', '0', '0', '0', '0', '0', '1', '', '181', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268344', '1545268466');
+INSERT INTO `ey_archives` VALUES ('51', '51', '3', '0', 'Customer Case II', '/uploads/allimg/20181220/d7a2dfa72e8fad4b8c05ec5a2fb299b5.jpg', '0', '0', '0', '0', '0', '1', '', '220', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268484', '1545268514');
+INSERT INTO `ey_archives` VALUES ('52', '51', '3', '0', 'Customer Case III', '/uploads/allimg/20181220/3139826d5d18b0143de1f0888fcc12dc.jpg', '0', '0', '0', '0', '0', '1', '', '197', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268516', '1545268563');
+INSERT INTO `ey_archives` VALUES ('53', '48', '2', '0', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/ed065072e34504da0ff9eb9c104f2d07.jpg', '0', '0', '0', '0', '0', '1', '', '201', '0', '', '0', '', '', 'Feature M3 Tablet Customized AKG Brand High Fidelity Headphones, with M3 Tablet Enjoy HiFi Sound Quality...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545268730', '1545270011');
+INSERT INTO `ey_archives` VALUES ('54', '46', '2', '0', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/bb7a7206605841a2db4af30ba3585506.jpg', '0', '0', '0', '0', '0', '1', '', '295', '0', '', '0', '', '', 'Light and thin all-metal fuselage / 256GBSSD / 8th generation Intel Core i5 processor / FHD full-fit screen / fingerprint unlock / Office activation does not support 7 days without reason to return goods...', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270060', '1545270139');
+INSERT INTO `ey_archives` VALUES ('55', '43', '2', '0', 'HUAWEI NOTE 8', '/uploads/allimg/20181220/c63c2b41520e21784fdb272abfc77453.jpg', '0', '0', '0', '0', '0', '1', '', '278', '0', '', '0', '', '', 'Omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window, voice control, situational intelligence, single-handed operation, magazine lock screen, mobile phone retrieval, wireless WIFI printing, student mode, multi-screen interaction, sports health omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270266', '1545270361');
+INSERT INTO `ey_archives` VALUES ('56', '43', '2', '0', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/ebbf9bd058529bfd47d2830835427e57.jpg', '0', '0', '0', '0', '0', '1', '', '175', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270365', '1545270643');
+INSERT INTO `ey_archives` VALUES ('57', '40', '3', '0', 'Atlas under News Model', '/uploads/allimg/20181220/d543bd229a479794186ec78b42753d6e.jpg', '0', '0', '0', '0', '0', '1', '', '228', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270757', '1545270783');
+INSERT INTO `ey_archives` VALUES ('58', '40', '3', '0', 'Atlas II under News Model', '/uploads/allimg/20181220/3dd707090ed329fb39e75c48292b7923.jpg', '0', '0', '0', '0', '0', '1', '', '276', '0', '', '0', '', '', '', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270788', '1545270816');
+INSERT INTO `ey_archives` VALUES ('59', '38', '1', '0', 'Five Core Elements of Website Construction', '/uploads/allimg/20181220/39229581e20d2e22e750df528a43fe71.jpg', '0', '0', '0', '0', '0', '1', '', '245', '0', '', '0', '', '', 'Five Core Elements of Website Construction　　In order to implement network marketing, enterprises need to make websites first. Website is composed of many Web pages, and the design of these pages directly affects whether the website can be welcomed by users. To judge the design of a homepage, we should consider it comprehensively from many aspects, not only whether it is vividly and beautifully designed, but also whether the website can be considered for users to the greatest extent.　　3. Product ', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270896', '1547463745');
+INSERT INTO `ey_archives` VALUES ('60', '38', '1', '0', 'Experience the Core Value of Enterprise Website Perfectly from Three Aspects', '/uploads/allimg/20181220/4d466f39dde9e64d762cd50b51566286.jpg', '0', '0', '0', '0', '0', '1', '', '226', '0', '', '0', '', '', 'Experience the Core Value of Enterprise Website Perfectly from Three Aspects　　With the rapid development of the Internet, the development of an enterprise can not be separated from the development of the Internet. Enterprises pay attention to the construction of enterprise websites, then it will inevitably bring good results. The core value of enterprise website construction is directly reflected in whether the website can satisfy the interests and needs of users and businessmen, improve the dev', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545270965', '1545270965');
+INSERT INTO `ey_archives` VALUES ('61', '38', '1', '0', 'Looking back on the 40-year history of beverages in China, there is always a taste of your childhood', '', '0', '0', '0', '0', '0', '0', '', '244', '0', '', '0', '', '', 'Looking back on the 40-year history of Chinese beverage development, there is always a taste of your childhood memory. For memory, the taste is often the most beautiful. The beverage you drank in childhood is still enjoyable in retrospect.Today is the June 1 children&#39;s day. Qingshan capital has compiled a brief history of China&#39;s beverage development in the past 40 years, and it can be a holiday pastime. By the way, can you find the smell in your memory?The First Stage: The Opening Age o', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545271038', '1545271038');
+INSERT INTO `ey_archives` VALUES ('62', '38', '1', '0', 'How to value fans in the age of social media?', '/uploads/allimg/20181220/040eb84875a8067b81c27177cd7ec95b.jpg', '0', '0', '0', '0', '0', '1', '', '215', '0', '', '0', '', '', 'John Quilch says that social media has many marketing challenges, and how to value fans is a big problem. From the marketing point of view, we should pay attention to strong ties and weak ties. You may think that strong bonds have the greatest marketing impact. Research has found that it&#39;s not like this, but people who are more distant from you.Speaker John Quilch(Professor of Harvard Business School, former Dean of London Business School and Vice Dean of CEIBS)Thank you very much for coming', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545271071', '1545271071');
+INSERT INTO `ey_archives` VALUES ('63', '38', '1', '0', '&quot;Subversive Marketing: Business Revolution in the Big Data Age&quot;: Big Data &quot;More Is Less, Less Is Mor', '', '0', '0', '0', '0', '0', '0', '', '227', '0', '', '0', '', '', 'Various marketing methods have long been dazzling, but the essence is to study customers (consumers), research the needs and needs of customers, and make products or services targeted. The era of big data has given it a new term: precision marketing. The first areas where big data is applied are mostly for the customer-facing industry. The first application scenarios are mostly precision marketing.“Wine is good, and the alley is deep.” Information about products or services should be delivered t', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545271135', '1545271135');
+INSERT INTO `ey_archives` VALUES ('64', '37', '1', '0', 'What is seo?', '/uploads/allimg/20181220/381e3fccc694fff578a861c93628ce15.jpg', '0', '0', '0', '0', '0', '1', '', '126', '0', '', '0', '', '', 'After learning what seo means, you can learn seo.What is seo, from the official explanation, seo=Search Engine Optimization, which is search engine optimization.Use Baidu or other search engines, enter a certain keyword in the search box, such as the wrought iron gate, the top is with the ad typeface, the background is slightly different is the bidding position, which is commonly known as the sem position.Seo is an online marketing method based on search engine marketing. Through seo technology,', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545271278', '1545271278');
+INSERT INTO `ey_archives` VALUES ('65', '37', '1', '0', 'How did CMS come into being?', '', '0', '0', '0', '0', '0', '0', '', '106', '0', '', '0', '', '', 'With the enrichment and development of web applications, many websites often cannot quickly follow the footsteps of a large amount of information derivation and business model changes. It often takes a lot of time, manpower and material resources to handle information update and maintenance work. When encountering website expansion, The integration of internal and external networks and branch sites has become more complicated, and even the need to rebuild the website; so, users continue to upgra', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545271999', '1545271999');
+INSERT INTO `ey_archives` VALUES ('66', '37', '1', '0', 'The relationship between website design and SEO, the master is analyzed from these four dimensions!', '', '0', '0', '0', '0', '0', '0', '', '113', '0', '', '0', '', '', 'SEO (Search Engine Optimization) and effective website design go hand in hand. Good website design is about creating a website that appeals to your target audience and letting them take some action. However, if the site does not follow current SEO best practices, its ranking will be affected, resulting in fewer visitors actually participating in the site.Conversely, if you focus on search engine optimization and how to please search engine spiders, then the site may rank high and get a lot of se', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272020', '1545272020');
+INSERT INTO `ey_archives` VALUES ('67', '37', '1', '0', 'Shangmeng.com: Single-page SEO station group technology, with 10 websites to optimize the ranking!', '/uploads/allimg/20181220/b20b37ff3af3fad04716faa97b5bb584.png', '0', '0', '0', '0', '0', '1', '', '167', '0', '', '0', '', '', 'Many SEO partners understand that search engine ranking optimization is optimized by internal and external websites. When users search for corresponding keywords, the website can be ranked in front of the search engine. Specifically, Baidu search &quot;network marketing course&quot; to view the operation of Shangmeng. Case!But a single page SEO many partners may be a bit strange, single-page SEO is a SEO optimization program that combines a single-page website with content content, mainly to imp', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272059', '1545272059');
+INSERT INTO `ey_archives` VALUES ('68', '36', '1', '0', 'Differences in user interface design and experience design', '', '0', '0', '0', '0', '0', '0', '', '172', '0', '', '0', '', '', 'Note: The User Interface (UI) design is one of several interdisciplinary topics involved in designing software products. Whether it is user experience (UX, User Experience), interaction design (ID, Interaction Design), or visual / graphic design (Visual / Graphic Design), can involve user interface design.First, what is the user interface design?Broadly speaking, the user interface is the medium through which people interact with machines. The user issues an instruction to the machine, and the m', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272146', '1545272146');
+INSERT INTO `ey_archives` VALUES ('69', '36', '1', '0', 'Novice science! What is the user interface and experience design?', '', '0', '0', '0', '0', '0', '0', '', '203', '0', '', '0', '', '', 'Z Yuhan: User Interface (UI) design is one of several interdisciplinary topics involved in designing software products. Whether it is user experience (UX, User Experience), interaction design (ID, Interaction Design), or visual / graphic design (Visual / Graphic Design), can involve user interface design.First, what is the user interface design?Broadly speaking, the user interface is the medium through which people interact with machines. The user issues an instruction to the machine, and the ma', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272183', '1545272183');
+INSERT INTO `ey_archives` VALUES ('70', '36', '1', '0', 'Read the Internet Queen and her report: Investment in the Internet, Bible, stock selection guide', '/uploads/allimg/20181220/bd62f1623a6a7b4b3a32e6045bff14a3.jpg', '0', '0', '0', '0', '0', '1', '', '166', '0', '', '0', '', '', 'In the early morning of May 31st, Beijing time, Mary Mickel, who is known as the “Queen of the Internet”, published the Internet Trend Report for 2018, which is the 23rd year of her Internet report.The annual Internet Queen&#39;s report will almost always become a must-read report for every Internet entrepreneur. So, who is the Internet Queen? Why is her report so concerned?Internet Queen: The symbol of Wall Street in the 90sIn September 1958, Mary Meeker was born in Indiana, USA.In 1982, Mikel ', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272227', '1545272227');
+INSERT INTO `ey_archives` VALUES ('71', '36', '1', '0', 'Website construction, static pages and dynamic pages how to choose', '/uploads/allimg/20181220/4e7474448185b797c4c1d796b3e581fe.jpg', '0', '0', '0', '0', '0', '1', '', '151', '0', '', '0', '', '', 'Website construction, static pages and dynamic pages how to chooseWhy should e-commerce website construction use static page production? We all know that website production is divided into static page production and dynamic web page production. So which website design technology is better for building e-commerce websites?The ultimate goal of our website is to provide users with a view, so it is most practical to think from the user\'s point of view. Although the dynamic webpage creation techn', '0.00', '0.00', '99999', '1', '0', '', '1', '100', 'en', '1', '0', '0', '0', '0', '0', '1545272283', '1547463680');
 
--- -----------------------------
--- Table structure for `ey_arcmulti`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_arcmulti
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_arcmulti`;
 CREATE TABLE `ey_arcmulti` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -249,10 +256,13 @@ CREATE TABLE `ey_arcmulti` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='多页标记存储数据表';
 
+-- ----------------------------
+-- Records of ey_arcmulti
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_arcrank`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_arcrank
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_arcrank`;
 CREATE TABLE `ey_arcrank` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '权限ID',
@@ -264,17 +274,17 @@ CREATE TABLE `ey_arcrank` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='文档阅读权限表';
 
--- -----------------------------
--- Records of `ey_arcrank`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_arcrank
+-- ----------------------------
 INSERT INTO `ey_arcrank` VALUES ('1', '0', '开放浏览', 'cn', '0', '1552376880');
 INSERT INTO `ey_arcrank` VALUES ('2', '-1', '待审核稿件', 'cn', '0', '1552376880');
 INSERT INTO `ey_arcrank` VALUES ('3', '0', '开放浏览', 'en', '0', '1552376880');
 INSERT INTO `ey_arcrank` VALUES ('4', '-1', '待审核稿件', 'en', '0', '1552376880');
 
--- -----------------------------
--- Table structure for `ey_arctype`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_arctype
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_arctype`;
 CREATE TABLE `ey_arctype` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '栏目ID',
@@ -300,6 +310,8 @@ CREATE TABLE `ey_arctype` (
   `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，1=是，0=否',
   `del_method` tinyint(1) DEFAULT '0' COMMENT '伪删除状态，1为主动删除，2为跟随上级栏目被动删除',
   `status` tinyint(1) DEFAULT '1' COMMENT '启用 (1=正常，0=屏蔽)',
+  `is_release` tinyint(1) DEFAULT '0' COMMENT '栏目是否应用于会员投稿发布，1是，0否',
+  `weapp_code` varchar(50) DEFAULT '' COMMENT '插件栏目唯一标识',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -308,59 +320,59 @@ CREATE TABLE `ey_arctype` (
   KEY `parent_id` (`channeltype`,`parent_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
 
--- -----------------------------
--- Records of `ey_arctype`
--- -----------------------------
-INSERT INTO `ey_arctype` VALUES ('1', '6', '6', '0', '关于我们', 'guanyuwomen', '/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539465', '1545272580');
-INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '新闻动态', 'xinwendongtai', '/xinwendongtai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539487', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '产品展示', 'chanpinzhanshi', '/chanpinzhanshi', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539505', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '客户案例', 'kehuanli', '/kehuanli', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539517', '1545268599');
-INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '资料下载', 'ziliaoxiazai', '/ziliaoxiazai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539530', '1545268321');
-INSERT INTO `ey_arctype` VALUES ('6', '8', '8', '0', '报名入口', 'baomingrukou', '/baomingrukou', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526539546', '1545268049');
-INSERT INTO `ey_arctype` VALUES ('8', '6', '6', '1', '公司简介', 'gongsijianjie', '/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540452', '1545272565');
-INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '公司荣誉', 'gsry', '/guanyuwomen/gsry', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540478', '1545272547');
-INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '媒体报道', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540530', '1545272127');
-INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', 'SEO优化', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540543', '1545272114');
-INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '企业运营', 'qiyexinwen', '/xinwendongtai/qiyexinwen', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540554', '1545271263');
-INSERT INTO `ey_arctype` VALUES ('13', '1', '6', '2', '单页面', 'xinwendanye', '/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526540573', '1545270877');
-INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '手机', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612114', '1545270715');
-INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '电脑', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612188', '1545270214');
-INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '通用配件', 'tongyongpeijian', '/chanpinzhanshi/tongyongpeijian', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612218', '1545269166');
-INSERT INTO `ey_arctype` VALUES ('23', '1', '3', '2', '风景图集', 'fengjingtuji', '/xinwendongtai/fengjingtuji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612255', '1545270830');
-INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '智能手机', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612571', '1545270702');
-INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '畅玩手机', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612606', '1545270668');
-INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '笔记本电脑', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612635', '1545270191');
-INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '耳机', 'erji', '/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612661', '1545269149');
-INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '音箱', 'yinxiang', '/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612678', '1545269134');
-INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '充电宝', 'chongdianbao', '/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526612691', '1545269115');
-INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '1', '预约面试', 'yuyuemianshi', '/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'cn', '1526634493', '1545272506');
-INSERT INTO `ey_arctype` VALUES ('31', '6', '6', '0', 'About Us', 'guanyuwomen', '/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539465', '1545272580');
-INSERT INTO `ey_arctype` VALUES ('32', '6', '6', '31', 'Company Profile', 'gongsijianjie', '/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540452', '1545272580');
-INSERT INTO `ey_arctype` VALUES ('33', '6', '1', '31', 'Honor', 'gsry', '/guanyuwomen/gsry', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540478', '1545272580');
-INSERT INTO `ey_arctype` VALUES ('34', '6', '8', '31', 'Appointment interview', 'yuyuemianshi', '/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526634493', '1545272580');
-INSERT INTO `ey_arctype` VALUES ('35', '1', '1', '0', 'News', 'xinwendongtai', '/xinwendongtai', '', '0', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539487', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('36', '1', '1', '35', 'Media coverage', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540530', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('37', '1', '1', '35', 'SEO optimization', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540543', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('38', '1', '1', '35', 'Enterprise operation', 'qiyexinwen', '/xinwendongtai/qiyexinwen', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540554', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('39', '1', '6', '35', 'Single page', 'xinwendanye', '/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526540573', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('40', '1', '3', '35', 'Landscape Atlas', 'fengjingtuji', '/xinwendongtai/fengjingtuji', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612255', '1545272354');
-INSERT INTO `ey_arctype` VALUES ('41', '2', '2', '0', ' Product', 'chanpinzhanshi', '/chanpinzhanshi', '', '0', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539505', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('42', '2', '2', '41', 'Phone', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612114', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('43', '2', '2', '42', 'Smartphone', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612571', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('44', '2', '2', '42', 'Play your mobile phone', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612606', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('45', '2', '2', '41', 'Computer', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612188', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('46', '2', '2', '45', 'Notebook computer', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612635', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('47', '2', '2', '41', 'General accessories', 'tongyongpeijian', '/chanpinzhanshi/tongyongpeijian', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612218', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('48', '2', '2', '47', 'Headset', 'erji', '/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612661', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('49', '2', '2', '47', 'Loudspeaker box', 'yinxiang', '/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612678', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('50', '2', '2', '47', 'Portable battery', 'chongdianbao', '/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526612691', '1545270730');
-INSERT INTO `ey_arctype` VALUES ('51', '3', '3', '0', 'Case', 'kehuanli', '/kehuanli', '', '0', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539517', '1545268599');
-INSERT INTO `ey_arctype` VALUES ('52', '4', '4', '0', 'Data download', 'ziliaoxiazai', '/ziliaoxiazai', '', '0', '', '', 'lists_download.htm', 'view_download.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539530', '1545268321');
-INSERT INTO `ey_arctype` VALUES ('53', '8', '8', '0', 'Entry entry', 'baomingrukou', '/baomingrukou', '', '0', '', '', 'lists_guestbook.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', 'en', '1526539546', '1545268049');
+-- ----------------------------
+-- Records of ey_arctype
+-- ----------------------------
+INSERT INTO `ey_arctype` VALUES ('1', '6', '6', '0', '关于我们', 'guanyuwomen', '/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539465', '1545272580');
+INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '新闻动态', 'xinwendongtai', '/xinwendongtai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526539487', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '产品展示', 'chanpinzhanshi', '/chanpinzhanshi', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539505', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '客户案例', 'kehuanli', '/kehuanli', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539517', '1545268599');
+INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '资料下载', 'ziliaoxiazai', '/ziliaoxiazai', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539530', '1545268321');
+INSERT INTO `ey_arctype` VALUES ('6', '8', '8', '0', '报名入口', 'baomingrukou', '/baomingrukou', '', '0', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539546', '1545268049');
+INSERT INTO `ey_arctype` VALUES ('8', '6', '6', '1', '公司简介', 'gongsijianjie', '/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526540452', '1545272565');
+INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '公司荣誉', 'gsry', '/guanyuwomen/gsry', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540478', '1545272547');
+INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '媒体报道', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540530', '1545272127');
+INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', 'SEO优化', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540543', '1545272114');
+INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '企业运营', 'qiyexinwen', '/xinwendongtai/qiyexinwen', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540554', '1545271263');
+INSERT INTO `ey_arctype` VALUES ('13', '1', '6', '2', '单页面', 'xinwendanye', '/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526540573', '1545270877');
+INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '手机', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612114', '1545270715');
+INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '电脑', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612188', '1545270214');
+INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '通用配件', 'tongyongpeijian', '/chanpinzhanshi/tongyongpeijian', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612218', '1545269166');
+INSERT INTO `ey_arctype` VALUES ('23', '1', '3', '2', '风景图集', 'fengjingtuji', '/xinwendongtai/fengjingtuji', '', '1', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612255', '1545270830');
+INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '智能手机', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612571', '1545270702');
+INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '畅玩手机', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612606', '1545270668');
+INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '笔记本电脑', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612635', '1545270191');
+INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '耳机', 'erji', '/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612661', '1545269149');
+INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '音箱', 'yinxiang', '/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612678', '1545269134');
+INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '充电宝', 'chongdianbao', '/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612691', '1545269115');
+INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '1', '预约面试', 'yuyuemianshi', '/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526634493', '1545272506');
+INSERT INTO `ey_arctype` VALUES ('31', '6', '6', '0', 'About Us', 'guanyuwomen', '/guanyuwomen', '', '0', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526539465', '1545272580');
+INSERT INTO `ey_arctype` VALUES ('32', '6', '6', '31', 'Company Profile', 'gongsijianjie', '/guanyuwomen/gongsijianjie', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526540452', '1545272580');
+INSERT INTO `ey_arctype` VALUES ('33', '6', '1', '31', 'Honor', 'gsry', '/guanyuwomen/gsry', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'en', '1526540478', '1545272580');
+INSERT INTO `ey_arctype` VALUES ('34', '6', '8', '31', 'Appointment interview', 'yuyuemianshi', '/guanyuwomen/yuyuemianshi', '', '1', '', '', 'lists_guestbook_30.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526634493', '1545272580');
+INSERT INTO `ey_arctype` VALUES ('35', '1', '1', '0', 'News', 'xinwendongtai', '/xinwendongtai', '', '0', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'en', '1526539487', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('36', '1', '1', '35', 'Media coverage', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'en', '1526540530', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('37', '1', '1', '35', 'SEO optimization', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'en', '1526540543', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('38', '1', '1', '35', 'Enterprise operation', 'qiyexinwen', '/xinwendongtai/qiyexinwen', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'en', '1526540554', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('39', '1', '6', '35', 'Single page', 'xinwendanye', '/xinwendongtai/xinwendanye', '', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526540573', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('40', '1', '3', '35', 'Landscape Atlas', 'fengjingtuji', '/xinwendongtai/fengjingtuji', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612255', '1545272354');
+INSERT INTO `ey_arctype` VALUES ('41', '2', '2', '0', ' Product', 'chanpinzhanshi', '/chanpinzhanshi', '', '0', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526539505', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('42', '2', '2', '41', 'Phone', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612114', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('43', '2', '2', '42', 'Smartphone', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612571', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('44', '2', '2', '42', 'Play your mobile phone', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612606', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('45', '2', '2', '41', 'Computer', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612188', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('46', '2', '2', '45', 'Notebook computer', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612635', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('47', '2', '2', '41', 'General accessories', 'tongyongpeijian', '/chanpinzhanshi/tongyongpeijian', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612218', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('48', '2', '2', '47', 'Headset', 'erji', '/chanpinzhanshi/tongyongpeijian/erji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612661', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('49', '2', '2', '47', 'Loudspeaker box', 'yinxiang', '/chanpinzhanshi/tongyongpeijian/yinxiang', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612678', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('50', '2', '2', '47', 'Portable battery', 'chongdianbao', '/chanpinzhanshi/tongyongpeijian/chongdianbao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526612691', '1545270730');
+INSERT INTO `ey_arctype` VALUES ('51', '3', '3', '0', 'Case', 'kehuanli', '/kehuanli', '', '0', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526539517', '1545268599');
+INSERT INTO `ey_arctype` VALUES ('52', '4', '4', '0', 'Data download', 'ziliaoxiazai', '/ziliaoxiazai', '', '0', '', '', 'lists_download.htm', 'view_download.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526539530', '1545268321');
+INSERT INTO `ey_arctype` VALUES ('53', '8', '8', '0', 'Entry entry', 'baomingrukou', '/baomingrukou', '', '0', '', '', 'lists_guestbook.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'en', '1526539546', '1545268049');
 
--- -----------------------------
--- Table structure for `ey_article_content`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_article_content
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_article_content`;
 CREATE TABLE `ey_article_content` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -372,9 +384,9 @@ CREATE TABLE `ey_article_content` (
   KEY `news_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COMMENT='文章附加表';
 
--- -----------------------------
--- Records of `ey_article_content`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_article_content
+-- ----------------------------
 INSERT INTO `ey_article_content` VALUES ('1', '4', '&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;在了解&lt;strong&gt;seo是什么意思&lt;/strong&gt;之后，才能学习seo。&lt;br/&gt;&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;什么是seo，从官方解释来看，seo=Search（搜索） Engine（引擎） Optimization（优化），即搜索引擎优化。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;使用过百度或其他搜索引擎，在搜索框中输入某一个关键词，如铁艺大门，排名靠前带有广告字样，背景略不同的是竞价位置，为俗称的&lt;a href=&quot;http://www.xminseo.com/2376.html&quot; title=&quot;&quot; style=&quot;color: rgb(0, 166, 124); text-decoration: none;&quot;&gt;sem&lt;/a&gt;位置。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;seo是基于搜索引擎营销的一种网络营销方式，通过seo技术，提升网站关键词排名，获得展现，继而获得曝光，继而获得用户点击，继而获得转化。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;一：seo分类。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;细化来看，所有有利于网站关键词排名提升的点，都可以归纳于seo，为便于理解，我们将seo分为站内seo和站外seo。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;1：站内seo。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;什么是站内seo？通俗来讲，就是指网站内部优化，即网站本身内部的优化，包括代码标签优化、内容优化、安全建设、用户体验等。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;2：站外seo。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;什么是站外seo？通俗来讲，就是网站的外部优化，包括外链建设，品牌建设，速度优化，引流等。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;二：seo相关建议。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;1：建议把seo定位于一种网络营销方式，在学习，使用seo的过程中，将他作为一种获取流量的渠道。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;2：新手学习seo的理想平台是百度搜索资源平台而非其他；理论联系实际操作是更为有效的学习方式；有经验的seo高手教会更快的掌握好seo；多思考，多总结，才能领悟seo的精髓。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;3：学习seo之前，熟悉掌握相关seo术语很有必要。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;4：很多时候，seo的理论与现实是相违背的，也就是说seo的理论点不复杂，操作点却很难达到。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 15px; color: rgb(85, 85, 85); font-family: &amp;quot;Microsoft Yahei&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif; font-size: 15px; text-indent: 30px; white-space: normal;&quot;&gt;新手接触seo，感觉无所适从，请熟读seo术语，后面会越来越轻松。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1547462542', '1547462542');
 INSERT INTO `ey_article_content` VALUES ('5', '9', '&lt;p style=&quot;margin-top: 0px; margin-bottom: 24px; color: rgb(14, 14, 14); font-family: Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Helvetica, Tahoma, &amp;quot;Arial sans-serif&amp;quot;; text-align: justify; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;&lt;span style=&quot;font-weight: 700;&quot;&gt;注：&lt;/span&gt;用户界面（UI，User Interface）设计是设计软件产品所涉及到的几个交叉学科之一。不论是用户体验（UX，User Experience）、交互设计（ID，Interaction Design），还是视觉/图形设计（Visual / Graphic Design），都能牵扯到用户界面设计。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 24px; color: rgb(14, 14, 14); font-family: Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Helvetica, Tahoma, &amp;quot;Arial sans-serif&amp;quot;; text-align: justify; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;&lt;span style=&quot;color: rgb(54, 54, 54); font-family: Tahoma, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Heiti, 黑体, sans-serif; font-size: 24px;&quot;&gt;一、什么是用户界面设计？&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 24px; color: rgb(14, 14, 14); font-family: Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Helvetica, Tahoma, &amp;quot;Arial sans-serif&amp;quot;; text-align: justify; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;广泛来讲，用户界面是人与机器交流的媒介。用户向机器发出指令，机器随即开始一段进程，回复信息，并给出反馈。用户可以根据用户反馈进行下一步操作的决策。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 24px; color: rgb(14, 14, 14); font-family: Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Helvetica, Tahoma, &amp;quot;Arial sans-serif&amp;quot;; text-align: justify; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;人机交互（HCI，Human Computer Interaciton）所关注的主要是数字界面，即过去的打孔机、命令行，直至今天的图形界面（GUI，Graphic Design）。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 24px; color: rgb(14, 14, 14); font-family: Arial, &amp;quot;Hiragino Sans GB&amp;quot;, 冬青黑, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, SimSun, 宋体, Helvetica, Tahoma, &amp;quot;Arial sans-serif&amp;quot;; text-align: justify; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;用户界面设计对于数码产品来说主要关注的是布局、信息结构，以及界面元素在显示屏和各种终端平台上的展示。电子游戏和电视界面也包括其中。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1526552582', '1531711820');
 INSERT INTO `ey_article_content` VALUES ('15', '39', '&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;对于记忆来说，味道往往是最美的，儿时喝过的饮料，至今回想起来依然觉得津津有味。&lt;br/&gt;&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;今天是六一儿童节，青山资本梳理了中国40年来饮料发展的简史，权当节日的小消遣，顺便看看能否找到你记忆深处的那个味道？&lt;/p&gt;&lt;h2 style=&quot;margin: 0px; padding: 0px; font-size: 16px; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;第一阶段：国人味蕾的开启时代&lt;/h2&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;百事可乐在华第一家工厂开业&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;1981年，可口可乐在中国第一条生产线正式投产，主要供应旅游饭店，卖给外国人收取外汇，百事可乐也在深圳建立了第一家罐装厂。&lt;/p&gt;&lt;p style=&quot;margin-top: 0px; margin-bottom: 32px; padding: 0px; text-align: justify; font-family: &amp;quot;Open Sans&amp;quot;, Arial, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, 微软雅黑, STHeiti, &amp;quot;WenQuanYi Micro Hei&amp;quot;, SimSun, sans-serif, sans-serif; font-size: 18px; white-space: normal; background-color: rgb(255, 255, 255);&quot;&gt;1982年，国家把饮料纳入“国家计划管理产品”，可口可乐开始在北京市场进行内销。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1527824652', '1531709817');
@@ -402,9 +414,9 @@ INSERT INTO `ey_article_content` VALUES ('28', '69', '&lt;p&gt;Z Yuhan: User Int
 INSERT INTO `ey_article_content` VALUES ('29', '70', '&lt;p&gt;In the early morning of May 31st, Beijing time, Mary Mickel, who is known as the “Queen of the Internet”, published the Internet Trend Report for 2018, which is the 23rd year of her Internet report.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The annual Internet Queen&amp;#39;s report will almost always become a must-read report for every Internet entrepreneur. So, who is the Internet Queen? Why is her report so concerned?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Internet Queen: The symbol of Wall Street in the 90s&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In September 1958, Mary Meeker was born in Indiana, USA.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In 1982, Mikel joined Merrill Lynch, the most prestigious brokerage company at the time, as a stockbroker.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Mickel’s star analysts began in 1991, when she joined the well-known investment bank Morgan Stanley and began her brilliant career as a technology analyst.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Since 1995, Mikel&amp;#39;s work has changed with the changing trend of the Internet. She has focused on how well-known companies such as Yahoo, AOL and Amazon will adjust their structure and compete with each other.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In 1996, Mary Mickel became the head of Morgan Stanley&amp;#39;s technology stock analysis department, and created a new career on Wall Street – Internet analysts. Just as junk bonds represent Wall Street in the 1980s, Mary Mickel became a symbol of Wall Street in the 1990s.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;At the end of 2010, Mikel resigned as managing director of Morgan Stanley, left Wall Street, and went to California to become a partner of the well-known venture capital KPCB. KPCB (Kleiner Perkins Caufield &amp;amp; Byers) was founded in 1972 and is the largest venture fund in the United States. Its most proud masterpiece is the creation of Netscape.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Internet Queen&amp;#39;s Report: Investment in the Internet, Bible, stock selection guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In 1994, Mikel accidentally saw a story about the startup&amp;#39;s Mosaic web browser in the New York Times. Mikel immediately realized that such a web browser might change the way people get information. She then contacted the two founders of Mosaic and introduced the company to Wall Street investors.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Mosaic later changed its name to Netscape and was listed in New York in 1995. Thanks to the good relationship between Mikel and Netscape&amp;#39;s founders, Morgan Stanley became the lead underwriter for Netscape&amp;#39;s initial public offering (IPO).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;On August 9 of that year, Netscape closed on the first day of listing, and the stock price surged from the issue price of US$14 to US$75, setting a record for the first day of the listed company. Netscape IPO also became a major symbol of the arrival of the Internet era.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In 1995, in addition to being responsible for the listing of Netscape, Mikel and his colleague Chris Opp began to publish the &amp;quot;Internet Report&amp;quot;, and first proposed the analysis of network stocks such as &amp;quot;page views&amp;quot;. This report is regarded by investors as an investment Bible in the Internet field, and it has been published in public, which has caused great repercussions in the entire technology industry.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In 1996-1997, Mikel and Morgan Stanley released the &amp;quot;Internet Advertising Report&amp;quot; and &amp;quot;Internet Retail Report&amp;quot;, which laid the foundation for the first analyst of Mikel&amp;#39;s Internet field. The Internet Queen’s report almost became a must-read report for every Internet entrepreneur at the time.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The Internet Queen’s report is tantamount to a stock picking guide. The stocks of companies such as AOL, Dell, Amazon, and eBay that she recommended to investors quickly brought in more than ten times the return on investment.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&amp;quot;God Prediction&amp;quot; in the Internet Queen&amp;#39;s Report&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The main reason why the industry values the Internet Queen’s report so much is the predictions of Mikel’s gods. Below, we briefly list some examples of God predictions in the Internet Queen&amp;#39;s report.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1545272280', '1545272280');
 INSERT INTO `ey_article_content` VALUES ('30', '71', '&lt;p&gt;Website construction, static pages and dynamic pages how to choose&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Why should e-commerce website construction use static page production? We all know that website production is divided into static page production and dynamic web page production. So which website design technology is better for building e-commerce websites?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The ultimate goal of our website is to provide users with a view, so it is most practical to think from the user&amp;#39;s point of view. Although the dynamic webpage creation technology has greatly improved the aesthetics of the webpage, it is not conducive to website optimization. Today&amp;#39;s Xiaobian focus and Let&amp;#39;s talk about why website construction uses static pages.&lt;/p&gt;&lt;p&gt;&lt;img alt=&quot;&quot; class=&quot;limg&quot; src=&quot;/uploads/allimg/20181220/4e7474448185b797c4c1d796b3e581fe.jpg&quot; style=&quot;box-sizing: inherit; border-style: none; vertical-align: top; max-width: 100%; height: auto !important;&quot;/&gt;&lt;/p&gt;&lt;p&gt;　　&lt;/p&gt;&lt;p&gt;The technical principle adopted for static website construction is one-to-one. That is to say, on a website, one content corresponds to one page. No matter how the website visitor operates, the server only transmits the inherent data to the requester. There is no script calculation and background database reading process, which greatly reduces some security risks. In addition to the above-mentioned features of high speed and high security, the static website design also has cross-platform and cross-server functions.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Now friends who are familiar with the working principle of the search engine should know that the information it provides to the majority of users is the information that exists in the database itself rather than the real-time information. The fixed information content is easier to accept and save. We may often encounter such problems. When we search for the information we need, the results may have expired. This is the inadequacy of static page website design, but because it is stable, it will not be ｄｅｌｅｔｅ.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Different from static page website design, the generated dynamic page information is not only difficult to be searched by search engines, but also slow to open and unstable. This is why so many professional website construction companies have repeatedly suggested that customers use static forms of website design. The reason is that some website construction companies will consider pseudo-static processing of the page, but I don&amp;#39;t know if you have noticed that the pseudo-statically processed URL is usually irregular.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1547463680', '1547463680');
 
--- -----------------------------
--- Table structure for `ey_auth_role`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_auth_role
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_auth_role`;
 CREATE TABLE `ey_auth_role` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -426,15 +438,15 @@ CREATE TABLE `ey_auth_role` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='管理员角色表';
 
--- -----------------------------
--- Records of `ey_auth_role`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_auth_role
+-- ----------------------------
 INSERT INTO `ey_auth_role` VALUES ('1', '优化推广员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:8:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"8\";i:4;s:1:\"9\";i:5;s:2:\"10\";i:6;s:2:\"14\";i:7;i:2;}s:7:\"arctype\";a:63:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";}}', '1', '100', '1', '0', '1541207843', '0');
 INSERT INTO `ey_auth_role` VALUES ('2', '内容管理员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:4:{i:0;s:1:\"1\";i:1;s:2:\"10\";i:2;s:2:\"14\";i:3;i:2;}s:7:\"arctype\";a:63:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";}}', '1', '100', '1', '0', '1541207846', '0');
 
--- -----------------------------
--- Table structure for `ey_channelfield`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_channelfield
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_channelfield`;
 CREATE TABLE `ey_channelfield` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -459,11 +471,11 @@ CREATE TABLE `ey_channelfield` (
   `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=62 DEFAULT CHARSET=utf8 COMMENT='自定义字段表';
+) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8 COMMENT='自定义字段表';
 
--- -----------------------------
--- Records of `ey_channelfield`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_channelfield
+-- ----------------------------
 INSERT INTO `ey_channelfield` VALUES ('1', 'add_time', '0', '新增时间', 'datetime', 'int(11)', '250', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091575', '1533091575');
 INSERT INTO `ey_channelfield` VALUES ('2', 'update_time', '0', '更新时间', 'datetime', 'int(11)', '250', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091601', '1533091601');
 INSERT INTO `ey_channelfield` VALUES ('3', 'aid', '0', '文档ID', 'int', 'int(11)', '250', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091624', '1533091624');
@@ -524,10 +536,16 @@ INSERT INTO `ey_channelfield` VALUES ('58', 'users_price', '2', '价格', 'decim
 INSERT INTO `ey_channelfield` VALUES ('59', 'users_id', '0', '会员ID', 'int', 'int(11)', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('60', 'arc_level_id', '0', '文档会员权限ID', 'int', 'int(10)', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('61', 'arc_level_id', '4', '文档会员权限ID', 'int', 'int(10)', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('62', 'weapp_code', '-99', '插件栏目唯一标识', 'text', 'varchar(200)', '200', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('63', 'is_release', '-99', '栏目是否应用于会员投稿发布，1是，0否', 'switch', 'tinyint(1)', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('64', 'old_price', '0', '产品旧价', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('65', 'stock_count', '0', '商品库存量', 'int', 'int(10)', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('66', 'stock_show', '0', '商品库存在产品详情页是否显示，1为显示，0为不显示', 'switch', 'tinyint(1)', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
+INSERT INTO `ey_channelfield` VALUES ('67', 'joinaid', '0', '关联文档ID', 'int', 'int(10)', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 
--- -----------------------------
--- Table structure for `ey_channelfield_bind`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_channelfield_bind
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_channelfield_bind`;
 CREATE TABLE `ey_channelfield_bind` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -538,10 +556,13 @@ CREATE TABLE `ey_channelfield_bind` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='栏目与自定义字段绑定表';
 
+-- ----------------------------
+-- Records of ey_channelfield_bind
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_channeltype`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_channeltype
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_channeltype`;
 CREATE TABLE `ey_channeltype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -553,6 +574,7 @@ CREATE TABLE `ey_channeltype` (
   `status` tinyint(1) DEFAULT '1' COMMENT '状态(1=启用，0=屏蔽)',
   `ifsystem` tinyint(1) DEFAULT '0' COMMENT '字段分类，1=系统(不可修改)，0=自定义',
   `is_repeat_title` tinyint(1) DEFAULT '1' COMMENT '文档标题重复，1=允许，0=不允许',
+  `is_release` tinyint(1) DEFAULT '0' COMMENT '模型是否允许应用于会员投稿发布，1是，0否',
   `is_litpic_users_release` tinyint(1) DEFAULT '1' COMMENT '缩略图是否应用于会员投稿，1=允许，0=不允许',
   `is_del` tinyint(1) DEFAULT '0' COMMENT '伪删除，1=是，0=否',
   `sort_order` smallint(6) DEFAULT '50' COMMENT '排序',
@@ -563,19 +585,19 @@ CREATE TABLE `ey_channeltype` (
   UNIQUE KEY `ctl_name` (`ctl_name`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='系统模型表';
 
--- -----------------------------
--- Records of `ey_channeltype`
--- -----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '1', '1', '0', '1', '0', '1563937326');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '1', '1', '0', '4', '0', '1563937326');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '1', '1', '0', '2', '0', '1563937326');
-INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '1', '1', '0', '8', '1509197711', '1563937326');
-INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '1', '1', '0', '6', '1523091961', '1563937326');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '1', '1', '0', '3', '1523929121', '1563937326');
+-- ----------------------------
+-- Records of ey_channeltype
+-- ----------------------------
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '1', '1', '1', '0', '1', '0', '1563937326');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '1', '0', '1', '0', '4', '0', '1563937326');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '1', '0', '1', '0', '2', '0', '1563937326');
+INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '1', '0', '1', '0', '8', '1509197711', '1563937326');
+INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '1', '0', '1', '0', '6', '1523091961', '1563937326');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '1', '0', '1', '0', '3', '1523929121', '1563937326');
 
--- -----------------------------
--- Table structure for `ey_common_pic`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_common_pic
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_common_pic`;
 CREATE TABLE `ey_common_pic` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '常用图片ID',
@@ -586,10 +608,13 @@ CREATE TABLE `ey_common_pic` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='常用图片';
 
+-- ----------------------------
+-- Records of ey_common_pic
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_config`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_config
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_config`;
 CREATE TABLE `ey_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -603,9 +628,9 @@ CREATE TABLE `ey_config` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=197 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
--- -----------------------------
--- Records of `ey_config`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_config
+-- ----------------------------
 INSERT INTO `ey_config` VALUES ('1', 'is_mark', '0', 'water', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('2', 'mark_txt', '易优Cms', 'water', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('3', 'mark_img', '/uploads/allimg/20190114/f0d5e5830502125f5077212a90ef3a33.png', 'water', '', 'cn', '0', '1547463466');
@@ -763,9 +788,9 @@ INSERT INTO `ey_config` VALUES ('194', 'system_version', 'v1.3.7', 'system', '',
 INSERT INTO `ey_config` VALUES ('195', 'system_synleveldata', '1', 'system', '', 'cn', '0', '1563937262');
 INSERT INTO `ey_config` VALUES ('196', 'system_synleveldata', '1', 'system', '', 'en', '0', '1563937262');
 
--- -----------------------------
--- Table structure for `ey_config_attribute`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_config_attribute
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_config_attribute`;
 CREATE TABLE `ey_config_attribute` (
   `attr_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '表单id',
@@ -779,9 +804,9 @@ CREATE TABLE `ey_config_attribute` (
   PRIMARY KEY (`attr_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='自定义变量表';
 
--- -----------------------------
--- Records of `ey_config_attribute`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_config_attribute
+-- ----------------------------
 INSERT INTO `ey_config_attribute` VALUES ('1', 'web', '微博地址', 'web_attr_1', '0', 'cn', '1525962574', '1526008818');
 INSERT INTO `ey_config_attribute` VALUES ('2', 'web', '手机/固话', 'web_attr_2', '0', 'cn', '1525962600', '1525962600');
 INSERT INTO `ey_config_attribute` VALUES ('3', 'web', 'QQ号码', 'web_attr_3', '0', 'cn', '1525962624', '1525962624');
@@ -791,9 +816,9 @@ INSERT INTO `ey_config_attribute` VALUES ('6', 'web', '手机/固话', 'web_attr
 INSERT INTO `ey_config_attribute` VALUES ('7', 'web', 'QQ号码', 'web_attr_3', '0', 'en', '1525962624', '1525962624');
 INSERT INTO `ey_config_attribute` VALUES ('8', 'web', '微信二维码', 'web_attr_4', '3', 'en', '1525999090', '1526008783');
 
--- -----------------------------
--- Table structure for `ey_download_attr_field`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_download_attr_field
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_download_attr_field`;
 CREATE TABLE `ey_download_attr_field` (
   `field_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -807,15 +832,15 @@ CREATE TABLE `ey_download_attr_field` (
   PRIMARY KEY (`field_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='上传文件属性表';
 
--- -----------------------------
--- Records of `ey_download_attr_field`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_download_attr_field
+-- ----------------------------
 INSERT INTO `ey_download_attr_field` VALUES ('1', 'extract_code', '提取码', '1', '1', 'cn', '1561001807', '1561024954');
 INSERT INTO `ey_download_attr_field` VALUES ('2', 'server_name', '服务器名称', '1', '2', 'cn', '1561001807', '1561078673');
 
--- -----------------------------
--- Table structure for `ey_download_content`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_download_content
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_download_content`;
 CREATE TABLE `ey_download_content` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -827,17 +852,17 @@ CREATE TABLE `ey_download_content` (
   KEY `news_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='下载附加表';
 
--- -----------------------------
--- Records of `ey_download_content`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_download_content
+-- ----------------------------
 INSERT INTO `ey_download_content` VALUES ('1', '30', '&lt;p&gt;工程机械推土挖掘机类网站模板，下载地址：&lt;a href=&quot;http://www.eyoucms.com/moban/16/668.html&quot; target=&quot;_self&quot;&gt;http://www.eyoucms.com/moban/16/668.html&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;/uploads/allimg/20190114/4873105f54a14f3785047bd8ecc8b5ac.jpg&quot;/&gt;&lt;/p&gt;', '1547463959', '1547463959');
 INSERT INTO `ey_download_content` VALUES ('2', '31', '&lt;p&gt;职业教育培训机构网站模板，下载地址：&lt;a href=&quot;http://www.eyoucms.com/moban/10/673.html&quot; target=&quot;_self&quot;&gt;http://www.eyoucms.com/moban/10/673.html&lt;/a&gt;&lt;/p&gt;', '1547463404', '1547463404');
 INSERT INTO `ey_download_content` VALUES ('4', '48', '&lt;p&gt;Construction machinery bulldozer website template, download address：&lt;a href=&quot;http://www.eyoucms.com/moban/16/668.html&quot; target=&quot;_self&quot;&gt;http://www.eyoucms.com/moban/16/668.html&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br style=&quot;box-sizing: inherit;&quot;/&gt;&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://www.eyoucms.com/uploads/allimg/180426/150RQ155-0.jpg&quot; style=&quot;box-sizing: inherit; border-style: none; vertical-align: top; max-width: 100%; height: auto !important;&quot;/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1547463855', '1547463855');
 INSERT INTO `ey_download_content` VALUES ('5', '49', '&lt;p&gt;Web template for vocational education and training institutions, download address: &lt;a href=&quot;http://www.eyoucms.com/moban/10/673.html&quot; target=&quot;_self&quot;&gt;http://www.eyoucms.com/moban/10/673.html&lt;/a&gt;&lt;/p&gt;', '1545268305', '1545268305');
 
--- -----------------------------
--- Table structure for `ey_download_file`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_download_file
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_download_file`;
 CREATE TABLE `ey_download_file` (
   `file_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -858,9 +883,9 @@ CREATE TABLE `ey_download_file` (
   KEY `arcid` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='下载附件表';
 
--- -----------------------------
--- Records of `ey_download_file`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_download_file
+-- ----------------------------
 INSERT INTO `ey_download_file` VALUES ('15', '30', '工程机械推土挖掘机类网站模板', '/uploads/soft/20190114/4b0f01441b5a246badf158fa99c140ac.zip', '', '9268', 'zip', '4b0f01441b5a246badf158fa99c140ac.zip', 'application/x-zip-compressed', '1837c4067aa99f7005e62b20bdb1a67f', '1837c4067aa99f7005e62b20bdb1a67f', '0', '1', '1547463434');
 INSERT INTO `ey_download_file` VALUES ('13', '31', '职业教育培训机构网站模板', '/uploads/soft/20190114/3b3f753af0f13e6e0237b9577e0bcd17.zip', '', '9268', 'zip', '3b3f753af0f13e6e0237b9577e0bcd17.zip', 'application/x-zip-compressed', '1837c4067aa99f7005e62b20bdb1a67f', '1837c4067aa99f7005e62b20bdb1a67f', '0', '1', '1547463404');
 INSERT INTO `ey_download_file` VALUES ('14', '31', '职业教育培训机构网站模板', '/uploads/soft/20190114/44bbd259222c81bd3c41112a73c904a0.zip', '', '9268', 'zip', '44bbd259222c81bd3c41112a73c904a0.zip', 'application/x-zip-compressed', '1837c4067aa99f7005e62b20bdb1a67f', '1837c4067aa99f7005e62b20bdb1a67f', '0', '2', '1547463404');
@@ -868,9 +893,9 @@ INSERT INTO `ey_download_file` VALUES ('10', '48', '工程机械推土挖掘机�
 INSERT INTO `ey_download_file` VALUES ('11', '49', 'Website Template of Vocational Education and Training Institutions', '/uploads/soft/20181220/44bbd259222c81bd3c41112a73c904a0.zip', '', '9268', 'zip', '44bbd259222c81bd3c41112a73c904a0.zip', 'application/x-zip-compressed', '1837c4067aa99f7005e62b20bdb1a67f', '1837c4067aa99f7005e62b20bdb1a67f', '0', '1', '1545268233');
 INSERT INTO `ey_download_file` VALUES ('12', '49', 'Website Template of Vocational Education and Training Institutions', '/uploads/soft/20181220/3b3f753af0f13e6e0237b9577e0bcd17.zip', '', '9268', 'zip', '3b3f753af0f13e6e0237b9577e0bcd17.zip', 'application/x-zip-compressed', '1837c4067aa99f7005e62b20bdb1a67f', '1837c4067aa99f7005e62b20bdb1a67f', '0', '2', '1545268233');
 
--- -----------------------------
--- Table structure for `ey_field_type`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_field_type
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_field_type`;
 CREATE TABLE `ey_field_type` (
   `name` varchar(32) NOT NULL DEFAULT '' COMMENT '字段类型',
@@ -883,9 +908,9 @@ CREATE TABLE `ey_field_type` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='字段类型表';
 
--- -----------------------------
--- Records of `ey_field_type`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_field_type
+-- ----------------------------
 INSERT INTO `ey_field_type` VALUES ('text', '单行文本', '0', '1', '1532485708', '1532485708');
 INSERT INTO `ey_field_type` VALUES ('checkbox', '多选项', '1', '5', '1532485708', '1532485708');
 INSERT INTO `ey_field_type` VALUES ('multitext', '多行文本', '0', '2', '1532485708', '1532485708');
@@ -901,9 +926,9 @@ INSERT INTO `ey_field_type` VALUES ('decimal', '金额类型', '0', '9', '153248
 INSERT INTO `ey_field_type` VALUES ('float', '小数类型', '0', '8', '1532485708', '1532485708');
 INSERT INTO `ey_field_type` VALUES ('region', '区域类型', '1', '6', '1532485708', '1532485708');
 
--- -----------------------------
--- Table structure for `ey_guestbook`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_guestbook
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_guestbook`;
 CREATE TABLE `ey_guestbook` (
   `aid` int(11) NOT NULL AUTO_INCREMENT,
@@ -917,10 +942,13 @@ CREATE TABLE `ey_guestbook` (
   PRIMARY KEY (`aid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='留言主表';
 
+-- ----------------------------
+-- Records of ey_guestbook
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_guestbook_attr`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_guestbook_attr
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_guestbook_attr`;
 CREATE TABLE `ey_guestbook_attr` (
   `guest_attr_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '留言表单id自增',
@@ -935,10 +963,13 @@ CREATE TABLE `ey_guestbook_attr` (
   KEY `guest_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='留言表单属性值';
 
+-- ----------------------------
+-- Records of ey_guestbook_attr
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_guestbook_attribute`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_guestbook_attribute
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_guestbook_attribute`;
 CREATE TABLE `ey_guestbook_attribute` (
   `attr_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '表单id',
@@ -955,9 +986,9 @@ CREATE TABLE `ey_guestbook_attribute` (
   KEY `guest_id` (`typeid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='留言表单属性';
 
--- -----------------------------
--- Records of `ey_guestbook_attribute`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_guestbook_attribute
+-- ----------------------------
 INSERT INTO `ey_guestbook_attribute` VALUES ('1', '姓名', '30', '0', '', '100', 'cn', '0', '1526616441', '1526616441');
 INSERT INTO `ey_guestbook_attribute` VALUES ('2', '手机号码', '30', '0', '', '100', 'cn', '0', '1526616453', '1526616453');
 INSERT INTO `ey_guestbook_attribute` VALUES ('3', '约谈对象', '30', '1', '隔壁老王\r\n前台美女\r\n扫地阿姨', '100', 'cn', '0', '1526616497', '1526616812');
@@ -973,9 +1004,9 @@ INSERT INTO `ey_guestbook_attribute` VALUES ('13', 'Tel', '53', '0', '', '100', 
 INSERT INTO `ey_guestbook_attribute` VALUES ('14', 'Remarks', '53', '2', '', '100', 'en', '0', '1526634393', '1545268014');
 INSERT INTO `ey_guestbook_attribute` VALUES ('15', 'Pattern', '53', '1', 'personal\r\nteam', '100', 'en', '0', '1526875483', '1545272477');
 
--- -----------------------------
--- Table structure for `ey_hooks`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_hooks
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_hooks`;
 CREATE TABLE `ey_hooks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -989,10 +1020,13 @@ CREATE TABLE `ey_hooks` (
   KEY `name` (`name`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='插件钩子表';
 
+-- ----------------------------
+-- Records of ey_hooks
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_images_content`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_images_content
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_images_content`;
 CREATE TABLE `ey_images_content` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -1004,9 +1038,9 @@ CREATE TABLE `ey_images_content` (
   KEY `news_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='图集附加表';
 
--- -----------------------------
--- Records of `ey_images_content`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_images_content
+-- ----------------------------
 INSERT INTO `ey_images_content` VALUES ('5', '22', '&lt;p&gt;新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集新闻模型下的图集&lt;/p&gt;', '1547462752', '1547462752');
 INSERT INTO `ey_images_content` VALUES ('6', '23', '&lt;p&gt;新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二新闻模型下的图集二&lt;/p&gt;', '1547462702', '1547462702');
 INSERT INTO `ey_images_content` VALUES ('7', '42', '', '1547462847', '1547462847');
@@ -1018,15 +1052,16 @@ INSERT INTO `ey_images_content` VALUES ('12', '52', '', '1545268563', '154526856
 INSERT INTO `ey_images_content` VALUES ('13', '57', '', '1545270783', '1545270783');
 INSERT INTO `ey_images_content` VALUES ('14', '58', '', '1545270816', '1545270816');
 
--- -----------------------------
--- Table structure for `ey_images_upload`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_images_upload
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_images_upload`;
 CREATE TABLE `ey_images_upload` (
   `img_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `aid` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '图集ID',
   `title` varchar(200) DEFAULT '' COMMENT '产品标题',
   `image_url` varchar(255) DEFAULT '' COMMENT '文件存储路径',
+  `intro` varchar(2000) DEFAULT '' COMMENT '图集描述',
   `width` int(11) DEFAULT '0' COMMENT '图片宽度',
   `height` int(11) DEFAULT '0' COMMENT '图片高度',
   `filesize` mediumint(8) unsigned DEFAULT '0' COMMENT '文件大小',
@@ -1037,28 +1072,28 @@ CREATE TABLE `ey_images_upload` (
   KEY `arcid` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=utf8 COMMENT='图集图片表';
 
--- -----------------------------
--- Records of `ey_images_upload`
--- -----------------------------
-INSERT INTO `ey_images_upload` VALUES ('32', '22', '新闻模型下的图集', '/uploads/allimg/20190114/84cb8dc1626776b7c8a54a78f0177f48.jpg', '400', '400', '0', 'image/jpeg', '2', '1547462752');
-INSERT INTO `ey_images_upload` VALUES ('31', '22', '新闻模型下的图集', '/uploads/allimg/20190114/546f502c79cf1b653816006be5d9e3fd.jpg', '560', '560', '0', 'image/jpeg', '1', '1547462752');
-INSERT INTO `ey_images_upload` VALUES ('30', '23', '新闻模型下的图集二', '/uploads/allimg/20190114/f7a54389683dc21843aed505561de39a.jpg', '560', '560', '0', 'image/jpeg', '1', '1547462702');
-INSERT INTO `ey_images_upload` VALUES ('38', '42', '客户案例一', '/uploads/allimg/20190114/9764f13943d3aca2f7d3b1065d143a7d.jpg', '1000', '782', '0', 'image/jpeg', '1', '1547462847');
-INSERT INTO `ey_images_upload` VALUES ('37', '43', '客户案例二', '/uploads/allimg/20190114/f8373e1b08853b8bec3f0198bd83d671.jpg', '1000', '782', '0', 'image/jpeg', '2', '1547462829');
-INSERT INTO `ey_images_upload` VALUES ('36', '43', '客户案例二', '/uploads/allimg/20190114/d26baa8e6d8069091afbe90c8cdf88b3.jpg', '1000', '782', '0', 'image/jpeg', '1', '1547462829');
-INSERT INTO `ey_images_upload` VALUES ('35', '44', '客户案例三', '/uploads/allimg/20190114/f588a2247388733dfbf4ff54d9234db5.jpg', '1000', '782', '0', 'image/jpeg', '3', '1547462806');
-INSERT INTO `ey_images_upload` VALUES ('34', '44', '客户案例三', '/uploads/allimg/20190114/34914446f0730fd1d15130fc92b9d4d1.jpg', '1000', '782', '0', 'image/jpeg', '2', '1547462806');
-INSERT INTO `ey_images_upload` VALUES ('33', '44', '客户案例三', '/uploads/allimg/20190114/21b287f5e527170a57e51647b109b02b.jpg', '1000', '782', '0', 'image/jpeg', '1', '1547462806');
-INSERT INTO `ey_images_upload` VALUES ('24', '50', 'Customer Case I', '/uploads/allimg/20181220/9d1ad4b6be1ecc79929e3e55cb671a14.jpg', '1000', '782', '0', 'image/jpeg', '1', '1545268466');
-INSERT INTO `ey_images_upload` VALUES ('25', '51', 'Customer Case II', '/uploads/allimg/20181220/e33caf1e51fcefac340c351769a9928c.jpg', '1000', '782', '0', 'image/jpeg', '1', '1545268514');
-INSERT INTO `ey_images_upload` VALUES ('26', '52', 'Customer Case III', '/uploads/allimg/20181220/5ae19f75c0465f48f00719a0f15d2f02.jpg', '1000', '782', '0', 'image/jpeg', '1', '1545268563');
-INSERT INTO `ey_images_upload` VALUES ('27', '57', 'Atlas under News Model', '/uploads/allimg/20181220/b1a53d661f80d231d794ba8e7f9154ba.jpg', '560', '560', '0', 'image/jpeg', '1', '1545270783');
-INSERT INTO `ey_images_upload` VALUES ('28', '57', 'Atlas under News Model', '/uploads/allimg/20181220/a85e92ce6e2561d5c93a4cf62b7a8201.jpg', '400', '400', '0', 'image/jpeg', '2', '1545270783');
-INSERT INTO `ey_images_upload` VALUES ('29', '58', 'Atlas II under News Model', '/uploads/allimg/20181220/c76f2be2ebee26b8d8b2ebcc015280ef.jpg', '560', '560', '0', 'image/jpeg', '1', '1545270816');
+-- ----------------------------
+-- Records of ey_images_upload
+-- ----------------------------
+INSERT INTO `ey_images_upload` VALUES ('32', '22', '新闻模型下的图集', '/uploads/allimg/20190114/84cb8dc1626776b7c8a54a78f0177f48.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1547462752');
+INSERT INTO `ey_images_upload` VALUES ('31', '22', '新闻模型下的图集', '/uploads/allimg/20190114/546f502c79cf1b653816006be5d9e3fd.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1547462752');
+INSERT INTO `ey_images_upload` VALUES ('30', '23', '新闻模型下的图集二', '/uploads/allimg/20190114/f7a54389683dc21843aed505561de39a.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1547462702');
+INSERT INTO `ey_images_upload` VALUES ('38', '42', '客户案例一', '/uploads/allimg/20190114/9764f13943d3aca2f7d3b1065d143a7d.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1547462847');
+INSERT INTO `ey_images_upload` VALUES ('37', '43', '客户案例二', '/uploads/allimg/20190114/f8373e1b08853b8bec3f0198bd83d671.jpg', '', '1000', '782', '0', 'image/jpeg', '2', '1547462829');
+INSERT INTO `ey_images_upload` VALUES ('36', '43', '客户案例二', '/uploads/allimg/20190114/d26baa8e6d8069091afbe90c8cdf88b3.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1547462829');
+INSERT INTO `ey_images_upload` VALUES ('35', '44', '客户案例三', '/uploads/allimg/20190114/f588a2247388733dfbf4ff54d9234db5.jpg', '', '1000', '782', '0', 'image/jpeg', '3', '1547462806');
+INSERT INTO `ey_images_upload` VALUES ('34', '44', '客户案例三', '/uploads/allimg/20190114/34914446f0730fd1d15130fc92b9d4d1.jpg', '', '1000', '782', '0', 'image/jpeg', '2', '1547462806');
+INSERT INTO `ey_images_upload` VALUES ('33', '44', '客户案例三', '/uploads/allimg/20190114/21b287f5e527170a57e51647b109b02b.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1547462806');
+INSERT INTO `ey_images_upload` VALUES ('24', '50', 'Customer Case I', '/uploads/allimg/20181220/9d1ad4b6be1ecc79929e3e55cb671a14.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1545268466');
+INSERT INTO `ey_images_upload` VALUES ('25', '51', 'Customer Case II', '/uploads/allimg/20181220/e33caf1e51fcefac340c351769a9928c.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1545268514');
+INSERT INTO `ey_images_upload` VALUES ('26', '52', 'Customer Case III', '/uploads/allimg/20181220/5ae19f75c0465f48f00719a0f15d2f02.jpg', '', '1000', '782', '0', 'image/jpeg', '1', '1545268563');
+INSERT INTO `ey_images_upload` VALUES ('27', '57', 'Atlas under News Model', '/uploads/allimg/20181220/b1a53d661f80d231d794ba8e7f9154ba.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1545270783');
+INSERT INTO `ey_images_upload` VALUES ('28', '57', 'Atlas under News Model', '/uploads/allimg/20181220/a85e92ce6e2561d5c93a4cf62b7a8201.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1545270783');
+INSERT INTO `ey_images_upload` VALUES ('29', '58', 'Atlas II under News Model', '/uploads/allimg/20181220/c76f2be2ebee26b8d8b2ebcc015280ef.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1545270816');
 
--- -----------------------------
--- Table structure for `ey_language`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_language
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_language`;
 CREATE TABLE `ey_language` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
@@ -1076,15 +1111,15 @@ CREATE TABLE `ey_language` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='多语言主表';
 
--- -----------------------------
--- Records of `ey_language`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_language
+-- ----------------------------
 INSERT INTO `ey_language` VALUES ('1', '简体中文', 'cn', '', '0', '1', '1', '24', '1', '100', '1541583096', '1543890743');
 INSERT INTO `ey_language` VALUES ('2', 'English', 'en', '', '0', '0', '0', '24', '1', '100', '1545267531', '1545267534');
 
--- -----------------------------
--- Table structure for `ey_language_attr`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_language_attr
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_language_attr`;
 CREATE TABLE `ey_language_attr` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
@@ -1098,9 +1133,9 @@ CREATE TABLE `ey_language_attr` (
   KEY `attr_value` (`attr_name`,`lang`)
 ) ENGINE=MyISAM AUTO_INCREMENT=85 DEFAULT CHARSET=utf8 COMMENT='多语言模板变量关联绑定表';
 
--- -----------------------------
--- Records of `ey_language_attr`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_language_attr
+-- ----------------------------
 INSERT INTO `ey_language_attr` VALUES ('1', 'tid1', '1', 'arctype', 'cn', '1545267517', '1545267517');
 INSERT INTO `ey_language_attr` VALUES ('2', 'tid2', '2', 'arctype', 'cn', '1545267517', '1545267517');
 INSERT INTO `ey_language_attr` VALUES ('3', 'tid3', '3', 'arctype', 'cn', '1545267517', '1545267517');
@@ -1186,9 +1221,9 @@ INSERT INTO `ey_language_attr` VALUES ('82', 'ad2', '4', 'ad', 'en', '1545267532
 INSERT INTO `ey_language_attr` VALUES ('83', 'ad5', '5', 'ad', 'cn', '1553046945', '1553046945');
 INSERT INTO `ey_language_attr` VALUES ('84', 'ad5', '6', 'ad', 'en', '1553046945', '1553046945');
 
--- -----------------------------
--- Table structure for `ey_language_attribute`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_language_attribute
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_language_attribute`;
 CREATE TABLE `ey_language_attribute` (
   `attr_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '信息ID，自增',
@@ -1201,9 +1236,9 @@ CREATE TABLE `ey_language_attribute` (
   PRIMARY KEY (`attr_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COMMENT='多语言模板变量表';
 
--- -----------------------------
--- Records of `ey_language_attribute`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_language_attribute
+-- ----------------------------
 INSERT INTO `ey_language_attribute` VALUES ('1', '关于我们', 'tid1', 'arctype', '0', '1545267517', '1545267517');
 INSERT INTO `ey_language_attribute` VALUES ('2', '新闻动态', 'tid2', 'arctype', '0', '1545267517', '1545267517');
 INSERT INTO `ey_language_attribute` VALUES ('3', '产品展示', 'tid3', 'arctype', '0', '1545267517', '1545267517');
@@ -1247,9 +1282,9 @@ INSERT INTO `ey_language_attribute` VALUES ('40', '易优模板库', 'ad2', 'ad'
 INSERT INTO `ey_language_attribute` VALUES ('41', '首页-大幻灯片', 'adp1', 'ad_position', '0', '1545267518', '1545267518');
 INSERT INTO `ey_language_attribute` VALUES ('42', '第三组广告', 'ad5', 'ad', '0', '1553046945', '1553046945');
 
--- -----------------------------
--- Table structure for `ey_language_mark`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_language_mark
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_language_mark`;
 CREATE TABLE `ey_language_mark` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -1263,9 +1298,9 @@ CREATE TABLE `ey_language_mark` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=57 DEFAULT CHARSET=utf8 COMMENT='国家语言表';
 
--- -----------------------------
--- Records of `ey_language_mark`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_language_mark
+-- ----------------------------
 INSERT INTO `ey_language_mark` VALUES ('1', '简体中文', '简体中文', 'cn', 'zhongwenjianti', '100', '0', '1541583096');
 INSERT INTO `ey_language_mark` VALUES ('2', 'Vietnamese', '越南语', 'vi', 'yuenanyu', '100', '0', '1541583096');
 INSERT INTO `ey_language_mark` VALUES ('3', '繁体中文', '繁体中文', 'zh', 'zhongwenfanti', '100', '0', '1541583096');
@@ -1323,9 +1358,9 @@ INSERT INTO `ey_language_mark` VALUES ('54', 'Persian', '波斯语', 'fa', 'bosi
 INSERT INTO `ey_language_mark` VALUES ('55', 'Arabic', '阿拉伯语', 'ar', 'alaboyu', '100', '0', '1541583096');
 INSERT INTO `ey_language_mark` VALUES ('56', 'Albanian', '阿尔巴尼亚语', 'sq', 'aerbaniyayu', '100', '0', '1541583096');
 
--- -----------------------------
--- Table structure for `ey_language_pack`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_language_pack
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_language_pack`;
 CREATE TABLE `ey_language_pack` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -1339,9 +1374,9 @@ CREATE TABLE `ey_language_pack` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=51 DEFAULT CHARSET=utf8 COMMENT='模板语言包变量';
 
--- -----------------------------
--- Records of `ey_language_pack`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_language_pack
+-- ----------------------------
 INSERT INTO `ey_language_pack` VALUES ('1', 'sys1', '首页', '1', 'cn', '100', '1543890216', '1543890216');
 INSERT INTO `ey_language_pack` VALUES ('2', 'sys2', '上一页', '1', 'cn', '100', '1543890216', '1543890216');
 INSERT INTO `ey_language_pack` VALUES ('3', 'sys3', '下一页', '1', 'cn', '100', '1543890216', '1543890216');
@@ -1393,9 +1428,9 @@ INSERT INTO `ey_language_pack` VALUES ('48', 'yybl12', 'Result', '0', 'en', '100
 INSERT INTO `ey_language_pack` VALUES ('49', 'yybl13', '没有数据了', '0', 'cn', '100', '1545274472', '1547516837');
 INSERT INTO `ey_language_pack` VALUES ('50', 'yybl13', 'No data.', '0', 'en', '100', '1545274472', '1547516837');
 
--- -----------------------------
--- Table structure for `ey_links`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_links
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_links`;
 CREATE TABLE `ey_links` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1415,9 +1450,9 @@ CREATE TABLE `ey_links` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='友情链接表';
 
--- -----------------------------
--- Records of `ey_links`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_links
+-- ----------------------------
 INSERT INTO `ey_links` VALUES ('1', '1', '百度', 'http://www.baidu.com', '', '100', '1', '', '', '1', 'cn', '0', '1524975826', '1537585074');
 INSERT INTO `ey_links` VALUES ('2', '1', '腾讯', 'http://www.qq.com', '', '100', '1', '', '', '1', 'cn', '0', '1524976095', '1537585061');
 INSERT INTO `ey_links` VALUES ('3', '1', '新浪', 'http://www.sina.com.cn', '', '100', '1', '', '', '1', 'cn', '0', '1532414285', '1537585047');
@@ -1429,9 +1464,9 @@ INSERT INTO `ey_links` VALUES ('8', '1', 'sina', 'http://www.sina.com.cn', '', '
 INSERT INTO `ey_links` VALUES ('9', '1', 'taobao', 'http://www.taobao.com', '', '100', '1', '', '', '1', 'en', '0', '1532414529', '1547473365');
 INSERT INTO `ey_links` VALUES ('10', '1', 'weibo', 'http://www.weibo.com', '', '100', '1', '', '', '1', 'en', '0', '1532414726', '1547473355');
 
--- -----------------------------
--- Table structure for `ey_product_attr`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_product_attr
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_product_attr`;
 CREATE TABLE `ey_product_attr` (
   `product_attr_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '产品属性id自增',
@@ -1446,9 +1481,9 @@ CREATE TABLE `ey_product_attr` (
   KEY `attr_id` (`attr_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='产品表单属性值';
 
--- -----------------------------
--- Records of `ey_product_attr`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_product_attr
+-- ----------------------------
 INSERT INTO `ey_product_attr` VALUES ('5', '28', '5', '13.3', '0', '1526613498', '1526613498');
 INSERT INTO `ey_product_attr` VALUES ('6', '28', '6', '3KG', '0', '1526613498', '1526613498');
 INSERT INTO `ey_product_attr` VALUES ('7', '29', '7', 'AKG&amp;HUAWEI', '0', '1526613820', '1526613820');
@@ -1474,9 +1509,9 @@ INSERT INTO `ey_product_attr` VALUES ('34', '56', '11', '4.7 inch display screen
 INSERT INTO `ey_product_attr` VALUES ('35', '56', '13', 'Virtual keyboard', '', '1545270634', '1545270634');
 INSERT INTO `ey_product_attr` VALUES ('36', '56', '14', '6S', '', '1545270634', '1545270634');
 
--- -----------------------------
--- Table structure for `ey_product_attribute`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_product_attribute
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_product_attribute`;
 CREATE TABLE `ey_product_attribute` (
   `attr_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '属性id',
@@ -1494,9 +1529,9 @@ CREATE TABLE `ey_product_attribute` (
   KEY `cat_id` (`typeid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='产品表单属性表';
 
--- -----------------------------
--- Records of `ey_product_attribute`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_product_attribute
+-- ----------------------------
 INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', 'cn', '0', '1526612774', '1526612774');
 INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', 'cn', '0', '1526612785', '1526612785');
 INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', 'cn', '0', '1526613004', '1526613004');
@@ -1514,9 +1549,9 @@ INSERT INTO `ey_product_attribute` VALUES ('16', 'Weight', '46', '0', '0', '', '
 INSERT INTO `ey_product_attribute` VALUES ('17', 'Model', '48', '0', '0', '', '100', 'en', '0', '1526613668', '1545268934');
 INSERT INTO `ey_product_attribute` VALUES ('18', 'Support Bluetooth', '48', '0', '0', '', '100', 'en', '0', '1526613732', '1545268951');
 
--- -----------------------------
--- Table structure for `ey_product_content`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_product_content
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_product_content`;
 CREATE TABLE `ey_product_content` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -1528,9 +1563,9 @@ CREATE TABLE `ey_product_content` (
   KEY `news_id` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='产品附加表';
 
--- -----------------------------
--- Records of `ey_product_content`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_product_content
+-- ----------------------------
 INSERT INTO `ey_product_content` VALUES ('2', '27', '&lt;p&gt;&lt;span style=&quot;color: rgb(94, 115, 135); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康&lt;/span&gt;&lt;span style=&quot;color: rgb(94, 115, 135); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康&lt;/span&gt;&lt;span style=&quot;color: rgb(94, 115, 135); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;全向录音/指向回放、定向免提、指关节手势、分屏多窗口、语音控制、情景智能、单手操作、杂志锁屏、手机找回、无线WIFI打印、学生模式、多屏互动、运动健康的&lt;/span&gt;&lt;/p&gt;', '1552987268', '1552987268');
 INSERT INTO `ey_product_content` VALUES ('3', '28', '&lt;p&gt;轻薄全金属机身 / 256GB SSD / 第八代 Intel 酷睿i5 处理器 / FHD 全贴合屏幕 / 指纹解锁 / office激活不支持7天无理由退货&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;/uploads/ueditor/20190114/aa0555d4f00163878c1d39ab046bb742.jpg&quot; title=&quot;aa0555d4f00163878c1d39ab046bb742.jpg&quot; alt=&quot;aa0555d4f00163878c1d39ab046bb742.jpg&quot;/&gt;&lt;/p&gt;', '1547462162', '1547462162');
 INSERT INTO `ey_product_content` VALUES ('4', '29', '&lt;p&gt;&lt;span style=&quot;color: rgb(94, 115, 135); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;特性	M3平板定制AKG品牌高保真耳机，配合M3平板享受HiFi音质&lt;/span&gt;&lt;/p&gt;', '1552992589', '1552992589');
@@ -1540,15 +1575,16 @@ INSERT INTO `ey_product_content` VALUES ('7', '54', '&lt;p style=&quot;box-sizin
 INSERT INTO `ey_product_content` VALUES ('8', '55', '&lt;p&gt;Omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window, voice control, situational intelligence, single-handed operation, magazine lock screen, mobile phone retrieval, wireless WIFI printing, student mode, multi-screen interaction, sports health omnidirectional recording/pointing playback, directional hands-free, finger joint gesture, split screen multi-window, voice control, situational intelligence, single-handed operation, magazine lock Screen, mobile phone retrieval, wireless WIFI printing, student mode, multi-screen interaction, omnidirectional recording/pointing playback of sports health, directional hands-free, finger joint gesture, split screen multi-window, voice control, situational intelligence, single-handed operation, magazine lock screen, mobile phone retrieval, wireless WIFI printing, student mode, multi-screen interaction, sports health&lt;/p&gt;', '1545270361', '1545270361');
 INSERT INTO `ey_product_content` VALUES ('9', '56', '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;/uploads/ueditor/20181220/ac06829b2cc1070d75c6d3ea8e6aa55e.jpg&quot; title=&quot;ac06829b2cc1070d75c6d3ea8e6aa55e.jpg&quot; alt=&quot;ac06829b2cc1070d75c6d3ea8e6aa55e.jpg&quot;/&gt;&lt;/p&gt;', '1545270643', '1545270643');
 
--- -----------------------------
--- Table structure for `ey_product_img`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_product_img
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_product_img`;
 CREATE TABLE `ey_product_img` (
   `img_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `aid` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '产品ID',
   `title` varchar(200) DEFAULT '' COMMENT '产品标题',
   `image_url` varchar(255) DEFAULT '' COMMENT '文件存储路径',
+  `intro` varchar(2000) DEFAULT '' COMMENT '图集描述',
   `width` int(11) DEFAULT '0' COMMENT '图片宽度',
   `height` int(11) DEFAULT '0' COMMENT '图片高度',
   `filesize` varchar(255) DEFAULT '' COMMENT '文件大小',
@@ -1559,32 +1595,98 @@ CREATE TABLE `ey_product_img` (
   KEY `arcid` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=utf8 COMMENT='产品图片表';
 
--- -----------------------------
--- Records of `ey_product_img`
--- -----------------------------
-INSERT INTO `ey_product_img` VALUES ('88', '27', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/26ae26bc48454c5504f5e73ab40c2ef7.jpg', '300', '300', '0', 'image/jpeg', '1', '1552987268');
-INSERT INTO `ey_product_img` VALUES ('73', '28', '小米笔记本Air 13.3', '/uploads/allimg/20190114/ab5d06499e319c69ea0f07e7443846f0.jpg', '400', '400', '0', 'image/jpeg', '2', '1547462162');
-INSERT INTO `ey_product_img` VALUES ('72', '28', '小米笔记本Air 13.3', '/uploads/allimg/20190114/44bfc4ca62d0c69d750716616410ff96.jpg', '560', '560', '0', 'image/jpeg', '1', '1547462162');
-INSERT INTO `ey_product_img` VALUES ('90', '29', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/252a53e6fbc8f441b2570f755d2bbeb8.jpg', '400', '400', '0', 'image/jpeg', '1', '1552992589');
-INSERT INTO `ey_product_img` VALUES ('91', '29', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/e4c13f6756671c2352699564e72090cd.jpg', '400', '400', '0', 'image/jpeg', '2', '1552992589');
-INSERT INTO `ey_product_img` VALUES ('89', '27', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/644f02053cba0e7925a12afc4d97f473.jpg', '300', '300', '0', 'image/jpeg', '2', '1552987268');
-INSERT INTO `ey_product_img` VALUES ('87', '37', '华为无线快充手机', '/uploads/allimg/20190319/7d9262ce87a9596a20c82fd04828c322.jpg', '300', '300', '0', 'image/jpeg', '3', '1552986270');
-INSERT INTO `ey_product_img` VALUES ('85', '37', '华为无线快充手机', '/uploads/allimg/20190319/db90933b59102a0f3fa0d2588bd8e2fb.jpg', '300', '300', '0', 'image/jpeg', '1', '1552986270');
-INSERT INTO `ey_product_img` VALUES ('86', '37', '华为无线快充手机', '/uploads/allimg/20190319/d86971fb735a22e0a29ba039c5a4179b.jpg', '300', '300', '0', 'image/jpeg', '2', '1552986270');
-INSERT INTO `ey_product_img` VALUES ('53', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/076dc6f94445ca25c80f9bdd76fd51ca.jpg', '400', '400', '0', 'image/jpeg', '3', '1545270011');
-INSERT INTO `ey_product_img` VALUES ('52', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/e574d239dda300f806d5cb0c3d3f993e.jpg', '400', '400', '0', 'image/jpeg', '2', '1545270011');
-INSERT INTO `ey_product_img` VALUES ('51', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/d2464706d9e621164caa8d613f6e3ed7.jpg', '400', '400', '0', 'image/jpeg', '1', '1545270011');
-INSERT INTO `ey_product_img` VALUES ('54', '54', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/da4e2737e982fd5655a8945e85a57773.jpg', '560', '560', '0', 'image/jpeg', '1', '1545270139');
-INSERT INTO `ey_product_img` VALUES ('55', '54', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/28b9c72484b187acc2562553bf4e2751.jpg', '400', '400', '0', 'image/jpeg', '2', '1545270139');
-INSERT INTO `ey_product_img` VALUES ('56', '55', 'HUAWEI NOTE 8', '/uploads/allimg/20181220/a0f7262557ef417ad237ff268843ff7e.jpg', '400', '400', '0', 'image/jpeg', '1', '1545270361');
-INSERT INTO `ey_product_img` VALUES ('64', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/91d1360d886bfaedae98ab0b2a0e2adb.jpg', '800', '800', '0', 'image/jpeg', '4', '1545270643');
-INSERT INTO `ey_product_img` VALUES ('63', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/23004c3ebfc092aa34f94e28d849bc4f.jpg', '800', '800', '0', 'image/jpeg', '3', '1545270643');
-INSERT INTO `ey_product_img` VALUES ('62', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/f4bba94ad9473b0ef23517613eed5bc8.jpg', '800', '800', '0', 'image/jpeg', '2', '1545270643');
-INSERT INTO `ey_product_img` VALUES ('61', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/658d0bdb72a0798baea2b255384e7c7a.jpg', '800', '800', '0', 'image/jpeg', '1', '1545270643');
+-- ----------------------------
+-- Records of ey_product_img
+-- ----------------------------
+INSERT INTO `ey_product_img` VALUES ('88', '27', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/26ae26bc48454c5504f5e73ab40c2ef7.jpg', '', '300', '300', '0', 'image/jpeg', '1', '1552987268');
+INSERT INTO `ey_product_img` VALUES ('73', '28', '小米笔记本Air 13.3', '/uploads/allimg/20190114/ab5d06499e319c69ea0f07e7443846f0.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1547462162');
+INSERT INTO `ey_product_img` VALUES ('72', '28', '小米笔记本Air 13.3', '/uploads/allimg/20190114/44bfc4ca62d0c69d750716616410ff96.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1547462162');
+INSERT INTO `ey_product_img` VALUES ('90', '29', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/252a53e6fbc8f441b2570f755d2bbeb8.jpg', '', '400', '400', '0', 'image/jpeg', '1', '1552992589');
+INSERT INTO `ey_product_img` VALUES ('91', '29', ' 小米蓝牙项圈耳机', '/uploads/allimg/20190114/e4c13f6756671c2352699564e72090cd.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1552992589');
+INSERT INTO `ey_product_img` VALUES ('89', '27', '华为HUAWEI NOTE 8', '/uploads/allimg/20190319/644f02053cba0e7925a12afc4d97f473.jpg', '', '300', '300', '0', 'image/jpeg', '2', '1552987268');
+INSERT INTO `ey_product_img` VALUES ('87', '37', '华为无线快充手机', '/uploads/allimg/20190319/7d9262ce87a9596a20c82fd04828c322.jpg', '', '300', '300', '0', 'image/jpeg', '3', '1552986270');
+INSERT INTO `ey_product_img` VALUES ('85', '37', '华为无线快充手机', '/uploads/allimg/20190319/db90933b59102a0f3fa0d2588bd8e2fb.jpg', '', '300', '300', '0', 'image/jpeg', '1', '1552986270');
+INSERT INTO `ey_product_img` VALUES ('86', '37', '华为无线快充手机', '/uploads/allimg/20190319/d86971fb735a22e0a29ba039c5a4179b.jpg', '', '300', '300', '0', 'image/jpeg', '2', '1552986270');
+INSERT INTO `ey_product_img` VALUES ('53', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/076dc6f94445ca25c80f9bdd76fd51ca.jpg', '', '400', '400', '0', 'image/jpeg', '3', '1545270011');
+INSERT INTO `ey_product_img` VALUES ('52', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/e574d239dda300f806d5cb0c3d3f993e.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1545270011');
+INSERT INTO `ey_product_img` VALUES ('51', '53', 'Millet Bluetooth Necklace Headset', '/uploads/allimg/20181220/d2464706d9e621164caa8d613f6e3ed7.jpg', '', '400', '400', '0', 'image/jpeg', '1', '1545270011');
+INSERT INTO `ey_product_img` VALUES ('54', '54', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/da4e2737e982fd5655a8945e85a57773.jpg', '', '560', '560', '0', 'image/jpeg', '1', '1545270139');
+INSERT INTO `ey_product_img` VALUES ('55', '54', 'Millet notebook Air 13.3', '/uploads/allimg/20181220/28b9c72484b187acc2562553bf4e2751.jpg', '', '400', '400', '0', 'image/jpeg', '2', '1545270139');
+INSERT INTO `ey_product_img` VALUES ('56', '55', 'HUAWEI NOTE 8', '/uploads/allimg/20181220/a0f7262557ef417ad237ff268843ff7e.jpg', '', '400', '400', '0', 'image/jpeg', '1', '1545270361');
+INSERT INTO `ey_product_img` VALUES ('64', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/91d1360d886bfaedae98ab0b2a0e2adb.jpg', '', '800', '800', '0', 'image/jpeg', '4', '1545270643');
+INSERT INTO `ey_product_img` VALUES ('63', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/23004c3ebfc092aa34f94e28d849bc4f.jpg', '', '800', '800', '0', 'image/jpeg', '3', '1545270643');
+INSERT INTO `ey_product_img` VALUES ('62', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/f4bba94ad9473b0ef23517613eed5bc8.jpg', '', '800', '800', '0', 'image/jpeg', '2', '1545270643');
+INSERT INTO `ey_product_img` VALUES ('61', '56', 'Apple iPhone 6s 16GB ', '/uploads/allimg/20181220/658d0bdb72a0798baea2b255384e7c7a.jpg', '', '800', '800', '0', 'image/jpeg', '1', '1545270643');
 
--- -----------------------------
--- Table structure for `ey_region`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_product_spec_data
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_product_spec_data`;
+CREATE TABLE `ey_product_spec_data` (
+  `spec_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `aid` int(10) DEFAULT '0' COMMENT '产品ID',
+  `spec_mark_id` int(10) DEFAULT '0' COMMENT '规格标记ID',
+  `spec_name` varchar(100) DEFAULT '' COMMENT '规格名称',
+  `spec_value_id` int(10) DEFAULT '0' COMMENT '规格值ID',
+  `spec_value` varchar(100) DEFAULT '' COMMENT '规格值',
+  `spec_is_select` tinyint(1) DEFAULT '0' COMMENT '是否选中（0=否，1=是）',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`spec_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='产品规格数据表';
+
+-- ----------------------------
+-- Records of ey_product_spec_data
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for ey_product_spec_preset
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_product_spec_preset`;
+CREATE TABLE `ey_product_spec_preset` (
+  `preset_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `preset_mark_id` int(10) DEFAULT '0' COMMENT '预设参数标记ID',
+  `preset_name` varchar(100) DEFAULT '' COMMENT '规格名称',
+  `preset_value` varchar(100) DEFAULT '' COMMENT '规格值',
+  `sort_order` int(10) DEFAULT '100' COMMENT '排序号',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`preset_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='产品规格预设表';
+
+-- ----------------------------
+-- Records of ey_product_spec_preset
+-- ----------------------------
+INSERT INTO `ey_product_spec_preset` VALUES ('1', '1', '产品颜色', '红', '100', 'cn', '1565752372', '1565752623');
+INSERT INTO `ey_product_spec_preset` VALUES ('2', '1', '产品颜色', '蓝', '100', 'cn', '1565752372', '1565752623');
+INSERT INTO `ey_product_spec_preset` VALUES ('3', '1', '产品颜色', '黄', '100', 'cn', '1565752372', '1565752623');
+
+-- ----------------------------
+-- Table structure for ey_product_spec_value
+-- ----------------------------
+DROP TABLE IF EXISTS `ey_product_spec_value`;
+CREATE TABLE `ey_product_spec_value` (
+  `value_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `aid` int(10) NOT NULL DEFAULT '0' COMMENT '产品ID',
+  `spec_value_id` varchar(100) NOT NULL DEFAULT '' COMMENT '规格值ID',
+  `spec_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '规格价格',
+  `spec_stock` int(10) NOT NULL DEFAULT '0' COMMENT '规格库存',
+  `spec_sales_num` int(10) NOT NULL DEFAULT '0' COMMENT '销售量',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`value_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='产品多规格组装表';
+
+-- ----------------------------
+-- Records of ey_product_spec_value
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for ey_region
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_region`;
 CREATE TABLE `ey_region` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '表id',
@@ -1598,9 +1700,9 @@ CREATE TABLE `ey_region` (
   KEY `initial` (`initial`)
 ) ENGINE=MyISAM AUTO_INCREMENT=47929 DEFAULT CHARSET=utf8 COMMENT='区域表';
 
--- -----------------------------
--- Records of `ey_region`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_region
+-- ----------------------------
 INSERT INTO `ey_region` VALUES ('1', '北京市', '1', '0', 'B');
 INSERT INTO `ey_region` VALUES ('2', '市辖区', '2', '1', 'S');
 INSERT INTO `ey_region` VALUES ('3', '东城区', '3', '2', 'D');
@@ -5831,9 +5933,9 @@ INSERT INTO `ey_region` VALUES ('47926', '大城乡', '3', '47550', 'D');
 INSERT INTO `ey_region` VALUES ('47927', '芳苑乡', '3', '47550', 'F');
 INSERT INTO `ey_region` VALUES ('47928', '二水乡', '3', '47550', 'E');
 
--- -----------------------------
--- Table structure for `ey_search_word`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_search_word
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_search_word`;
 CREATE TABLE `ey_search_word` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -5847,10 +5949,13 @@ CREATE TABLE `ey_search_word` (
   KEY `word` (`word`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='搜索词统计表';
 
+-- ----------------------------
+-- Records of ey_search_word
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_address`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_address
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_address`;
 CREATE TABLE `ey_shop_address` (
   `addr_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '地址id',
@@ -5871,16 +5976,20 @@ CREATE TABLE `ey_shop_address` (
   KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='收货地址表';
 
+-- ----------------------------
+-- Records of ey_shop_address
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_cart`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_cart
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_cart`;
 CREATE TABLE `ey_shop_cart` (
   `cart_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '购物车表',
   `users_id` int(10) unsigned DEFAULT '0' COMMENT '会员id',
   `product_id` int(10) unsigned DEFAULT '0' COMMENT '产品id',
   `product_num` int(10) unsigned DEFAULT '0' COMMENT '购买数量',
+  `spec_value_id` varchar(100) DEFAULT '' COMMENT '规格值ID',
   `selected` tinyint(1) DEFAULT '1' COMMENT '购物车选中状态：0未选中，1选中',
   `lang` varchar(30) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '加入购物车的时间',
@@ -5889,10 +5998,13 @@ CREATE TABLE `ey_shop_cart` (
   KEY `users_id` (`users_id`,`product_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='购物车表';
 
+-- ----------------------------
+-- Records of ey_shop_cart
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_express`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_express
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_express`;
 CREATE TABLE `ey_shop_express` (
   `express_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -5905,9 +6017,9 @@ CREATE TABLE `ey_shop_express` (
   PRIMARY KEY (`express_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=596 DEFAULT CHARSET=utf8 COMMENT='快递公司表';
 
--- -----------------------------
--- Records of `ey_shop_express`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_shop_express
+-- ----------------------------
 INSERT INTO `ey_shop_express` VALUES ('1', 'yuantong', '圆通快递', 'Y', '97', '1553911076', '1554974797');
 INSERT INTO `ey_shop_express` VALUES ('2', 'shentong', '申通快递', 'S', '98', '1553911076', '1554974707');
 INSERT INTO `ey_shop_express` VALUES ('3', 'shunfeng', '顺丰快递', 'S', '98', '1553911076', '1554974710');
@@ -6504,9 +6616,9 @@ INSERT INTO `ey_shop_express` VALUES ('593', 'zhitengwuliu', '志腾物流', 'Z'
 INSERT INTO `ey_shop_express` VALUES ('594', 'zsda56', '转瞬达集运', 'Z', '100', '1553911076', '1553911076');
 INSERT INTO `ey_shop_express` VALUES ('595', 'zjgj56', '振捷国际货运', 'Z', '100', '1553911076', '1553911076');
 
--- -----------------------------
--- Table structure for `ey_shop_order`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_order
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_order`;
 CREATE TABLE `ey_shop_order` (
   `order_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '订单id',
@@ -6546,10 +6658,13 @@ CREATE TABLE `ey_shop_order` (
   KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单主表';
 
+-- ----------------------------
+-- Records of ey_shop_order
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_order_details`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_order_details
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_order_details`;
 CREATE TABLE `ey_shop_order_details` (
   `details_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -6569,10 +6684,13 @@ CREATE TABLE `ey_shop_order_details` (
   KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单详情表';
 
+-- ----------------------------
+-- Records of ey_shop_order_details
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_order_log`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_order_log
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_order_log`;
 CREATE TABLE `ey_shop_order_log` (
   `action_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -6591,10 +6709,13 @@ CREATE TABLE `ey_shop_order_log` (
   KEY `order_id` (`order_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单操作记录表';
 
+-- ----------------------------
+-- Records of ey_shop_order_log
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_shop_shipping_template`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_shop_shipping_template
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_shop_shipping_template`;
 CREATE TABLE `ey_shop_shipping_template` (
   `template_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '运费模板ID',
@@ -6606,9 +6727,9 @@ CREATE TABLE `ey_shop_shipping_template` (
   PRIMARY KEY (`template_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COMMENT='运费模板表';
 
--- -----------------------------
--- Records of `ey_shop_shipping_template`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_shop_shipping_template
+-- ----------------------------
 INSERT INTO `ey_shop_shipping_template` VALUES ('1', '北京市', '0.00', '1', 'cn', '1554775610');
 INSERT INTO `ey_shop_shipping_template` VALUES ('2', '天津市', '0.00', '338', 'cn', '1554775610');
 INSERT INTO `ey_shop_shipping_template` VALUES ('3', '河北省', '0.00', '636', 'cn', '1554775610');
@@ -6645,9 +6766,9 @@ INSERT INTO `ey_shop_shipping_template` VALUES ('33', '香港特别行政区', '
 INSERT INTO `ey_shop_shipping_template` VALUES ('34', '澳门特别行政区', '0.00', '47495', 'cn', '1554775610');
 INSERT INTO `ey_shop_shipping_template` VALUES ('35', '统一配送价格', '0.00', '100000', 'cn', '1556618311');
 
--- -----------------------------
--- Table structure for `ey_single_content`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_single_content
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_single_content`;
 CREATE TABLE `ey_single_content` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -6660,9 +6781,9 @@ CREATE TABLE `ey_single_content` (
   KEY `aid` (`aid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='单页附加表';
 
--- -----------------------------
--- Records of `ey_single_content`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_single_content
+-- ----------------------------
 INSERT INTO `ey_single_content` VALUES ('1', '1', '1', '', '0', '1527836335');
 INSERT INTO `ey_single_content` VALUES ('2', '2', '8', '&lt;p style=&quot;white-space: normal; text-indent: 2em;&quot;&gt;易优内容管理系统(&lt;a href=&quot;http://www.eyoucms.com/&quot; target=&quot;_blank&quot;&gt;EyouCms&lt;/a&gt;) 以模板多、易优化、开源而闻名，是国内新锐的PHP开源网站管理系统，也是最受用户好评的PHP类CMS系统，在经历多年的发展，目前的版本无论在功能，还是在后台易用性方面，都有了长足的发展和进步，eyoucms免费版的主要目标用户锁定在有企业建站需求的群体，当然也不乏有个人用户和学校等在使用该系统。&lt;/p&gt;&lt;p style=&quot;white-space: normal; text-indent: 2em;&quot;&gt;企业网站，无论大型还是中小型企业，利用网络传递信息在一定程度上提高了办事的效率，提高企业的竞争力。&lt;a href=&quot;http://www.eyoucms.com/&quot; target=&quot;_blank&quot;&gt;EyouCms&lt;/a&gt;网站建设系统做各种网站，&lt;a href=&quot;http://www.eyoucms.com/&quot; target=&quot;_blank&quot;&gt;EyouCms&lt;/a&gt;是什么，&lt;a href=&quot;http://www.eyoucms.com/&quot; target=&quot;_blank&quot;&gt;EyouCms&lt;/a&gt;是一个自由和开放源码的内容管理系统，它是一个可以独立使用的内容发布系统（CMS）。在中国，&lt;a href=&quot;http://www.eyoucms.com/&quot; target=&quot;_blank&quot;&gt;EyouCms&lt;/a&gt;属于最受人们喜爱的CMS系统。&lt;/p&gt;&lt;p style=&quot;white-space: normal; text-indent: 2em;&quot;&gt;政府机关，通过建立政府门户，有利于各种信息和资源的整合，为政府和社会公众之间加强联系和沟通，从而使政府可以更快、更便捷、更有效开展工作。&lt;/p&gt;&lt;p style=&quot;white-space: normal; text-indent: 2em;&quot;&gt;教育机构，通过网络信息的引入，使得教育机构之间及教育机构内部和教育者之间进行信息传递，全面提升教育类网站的层面。&lt;/p&gt;&lt;h3 style=&quot;white-space: normal;&quot;&gt;优点&lt;/h3&gt;&lt;ol class=&quot; list-paddingleft-2&quot;&gt;&lt;li&gt;&lt;p&gt;易用：使用易优你可以用它十分钟搭建一个企业网站，后台简单易用。&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;完善：易优基本包含了一个常规企业网站需要的一切功能。&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;扩展性：易优亦可通过插件库支持更多功能，如阿里短信或小程序等第三方扩展。&lt;br/&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;丰富的资料：作为一个国内cms，易优拥有完善的帮助文档及标签手册。&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;丰富的模版：易优拥有大量免费的漂亮模版，涵盖各行各业，任用户自由选择。&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;h3 style=&quot;white-space: normal;&quot;&gt;缺点&lt;/h3&gt;&lt;ol class=&quot; list-paddingleft-2&quot;&gt;&lt;li&gt;&lt;p&gt;创新性：易优是一个基于用户需求开发的系统，用户需求不断改变，我们竭力跟着并改变。&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;社区：目前专注模板建设，这对于一个开源项目来说社区互动并没有真正建立起来。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;p style=&quot;white-space: normal; text-indent: 2em;&quot;&gt;未来，期待与用户携手缔造一个更好的易而优CMS...2018.6.1&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '0', '1527836706');
 INSERT INTO `ey_single_content` VALUES ('3', '3', '13', '&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;针对不同服务器、虚拟空间，运行PHP的环境也有所不同，目前主要分为：Nginx、apache、IIS以及其他服务器。下面分享如何去掉URL上的index.php字符，&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;记得最后要重启服务器，在管理后台清除缓存哦！&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;nbsp;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;【IIS服务器】&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;在网站根目录下有个 web.config 文件，这个文件的作用是重写URL，让URL变得简短，易于SEO优化，以及用户的记忆。打开 web.config 文件，在原有的基础上加以下代码片段即可。&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rules&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rule name=&amp;quot;Imported Rule 1&amp;quot; enabled=&amp;quot;true&amp;quot; stopProcessing=&amp;quot;true&amp;quot;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;match url=&amp;quot;^(.*)$&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(.*)$&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType=&amp;quot;IsFile&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType=&amp;quot;IsDirectory&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/conditions&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rule&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rules&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;nbsp;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;以下是某个香港虚拟空间的效果：&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;configuration&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;system.webServer&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;handlers&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-7.0-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-5.6-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-5.5-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-5.4-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-5.3-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;remove name=&amp;quot;PHP-5.2-7i24.com&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;add name=&amp;quot;PHP-5.4-7i24.com&amp;quot; path=&amp;quot;*.php&amp;quot; verb=&amp;quot;*&amp;quot; modules=&amp;quot;FastCgiModule&amp;quot; scriptProcessor=&amp;quot;c:php.4php-cgi.exe&amp;quot; resourceType=&amp;quot;Either&amp;quot; /&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;/handlers&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rules&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;rule name=&amp;quot;Imported Rule 1&amp;quot; enabled=&amp;quot;true&amp;quot; stopProcessing=&amp;quot;true&amp;quot;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;match url=&amp;quot;^(.*)$&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(.*)$&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType=&amp;quot;IsFile&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType=&amp;quot;IsDirectory&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/conditions&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot; /&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rule&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rules&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;/system.webServer&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;/configuration&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;nbsp;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;【Nginx服务器】&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;在原有的nginx重写文件里新增以下代码片段：&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;location / {&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;if (!-e $request_filename) {&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;rewrite ^(.*)$ /index.php?s=/$1 last;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;break;&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;nbsp;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;【apache服务器】&lt;br style=&quot;box-sizing: border-box;&quot;/&gt;易优CMS在apache服务器环境默认自动隐藏index.php入口。&lt;br style=&quot;box-sizing: border-box;&quot;/&gt;如果发现没隐藏，可以检查根目录.htaccess是否含有以下代码段：&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;IfModule mod_rewrite.c&amp;gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&lt;div style=&quot;box-sizing: border-box;&quot;&gt;Options +FollowSymlinks -Multiviews&lt;/div&gt;&lt;div style=&quot;box-sizing: border-box;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;RewriteEngine on&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;box-sizing: border-box;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;RewriteCond %{REQUEST_FILENAME} !-d&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;box-sizing: border-box;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;RewriteCond %{REQUEST_FILENAME} !-f&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;box-sizing: border-box;&quot;&gt;&lt;span style=&quot;box-sizing: border-box; color: rgb(255, 0, 0);&quot;&gt;RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div yne-bulb-block=&quot;paragraph&quot; style=&quot;box-sizing: border-box; color: rgb(34, 34, 34); font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, Helvetica, Arial, &amp;quot;Microsoft YaHei&amp;quot;, FreeSans, Arimo, &amp;quot;Droid Sans&amp;quot;, &amp;quot;wenquanyi micro hei&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Hiragino Sans GB W3&amp;quot;, Roboto, Arial, sans-serif; font-size: 18px; white-space: normal;&quot;&gt;&amp;lt;/IfModule&amp;gt;&lt;br style=&quot;box-sizing: border-box;&quot;/&gt;&lt;br style=&quot;box-sizing: border-box;&quot;/&gt;如果存在，继续查看apache是否开启了URL重写模块 rewrite_module ， 然后重启服务就行了。&lt;/div&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '0', '1531710225');
@@ -6670,9 +6791,9 @@ INSERT INTO `ey_single_content` VALUES ('4', '45', '31', '', '1545272580', '1545
 INSERT INTO `ey_single_content` VALUES ('5', '46', '32', '&lt;p&gt;EyouCms is known for its many templates, easy to optimize, and open source. It is a new PHP open source website management system and the most popular PHP CMS system. After years of development, the current version is no matter. In terms of functions and ease of use in the background, there has been considerable development and progress. The main target users of eyoucms free version are locked in groups that have the needs of enterprises to establish their stations. Of course, there are also some users and schools that use the system.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Enterprise websites, whether large ｏｒ small ｏｒ medium-sized enterprises, use the network to transmit information to a certain extent to improve the efficiency of business and improve the competitiveness of enterprises. EyouCms website construction system to do various websites, what is EyouCms, EyouCms is a free and open source content management system, it is a content publishing system (CMS) that can be used independently. In China, EyouCms belongs to the most popular CMS system.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Government agencies, through the establishment of government portals, facilitate the integration of various information and resources, and strengthen communication and communication between the government and the public, so that the government can work faster, more conveniently, and more effectively.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Educational institutions, through the introduction of network information, enable information transmission between educational institutions and within educational institutions and educators, and comprehensively enhance the level of educational websites.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;advantage&lt;/p&gt;&lt;p&gt;Easy to use: You can use it for ten minutes to build a corporate website with easy-to-use background.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Perfect: Yiyou Basic contains all the features needed for a regular corporate website.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Scalability: Yiyou can also support more functions through the plugin library, such as third-party extensions such as Ali SMS ｏｒ applet.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Rich information: As a domestic cms, Yiyou has a complete help document and label manual.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Rich template: Yiyou has a large number of free and beautiful templates, covering all walks of life, and users are free to choose.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Disadvantage&lt;/p&gt;&lt;p&gt;Innovative: Yiyou is a system developed based on user needs. User needs are constantly changing, and we strive to follow and change.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Community: Currently focused on template building, this is not really established for an open source project.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In the future, we look forward to working with users to create a better and more excellent CMS...2018.6.1&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1545272565', '1545272565');
 INSERT INTO `ey_single_content` VALUES ('6', '47', '39', '&lt;p&gt;For different servers and virtual spaces, the environment for running PHP is also different, currently mainly divided into: Nginx, apache, IIS and other servers. Here&amp;#39;s how to remove the index. PHP character from the URL. Remember to restart the server and clear the cache in the management background.&lt;/p&gt;&lt;p&gt;[IIS Server]&lt;/p&gt;&lt;p&gt;There is a web. config file in the root directory of the website. The function of this file is to rewrite the URL, make the URL short, easy to optimize by SEO, and the user&amp;#39;s memory. Open the web. config file and add the following code fragments on the original basis.&lt;/p&gt;&lt;p&gt;&amp;lt;rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rule name= &amp;quot;Imported Rule 1&amp;quot; enabled= &amp;quot;true&amp;quot; stopProcessing= &amp;quot;true&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;match url=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&amp;quot;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsFile&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsDirectory&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/conditions&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rule&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;The following is the effect of a Hong Kong virtual space:&lt;/p&gt;&lt;p&gt;&amp;lt;? XML version = &amp;quot;1.0&amp;quot; encoding = &amp;quot;UTF-8&amp;quot;?&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;configuration&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;system.webServer&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;handlers&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-7.0-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.6-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.5-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.4-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.3-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;remove name=&amp;quot;PHP-5.2-7i24.com&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add name=&amp;quot;PHP-5.4-7i24.com&amp;quot; path=&amp;quot;*.php&amp;quot; verb=&amp;quot;*&amp;quot; modules=&amp;quot;FastCgiModule&amp;quot; scriptProcessor=&amp;quot;c:php.4php-cgi.exe&amp;quot; resourceType=&amp;quot;Either&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/handlers&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;rule name= &amp;quot;Imported Rule 1&amp;quot; enabled= &amp;quot;true&amp;quot; stopProcessing= &amp;quot;true&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;match url=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{HTTP_HOST}&amp;quot; pattern=&amp;quot;^(. *)$&amp;quot;/&amp;gt;&amp;quot;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsFile&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;add input=&amp;quot;{REQUEST_FILENAME}&amp;quot; matchType= &amp;quot;IsDirectory&amp;quot; negate= &amp;quot;true&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/conditions&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/{R:1}&amp;quot;/&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rule&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rules&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/rewrite&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/system.webServer&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;/configuration&amp;gt;&lt;/p&gt;&lt;p&gt;[Nginx Server]&lt;/p&gt;&lt;p&gt;Add the following code fragments to the original nginx rewrite file:&lt;/p&gt;&lt;p&gt;Location / {&lt;/p&gt;&lt;p&gt;If (!-e $request_filename) {&lt;/p&gt;&lt;p&gt;Rewrite ^(. *)$/ index. php? S=/$1 last;&lt;/p&gt;&lt;p&gt;Break;&lt;/p&gt;&lt;p&gt;}&lt;/p&gt;&lt;p&gt;}&lt;/p&gt;&lt;p&gt;[apache server]&lt;/p&gt;&lt;p&gt;Yiyou CMS automatically hides index. PHP entries by default in Apache server environment.&lt;/p&gt;&lt;p&gt;If no hiding is found, you can check whether the root directory. htaccess contains the following code snippets:&lt;/p&gt;&lt;p&gt;&amp;lt;IfModule mod_rewrite.c&amp;gt;&lt;/p&gt;&lt;p&gt;Options + FollowSymlinks - Multiviews&lt;/p&gt;&lt;p&gt;RewriteEngine on&lt;/p&gt;&lt;p&gt;RewriteCond%{REQUEST_FILENAME}!-d&lt;/p&gt;&lt;p&gt;RewriteCond%{REQUEST_FILENAME}!-f&lt;/p&gt;&lt;p&gt;RewriteRule ^(*)$index.php/$1 [QSA, PT, L]&lt;/p&gt;&lt;p&gt;&amp;lt;/IfModule&amp;gt;&lt;/p&gt;&lt;p&gt;If it exists, go ahead and see if Apache has opened the URL rewrite_module and restart the service.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;', '1545270877', '1545270877');
 
--- -----------------------------
--- Table structure for `ey_smtp_record`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_smtp_record
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_smtp_record`;
 CREATE TABLE `ey_smtp_record` (
   `record_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -6687,10 +6808,13 @@ CREATE TABLE `ey_smtp_record` (
   PRIMARY KEY (`record_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='邮件发送记录表';
 
+-- ----------------------------
+-- Records of ey_smtp_record
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_smtp_tpl`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_smtp_tpl
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_smtp_tpl`;
 CREATE TABLE `ey_smtp_tpl` (
   `tpl_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -6705,9 +6829,9 @@ CREATE TABLE `ey_smtp_tpl` (
   PRIMARY KEY (`tpl_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='邮件模板表';
 
--- -----------------------------
--- Records of `ey_smtp_tpl`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_smtp_tpl
+-- ----------------------------
 INSERT INTO `ey_smtp_tpl` VALUES ('1', '留言表单', '您有新的留言消息，请查收！', '${content}', '1', '1', 'cn', '1544763495', '1552638302');
 INSERT INTO `ey_smtp_tpl` VALUES ('2', '会员注册', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '2', '1', 'cn', '1544763495', '1552667056');
 INSERT INTO `ey_smtp_tpl` VALUES ('3', '绑定邮箱', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '3', '1', 'cn', '1544763495', '1552667400');
@@ -6717,9 +6841,9 @@ INSERT INTO `ey_smtp_tpl` VALUES ('6', '会员注册', '验证码已发送至您
 INSERT INTO `ey_smtp_tpl` VALUES ('7', '绑定邮箱', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '3', '1', 'en', '1544763495', '1552667400');
 INSERT INTO `ey_smtp_tpl` VALUES ('8', '找回密码', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '4', '1', 'en', '1544763495', '1552663577');
 
--- -----------------------------
--- Table structure for `ey_tagindex`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_tagindex
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_tagindex`;
 CREATE TABLE `ey_tagindex` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'tagid',
@@ -6739,9 +6863,9 @@ CREATE TABLE `ey_tagindex` (
   KEY `tag` (`tag`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COMMENT='标签索引表';
 
--- -----------------------------
--- Records of `ey_tagindex`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_tagindex
+-- ----------------------------
 INSERT INTO `ey_tagindex` VALUES ('24', 'TAG标签', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
 INSERT INTO `ey_tagindex` VALUES ('25', '对的', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
 INSERT INTO `ey_tagindex` VALUES ('26', '替换稿件', '10', '0', '0', '0', '0', '0', '0', 'cn', '1526544706');
@@ -6757,9 +6881,9 @@ INSERT INTO `ey_tagindex` VALUES ('35', '宅男', '5', '0', '0', '0', '0', '0', 
 INSERT INTO `ey_tagindex` VALUES ('36', '女神', '5', '0', '0', '0', '0', '0', '0', 'cn', '1526614158');
 INSERT INTO `ey_tagindex` VALUES ('37', '一号', '5', '0', '0', '0', '0', '0', '0', 'cn', '1526614158');
 
--- -----------------------------
--- Table structure for `ey_taglist`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_taglist
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_taglist`;
 CREATE TABLE `ey_taglist` (
   `tid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'tagid',
@@ -6774,9 +6898,9 @@ CREATE TABLE `ey_taglist` (
   KEY `aid` (`aid`,`typeid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='文章标签表';
 
--- -----------------------------
--- Records of `ey_taglist`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_taglist
+-- ----------------------------
 INSERT INTO `ey_taglist` VALUES ('30', '13', '12', '五大核心', '0', 'cn', '1547462639', '0');
 INSERT INTO `ey_taglist` VALUES ('29', '13', '12', '建设', '0', 'cn', '1547462639', '0');
 INSERT INTO `ey_taglist` VALUES ('32', '27', '24', '华为', '0', 'cn', '1552987268', '0');
@@ -6788,9 +6912,9 @@ INSERT INTO `ey_taglist` VALUES ('35', '30', '5', '宅男', '0', 'cn', '15474639
 INSERT INTO `ey_taglist` VALUES ('28', '13', '12', '网站', '0', 'cn', '1547462639', '0');
 INSERT INTO `ey_taglist` VALUES ('31', '13', '12', '要素', '0', 'cn', '1547462639', '0');
 
--- -----------------------------
--- Table structure for `ey_ui_config`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_ui_config
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_ui_config`;
 CREATE TABLE `ey_ui_config` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '表id',
@@ -6807,10 +6931,13 @@ CREATE TABLE `ey_ui_config` (
   UNIQUE KEY `md5key` (`md5key`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='可视化参数设置';
 
+-- ----------------------------
+-- Records of ey_ui_config
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_users`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users`;
 CREATE TABLE `ey_users` (
   `users_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '表id',
@@ -6828,7 +6955,7 @@ CREATE TABLE `ey_users` (
   `last_login` int(11) unsigned DEFAULT '0' COMMENT '最后登录时间',
   `last_ip` varchar(15) DEFAULT '' COMMENT '最后登录ip',
   `login_count` int(11) DEFAULT '0' COMMENT '登陆次数',
-  `head_pic` varchar(255) DEFAULT NULL COMMENT '头像',
+  `head_pic` varchar(255) DEFAULT '' COMMENT '头像',
   `province` int(6) DEFAULT '0' COMMENT '省份',
   `city` int(6) DEFAULT '0' COMMENT '市区',
   `district` int(6) DEFAULT '0' COMMENT '县',
@@ -6848,10 +6975,13 @@ CREATE TABLE `ey_users` (
   PRIMARY KEY (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='会员信息表';
 
+-- ----------------------------
+-- Records of ey_users
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_users_config`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_config
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_config`;
 CREATE TABLE `ey_users_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '会员功能配置表ID',
@@ -6864,14 +6994,14 @@ CREATE TABLE `ey_users_config` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='会员功能配置表';
 
--- -----------------------------
--- Records of `ey_users_config`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_users_config
+-- ----------------------------
 INSERT INTO `ey_users_config` VALUES ('1', 'users_reg_notallow', 'www,bbs,ftp,mail,user,users,admin,administrator,eyoucms', '不允许注册的会员名', 'users', 'cn', '1547890773');
 
--- -----------------------------
--- Table structure for `ey_users_level`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_level
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_level`;
 CREATE TABLE `ey_users_level` (
   `level_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -6879,24 +7009,26 @@ CREATE TABLE `ey_users_level` (
   `level_value` int(10) DEFAULT '0' COMMENT '会员等级值',
   `is_system` tinyint(1) DEFAULT '0' COMMENT '类型，1=系统，0=用户',
   `amount` decimal(10,2) DEFAULT '0.00' COMMENT '消费额度',
-  `discount` int(10) DEFAULT '100' COMMENT '折扣率',
+  `discount` int(10) DEFAULT '100' COMMENT '折扣率，初始值为100即100%，无折扣',
   `posts_count` int(10) DEFAULT '5' COMMENT '会员投稿次数限制',
+  `ask_is_release` tinyint(1) DEFAULT '1' COMMENT '允许在问答中发布问题，1=是，0=否',
+  `ask_is_review` tinyint(1) DEFAULT '0' COMMENT '在问答中发布问题或回答是否需要审核，1=是，0=否',
   `lang` varchar(20) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`level_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='会员级别表';
 
--- -----------------------------
--- Records of `ey_users_level`
--- -----------------------------
-INSERT INTO `ey_users_level` VALUES ('1', '注册会员', '10', '1', '0.00', '100', '5', 'cn', '0', '1551151513');
-INSERT INTO `ey_users_level` VALUES ('2', '中级会员', '50', '0', '0.00', '100', '10', 'cn', '1563937262', '1563937262');
-INSERT INTO `ey_users_level` VALUES ('3', '高级会员', '100', '0', '0.00', '100', '20', 'cn', '1563937262', '1563937262');
+-- ----------------------------
+-- Records of ey_users_level
+-- ----------------------------
+INSERT INTO `ey_users_level` VALUES ('1', '注册会员', '10', '1', '0.00', '100', '5', '1', '0', 'cn', '0', '1551151513');
+INSERT INTO `ey_users_level` VALUES ('2', '中级会员', '50', '0', '0.00', '100', '10', '1', '0', 'cn', '1563937262', '1563937262');
+INSERT INTO `ey_users_level` VALUES ('3', '高级会员', '100', '0', '0.00', '100', '20', '1', '0', 'cn', '1563937262', '1563937262');
 
--- -----------------------------
--- Table structure for `ey_users_list`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_list
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_list`;
 CREATE TABLE `ey_users_list` (
   `list_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -6909,10 +7041,13 @@ CREATE TABLE `ey_users_list` (
   PRIMARY KEY (`list_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='会员属性表(信息）';
 
+-- ----------------------------
+-- Records of ey_users_list
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_users_menu`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_menu
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_menu`;
 CREATE TABLE `ey_users_menu` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -6927,18 +7062,18 @@ CREATE TABLE `ey_users_menu` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='会员菜单表';
 
--- -----------------------------
--- Records of `ey_users_menu`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_users_menu
+-- ----------------------------
 INSERT INTO `ey_users_menu` VALUES ('1', '个人信息', 'user/Users/index', '1', '100', '1', 'cn', '1555904190', '1555917737');
 INSERT INTO `ey_users_menu` VALUES ('2', '账户充值', 'user/Pay/pay_consumer_details', '0', '100', '0', 'cn', '1555904190', '1557625970');
 INSERT INTO `ey_users_menu` VALUES ('3', '商城中心', 'user/Shop/shop_centre', '0', '100', '0', 'cn', '1555904190', '1557625953');
 INSERT INTO `ey_users_menu` VALUES ('4', '会员升级', 'user/Level/level_centre', '0', '100', '0', 'cn', '1555904190', '1555917761');
 INSERT INTO `ey_users_menu` VALUES ('5', '会员投稿', 'user/UsersRelease/release_centre', '0', '100', '0', 'cn', '1555904190', '1555917761');
 
--- -----------------------------
--- Table structure for `ey_users_money`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_money
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_money`;
 CREATE TABLE `ey_users_money` (
   `moneyid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '金额明细表ID',
@@ -6958,10 +7093,13 @@ CREATE TABLE `ey_users_money` (
   PRIMARY KEY (`moneyid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='金额明细表';
 
+-- ----------------------------
+-- Records of ey_users_money
+-- ----------------------------
 
--- -----------------------------
--- Table structure for `ey_users_parameter`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_parameter
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_parameter`;
 CREATE TABLE `ey_users_parameter` (
   `para_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -6979,15 +7117,15 @@ CREATE TABLE `ey_users_parameter` (
   PRIMARY KEY (`para_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='会员属性表(字段)';
 
--- -----------------------------
--- Records of `ey_users_parameter`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_users_parameter
+-- ----------------------------
 INSERT INTO `ey_users_parameter` VALUES ('1', '手机号码', 'mobile_1', 'mobile', '', '1', '0', '0', '1', 'cn', '0', '1551238026');
 INSERT INTO `ey_users_parameter` VALUES ('2', '邮箱地址', 'email_2', 'email', '', '1', '0', '1', '1', 'cn', '0', '1551238549');
 
--- -----------------------------
--- Table structure for `ey_users_type_manage`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_users_type_manage
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_users_type_manage`;
 CREATE TABLE `ey_users_type_manage` (
   `type_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -7002,15 +7140,15 @@ CREATE TABLE `ey_users_type_manage` (
   PRIMARY KEY (`type_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='会员产品类型表';
 
--- -----------------------------
--- Records of `ey_users_type_manage`
--- -----------------------------
+-- ----------------------------
+-- Records of ey_users_type_manage
+-- ----------------------------
 INSERT INTO `ey_users_type_manage` VALUES ('1', '升级为本站中级会员', '2', '100.00', '2', '100', 'cn', '1563937262', '1563937262');
 INSERT INTO `ey_users_type_manage` VALUES ('2', '升级为本站高级会员', '3', '200.00', '3', '100', 'cn', '1563937262', '1563937262');
 
--- -----------------------------
--- Table structure for `ey_weapp`
--- -----------------------------
+-- ----------------------------
+-- Table structure for ey_weapp
+-- ----------------------------
 DROP TABLE IF EXISTS `ey_weapp`;
 CREATE TABLE `ey_weapp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -7029,3 +7167,6 @@ CREATE TABLE `ey_weapp` (
   KEY `code` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='插件应用表';
 
+-- ----------------------------
+-- Records of ey_weapp
+-- ----------------------------

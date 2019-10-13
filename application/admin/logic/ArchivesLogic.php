@@ -37,10 +37,13 @@ class ArchivesLogic extends Model
     /**
      * 删除文档
      */
-    public function del($del_id = array())
+    public function del($del_id = array(), $thorough = 0)
     {
         if (empty($del_id)) {
             $del_id = input('del_id/a');
+        }
+        if (empty($thorough)) {
+            $thorough = input('thorough/d');
         }
 
         $id_arr = eyIntval($del_id);
@@ -48,7 +51,7 @@ class ArchivesLogic extends Model
             /*分离并组合相同模型下的文档ID*/
             $row = db('archives')
                 ->alias('a')
-                ->field('a.channel,a.aid,b.ctl_name')
+                ->field('a.channel,a.aid,b.ctl_name,b.ifsystem')
                 ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
                 ->where([
                     'a.aid' => ['IN', $id_arr],
@@ -58,35 +61,53 @@ class ArchivesLogic extends Model
             $data = array();
             foreach ($row as $key => $val) {
                 $data[$val['channel']]['aid'][] = $val['aid'];
-                $data[$val['channel']]['ctl_name'] = $val['ctl_name'];
+                if (empty($val['ifsystem'])) {
+                    $ctl_name = 'Custom';
+                } else {
+                    $ctl_name = $val['ctl_name'];
+                }
+                $data[$val['channel']]['ctl_name'] = $ctl_name;
             }
             /*--end*/
 
-            $info['is_del']     = '1'; // 伪删除状态
-            $info['update_time']= getTime(); // 更新修改时间
-            $info['del_method'] = '1'; // 恢复删除方式为默认
+            if (1 == $thorough) { // 直接删除，跳过回收站
+                $err = 0;
+                foreach ($data as $key => $val) {
+                    $r = M('archives')->where('aid','IN',$val['aid'])->delete();
+                    if ($r) {
+                        model($val['ctl_name'])->afterDel($val['aid']);
+                        adminLog('删除文档-id：'.implode(',', $val['aid']));
+                    } else {
+                        $err++;
+                    }
+                }
+            } else {
+                $info['is_del']     = 1; // 伪删除状态
+                $info['update_time']= getTime(); // 更新修改时间
+                $info['del_method'] = 1; // 恢复删除方式为默认
 
-            $err = 0;
-            foreach ($data as $key => $val) {
-                // $r = M('archives')->where('aid','IN',$val['aid'])->delete();
-                $r = M('archives')->where('aid','IN',$val['aid'])->update($info);
-                if ($r) {
-                    // model($val['ctl_name'])->afterDel($val['aid']);
-                    adminLog('删除文档-id：'.implode(',', $val['aid']));
-                } else {
-                    $err++;
+                $err = 0;
+                foreach ($data as $key => $val) {
+                    // $r = M('archives')->where('aid','IN',$val['aid'])->delete();
+                    $r = M('archives')->where('aid','IN',$val['aid'])->update($info);
+                    if ($r) {
+                        // model($val['ctl_name'])->afterDel($val['aid']);
+                        adminLog('删除文档-id：'.implode(',', $val['aid']));
+                    } else {
+                        $err++;
+                    }
                 }
             }
 
             if (0 == $err) {
-                $this->success('删除成功');
+                $this->success('删除成功！');
             } else if ($err < count($data)) {
-                $this->success('删除部分成功');
+                $this->success('删除部分成功！');
             } else {
-                $this->error('删除失败');
+                $this->error('删除失败！');
             }
         }else{
-            $this->error('参数有误');
+            $this->error('文档不存在！');
         }
     }
 

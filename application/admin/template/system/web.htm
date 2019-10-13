@@ -105,7 +105,7 @@
                     <label for="web_basehost">网站网址</label>
                 </dt>
                 <dd class="opt">
-                    <input id="web_basehost" name="web_basehost" value="{$config.web_basehost|default=''}" class="input-txt" type="text" />
+                    <input id="web_basehost" name="web_basehost" value="{$config.web_basehost|default=''}" placeholder="{$Request.scheme}://" class="input-txt" type="text" />
                     <p class="notic"></p>
                 </dd>
                 {eq name="$web_cmsmode" value="2"}
@@ -120,7 +120,7 @@
                     <label for="web_title">首页标题</label>
                 </dt>
                 <dd class="opt ui-web_title ui-text">
-                    <input id="web_title" name="web_title" value="{$config.web_title|default=''}" class="input-txt ui-input" type="text" data-num="100" />
+                    <input id="web_title" name="web_title" value="{$config.web_title|default=''}" class="input-txt ui-input" type="text" data-num="80" />
                     <p class="notic">一般不超过80个字符</p>
                     <p class="ui-big-text none">一般不超过80个字符（<span class="ui-textTips">还可以输入80个字符</span>）</p>
                 </dd>

@@ -64,8 +64,20 @@ if (!function_exists('getAdminInfo'))
                 ->where("a.admin_id", $admin_id)
                 ->find();
             if (!empty($admin_info)) {
+                // 头像
+                empty($admin_info['head_pic']) && $admin_info['head_pic'] = get_head_pic($admin_info['head_pic'], true);
+                
+                // 权限组
                 $admin_info['role_id'] = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
-                $role_name = !empty($admin_info['role_name']) ? $admin_info['role_name'] : '创始人';
+                if (-1 == $admin_info['role_id']) {
+                    if (!empty($admin_info['parent_id'])) {
+                        $role_name = '超级管理员';
+                    } else {
+                        $role_name = '创始人';
+                    }
+                } else {
+                    $role_name = $admin_info['role_name'];
+                }
                 $admin_info['role_name'] = $role_name;
             }
         }
@@ -438,7 +450,9 @@ XML;
             return true;
         }
 
-        $langRow = \think\Db::name('language')->order('id asc')
+        $langRow = \think\Db::name('language')
+            ->where(['status'=>1])
+            ->order('id asc')
             ->cache(true, EYOUCMS_CACHE_TIME, 'language')
             ->select();
 
@@ -599,12 +613,12 @@ if (!function_exists('get_typeurl'))
         if (2 == $seo_pseudo && $admin) {
             static $lang = null;
             null === $lang && $lang = input('param.lang/s', 'cn');
-            $typeurl = ROOT_DIR."/index.php/?m=home&c=Lists&a=index&tid={$arctype_info['id']}&lang={$lang}&t=".getTime();
+            $typeurl = ROOT_DIR."/index.php?m=home&c=Lists&a=index&tid={$arctype_info['id']}&lang={$lang}&t=".getTime();
         } else {
             $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+            // 自动隐藏index.php入口文件
+            $typeurl = auto_hide_index($typeurl);
         }
-        // 自动隐藏index.php入口文件
-        $typeurl = auto_hide_index($typeurl);
 
         return $typeurl;
     }
@@ -772,23 +786,6 @@ if (!function_exists('get_chown_pathinfo'))
     }
 }
 
-if (!function_exists('auto_hide_index')) 
-{
-    /**
-     * URL中隐藏index.php入口文件（适用后台显示前台的URL）
-     */
-    function auto_hide_index($url) {
-        $web_adminbasefile = tpCache('web.web_adminbasefile');
-        $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : ROOT_DIR.'/login.php'; // 支持子目录
-        $url = str_replace($web_adminbasefile, ROOT_DIR.'/index.php', $url); // 支持子目录
-        $seo_inlet = config('ey_config.seo_inlet');
-        if (1 == $seo_inlet) {
-            $url = str_replace('/index.php/', '/', $url);
-        }
-        return $url;
-    }
-}
-
 if (!function_exists('menu_select')) 
 {
     /*组装成层级下拉列表框*/
@@ -889,5 +886,266 @@ if (!function_exists('testWriteAble'))
             $rs = @unlink($filepath.$tfile);
             return true;
         }
+    }
+}
+
+if (!function_exists('getArchivesSortUrl')) 
+{
+    /**
+     * 在文档列表拼接排序URL
+     * @param string $orderby 排序字段
+     * @param string $orderwayDefault 默认为空时升序
+     * @return string
+     */
+    function getArchivesSortUrl($orderby = '', $orderwayDefault = '')
+    {
+        $parseArr = parse_url(request()->url());
+        $query_str = '';
+        if (!empty($parseArr['query'])) {
+            parse_str($parseArr['query'], $output);
+            $output['orderby'] = $orderby;
+
+            $orderway = input('param.orderway/s', $orderwayDefault);
+            $orderway = !empty($orderway) ? $orderway : 'desc';
+            if ('desc' == $orderway) {
+                $orderway = 'asc';
+            } else {
+                $orderway = 'desc';
+                // 再次点击恢复到默认排序
+                // if ('arcrank' == $orderby) {
+                //     $output['orderby'] = '';
+                // }
+            }
+            $output['orderway'] = $orderway;
+
+            $query_str = http_build_query($output);
+        }
+
+        $url = $parseArr['path'];
+        !empty($query_str) && $url .= '?'.$query_str;
+
+        return $url;
+    }
+}
+
+if (!function_exists('showArchivesFlagStr')) 
+{
+    /**
+     * 在文档列表显示文档属性标识
+     * @param array $archivesInfo 文档信息
+     * @return string
+     */
+    function showArchivesFlagStr($archivesInfo = [])
+    {
+        $arr = [];
+        if (!empty($archivesInfo['is_head'])) {
+            $arr['is_head'] = [
+                'small_name'   => '头条',
+            ];
+        }
+        if (!empty($archivesInfo['is_recom'])) {
+            $arr['is_recom'] = [
+                'small_name'   => '推荐',
+            ];
+        }
+        if (!empty($archivesInfo['is_special'])) {
+            $arr['is_special'] = [
+                'small_name'   => '特荐',
+            ];
+        }
+        if (!empty($archivesInfo['is_b'])) {
+            $arr['is_b'] = [
+                'small_name'   => '加粗',
+            ];
+        }
+        if (!empty($archivesInfo['is_litpic'])) {
+            $arr['is_litpic'] = [
+                'small_name'   => '图片',
+            ];
+        }
+        if (!empty($archivesInfo['is_jump'])) {
+            $arr['is_jump'] = [
+                'small_name'   => '跳转',
+            ];
+        }
+
+        return $arr;
+    }
+}
+
+if (!function_exists('checkPasswordLevel')) 
+{
+    /**
+     * 检查密码复杂度
+     * @param string $strPassword 密码
+     * @return string
+     */
+    function checkPasswordLevel($strPassword = '')
+    {
+        $result = 0;
+        $pwdlen = strlen($strPassword);
+        if ( $pwdlen == 0) {
+            $result += 0;
+        }
+        else if ( $pwdlen<8 && $pwdlen >0 ) {
+            $result += 5;
+        }
+        else if ($pwdlen>10) {
+            $result += 25;
+        }
+        else {
+            $result += 10;
+        }
+        
+        //check letter
+        $bHave = false;
+        $bAll = false;
+        $capital = preg_match('/[A-Z]{1}/', $strPassword);//找大写字母
+        $small = preg_match('/[a-z]{1}/', $strPassword);//找小写字母
+        if ( empty($capital) && empty($small) )
+        {
+            $result += 0; //没有字母
+            $bHave = false;
+        }
+        else if ( !empty($capital) && !empty($small) )
+        {
+            $result += 20;
+            $bAll = true;
+        }
+        else
+        {   
+            $result += 10;
+            $bAll = true;
+        }
+        
+        //检查数字
+        $bDigi = false;
+        $digitalLen = 0;
+        for ( $i=0; $i<$pwdlen; $i++)
+        {
+        
+            if ( $strPassword[$i] <= '9' && $strPassword[$i] >= '0' )
+            {
+                $bDigi = true;
+                $digitalLen += 1;
+            }
+            
+        }
+        if ( $digitalLen==0 )//没有数字
+        {
+            $result += 0;
+            $bDigi = false;
+        }
+        else if ($digitalLen>2)//2个数字以上
+        {
+            $result += 20 ;
+            $bDigi = true;
+        }
+        else
+        {
+            $result += 10;
+            $bDigi = true;
+        }
+        
+        //检查非单词字符
+        $bOther = false;
+        $otherLen = 0;
+        for ($i=0; $i<$pwdlen; $i++)
+        {
+            if ( ($strPassword[$i]>='0' && $strPassword[$i]<='9') ||  
+                ($strPassword[$i]>='A' && $strPassword[$i]<='Z') ||
+                ($strPassword[$i]>='a' && $strPassword[$i]<='z')) {
+                continue;
+            }
+            $otherLen += 1;
+            $bOther = true;
+        }
+        if ( $otherLen == 0 )//没有非单词字符
+        {
+            $result += 0;
+            $bOther = false;
+        }
+        else if ( $otherLen >1)//1个以上非单词字符
+        {
+            $result +=25 ;
+            $bOther = true;
+        }
+        else
+        {
+            $result +=10;
+            $bOther = true;
+        }
+        
+        //检查额外奖励
+        if ( $bAll && $bDigi && $bOther) {
+            $result += 5;
+        }
+        else if ($bHave && $bDigi && $bOther) {
+            $result += 3;
+        }
+        else if ($bHave && $bDigi ) {
+            $result += 2;
+        }
+
+        $level = 0;
+        //根据分数来算密码强度的等级
+        if ( $result >=80 )
+            $level = 7;
+        else if ( $result>=70)
+            $level = 6;
+        else if ( $result>=60)
+            $level = 5;
+        else if ( $result>=50)
+            $level = 4;
+        else if ( $result>=40)
+            $level = 3;
+        else if ( $result>20)
+            $level = 2;
+        else if ( $result>0)
+            $level = 1;
+        else
+            $level = 0;
+
+        return $level;
+    }
+}
+
+if (!function_exists('getPasswordLevelTitle')) 
+{
+    /**
+     * 获取密码复杂度名称
+     * @param string $level 复杂程度
+     * @return string
+     */
+    function getPasswordLevelTitle($level = 0)
+    {
+        $title = '弱';
+        //根据分数来算密码强度的等级
+        if ( $level == 7 ) {
+            $title = '极佳';
+        }
+        else if ( $level == 6) {
+            $title = '非常强';
+        }
+        else if ( $level == 5) {
+            $title = '强';
+        }
+        else if ( $level == 4) {
+            $title = '较强';
+        }
+        else if ( $level == 3) {
+            $title = '一般';
+        }
+        else if ( $level == 2) {
+            $title = '较弱';
+        }
+        else if ( $level == 1) {
+            $title = '非常弱';
+        }
+        else {
+            $title = '弱';
+        }
+
+        return $title;
     }
 }

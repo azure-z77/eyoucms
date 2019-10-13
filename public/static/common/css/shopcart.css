@@ -59,36 +59,27 @@
 .ey-joinbuy{color:#fff;background-color:#f2a654;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075)}
 .ey-joinbuy:hover,.ey-joinbuy:focus{color:#fff;background-color:#ee8d25}
 
+/*首页产品规格选项样式覆盖*/
+.btn-selected{
+    background-color: transparent;
+    color: #76838f;
+    border-color: #e4eaec;
 
+}
+.btn-selected.btn-danger{
+    color: #f96868;
+    background-color: transparent;
+    border-color: #f96868;
 
+}
+.btn-selected.btn-danger:hover{
+    color: #f96868;
+    background-color: transparent;
+    border-color: #f96868;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
+.btn-selected:hover, .btn-selected:focus {
+    color: #f96868;
+    background-color: transparent;
+    border-color: #f96868;
+}

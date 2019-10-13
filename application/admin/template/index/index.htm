@@ -82,7 +82,7 @@
                 <ul class="dropdown-menu" role="menu" aria-labelledby="shouquan">
                     <li class="ey-tool-list text-center"><a target="_blank" class="liaojie" href="http://www.eyoucms.com/buy/">了解商业授权</a></li>
                     <li class="ey-tool-list text-center">
-                      <input class="btn btn-primary" type="button" onclick="$('.em_authortoken').toggleClass('open');openItem('Index|authortoken');" value="点击校验授权" />
+                      <input class="btn btn-primary" type="button" onclick="$('.em_authortoken').toggleClass('open');openItem('Index|authortoken');" value="检测是否正版" />
                     </li>
                 </ul>
                </em>
@@ -133,7 +133,6 @@
               <ul class="nc-row" tptype="quick_link">
                   <li><a href="javascript:void(0);" onClick="openItem('System|web');" title="站点设置">站点设置</a></li>
                   <li><a href="{:url('Admin/logout')}" title="安全退出">安全退出</a></li>
-                  <li><a href="javascript:void(0);" onClick="GetUploadify(1,'','adminlogo','adminlogo_call_back','{:url('Uploadify/upload_full')}');" title="后台Logo">后台Logo</a></li>
               </ul>
             </div>
           </div>
@@ -157,22 +156,6 @@
       $(obj).parent().addClass('open');
     }
     $(obj).parent().toggleClass('open');
-  }
-
-  function adminlogo_call_back(fileurl_tmp)
-  {
-      layer_loading("正在处理");
-      var url = "{:url('Index/edit_adminlogo', ['_ajax'=>1])}";
-      $.post(url, {filename:fileurl_tmp},function(res){
-          if (1 == res.code) {
-              layer.msg(res.msg, {icon:6, time:1000}, function(){
-                  top.window.location.reload();
-              });
-          } else {
-              layer.closeAll();
-              layer.alert(res.msg, {icon:5, title:false});
-          }
-      });
   }
 
   // 功能地图

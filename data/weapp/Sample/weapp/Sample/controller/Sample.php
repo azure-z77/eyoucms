@@ -210,7 +210,7 @@ class Sample extends Weapp
     {
         $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
-        if(!empty($id_arr)){
+        if(!empty($id_arr) && IS_POST){
             $result = $this->db->where("id",'IN',$id_arr)->select();
             $title_list = get_arr_column($result, 'title');
 

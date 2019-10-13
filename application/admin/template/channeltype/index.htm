@@ -8,7 +8,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>频道模型列表</h3>
-                <h5>(共{$pageObj->totalRows}条记录)</h5>
+                <h5>(共{$pageObj->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <div class="sDiv">
@@ -174,7 +174,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id')},
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -197,7 +197,7 @@
         $.ajax({
             type : 'post',
             url : "{:url('Channeltype/ajax_show')}",
-            data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status')},
+            data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'), _ajax:1},
             dataType : 'json',
             success : function(res){
                 if (res.code == 1) {
@@ -216,7 +216,7 @@
                             $.ajax({
                                 type : 'post',
                                 url : "{:url('Channeltype/ajax_check_tpl')}",
-                                data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'),tpltype:res.data.tpltype},
+                                data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'),tpltype:res.data.tpltype, _ajax:1},
                                 dataType : 'json',
                                 success : function(res){
                                     layer.closeAll();
@@ -236,7 +236,7 @@
                 }
             },
             error:function(){
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
             }
         });
     }

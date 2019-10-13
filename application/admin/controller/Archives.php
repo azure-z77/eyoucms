@@ -40,13 +40,18 @@ class Archives extends Base
         $zNodes = "[";
         foreach ($arctype_list as $key => $val) {
             $current_channel = $val['current_channel'];
-            if (6 == $current_channel) {
-                $gourl = url('Arctype/single_edit', array('typeid'=>$val['id']));
-                $typeurl = url("Arctype/single_edit", array('typeid'=>$val['id'],'gourl'=>$gourl));
-            } else if (8 == $current_channel) {
-                $typeurl = url("Guestbook/index", array('typeid'=>$val['id']));
+            if (!empty($val['weapp_code'])) {
+                // 插件栏目
+                $typeurl = weapp_url($val['weapp_code'].'/'.$val['weapp_code'].'/index');
             } else {
-                $typeurl = url('Archives/index_archives', array('typeid'=>$val['id']));
+                if (6 == $current_channel) {
+                    $gourl = url('Arctype/single_edit', array('typeid'=>$val['id']));
+                    $typeurl = url("Arctype/single_edit", array('typeid'=>$val['id'],'gourl'=>$gourl));
+                } else if (8 == $current_channel) {
+                    $typeurl = url("Guestbook/index", array('typeid'=>$val['id'], 'archives'=>1));
+                } else {
+                    $typeurl = url('Archives/index_archives', array('typeid'=>$val['id']));
+                }
             }
             $typename = $val['typename'];
             $zNodes .= "{"."id:{$val['id']}, pId:{$val['parent_id']}, name:\"{$typename}\", url:'{$typeurl}',target:'content_body'";
@@ -79,6 +84,7 @@ class Archives extends Base
         $condition = array();
         // 获取到所有URL参数
         $param = input('param.');
+        $flag = input('flag/s');
         $typeid = input('typeid/d', 0);
 
         /*跳转到指定栏目的文档列表*/
@@ -103,7 +109,7 @@ class Archives extends Base
         /*--end*/
 
         // 应用搜索条件
-        foreach (['keywords','typeid'] as $key) {
+        foreach (['keywords','typeid','flag','is_release'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
                     $condition['a.title'] = array('LIKE', "%{$param[$key]}%");
@@ -128,6 +134,16 @@ class Archives extends Base
                     }
                     /*--end*/
                     $condition['a.typeid'] = array('IN', $typeids);
+                } else if ($key == 'flag') {
+                    if ('is_release' == $param[$key]) {
+                        $condition['a.users_id'] = array('gt', 0);
+                    } else {
+                        $condition['a.'.$param[$key]] = array('eq', 1);
+                    }
+                // } else if ($key == 'is_release') {
+                //     if (0 < intval($param[$key])) {
+                //         $condition['a.users_id'] = array('gt', intval($param[$key]));
+                //     }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }
@@ -174,6 +190,17 @@ class Archives extends Base
         $condition['a.is_del'] = array('eq', 0);
         /*--end*/
 
+        /*自定义排序*/
+        $orderby = input('param.orderby/s');
+        $orderway = input('param.orderway/s');
+        if (!empty($orderby)) {
+            $orderby = "a.{$orderby} {$orderway}";
+            $orderby .= ", a.aid desc";
+        } else {
+            $orderby = "a.aid desc";
+        }
+        /*end*/
+
         /**
          * 数据查询，搜索出主键ID的值
          */
@@ -183,7 +210,7 @@ class Archives extends Base
             ->field("a.aid,a.channel")
             ->alias('a')
             ->where($condition)
-            ->order('a.aid desc')
+            ->order($orderby)
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('aid');
 
@@ -203,7 +230,7 @@ class Archives extends Base
 
             /*获取当页文档的所有模型*/
             $channelIds = get_arr_column($list, 'channel');
-            $channelRow = Db::name('channeltype')->field('id, ctl_name')
+            $channelRow = Db::name('channeltype')->field('id, ctl_name, ifsystem')
                 ->where('id','IN',$channelIds)
                 ->getAllWithIndex('id');
             $assign_data['channelRow'] = $channelRow;
@@ -275,12 +302,22 @@ class Archives extends Base
         if (!empty($typeid)) {
             $row = db('arctype')
                 ->alias('a')
-                ->field('b.ctl_name,b.id')
+                ->field('b.ctl_name,b.id,b.ifsystem')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
                 ->where('a.id', 'eq', $typeid)
                 ->find();
+            $data = [
+                'typeid'    => $typeid,
+            ];
+            if (empty($row['ifsystem'])) {
+                $ctl_name = 'Custom';
+                $data['channel'] = $row['id'];
+            } else {
+                $ctl_name = $row['ctl_name'];
+            }
             $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
-            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl));
+            $data['gourl'] = $gourl;
+            $jumpUrl = url("{$ctl_name}/add", $data);
         } else {
             $jumpUrl = url("Archives/release");
         }
@@ -296,7 +333,7 @@ class Archives extends Base
         $typeid = input('param.typeid/d', 0);
         $row = db('archives')
             ->alias('a')
-            ->field('a.channel,b.ctl_name,b.id')
+            ->field('a.channel,b.ctl_name,b.id,b.ifsystem')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
             ->where('a.aid', 'eq', $id)
             ->find();
@@ -306,8 +343,18 @@ class Archives extends Base
                 ->find();
             $row = array_merge($row, $channelRow);
         }
+        $data = [
+            'id'    => $id,
+        ];
+        if (empty($row['ifsystem'])) {
+            $ctl_name = 'Custom';
+            $data['channel'] = $row['id'];
+        } else {
+            $ctl_name = $row['ctl_name'];
+        }
         $arcurl = input('param.arcurl/s');
-        $jumpUrl = url("{$row['ctl_name']}/edit", array('id'=>$id,'arcurl'=>$arcurl));
+        $data['arcurl'] = $arcurl;
+        $jumpUrl = url("{$ctl_name}/edit", $data);
         $this->redirect($jumpUrl);
     }
 
@@ -317,8 +364,10 @@ class Archives extends Base
     public function del()
     {
         if (IS_POST) {
+            $del_id = input('del_id/a');
+            $thorough = input('thorough/d', 0);
             $archivesLogic = new \app\admin\logic\ArchivesLogic;
-            $archivesLogic->del();
+            $archivesLogic->del($del_id, $thorough);
         }
     }
     

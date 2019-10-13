@@ -83,7 +83,11 @@ class Taglist extends Model
      */
     public function savetags($aid = 0, $typeid = 0, $tags = '')
     {
-        if (intval($aid) > 0 && intval($typeid) > 0 && !empty($tags)) {
+        if (intval($aid) > 0 && intval($typeid) > 0) {
+            if (empty($tags)) {
+                M('taglist')->where(array('aid'=>$aid))->delete();
+                return true;
+            }
             // --处理TAG标签
             $tags = func_preg_replace(array('，'), ',', $tags);
             $tags_arr = explode(',', $tags);

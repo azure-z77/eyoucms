@@ -110,7 +110,7 @@ class FieldLogic extends Model
             if(empty($dfvalue)) {
                 $dfvalue = '';
             }
-            $maxlen = 1001;
+            $maxlen = 10001;
             $fields[0] = " `$fieldname` varchar($maxlen) NOT NULL DEFAULT '$dfvalue' COMMENT '$fieldtitle';";
             $fields[1] = "varchar($maxlen)";
             $fields[2] = $maxlen;
@@ -120,7 +120,7 @@ class FieldLogic extends Model
             if(empty($dfvalue)) {
                 $dfvalue = '';
             }
-            $maxlen = 1002;
+            $maxlen = 10002;
             $fields[0] = " `$fieldname` varchar($maxlen) NOT NULL DEFAULT '$dfvalue' COMMENT '$fieldtitle';";
             $fields[1] = "varchar($maxlen)";
             $fields[2] = $maxlen;
@@ -575,9 +575,9 @@ class FieldLogic extends Model
             $maxlen = preg_replace('/^varchar\((.*)\)/i', '$1', $fieldtype);
             if (250 == $maxlen) {
                 $dtype = 'img';
-            } else if (1001 == $maxlen) {
+            } else if (1001 == $maxlen || 10001 == $maxlen) {
                 $dtype = 'imgs';
-            } else if (1002 == $maxlen) {
+            } else if (1002 == $maxlen || 10002 == $maxlen) {
                 $dtype = 'files';
             } else {
                 $dtype = 'text';
@@ -607,7 +607,7 @@ class FieldLogic extends Model
     }
 
     /**
-     * 处理自定义字段的值
+     * 处理栏目自定义字段的值
      * @author 小虎哥 by 2018-4-16
      */
     public function handleAddonField($channel_id, $dataExt)
@@ -646,6 +646,22 @@ class FieldLogic extends Model
                     }
 
                     case 'imgs':
+                    {
+                        $imgData = [];
+                        $imgsIntroArr = !empty($dataExt[$key.'_eyou_intro']) ? $dataExt[$key.'_eyou_intro'] : [];
+                        foreach ($val as $k2 => $v2) {
+                            $v2 = trim($v2);
+                            if (!empty($v2)) {
+                                $imgData[] = [
+                                    'image_url' => $v2,
+                                    'intro'     => !empty($imgsIntroArr[$k2]) ? $imgsIntroArr[$k2] : '',
+                                ];
+                            }
+                        }
+                        $val = serialize($imgData);
+                        break;
+                    }
+
                     case 'files':
                     {
                         foreach ($val as $k2 => $v2) {

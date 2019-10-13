@@ -40,14 +40,20 @@ class Ajax extends Base {
      */
     public function explanation_welcome()
     {
+        $type = input('param.type/d', 0);
+        $tpCacheKey = 'system_explanation_welcome';
+        if (1 < $type) {
+            $tpCacheKey .= '_'.$type;
+        }
+        
         /*多语言*/
         if (is_language()) {
             $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
             foreach ($langRow as $key => $val) {
-                tpCache('system', ['system_explanation_welcome'=>1], $val['mark']);
+                tpCache('system', [$tpCacheKey=>1], $val['mark']);
             }
         } else { // 单语言
-            tpCache('system', ['system_explanation_welcome'=>1]);
+            tpCache('system', [$tpCacheKey=>1]);
         }
         /*--end*/
     }

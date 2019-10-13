@@ -5,7 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width:auto;">
     <div class="flexigrid">
-        <form class="form-horizontal" id="postForm" action="{:url('Shop/order_send_operating')}" method="post">
+        <form class="form-horizontal" id="postForm" action="{:url('Shop/order_send_operating', ['_ajax'=>1])}" method="post">
             <input type="hidden" name="order_id" value="{$OrderData.order_id}">
             <input type="hidden" name="order_code" value="{$OrderData.order_code}">
             <input type="hidden" name="users_id" value="{$OrderData.users_id}">
@@ -262,7 +262,7 @@
 
         var _parent = parent;
 
-        layer.confirm('此操作不可逆，确认发货？', {
+        layer.confirm('此操作不可恢复，确认发货？', {
             title: false,
             btn: ['确定','取消']
         },function(){
@@ -285,7 +285,7 @@
                 },
                 error:function(){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                    layer.alert(ey_unknown_error, {icon: 2, title:false});
                 }
             });
         });

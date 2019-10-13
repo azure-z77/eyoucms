@@ -56,9 +56,11 @@ class Ajax extends Base
         $pnum = input('page/d', 0);
         $pagesize = input('pagesize/d', 0);
         $tagid = input('tagid/s', '');
+        $tagidmd5 = input('tagidmd5/s', '');
         !empty($tagid) && $tagid = preg_replace("/[^a-zA-Z0-9-_]/",'', $tagid);
+        !empty($tagidmd5) && $tagidmd5 = preg_replace("/[^a-zA-Z0-9_]/",'', $tagidmd5);
 
-        if (empty($tagid) || empty($pnum)) {
+        if (empty($tagid) || empty($pnum) || empty($tagidmd5)) {
             $this->error('参数有误');
         }
 
@@ -69,7 +71,7 @@ class Ajax extends Base
         ];
 
         $arcmulti_db = Db::name('arcmulti');
-        $arcmultiRow = $arcmulti_db->where(['tagid'=>$tagid])->find();
+        $arcmultiRow = $arcmulti_db->where(['tagid'=>$tagidmd5])->find();
         if(!empty($arcmultiRow) && !empty($arcmultiRow['querysql']))
         {
             // arcpagelist标签属性pagesize优先级高于arclist标签属性pagesize
@@ -90,9 +92,18 @@ class Ajax extends Base
             $querysql = preg_replace('#SELECT(\s+)(.*)(\s+)FROM#i', 'SELECT COUNT(*) AS totalNum FROM', $querysql);
             $queryRow = Db::query($querysql);
             if (!empty($queryRow)) {
-                if (empty($arcmultiRow['innertext'])) {
+                $tpl_content = '';
+                $filename = './template/'.THEME_STYLE.'/'.'system/arclist_'.$tagid.'.'.\think\Config::get('template.view_suffix');
+                if (!file_exists($filename)) {
                     $data['code'] = -1;
-                    $data['msg'] = "模板追加文件 arclist_{$tagid}.htm 不存在，或者文件没有内容！";
+                    $data['msg'] = "模板追加文件 arclist_{$tagid}.htm 不存在！";
+                    $this->error("标签模板不存在", null, $data);
+                } else {
+                    $tpl_content = @file_get_contents($filename);
+                }
+                if (empty($tpl_content)) {
+                    $data['code'] = -1;
+                    $data['msg'] = "模板追加文件 arclist_{$tagid}.htm 没有HTML代码！";
                     $this->error("标签模板不存在", null, $data);
                 }
 
@@ -107,7 +118,7 @@ class Ajax extends Base
                     $innertext .= " {$key}='{$val}'";
                 }
                 $innertext .= " limit='{$offset},{$row}'}";
-                $innertext .= stripslashes($arcmultiRow['innertext']);
+                $innertext .= $tpl_content;
                 $innertext .= "{/eyou:arclist}";
                 /*--end*/
                 $msg = $this->display($innertext); // 渲染模板标签语法

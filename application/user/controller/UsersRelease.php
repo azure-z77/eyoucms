@@ -38,11 +38,21 @@ class UsersRelease extends Base
             ])->getField('title');
         $this->assign('MenuTitle',$this->MenuTitle);
 
+        /*模型数据，是否开启缩略图用于会员投稿*/
+        // 目前仅有文章模型用于会员投稿
+        $ChannelId = request()->get('channel_id');
+        if (empty($ChannelId) || !isset($ChannelId)) $ChannelId = 1;
+        $ChannelData = $this->channeltype_db->where('id', $ChannelId)->field('is_release, is_litpic_users_release')->find();
+        $this->assign('is_release', $ChannelData['is_release']);
+        $this->assign('is_litpic_users_release', $ChannelData['is_litpic_users_release']);
+        /* END */
+
         // 当前访问的方法名
         $Method = request()->action();
         $list   = request()->get('list');
         // 如果访问的方式是release_centre，并且没有list标识，则默认重定向至文章发布页
-        if ('release_centre' == $Method && (empty($list) || !isset($list))) {
+        // 如果$ChannelData['is_release']为空则表示模型未开启投稿
+        if ('release_centre' == $Method && !empty($ChannelData['is_release']) && (empty($list) || !isset($list))) {
             $this->redirect('user/UsersRelease/article_add');
         }
         $this->assign('Method',$Method);
@@ -253,7 +263,7 @@ class UsersRelease extends Base
         if (!empty($info['typeid'])) {
             $typeid = $info['typeid'];
         }
-        $arctype_html = home_allow_release_arctype($typeid, array($channel_id));
+        $arctype_html = $this->allow_release_arctype($typeid, $channel_id);
         $assign_data['arctype_html'] = $arctype_html;
         /* END */
 
@@ -262,11 +272,6 @@ class UsersRelease extends Base
         if (null == $request) { $request = Request::instance(); }  
         $token = $request->token();
         $assign_data['TokenValue'] = " <input type='hidden' name='__token__' value='{$token}'/> ";
-        /* END */
-
-        /*模型数据，是否开启缩略图用于会员投稿*/
-        $is_litpic_users_release = $this->channeltype_db->where('id',$channel_id)->getField('is_litpic_users_release');
-        $assign_data['is_litpic_users_release'] = $is_litpic_users_release;
         /* END */
 
         return $assign_data;
@@ -356,5 +361,84 @@ class UsersRelease extends Base
         ];
         $AidCount = $this->archives_db->where($where)->count();
         return $AidCount;
+    }
+
+    /**
+     * 允许会员投稿发布的栏目列表
+     */
+    private function allow_release_arctype($typeid = 0, $channel_id = null)
+    {
+        $where['lang']   = $this->home_lang; // 多语言 by 小虎哥
+        $where['is_del'] = 0; // 回收站功能
+        $where['status'] = 1; 
+        $where['is_release'] = 1; // 查询应用于投稿的栏目
+        $where['current_channel'] = $channel_id;
+        $field = 'id, parent_id, typename, is_release';
+
+        // 查询所有可投稿的栏目
+        $ArcTypeData = db('arctype')->field($field)->where($where)->select();
+
+        // 读取上级ID并去重读取上级栏目
+        $ParentIds = array_unique(get_arr_column($ArcTypeData, 'parent_id'));
+        $PidData = db('arctype')->field($field)->where('id', 'IN', $ParentIds)->select();
+
+        // 处理顶级栏目
+        $PidDataNew = [];
+        foreach ($ArcTypeData as $key => $value) {
+            if (empty($value['parent_id'])) {
+                array_push($PidDataNew, $value);
+            }
+        }
+        // 合并顶级栏目
+        $PidData = array_merge($PidData, $PidDataNew);
+        
+        // 下拉框拼装
+        $HtmlCode = '<select name="typeid" id="typeid">';
+        $HtmlCode .= '<option value="0">请选择栏目</option>';
+        foreach ($PidData as $yik => $yiv) {
+            /*是否禁用*/
+            $style0 = 0 == $yiv['is_release'] ? 'disabled="true"' : '';
+            /* END */
+            /*是否选中*/
+            $style1 = $typeid == $yiv['id'] ? 'selected' : '';
+            /* END */
+            if (0 == $yiv['parent_id']) {
+                /*一级下拉框*/
+                $HtmlCode .= '<option value="'.$yiv['id'].'" '.$style0.' '.$style1.'>'.$yiv['typename'].'</option>';
+                /* END */
+                $type = 0;
+            }else{
+                /*二级下拉框*/
+                $HtmlCode .= '<option value="'.$yiv['id'].'" '.$style0.' '.$style1.'>&nbsp; &nbsp;'.$yiv['typename'].'</option>';
+                /* END */
+                $type = 1;
+            }
+
+            foreach ($ArcTypeData as $erk => $erv) {
+                if ($erv['parent_id'] == $yiv['id']) {
+                    if (0 == $type) {
+                        /*是否禁用*/
+                        $style0 = 0 == $erv['is_release'] ? 'disabled="true"' : '';
+                        /* END */
+                        /*是否选中*/
+                        $style1 = $typeid == $erv['id'] ? 'selected' : '';
+                        /* END */
+                        /*二级下拉框*/
+                        $HtmlCode .= '<option value="'.$erv['id'].'" '.$style0.' '.$style1.'>&nbsp; &nbsp;'.$erv['typename'].'</option>';
+                        /* END */
+                    }else{
+                        /*是否选中*/
+                        $style0 = $typeid == $erv['id'] ? 'selected' : '';
+                        /* END */
+                        /*三级下拉框*/
+                        $HtmlCode .= '<option value="'.$erv['id'].'" '.$style0.'>&nbsp; &nbsp; &nbsp; &nbsp;'.$erv['typename'].'</option>';
+                        /* END */
+                    }
+                }
+            }
+        }
+
+        $HtmlCode .= '</select>';
+        return $HtmlCode;
     }
 }

@@ -21,6 +21,7 @@ use app\admin\logic\FieldLogic;
 class Arctype extends Base
 {
     public $fieldLogic;
+    public $arctypeLogic;
     // 栏目对应模型ID
     public $arctype_channel_id = '';
     // 允许发布文档的模型ID
@@ -31,13 +32,14 @@ class Arctype extends Base
     public function _initialize() {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
+        $this->arctypeLogic = new ArctypeLogic(); 
         $this->allowReleaseChannel = config('global.allow_release_channel');
         $this->arctype_channel_id = config('global.arctype_channel_id');
         $this->disableDirname = config('global.disable_dirname');
 
         /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
         $arctypeFieldInfo = include DATA_PATH.'schema/'.PREFIX.'arctype.php';
-        foreach (['del_method'] as $key => $val) {
+        foreach (['weapp_code'] as $key => $val) {
             if (!isset($arctypeFieldInfo[$val])) {
                 try {
                     schemaTable('arctype');
@@ -52,10 +54,39 @@ class Arctype extends Base
     {
         $arctype_list = array();
         // 目录列表
-        $arctypeLogic = new ArctypeLogic(); 
         $where['is_del'] = '0'; // 回收站功能
-        $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
+        $arctype_list = $this->arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
         $this->assign('arctype_list', $arctype_list);
+
+        /*多语言模式下，栏目ID显示主体语言的ID和属性title名称*/
+        $main_arctype_list = [];
+        if ($this->admin_lang != $this->main_lang) {
+            $attr_values = get_arr_column($arctype_list, 'id');
+            $languageAttrRow = Db::name('language_attr')->field('attr_name,attr_value')->where([
+                    'attr_value'    => ['IN', $attr_values],
+                    'attr_group'    => 'arctype',
+                    'lang'          => $this->admin_lang,
+                ])->getAllWithIndex('attr_value');
+            $typeids = [];
+            foreach ($languageAttrRow as $key => $val) {
+                $tid_tmp = str_replace('tid', '', $val['attr_name']);
+                array_push($typeids, intval($tid_tmp));
+            }
+            $main_ArctypeRow = Db::name('arctype')->field("id,typename,CONCAT('tid', id) AS attr_name")
+                ->where([
+                    'id'    => ['IN', $typeids],
+                    'lang'  => $this->main_lang,
+                ])->getAllWithIndex('attr_name');
+            foreach ($arctype_list as $key => $val) {
+                $key_tmp = !empty($languageAttrRow[$val['id']]['attr_name']) ? $languageAttrRow[$val['id']]['attr_name'] : '';
+                $main_arctype_list[$val['id']] = [
+                    'id'        => !empty($main_ArctypeRow[$key_tmp]['id']) ? $main_ArctypeRow[$key_tmp]['id'] : 0,
+                    'typename'  => !empty($main_ArctypeRow[$key_tmp]['typename']) ? $main_ArctypeRow[$key_tmp]['typename'] : '',
+                ];
+            }
+        }
+        $this->assign('main_arctype_list', $main_arctype_list);
+        /*end*/
 
         // 模型列表
         $channeltype_list = getChanneltypeList();
@@ -90,9 +121,9 @@ class Arctype extends Base
             if ($post) {
                 /*目录名称*/
                 $post['dirname'] = func_preg_replace([' ','　'], '', $post['dirname']);
-                $dirname = $this->get_dirname($post['typename'], $post['dirname']);
+                $dirname = $this->arctypeLogic->get_dirname($post['typename'], $post['dirname']);
                 // 检测
-                if (!empty($post['dirname']) && !$this->dirname_unique($post['dirname'])) {
+                if (!empty($post['dirname']) && !$this->arctypeLogic->dirname_unique($post['dirname'])) {
                     $this->error('目录名称与系统内置冲突，请更改！');
                 }
                 /*--end*/
@@ -146,7 +177,7 @@ class Arctype extends Base
                     $_POST['id'] = $insertId;
 
                     /*同步栏目ID到多语言的模板栏目变量里*/
-                    $this->syn_add_language_attribute($insertId);
+                    $this->arctypeLogic->syn_add_language_attribute($insertId);
                     /*--end*/
 
                     adminLog('新增栏目：'.$data['typename']);
@@ -214,7 +245,7 @@ class Arctype extends Base
         /*--end*/
 
         /*自定义字段*/
-        $assign_data['addonFieldList'] = model('Field')->getTabelFieldList(config('global.arctype_channel_id'));
+        $assign_data['addonFieldExtList'] = model('Field')->getTabelFieldList(config('global.arctype_channel_id'));
         $assign_data['aid'] = 0;
         $assign_data['channeltype'] = 6;
         $assign_data['nid'] = 'arctype';
@@ -241,9 +272,9 @@ class Arctype extends Base
 
                 /*目录名称*/
                 $post['dirname'] = func_preg_replace([' ','　'], '', $post['dirname']);
-                $dirname = $this->get_dirname($post['typename'], $post['dirname'], $post['id']);
+                $dirname = $this->arctypeLogic->get_dirname($post['typename'], $post['dirname'], $post['id']);
                 // 检测
-                if (!empty($post['dirname']) && !$this->dirname_unique($post['dirname'], $post['id'])) {
+                if (!empty($post['dirname']) && !$this->arctypeLogic->dirname_unique($post['dirname'], $post['id'])) {
                     $this->error('目录名称与系统内置冲突，请更改！');
                 }
                 /*--end*/
@@ -363,8 +394,8 @@ class Arctype extends Base
             $select_html = '<option value="0" data-grade="-1" data-dirpath="'.tpCache('seo.seo_html_arcdir').'">顶级栏目</option>';
             $selected = $info['parent_id'];
             $arctype_max_level = intval(config('global.arctype_max_level'));
-            $arctypeLogic = new ArctypeLogic();
-            $options = $arctypeLogic->arctype_list(0, $selected, false, $arctype_max_level - 1);
+            $arctypeWhere = ['is_del'=>0];
+            $options = $this->arctypeLogic->arctype_list(0, $selected, false, $arctype_max_level - 1, $arctypeWhere);
             foreach ($options AS $var)
             {
                 $select_html .= '<option value="' . $var['id'] . '" data-grade="' . $var['grade'] . '" data-dirpath="'.$var['dirpath'].'"';
@@ -418,7 +449,7 @@ class Arctype extends Base
         /*--end*/
 
         /*自定义字段*/
-        $assign_data['addonFieldList'] = model('Field')->getTabelFieldList(config('global.arctype_channel_id'), $id);
+        $assign_data['addonFieldExtList'] = model('Field')->getTabelFieldList(config('global.arctype_channel_id'), $id);
         $assign_data['aid'] = $id;
         $assign_data['channeltype'] = 6;
         $assign_data['nid'] = 'arctype';
@@ -591,34 +622,12 @@ class Arctype extends Base
     }
 
     /**
-     * 获取栏目的目录名称，确保唯一性
-     */
-    private function get_dirname($typename = '', $dirname = '', $id = 0)
-    {
-        $id = intval($id);
-        if (!trim($dirname) || empty($dirname)) {
-            $dirname = get_pinyin($typename);
-        }
-        if (strval(intval($dirname)) == strval($dirname)) {
-            $dirname .= get_rand_str(3,0,2);
-        }
-        $dirname = preg_replace('/(\s)+/', '_', $dirname);
-        if (!$this->dirname_unique($dirname, $id)) {
-            $nowDirname = $dirname.get_rand_str(3,0,2);
-            return $this->get_dirname($typename, $nowDirname, $id);
-        }
-
-        return $dirname;
-    }
-
-    /**
      * 通过模型获取栏目
      */
     public function ajax_get_arctype($channeltype = 0)
     {
-        $arctypeLogic = new ArctypeLogic();
         $arctype_max_level = intval(config('global.arctype_max_level'));
-        $options = $arctypeLogic->arctype_list(0, 0, false, $arctype_max_level, array('channeltype'=>$channeltype));
+        $options = $this->arctypeLogic->arctype_list(0, 0, false, $arctype_max_level, array('channeltype'=>$channeltype));
         $select_html = '<option value="0" data-grade="-1">顶级栏目</option>';
         foreach ($options AS $var)
         {
@@ -793,67 +802,6 @@ class Arctype extends Base
     }
 
     /**
-     * 同步新增栏目ID到多语言的模板栏目变量里
-     */
-    private function syn_add_language_attribute($typeid)
-    {
-        /*单语言情况下不执行多语言代码*/
-        if (!is_language()) {
-            return true;
-        }
-        /*--end*/
-
-        $attr_group = 'arctype';
-        $admin_lang = $this->admin_lang;
-        $main_lang = get_main_lang();
-        $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
-        if (!empty($languageRow) && $admin_lang == $main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
-            $arctypeRow = Db::name('arctype')->find($typeid);
-            $attr_name = 'tid'.$typeid;
-            $r = Db::name('language_attribute')->save([
-                'attr_title'    => $arctypeRow['typename'],
-                'attr_name'     => $attr_name,
-                'attr_group'    => $attr_group,
-                'add_time'      => getTime(),
-                'update_time'   => getTime(),
-            ]);
-            if (false !== $r) {
-                $data = [];
-                foreach ($languageRow as $key => $val) {
-                    /*同步新栏目到其他语言栏目列表*/
-                    if ($val['mark'] != $admin_lang) {
-                        $addsaveData = $arctypeRow;
-                        $addsaveData['lang'] = $val['mark'];
-                        $addsaveData['typename'] = $val['mark'].$addsaveData['typename']; // 临时测试
-                        $parent_id = Db::name('language_attr')->where([
-                                'attr_name' => 'tid'.$arctypeRow['parent_id'],
-                                'lang'  => $val['mark'],
-                            ])->getField('attr_value');
-                        $addsaveData['parent_id'] = intval($parent_id);
-                        unset($addsaveData['id']);
-                        $typeid = model('Arctype')->addData($addsaveData);
-                    }
-                    /*--end*/
-                    
-                    /*所有语言绑定在主语言的ID容器里*/
-                    $data[] = [
-                        'attr_name' => $attr_name,
-                        'attr_value'    => $typeid,
-                        'lang'  => $val['mark'],
-                        'attr_group'    => $attr_group,
-                        'add_time'      => getTime(),
-                        'update_time'   => getTime(),
-                    ];
-                    /*--end*/
-                }
-                if (!empty($data)) {
-                    model('LanguageAttr')->saveAll($data);
-                }
-            }
-        }
-    }
-
-    /**
      * 新建模板文件
      */
     public function ajax_newtpl()
@@ -905,26 +853,5 @@ class Arctype extends Base
         $this->assign('type', $type);
         $this->assign('nid', $nid);
         return $this->fetch();
-    }
-
-    /**
-     * 判断目录名称的唯一性
-     */
-    private function dirname_unique($dirname = '', $typeid = 0)
-    {
-        $result = Db::name('arctype')->field('id,dirname')
-            ->where(['lang'=>$this->admin_lang])
-            ->getAllWithIndex('id');
-        if (!empty($result)) {
-            if (0 < $typeid) unset($result[$typeid]);
-            !empty($result) && $result = get_arr_column($result, 'dirname');
-        }
-        empty($result) && $result = [];
-        $langMarks = Db::name('language_mark')->column('mark'); // 多语言标识
-        $disableDirname = array_merge($this->disableDirname, $langMarks, $result);
-        if (in_array(strtolower($dirname), $disableDirname)) {
-            return false;
-        }
-        return true;
     }
 }

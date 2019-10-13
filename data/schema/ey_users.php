@@ -140,7 +140,7 @@ return array (
     'name' => 'head_pic',
     'type' => 'varchar(255)',
     'notnull' => false,
-    'default' => NULL,
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),

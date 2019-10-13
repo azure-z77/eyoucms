@@ -499,7 +499,7 @@ if (!function_exists('get_head_pic'))
         if ($is_admin) {
             $default_pic = ROOT_DIR . '/public/static/admin/images/admint.png';
         } else {
-            $default_pic = ROOT_DIR . '/public/static/common/images/bag-imgB.jpg';
+            $default_pic = ROOT_DIR . '/public/static/common/images/dfboy.png';
         }
         return empty($pic_url) ? $default_pic : $pic_url;
     }
@@ -1347,14 +1347,11 @@ if (!function_exists('switch_language'))
         /*兼容伪静态多语言切换*/
         $pathinfo = $request->pathinfo();
         if (!empty($pathinfo)) {
-            // $seo_pseudo = tpCache('seo.seo_pseudo');
-            // if (3 == $seo_pseudo) {
-                $s_arr = explode('/', $pathinfo);
-                $count = $language_db->where(['mark'=>$s_arr[0]])->count();
-                if (!empty($count)) {
-                    $current_lang = $s_arr[0];
-                }
-            // }
+            $s_arr = explode('/', $pathinfo);
+            $count = $language_db->where(['mark'=>$s_arr[0]])->count();
+            if (!empty($count)) {
+                $current_lang = $s_arr[0];
+            }
         }
         /*--end*/
 
@@ -1366,13 +1363,11 @@ if (!function_exists('switch_language'))
         }
         if (empty($lang)) {
             if ($is_admin) {
-                // $current_lang = session('?admin_info.mark_lang') ? session('admin_info.mark_lang') : 'cn';
                 $lang = \think\Db::name('language')->order('id asc')
                     ->getField('mark');
             } else {
                 $lang = $language_db->where('is_home_default',1)->getField('mark');
             }
-            // $lang = !empty($current_lang) ? $current_lang : get_main_lang();//\think\Lang::detect();
         }
         \think\Config::set('cache.path', CACHE_PATH.$lang.DS);
         $pre_lang = \think\Cookie::get($langCookieVar);
@@ -1798,7 +1793,7 @@ if (!function_exists('get_archives_data'))
      */
     function get_archives_data($array,$id)
     {
-        // 目前定义仅订单中心使用
+        // 目前定义订单中心和评论中使用
         
         if (empty($array) || empty($id)) {
             return false;
@@ -2261,7 +2256,7 @@ if (!function_exists('getAllAttrInfo'))
 
 if (!function_exists('getOrderBy'))
 {
-    //根据tags-list规则，获取查询排序
+    //根据tags-list规则，获取查询排序，用于标签文件 TagArclist / TagList
     function getOrderBy($orderby,$orderWay,$isrand=false){
         switch ($orderby) {
             case 'hot':
@@ -2342,147 +2337,121 @@ if (!function_exists('getLocationPages'))
     }
 }
 
-if (!function_exists('home_allow_release_arctype')) 
+if (!function_exists('auto_hide_index')) 
 {
     /**
-     * 允许发布文档的栏目列表
+     * URL中隐藏index.php入口文件（适用后台显示前台的URL）
      */
-    function home_allow_release_arctype($selected = 0, $allow_release_channel = array(), $selectform = true)
-    {
-        $where = [];
-
-        $where['c.lang']   = get_current_lang(); // 多语言 by 小虎哥
-        $where['c.is_del'] = 0; // 回收站功能
-        // $where['c.is_hidden'] = 0; // 显示的栏目
-
-        if (!is_array($selected)) {
-            $selected = [$selected];
+    function auto_hide_index($url, $seo_inlet = null) {
+        $web_adminbasefile = tpCache('web.web_adminbasefile');
+        $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : ROOT_DIR.'/login.php'; // 支持子目录
+        $url = str_replace($web_adminbasefile, ROOT_DIR.'/index.php', $url); // 支持子目录
+        null === $seo_inlet && $seo_inlet = config('ey_config.seo_inlet');
+        if (1 == $seo_inlet) {
+            $url = str_replace('/index.php/', '/', $url);
         }
+        return $url;
+    }
+}
 
-        $cacheKey = json_encode($selected).json_encode($allow_release_channel).$selectform.json_encode($where);
-        $select_html = cache($cacheKey);
-        if (empty($select_html) || false == $selectform) {
-            /*允许发布文档的模型*/
-            $allow_release_channel = !empty($allow_release_channel) ? $allow_release_channel : config('global.allow_release_channel');
-
-            /*所有栏目分类*/
-            $arctype_max_level = intval(config('global.arctype_max_level'));
-            $where['c.status'] = 1;
-            $fields = "c.id, c.parent_id, c.current_channel, c.typename, c.grade, count(s.id) as has_children, '' as children";
-            $res = db('arctype')
-                ->field($fields)
-                ->alias('c')
-                ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
-                ->where($where)
-                ->group('c.id')
-                ->order('c.parent_id asc, c.sort_order asc, c.id')
-                ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
-                ->select();
-            /*--end*/
-            if (empty($res)) {
-                return '';
-            }
-
-            /*过滤掉第三级栏目属于不允许发布的模型下*/
-            foreach ($res as $key => $val) {
-                if ($val['grade'] == ($arctype_max_level - 1) && !in_array($val['current_channel'], $allow_release_channel)) {
-                    unset($res[$key]);
+if (!function_exists('getArchivesField')) 
+{
+    /**
+     * 获取指定文档的字段值
+     */
+    function getArchivesField($aid = 0, $fieldName = 'aid') {
+        $value = '';
+        if (0 < intval($aid)) {
+            if ('arcurl' == $fieldName) {
+                $row = \think\Db::name('archives')->where(['aid'=>$aid])->find();
+                $value = get_arcurl($row);
+            } else {
+                $value = \think\Db::name('archives')->where(['aid'=>$aid])->getField($fieldName);
+                if ('litpic' == $fieldName) {
+                    $value = handle_subdir_pic($value); // 支持子目录
                 }
-            }
-            /*--end*/
-
-            /*所有栏目列表进行层次归类*/
-            $arr = group_same_key($res, 'parent_id');
-            for ($i=0; $i < $arctype_max_level; $i++) {
-                foreach ($arr as $key => $val) {
-                    foreach ($arr[$key] as $key2 => $val2) {
-                        if (!isset($arr[$val2['id']])) {
-                            $arr[$key][$key2]['has_children'] = 0;
-                            continue;
-                        }
-                        $val2['children'] = $arr[$val2['id']];
-                        $arr[$key][$key2] = $val2;
-                    }
-                }
-            }
-            /*--end*/
-
-            /*过滤掉第二级不包含允许发布模型的栏目*/
-            $nowArr = $arr[0];
-            foreach ($nowArr as $key => $val) {
-                if (!empty($nowArr[$key]['children'])) {
-                    foreach ($nowArr[$key]['children'] as $key2 => $val2) {
-                        if (empty($val2['children']) && !in_array($val2['current_channel'], $allow_release_channel)) {
-                            unset($nowArr[$key]['children'][$key2]);
-                        }
-                    }
-                }
-                if (empty($nowArr[$key]['children']) && !in_array($nowArr[$key]['current_channel'], $allow_release_channel)) {
-                    unset($nowArr[$key]);
-                    continue;
-                }
-            }
-            /*--end*/
-
-            /*组装成层级下拉列表框*/
-            $select_html = '';
-            if (false == $selectform) {
-                $select_html = $nowArr;
-            } else if (true == $selectform) {
-                foreach ($nowArr AS $key => $val)
-                {
-                    $select_html .= '<option value="' . $val['id'] . '" data-grade="' . $val['grade'] . '" data-current_channel="' . $val['current_channel'] . '"';
-                    $select_html .= (in_array($val['id'], $selected)) ? ' selected="ture"' : '';
-                    if (!empty($allow_release_channel) && !in_array($val['current_channel'], $allow_release_channel)) {
-                        $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
-                    }
-                    $select_html .= '>';
-                    if ($val['grade'] > 0)
-                    {
-                        $select_html .= str_repeat('&nbsp;', $val['grade'] * 4);
-                    }
-                    $select_html .= htmlspecialchars(addslashes($val['typename'])) . '</option>';
-
-                    if (empty($val['children'])) {
-                        continue;
-                    }
-                    foreach ($nowArr[$key]['children'] as $key2 => $val2) {
-                        $select_html .= '<option value="' . $val2['id'] . '" data-grade="' . $val2['grade'] . '" data-current_channel="' . $val2['current_channel'] . '"';
-                        $select_html .= (in_array($val2['id'], $selected)) ? ' selected="ture"' : '';
-                        if (!empty($allow_release_channel) && !in_array($val2['current_channel'], $allow_release_channel)) {
-                            $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
-                        }
-                        $select_html .= '>';
-                        if ($val2['grade'] > 0)
-                        {
-                            $select_html .= str_repeat('&nbsp;', $val2['grade'] * 4);
-                        }
-                        $select_html .= htmlspecialchars(addslashes($val2['typename'])) . '</option>';
-
-                        if (empty($val2['children'])) {
-                            continue;
-                        }
-                        foreach ($nowArr[$key]['children'][$key2]['children'] as $key3 => $val3) {
-                            $select_html .= '<option value="' . $val3['id'] . '" data-grade="' . $val3['grade'] . '" data-current_channel="' . $val3['current_channel'] . '"';
-                            $select_html .= (in_array($val3['id'], $selected)) ? ' selected="ture"' : '';
-                            if (!empty($allow_release_channel) && !in_array($val3['current_channel'], $allow_release_channel)) {
-                                $select_html .= ' disabled="true" style="background-color:#f5f5f5;"';
-                            }
-                            $select_html .= '>';
-                            if ($val3['grade'] > 0)
-                            {
-                                $select_html .= str_repeat('&nbsp;', $val3['grade'] * 4);
-                            }
-                            $select_html .= htmlspecialchars(addslashes($val3['typename'])) . '</option>';
-                        }
-                    }
-                }
-
-                cache($cacheKey, $select_html, null, 'admin_archives_release');
-                
             }
         }
 
-        return $select_html;
+        return $value;
+    }
+}
+
+if (!function_exists('GetUsersLatestData')) 
+{
+    /**
+     * 获取登录的会员最新数据
+     */
+    function GetUsersLatestData($users_id = null) {
+        $users_id = empty($users_id) ? session('users_id') : $users_id;
+        if(!empty($users_id)) {
+            /*读取的字段*/
+            $field = 'a.*, b.*, b.discount as level_discount';
+            /* END */
+
+            /*查询数据*/
+            $users = \think\Db::name('users')->field($field)
+                ->alias('a')
+                ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                ->where([
+                    'a.users_id'        => $users_id,
+                    'a.lang'            => get_home_lang(),
+                    'a.is_activation'   => 1,
+                    'a.is_del'          => 0,
+                ])->find();
+            // 会员不存在则返回空
+            if (empty($users)) return false;
+            /* END */
+
+            /*会员数据处理*/
+            // 头像处理
+            $users['head_pic'] = get_head_pic($users['head_pic']);
+            // 昵称处理
+            $users['nickname'] = empty($users['nickname']) ? $users['username'] : $users['nickname'];
+            // 密码为空并且存在openid则表示微信注册登录，密码字段更新为0，可重置密码一次。
+            $users['password'] = empty($users['password']) && !empty($users['open_id']) ? 0 : 1;
+            // 删除登录密码及支付密码
+            unset($users['paypwd']);
+            // 级别处理
+            $LevelData = [];
+            if (intval($users['level_maturity_days']) >= 36600) {
+                $users['maturity_code'] = 1;
+                $users['maturity_date'] = '终身';
+            }else if (0 == $users['open_level_time'] && 0 == $users['level_maturity_days']) {
+                $users['maturity_code'] = 0;
+                $users['maturity_date'] = '';// 没有升级会员，置空
+            }else{
+                /*计算剩余天数*/
+                $days = $users['open_level_time'] + ($users['level_maturity_days'] * 86400);
+                // 取整
+                $days = ceil(($days - getTime()) / 86400);
+                if (0 >= $days) {
+                    /*更新会员的级别*/
+                    $LevelData = model('EyouUsers')->UpUsersLevelData($users_id);
+                    /* END */
+                    $users['maturity_code'] = 2;
+                    $users['maturity_date'] = '';// 会员过期，置空
+                }else{
+                    $users['maturity_code'] = 3;
+                    $users['maturity_date'] = $days.' 天';
+                }
+                /* END */
+            }
+            /* END */
+            
+            // 合并数据
+            $LatestData = array_merge($users, $LevelData);
+            /*更新session*/
+            session('users',    $LatestData);
+            // session('open_id',  $LatestData['open_id']);
+            session('users_id', $LatestData['users_id']);
+            setcookie('users_id', $LatestData['users_id'], null);
+            /* END */
+            // 返回数据
+            return $LatestData;
+        }else{
+            // session中不存在会员ID则返回空
+            return false;
+        }
     }
 }

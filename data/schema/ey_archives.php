@@ -189,6 +189,33 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'old_price' => 
+  array (
+    'name' => 'old_price',
+    'type' => 'decimal(10,2)',
+    'notnull' => false,
+    'default' => '0.00',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'stock_count' => 
+  array (
+    'name' => 'stock_count',
+    'type' => 'int(10) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'stock_show' => 
+  array (
+    'name' => 'stock_show',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'prom_type' => 
   array (
     'name' => 'prom_type',
@@ -274,6 +301,15 @@ return array (
   array (
     'name' => 'del_method',
     'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'joinaid' => 
+  array (
+    'name' => 'joinaid',
+    'type' => 'int(10)',
     'notnull' => false,
     'default' => '0',
     'primary' => false,

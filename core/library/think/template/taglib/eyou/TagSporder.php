@@ -20,11 +20,14 @@ use think\Db;
  * 订单明细
  */
 class TagSporder extends Base
-{
+{   
+    public $users_id = 0;
+    
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
+        $this->users_id = session('users_id');
     }
 
     /**
@@ -40,12 +43,12 @@ class TagSporder extends Base
             // 公共条件
             $Where = [
                 'order_id' => $order_id,
-                'users_id' => session('users_id'),
+                'users_id' => $this->users_id,
                 'lang'     => $this->home_lang,
             ];
 
             // 订单主表
-            $result['OrderData'] = Db::name("shop_order")->field('*')->where($Where)->find();
+            $result['OrderData'] = Db::name("shop_order")->where($Where)->find();
             // 获取当前链接及参数，用于手机端查询快递时返回页面
             $ReturnUrl = request()->url(true);
             // 封装查询物流链接
@@ -70,7 +73,7 @@ class TagSporder extends Base
             
             if (!empty($result['OrderData'])) {
                 // 订单明细表
-                $result['DetailsData'] = Db::name("shop_order_details")->field('*')->where($Where)->select();
+                $result['DetailsData'] = Db::name("shop_order_details")->order('product_price desc, product_name desc')->where($Where)->select();
 
                 $controller_name = 'Product';
                 $array_new = get_archives_data($result['DetailsData'],'product_id');
@@ -81,7 +84,10 @@ class TagSporder extends Base
                     $value['data'] = unserialize($value['data']);
                     $attr_value    = htmlspecialchars_decode($value['data']['attr_value']);
                     $attr_value    = htmlspecialchars_decode($attr_value);
-                    $result['DetailsData'][$key]['data']     = $attr_value;
+
+                    $spec_value    = htmlspecialchars_decode($value['data']['spec_value']);
+                    $spec_value    = htmlspecialchars_decode($spec_value);
+                    $result['DetailsData'][$key]['data'] = $attr_value.$spec_value;
                     
                     // 产品内页地址
                     $result['DetailsData'][$key]['arcurl']   = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$value['product_id']]));

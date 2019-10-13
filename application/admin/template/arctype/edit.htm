@@ -19,6 +19,9 @@
             <ul class="tab-base nc-row">
                 <li><a href="javascript:void(0);" data-index='1' class="tab {eq name='$tab' value='1'}current{/eq}"><span>常规选项</span></a></li>
                 <li><a href="javascript:void(0);" data-index='2' class="tab {eq name='$tab' value='2'}current{/eq}"><span>高级选项</span></a></li>
+                {in name="$field['current_channel']" value='2,8'}
+                <li><a href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id, 'tab'=>3])}" data-index='3' class="tab {eq name='$tab' value='3'}current{/eq}"><span>{eq name="$field['current_channel']" value='8'}属性列表{else /}参数列表{/eq}</span></a></li>
+                {/in}
             </ul>
         </div>
     </div>
@@ -49,11 +52,16 @@
                     <label for="current_channel">内容模型</label>
                 </dt>
                 <dd class="opt">
-                    <select class="small form-control" id="current_channel" name="current_channel" onchange="ajax_get_template();">
-                        {volist name="channeltype_list" id="vo"}
-                        <option value="{$vo.id}" data-nid="{$vo.nid}" {eq name="$field['current_channel']" value="$vo.id"}selected="true"{/eq}>{$vo.title}</option>
-                        {/volist}
-                    </select>
+                    {if condition="!empty($field['weapp_code'])"}
+                        {$channeltype_list[$field['current_channel']]['title']}
+                        <input type="hidden" name="current_channel" id="current_channel" value="{$field['current_channel']}" />
+                    {else /}
+                        <select class="small form-control" id="current_channel" name="current_channel" onchange="ajax_get_template();">
+                            {volist name="channeltype_list" id="vo"}
+                            <option value="{$vo.id}" data-nid="{$vo.nid}" {eq name="$field['current_channel']" value="$vo.id"}selected="true"{/eq}>{$vo.title}</option>
+                            {/volist}
+                        </select>
+                    {/if}
                     <span class="err"></span>
                     <p class="" id="notic_current_channel"></p>
                 </dd>
@@ -108,12 +116,22 @@
                     <p class="notic">隐藏之后，不显示在前台页面</p>
                 </dd>
             </dl>
+
+            {if condition="!empty($field['weapp_code'])"}
+            <div class="none">
+            {/if}
+
             {include file="field/addonitem" /}
+
+            {if condition="!empty($field['weapp_code'])"}
+            </div>
+            {/if}
+            
         </div>
         <!-- 常规选项 -->
         <!-- 高级选项 -->        
         <div class="ncap-form-default tab_div_2" {neq name='$tab' value='2'}style="display:none;"{/neq}>
-            <dl class="row">
+            <dl class="row {if condition="!empty($field['weapp_code'])"}none{/if}">
                 <dt class="tit">
                     <label>栏目属性</label>
                 </dt>
@@ -145,6 +163,22 @@
                     <p class="notic">显示英文名栏目的网站</p>
                 </dd>
             </dl>
+            {if condition="!empty($field['weapp_code'])"}
+            <!-- 插件栏目 -->
+            <dl class="row">
+                <dt class="tit">
+                    <label for="templist">模板管理</label>
+                </dt>
+                <dd class="opt">
+                    <a href="{:url('Filemanager/index', ['activepath'=>'/template/plugins/ask/pc', 'goback'=>1])}" class="ncap-btn ncap-btn-green">点击在线编辑</a>
+                </dd>
+            </dl>
+            <!-- end -->
+            {/if}
+
+            {if condition="!empty($field['weapp_code'])"}
+            <div class="none">
+            {/if}
             <dl class="row">
                 <dt class="tit">
                   <label>栏目图片</label>
@@ -223,6 +257,9 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
+            {if condition="!empty($field['weapp_code'])"}
+            </div>
+            {/if}
         </div>
         <!-- 高级选项 -->
         <div class="ncap-form-default">
@@ -339,7 +376,7 @@
             },
             error: function(e){
                 $(obj).html('获取拼音');
-                showErrorMsg('网络失败，请刷新页面后重试');
+                showErrorMsg(ey_unknown_error);
                 return false;
             }
         });
@@ -362,7 +399,7 @@
                 }
             },
             error: function(e){
-                showErrorMsg('网络失败，请刷新页面后重试');
+                showErrorMsg(ey_unknown_error);
                 return false;
             }
         });

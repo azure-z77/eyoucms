@@ -5,15 +5,29 @@ $(function(){
 });
 
 // 数量加减
-function CartUnifiedAlgorithm(aid,symbol,selected){
+function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, selected = null, spec_value_id = null, cart_id = null){
+    if ('IsSoldOut' == is_sold_out) {
+        layer.msg('商品已售罄！', {time: 1500});
+        return false;
+    }
+    var NumV = $('#'+cart_id+'_num'); //数量
+    var CartNum = NumV.val();
+    if ('change' != symbol) {
+        CartNum = Number(NumV.val()) + 1;
+    }
+    if (Number(is_sold_out) < Number(CartNum)) {
+        layer.msg('商品库存仅！'+is_sold_out+'件', {time: 1500});
+        NumV.val(is_sold_out);
+        return false;
+    }
+
+    var PriceV       = $('#'+cart_id+'_price');     //单价
+    var SubTotalV    = $('#'+cart_id+'_subtotal');  //小计
+    var TotalNumberV = $('#TotalNumber');           //总数
+    var TotalAmountV = $('#TotalAmount');           //总价
+
     var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
     var url = JsonData.cart_unified_algorithm_url;
-
-    var NumV         = $('#'+aid+'_num');       //数量
-    var PriceV       = $('#'+aid+'_price');     //单价
-    var SubTotalV    = $('#'+aid+'_subtotal');  //小计
-    var TotalNumberV = $('#TotalNumber');       //总数
-    var TotalAmountV = $('#TotalAmount');       //总价
 
     // 数量处理逻辑
     if ('change' == symbol) {
@@ -48,7 +62,7 @@ function CartUnifiedAlgorithm(aid,symbol,selected){
 
     $.ajax({
         url: url,
-        data: {aid:aid,symbol:symbol,num:Number(NumV.val())},
+        data: {aid:aid,symbol:symbol,num:Number(NumV.val()),spec_value_id:spec_value_id},
         type:'post',
         dataType:'json',
         success:function(res){
@@ -93,9 +107,9 @@ function Checked(cart_id,selected){
                 $('#'+NewCartId+'_Selected').val(1);
 
                 // 计算总数总额
-                var product_id = $('#'+this.id).attr('product-id');
-                NumberVal +=  + Number($('#'+product_id+'_num').val());
-                AmountVal +=  + Number($('#'+product_id+'_subtotal').html());
+                // var product_id = $('#'+this.id).attr('product-id');
+                NumberVal +=  + Number($('#'+NewCartId+'_num').val());
+                AmountVal +=  + Number($('#'+NewCartId+'_subtotal').html());
             });
 
             // 赋值主选框
@@ -131,9 +145,8 @@ function Checked(cart_id,selected){
                 CheckedNum++;
 
                 // 计算总数总额
-                var product_id = $('#'+this.id).attr('product-id');
-                NumberVal +=  + Number($('#'+product_id+'_num').val());
-                AmountVal +=  + Number($('#'+product_id+'_subtotal').html());
+                NumberVal +=  + Number($('#'+$('#'+this.id).attr('cart-id')+'_num').val());
+                AmountVal +=  + Number($('#'+$('#'+this.id).attr('cart-id')+'_subtotal').html());
             }
         });
 

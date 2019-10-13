@@ -21,10 +21,13 @@ use think\Db;
  */
 class TagSporderlist extends Base
 {
+    public $users_id = 0;
+
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
+        $this->users_id = session('users_id');
     }
 
     /**
@@ -34,7 +37,7 @@ class TagSporderlist extends Base
     {
         // 基础查询条件
         $OrderWhere = [
-            'users_id' => session('users_id'),
+            'users_id' => $this->users_id,
             'lang'     => $this->home_lang,
         ];
 
@@ -50,15 +53,15 @@ class TagSporderlist extends Base
             if ('daifukuan' === $select_status) {
                 $select_status = 0;
             }
-            
             $OrderWhere['order_status'] = $select_status;
         }
 
-        $query_get = input('get.');
+        // 分页查询逻辑
         $paginate_type = 'userseyou';
         if (isMobile()) {
             $paginate_type = 'usersmobile';
         }
+        $query_get = input('get.');
         $paginate = array(
             'type'     => $paginate_type,
             'var_page' => config('paginate.var_page'),
@@ -76,30 +79,54 @@ class TagSporderlist extends Base
 
         // 搜索名称时，查询订单明细表商品名称
         if (empty($result['list']) && !empty($keywords)) {
-            $Data = model('Shop')->QueryOrderList($pagesize,session('users_id'),$keywords,$query_get);
+            $Data = model('Shop')->QueryOrderList($pagesize, $this->users_id, $keywords, $query_get);
             $result['list']  = $Data['list'];
             $result['pages'] = $Data['pages'];
         }
+
+        /*规格值ID预处理*/
+        $SpecValueArray = Db::name('product_spec_value')->field('aid,spec_value_id')->select();
+        $SpecValueArray = group_same_key($SpecValueArray, 'aid');
+        $ReturnData  = [];
+        foreach ($SpecValueArray as $key => $value) {
+            $ReturnData[$key] = [];
+            foreach ($value as $kk => $vv) {
+                array_push($ReturnData[$key], $vv['spec_value_id']);
+            }
+        }
+        /* END */
 
         if (!empty($result['list'])) {
             // 订单数据处理
             $controller_name = 'Product';
             // 获取当前链接及参数，用于手机端查询快递时返回页面
+            $OrderIds = [];
             $ReturnUrl = request()->url(true);
             foreach ($result['list'] as $key => $value) {
                 $DetailsWhere['users_id'] = $value['users_id'];
                 $DetailsWhere['order_id'] = $value['order_id'];
                 // 查询订单明细表数据
-                $result['list'][$key]['details'] = Db::name('shop_order_details')->field('*')->where($DetailsWhere)->select();
+                $result['list'][$key]['details'] = Db::name('shop_order_details')->order('product_price desc, product_name desc')->where($DetailsWhere)->select();
 
                 $array_new = get_archives_data($result['list'][$key]['details'],'product_id');
 
                 foreach ($result['list'][$key]['details'] as $kk => $vv) {
-                    // 产品属性处理
-                    $vv['data'] = unserialize($vv['data']);
-                    $attr_value = htmlspecialchars_decode($vv['data']['attr_value']);
-                    $attr_value = htmlspecialchars_decode($attr_value);
-                    $result['list'][$key]['details'][$kk]['data'] = $attr_value;
+                    // 产品规格处理
+                    if (!in_array($vv['order_id'], $OrderIds) && 0 == $value['order_status']) {
+                        $spec_value_id = unserialize($vv['data'])['spec_value_id'];
+                        if (!empty($spec_value_id)) {
+                            if (!in_array($spec_value_id, $ReturnData[$vv['product_id']])) {
+                                // 用于更新订单数据
+                                array_push($OrderIds, $vv['order_id']);
+                                // 修改循环内的订单状态进行逻辑计算
+                                $value['order_status'] = 4;
+                                // 修改主表数据，确保输出数据正确
+                                $result['list'][$key]['order_status'] = 4;
+                                // 用于追加订单操作记录
+                                $OrderIds_[]['order_id'] = $vv['order_id'];
+                            }
+                        }
+                    }
 
                     // 产品内页地址
                     $result['list'][$key]['details'][$kk]['arcurl'] = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$vv['product_id']]));
@@ -122,7 +149,7 @@ class TagSporderlist extends Base
                 $order_status_arr = Config::get('global.order_status_arr');
                 $result['list'][$key]['order_status_name'] = $order_status_arr[$value['order_status']];
 
-                // 获取订单方式名称
+                // 获取订单支付方式名称
                 $pay_method_arr = Config::get('global.pay_method_arr');
                 if (!empty($value['payment_method']) && !empty($value['pay_name'])) {
                     $result['list'][$key]['pay_name'] = $pay_method_arr[$value['pay_name']];
@@ -158,6 +185,18 @@ class TagSporderlist extends Base
                 $result['list'][$key]['hidden'] = '';
             }
 
+            // 更新产品规格异常的订单，更新为订单过期
+            if (!empty($OrderIds)) {
+                // 更新订单
+                $UpData = [
+                    'order_status' => 4,
+                    'update_time'  => getTime(),
+                ];
+                Db::name('shop_order')->where('order_id', 'IN', $OrderIds)->update($UpData);
+                // 追加订单操作记录
+                AddOrderAction($OrderIds_, $this->users_id, '0', '4', '0', '0', '订单过期！', '规格更新后部分产品规格不存在，订单过期！');
+            }
+
             // 传入JS参数
             $data['shop_member_confirm'] = url('user/Shop/shop_member_confirm');
             $data['shop_order_remind']   = url('user/Shop/shop_order_remind');
@@ -180,7 +219,7 @@ EOF;
     {
         // 公用条件
         $Where = [
-            'users_id' => session('users_id'),
+            'users_id' => $this->users_id,
             'lang'     => $this->home_lang,
         ];
 

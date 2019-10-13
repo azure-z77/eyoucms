@@ -173,6 +173,36 @@ class Weapp extends Base
         $assign_data['weapp_upgrade'] = $weapp_upgrade;
         /*--end*/
 
+        /*插件安装密码设置*/
+        $weapp_installpwd = tpCache('weapp.weapp_installpwd', [], $this->main_lang);
+        if (!empty($weapp_installpwd)) {
+            $weapp_installpwd = 1;
+        } else {
+            $weapp_installpwd = 0;
+        }
+        $assign_data['weapp_installpwd'] = $weapp_installpwd;
+        /*--end*/
+
+        $admin_info = session('admin_info');
+
+        /*是否创始人*/
+        $isFounder = 0;
+        if (empty($admin_info['parent_id']) && -1 == $admin_info['role_id']) {
+            $isFounder = 1;
+        }
+        $assign_data['isFounder'] = $isFounder;
+        /*--end*/
+
+        /*登录第一次输入插件安装密码之后，在退出之前安装所有插件都不再输入安装密码*/
+        $is_weapp_installpwd = 0;
+        $weapp_installpwd = tpCache('weapp.weapp_installpwd', [], $this->main_lang);
+        $firstInstallpwd = empty($admin_info['weapp_info']['firstInstallpwd']) ? '' : $admin_info['weapp_info']['firstInstallpwd'];
+        if (!empty($firstInstallpwd) && $firstInstallpwd == $weapp_installpwd) {
+            $is_weapp_installpwd = 1;
+        }
+        $assign_data['is_weapp_installpwd'] = $is_weapp_installpwd;
+        /*--end*/
+
         $this->assign($assign_data);
         return $this->fetch();
     }
@@ -349,9 +379,8 @@ class Weapp extends Base
     /**
      * 启用插件
      */
-    public function enable()
+    public function enable($id = 0)
     {
-        $id       =   input('param.id/d', 0);
         if (0 < $id) {
             $row = M('weapp')->field('code')->find($id);
             $class    =   get_weapp_class($row['code']);
@@ -381,9 +410,8 @@ class Weapp extends Base
     /**
      * 禁用插件
      */
-    public function disable()
+    public function disable($id = 0)
     {
-        $id       =   input('param.id/d', 0);
         if (0 < $id) {
             $row = M('weapp')->field('code')->find($id);
             $class    =   get_weapp_class($row['code']);
@@ -456,25 +484,33 @@ class Weapp extends Base
      */
     private function unlinkcode($code)
     {
-        $filelist_path = WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
-        if (file_exists($filelist_path)) {
-            $filelistStr = file_get_contents($filelist_path);
-            $filelist = explode("\n\r", $filelistStr);
-            if (empty($filelist)) {
-                return true;
-            }
-            delFile(WEAPP_DIR_NAME.DS.$code, true);
-            foreach ($filelist as $k2 => $v2) {
-                if (!empty($v2) && !preg_match('/^'.WEAPP_DIR_NAME.'\/'.$code.'/i', $v2)) {
-                    if (file_exists($v2) && is_file($v2)) {
-                        @unlink($v2);
+        try {
+            $filelist_path = WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
+            if (file_exists($filelist_path)) {
+                $file = fopen($filelist_path, "r"); // 以只读的方式打开文件
+                if(empty($file)){
+                    return true;
+                }
+                delFile(WEAPP_DIR_NAME.DS.$code, true);
+                while(!feof($file)) {
+                    $itemStr = fgets($file); //fgets()函数从文件指针中读取一行
+                    $itemStr = trim($itemStr);
+                    if (!empty($itemStr) && file_exists($itemStr)) {
+                        if (preg_match('/^(application\/plugins|data\/schema)\//i', $itemStr) && is_file($itemStr)) {
+                            @unlink('./'.$itemStr);
+                        } else if (preg_match('/^template\/plugins\/'.$code.'$/i', $itemStr) && is_dir($itemStr)) {
+                            delFile('./'.$itemStr, true);
+                        }
                     }
                 }
+                fclose($file);
+                delFile(WEAPP_DIR_NAME.DS.$code, true);
             }
-            delFile(WEAPP_DIR_NAME.DS.$code, true);
-        }
+            return true;
 
-        return true;
+        } catch (\Exception $e) {
+            return true;
+        }
     }
 
     /**
@@ -581,6 +617,35 @@ class Weapp extends Base
     }
 
     /**
+     * 设置插件安装密码
+     */
+    public function ajax_submitInstallpwd()
+    {
+        if (IS_AJAX_POST) {
+            $admin_info = session('admin_info');
+            // 只允许创始人设置安装密码
+            if (empty($admin_info['parent_id']) && -1 == $admin_info['role_id']) {
+                $pwd = input('post.pwd/s');
+                $pwd = trim($pwd);
+                if (empty($pwd)) {
+                    $this->error('请录入插件安装密码！');
+                }
+
+                $installpwd = func_encrypt($pwd);
+                $row = Db::name('admin')->where('password' , $installpwd)->count();
+                if (!empty($row)) {
+                    $this->error('不能与登录密码一致！');
+                }
+
+                tpCache('weapp', ['weapp_installpwd'=>$installpwd], $this->main_lang);
+                $this->success('设置成功！');
+            } else {
+                $this->error('没有安装权限！');
+            }
+        }
+    }
+
+    /**
      * 上传插件并解压
      */
     public function upload() 
@@ -588,7 +653,31 @@ class Weapp extends Base
         //防止php超时
         function_exists('set_time_limit') && set_time_limit(0);
         
-        if (IS_POST) {
+        if (IS_AJAX_POST) {
+
+            $admin_info = session('admin_info');
+
+            /*只限于创始人安装*/
+            if (empty($admin_info) || -1 != $admin_info['role_id']) {
+                $this->error('没有安装权限！');
+            }
+            /*--end*/
+
+            if (empty($admin_info['weapp_info']['firstInstallpwd'])) {
+                $pwd = input('post.pwd/s');
+                $installpwd = func_encrypt($pwd);
+                if (empty($installpwd)) {
+                    $this->error('请录入插件安装密码！');
+                } else {
+                    $weapp_installpwd = tpCache('weapp.weapp_installpwd');
+                    if ($weapp_installpwd != $installpwd) {
+                        $this->error('插件安装密码不正确！');
+                    }
+                }
+                $admin_info['weapp_info']['firstInstallpwd'] = $installpwd;
+                session('admin_info', $admin_info);
+            }
+
             $fileExt = 'zip';
             $savePath = UPLOAD_PATH.'tmp'.DS;
             $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
@@ -609,8 +698,8 @@ class Weapp extends Base
                 $this->error($result);
             }
             // 移动到框架应用根目录/public/upload/tmp/ 目录下
-            $fileName = md5(getTime().uniqid(mt_rand(), TRUE)).'.'.$fileExt; // 上传之后的文件全名
-            $folderName = str_replace(".zip", "", $fileName);  // 文件名，不带扩展名
+            $folderName = session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));  // 文件名，不带扩展名
+            $fileName = $folderName.'.'.$fileExt; // 上传之后的文件全名
             /*使用自定义的文件保存规则*/
             $info = $file->rule(function ($file) {
                 return  $folderName;
@@ -696,6 +785,7 @@ class Weapp extends Base
                             'code'          => $code,
                             'name'          => isset($configdata['name']) ? $configdata['name'] : '配置信息不完善',
                             'config'        => empty($configdata) ? '' : json_encode($configdata),
+                            'data'        => json_encode([]),
                             'add_time'      => getTime(),
                         ];
                         $weapp_id = Db::name('weapp')->insertGetId($addData);

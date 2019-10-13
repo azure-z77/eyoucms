@@ -17,6 +17,7 @@ use think\Page;
 use think\Db;
 use app\common\logic\ArctypeLogic;
 use app\admin\logic\ProductLogic;
+use app\admin\logic\ProductSpecLogic; // 用于产品规格逻辑功能处理
 
 class Product extends Base
 {
@@ -52,7 +53,7 @@ class Product extends Base
         $end = strtotime(input('add_time_end'));
 
         // 应用搜索条件
-        foreach (['keywords','typeid','flag'] as $key) {
+        foreach (['keywords','typeid','flag','is_release'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
                     $condition['a.title'] = array('LIKE', "%{$param[$key]}%");
@@ -78,7 +79,15 @@ class Product extends Base
                     /*--end*/
                     $condition['a.typeid'] = array('IN', $typeids);
                 } else if ($key == 'flag') {
-                    $condition['a.'.$param[$key]] = array('eq', 1);
+                    if ('is_release' == $param[$key]) {
+                        $condition['a.users_id'] = array('gt', 0);
+                    } else {
+                        $condition['a.'.$param[$key]] = array('eq', 1);
+                    }
+                // } else if ($key == 'is_release') {
+                //     if (0 < intval($param[$key])) {
+                //         $condition['a.users_id'] = array('gt', intval($param[$key]));
+                //     }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }
@@ -101,6 +110,17 @@ class Product extends Base
         // 回收站
         $condition['a.is_del'] = array('eq', 0);
 
+        /*自定义排序*/
+        $orderby = input('param.orderby/s');
+        $orderway = input('param.orderway/s');
+        if (!empty($orderby)) {
+            $orderby = "a.{$orderby} {$orderway}";
+            $orderby .= ", a.aid desc";
+        } else {
+            $orderby = "a.aid desc";
+        }
+        /*end*/
+
         /**
          * 数据查询，搜索出主键ID的值
          */
@@ -110,7 +130,7 @@ class Product extends Base
             ->field("a.aid")
             ->alias('a')
             ->where($condition)
-            ->order('a.aid desc')
+            ->order($orderby)
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('aid');
 
@@ -230,6 +250,7 @@ class Product extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
+                'stock_show'    => empty($post['stock_show']) ? 0 : $post['stock_show'],
                 'lang'  => $this->admin_lang,
                 'sort_order'    => 100,
                 'add_time'     => strtotime($post['add_time']),
@@ -243,6 +264,8 @@ class Product extends Base
                 // ---------后置操作
                 model('Product')->afterSave($aid, $data, 'add');
                 // ---------end
+                // 添加产品规格
+                model('ProductSpecPreset')->ProductSpecInsertAll($aid, $data);
                 adminLog('新增产品：'.$data['title']);
 
                 // 生成静态页面代码
@@ -318,6 +341,12 @@ class Product extends Base
         $shopConfig = getUsersConfigData('shop');
         $assign_data['shopConfig'] = $shopConfig;
 
+        // 商品规格
+        if (isset($shopConfig['shop_open_spec']) && 1 == $shopConfig['shop_open_spec']) {
+            // 预设值名称
+            $assign_data['preset_value'] = Db::name('product_spec_preset')->where('lang',$this->admin_lang)->field('preset_id,preset_mark_id,preset_name')->group('preset_mark_id')->order('preset_mark_id desc')->select();
+        }
+
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -330,6 +359,7 @@ class Product extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
 
@@ -397,6 +427,7 @@ class Product extends Base
                 'jumplinks' => $jumplinks,
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
+                'stock_show'    => empty($post['stock_show']) ? 0 : $post['stock_show'],
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'     => getTime(),
             );
@@ -410,6 +441,10 @@ class Product extends Base
             if ($r) {
                 // ---------后置操作
                 model('Product')->afterSave($data['aid'], $data, 'edit');
+                // 更新规格名称数据
+                // model('ProductSpecData')->ProducSpecNameEditSave($data);
+                // 更新规格值及金额数据
+                model('ProductSpecValue')->ProducSpecValueEditSave($data);
                 // ---------end
                 adminLog('编辑产品：'.$data['title']);
 
@@ -430,6 +465,10 @@ class Product extends Base
 
         $id = input('id/d');
         $info = model('Product')->getInfo($id);
+
+        // 获取规格数据信息
+        // 包含：SpecSelectName、HtmlTable、spec_mark_id_arr、preset_value
+        $assign_data = model('ProductSpecData')->GetProductSpecData($id);
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -592,7 +631,8 @@ class Product extends Base
                 if ($key == 'keywords') {
                     $condition['a.attr_name'] = array('LIKE', "%{$get[$key]}%");
                 } else if ($key == 'typeid') {
-                    $condition['a.typeid'] = array('eq', $get[$key]);
+                    $typeids = model('Arctype')->getHasChildren($get[$key]);
+                    $condition['a.typeid'] = array('IN', array_keys($typeids));
                 } else {
                     $condition['a.'.$key] = array('eq', $get[$key]);
                 }
@@ -651,7 +691,8 @@ class Product extends Base
         $selected = $typeid;
         $arctypeLogic = new ArctypeLogic();
         $map = array(
-            'channeltype'    => $this->channeltype,
+            'channeltype'   => $this->channeltype,
+            'is_del'        => 0,
         );
         $arctype_max_level = intval(config('global.arctype_max_level'));
         $select_html = $arctypeLogic->arctype_list(0, $selected, true, $arctype_max_level, $map);

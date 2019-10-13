@@ -49,6 +49,19 @@
                         <span style="padding-left: 10px; color: #C0C0C0;">开启后可设置会员每日的投搞数量</span>
                     </dd>
                 </dl>
+
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="title" id="select_title">投稿栏目选择</label>
+                    </dt>
+                    <dd class="opt">
+                        <select name="typeids[]" id="typeid" style="width: 300px;" size="15" multiple="true">
+                            {$select_html}
+                        </select>
+                        <span class="err"></span>
+                        <p class="red">(按 Ctrl 可以进行多选)</p>
+                    </dd>
+                </dl>
             </div>
 
             <div class="ncap-form-default">

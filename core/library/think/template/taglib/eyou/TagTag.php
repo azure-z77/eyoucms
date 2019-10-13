@@ -25,17 +25,18 @@ class TagTag extends Base
     protected function _initialize()
     {
         parent::_initialize();
-        $this->aid = I('param.aid/d', 0);
+        $this->aid = input('param.aid/d', 0);
     }
 
     /**
      * 获取标签
      * @author wengxianhu by 2018-4-20
      */
-    public function getTag($getall = 0, $typeid = '', $aid = 0, $row = 30, $sort = 'new')
+    public function getTag($getall = 0, $typeid = '', $aid = 0, $row = 30, $sort = 'new', $type = '')
     {
         $aid = !empty($aid) ? $aid : $this->aid;
         $getall = intval($getall);
+        !empty($typeid) && $getall = 1;
         $result = false;
         $condition = array();
 
@@ -56,6 +57,7 @@ class TagTag extends Base
             /*--end*/
             
             if (!empty($typeid)) {
+                $typeid = $this->getTypeids($typeid, $type);
                 $condition['typeid'] = array('in', $typeid);
             }
             if($sort == 'rand') $orderby = 'rand() ';
@@ -80,5 +82,53 @@ class TagTag extends Base
         }
 
         return $result;
+    }
+    
+    private function getTypeids($typeid, $type = '')
+    {
+        $typeidArr = $typeid;
+        if (!is_array($typeidArr)) {
+            $typeidArr = explode(',', $typeid);
+        }
+        $typeids = [];
+        
+        foreach($typeidArr as $key => $tid) {
+            $result = [];
+            switch ($type) {
+                case 'son': // 下级栏目
+                    $result = model('Arctype')->getSon($tid, false);
+                    break;
+
+                case 'self': // 同级栏目
+                    $result = model('Arctype')->getSelf($tid);
+                    break;
+
+                case 'top': // 顶级栏目
+                    $result = model('Arctype')->getTop();
+                    break;
+
+                case 'sonself': // 下级、同级栏目
+                    $result = model('Arctype')->getSon($tid, true);
+                    break;
+
+                case 'first': // 第一级栏目
+                    $result = model('Arctype')->getFirst($tid);
+                    break;
+
+                default:
+                    $result = [
+                        [
+                            'id'    => $tid,
+                        ]
+                    ];
+                    break;
+            }
+
+            if (!empty($result)) {
+                $typeids = array_merge($typeids, get_arr_column($result, 'id'));
+            }
+        }
+        
+        return $typeids;
     }
 }

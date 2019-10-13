@@ -64,6 +64,7 @@ class ImagesUpload extends Model
     public function saveimg($aid, $post = array())
     {
         $imgupload = isset($post['imgupload']) ? $post['imgupload'] : array();
+        $imgintro = isset($post['imgintro']) ? $post['imgintro'] : array();
         if (!empty($imgupload) && count($imgupload) > 1) {
             array_pop($imgupload); // 弹出最后一个
 
@@ -92,11 +93,13 @@ class ImagesUpload extends Model
                 $attr = isset($img_info[3]) ? $img_info[3] : '';
                 $mime = isset($img_info['mime']) ? $img_info['mime'] : '';
                 $title = !empty($post['title']) ? $post['title'] : '';
+                $intro = !empty($imgintro[$key]) ? $imgintro[$key] : '';
                 ++$sort_order;
                 $data[] = array(
                     'aid' => $aid,
                     'title' => $title,
                     'image_url'   => $val,
+                    'intro'   => $intro,
                     'width' => $width,
                     'height' => $height,
                     'filesize'  => $filesize,

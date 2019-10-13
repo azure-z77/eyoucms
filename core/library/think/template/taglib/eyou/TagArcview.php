@@ -37,12 +37,12 @@ class TagArcview extends Base
      * 获取栏目基本信息
      * @author wengxianhu by 2018-4-20
      */
-    public function getArcview($aid = '', $addfields = '')
+    public function getArcview($aid = '', $addfields = '', $joinaid = '')
     {
         $aid = !empty($aid) ? $aid : $this->aid;
+        $joinaid !== '' && $aid = $joinaid;
 
         if (empty($aid)) {
-            echo '标签arcview报错：缺少属性 aid 值，或文档ID不存在。';
             return false;
         }
 

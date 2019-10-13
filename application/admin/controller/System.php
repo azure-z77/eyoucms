@@ -48,7 +48,7 @@ class System extends Base
             // 网站根网址
             $web_basehost = rtrim($param['web_basehost'], '/');
             if (!is_http_url($web_basehost) && !empty($web_basehost)) {
-                $web_basehost = 'http://'.$web_basehost;
+                $web_basehost = $this->request->scheme().'://'.$web_basehost;
             }
             $param['web_basehost'] = $web_basehost;
 
@@ -142,10 +142,6 @@ class System extends Base
             $web_weapp_switch = $param['web_weapp_switch'];
             $web_weapp_switch_old = tpCache('web.web_weapp_switch');
             /*--end*/
-            /*会员入口*/
-            $web_users_switch = $param['web_users_switch'];
-            $web_users_switch_old = tpCache('web.web_users_switch');
-            /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
             $param['web_adminbasefile'] = ROOT_DIR.'/'.$adminbasefile; // 支持子目录
@@ -153,14 +149,35 @@ class System extends Base
             unset($param['adminbasefile']);
             unset($param['adminbasefile_old']);
             if ('index.php' == $adminbasefile) {
-                $this->error("新后台地址禁止使用index", null, '', 1);
+                $this->error("后台路径禁止使用index", null, '', 1);
             }
             /*--end*/
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
-            /*多语言入口*/
-            $web_language_switch = $param['web_language_switch'];
-            $web_language_switch_old = tpCache('web.web_language_switch');
+
+            /*后台LOGO*/
+            $web_adminlogo = $param['web_adminlogo'];
+            $web_adminlogo_old = tpCache('web.web_adminlogo');
+            if ($web_adminlogo != $web_adminlogo_old && !empty($web_adminlogo)) {
+                $source = preg_replace('#^'.ROOT_DIR.'#i', '', $web_adminlogo); // 支持子目录
+                $web_is_authortoken = tpCache('web.web_is_authortoken');
+                if (empty($web_is_authortoken)) {
+                    $destination = '/public/static/admin/images/logo.png';
+                } else {
+                    $destination = '/public/static/admin/images/logo_ey.png';
+                }
+
+                if (@copy('.'.$source, '.'.$destination)) {
+                    $param['web_adminlogo'] = ROOT_DIR.$destination;
+                }
+            }
+            /*--end*/
+
+            /*后台登录超时*/
+            $web_login_expiretime = $param['web_login_expiretime'];
+            $web_login_expiretime = preg_replace('/^(\d{0,})(.*)$/i', '${1}', $web_login_expiretime);
+            empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
+            $param['web_login_expiretime'] = $web_login_expiretime;
             /*--end*/
 
             /*多语言*/
@@ -193,7 +210,7 @@ class System extends Base
             /*--end*/
 
             /*更改之后，需要刷新后台的参数*/
-            if ($web_weapp_switch_old != $web_weapp_switch || $web_language_switch_old != $web_language_switch || $web_users_switch_old != $web_users_switch) {
+            if (false && $web_weapp_switch_old != $web_weapp_switch) {
                 $refresh = true;
             }
             /*--end*/
@@ -939,154 +956,149 @@ class System extends Base
      */
     public function ajax_tag_call()
     {
+        $space = "&nbsp;&nbsp;&nbsp;&nbsp;";
         if (IS_AJAX_POST) {
             $name = input('post.name/s');
             $msg = '';
             switch ($name) {
                 case 'web_users_switch': // 会员功能入口标签
                     {
-                        $msg = '
-<div yne-bulb-block="paragraph">
-    <strong>前台会员登录注册标签调用</strong><br data-filtered="filtered">
-    比如需要在PC通用头部加入会员入口，复制下方代码在\template\pc\header.htm模板文件里找到合适位置粘贴
+$msg_code = <<<EOF
+{eyou:user type='open'}  <br>
+{$space}{eyou:user type='cart'} <br>
+{$space}{$space}&lt;a href="{\$field.url}" id="{\$field.id}" &gt;购物车&lt;/a&gt; <br>
+{$space}{$space}{\$field.hidden} <br>
+{$space}{/eyou:user} <br>
+     <br>
+{$space}{eyou:user type='login'} <br>
+{$space}{$space}&lt;a href="{\$field.url}" id="{\$field.id}" &gt;登录&lt;/a&gt; <br>
+{$space}{$space}{\$field.hidden} <br>
+{$space}{/eyou:user} <br>
+     <br>
+{$space}{eyou:user type='reg'} <br>
+{$space}{$space}&lt;a href="{\$field.url}" id="{\$field.id}" &gt;注册&lt;/a&gt; <br>
+{$space}{$space}{\$field.hidden} <br>
+{$space}{/eyou:user} <br>
+     <br>
+{$space}{eyou:user type='logout'} <br>
+{$space}{$space}&lt;a href="{\$field.url}" id="{\$field.id}" &gt;退出&lt;/a&gt; <br>
+{$space}{$space}{\$field.hidden} <br>
+{$space}{/eyou:user}   <br>
+{/eyou:user}
+EOF;
+
+$msg = <<<EOF
+<strong>前台会员登录注册标签调用</strong><br>
+比如需要在PC通用头部加入会员入口，复制下方代码在/template/pc/header.htm模板文件里找到合适位置粘贴
+<br/><br/>
+<div style="color:red">
+{$msg_code}
 </div>
-<br data-filtered="filtered">
-<div yne-bulb-block="paragraph" style="color:red;">
-    <div>
-        {eyou:user type=\'open\'}
-        &nbsp;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'login\'}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;登录&lt;/a&gt;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}</div>
-    <div>
-        &nbsp;&nbsp;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'reg\'}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;注册&lt;/a&gt;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}</div>
-    <div>
-        &nbsp;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {eyou:user type=\'logout\'}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;a href="{$field.url}" id="{$field.id}" &gt;退出&lt;/a&gt;</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {$field.hidden}</div>
-    <div>
-        &nbsp; &nbsp; &nbsp; &nbsp; {/eyou:user}
-        &nbsp;</div>
-    <div>
-        {/eyou:user}</div>
-</div>
-';
+EOF;
                     }
                     break;
 
                 case 'web_language_switch': // 多语言入口标签
                     {
-                        $msg = '
-<div yne-bulb-block="paragraph">
-    <strong>前台多语言切换入口标签调用</strong><br data-filtered="filtered">
-    比如需要在PC通用头部加入多语言切换，复制下方代码在\template\pc\header.htm模板文件里找到合适位置粘贴
+$msg = <<<EOF
+<strong>前台多语言切换入口标签调用</strong><br>
+比如需要在PC通用头部加入多语言切换，复制下方代码在/template/pc/header.htm模板文件里找到合适位置粘贴
+<br/><br/>
+<div style="color:red">
+{eyou:language type='default'}<br/>
+{$space}&lt;a href="{\$field.url}"&gt;&lt;img src="{\$field.logo}" alt="{\$field.title}"&gt;{\$field.title}&lt;/a&gt;<br/>
+{/eyou:language}
 </div>
-<br data-filtered="filtered">
-<div yne-bulb-block="paragraph" style="color:red">
-    {eyou:language type=\'default\'}<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&lt;a href="{$field.url}"&gt;&lt;img src="{$field.logo}" alt="{$field.title}"&gt;{$field.title}&lt;/a&gt;<br/>
-    {/eyou:language}</div>
-';
+EOF;
                     }
                     break;
 
                 case 'thumb_open':
                     {
-                        $msg = '
-<div yne-bulb-block="paragraph">
-    <span style="color:red">（温馨提示：高级调用不会受缩略图功能的开关影响！）</span></div>
-<div yne-bulb-block="paragraph">
-    【标签方法的格式】</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;thumb_img=###,宽度,高度,生成方式</div>
-<br data-filtered="filtered">
-<div yne-bulb-block="paragraph">
-    【指定宽高度的调用】</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;列表页/内容页：{$eyou.field.litpic<span style="color:red">|thumb_img=###,500,500</span>}</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;标签arclist/list里：{$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}</div>
-<br data-filtered="filtered">
-<div yne-bulb-block="paragraph">
-    【指定生成方式的调用】</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;生成方式：1 = 拉伸；2 = 留白；3 = 截减；<br data-filtered="filtered">
-    &nbsp;&nbsp;&nbsp;&nbsp;以标签arclist为例：</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图拉伸：{$field.litpic<span style="color:red">|thumb_img=###,500,500,1</span>}</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图留白：{$field.litpic<span style="color:red">|thumb_img=###,500,500,2</span>}</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缩略图截减：{$field.litpic<span style="color:red">|thumb_img=###,500,500,3</span>}</div>
-<div yne-bulb-block="paragraph">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;默&nbsp;认&nbsp;生&nbsp;成：{$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}&nbsp;&nbsp;&nbsp;&nbsp;(以默认全局配置的生成方式)</div>
-';
+$msg = <<<EOF
+<span style="color:red">（温馨提示：高级调用不会受缩略图功能的开关影响！）</span><br/>
+【标签方法的格式】<br/>
+{$space}thumb_img=###,宽度,高度,生成方式<br/>
+<br/>
+【指定宽高度的调用】<br/>
+{$space}列表页/内容页：{\$eyou.field.litpic<span style="color:red">|thumb_img=###,500,500</span>}<br/>
+{$space}标签arclist/list里：{\$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}<br/>
+<br/>
+【指定生成方式的调用】<br/>
+{$space}生成方式：1 = 拉伸；2 = 留白；3 = 截减；<br/>
+{$space}以标签arclist为例：<br/>
+{$space}{$space}缩略图拉伸：{\$field.litpic<span style="color:red">|thumb_img=###,500,500,1</span>}<br/>
+{$space}{$space}缩略图留白：{\$field.litpic<span style="color:red">|thumb_img=###,500,500,2</span>}<br/>
+{$space}{$space}缩略图截减：{\$field.litpic<span style="color:red">|thumb_img=###,500,500,3</span>}<br/>
+{$space}{$space}默&nbsp;认&nbsp;生&nbsp;成：{\$field.litpic<span style="color:red">|thumb_img=###,500,500</span>}{$space}(以默认全局配置的生成方式)<br/>
+EOF;
                     }
                     break;
                 
                 case 'shop_open':
                     {
-                        $msg = '
-<div yne-bulb-block="paragraph">
-    <strong>前台产品内容页的购买入口标签调用</strong><br data-filtered="filtered">
-    比如需要在产品模型的内容页加入购买功能，复制下方代码在\template\pc\view_product.htm模板文件里找到合适位置粘贴
+$msg_code = <<<EOF
+&lt;!--购物车组件start--&gt; <br/>
+{eyou:sppurchase id='field' currentstyle='btn-danger'} <br/>
+{$space}&lt;!-- 价格 标签开始 --&gt;  <br/>
+{$space}&lt;div class="ey-price"&gt;&lt;span&gt;￥{\$field.users_price}&lt;/span&gt; &lt;/div&gt;  <br/>
+{$space}&lt;!-- 价格 标签结束 --&gt;  <br/>
+     <br/>
+{$space}&lt;!-- 规格 标签开始 --&gt; <br/>
+{$space}&lt;div class="ey-spec"&gt; <br/>
+{$space}{eyou:volist name="\$field.ReturnData" id='field2'} <br/>
+{$space}{$space}&lt;div class="row m-t-15"&gt; <br/>
+{$space}{$space}{$space}&lt;label class="form-control-label col-sm-7"&gt;{\$field2.spec_name}&lt;/label&gt; <br/>
+{$space}{$space}{$space}&lt;div class="col-sm-10"&gt; <br/>
+{$space}{$space}{$space}{eyou:volist name="\$field2.spec_value" id='field3'} <br/>
+{$space}{$space}{$space}{$space}&lt;a href="JavaScript:void(0);" {\$field3.SpecData} class="btn btn-default btn-selected {\$field3.SpecClass}"&gt;{\$field3.spec_value}&lt;/a&gt; <br/>
+{$space}{$space}{$space}{/eyou:volist} <br/>
+{$space}{$space}{$space}&lt;/div&gt; <br/>
+{$space}{$space}&lt;/div&gt; <br/>
+{$space}{/eyou:volist} <br/>
+{$space}&lt;/div&gt; <br/>
+{$space}&lt;!-- 规格 标签结束 --&gt; <br/>
+     <br/>
+{$space}&lt;!-- 数量操作 标签开始 --&gt;  <br/>
+{$space}&lt;div class="ey-number"&gt;  <br/>
+{$space}{$space}&lt;label&gt;数量&lt;/label&gt;  <br/>
+{$space}{$space}&lt;div class="btn-input"&gt;  <br/>
+{$space}{$space}{$space}&lt;button class="layui-btn" {\$field.ReduceQuantity}&gt;-&lt;/button&gt;  <br/>
+{$space}{$space}{$space}&lt;input type="text" class="layui-input" {\$field.UpdateQuantity}&gt;  <br/>
+{$space}{$space}{$space}&lt;button class="layui-btn" {\$field.IncreaseQuantity}&gt;+&lt;/button&gt;  <br/>
+{$space}{$space}&lt;/div&gt;  <br/>
+{$space}&lt;/div&gt;  <br/>
+{$space}&lt;!-- 数量操作 标签结束 --&gt;  <br/>
+     <br/>
+{$space}&lt;!-- 库存量 标签开始 --&gt;  <br/>
+{$space}&lt;span {\$field.stock_show}&gt;库存量：{\$field.stock_count} 件&lt;/span&gt;  <br/>
+{$space}&lt;!-- 库存量 标签结束 --&gt;  <br/>
+     <br/>
+{$space}&lt;!-- 购买按钮 标签开始 --&gt;  <br/>
+{$space}&lt;div class="ey-buyaction"&gt;  <br/>
+{$space}{$space}&lt;a class="ey-joinin" href="JavaScript:void(0);" {\$field.ShopAddCart}&gt;加入购物车&lt;/a&gt;  <br/>
+{$space}{$space}&lt;a class="ey-joinbuy" href="JavaScript:void(0);" {\$field.BuyNow}&gt;立即购买&lt;/a&gt; <br/>
+{$space}&lt;/div&gt;  <br/>
+{$space}&lt;!-- 购买按钮 标签结束 --&gt;  <br/>
+     <br/>
+{$space}{\$field.hidden}  <br/>
+{/eyou:sppurchase}  <br/>
+&lt;!--购物车组件end--&gt;
+EOF;
+
+// $msg_code = "<pre>".htmlspecialchars($msg_code)."</pre>";
+
+$msg = <<<EOF
+<div style="color:red"> 
+请手工调用最新版的购买行为入口标签，代码验证通过便可启用
+<br/>
+复制下方代码在/template/pc/view_product.htm模板文件里找到合适位置粘贴
 </div>
-<br data-filtered="filtered">
-<div yne-bulb-block="paragraph" style="color:red">
-  &lt;!--购物车组件start--&gt; 
-  <br data-filtered="filtered">
-  {eyou:sppurchase id=\'field\'}
-  <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;div class="ey-price"&gt;&lt;span&gt;￥{$field.users_price}&lt;/span&gt; &lt;/div&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;div class="ey-number"&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        &lt;label&gt;数量&lt;/label&gt;
-        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        &lt;div class="btn-input"&gt;
-        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          &lt;button class="layui-btn" {$field.ReduceQuantity}&gt;-&lt;/button&gt;
-          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          &lt;input type="text" class="layui-input" {$field.UpdateQuantity}&gt;
-          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          &lt;button class="layui-btn" {$field.IncreaseQuantity}&gt;+&lt;/button&gt;
-          <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        &lt;/div&gt;
-        <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;/div&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;div class="ey-buyaction"&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;a class="ey-joinin" href="JavaScript:void(0);" {$field.ShopAddCart}&gt;加入购物车&lt;/a&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;a class="ey-joinbuy" href="JavaScript:void(0);" {$field.BuyNow}&gt;立即购买&lt;/a&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      &lt;/div&gt;
-      <br data-filtered="filtered">&nbsp;&nbsp;&nbsp;&nbsp;
-      {$field.hidden}
-      <br data-filtered="filtered">
-  {/eyou:sppurchase}
-  <br data-filtered="filtered">
-  &lt;!--购物车组件end--&gt; 
+<br/>
+<div id='ShopOpenCode'>
+{$msg_code}
 </div>
-';
+EOF;
                     }
                     break;
 

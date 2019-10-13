@@ -39,7 +39,7 @@
             </dl>
             <dl class="row attr_input_typeall">
                 <dt class="tit">
-                    <label for="attr_values">变量值</label>
+                    <label for="attr_values">默认值</label>
                 </dt>
                 <dd class="opt">
                     <textarea rows="10" cols="30" name="attr_values" id="attr_values" class="input-txt" style="height:36px;"></textarea>
@@ -121,7 +121,7 @@
         layer_loading('正在处理');
 
         $.ajax({
-            url: "{:url('System/customvar_add')}",
+            url: "{:url('System/customvar_add', ['_ajax'=>1])}",
             type: 'POST',
             dataType: 'JSON',
             data: $('#post_form').serialize(),

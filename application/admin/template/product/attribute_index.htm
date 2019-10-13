@@ -4,23 +4,35 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="product/bar" /}
+    <div class="fixed-bar">
+        <div class="item-title">
+            <a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
+            <div class="subject">
+                <h3>编辑栏目</h3>
+                <h5></h5>
+            </div>
+            <ul class="tab-base nc-row">
+                <li><a href="{:url('Arctype/edit', ['id'=>$Request.param.typeid, 'tab'=>1])}" data-index='1' class="tab"><span>常规选项</span></a></li>
+                <li><a href="{:url('Arctype/edit', ['id'=>$Request.param.typeid, 'tab'=>2])}" data-index='2' class="tab"><span>高级选项</span></a></li>
+                <li><a href="{:url('Product/attribute_index', array('typeid'=>$Request.param.typeid, 'tab'=>$tab))}" data-index='3' class="tab {eq name='$tab' value='3'}current{/eq}"><span>参数列表</span></a></li>
+            </ul>
+        </div>
+    </div>
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
                 <h3>{$arctype_info.typename|default=''}</h3>
-                <h5>(共{$pager->totalRows}条记录)</h5>
+                <h5>(共{$pager->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-            <form class="navbar-form form-inline" action="{:U('Product/attribute_index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form id="searchForm" class="navbar-form form-inline" action="{:U('Product/attribute_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
-                    <!-- <div class="sDiv2">  
+                    <div class="sDiv2">  
                         <select name="typeid" class="select" style="margin:0px 5px;">
-                            <option value="">--全部栏目--</option>
                             {$select_html|default=''}
                         </select>
-                    </div> -->
+                    </div>
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="名称搜索...">
                         <input type="submit" class="btn" value="搜索">
@@ -193,6 +205,10 @@
         // 点击刷新数据
         $('.fa-refresh').click(function(){
             location.href = location.href;
+        });
+
+        $('#searchForm select[name=typeid]').change(function(){
+            $('#searchForm').submit();
         });
     });
 

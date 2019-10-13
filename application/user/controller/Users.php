@@ -189,7 +189,7 @@ class Users extends Base
                 setcookie('users_id',$GetUsers['users_id'],null);
                 $this->redirect(session('eyou_referurl'));
             }else{
-                $this->error('网络错误，请刷新后再试~~');
+                $this->error('未知错误，无法继续！');
             }
         }
     }
@@ -289,6 +289,9 @@ class Users extends Base
                     $this->users_db->where('users_id',$users_id)->update($data);
                     // 回跳路径
                     $url =  input('post.referurl/s', null, 'htmlspecialchars_decode,urldecode');
+
+                    // 更新用户Session信息
+                    model('Users')->UpUsersSessionData($users_id);
                     $this->success('登录成功', $url);
                 }else{
                     $this->error('密码不正确！', null, ['status'=>1]);
@@ -487,7 +490,7 @@ class Users extends Base
 
                 session('users_id',$users_id);
                 if (session('users_id')) {
-                    $users = M('users')->where("users_id",$users_id)->find();
+                    setcookie('users_id',$users_id,null);
                     if (empty($users_verification)) {
                         // 无需审核，直接登陆
                         $url = url('user/Users/centre');
@@ -947,7 +950,7 @@ class Users extends Base
 
                             $this->success('操作成功！');
                         }else{
-                            $this->error('网络错误，邮箱地址修改失败，请重新获取验证码！');
+                            $this->error('未知错误，邮箱地址修改失败，请重新获取验证码！');
                         }
                     }
                 }else{

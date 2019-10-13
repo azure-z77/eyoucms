@@ -1,15 +1,14 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;min-width: auto;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
-    {include file="guestbook/bar" /}
-    <div class="flexigrid">
-        <div class="mDiv">
+<div class="page" style="min-width: auto;">
+    <div class="flexigrid" {eq name='$Request.param.archives' value='1'}style="margin-top: 0px;"{/eq}>
+        <div class="mDiv" {eq name='$Request.param.archives' value='1'}style="padding: 5px 0px;"{/eq}>
             <div class="ftitle">
                 <h3>{$arctype_info.typename|default=''}</h3>
-                <h5>(共{$pager->totalRows}条记录)</h5>
+                <h5>(共{$pager->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:U('Guestbook/index')}" method="get" onsubmit="layer_loading('正在处理');">

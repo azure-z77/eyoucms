@@ -93,7 +93,7 @@ class Index extends Base
         $this->assign('share',$share);
         /*--end*/
 
-        /*系统提示*/
+        /*未备份数据库提示*/
         $system_explanation_welcome = $globalConfig['system_explanation_welcome'];
         $sqlfiles = glob(DATA_PATH.'sqldata/*');
         foreach ($sqlfiles as $file) {
@@ -103,6 +103,19 @@ class Index extends Base
         }
         $this->assign('system_explanation_welcome', $system_explanation_welcome);
         /*--end*/
+
+        /*检查密码复杂度*/
+        $admin_login_pwdlevel = -1;
+        $system_explanation_welcome_2 = $globalConfig['system_explanation_welcome_2'];
+        if (empty($system_explanation_welcome_2)) {
+            $admin_login_pwdlevel = session('admin_login_pwdlevel');
+            if (!session('?admin_login_pwdlevel') || 3 < intval($admin_login_pwdlevel)) {
+                $system_explanation_welcome_2 = 1;
+            }
+        }
+        $this->assign('admin_login_pwdlevel', $admin_login_pwdlevel);
+        $this->assign('system_explanation_welcome_2', $system_explanation_welcome_2);
+        /*end*/
 
         $this->assign('sys_info',$this->get_sys_info());
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
@@ -188,9 +201,9 @@ class Index extends Base
             delFile(RUNTIME_PATH.'html'); // 清空缓存页面
             session('isset_author', null);
             adminLog('验证商业授权');
-            $this->success('授权成功', request()->baseFile(), '', 1, [], '_parent');
+            $this->success('域名授权成功', request()->baseFile(), '', 1, [], '_parent');
         }
-        $this->error('验证授权失败', request()->baseFile(), '', 3, [], '_parent');
+        $this->error('域名（'.$this->request->domain().'）未授权', request()->baseFile(), '', 3, [], '_parent');
     }
 
     /**
@@ -235,11 +248,37 @@ class Index extends Base
                 'refresh'   => 0,
             ];
 
-            $table = input('post.table/s'); // 表名
-            $id_name = input('post.id_name/s'); // 表主键id名
-            $id_value = input('post.id_value/s'); // 表主键id值
-            $field  = input('post.field/s'); // 修改哪个字段
-            $value  = input('post.value/s', '', null); // 修改字段值  
+            $param = input('param.');
+            $table    = input('param.table/s'); // 表名
+            $id_name  = input('param.id_name/s'); // 表主键id名
+            $id_value = input('param.id_value/d'); // 表主键id值
+            $field    = input('param.field/s'); // 修改哪个字段
+            $value    = input('param.value/s', '', null); // 修改字段值
+            $value    = eyPreventShell($value) ? $value : strip_sql($value);
+
+            /*插件专用*/
+            if ('weapp' == $table) {
+                if (1 == intval($value)) { // 启用
+                    action('Weapp/enable', ['id' => $id_value]);
+                } else if (-1 == intval($value)) { // 禁用
+                    action('Weapp/disable', ['id' => $id_value]);
+                }
+            }
+            /*end*/
+
+            /*处理数据的安全性*/
+            if (empty($id_value)) {
+                $this->error('查询条件id不合法！');
+            }
+            foreach ($param as $key => $val) {
+                if ('value' == $key) {
+                    continue;
+                }
+                if (!preg_match('/^([A-Za-z0-9_-]*)$/i', $val)) {
+                    $this->error('数据含有非法入侵字符！');
+                }
+            }
+            /*end*/
 
             switch ($table) {
                 // 会员等级表

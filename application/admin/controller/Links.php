@@ -34,7 +34,7 @@ class Links extends Base
         $linksM =  M('links');
         $count = $linksM->where($condition)->count('id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $linksM->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        $list = $linksM->where($condition)->order('sort_order asc, id asc')->limit($Page->firstRow.','.$Page->listRows)->select();
 
         $show = $Page->show();// 分页显示输出
         $this->assign('page',$show);// 赋值分页输出

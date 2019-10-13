@@ -331,7 +331,7 @@ class Pay extends Base
                 $is_open_wechat = !empty($pay_wechat_config['is_open_wechat']) ? $pay_wechat_config['is_open_wechat'] : 0;
             }
             $this->assign('is_open_wechat', $is_open_wechat);
-            if ('1' == $is_open_wechat) {
+            if (1 == $is_open_wechat) {
                 // 若没有配置支付信息，则提示
                 $WechatMsg = '微信支付配置尚未配置完成。<br/>请前往会员中心-支付功能-微信支付配置<br/>填入收款的微信支付配置信息！';
                 $this->assign('WechatMsg', $WechatMsg);
@@ -343,7 +343,7 @@ class Pay extends Base
                 $is_open_alipay = !empty($pay_alipay_config['is_open_alipay']) ? $pay_alipay_config['is_open_alipay'] : 0;
             }
             $this->assign('is_open_alipay', $is_open_alipay);
-            if ('1' == $is_open_alipay) {
+            if (1 == $is_open_alipay) {
                 // 若没有配置支付信息，则提示
                 $AlipayMsg = '支付宝支付配置尚未配置完成。<br/>请前往会员中心-支付功能-支付宝支付配置<br/>填入收款的支付宝支付配置信息！';
                 $this->assign('AlipayMsg', $AlipayMsg);

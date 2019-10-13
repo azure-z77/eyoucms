@@ -12,16 +12,27 @@
  */
 
 namespace think\template\taglib\eyou;
+use think\Db;
 
 /**
  * 购物车列表
  */
 class TagSpcart extends Base
 {
+    /**
+     * 会员ID
+     */
+    public $users_id = 0;
+    public $users    = [];
+
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
+        // 会员信息
+        $this->users    = session('users');
+        $this->users_id = session('users_id');
+        $this->users_id = !empty($this->users_id) ? $this->users_id : 0;
     }
 
     /**
@@ -31,20 +42,46 @@ class TagSpcart extends Base
     {
         // 查询条件
         $condition = [
-            'a.users_id' => session('users_id'),
+            'a.users_id' => $this->users_id,
             'a.lang'     => $this->home_lang,
             'b.arcrank'  => array('egt','0'),  // 带审核稿件不查询(同等伪删除)
         ];
 
-        $list = M("shop_cart")->field('a.*,b.title,b.litpic,b.users_price')
+        $list = M("shop_cart")
+            ->field('a.*,b.title,b.litpic,b.users_price,b.stock_count,c.spec_price,c.spec_stock')
             ->alias('a')
             ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+            ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
             ->where($condition)
             ->limit($limit)
-            ->order('a.add_time desc')
+            ->order('a.selected desc, a.add_time desc')
             ->select();
-
         if (empty($list)) { return false; }
+
+        // 规格商品价格及库存处理
+        $CartIds = [];
+        foreach ($list as $key => $value) {
+            if (!empty($value['spec_value_id'])) {
+                if (!empty($value['spec_price'])) {
+                    // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
+                    $list[$key]['users_price'] = $value['spec_price'];
+                }
+                if (!empty($value['spec_stock'])) {
+                    // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
+                    $list[$key]['stock_count'] = $value['spec_stock'];
+                }else{
+                    $list[$key]['stock_count'] = 0;
+                    $list[$key]['selected']    = 0;
+                    $list[$key]['IsSoldOut']   = 1; // 已售罄
+                    array_push($CartIds, $value['cart_id']);
+                }
+            }
+        }
+
+        if (!empty($CartIds)) {
+            // 更新购物车库存为空的商品
+            M("shop_cart")->where('cart_id','IN',$CartIds)->update(['selected'=>0]);
+        }
 
         // 订单数据处理
         $result = [
@@ -56,9 +93,18 @@ class TagSpcart extends Base
 
         $controller_name = 'Product';
         $array_new = get_archives_data($list,'product_id');
+        $level_discount = $this->users['level_discount'];
 
         foreach ($list as $key => $value) {
-            if (!empty($value['users_price']) && !empty($value['product_num'])) {
+            // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
+            if (!empty($level_discount)) {
+                // 折扣率百分比
+                $discount_price = $level_discount / 100;
+                $value['users_price']      = $value['users_price'] * $discount_price;
+                $list[$key]['users_price'] = $value['users_price'];
+            }
+            $list[$key]['subtotal'] = 0;
+            if (!empty($value['users_price'])) {
                 // 计算小计
                 $list[$key]['subtotal'] = $value['users_price'] * $value['product_num'];
                 $list[$key]['subtotal'] = sprintf("%.2f", $list[$key]['subtotal']);
@@ -92,10 +138,42 @@ class TagSpcart extends Base
                 }
             }
 
-            $list[$key]['CartChecked'] = " name=\"ey_buynum\" id=\"{$value['cart_id']}_checked\" cart-id=\"{$value['cart_id']}\" product-id=\"{$value['product_id']}\" onclick=\"Checked('{$value['cart_id']}','{$value['selected']}');\" ";
+            // 规格处理
+            if (!empty($value['spec_value_id'])) {
+                $spec_value_id = explode('_', $value['spec_value_id']);
+                if (!empty($spec_value_id)) {
+                    $SpecWhere = [
+                        'aid'           => $value['product_id'],
+                        'lang'          => $this->home_lang,
+                        'spec_value_id' => ['IN',$spec_value_id],
+                    ];
+                    $ProductSpecData = M("product_spec_data")->where($SpecWhere)->field('spec_name,spec_value')->select();
+                    foreach ($ProductSpecData as $spec_value) {
+                        $list[$key]['attr_value'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
+                    }
+                }
+            }
+
+            if (isset($value['IsSoldOut']) && !empty($value['IsSoldOut'])) {
+                $list[$key]['CartChecked'] = " disabled='true' title='已售罄'";
+                $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
+                $list[$key]['UpdateQuantity'] = " onchange=\"CartUnifiedAlgorithm('IsSoldOut');\" value=\"0\" ";
+                $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
+            }else{
+                $list[$key]['CartChecked'] = " name=\"ey_buynum\" id=\"{$value['cart_id']}_checked\" cart-id=\"{$value['cart_id']}\" product-id=\"{$value['product_id']}\" onclick=\"Checked('{$value['cart_id']}','{$value['selected']}');\" ";
+                $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('{$value['stock_count']}','{$value['product_id']}','-','{$value['selected']}','{$value['spec_value_id']}','{$value['cart_id']}');\" ";
+                $list[$key]['UpdateQuantity'] = " onkeyup=\"this.value=this.value.replace(/[^0-9\.]/g,'')\" onafterpaste=\"this.value=this.value.replace(/[^0-9\.]/g,'')\"  onchange=\"CartUnifiedAlgorithm('{$value['stock_count']}','{$value['product_id']}','change','{$value['selected']}','{$value['spec_value_id']}','{$value['cart_id']}');\" value=\"{$value['product_num']}\" id=\"{$value['cart_id']}_num\" ";
+                $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('{$value['stock_count']}','{$value['product_id']}','+','{$value['selected']}','{$value['spec_value_id']}','{$value['cart_id']}');\" ";
+            }
+
+            $list[$key]['ProductId']     = " id=\"{$value['cart_id']}_product\" ";
+            $list[$key]['SubTotalId']    = " id=\"{$value['cart_id']}_subtotal\" ";
+            $list[$key]['UsersPriceId']  = " id=\"{$value['cart_id']}_price\" ";
+            $list[$key]['CartDel']       = " onclick=\"CartDel('{$value['cart_id']}','{$value['title']}');\" ";
             $list[$key]['hidden']   = <<<EOF
 <input type="hidden" id="{$value['cart_id']}_Selected" value="{$value['selected']}">
-<script type="text/javascript"> 
+<input type="hidden" id="SpecStockCount" value="{$value['spec_stock']}">
+<script type="text/javascript">
 $(function(){
     if ('1' == $('#'+{$value['cart_id']}+'_Selected').val()) {
         $('#'+{$value['cart_id']}+'_checked').prop('checked','true');
@@ -103,14 +181,6 @@ $(function(){
 }); 
 </script>
 EOF;
-            $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('{$value['product_id']}','-','{$value['selected']}');\" ";
-            $list[$key]['UpdateQuantity'] = " onkeyup=\"this.value=this.value.replace(/[^0-9\.]/g,'')\" onafterpaste=\"this.value=this.value.replace(/[^0-9\.]/g,'')\"  onchange=\"CartUnifiedAlgorithm('{$value['product_id']}','change','{$value['selected']}');\" value=\"{$value['product_num']}\" id=\"{$value['product_id']}_num\" ";
-            $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('{$value['product_id']}','+','{$value['selected']}');\" ";
-            $list[$key]['ProductId']     = " id=\"{$value['cart_id']}_product\" ";
-            $list[$key]['SubTotalId']    = " id=\"{$value['product_id']}_subtotal\" ";
-            $list[$key]['UsersPriceId']  = " id=\"{$value['product_id']}_price\" ";
-            $list[$key]['CartDel']       = " onclick=\"CartDel('{$value['cart_id']}','{$value['title']}');\" ";
-
         }
         
         $result['list'] = $list;

@@ -9,7 +9,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>订单列表</h3>
-                <h5>(共{$pageObj->totalRows}条记录)</h5>
+                <h5>(共{$pageObj->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" id="postForm" action="{:url('Shop/index')}" method="get" onsubmit="layer_loading('正在处理');">
@@ -223,7 +223,7 @@
             $.ajax({
                 type : 'get',
                 url : "{:url('Shop/ajax_syn_theme_shop')}",
-                data : {},
+                data : {_ajax:1},
                 dataType : 'json',
                 success : function(res){
                     layer.closeAll();
@@ -237,7 +237,7 @@
                 },
                 error: function(e){
                     layer.closeAll();
-                    layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false}, function(){
+                    layer.alert(ey_unknown_error, {icon: 2, title:false}, function(){
                         window.location.reload();
                     });
                 }
@@ -295,7 +295,7 @@
         },function(){
             $.ajax({
                 url: "{:url('Shop/order_mark_status')}",
-                data: {order_id:order_id,status_name:status_name,users_id:users_id},
+                data: {order_id:order_id,status_name:status_name,users_id:users_id, _ajax:1},
                 type:'post',
                 dataType:'json',
                 success:function(res){
@@ -317,7 +317,7 @@
     function UpNote(order_id,admin_note){
         $.ajax({
             url: "{:url('Shop/update_note')}",
-            data: {order_id:order_id,admin_note:admin_note},
+            data: {order_id:order_id,admin_note:admin_note, _ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){

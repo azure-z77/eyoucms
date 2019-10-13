@@ -244,7 +244,7 @@
                                         },
                                         error: function(e){
                                             layer.closeAll();
-                                            layer.alert('网络失败，请刷新页面后重试', {icon: 5, title:false});
+                                            layer.alert(ey_unknown_error, {icon: 5, title:false});
                                         }
                                     })
                                 }
@@ -253,7 +253,7 @@
                     },
                     error: function(){
                         layer.closeAll();
-                        layer.alert('网络失败，请刷新页面后重试', {icon: 5, title:false});
+                        layer.alert(ey_unknown_error, {icon: 5, title:false});
                     }
                 });
             }
@@ -331,7 +331,7 @@
                         $.ajax({
                             type : "POST",
                             url  : "__ROOT_DIR__/index.php?m=api&c=Rewrite&a=setInlet",
-                            data : {seo_inlet:0},
+                            data : {seo_inlet:0,_ajax:1},
                             dataType : "JSON",
                             success: function(res) {
 
@@ -378,7 +378,7 @@
         layer_loading("正在处理");
         var init_html = $('#init_html').val();
         $.ajax({
-            url: $('#handlepost').attr('action'),
+            url: "{:url('Seo/handle', ['_ajax'=>1])}",
             type: 'POST',
             dataType: 'json',
             data: $('#handlepost').serialize(),
@@ -425,7 +425,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 5, title:false});
+                layer.alert(ey_unknown_error, {icon: 5, title:false});
             }
         });
     }
@@ -513,7 +513,7 @@
             //生成整站
             $("#up_site").click(function(){
                 $.ajax({
-                    url: $('#handlepost').attr('action'),
+                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -539,7 +539,7 @@
             //生成首页
             $("#up_index").click(function(){
                 $.ajax({
-                    url: $('#handlepost').attr('action'),
+                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -576,6 +576,10 @@
                                 },
                                 complete:function(){
                                     // layer.alert(1, {icon: 5, title:false});
+                                },
+                                error: function(e){
+                                    layer.closeAll();
+                                    layer.alert('生成失败！', {icon: 5, title:false});
                                 }
                             });
                         }
@@ -590,7 +594,7 @@
             //生成栏目页
             $("#up_channel").click(function(){
                 $.ajax({
-                    url: $('#handlepost').attr('action'),
+                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -617,7 +621,7 @@
             //生成文章页
             $("#up_article").click(function(){
                 $.ajax({
-                    url: $('#handlepost').attr('action'),
+                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),

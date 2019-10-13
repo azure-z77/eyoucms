@@ -160,10 +160,16 @@ class Arctype extends Model
     {
         if (is_array($id)) {
             $ids = array_unique($id);
-            $row = db('Arctype')->field('parent_id, count(id) AS total')->where(['parent_id'=>['IN', $ids]])->group('parent_id')->getAllWithIndex('parent_id');
+            $row = db('Arctype')->field('parent_id, count(id) AS total')->where([
+                    'parent_id'=>['IN', $ids],
+                    'is_del'    => 0,
+                ])->group('parent_id')->getAllWithIndex('parent_id');
             return $row;
         } else {
-            $count = db('Arctype')->where('parent_id', $id)->count('id');
+            $count = db('Arctype')->where([
+                    'parent_id' => $id,
+                    'is_del'    => 0,
+                ])->count('id');
             return ($count > 0 ? 1 : 0);
         }
     }
@@ -429,6 +435,7 @@ class Arctype extends Model
             'model',
             'Arctype',
             'getAllPid',
+            THEME_STYLE,
             $id,
         );
         $cacheKey = json_encode($cacheKey);

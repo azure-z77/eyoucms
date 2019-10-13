@@ -60,7 +60,7 @@ class Field extends Base
         foreach (['keywords'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    $condition['a.name'] = array('LIKE', "%{$param[$key]}%");
+                    $condition['a.name|a.title'] = array('LIKE', "%{$param[$key]}%");
                     // 过滤指定字段
                     // $banFields = ['id'];
                     // $condition['a.name'] = array(
@@ -729,7 +729,7 @@ class Field extends Base
         foreach (['keywords'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    $condition['name'] = array('LIKE', "%{$param[$key]}%");
+                    $condition['name|title'] = array('LIKE', "%{$param[$key]}%");
                 } else {
                     $condition[$key] = array('eq', $param[$key]);
                 }

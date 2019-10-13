@@ -75,6 +75,22 @@
                         </label>
                     </dd>
                 </dl>
+
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="username">商品规格</label>
+                    </dt>
+                    <dd class="opt" style="line-height: 30px;">
+                        <input type="hidden" id="TestPass" name="TestPass" value="{$TestPass}">
+                        <label><input type="radio" onclick="tag_call('shop_open', '{$TestPass}');" name="shop[shop_open_spec]" value="1" {if condition="$userConfig.shop_open_spec == 1"}checked="checked"{/if}/>开启</label>
+                        &nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="shop[shop_open_spec]" value="0" {if condition="!isset($userConfig.shop_open_spec) || empty($userConfig.shop_open_spec)"}checked="checked"{/if}/>关闭</label>
+                        <!--&nbsp;
+                        <span id="a_shop_open_spec" {if condition="!isset($userConfig.shop_open_spec) || empty($userConfig.shop_open_spec)"}style="display:none;"{/if}>
+                            <a href="javascript:void(0);" id='shop_open' onclick="tag_call('shop_open');" class="ncap-btn ncap-btn-green">标签调用</a>
+                        </span>-->
+                    </dd>
+                </dl>
             </div>
 
             <div class="ncap-form-default">
@@ -90,13 +106,12 @@
 <script type="text/javascript">
 
     $(function(){
-
         // 点击刷新数据
         $('.fa-refresh').click(function(){
             location.href = location.href;
         });
 
-        $('input[name="shop[shop_open_shipping]"]').click(function(){
+        $('input[name="shop[shop_open_shipping]"]').click(function() {
             var shop_open_shipping = $(this).val();
             if (1 == shop_open_shipping) {
                 $('#a_shop_open_shipping').show();
@@ -104,9 +119,18 @@
                 $('#a_shop_open_shipping').hide();
             }
         });
+
+        // $('input[name="shop[shop_open_spec]"]').click(function() {
+        //     var shop_open_spec = $(this).val();
+        //     if (1 == shop_open_spec) {
+        //         $('#a_shop_open_spec').show();
+        //     } else {
+        //         $('#a_shop_open_spec').hide();
+        //     }
+        // });
     });
 
-    function SetShipping(){
+    function SetShipping() {
         var url = "{:url('Shop/shipping_template')}";
         //iframe窗
         layer.open({
@@ -119,8 +143,76 @@
         });
     }
 
+    // 标签调用
+    function tag_call(name, TestPass) {
+        if (1 == TestPass) return false
+        $.ajax({
+            type: "POST",
+            url: "{:url('System/ajax_tag_call', ['_ajax'=>1])}",
+            data: {name:name},
+            dataType: 'json',
+            success: function (res) {
+                if(res.code == 1){
+                    //询问框
+                    var confirm = layer.confirm(res.data.msg, {
+                            title: false,
+                            area: ['80%','80%'],
+                            btn: ['已完成，验证下','下次再操作'],
+                            cancel: function(){
+                                window.location.href = "{:url('Shop/conf',['close'=>1])}";
+                            }
+                        }, function (){
+                            VerifyLatestTemplate(name);
+
+                        }, function(){
+                            window.location.href = "{:url('Shop/conf',['close'=>1])}";
+                        }
+                    );  
+                }else{
+                    layer.alert(res.msg, {icon: 2, title:false});
+                }
+            },
+            error:function(){
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            }
+        });
+    }
+
+    // 检测文件是否最新版
+    function VerifyLatestTemplate(name, is_close) {
+        layer_loading('正在处理');
+        $.ajax({
+            type: "POST",
+            url: "{:url('Shop/VerifyLatestTemplate', ['_ajax'=>1])}",
+            data: {name:name, is_close:is_close},
+            dataType: 'json',
+            success: function (res) {
+                layer.closeAll();
+                if(res.code == 1){
+                    layer.msg(res.msg, {icon: 1, time:1500}, function(){
+                        window.location.href = "{:url('Shop/conf')}";
+                    });
+                }else{
+                    layer.alert(res.msg, {
+                        icon: 2, 
+                        title: false,
+                        cancel: function(){ 
+                            window.location.href = "{:url('Shop/conf')}";
+                        }
+                    }, function(){
+                        window.location.href = "{:url('Shop/conf')}";
+                    });
+                }
+            },
+            error:function(){
+                layer.closeAll();
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            }
+        });
+    }
+
     // 判断输入框是否为空
-    function ShopConfig(){
+    function ShopConfig() {
         layer_loading('正在处理');
         $('#post_form').submit();
     }

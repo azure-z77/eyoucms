@@ -15,6 +15,7 @@ var ueditor_toolbars = [[
 ]];
 
 var layer_tips; // 全局提示框的对象
+var ey_unknown_error = '未知错误，无法继续！';
 
 $(function(){
     auto_notic_tips();
@@ -47,14 +48,15 @@ function batch_del(obj, name) {
         return;
     }
     // 删除按钮
-    layer.confirm('此操作不可逆，确认批量删除？', {
+    layer.confirm('此操作不可恢复，确定批量删除？', {
+        title: false,
         btn: ['确定', '取消'] //按钮
     }, function () {
         layer_loading('正在处理');
         $.ajax({
             type: "POST",
             url: $(obj).attr('data-url'),
-            data: {del_id:a},
+            data: {del_id:a, _ajax:1},
             dataType: 'json',
             success: function (data) {
                 layer.closeAll();
@@ -62,12 +64,12 @@ function batch_del(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2});
+                    layer.alert(data.msg, {icon: 2, title:false});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -79,15 +81,16 @@ function batch_del(obj, name) {
  * 单个删除
  */
 function delfun(obj) {
-    layer.confirm('此操作不可逆，确认删除？', {
-          btn: ['确定','取消'] //按钮
+    layer.confirm('此操作不可恢复，确认删除？', {
+            title: false,
+            btn: ['确定','取消'] //按钮
         }, function(){
             // 确定
             layer_loading('正在处理');
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id')},
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -95,7 +98,7 @@ function delfun(obj) {
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2});
+                        layer.alert(data.msg, {icon: 2, title:false});
                     }
                 }
             })
@@ -144,13 +147,14 @@ function batch_move(obj, name) {
     }
     // 删除按钮
     layer.confirm('确认批量移动？', {
+        title: false,
         btn: ['确定', '取消'] //按钮
     }, function () {
         layer_loading('正在处理');
         $.ajax({
             type: "POST",
             url: $(obj).attr('data-url'),
-            data: {move_id:a},
+            data: {move_id:a, _ajax:1},
             dataType: 'json',
             success: function (data) {
                 layer.closeAll();
@@ -158,12 +162,12 @@ function batch_move(obj, name) {
                     layer.msg(data.msg, {icon: 1});
                     window.location.reload();
                 }else{
-                    layer.alert(data.msg, {icon: 2});
+                    layer.alert(data.msg, {icon: 2, title:false});
                 }
             },
             error:function(){
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2});
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -175,51 +179,52 @@ function batch_move(obj, name) {
 // 修改指定表的指定字段值 包括有按钮点击切换是否 或者 排序 或者输入框文字
 function changeTableVal(table,id_name,id_value,field,obj)
 {   
-        var src = "";
-         if($(obj).hasClass('no')) // 图片点击是否操作
-         {          
-            //src = '/public/images/yes.png';
-            $(obj).removeClass('no').addClass('yes');
-            $(obj).html("<i class='fa fa-check-circle'></i>是");
-            var value = 1;
-            try {  
-                if ($(obj).attr('data-value')) {
-                    value = $(obj).attr('data-value');
-                }
-            } catch(e) {  
-                // 出现异常以后执行的代码  
-                // e:exception，用来捕获异常的信息  
-            } 
-                
-         }else if($(obj).hasClass('yes')){ // 图片点击是否操作                     
-            $(obj).removeClass('yes').addClass('no');
-            $(obj).html("<i class='fa fa-ban'></i>否");
-            var value = 0;
-            try {  
-                if ($(obj).attr('data-value')) {
-                    value = $(obj).attr('data-value');
-                }
-            } catch(e) {  
-                // 出现异常以后执行的代码  
-                // e:exception，用来捕获异常的信息  
-            } 
-         }else{ // 其他输入框操作
-            var value = $(obj).val();            
-         }      
-                                                   
-        $.ajax({
-            type:'POST',
-            url: eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value,         
-            success: function(data){
-                 if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
-                    layer.msg('更新成功', {icon: 1});  
-                 } else {
-                    if (0 == data.code) {
-                        layer.msg(data.msg, {icon: 2});  
-                    }
-                 }
+    var src = "";
+    if($(obj).hasClass('no')) // 图片点击是否操作
+    {          
+        //src = '/public/images/yes.png';
+        $(obj).removeClass('no').addClass('yes');
+        $(obj).html("<i class='fa fa-check-circle'></i>是");
+        var value = 1;
+        try {  
+            if ($(obj).attr('data-value')) {
+                value = $(obj).attr('data-value');
             }
-        }); 
+        } catch(e) {  
+            // 出现异常以后执行的代码  
+            // e:exception，用来捕获异常的信息  
+        } 
+            
+    }else if($(obj).hasClass('yes')){ // 图片点击是否操作                     
+        $(obj).removeClass('yes').addClass('no');
+        $(obj).html("<i class='fa fa-ban'></i>否");
+        var value = 0;
+        try {  
+            if ($(obj).attr('data-value')) {
+                value = $(obj).attr('data-value');
+            }
+        } catch(e) {  
+            // 出现异常以后执行的代码  
+            // e:exception，用来捕获异常的信息  
+        } 
+    }else{ // 其他输入框操作
+        var value = $(obj).val();            
+    }      
+
+    $.ajax({
+        type:'POST',
+        url: eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value,
+        data: {_ajax:1},
+        success: function(data){
+            if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
+                layer.msg('更新成功', {icon: 1});  
+            } else {
+                if (0 == data.code) {
+                    layer.msg(data.msg, {icon: 2});  
+                }
+            }
+        }
+    }); 
 }
 
 /**
@@ -302,7 +307,7 @@ function GetUploadify(num,elementid,path,callback,url)
             content: upurl
          });
     } else {
-        layer.alert('允许上传0张图片', {icon:2});
+        layer.alert('允许上传0张图片', {icon:2, title:false});
         return false;
     }
 }

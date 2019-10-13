@@ -52,19 +52,20 @@ class TagArclist extends Base
      * @param     int  $row  调用行数
      * @param     string  $orderby  排列顺序
      * @param     string  $addfields  附加表字段，以逗号隔开
-     * @param     string  $orderWay  排序方式
+     * @param     string  $orderway  排序方式
      * @param     string  $tagid  标签id
      * @param     string  $tag  标签属性集合
      * @param     string  $pagesize  分页显示条数
+     * @param     string  $thumb  是否开启缩略图
      * @return    array
      */
-    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderWay = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '')
+    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderway = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '')
     {
         $result = false;
 
         $channeltype = ("" != $param['channel'] && is_numeric($param['channel'])) ? intval($param['channel']) : '';
         $param['typeid'] = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
-        empty($orderWay) && $orderWay = 'desc';
+        empty($orderway) && $orderway = 'desc';
         $pagesize = empty($pagesize) ? intval($row) : intval($pagesize);
         $limit = $row;
 
@@ -101,53 +102,56 @@ class TagArclist extends Base
         }
         /*--end*/
 
-        if (!empty($channeltype)) { // 如果指定了频道ID，则频道下的所有文档都展示
+        if (!empty($param['joinaid'])) {
+            $joinaid = intval($param['joinaid']);
             unset($param['typeid']);
+            unset($param['channel']);
+            
         } else {
-            // unset($param['channel']);
-            if (!empty($typeid)) {
-                $typeidArr = explode(',', $typeid);
-                if (count($typeidArr) == 1) {
-                    $typeid = intval($typeid);
-                    $channel_info = M('Arctype')->field('id,current_channel')->where(array('id'=>array('eq', $typeid)))->find();
-                    if (empty($channel_info)) {
-                        echo '标签arclist报错：指定属性 typeid 的栏目ID不存在。';
-                        return false;
-                    }
-                    $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : ''; // 当前栏目ID所属模型ID
-                    /*当前模型ID不属于含有列表模型，直接返回无数据*/
-                    if (false === array_search($channeltype, $allow_release_channel)) {
-                        return false;
-                    }
-                    /*end*/
-                    /*获取当前栏目下的所有同模型的子孙栏目*/
-                    $arctype_list = model("Arctype")->getHasChildren($channel_info['id']);
-                    foreach ($arctype_list as $key => $val) {
-                        if ($channeltype != $val['current_channel']) {
-                            unset($arctype_list[$key]);
+
+            if (!empty($channeltype)) { // 如果指定了频道ID，则频道下的所有文档都展示
+                unset($param['typeid']);
+            } else {
+                // unset($param['channel']);
+                if (!empty($typeid)) {
+                    $typeidArr = explode(',', $typeid);
+                    if (count($typeidArr) == 1) {
+                        $typeid = intval($typeid);
+                        $channel_info = M('Arctype')->field('id,current_channel')->where(array('id'=>array('eq', $typeid)))->find();
+                        if (empty($channel_info)) {
+                            echo '标签arclist报错：指定属性 typeid 的栏目ID不存在。';
+                            return false;
                         }
+                        $channeltype = !empty($channel_info) ? $channel_info["current_channel"] : ''; // 当前栏目ID所属模型ID
+                        /*当前模型ID不属于含有列表模型，直接返回无数据*/
+                        if (false === array_search($channeltype, $allow_release_channel)) {
+                            return false;
+                        }
+                        /*end*/
+                        /*获取当前栏目下的所有同模型的子孙栏目*/
+                        $arctype_list = model("Arctype")->getHasChildren($channel_info['id']);
+                        foreach ($arctype_list as $key => $val) {
+                            if ($channeltype != $val['current_channel']) {
+                                unset($arctype_list[$key]);
+                            }
+                        }
+                        $typeids = get_arr_column($arctype_list, "id");
+                        $typeids[] = $typeid;
+                        $typeid = implode(",", $typeids);
+                        /*--end*/
+                    } elseif (count($typeidArr) > 1) {
+    /*                    $firstTypeid = $typeidArr[0];
+                        $firstTypeid = M('Arctype')->where(array('id|dirname'=>array('eq', $firstTypeid)))->getField('id');
+                        $channeltype = M('Arctype')->where(array('id'=>array('eq', $firstTypeid)))->getField('current_channel');*/
                     }
-                    $typeids = get_arr_column($arctype_list, "id");
-                    $typeids[] = $typeid;
-                    $typeid = implode(",", $typeids);
-                    /*--end*/
-                } elseif (count($typeidArr) > 1) {
-/*                    $firstTypeid = $typeidArr[0];
-                    $firstTypeid = M('Arctype')->where(array('id|dirname'=>array('eq', $firstTypeid)))->getField('id');
-                    $channeltype = M('Arctype')->where(array('id'=>array('eq', $firstTypeid)))->getField('current_channel');*/
+                    $param['channel'] = $channeltype;
                 }
-                $param['channel'] = $channeltype;
             }
         }
 
-/*        if (empty($typeid) && empty($channeltype)) {
-            echo '标签arclist报错：至少指定属性 typeid | channelid 任何一个。';
-            return $result;
-        }*/
-
         // 查询条件
         $condition = array();
-        foreach (array('keywords','typeid','notypeid','flag','noflag','channel') as $key) {
+        foreach (array('keywords','typeid','notypeid','flag','noflag','channel','joinaid') as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
                     array_push($condition, "a.title LIKE %{$param[$key]}%");
@@ -216,7 +220,7 @@ class TagArclist extends Base
         }
 
         // 给排序字段加上表别名
-        $orderby = getOrderBy($orderby,$orderWay,true);
+        $orderby = getOrderBy($orderby,$orderway,true);
 
         // 获取查询的控制器名
         $channeltype_info = model('Channeltype')->getInfo($channeltype);
@@ -224,8 +228,11 @@ class TagArclist extends Base
         $channeltype_table = $channeltype_info['table'];
 
         /*用于arclist标签的分页*/
-        $taghash = md5(serialize($tag).$typeid); // 统一hash
-        if(0 < $pagesize) $tagid = $this->attDef($tagid,'arclist'.$taghash ); // 进行tagid的默认处理
+        if(0 < $pagesize) {
+            $tag['typeid'] = $typeid;
+            $tag['channel'] = $channeltype;
+            $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
+        }
         /*--end*/
 
         // 查询数据处理
@@ -308,23 +315,15 @@ class TagArclist extends Base
         if(0 < $pagesize)
         {
             $arcmulti_db = \think\Db::name('arcmulti');
-            $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagid])->find();
-            !isset($tag['typeid']) && $tag['typeid'] = $typeid;
+            $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagidmd5])->find();
             $attstr = addslashes(serialize($tag)); //记录属性,以便分页样式统一调用
-
-            $innertext = '';
-            $filename = \think\Config::get('template.view_path').'system/arclist_'.$tagid.'.'.\think\Config::get('template.view_suffix');
-            if (file_exists($filename) && is_file($filename)) {
-                $innertextStr = @file_get_contents($filename);
-                $innertextStr && $innertext = addslashes($innertextStr);
-            }
 
             if(empty($arcmultiRow))
             {
                 $arcmulti_db->insert([
-                    'tagid' => $tagid,
+                    'tagid' => $tagidmd5,
                     'tagname'   => 'arclist',
-                    'innertext' => $innertext,
+                    'innertext' => '',
                     'pagesize'  => $pagesize,
                     'querysql'  => $querysql,
                     'ordersql'  => $orderby,
@@ -336,10 +335,10 @@ class TagArclist extends Base
                 ]);
             } else {
                 $arcmulti_db->where([
-                    'tagid' => $tagid,
+                    'tagid' => $tagidmd5,
                     'tagname' => 'arclist',
                 ])->update([
-                    'innertext' => $innertext,
+                    'innertext' => '',
                     'pagesize'  => $pagesize,
                     'querysql'  => $querysql,
                     'ordersql'  => $orderby,
@@ -351,18 +350,29 @@ class TagArclist extends Base
             }
         }
 
-        return $result;
+        $data = [
+            'tag'    => $tag,
+            'list'      => $result,
+        ];
+
+        return $data;
     }
 
     /**
-     *  默认属性
+     *  生成hash唯一串
      *
-     * @param     string  $oldvar  旧的值
-     * @param     string  $nv      新值
+     * @param     array  $tag 标签属性
      * @return    string
      */
-    private function attDef($oldvar, $nv)
+    private function attDef($tag)
     {
-        return empty($oldvar) ? $nv : $oldvar;
+        $tagmd5 = md5(serialize($tag));
+        if (!empty($tag['tagid'])) {
+            $tagidmd5 = $tag['tagid'].'_'.$tagmd5;
+        } else {
+            $tagidmd5 = 'arclist_'.$tagmd5;
+        }
+
+        return $tagidmd5;
     }
 }

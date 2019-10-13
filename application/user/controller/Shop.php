@@ -152,6 +152,8 @@ class Shop extends Base
                 // 更新订单主表
                 $return = $this->shop_order_db->where($Where)->update($Data);
                 if (!empty($return)) {
+                    // 订单取消，还原单内产品数量 
+                    model('ProductSpecValue')->SaveProducSpecValueStock($order_id, $this->users_id);
                     // 添加订单操作记录
                     AddOrderAction($order_id,$this->users_id,'0','0','0','0','订单取消！','会员关闭订单！');
                     $this->success('订单已取消！');
@@ -167,6 +169,10 @@ class Shop extends Base
     {
         if (IS_AJAX_POST) {
             $param = input('param.');
+
+            // 商品是否已售罄
+            $this->IsSoldOut($param);
+
             // 数量不可为空
             if (empty($param['num']) || 0 > $param['num']) {
                 $this->error('请选择数量！');
@@ -185,6 +191,13 @@ class Shop extends Base
                     'aid'         => $param['aid'],
                     'product_num' => $param['num'],
                 ];
+
+                /*若开启多规格则执行*/
+                if (!empty($this->usersConfig['shop_open_spec']) && !empty($param['spec_value_id'])) {
+                    $querydata['spec_value_id'] = $param['spec_value_id'];
+                }
+                /* END */
+
                 $querystr   = base64_encode(serialize($querydata));
                 $url = urldecode(url('user/Shop/shop_under_order', ['querystr'=>$querystr]));
                 $this->success('立即购买！',$url);
@@ -201,6 +214,9 @@ class Shop extends Base
     {
         if (IS_AJAX_POST) {
             $param = input('param.');
+            // 商品是否已售罄
+            $this->IsSoldOut($param);
+
             // 数量不可为空
             if (empty($param['num']) || 0 > $param['num']) {
                 $this->error('请选择数量！');
@@ -220,6 +236,13 @@ class Shop extends Base
                     'product_id' => $param['aid'],
                     'lang'       => $this->home_lang,
                 ];
+
+                /*若开启多规格则执行*/
+                if (!empty($this->usersConfig['shop_open_spec']) && !empty($param['spec_value_id'])) {                    
+                    $cart_where['spec_value_id'] = $param['spec_value_id'];
+                }
+                /* END */
+
                 $product_num = $this->shop_cart_db->where($cart_where)->getField('product_num');
                 if (!empty($product_num)) {
                     // 购物车内已有相同产品，进行数量更新。
@@ -231,6 +254,7 @@ class Shop extends Base
                     $data['users_id']    = $this->users_id;
                     $data['product_id']  = $param['aid'];
                     $data['product_num'] = $param['num'];
+                    $data['spec_value_id'] = $param['spec_value_id'];
                     $data['add_time']    = getTime();
                     $cart_id = $this->shop_cart_db->add($data);
                 }
@@ -254,6 +278,8 @@ class Shop extends Base
             $aid    = input('post.aid');
             $symbol = input('post.symbol');
             $num    = input('post.num');
+            $spec_value_id = input('post.spec_value_id');
+
             // 查询条件
             $archives_where = [
                 'arcrank' => array('egt','0'),
@@ -267,6 +293,7 @@ class Shop extends Base
                     'users_id'    => $this->users_id,
                     'product_id'  => $aid,
                     'lang'        => $this->home_lang,
+                    'spec_value_id' => $spec_value_id,
                 ];
                 // 判断追加查询条件，当减数量时，商品数量最少为1
                 if ('-' == $symbol) {
@@ -294,15 +321,37 @@ class Shop extends Base
                         'a.selected' => 1,
                     ];
                     $CartData = $this->shop_cart_db
-                        ->field('sum(a.product_num) as num, sum(a.product_num * b.users_price) as price')
+                        ->field('a.product_num, b.users_price, c.spec_price')
                         ->alias('a') 
                         ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+                        ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
                         ->where($CaerWhere)
-                        ->find();
+                        ->select();
+
+                    $level_discount = $this->users['level_discount'];
+                    $discount_price = $level_discount / 100;
+                    $spec_price = $users_price = $num_new = 0;
+                    foreach ($CartData as $key => $value) {
+                        if (!empty($value['spec_price'])) {
+                            if (!empty($level_discount)) {
+                                $value['spec_price'] = $value['spec_price'] * $discount_price;
+                            }
+                            $spec_price += $value['product_num'] * $value['spec_price'];
+                        }else{
+                            if (!empty($level_discount)) {
+                                $value['users_price'] = $value['users_price'] * $discount_price;
+                            }
+                            $users_price += $value['product_num'] * $value['users_price'];
+                        }
+                        $num_new += $value['product_num'];
+                    }
+                    $CartData['num']   = $num_new;
+                    $CartData['price'] = sprintf("%.2f",$spec_price + $users_price);
                     if (empty($CartData['num']) && empty($CartData['price'])) {
                         $CartData['num']   = '0';
                         $CartData['price'] = '0.00';
                     }
+
                     if (!empty($cart_id)) {
                         $this->success('操作成功！','',['NumberVal'=>$CartData['num'],'AmountVal'=>$CartData['price']]);
                     }
@@ -410,6 +459,10 @@ class Shop extends Base
 
             // 产品ID是否存在
             if (!empty($aid)) {
+                if (!empty($post['spec_value_id'][0])) {
+                    $spec_value_id = unserialize(base64_decode($post['spec_value_id'][0]));
+                }
+
                 // 商品数量判断
                 if ($num <= '0') {
                     $this->error('订单生成失败，商品数量有误！');
@@ -420,10 +473,17 @@ class Shop extends Base
                 }
                 // 立即购买查询条件
                 $ArchivesWhere = [
-                    'aid'  => $aid,
-                    'lang' => $this->home_lang,
+                    'a.aid'  => $aid,
+                    'a.lang' => $this->home_lang,
                 ];
-                $list = $this->archives_db->field('aid,title,litpic,users_price,prom_type')->where($ArchivesWhere)->select();
+                if (!empty($spec_value_id)) {
+                    $ArchivesWhere['b.spec_value_id'] = $spec_value_id;
+                }
+                $list = $this->archives_db->field('a.aid,a.aid as product_id,a.title,a.litpic,a.users_price,a.stock_count,a.prom_type,b.spec_price,b.spec_stock,b.spec_value_id,b.value_id')
+                    ->alias('a')
+                    ->join('__PRODUCT_SPEC_VALUE__ b', 'a.aid = b.aid', 'LEFT')
+                    ->where($ArchivesWhere)
+                    ->select();
                 $list[0]['product_num']      = $num;
                 $list[0]['under_order_type'] = $type;
             }else{
@@ -433,23 +493,55 @@ class Shop extends Base
                     'a.lang'     => $this->home_lang,
                     'a.selected' => 1,
                 ];
-                $list = $this->shop_cart_db->field('a.*,b.aid,b.title,b.litpic,b.users_price,b.prom_type')
-                    ->alias('a') 
+                $list = $this->shop_cart_db->field('a.*,b.aid,b.title,b.litpic,b.users_price,b.stock_count,b.prom_type,c.spec_price,c.spec_stock,c.value_id')
+                    ->alias('a')
                     ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+                    ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
                     ->where($cart_where)
-                    ->select();                 
-            }
-            
-            // 没有相应的产品
-            if (empty($list)) {
-                $this->error('订单生成失败，没有相应的产品！');
+                    ->select();
             }
 
+            // 没有相应的产品
+            if (empty($list)) $this->error('订单生成失败，没有相应的产品！');
+            
             // 产品数据处理
             $PromType = '1'; // 1表示为虚拟订单
             $TotalAmount = $TotalNumber = '';
-            foreach ($list as $value) {
-                if (!empty($value['users_price']) && !empty($value['product_num'])) {
+            $level_discount = $this->users['level_discount'];
+            foreach ($list as $key => $value) {
+                /* 未开启多规格则执行 */
+                if (!isset($this->usersConfig['shop_open_spec']) || empty($this->usersConfig['shop_open_spec'])) {
+                    $value['spec_value_id'] = $value['spec_price'] = $value['spec_stock'] = 0;
+                    $list[$key]['spec_value_id'] = $list[$key]['spec_price'] = $list[$key]['spec_stock'] = $list[$key]['value_id'] = 0;
+                }
+                /* END */
+
+                // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
+                if (!empty($value['spec_value_id']) && $value['spec_price'] >= 0) {
+                    // 规格价格覆盖商品原价
+                    $value['users_price'] = $value['spec_price'];
+                }
+                // 计算折扣后的价格
+                if (!empty($level_discount)) {
+                    // 折扣率百分比
+                    $discount_price = $level_discount / 100;
+                    // 会员折扣价
+                    $value['users_price']      = $value['users_price'] * $discount_price;
+                    $list[$key]['users_price'] = $value['users_price'];
+                }
+                // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
+                if (!empty($value['spec_stock'])) {
+                    // 规格库存覆盖商品库存
+                    $value['stock_count'] = $value['spec_stock'];
+                    $list[$key]['stock_count'] = $value['spec_stock'];
+                }
+                // 若库存为空则返回提示
+                if (empty($value['stock_count'])) {
+                    $this->error('产品 《'.$value['title'].'》 库存不足！');
+                }
+
+                // 金额、数量计算
+                if ($value['users_price'] >= 0 && !empty($value['product_num'])) {
                     // 合计金额
                     $TotalAmount += sprintf("%.2f", $value['users_price'] * $value['product_num']);
                     // 合计数量
@@ -471,7 +563,7 @@ class Shop extends Base
                         // 跳转至收货地址添加选择页
                         $get_addr_url = url('user/Shop/shop_get_wechat_addr');
                         $is_gourl['is_gourl'] = 1;
-                        $this->success('101:选择添加地址方式',$get_addr_url,$is_gourl);exit;
+                        $this->success('101:选择添加地址方式', $get_addr_url, $is_gourl);
                     }else{
                         $this->error('订单生成失败，请添加收货地址！');
                     }
@@ -489,7 +581,7 @@ class Shop extends Base
                         // 跳转至收货地址添加选择页
                         $get_addr_url = url('user/Shop/shop_get_wechat_addr');
                         $is_gourl['is_gourl'] = 1;
-                        $this->success('102:选择添加地址方式',$get_addr_url,$is_gourl);exit;
+                        $this->success('102:选择添加地址方式', $get_addr_url, $is_gourl);
                     }else{
                         $this->error('订单生成失败，请添加收货地址！');
                     }
@@ -499,10 +591,10 @@ class Shop extends Base
                 $template_money = '0.00';
                 if (!empty($shop_open_shipping)) {
                     // 通过省份获取运费模板中的运费价格
-                    $template_money = $this->shipping_template_db->where('province_id',$AddressData['province'])->getField('template_money');
-                    if ('0.00' == $template_money) {
+                    $template_money = $this->shipping_template_db->where('province_id', $AddressData['province'])->getField('template_money');
+                    if (!empty($template_money)) {
                         // 省份运费价格为0时，使用统一的运费价格，固定ID为100000
-                        $template_money = $this->shipping_template_db->where('province_id','100000')->getField('template_money');
+                        $template_money = $this->shipping_template_db->where('province_id', '100000')->getField('template_money');
                     }
                     // 合计金额加上运费价格
                     $TotalAmount += $template_money;
@@ -520,7 +612,7 @@ class Shop extends Base
                     'shipping_fee' => $template_money,
                 ];
             }
-
+             
             // 添加到订单主表
             $time = getTime();
             $OrderData = [
@@ -570,32 +662,28 @@ class Shop extends Base
 
             $OrderId = $this->shop_order_db->add($OrderData);
             if (!empty($OrderId)) {
-                $cart_ids   = '';
-                $attr_value = '';
+                $cart_ids   = $UpSpecValue = [];
+                $attr_value = $spec_value = '';
+
                 // 添加到订单明细表
                 foreach ($list as $key => $value) {
                     // 产品属性处理
-                    $AttrWhere = [
-                        'a.aid'     => $value['aid'],
-                        'b.lang'    => $this->home_lang,
-                    ];
-                    $AttrData = Db::name('product_attr')
-                        ->alias('a')
-                        ->field('a.attr_value,b.attr_name')
-                        ->join('__PRODUCT_ATTRIBUTE__ b', 'a.attr_id = b.attr_id', 'LEFT')
-                        ->where($AttrWhere)
-                        ->order('b.sort_order asc, a.attr_id asc')
-                        ->select();
-                    foreach ($AttrData as $val) {
-                        $attr_value .= $val['attr_name'].'：'.$val['attr_value'].'<br/>';
-                    }
-
-                    // 处理产品属性
+                    $attr_value = $this->shop_model->ProductAttrProcessing($value);
+                    // 产品规格处理
+                    $spec_value = $this->shop_model->ProductSpecProcessing($value);
                     $Data = [
+                        // 产品属性
                         'attr_value' => htmlspecialchars($attr_value),
+                        // 产品规格
+                        'spec_value' => htmlspecialchars($spec_value),
+                        // 产品规格值ID
+                        'spec_value_id' => $value['spec_value_id'],
+                        // 对应规格值ID的唯一标识ID，数据表主键ID
+                        'value_id'   => $value['value_id'],
                         // 后续添加
                     ];
 
+                    // 订单副表添加数组
                     $OrderDetailsData[] = [
                         'order_id'      => $OrderId,
                         'users_id'      => $this->users_id,
@@ -609,14 +697,21 @@ class Shop extends Base
                         'add_time'      => $time,
                         'lang'          => $this->home_lang,
                     ];
+
+                    // 处理购物车ID
                     if (empty($value['under_order_type'])) {
-                        // 处理购物车ID
-                        if ($key > '0') {
-                            $cart_ids .= ',';
-                        }
-                        $cart_ids .= $value['cart_id'];
+                        array_push($cart_ids, $value['cart_id']);
                     }
+
+                    // 产品库存处理
+                    $UpSpecValue[] = [
+                        'aid'           => $value['aid'],
+                        'value_id'      => $value['value_id'],
+                        'quantity'      => $value['product_num'],
+                        'spec_value_id' => $value['spec_value_id'],
+                    ];
                 }
+
                 $DetailsId = $this->shop_order_details_db->insertAll($OrderDetailsData);
 
                 if (!empty($OrderId) && !empty($DetailsId)) {
@@ -624,6 +719,9 @@ class Shop extends Base
                     if (!empty($cart_ids)) {
                         $this->shop_cart_db->where('cart_id','IN',$cart_ids)->delete();
                     }
+
+                    // 产品库存、销量处理
+                    $this->shop_model->ProductStockProcessing($UpSpecValue);
 
                     // 添加订单操作记录
                     AddOrderAction($OrderId,$this->users_id);
@@ -1136,5 +1234,27 @@ class Shop extends Base
                 }
             }
         }
+    }
+
+    // 判断商品是否库存为0
+    private function IsSoldOut($param = array())
+    {
+       if (!empty($param['aid']) && !empty($param['spec_value_id'])) {
+            $SpecWhere = [
+                'aid'  => $param['aid'],
+                'lang' => $this->home_lang,
+                'spec_stock' => ['>',0],
+                'spec_value_id' => $param['spec_value_id'],
+            ];
+            $spec_stock = Db::name('product_spec_value')->where($SpecWhere)->getField('spec_stock');
+            if (empty($spec_stock)) {
+                $data['code'] = -1; // 已售罄
+                $this->error('商品已售罄！', null, $data);
+            }
+            if ($spec_stock < $param['num']) {
+                $data['code'] = -1; // 库存不足
+                $this->error('商品最大库存：'.$spec_stock, null, $data);
+            }
+        } 
     }
 }

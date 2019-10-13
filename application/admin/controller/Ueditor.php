@@ -180,7 +180,6 @@ class Ueditor extends Base
     
     //上传文件
     private function upFile($fieldName){
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         $file = request()->file($fieldName);
         if(empty($file)){
             return json_encode(['state' =>'ERROR，请上传文件']);
@@ -189,10 +188,21 @@ class Ueditor extends Base
         if(!empty($error)){
             return json_encode(['state' =>$error]);
         }
+
+        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $fileExt = '';
+        $image_type = tpCache('basic.image_type');
+        !empty($image_type) && $fileExt .= '|'.$image_type;
+        $file_type = tpCache('basic.file_type');
+        !empty($file_type) && $fileExt .= '|'.$file_type;
+        $media_type = tpCache('basic.media_type');
+        !empty($media_type) && $fileExt .= '|'.$media_type;
+        $fileExt = !empty($fileExt) ? str_replace('||', '|', $fileExt) : config('global.image_ext');
+        $fileExt = str_replace('|', ',', trim($fileExt, '|'));
         $result = $this->validate(
             ['file' => $file], 
-            ['file'=>'fileSize:'.$image_upload_limit_size],
-            ['file.fileSize' => '上传文件过大']
+            ['file'=>'fileSize:'.$image_upload_limit_size.'|fileExt:'.$fileExt],
+            ['file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$fileExt]
         );
         if (true !== $result || empty($file)) {
             $state = "ERROR" . $result;
@@ -203,7 +213,8 @@ class Ueditor extends Base
         if ($ossConfig['oss_switch']) {
             //商品图片可选择存放在oss
             $savePath = $this->savePath.date('Ymd/');
-            $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+            // $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+            $object = UPLOAD_PATH.$savePath.session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
             $ossClient = new \app\common\logic\OssLogic;
             $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
             if (!$return_url) {
@@ -225,7 +236,8 @@ class Ueditor extends Base
             $this->savePath = $this->savePath.date('Ymd/');
             // 使用自定义的文件保存规则
             $info = $file->rule(function ($file) {
-                return  md5(mt_rand());
+                // return  md5(mt_rand());
+                return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
             })->move(UPLOAD_PATH.$this->savePath);
         }
         
@@ -570,7 +582,8 @@ class Ueditor extends Base
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
                 //商品图片可选择存放在oss
-                $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+                // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+                $object = $savePath.session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
                 $ossClient = new \app\common\logic\OssLogic;
                 $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
                 if (!$return_url) {
@@ -582,8 +595,9 @@ class Ueditor extends Base
                 @unlink($file->getRealPath());
             } else {
                 // 移动到框架应用根目录/public/uploads/ 目录下
-                $info = $file->rule(function ($file) {    
-                return  md5(mt_rand()); // 使用自定义的文件保存规则
+                $info = $file->rule(function ($file) {
+                    // return  md5(mt_rand()); // 使用自定义的文件保存规则
+                    return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)); // 使用自定义的文件保存规则
                 })->move($savePath);
                 if ($info) {
                     $state = "SUCCESS";
@@ -691,500 +705,6 @@ class Ueditor extends Base
         $return_data['path'] = $path;        
 
         respose($return_data);
-    }
-    
-    /**
-     * 资料文件上传
-     */
-    public function downFileUp()
-    {
-        // ini_set('upload_max_filesize', '500M');
-        // ini_set('post_max_size', '500M');
-
-        $this->downFileUpMd5();
-        exit;
-
-        // Make sure file is not cached (as it happens for example on iOS devices)
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
-
-        // Support CORS
-        // header("Access-Control-Allow-Origin: *");
-        // other CORS headers if any...
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            exit; // finish preflight CORS requests here
-        }
-
-
-        if ( !empty($_REQUEST[ 'debug' ]) ) {
-            $random = rand(0, intval($_REQUEST[ 'debug' ]) );
-            if ( $random === 0 ) {
-                header("HTTP/1.0 500 Internal Server Error");
-                exit;
-            }
-        }
-
-        // 5 minutes execution time
-        @set_time_limit(5 * 60);
-
-        // Settings
-        // $targetDir = ini_get("upload_tmp_dir") . '/' . "plupload";
-        $targetDir = UPLOAD_PATH.trim($this->savePath, '/').'_tmp/'.date('Ymd');
-        $uploadDir = UPLOAD_PATH.$this->savePath.date('Ymd');
-
-        $cleanupTargetDir = true; // Remove old files
-        $maxFileAge = 5 * 3600; // Temp file age in seconds
-
-        // Create target dir
-        if (!file_exists($targetDir)) {
-            @tp_mkdir($targetDir);
-        }
-
-        // Create target dir
-        if (!file_exists($uploadDir)) {
-            @tp_mkdir($uploadDir);
-        }
-
-        // Get a file name
-        $fileSize = 0;
-        $fileName = '';
-        $fileMime = '';
-        if (isset($_REQUEST["name"])) {
-            $fileMime = $_REQUEST["type"]; // application/x-zip-compressed
-            $lastModifiedDate = !empty($_REQUEST["lastModifiedDate"]) ? strtotime($_REQUEST["lastModifiedDate"]) : time(); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
-            $fileSize = $_REQUEST["size"]; // 文件大小
-            $fileName = $_REQUEST["name"]; // include_new.zip
-        } elseif (!empty($_FILES)) {
-            $fileName = $_FILES["file"]["name"];
-            $fileSize = $_FILES["file"]["size"]; // 文件大小
-            $fileMime = $_FILES["file"]["type"]; // application/x-zip-compressed
-        } else {
-            $fileName = uniqid("file_");
-        }
-        // 提取文件名后缀
-        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        // 提取出文件名，不包括扩展名
-        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
-        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
-        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
-        // 过滤后的新文件名
-        $fileName = $newfileName.'.'.$file_ext;
-
-        $upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        if ($fileSize >= $upload_limit_size) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 90,
-                    'msg'   => '上传文件过大',
-                ),
-                'id'    => 'id',
-            ));
-        }
-        $file_type = tpCache('basic.file_type');
-        $file_type = !empty($file_type) ? $file_type : 'zip|gz|rar|iso|doc|xsl|ppt|wps';
-        $file_type_arr = explode('|', $file_type);
-        if (!in_array($file_ext, $file_type_arr)) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 91,
-                    'msg'   => '上传文件后缀不正确',
-                ),
-                'id'    => 'id',
-            ));
-        }
-
-        if ($this->nowFileName == -1) {
-            // 提取出文件名，不包括扩展名
-            $this->nowFileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
-        }
-        $filePath = $targetDir . '/' . $fileName;
-        $uploadPath = $uploadDir . '/' . $this->nowFileName .'.'.pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Chunking might be enabled
-        $chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
-        $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 1;
-
-        // Remove old temp files
-        if ($cleanupTargetDir) {
-            if (!is_dir($targetDir) || !$dir = opendir($targetDir)) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 100,
-                        'msg'   => '打开临时目录失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-
-            while (($file = readdir($dir)) !== false) {
-                $tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
-
-                // If temp file is current file proceed to the next
-                if ($tmpfilePath == "{$filePath}_{$chunk}.part" || $tmpfilePath == "{$filePath}_{$chunk}.parttmp") {
-                    continue;
-                }
-
-                // Remove temp file if it is older than the max age and is not the current file
-                if (preg_match('/\.(part|parttmp)$/', $file) && (@filemtime($tmpfilePath) < time() - $maxFileAge)) {
-                    @unlink($tmpfilePath);
-                }
-            }
-            closedir($dir);
-        }
-
-
-        // Open temp file
-        if (!$out = @fopen("{$filePath}_{$chunk}.parttmp", "wb")) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 102,
-                    'msg'   => '打开输出流失败。',
-                ),
-                'id'    => 'id',
-            ));
-        }
-
-        if (!empty($_FILES)) {
-            if ($_FILES["file"]["error"] || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 103,
-                        'msg'   => '移动上传文件失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-
-            // Read binary input stream and append it to temp file
-            if (!$in = @fopen($_FILES["file"]["tmp_name"], "rb")) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 101,
-                        'msg'   => '打开输入流失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-        } else {
-            if (!$in = @fopen("php://input", "rb")) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 101,
-                        'msg'   => '打开输入流失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-        }
-
-        while ($buff = fread($in, 4096)) {
-            fwrite($out, $buff);
-        }
-
-        @fclose($out);
-        @fclose($in);
-
-        rename("{$filePath}_{$chunk}.parttmp", "{$filePath}_{$chunk}.part");
-
-        $index = 0;
-        $done = true;
-        for( $index = 0; $index < $chunks; $index++ ) {
-            if ( !file_exists("{$filePath}_{$index}.part") ) {
-                $done = false;
-                break;
-            }
-        }
-        if ( $done ) {
-            if (!$out = @fopen($uploadPath, "wb")) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 102,
-                        'msg'   => '打开输出流失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-
-            if ( flock($out, LOCK_EX) ) {
-                for( $index = 0; $index < $chunks; $index++ ) {
-                    if (!$in = @fopen("{$filePath}_{$index}.part", "rb")) {
-                        break;
-                    }
-
-                    while ($buff = fread($in, 4096)) {
-                        fwrite($out, $buff);
-                    }
-
-                    @fclose($in);
-                    @unlink("{$filePath}_{$index}.part");
-                }
-
-                flock($out, LOCK_UN);
-            }
-            @fclose($out);
-        }
-
-        $path = '/'.$uploadPath;
-        // Return Success JSON-RPC response
-        respose(array(
-            'jsonrpc'   => '2.0',
-            'error' => array(
-                'code'  => 0,
-                'msg'   => '上传成功',
-                'path'    => $path,
-                'mime'  => $fileMime,
-            ),
-            'id'    => 'id',
-        ));
-    }
-
-    public function downFileUpMd5()
-    {
-        // Make sure file is not cached (as it happens for example on iOS devices)
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
-
-        // Support CORS
-        // header("Access-Control-Allow-Origin: *");
-        // other CORS headers if any...
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            exit; // finish preflight CORS requests here
-        }
-
-        if ( !empty($_REQUEST[ 'debug' ]) ) {
-            $random = rand(0, intval($_REQUEST[ 'debug' ]) );
-            if ( $random === 0 ) {
-                header("HTTP/1.0 500 Internal Server Error");
-                exit;
-            }
-        }
-
-        // 5 minutes execution time
-        @set_time_limit(5 * 60);
-
-        // Settings
-        // $targetDir = ini_get("upload_tmp_dir") . '/' . "plupload";
-        $targetDir = UPLOAD_PATH.trim($this->savePath, '/').'_tmp/'.date('Ymd');
-        $uploadDir = UPLOAD_PATH.$this->savePath.date('Ymd');
-
-        $cleanupTargetDir = true; // Remove old files
-        $maxFileAge = 5 * 3600; // Temp file age in seconds
-
-        // Create target dir
-        if (!file_exists($targetDir)) {
-            @tp_mkdir($targetDir);
-        }
-
-        // Create target dir
-        if (!file_exists($uploadDir)) {
-            @tp_mkdir($uploadDir);
-        }
-
-        // Get a file name
-        $fileSize = 0;
-        $fileName = '';
-        $fileMime = '';
-        if (isset($_REQUEST["name"])) {
-            $fileMime = $_REQUEST["type"]; // application/x-zip-compressed
-            $lastModifiedDate = !empty($_REQUEST["lastModifiedDate"]) ? strtotime($_REQUEST["lastModifiedDate"]) : time(); // Tue Apr 03 2018 09:42:55 GMT+0800 (中国标准时间)
-            $fileSize = $_REQUEST["size"]; // 文件大小
-            $fileName = $_REQUEST["name"]; // include_new.zip
-        } elseif (!empty($_FILES)) {
-            $fileName = $_FILES["file"]["name"];
-            $fileSize = $_FILES["file"]["size"]; // 文件大小
-            $fileMime = $_FILES["file"]["type"]; // application/x-zip-compressed
-        } else {
-            $fileName = uniqid("file_");
-        }
-        // 提取文件名后缀
-        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        // 提取出文件名，不包括扩展名
-        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
-        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
-        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
-        // 过滤后的新文件名
-        $fileName = $newfileName.'.'.$file_ext;
-
-        $upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        if ($fileSize >= $upload_limit_size) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 90,
-                    'msg'   => '上传文件过大',
-                ),
-                'id'    => 'id',
-            ));
-        }
-        $file_type = tpCache('basic.file_type');
-        $file_type = !empty($file_type) ? $file_type : 'zip|gz|rar|iso|doc|xsl|ppt|wps';
-        $file_type_arr = explode('|', $file_type);
-        if (!in_array($file_ext, $file_type_arr)) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 91,
-                    'msg'   => '上传文件后缀不正确',
-                ),
-                'id'    => 'id',
-            ));
-        }
-
-        $uhash_list = @file(APP_PATH.MODULE_NAME.'/conf/md5list2.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $uhash_list = $uhash_list ? $uhash_list : array();
-
-        if (isset($_REQUEST["md5"]) && array_search($_REQUEST["md5"], $uhash_list ) !== FALSE ) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 0,
-                    'msg'   => 'md5',
-                ),
-                'id'    => 'id',
-                'exist' => 1,
-            ));
-        }
-
-        if ($this->nowFileName == -1) {
-            // 提取出文件名，不包括扩展名
-            $this->nowFileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
-        }
-
-        $filePath = $targetDir . '/' . $fileName;
-        $uploadPath = $uploadDir . '/' . $this->nowFileName .'.'.pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Chunking might be enabled
-        $chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
-        $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 1;
-
-        // Remove old temp files
-        if ($cleanupTargetDir) {
-            if (!is_dir($targetDir) || !$dir = opendir($targetDir)) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 100,
-                        'msg'   => '打开临时目录失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-
-            while (($file = readdir($dir)) !== false) {
-                $tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
-
-                // If temp file is current file proceed to the next
-                if ($tmpfilePath == "{$filePath}.part") {
-                    continue;
-                }
-
-                // Remove temp file if it is older than the max age and is not the current file
-                if (preg_match('/\.part$/', $file) && (filemtime($tmpfilePath) < time() - $maxFileAge)) {
-                    @unlink($tmpfilePath);
-                }
-            }
-            closedir($dir);
-        }
-
-
-        // Open temp file
-        if (!$out = @fopen("{$filePath}.part", $chunks ? "ab" : "wb")) {
-            respose(array(
-                'jsonrpc'   => '2.0',
-                'error' => array(
-                    'code'  => 102,
-                    'msg'   => '打开输出流失败。',
-                ),
-                'id'    => 'id',
-            ));
-        }
-
-        if (!empty($_FILES)) {
-            if ($_FILES["file"]["error"] || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 103,
-                        'msg'   => '移动上载文件失败。',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-
-            // Read binary input stream and append it to temp file
-            if (!$in = @fopen($_FILES["file"]["tmp_name"], "rb")) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 101,
-                        'msg'   => '打开输入流失败',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-        } else {
-            if (!$in = @fopen("php://input", "rb")) {
-                respose(array(
-                    'jsonrpc'   => '2.0',
-                    'error' => array(
-                        'code'  => 101,
-                        'msg'   => '打开输入流失败',
-                    ),
-                    'id'    => 'id',
-                ));
-            }
-        }
-
-        while ($buff = fread($in, 4096)) {
-            fwrite($out, $buff);
-        }
-
-        @fclose($out);
-        @fclose($in);
-
-        // Check if file has been uploaded
-        $uhash = '';
-        $md5file = '';
-        if (!$chunks || $chunk == $chunks - 1) {
-            // Strip the temp .part suffix off
-            rename("{$filePath}.part", $filePath);
-
-            rename($filePath, $uploadPath);
-            $uhash = $this->uhash($uploadPath);
-            $md5file = md5_file($uploadPath);
-            array_push($uhash_list, $uhash);
-            $uhash_list = array_unique($uhash_list);
-            file_put_contents(APP_PATH.MODULE_NAME.'/conf/md5list2.txt', join($uhash_list, "\n"));
-        }
-
-        $path = '/'.$uploadPath;
-        // Return Success JSON-RPC response
-        respose(array(
-            'jsonrpc'   => '2.0',
-            'error' => array(
-                'code'  => 0,
-                'msg'   => '上传成功',
-                'path'    => $path,
-                'mime'  => $fileMime,
-                'uhash' => $uhash,
-                'md5file' => $md5file,
-            ),
-            'id'    => 'id',
-        ));
     }
 
     public function uhash( $file ) {

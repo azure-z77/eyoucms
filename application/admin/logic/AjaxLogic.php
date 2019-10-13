@@ -122,17 +122,16 @@ class AjaxLogic extends Model
     }
 
     /**
-     * 自动纠正蜘蛛抓取文件rotots.txt
+     * 自动纠正蜘蛛抓取文件rotots.txt  ，【版本1.4.1可以去掉该代码，以及相关调用】
      */
     public function update_robots()
     {
         $filename = 'robots.txt';
-        if (file_exists($filename) && is_file($filename)) {
-            // 系统设置的抓取规则
-            $validList = [
-                'disallow:/install/',
-                'disallow:/core/',
-            ];
+        if (file_exists($filename) && is_file($filename) && getCmsVersion() <= 'v1.4.0') {
+            $system_robots_edit = tpCache('system.system_robots_edit');
+            if (!empty($system_robots_edit)) {
+                return true;
+            }
             // 系统移除的抓取规则
             $removeList = [
                 'robots.txtforeyoucms',
@@ -151,23 +150,23 @@ class AjaxLogic extends Model
                 'disallow:/weapp/',
                 'disallow:/adm*',
                 'sitemap:/sitemap.xml',
+                'disallow:/install_*/',
+                'disallow:/core/',
+                'disallow:/application/',
+                'disallow:/*&uiset=off*',
+                'disallow:/*&uiset=on*',
             ];
             $robots = @file_get_contents(ROOT_PATH . $filename);
             $arr = explode(PHP_EOL, $robots);
             foreach ($arr as $key => $val) {
+                if (empty($val)) {
+                    unset($arr[$key]);
+                    continue;
+                }
                 $is_unset = false;
                 $val = trim($val);
                 $str = str_replace(' ', '', strtolower($val));
-                if (stristr($str, 'disallow:/appli')) {
-                    $arr[$key] = 'Disallow: /application/';
-                    continue;
-                // } else if (stristr(strtolower($val), 'sitemap.xml') && !stristr($val, $this->request->domain().ROOT_DIR.'/sitemap.xml')) {
-                //     $arr[$key] = preg_replace('#Sitemap:(.*)?(/)?sitemap.xml#i', 'Sitemap: '.$this->request->domain().ROOT_DIR.'/sitemap.xml', $val);
-                //     continue;
-                } else if (preg_match('#disallow:/install#i', $str)) {
-                    $arr[$key] = 'Disallow: /install_*/';
-                    continue;
-                } else if (in_array($str, $removeList) || stristr($str, '#')) {
+                if (in_array($str, $removeList) || stristr($str, '#')) {
                     $is_unset = true;
                 }
 
@@ -176,20 +175,22 @@ class AjaxLogic extends Model
                     unset($arr[$key]);
                     continue;
                 }
-
-                // 系统之前设置的抓取规则，将移除尾部的斜杆
-                foreach ($validList as $k2 => $v2) {
-                    if (stristr($v2, $str)) {
-                        $val = trim($val, '/').'/';
-                        continue;
-                    }
-                }
-
-                $arr[$key] = $val;
             }
             if (!empty($arr)) {
                 $robotsStr = implode(PHP_EOL, $arr);
-                is_writable($filename) && @file_put_contents($filename, $robotsStr);
+                if (is_writable($filename)) {
+                    @file_put_contents($filename, $robotsStr);
+                    /*多语言*/
+                    if (is_language()) {
+                        $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
+                        foreach ($langRow as $key => $val) {
+                            tpCache('system', ['system_robots_edit'=>1], $val['mark']);
+                        }
+                    } else { // 单语言
+                        tpCache('system', ['system_robots_edit'=>1]);
+                    }
+                    /*--end*/
+                }
             }
         }
     }
@@ -201,10 +202,12 @@ class AjaxLogic extends Model
     {
         $path = \think\Config::get('session.path');
         if (!empty($path) && file_exists($path)) {
+            $web_login_expiretime = tpCache('web.web_login_expiretime');
+            empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
             $files = glob($path.'/sess_*');
             foreach ($files as $key => $file) {
                 $filemtime = filemtime($file);
-                if (getTime() - intval($filemtime) > config('login_expire')) {
+                if (getTime() - intval($filemtime) > $web_login_expiretime) {
                     @unlink($file);
                 }
             }

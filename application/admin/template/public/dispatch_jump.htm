@@ -48,15 +48,23 @@
             }
             $data = $post;
             $row = \think\DB::name('archives')
-                ->field("b.*, a.*, a.aid as aid")
+                ->field("b.*, a.*, a.aid as aid, c.ifsystem")
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
+                ->join('__CHANNELTYPE__ c', 'c.id = a.channel', 'LEFT')
                 ->where('a.aid', 'eq', $data['aid'])
                 ->find();
             $arcurl = get_arcurl($row);
+            $channel = $row['channel'];
             $seo_pseudo = tpCache('seo.seo_pseudo');
+            $lang = input('param.lang/s', 'cn');
             $gourl = cookie('ENV_GOBACK_URL');
+            $addurl = request()->baseFile()."?m=admin&c=Archives&a=add&typeid=".$data['tid']."&lang=".$lang;
             $listurl = cookie('ENV_LIST_URL')."&typeid=".$data['tid'];
+            if (empty($row['ifsystem'])) {
+                $listurl .= "&channel=".$data['channel'];
+                $addurl .= "&channel=".$data['channel'];
+            }
             $env_is_uphtml = cookie('ENV_IS_UPHTML');
             $action_name = request()->action();
             $ctl_name = request()->controller();
@@ -73,7 +81,7 @@
                 <i class="glyphicon glyphicon-ok-circle"></i><span><b>成功{$msg}文档</b>请选择你的后续操作：</span>
             </div>
             <ul>
-                <li><span>{$msg1}文档</span><a href="{$Request.baseFile}?m=admin&c=Archives&a=add&typeid={$data['tid']}&lang={$Request.param.lang|default='cn'}" style="display: none;">{$msg1}文档</a></li>
+                <li><span>{$msg1}文档</span><a href="{$addurl}" style="display: none;">{$msg1}文档</a></li>
                 <li><span>查看文档</span><a href="{$arcurl}" target="_blank" style="display: none;">查看文档</a></li>
                 <li><span>更改文档</span><a href="{$Request.baseFile}?m=admin&c=Archives&a=edit&id={$data['aid']}&typeid={$data['tid']}&lang={$Request.param.lang|default='cn'}" style="display: none;">更改文档</a></li>
                 <li><span>已发布文档管理</span><a href="{$listurl}" style="display: none;">已发布文档管理</a></li>

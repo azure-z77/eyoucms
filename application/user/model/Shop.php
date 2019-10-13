@@ -49,6 +49,9 @@ class Shop extends Model
         // 查询订单id数组用于添加订单操作记录
         $OrderIds = Db::name('shop_order')->field('order_id')->where($where)->select();
 
+        // 订单过期，更新规格数量
+        model('ProductSpecValue')->SaveProducSpecValueStock($OrderIds, $users_id);
+
         //批量修改订单状态 
         Db::name('shop_order')->where($where)->update($data);
         
@@ -242,5 +245,76 @@ class Shop extends Model
             $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
         }
         return $str;
+    }
+
+    // 产品属性处理
+    public function ProductAttrProcessing($value = array())
+    {
+        $attr_value = '';
+        $AttrWhere = [
+            'a.aid'     => $value['aid'],
+            'b.lang'    => $this->home_lang,
+        ];
+        $AttrData = Db::name('product_attr')
+            ->alias('a')
+            ->field('a.attr_value,b.attr_name')
+            ->join('__PRODUCT_ATTRIBUTE__ b', 'a.attr_id = b.attr_id', 'LEFT')
+            ->where($AttrWhere)
+            ->order('b.sort_order asc, a.attr_id asc')
+            ->select();
+        foreach ($AttrData as $val) {
+            $attr_value .= $val['attr_name'].'：'.$val['attr_value'].'<br/>';
+        }
+        return $attr_value;
+    }
+
+    // 产品规格处理
+    public function ProductSpecProcessing($value = array())
+    {
+        $spec_value_s = '';
+        if (!empty($value['spec_value_id'])) {
+            $spec_value_id = explode('_', $value['spec_value_id']);
+            if (!empty($spec_value_id)) {
+                $SpecWhere = [
+                    'aid'           => $value['aid'],
+                    'lang'          => $this->home_lang,
+                    'spec_value_id' => ['IN',$spec_value_id],
+                ];
+                $ProductSpecData = Db::name("product_spec_data")->where($SpecWhere)->field('spec_name,spec_value')->select();
+                foreach ($ProductSpecData as $spec_value) {
+                    $spec_value_s .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
+                }
+            }
+        }
+        return $spec_value_s;
+    }
+
+    // 产品库存处理
+    public function ProductStockProcessing($SpecValue = array())
+    {   
+        $SpecUpData = []; // 有规格
+        $ArcUpData  = []; // 无规格
+        foreach ($SpecValue as $key => $value) {
+            if (!empty($value['value_id'])) {
+                $SpecUpData[] = [
+                    'value_id'   => $value['value_id'],
+                    'spec_stock' => Db::raw('spec_stock-'.($value['quantity'])),
+                    'spec_sales_num' => Db::raw('spec_sales_num+'.($value['quantity'])),
+                ];
+            }else{
+                $ArcUpData[] = [
+                    'aid'         => $value['aid'],
+                    'stock_count' => Db::raw('stock_count-'.($value['quantity'])),
+                ];
+            }
+        }
+
+        if (!empty($SpecUpData)) {
+            model('ProductSpecValue')->saveAll($SpecUpData);
+        }
+
+        if (!empty($ArcUpData)) {
+            model('Archives')->saveAll($ArcUpData);
+        }
     }
 }

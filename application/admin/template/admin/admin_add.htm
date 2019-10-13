@@ -12,8 +12,8 @@
                     <label for="user_name"><em>*</em>用户名</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" name="user_name" value="" id="user_name" class="input-txt">
-                    <p class="notic"></p>
+                    <input type="text" name="user_name" value="" id="user_name" onkeyup="check_user_name(this);" class="input-txt">
+                    <p class="red" id="tips_user_name"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -425,9 +425,29 @@
         changeRole(new_role_id);
     }
 
+    function check_user_name(obj)
+    {
+        var user_name = $(obj).val();
+        $.ajax({
+            url: "{:url('Admin/ajax_add_user_name')}",
+            type: "POST",
+            dataType: "JSON",
+            async: false,
+            data: {user_name:user_name, _ajax:1},
+            success: function(res){
+                if (0 == res.code) {
+                    $('#tips_user_name').html(res.msg);
+                } else {
+                    $('#tips_user_name').html('');
+                }
+            }
+        });
+    }
+
     // 判断输入框是否为空
     function adsubmit(){
-        if($('input[name=user_name]').val() == ''){
+        var user_name = $('input[name=user_name]').val();
+        if($.trim(user_name) == ''){
             showErrorMsg('用户名不能为空！');
             $('input[name=user_name]').focus();
             return false;

@@ -57,7 +57,7 @@ class CustomModel extends Base
         $end = strtotime(input('add_time_end'));
 
         // 应用搜索条件
-        foreach (['keywords','typeid','flag'] as $key) {
+        foreach (['keywords','typeid','flag','is_release'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
                     $condition['a.title'] = array('LIKE', "%{$param[$key]}%");
@@ -84,6 +84,10 @@ class CustomModel extends Base
                     $condition['a.typeid'] = array('IN', $typeids);
                 } else if ($key == 'flag') {
                     $condition['a.'.$param[$key]] = array('eq', 1);
+                } else if ($key == 'is_release') {
+                    if (0 < intval($param[$key])) {
+                        $condition['a.users_id'] = array('gt', intval($param[$key]));
+                    }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }
@@ -106,6 +110,17 @@ class CustomModel extends Base
         // 回收站
         $condition['a.is_del'] = array('eq', 0);
 
+        /*自定义排序*/
+        $orderby = input('param.orderby/s');
+        $orderway = input('param.orderway/s');
+        if (!empty($orderby)) {
+            $orderby = "a.{$orderby} {$orderway}";
+            $orderby .= ", a.aid desc";
+        } else {
+            $orderby = "a.aid desc";
+        }
+        /*end*/
+
         /**
          * 数据查询，搜索出主键ID的值
          */
@@ -115,7 +130,7 @@ class CustomModel extends Base
             ->field("a.aid")
             ->alias('a')
             ->where($condition)
-            ->order('a.aid desc')
+            ->order($orderby)
             ->limit($Page->firstRow.','.$Page->listRows)
             ->getAllWithIndex('aid');
 

@@ -31,20 +31,29 @@
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-{empty name="$system_explanation_welcome"}
 <div class="page" id="explanation_welcome">
-    <!-- 操作说明 -->
-    <div id="explanation" class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%;">
-        <div id="checkZoom" class="title"><i class="fa fa-lightbulb-o"></i>
-            <h4>系统提示</h4>
-            <span title="收起提示" id="explanationZoom" style="display: block;"></span>
+    {empty name="$system_explanation_welcome"}
+    <div class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%;">
+        <div class="title checkZoom" data-type="1">
+            <span title="不再提示" style="display: block;"></span>
         </div>
         <ul>
             <li style="color: red;">系统检测当前版本尚未备份数据库，请点击<a href="{:url('Tools/index')}">【数据备份】</a>进入操作。</li>
         </ul>
     </div>
+    {/empty}
+
+    {if condition='empty($system_explanation_welcome_2)'}
+    <div class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%; margin-top: 10px;">
+        <div class="title checkZoom" data-type="2">
+            <span title="不再提示" style="display: block;"></span>
+        </div>
+        <ul>
+            <li style="color: red;">后台登录密码强度：{$admin_login_pwdlevel|getPasswordLevelTitle}，容易被暴力破解，请及时<a href="{:url('Admin/admin_edit', ['id'=>$Think.session.admin_info.admin_id])}">【修改密码】</a>提高安全性。</li>
+        </ul>
+    </div>
+    {/if}
 </div>
-{/empty}
 <div class="warpper">
     <div class="title">管理中心</div>
     <div class="content start_content">
@@ -147,7 +156,7 @@
                                 {notempty name="$is_eyou_authortoken"}
                                 <tr>
                                     <td class="gray_bg">更新日志：</td>
-                                    <td><a href="http://www.eyoucms.com/news/rizhi/" target="_blank">查看</a></td>
+                                    <td><a href="http://www.eyoucms.com/rizhi/" target="_blank">查看</a></td>
                                     <td class="gray_bg">帮助中心:</td>
                                     <td><a href="http://www.eyoucms.com/ask/" target="_blank">查看</a></td>
                                 </tr>
@@ -225,7 +234,7 @@
         {
             if (__main_lang__ != __lang__) {
                 var language_title = $('#language_title', window.parent.document).html();
-                layer.msg('已切换多语言【'+language_title+'】后台编辑！', {time:3000});
+                layer.msg('当前后台已切换至【'+language_title+'】编辑状态！', {time:3000});
             }
         }
 
@@ -261,17 +270,20 @@
 
     $(function() {
         //操作提示缩放动画
-        $("#checkZoom").click(function(){
-            $("#explanation").animate({
+        $(".checkZoom").click(function(){
+            $(this).parent().animate({
                 color: "#FFF",
                 backgroundColor: "#4FD6BE",             
                 width: "0",
                 height: "0",                             
             },300,function(){
-                $("#explanation_welcome").hide();
+                $(this).remove();
             });
-            $("#explanationZoom").hide();
-            $.get("{:url('Ajax/explanation_welcome', ['_ajax'=>1])}");
+            if(1 >= $('#explanation_welcome').find('div.explanation').length) {
+                $('#explanation_welcome').remove();
+            }
+            var url = eyou_basefile+"?m=admin&c=Ajax&a=explanation_welcome&type="+$(this).attr('data-type')+"&lang="+__lang__+"&_ajax=1";
+            $.get(url);
         });
 
         checkInlet(); // 自动检测隐藏index.php

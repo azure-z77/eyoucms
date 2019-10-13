@@ -11,7 +11,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>会员级别列表</h3>
-                <h5>(共{$pager->totalRows}条记录)</h5>
+                <h5>(共{$pager->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:url('Member/level_index')}" method="get" onsubmit="layer_loading('正在处理');">
@@ -29,8 +29,7 @@
                 <span title="收起提示" id="explanationZoom" style="display: block;"></span>
             </div>
             <ul>
-                <li>由于会员升级是以等级值由低向高升级的，因此增加组别时需注意此值的设置。</li>
-                <li>如果你增加新的会员组的等级值低于10，将自动被视为普通的注册会员。</li>
+                <li>等级值越高权根越高</li>
             </ul>
         </div>
         <br/>
@@ -144,7 +143,7 @@
                     </div>
                     
                     <div class="fbutton">
-                        <a href="javascript:void(0);" data-url="{:url('Member/level_add')}" onclick="AddLevelData(this);">
+                        <a href="javascript:void(0);" data-url="{:url('Member/level_add', ['_ajax'=>1])}" onclick="AddLevelData(this);">
                             <div class="add" title="保存">
                                 <span class="">保存</span>
                             </div>
@@ -238,7 +237,7 @@
 
     // 删除
     function usersdel(obj){
-        layer.confirm('此操作不可逆，确认彻底删除<span style="color:red;">'+$(obj).attr('data-level_name')+'</span>？', {
+        layer.confirm('此操作不可恢复，确认彻底删除<span style="color:red;">'+$(obj).attr('data-level_name')+'</span>？', {
             title: false,
             btn: ['确定','取消'] //按钮
         }, function(){
@@ -247,7 +246,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id')},
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();

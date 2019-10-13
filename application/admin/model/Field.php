@@ -12,6 +12,7 @@
  */
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -228,14 +229,45 @@ class Field extends Model
 
                     case 'imgs':
                     {
+                        /*将多图字段类型varchar改为text*/
+                        try {
+                            $channelfieldRow = Db::name('channelfield')->field('id,title,maxlength')
+                                ->where([
+                                    'name'          => $val['name'],
+                                    'channel_id'    => $val['channel_id'],
+                                ])->find();
+                            if (!empty($channelfieldRow) && 1001 == $channelfieldRow['maxlength']) {
+                                $tableExt = M('channeltype')->where('id', $val['channel_id'])->getField('table');
+                                $tableExt = PREFIX.$tableExt.'_content';
+                                $fieldComment = $channelfieldRow['title'];
+                                empty($fieldComment) && $fieldComment = '图集';
+                                $sql = " ALTER TABLE `{$tableExt}` MODIFY COLUMN `{$val['name']}`  varchar(10001) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '{$fieldComment}' ";
+                                if (@Db::execute($sql)) {
+                                    Db::name('channelfield')->where([
+                                            'id'          => $channelfieldRow['id'],
+                                        ])->update([
+                                            'define'        => 'varchar(10001)',
+                                            'maxlength'     => 10001,
+                                            'update_time'   => getTime(),
+                                        ]);
+                                }
+                            }
+                        } catch (\Exception $e) {}
+                        /*end*/
+
                         $val[$val['name'].'_eyou_imgupload_list'] = array();
                         if (array_key_exists($val['name'], $addonRow) && !empty($addonRow[$val['name']])) {
-                            $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
-                            /*支持子目录*/
-                            foreach ($eyou_imgupload_list as $k1 => $v1) {
-                                $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
+                            $eyou_imgupload_list = @unserialize($addonRow[$val['name']]);
+                            if (false === $eyou_imgupload_list) {
+                                $eyou_imgupload_list = [];
+                                $eyou_imgupload_data = explode(',', $addonRow[$val['name']]);
+                                foreach ($eyou_imgupload_data as $k1 => $v1) {
+                                    $eyou_imgupload_list[$k1] = [
+                                        'image_url' => handle_subdir_pic($v1),
+                                        'intro'     => '',
+                                    ];
+                                }
                             }
-                            /*--end*/
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
                         }
                         break;
@@ -243,7 +275,7 @@ class Field extends Model
 
                     case 'datetime':
                     {
-                        $val['dfvalue'] = !empty($addonRow[$val['name']]) ? date('Y-m-d H:i:s', $addonRow[$val['name']]) : date('Y-m-d H:i:s');
+                        $val['dfvalue'] = !empty($addonRow[$val['name']]) ? date('Y-m-d H:i:s', $addonRow[$val['name']]) : '';
                         break;
                     }
 
@@ -327,6 +359,22 @@ class Field extends Model
                     }
 
                     case 'imgs':
+                    {
+                        $imgData = [];
+                        $imgsIntroArr = !empty($dataExt[$key.'_eyou_intro']) ? $dataExt[$key.'_eyou_intro'] : [];
+                        foreach ($val as $k2 => $v2) {
+                            $v2 = trim($v2);
+                            if (!empty($v2)) {
+                                $imgData[] = [
+                                    'image_url' => $v2,
+                                    'intro'     => !empty($imgsIntroArr[$k2]) ? $imgsIntroArr[$k2] : '',
+                                ];
+                            }
+                        }
+                        $val = serialize($imgData);
+                        break;
+                    }
+
                     case 'files':
                     {
                         foreach ($val as $k2 => $v2) {

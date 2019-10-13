@@ -343,11 +343,6 @@ class AdPosition extends Base
                 }
             }
 
-            $ad_count = M('ad')->where('pid','IN',$id_arr)->count();
-            if ($ad_count > 0){
-                $this->error('该位置下有广告，不允许删除，请先删除该位置下的广告');
-            }  
-
             /*多语言*/
             $attr_name_arr = [];
             foreach ($id_arr as $key => $val) {
@@ -377,6 +372,8 @@ class AdPosition extends Base
                         ])->delete();
                 }
                 /*--end*/
+
+                M('ad')->where('pid','IN',$id_arr)->delete();
 
                 adminLog('删除广告-id：'.implode(',', $id_arr));
                 $this->success('删除成功');

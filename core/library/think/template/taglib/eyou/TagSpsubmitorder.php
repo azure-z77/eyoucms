@@ -22,10 +22,20 @@ use think\Db;
  */
 class TagSpsubmitorder extends Base
 {
+    /**
+     * 会员ID
+     */
+    public $users_id = 0;
+    public $users    = [];
+    
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
+        // 会员信息
+        $this->users    = session('users');
+        $this->users_id = session('users_id');
+        $this->users_id = !empty($this->users_id) ? $this->users_id : 0;
     }
 
     /**
@@ -38,21 +48,34 @@ class TagSpsubmitorder extends Base
         $querydata  = unserialize(base64_decode($querystr));
         $aid = $querydata['aid'];
         $num = $querydata['product_num'];
+        $spec_value_id = isset($querydata['spec_value_id']) ? $querydata['spec_value_id'] : '';
+
         if (!empty($aid)) {
             if ($num >= '1') {
                 // 立即购买查询条件
                 $ArchivesWhere = [
-                    'aid'  => $aid,
-                    'lang' => $this->home_lang,
-                ]; 
-                $result['list'] = Db::name('archives')->field('aid,title,litpic,users_price,prom_type')->where($ArchivesWhere)->select();
+                    'a.aid'  => $aid,
+                    'a.lang' => $this->home_lang,
+                ];
+
+                if (!empty($spec_value_id)) $ArchivesWhere['b.spec_value_id'] = $spec_value_id;
+                
+                $result['list'] = Db::name('archives')->field('a.aid,a.title,a.litpic,a.users_price,a.stock_count,a.prom_type,b.spec_price,b.spec_stock,b.spec_value_id')
+                    ->alias('a')
+                    ->join('__PRODUCT_SPEC_VALUE__ b', 'a.aid = b.aid', 'LEFT')
+                    ->where($ArchivesWhere)
+                    ->limit('0, 1')
+                    ->select();
+
                 $result['list'][0]['product_num'] = $num;
                 $submit_order_type = '1';
                 // 加密不允许更改的数据值
                 $aid  = base64_encode(serialize($aid));
                 $num  = base64_encode(serialize($num));
                 $type = base64_encode(serialize('1'));// 1表示直接下单购买，不走购物车
-                $result['list'][0]['ProductHidden'] = '<input type="hidden" name="aid" value="'.$aid.'"> <input type="hidden" name="num" value="'.$num.'"> <input type="hidden" name="type" value="'.$type.'">';
+                $spec_value_id = base64_encode(serialize($spec_value_id));
+
+                $result['list'][0]['ProductHidden'] = '<input type="hidden" name="aid" value="'.$aid.'"> <input type="hidden" name="num" value="'.$num.'"> <input type="hidden" name="type" value="'.$type.'"> <input type="hidden" name="spec_value_id[]" value="'.$spec_value_id.'">';
             }else{
                 action('user/Shop/shop_under_order', false);
                 exit;
@@ -60,18 +83,22 @@ class TagSpsubmitorder extends Base
         }else{
             // 购物车查询条件
             $CartWhere = [
-                'a.users_id' => session('users_id'),
+                'a.users_id' => $this->users_id,
                 'a.lang'     => $this->home_lang,
                 'a.selected' => 1,
             ];
-            $result['list'] = Db::name('shop_cart')->field('a.*,b.aid,b.title,b.litpic,b.users_price,b.prom_type')
-                ->alias('a') 
+            $result['list'] = Db::name('shop_cart')->field('a.*,b.aid,b.title,b.litpic,b.users_price,b.stock_count,b.prom_type,c.spec_price,c.spec_stock')
+                ->alias('a')
                 ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+                ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
                 ->where($CartWhere)
                 ->order('a.add_time desc')
                 ->select();
             $submit_order_type = '0';
         }
+        
+        // 获取商城配置信息
+        $ConfigData = getUsersConfigData('shop');
 
         // 如果产品数据为空则调用商城控制器的方式返回提示,中止运行
         if (empty($result['list'])) {
@@ -82,8 +109,7 @@ class TagSpsubmitorder extends Base
         $controller_name = 'Product';
         $array_new = get_archives_data($result['list'],'aid');
 
-        // 获取商城配置信息
-        $ConfigData = getUsersConfigData('shop');
+        // 返回data拼装
         $result['data'] = [
             // 温馨提示内容,为空则不展示
             'shop_prompt'        => !empty($ConfigData['shop_prompt']) ? $ConfigData['shop_prompt'] : '',
@@ -100,17 +126,51 @@ class TagSpsubmitorder extends Base
             // 1表示为虚拟订单
             'PromType'           => 1,
         ];
+        $level_discount = $this->users['level_discount'];
+        foreach ($result['list'] as $key => $value) {
+            /* 未开启多规格则执行 */
+            if (!isset($ConfigData['shop_open_spec']) || empty($ConfigData['shop_open_spec'])) {
+                $value['spec_value_id'] = $value['spec_price'] = $value['spec_stock'] = 0;
+                $result['list'][$key]['spec_value_id'] = $result['list'][$key]['spec_price'] = $result['list'][$key]['spec_stock'] = 0;
+            }
+            /* END */
+
+            // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
+            if (!empty($value['spec_value_id']) && $value['spec_price'] >= 0) {
+                // 规格价格覆盖商品原价
+                $value['users_price'] = $value['spec_price'];
+            }
+            // 计算折扣后的价格
+            if (!empty($level_discount)) {
+                // 折扣率百分比 100 != $level_discount
+                $discount_price = $level_discount / 100;
+                // 会员折扣价
+                $result['list'][$key]['users_price'] = $value['users_price'] * $discount_price;
+            }
+
+            // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
+            if (!empty($value['spec_stock'])) {
+                // 规格库存覆盖商品库存
+                $value['stock_count'] = $value['spec_stock'];
+                $result['list'][$key]['stock_count'] = $value['spec_stock'];
+            }
+            // 若库存为空则清除这条数据
+            if (empty($value['stock_count'])) {
+                unset($result['list'][$key]);
+                continue;
+            }
+        }
 
         // 产品数据处理
         foreach ($result['list'] as $key => $value) {
-            if (!empty($value['users_price']) && !empty($value['product_num'])) {
+            if ($value['users_price'] >= 0 && !empty($value['product_num'])) {
                 // 计算小计
                 $result['list'][$key]['subtotal'] = sprintf("%.2f", $value['users_price'] * $value['product_num']);
                 // 计算合计金额
-                $result['data']['TotalAmount']    += $result['list'][$key]['subtotal'];
-                $result['data']['TotalAmount']    = sprintf("%.2f", $result['data']['TotalAmount']);
+                $result['data']['TotalAmount'] += $result['list'][$key]['subtotal'];
+                $result['data']['TotalAmount'] = sprintf("%.2f", $result['data']['TotalAmount']);
                 // 计算合计数量
-                $result['data']['TotalNumber']    += $value['product_num'];
+                $result['data']['TotalNumber'] += $value['product_num'];
                 // 判断订单类型，目前逻辑：一个订单中，只要存在一个普通产品(实物产品，需要发货物流)，则为普通订单
                 // 0表示为普通订单，1表示为虚拟订单，虚拟订单无需发货物流，无需选择收货地址，无需计算运费
                 if (empty($value['prom_type'])) {
@@ -123,7 +183,12 @@ class TagSpsubmitorder extends Base
 
             // 图片处理
             $result['list'][$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
-            
+             
+            // 若不存在则重新定义,避免报错
+            if (empty($result['list'][$key]['ProductHidden'])) {
+                $result['list'][$key]['ProductHidden'] = '<input type="hidden" name="spec_value_id[]" value="'.$value['spec_value_id'].'">';
+            }
+
             // 产品属性处理
             if (!empty($value['aid'])) { 
                 $attrData   = Db::name('product_attr')->where('aid',$value['aid'])->field('attr_value,attr_id')->select();
@@ -135,12 +200,23 @@ class TagSpsubmitorder extends Base
                 }
             }
 
-            // 购物车不需要这个产品,若不存在空则定义为空,避免报错
-            if (empty($result['list'][$key]['ProductHidden'])) {
-                $result['list'][$key]['ProductHidden'] = '';
+            // 规格处理
+            if (!empty($value['spec_value_id'])) {
+                $spec_value_id = explode('_', $value['spec_value_id']);
+                if (!empty($spec_value_id)) {
+                    $SpecWhere = [
+                        'aid'           => $value['aid'],
+                        'lang'          => $this->home_lang,
+                        'spec_value_id' => ['IN',$spec_value_id],
+                    ];
+                    $ProductSpecData = M("product_spec_data")->where($SpecWhere)->field('spec_name,spec_value')->select();
+                    foreach ($ProductSpecData as $spec_value) {
+                        $result['list'][$key]['attr_value'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
+                    }
+                }
             }
         }
-
+        
         // 封装初始金额隐藏域
         $result['data']['TotalAmountOld'] = '<input type="hidden" id="TotalAmount_old" value="'.$result['data']['TotalAmount'].'">';
         // 封装订单支付方式隐藏域
@@ -198,6 +274,12 @@ class TagSpsubmitorder extends Base
 </script>
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_spsubmitorder.js?v={$version}"></script>
 EOF;
+
+        if (empty($result['list'])) {
+            action('user/Shop/shop_under_order', false);
+            exit;
+        }
+
         return $result;
     }
 }

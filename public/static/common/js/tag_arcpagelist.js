@@ -1,8 +1,9 @@
-    function tag_arcpagelist_multi(obj, tagid, pagesize)
+    function tag_arcpagelist_multi(obj, tagid, pagesize, callback_1565841361)
     {
         //步骤一:创建异步对象
         var ajax = new XMLHttpRequest();
         var root_dir = obj.attributes['data-root_dir'].value; // 子目录路径
+        var tagidmd5 = obj.attributes['data-tagidmd5'].value; // tagid加密后唯一的标识
         var page = obj.attributes['data-page'].value; // 当前页码
         page = parseInt(page) + 1;
         var tips = obj.attributes['data-tips'].value; // 加载按钮的文本
@@ -14,7 +15,7 @@
         obj.attributes['href'].value = 'javascript:void(0);'; // 禁止a标签跳转
         //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
         obj.innerHTML = loading;
-        ajax.open("get", root_dir+"/index.php?m=api&c=Ajax&a=arcpagelist&_ajax=1&page="+page+"&pagesize="+pagesize+"&tagid="+tagid, true);
+        ajax.open("get", root_dir+"/index.php?m=api&c=Ajax&a=arcpagelist&_ajax=1&page="+page+"&pagesize="+pagesize+"&tagid="+tagid+"&tagidmd5="+tagidmd5, true);
         //步骤三:发送请求
         ajax.send();
         //步骤四:注册事件 onreadystatechange 状态改变就会调用
@@ -28,6 +29,9 @@
                     var html = document.getElementById(tagid).innerHTML;
             　　　　document.getElementById(tagid).innerHTML = html + res.data.msg;
                     obj.attributes['data-page'].value = page;
+                    if (callback_1565841361 != '') {
+                        eval(callback_1565841361 + "();");
+                    }
                     // 加载更多文本
                     if (1 == res.data.lastpage) {
                         obj.innerHTML = tips;
