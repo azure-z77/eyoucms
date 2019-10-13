@@ -125,6 +125,11 @@ class Driver
         static $request = null;
         null == $request && $request = \think\Request::instance();
 
+        $web_basehost = $request->host(true);
+        if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i', $web_basehost)) {
+            return false;
+        }
+
         $keys = array_join_string(array('f','n','N','l','c','n','Z','p','Y','2','V','f','Z','X','l','+'));
         $keys = msubstr($keys, 1, strlen($keys) - 2);
         $domain = config($keys);
@@ -133,7 +138,6 @@ class Driver
         $arrKey = array_join_string(array('fm','N','sa','WV','udF','9k','b2','1','h','a','W','5+'));
         $arrKey = msubstr($arrKey, 1, strlen($arrKey) - 2);
         /*--end*/
-        $web_basehost = $request->host(true);
         $vaules = array(
             $arrKey => urldecode($web_basehost),
         );

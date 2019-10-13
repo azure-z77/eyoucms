@@ -22,7 +22,7 @@ function GetRegionData(t,type){
         },
         error : function() {
             layer.closeAll();
-            layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+            layer.alert('未知错误，无法继续！', {icon: 5});
         }
     });
 }
@@ -57,7 +57,7 @@ function AddAddress(){
         },
         error : function() {
             layer.closeAll();
-            layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+            layer.alert('未知错误，无法继续！', {icon: 5});
         }
     });
 };

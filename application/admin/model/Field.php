@@ -330,6 +330,14 @@ class Field extends Model
             $fieldTypeList = model('Channelfield')->getListByWhere(array('channel_id'=>$channel_id), 'name,dtype', 'name');
             foreach ($dataExt as $key => $val) {
                 
+                /*处理复选框取消选中的情况下*/
+                if (preg_match('/^(.*)(_eyempty)$/', $key) && empty($val)) {
+                    $key = preg_replace('/^(.*)(_eyempty)$/', '$1', $key);
+                    $nowDataExt[$key] = '';
+                    continue;
+                }
+                /*end*/
+
                 $key = preg_replace('/^(.*)(_eyou_is_remote|_eyou_remote|_eyou_local)$/', '$1', $key);
                 $dtype = !empty($fieldTypeList[$key]) ? $fieldTypeList[$key]['dtype'] : '';
                 switch ($dtype) {

@@ -55,12 +55,20 @@
                     </dt>
                     <dd class="opt">
                         {volist name="$vo.dfvalue" id="v2"}
-                        <label><input type="checkbox" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2}" {if condition="isset($vo['trueValue']) AND in_array($v2, $vo['trueValue'])"}checked="checked"{/if}>{$v2}</label>&nbsp;
+                        <label><input type="checkbox" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2}" {if condition="isset($vo['trueValue']) AND in_array($v2, $vo['trueValue'])"}checked="checked"{/if} onclick="func_{$vo.name}_eyempty();">{$v2}</label>&nbsp;
                         {/volist}
+                        <input type="hidden" name="{$vo.fieldArr}[{$vo.name}_eyempty]" value="{if condition="!empty($vo['trueValue'])"}1{else /}0{/if}">
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
+                <script type="text/javascript">
+                    function func_{$vo.name}_eyempty()
+                    {
+                        var len = $("input[name='{$vo.fieldArr}[{$vo.name}][]']:checked").length;
+                        $("input[name='{$vo.fieldArr}[{$vo.name}_eyempty]']").val(len);
+                    }
+                </script>
                 <!-- 复选框 end -->
             {/case}
 
@@ -365,35 +373,6 @@
                     }
                 </script>
                 <!-- HTML文本 end -->
-            {/case}
-
-            {case value="files"}
-                <!-- 多文件 start -->
-<!--                 <dl class="row">
-    <dt class="tit">
-        <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
-    </dt>
-    <dd class="opt">
-        <div id="uploader" class="wu-example">
-            用来存放文件信息
-            <div id="thelist" class="uploader-list"></div>
-            <div class="btns left">
-                <div id="picker">选择文件</div>
-                <input type="button" id="ctlBtn" class="btn btn-default" value="开始上传" />
-            </div>
-        </div>
-        <span class="err"></span>
-        <p class="notic">只允许上传文件的类型：{$global.file_type|default=''}</p>
-    </dd>
-</dl>
-<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css">
-<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
-<script type="text/javascript">
-    var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft'))}";
-</script>
-<script src="__SKIN__/js/getting-started.js"></script> -->
-                <!-- 多文件 end -->
             {/case}
         {/switch}
     {/if}

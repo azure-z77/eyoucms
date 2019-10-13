@@ -127,6 +127,7 @@
 
                         <label for="IsScreening_0" class="cb-disable selected">否</label>
                         <input id="IsScreening_0" name="is_screening" value="0" type="radio">
+                        <input type="hidden" name="IsScreening_status" value="0">
                     </div>
                     &nbsp;
                     <span class="err"></span>
@@ -225,8 +226,11 @@
             }
             if (0 <= $.inArray(dtype, ['region','checkbox','radio','select'])) {
                 $('#IsScreening').show();
+                $('input[name=IsScreening_status]').val(1);
             } else {
                 $('#IsScreening').hide();
+                $('input[name=IsScreening_status]').val(0);
+                $('#select_title').html('指定栏目');
             }
             if (0 <= $.inArray(dtype, ['text','int','float','decimal'])) {
                 $('#dl_dfvalue_unit').show();
@@ -277,7 +281,7 @@
             },
             error : function() {
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 5});
+                layer.alert(ey_unknown_error, {icon: 5});
             }
         });
     }

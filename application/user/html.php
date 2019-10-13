@@ -12,7 +12,8 @@
  */
 
 // 全局变量数组
-$global = tpCache('global');
+$global = config('tpcache');
+empty($global) && $global = tpCache('global');
 // 系统模式
 $web_cmsmode = isset($global['web_cmsmode']) ? $global['web_cmsmode'] : 2;
 /*页面缓存有效期*/

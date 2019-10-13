@@ -21,20 +21,21 @@ $route = array(
     '__domain__' => array(),
 );
 
-$globalConfig = tpCache('global');
+$globalTpCache = tpCache('global');
+config('tpcache', $globalTpCache);
 // mysql的sql-mode模式参数
-$system_sql_mode = !empty($globalConfig['system_sql_mode']) ? $globalConfig['system_sql_mode'] : config('ey_config.system_sql_mode');
+$system_sql_mode = !empty($globalTpCache['system_sql_mode']) ? $globalTpCache['system_sql_mode'] : config('ey_config.system_sql_mode');
 config('ey_config.system_sql_mode', $system_sql_mode);
 // 多语言数量
-$system_langnum = !empty($globalConfig['system_langnum']) ? intval($globalConfig['system_langnum']) : config('ey_config.system_langnum');
+$system_langnum = !empty($globalTpCache['system_langnum']) ? intval($globalTpCache['system_langnum']) : config('ey_config.system_langnum');
 config('ey_config.system_langnum', $system_langnum);
 // 前台默认语言
-$system_home_default_lang = !empty($globalConfig['system_home_default_lang']) ? $globalConfig['system_home_default_lang'] : config('ey_config.system_home_default_lang');
+$system_home_default_lang = !empty($globalTpCache['system_home_default_lang']) ? $globalTpCache['system_home_default_lang'] : config('ey_config.system_home_default_lang');
 config('ey_config.system_home_default_lang', $system_home_default_lang);
 // URL模式
-$seo_pseudo = !empty($globalConfig['seo_pseudo']) ? intval($globalConfig['seo_pseudo']) : config('ey_config.seo_pseudo');
+$seo_pseudo = !empty($globalTpCache['seo_pseudo']) ? intval($globalTpCache['seo_pseudo']) : config('ey_config.seo_pseudo');
 // 是否https链接
-$is_https = !empty($globalConfig['web_is_https']) ? true : config('is_https');
+$is_https = !empty($globalTpCache['web_is_https']) ? true : config('is_https');
 config('is_https', $is_https);
 
 $uiset = I('param.uiset/s', 'off');
@@ -46,38 +47,53 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
     // URL模式
     config('ey_config.seo_pseudo', $seo_pseudo);
     // 动态URL格式
-    $seo_dynamic_format = !empty($globalConfig['seo_dynamic_format']) ? intval($globalConfig['seo_dynamic_format']) : config('ey_config.seo_dynamic_format');
+    $seo_dynamic_format = !empty($globalTpCache['seo_dynamic_format']) ? intval($globalTpCache['seo_dynamic_format']) : config('ey_config.seo_dynamic_format');
     config('ey_config.seo_dynamic_format', $seo_dynamic_format);
     // 伪静态格式
-    $seo_rewrite_format = !empty($globalConfig['seo_rewrite_format']) ? intval($globalConfig['seo_rewrite_format']) : config('ey_config.seo_rewrite_format');
+    $seo_rewrite_format = !empty($globalTpCache['seo_rewrite_format']) ? intval($globalTpCache['seo_rewrite_format']) : config('ey_config.seo_rewrite_format');
     config('ey_config.seo_rewrite_format', $seo_rewrite_format); 
     // 是否隐藏入口文件
-    $seo_inlet = !empty($globalConfig['seo_inlet']) ? $globalConfig['seo_inlet'] : config('ey_config.seo_inlet');
+    $seo_inlet = !empty($globalTpCache['seo_inlet']) ? $globalTpCache['seo_inlet'] : config('ey_config.seo_inlet');
     config('ey_config.seo_inlet', $seo_inlet);
 
     if (3 == $seo_pseudo) {
         $lang_rewrite = [];
         $lang_rewrite_str = '';
+        /*手机端路径*/
+        if (1 == $globalTpCache['web_mobile_domain_open']) {
+            $host = $request->host(true);
+            if (empty($globalTpCache['web_mobile_domain']) || preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $host) || 'localhost' == $host) {
+                if (stristr($request->baseFile(), 'index.php')) {
+                    $pathinfo = $request->pathinfo();
+                    if (!empty($pathinfo)) {
+                        $s_arr = explode('/', $pathinfo);
+                        if ('m' == $s_arr[0]) {
+                            $lang_rewrite_str .= 'm/';
+                        }
+                    }
+                }
+            }
+        }
+        /*--end*/
         /*多语言*/
         $lang = input('param.lang/s');
         if (is_language()) {
             if (!stristr($request->baseFile(), 'index.php')) {
                 if (!empty($lang) && $lang != $system_home_default_lang) {
                     $lang_rewrite_str = '<lang>/';
-                    $lang_rewrite = [
-                        // 首页
-                        $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                    ];
                 }
             } else {
                 if (get_current_lang() != get_default_lang()) {
-                    $lang_rewrite_str = '<lang>/';
-                    $lang_rewrite = [
-                        // 首页
-                        $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                    ];
+                    $lang_rewrite_str .= '<lang>/';
                 }
             }
+        }
+
+        if (!empty($lang_rewrite_str)) {
+            $lang_rewrite = [
+                // 首页
+                $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+            ];
         }
         /*--end*/
         if (1 == $seo_rewrite_format) { // 精简伪静态

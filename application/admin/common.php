@@ -591,6 +591,9 @@ if (!function_exists('get_typeurl'))
      */
     function get_typeurl($arctype_info = array(), $admin = true)
     {
+        static $domain = null;
+        null === $domain && $domain = request()->domain();
+
         /*兼容采集没有归属栏目的文档*/
         if (empty($arctype_info['current_channel'])) {
             $channelRow = \think\Db::name('channeltype')->field('id as channel')
@@ -606,16 +609,21 @@ if (!function_exists('get_typeurl'))
         if ($result) {
             $ctl_name = $result[$arctype_info['current_channel']]['ctl_name'];
         }
-        static $seoConfig = null;
-        null === $seoConfig && $seoConfig = tpCache('seo');
-        $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
-        $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+
+        static $seo_pseudo = null;
+        static $seo_dynamic_format = null;
+        if (null === $seo_pseudo || null === $seo_dynamic_format) {
+            $seoConfig = tpCache('seo');
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+        }
+
         if (2 == $seo_pseudo && $admin) {
             static $lang = null;
             null === $lang && $lang = input('param.lang/s', 'cn');
             $typeurl = ROOT_DIR."/index.php?m=home&c=Lists&a=index&tid={$arctype_info['id']}&lang={$lang}&t=".getTime();
         } else {
-            $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+            $typeurl = typeurl("home/{$ctl_name}/lists", $arctype_info, true, $domain, $seo_pseudo, $seo_dynamic_format);
             // 自动隐藏index.php入口文件
             $typeurl = auto_hide_index($typeurl);
         }
@@ -634,6 +642,9 @@ if (!function_exists('get_arcurl'))
      */
     function get_arcurl($arcview_info = array(), $admin = true)
     {
+        static $domain = null;
+        null === $domain && $domain = request()->domain();
+
         /*兼容采集没有归属栏目的文档*/
         if (empty($arcview_info['channel'])) {
             $channelRow = \think\Db::name('channeltype')->field('id as channel')
@@ -649,17 +660,22 @@ if (!function_exists('get_arcurl'))
         if ($result) {
             $ctl_name = $result[$arcview_info['channel']]['ctl_name'];
         }
-        static $seoConfig = null;
-        null === $seoConfig && $seoConfig = tpCache('seo');
-        $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
-        $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+
+        static $seo_pseudo = null;
+        static $seo_dynamic_format = null;
+        if (null === $seo_pseudo || null === $seo_dynamic_format) {
+            $seoConfig = tpCache('seo');
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+        }
+        
         if ($admin) {
             if (2 == $seo_pseudo) {
                 static $lang = null;
                 null === $lang && $lang = input('param.lang/s', 'cn');
                 $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&admin_id=".session('admin_id')."&t=".getTime();
             } else {
-                $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+                $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, $domain, $seo_pseudo, $seo_dynamic_format);
                 // 自动隐藏index.php入口文件
                 $arcurl = auto_hide_index($arcurl);
                 if (stristr($arcurl, '?')) {
@@ -669,7 +685,7 @@ if (!function_exists('get_arcurl'))
                 }
             }
         } else {
-            $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, request()->domain(), $seo_pseudo, $seo_dynamic_format);
+            $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, $domain, $seo_pseudo, $seo_dynamic_format);
             // 自动隐藏index.php入口文件
             $arcurl = auto_hide_index($arcurl);
         }

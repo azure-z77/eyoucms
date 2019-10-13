@@ -163,6 +163,11 @@ class Field extends Base
                 $this->error("模型字段名称不允许以type开头！");
             }
 
+            // 字段类型是否具备筛选功能
+            if (empty($post['IsScreening_status'])) {
+                $post['is_screening'] = 0;
+            }
+
             /*去除中文逗号，过滤左右空格与空值、以及单双引号*/
             $dfvalue = str_replace('，', ',', $post['dfvalue']);
             $dfvalue = func_preg_replace(['"','\''], '', $dfvalue);
@@ -211,7 +216,6 @@ class Field extends Base
             if (empty($post['typeids'])) {
                 $this->error('请选择可见栏目！');
             }
-
             /*组装完整的SQL语句，并执行新增字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
             $ntabsql = $fieldinfos[0];
@@ -377,6 +381,11 @@ class Field extends Base
             $info = model('Channelfield')->getInfo($post['id'], 'ifsystem');
             if (!empty($info['ifsystem'])) {
                 $this->error('系统字段不允许更改！');
+            }
+
+            // 字段类型是否具备筛选功能
+            if (empty($post['IsScreening_status'])) {
+                $post['is_screening'] = 0;
             }
 
             $old_name = $post['old_name'];

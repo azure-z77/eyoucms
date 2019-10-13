@@ -4,8 +4,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     {include file="system/bar" /}
-    <form method="post" enctype="multipart/form-data" name="form1" id="handlepost" action="{:U('System/handle')}">
-        <input type="hidden" name="inc_type" value="{$inc_type}">
+    <form method="post" enctype="multipart/form-data" name="form1" id="handlepost" action="{:U('System/sms')}">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
@@ -30,10 +29,10 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="sms_secretKey">短信平台[secretKey]</label>
+                    <label for="sms_secretkey">短信平台[secretKey]</label>
                 </dt>
                 <dd class="opt">
-                    <input id="sms_secretKey" name="sms_secretKey" value="{$config.sms_secretKey|default=''}" class="input-txt" type="text"/>
+                    <input id="sms_secretkey" name="sms_secretkey" value="{$config.sms_secretkey|default=''}" class="input-txt" type="text"/>
                     <p class="notic">短信平台配置secretKey</p>
                 </dd>
             </dl>
@@ -91,8 +90,8 @@
             flag = false;
             return;
         }
-        if($('input[name="sms_secretKey"]').val() == ''){
-            layer.alert("请填写短信平台[secretKey]！",{icon:2, title:false});
+        if($('input[name="sms_secretkey"]').val() == ''){
+            layer.alert("请填写短信平台[secretkey]！",{icon:2, title:false});
             flag = false;
             return;
         }
@@ -106,22 +105,27 @@
     function sendMobile() {
         var mobile = $('#test_mobile').val();
         if (mobile == '') {
-            layer.alert("请填写正确的测试手机号码！",{icon:2, title:false});
-            return;
+            showErrorMsg('请填写正确的测试手机号码！');
+            $('input[name=sms_test_mobile]').focus();
+            return false;
         } else {
-            var loading = layer_loading('发送中');
+            var loading = layer_loading('正在发送');
             $.ajax({
                 type: "post",
                 data: $('#handlepost').serialize(),
                 dataType: 'json',
-                url: "{:U('System/send_mobile')}",
+                url: "{:U('System/send_mobile', ['_ajax'=>1])}",
                 success: function (res) {
                     layer.closeAll();
-                    if (res.status == 1) {
-                        layer.msg('发送成功', {icon: 1, time:1000});
+                    if (res.code == 1) {
+                        layer.msg(res.msg, {icon: 1, time:1000});
                     } else {
-                        layer.msg(res.msg, {icon: 2, time: 1000});
+                        layer.msg(res.msg, {icon: 2, time: 2000});
                     }
+                },
+                error: function(){
+                    layer.closeAll();
+                    layer.msg('发送超时，稍后重试~', {icon: 2, time: 1500});
                 }
             })
         }

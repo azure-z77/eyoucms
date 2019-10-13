@@ -62,6 +62,11 @@ class Controller
     public $version = null;
 
     /**
+     * 是否访问手机版
+     */
+    public $is_mobile = 0;
+
+    /**
      * 构造方法
      * @access public
      * @param Request $request Request 对象
@@ -72,6 +77,9 @@ class Controller
             $request = Request::instance();
         }
         $this->request = $request;
+
+        $returnData = $this->pc_to_mobile($this->request);
+        $this->is_mobile = $returnData['is_mobile'];
 
         if (!defined('IS_AJAX')) {
             $this->request->isAjax() ? define('IS_AJAX',true) : define('IS_AJAX',false);  // 
@@ -85,6 +93,11 @@ class Controller
         if (!defined('IS_AJAX_POST')) {
             ($this->request->isAjax() && $this->request->method() == 'POST') ? define('IS_AJAX_POST',true) : define('IS_AJAX_POST',false);  // 
         }
+
+        $param = input('param.');
+        if (isset($param['uiset']) && !session('?admin_id')) {
+            abort(404,'页面不存在');
+        }
         
         !defined('MODULE_NAME') && define('MODULE_NAME',$this->request->module());  // 当前模块名称是
         !defined('CONTROLLER_NAME') && define('CONTROLLER_NAME',$this->request->controller()); // 当前控制器名称
@@ -96,11 +109,10 @@ class Controller
         // 自动判断手机端和PC，以及PC/手机自适应模板 by 小虎哥 2018-05-10
         $v = I('param.v/s', 'pc');
         $v = trim($v, '/');
-        $is_mobile = 0;
         if ($v == 'mobile') {
-            $is_mobile = 1;
+            $this->is_mobile = 1;
         }
-        if((isMobile() || $is_mobile == 1) && file_exists(ROOT_PATH.'template/mobile')) {
+        if((isMobile() || $this->is_mobile == 1) && file_exists(ROOT_PATH.'template/mobile')) {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端模板
         } else {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
@@ -178,6 +190,148 @@ class Controller
         $this->assign('searchform', $searchform);
     }
 
+    /**
+     * 手机端访问自动跳到手机独立域名
+     * @access public
+     */
+    private function pc_to_mobile($request = null)
+    {
+        $data = [
+            'is_mobile' => 0,
+        ];
+
+        $web_mobile_domain_open = config('tpcache.web_mobile_domain_open');
+        if (empty($web_mobile_domain_open)) { // 未开启手机域名访问
+            return $data;
+        }
+        else
+        { // 开启手机域名访问
+            if (is_null($request)) {
+                $request = Request::instance();
+            }
+            $mobileurl = '';
+            $subDomain = $request->subDomain();
+            $web_mobile_domain = config('tpcache.web_mobile_domain');
+
+            if (isMobile()) {
+
+                /*辨识响应式模板，还是PC与移动的分离模板*/
+                $num = 0;
+                $responseType = 0; // 默认是响应式
+                $tpldirList = glob('template/*');
+                foreach ($tpldirList as $key => $val) {
+                    if (!preg_match('/template\/(pc|mobile)$/i', $val)) {
+                        unset($tpldirList[$key]);
+                    } else {
+                        $tpldirList[$key] = preg_replace('/^(.*)template\/(pc|mobile)$/i', '$2', $val);
+                        $num++;
+                        if ($num >= 2) {
+                            $responseType = 1; // PC与移动端分离
+                        }
+                    }
+                }
+                /*end*/
+
+                /*辨识IP访问，还是域名访问，如果是IP访问，将会与PC端的URL一致*/
+                if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $request->host(true)) || 'localhost' == $request->host(true)) { // 响应式，且是IP访问，保持URL域名不变
+                    if (0 == $responseType) { // 响应式
+                        return $data;
+                    } else { // PC与移动分离
+                        $seo_pseudo = config('ey_config.seo_pseudo');
+                        if (1 == $seo_pseudo || 2 == $seo_pseudo) {
+                            $subdomain = input('param.subdomain/s');
+                            if (!empty($subdomain)) {
+                                return $data;
+                            } else {
+                                if ($this->root_dir == rtrim($request->url(), '/')) {
+                                    $mobileurl = $request->domain().$request->url()."?subdomain=m";
+                                } else {
+                                    $mobileurl = $request->domain().$request->url()."&subdomain=m";
+                                }
+                            }
+                        } else if (3 == $seo_pseudo) {
+                            $pathinfo = $request->pathinfo();
+                            if (!empty($pathinfo) && $pathinfo != '/') {
+                                $s_arr = explode('/', $pathinfo);
+                                if (!empty($s_arr[0]) && ($web_mobile_domain == $s_arr[0] || 'm' == $s_arr[0])) {
+                                    return $data;
+                                }
+                            }
+                            $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
+                            if (!empty($this->root_dir)) {
+                                $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
+                            }
+                        }
+                    }
+                } else { // 域名访问
+                    $mobileDomainURL = $request->domain();
+                    if (!empty($web_mobile_domain)) {
+                        $parse_url = parse_url($mobileDomainURL);
+                        $mobileDomainURL = $request->scheme().'://'.$web_mobile_domain.'.'.$request->rootDomain();
+                        if (!empty($parse_url['port'])) {
+                            $mobileDomainURL .= ":".$parse_url['port'];
+                        }
+                    }
+
+                    if (0 == $responseType) { // 响应式
+                        if ($subDomain != $web_mobile_domain && !empty($web_mobile_domain)) { // 配置手机域名
+                            $mobileurl = $mobileDomainURL.$request->url();
+                        } else {
+                            return $data;
+                        }
+                    }
+                    else { // PC与移动分离
+                        if ($subDomain != $web_mobile_domain) {
+                            if (!empty($web_mobile_domain)) {
+                                $mobileurl = $mobileDomainURL.$request->url();
+                            } else {
+                                $pathinfo = $request->pathinfo();
+                                if (!empty($pathinfo) && $pathinfo != '/') {
+                                    $s_arr = explode('/', $pathinfo);
+                                    if (!empty($s_arr[0]) && ($web_mobile_domain == $s_arr[0] || 'm' == $s_arr[0])) {
+                                        return $data;
+                                    }
+                                }
+
+                                $seo_pseudo = config('ey_config.seo_pseudo');
+                                if (1 == $seo_pseudo || 2 == $seo_pseudo) {
+                                    $subdomain = input('param.subdomain/s');
+                                    if (!empty($subdomain)) {
+                                        return $data;
+                                    } else {
+                                        if ($this->root_dir == rtrim($request->url(), '/')) {
+                                            $mobileurl = $request->domain().$request->url()."?subdomain=m";
+                                        } else {
+                                            $mobileurl = $request->domain().$request->url()."&subdomain=m";
+                                        }
+                                    }
+                                } else if (3 == $seo_pseudo) {
+                                    $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
+                                    if (!empty($this->root_dir)) {
+                                        $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                /*end*/
+
+                if (!empty($mobileurl)) {
+                    // header('HTTP/1.1 301 Moved Permanently');
+                    header('Location: '.$mobileurl);
+                    exit;
+                }
+            } else {
+                if ($subDomain == $web_mobile_domain) {
+                    $data['is_mobile'] = 1;
+                }
+            }
+
+            return $data;
+        }
+    }
+
     public function _empty($name)
     {
         abort(404);
@@ -190,7 +344,7 @@ class Controller
     protected function coding()
     {
         \think\Coding::checksd();
-        \think\Coding::resetcr();
+        // \think\Coding::resetcr();
     }
 
     /**

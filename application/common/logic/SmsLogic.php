@@ -126,7 +126,7 @@ class SmsLogic
         //App Key的值 这个在开发者控制台的应用管理点击你添加过的应用就有了
         $c->appkey = $this->config['sms_appkey'];
         //App Secret的值也是在哪里一起的 你点击查看就有了
-        $c->secretKey = $this->config['sms_secretKey'];
+        $c->secretKey = $this->config['sms_secretkey'];
         //这个是用户名记录那个用户操作
         $req = new \AlibabaAliqinFcSmsNumSendRequest;
         //代理人编号 可选
@@ -166,8 +166,7 @@ class SmsLogic
         include_once './vendor/Dysmsapi/Request/V20170525/SendSmsRequest.php';
         
         $accessKeyId = $this->config['sms_appkey'];
-        $accessKeySecret = $this->config['sms_secretKey'];
-        
+        $accessKeySecret = $this->config['sms_secretkey'];
         //短信API产品名
         $product = "Dysmsapi";
         //短信API产品域名
@@ -197,9 +196,9 @@ class SmsLogic
         
         //短信发送成功返回True，失败返回false
         if ($resp && $resp->Code == 'OK') {
-            return array('status' => 1, 'msg' => $resp->Code);
+            return array('code' => 1, 'msg' => '发送成功');
         } else {
-            return array('status' => -1, 'msg' => $resp->Message . '. Code: ' . $resp->Code);
+            return array('code' => -1, 'msg' => $resp->Message . '. Code: ' . $resp->Code);
         }
     }
 }

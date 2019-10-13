@@ -35,6 +35,29 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
+                    <label for="web_mobile_domain_open">移动端域名</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="web_mobile_domain_open1" class="cb-enable {if condition='isset($config.web_mobile_domain_open) && $config.web_mobile_domain_open eq 1'}selected{/if}">开启</label>
+                        <label for="web_mobile_domain_open0" class="cb-disable {if condition='empty($config.web_mobile_domain_open)'}selected{/if}">关闭</label>
+                        <input id="web_mobile_domain_open1" name="web_mobile_domain_open" value="1" type="radio" {if condition="isset($config.web_mobile_domain_open) && $config.web_mobile_domain_open eq 1"} checked="checked"{/if}>
+                        <input id="web_mobile_domain_open0" name="web_mobile_domain_open" value="0" type="radio" {if condition="empty($config.web_mobile_domain_open)"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic">开启之后，配置独立的手机端域名，访问PC端自动跳转到手机端域名</p>
+                </dd>
+            </dl>
+            <dl class="row {if condition='empty($config.web_mobile_domain_open)'}none{/if}" id="dl_web_mobile_domain">
+                <dt class="tit">
+                    <label for="web_mobile_domain"></label>
+                </dt>
+                <dd class="opt">
+                    <input id="web_mobile_domain" name="web_mobile_domain" value="{$config.web_mobile_domain|default=''}" type="text" placeholder="手机域名" onKeyUp="this.value=this.value.replace(/[^0-9a-z]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-z]/g,''));" style="width: 60px;" />.{$Request.rootDomain}__ROOT_DIR__
+                    <p class="notic">为了更好的体验效果，IP访问不会自动跳转到手机端域名访问。</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
                     <label for="site_url">整站启用https</label>
                 </dt>
                 <dd class="opt">
@@ -135,9 +158,33 @@
             show_web_adminlogo += '?r='+Math.floor(Math.random()*100);
             $('#web_adminlogo', window.parent.document).attr('src', show_web_adminlogo);
         }
+
+        // 手机域名配置
+        $('input[name=web_mobile_domain_open]').click(function(){
+            if($(this).val() == 1){
+                $('#dl_web_mobile_domain').show();
+            }else{
+                $('#dl_web_mobile_domain').hide();
+            }
+        });
+
     });
 
     function adsubmit(){
+        // 手机域名开关
+        var web_mobile_domain_obj = $('input[name=web_mobile_domain]');
+        if ($('input[name=web_mobile_domain_open]').val() == 1) {
+            if (web_mobile_domain_obj.val() == '') {
+                showErrorMsg('手机域名配置不能为空！');
+                web_mobile_domain_obj.focus();
+                return false;
+            } else if (web_mobile_domain_obj.val() == "{$subDomain|default='www'}") {
+                showErrorMsg('手机域名配置不能与主域名一致！');
+                web_mobile_domain_obj.focus();
+                return false;
+            }
+        }
+
         var adminbasefileObj = $('input[name=adminbasefile]');
         var adminbasefile_oldObj = $('input[name=adminbasefile_old]');
         if($.trim(adminbasefileObj.val()) == ''){

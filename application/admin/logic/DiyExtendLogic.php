@@ -26,7 +26,6 @@ class DiyExtendLogic extends Model
 {
     private $request = null; // 当前Request对象实例
     private $admin_lang = 'cn'; // 后台多语言标识
-    private $root_dir = ''; // 子目录路径，比如：/sub
 
     /**
      * 析构函数
@@ -34,6 +33,26 @@ class DiyExtendLogic extends Model
     function  __construct() {
         null === $this->request && $this->request = Request::instance();
         $this->admin_lang = get_admin_lang();
-        $this->root_dir = ROOT_DIR;
+    }
+
+    /**
+     * 获取当前页面所在的模型ID
+     * @param string $id 模型ID
+     */
+    public function getChannelid()
+    {
+        $channel = input('param.channel/d', 0);
+        if (!empty($channel)) {
+            return $channel;
+        }
+
+        $controllerName = $this->request->controller();
+        if ('Custom' != $controllerName) {
+            $channel = Db::name('channeltype')->where([
+                    'ctl_name'  => $controllerName,
+                ])->getField('id');
+        }
+
+        return $channel;
     }
 }

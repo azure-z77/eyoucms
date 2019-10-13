@@ -16,6 +16,12 @@ class Request
     protected $domain;
 
     /**
+     * 子域名
+     * @var string
+     */
+    protected $subDomain;
+
+    /**
      * @var string URL地址
      */
     protected $url;
@@ -284,6 +290,57 @@ class Request
             $this->domain = $this->scheme() . '://' . $this->host();
         }
         return $this->domain;
+    }
+
+    /**
+     * 获取当前根域名
+     * @access public
+     * @return string
+     */
+    public function rootDomain()
+    {
+        $root = Config::get('url_domain_root');
+
+        if (!$root) {
+            $item  = explode('.', $this->host(true));
+            $count = count($item);
+            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+        }
+
+        return $root;
+    }
+
+    /**
+     * 获取当前子域名
+     * @access public
+     * @return string
+     */
+    public function subDomain($subDomain = '', $ignoreIP = true)
+    {
+        if (!empty($subDomain)) {
+            return $this->scheme().'://'.$subDomain.'.'.$this->rootDomain();
+        }
+
+        if (is_null($this->subDomain)) {
+
+            if (!empty($ignoreIP) && preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $this->host(true))) {
+                return '';
+            }
+
+            // 获取当前主域名
+            $rootDomain = Config::get('url_domain_root');
+
+            if ($rootDomain) {
+                // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
+                $domain = explode('.', rtrim(stristr($this->host(true), $rootDomain, true), '.'));
+            } else {
+                $domain = explode('.', $this->host(true), -2);
+            }
+
+            $this->subDomain = implode('.', $domain);
+        }
+
+        return $this->subDomain;
     }
 
     /**

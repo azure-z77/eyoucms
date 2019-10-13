@@ -285,7 +285,12 @@ if (!function_exists('typeurl')) {
                 }
                 static $home_lang = null;
                 null == $home_lang && $home_lang = get_home_lang(); // 前台语言 by 小虎哥
-                $eyouUrl = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&'.$vars.'&lang='.$home_lang;
+                static $main_lang = null;
+                null == $main_lang && $main_lang = get_main_lang(); // 前台主体语言 by 小虎哥
+                if ($home_lang != $main_lang) {
+                    $vars .= "&lang=".get_home_lang();
+                }
+                $eyouUrl = url('home/Lists/index', $vars, true, false, 1);
             }
             else
             { // PC端访问是静态页面
@@ -405,7 +410,12 @@ if (!function_exists('arcurl')) {
                 }
                 static $home_lang = null;
                 null == $home_lang && $home_lang = get_home_lang(); // 前台语言 by 小虎哥
-                $eyouUrl = ROOT_DIR.'/index.php?m=home&c=View&a=index&'.$vars.'&lang='.$home_lang;
+                static $main_lang = null;
+                null == $main_lang && $main_lang = get_main_lang(); // 前台主体语言 by 小虎哥
+                if ($home_lang != $main_lang) {
+                    $vars .= "&lang=".get_home_lang();
+                }
+                $eyouUrl = url('home/View/index', $vars, true, false, 1);
             }
             else
             { // PC端访问是静态页面

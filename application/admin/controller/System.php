@@ -75,7 +75,7 @@ class System extends Base
             }
 
             tpCache($inc_type, $param);
-            write_global_params(); // 写入全局内置参数
+            write_global_params($this->admin_lang); // 写入全局内置参数
             $this->success('操作成功', url('System/web'));
             exit;
         }
@@ -131,6 +131,13 @@ class System extends Base
 
         if (IS_POST) {
             $param = input('post.');
+
+            $web_mobile_domain = trim($param['web_mobile_domain']);
+            if (empty($web_mobile_domain)) {
+                $this->error("手机域名配置不能为空！");
+            } else if ($web_mobile_domain == 'www' || $web_mobile_domain == $this->request->subDomain()) {
+                $this->error("手机域名配置不能与主域名一致！");
+            }
 
             /*EyouCMS安装目录*/
             empty($param['web_cmspath']) && $param['web_cmspath'] = ROOT_DIR; // 支持子目录
@@ -225,6 +232,8 @@ class System extends Base
         }
 
         $config = tpCache($inc_type);
+        // 当前主域名
+        $this->assign('subDomain', $this->request->subDomain());
         //自定义后台路径名
         $baseFile = explode('/', $this->request->baseFile());
         $web_adminbasefile = end($baseFile);
@@ -420,6 +429,35 @@ class System extends Base
             /*--end*/
         }
 
+        $this->assign('config',$config);//当前配置项
+        return $this->fetch();
+    }
+
+    /**
+     * 短信配置
+     */
+    public function sms()
+    {
+        $inc_type =  'sms';
+
+        if (IS_POST) {
+            $param = input('post.');
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type,$param);
+            }
+            /*--end*/
+            $this->success('操作成功', url('System/sms'));
+        }
+
+        $config = tpCache($inc_type);
         $this->assign('config',$config);//当前配置项
         return $this->fetch();
     }
@@ -729,9 +767,25 @@ class System extends Base
      */
     public function send_mobile()
     {
-        $param = input('post.');
+        $param = $sms_config = input('post.');
         $res = sendSms(4,$param['sms_test_mobile'],array('content'=>mt_rand(1000,9999)));
-        exit(json_encode($res));
+        if (intval($res['code']) == 1) {
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('sms', $sms_config, $val['mark']);
+                }
+            } else {
+                tpCache('sms',$sms_config);
+            }
+            /*--end*/
+            $this->success($res['msg']);
+        } else {
+            $this->error($res['msg']);
+        }
     }
 
     /**

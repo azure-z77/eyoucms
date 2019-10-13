@@ -389,4 +389,38 @@ class Ajax extends Base
             }
         }
     }
+
+    /**
+     * 获取会员列表
+     * @author 小虎哥 by 2018-4-20
+     */
+    public function get_tag_memberlist()
+    {
+        if (IS_AJAX_POST) {
+            $htmlcode = input('post.htmlcode/s');
+            $htmlcode = htmlspecialchars_decode($htmlcode);
+
+            $attarray = input('post.attarray/s');
+            $attarray = htmlspecialchars_decode($attarray);
+            $attarray = json_decode(base64_decode($attarray));
+
+            /*拼接完整的memberlist标签语法*/
+            $innertext = "{eyou:memberlist";
+            foreach ($attarray as $key => $val) {
+                if (in_array($key, ['js'])) {
+                    continue;
+                }
+                $innertext .= " {$key}='{$val}'";
+            }
+            $innertext .= " js='on'}";
+            $innertext .= $htmlcode;
+            $innertext .= "{/eyou:memberlist}";
+            /*--end*/
+            $msg = $this->display($innertext); // 渲染模板标签语法
+            $data['msg'] = $msg;
+
+            $this->success('读取成功！', null, $data);
+        }
+        $this->error('加载失败！');
+    }
 }

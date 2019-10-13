@@ -245,7 +245,7 @@ class Ueditor extends Base
             $data = array(
                 'state' => 'SUCCESS',
                 'url' => '/'.UPLOAD_PATH.$this->savePath.$info->getSaveName(),
-                'title' => $info->getSaveName(),
+                'title' => '',//$info->getSaveName(),
                 'original' => $info->getSaveName(),
                 'type' => '.' . $info->getExtension(),
                 'size' => $info->getSize(),
@@ -648,7 +648,7 @@ class Ueditor extends Base
             }
         }
         $return_data['title'] = $title;
-        $return_data['original'] = ''; // 这里好像没啥用 暂时注释起来
+        $return_data['original'] = $title; // 这里好像没啥用 暂时注释起来
         $return_data['state'] = $state;
         $return_data['path'] = $path;
 

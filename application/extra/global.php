@@ -14,10 +14,7 @@
 $cacheKey = "extra_global_channeltype";
 $channeltype_row = \think\Cache::get($cacheKey);
 if (empty($channeltype_row)) {
-    $channeltype_row = \think\Db::name('channeltype')->field('id,nid')
-        // ->where([
-        //     'status' => 1,
-        // ])
+    $channeltype_row = \think\Db::name('channeltype')->field('id,nid,ctl_name')
         ->order('id asc')
         ->select();
     \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
@@ -76,7 +73,7 @@ return array(
     // 前台语言Cookie变量
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
-    'parse_url_param'   => ['uiset','v','lang'],
+    'parse_url_param'   => ['uiset','v','lang','subdomain'],
     // 会员金额明细类型
     'pay_cause_type_arr' => array(
         0   => '升级消费',

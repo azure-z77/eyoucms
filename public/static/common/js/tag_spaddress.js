@@ -77,7 +77,7 @@ function ShopDelAddress(addr_id){
             },
             error: function () {
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                layer.alert('未知错误，无法继续！', {icon: 2, title:false});
             }
         });
     }, function (index) {
@@ -128,7 +128,7 @@ function SetDefault(obj, addr_id){
             },
             error: function () {
                 layer.closeAll();
-                layer.alert('网络失败，请刷新页面后重试', {icon: 2, title:false});
+                layer.alert('未知错误，无法继续！', {icon: 2, title:false});
             }
         });
     }, function (index) {

@@ -713,7 +713,7 @@ if (!function_exists('getFirstCharter'))
          if($asc>=-12556&&$asc<=-11848) return 'X';
          if($asc>=-11847&&$asc<=-11056) return 'Y';
          if($asc>=-11055&&$asc<=-10247) return 'Z';
-         return null;
+         return 'Z';
     }
 }
 
@@ -2270,5 +2270,48 @@ if (!function_exists('VerifyLatestTemplate'))
 
         // 返回结果
         return $ResultData;
+    }
+}
+
+/**
+ *  获取区域子域名URL
+ *
+ * @access    public
+ * @param     string  $subDomain
+ * @return    string
+ */
+if ( ! function_exists('getRegionDomainUrl'))
+{
+    function getRegionDomainUrl($subDomain = '', $root_dir = true)
+    {
+        $domain = request()->host(true);
+        if (!empty($subDomain) && !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $domain)) {
+            $domain = request()->subDomain($subDomain);
+        }
+        true === $root_dir && $domain .= ROOT_DIR;
+
+        return $domain;
+    }
+}
+
+/**
+ *  获取URl子域名，忽略IP地址
+ *
+ * @access    public
+ * @param     string  $subDomain
+ * @return    string
+ */
+if ( ! function_exists('getSubDomain'))
+{
+    function getSubDomain($root_dir = true)
+    {
+        $domain = request()->host(true);
+        if (!empty($subDomain) && !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $domain)) {
+            $rootDomain = request()->rootDomain();
+            $domain = $subDomain.'.'.$rootDomain;
+        }
+        true === $root_dir && $domain .= ROOT_DIR;
+
+        return $domain;
     }
 }

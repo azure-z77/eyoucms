@@ -179,14 +179,14 @@ if (!function_exists('write_global_params'))
             'inc_type'  => 'web',
             'lang'  => $lang,
             'is_del'    => 0,
-        ])->select();
-        $web_basehost = !empty($webConfigParams['web_basehost']) ? $webConfigParams['web_basehost'] : ''; // 网站根网址
-        $web_cmspath = !empty($webConfigParams['web_cmspath']) ? $webConfigParams['web_cmspath'] : ''; // EyouCMS安装目录
+        ])->getAllWithIndex('name');
+        $web_basehost = !empty($webConfigParams['web_basehost']) ? $webConfigParams['web_basehost']['value'] : ''; // 网站根网址
+        $web_cmspath = !empty($webConfigParams['web_cmspath']) ? $webConfigParams['web_cmspath']['value'] : ''; // EyouCMS安装目录
         /*启用绝对网址，开启此项后附件、栏目连接、arclist内容等都使用http路径*/
-        $web_multi_site = !empty($webConfigParams['web_multi_site']) ? $webConfigParams['web_multi_site'] : '';
+        $web_multi_site = !empty($webConfigParams['web_multi_site']) ? $webConfigParams['web_multi_site']['value'] : '';
         if($web_multi_site == 1)
         {
-            $web_mainsite = $web_basehost;
+            $web_mainsite = $web_basehost.$web_cmspath;
         }
         else
         {
@@ -194,9 +194,9 @@ if (!function_exists('write_global_params'))
         }
         /*--end*/
         /*CMS安装目录的网址*/
-        $param['web_cmsurl'] = $web_mainsite.$web_cmspath;
+        $param['web_cmsurl'] = $web_mainsite;
         /*--end*/
-        $param['web_templets_dir'] = $web_cmspath.'/template'; // 前台模板根目录
+        $param['web_templets_dir'] = '/template'; // 前台模板根目录
         $param['web_templeturl'] = $web_mainsite.$param['web_templets_dir']; // 前台模板根目录的网址
         $param['web_templets_pc'] = $web_mainsite.$param['web_templets_dir'].'/pc'; // 前台PC模板主题
         $param['web_templets_m'] = $web_mainsite.$param['web_templets_dir'].'/mobile'; // 前台手机模板主题
@@ -1348,12 +1348,16 @@ if (!function_exists('switch_language'))
         $pathinfo = $request->pathinfo();
         if (!empty($pathinfo)) {
             $s_arr = explode('/', $pathinfo);
+            if ('m' == $s_arr[0]) {
+                $s_arr[0] = $s_arr[1];
+            }
             $count = $language_db->where(['mark'=>$s_arr[0]])->count();
             if (!empty($count)) {
                 $current_lang = $s_arr[0];
             }
         }
         /*--end*/
+        empty($current_lang) && $current_lang = !empty($langRow[0]['mark']) ? $langRow[0]['mark'] : 'cn';
 
         $lang = $request->param('lang/s', $current_lang);
         $lang = trim($lang, '/');
@@ -1366,6 +1370,7 @@ if (!function_exists('switch_language'))
                 $lang = \think\Db::name('language')->order('id asc')
                     ->getField('mark');
             } else {
+                abort(404,'页面不存在');
                 $lang = $language_db->where('is_home_default',1)->getField('mark');
             }
         }
@@ -1529,6 +1534,45 @@ if (!function_exists('send_email'))
         $res = $emailLogic->send_email($to, $subject, $data, $scene);
         return $res;
     }
+}
+
+/**
+ * 检测是否能够发送短信
+ * @param unknown $scene
+ * @return multitype:number string
+ */
+function checkEnableSendSms($scene)
+{
+    $scenes = config('SEND_SCENE');
+    $sceneItem = $scenes[$scene];
+    if (!$sceneItem) {
+        return array("status" => -1, "msg" => lang('Scene parameter scene error'));
+    }
+    $key = $sceneItem[2];
+    $sceneName = $sceneItem[0];
+    $config = tpCache('sms');
+    $smsEnable = $config[$key];
+
+    if (!$smsEnable) {
+        return array("status" => -1, "msg" => lang('[]sending SMS is closed', array($sceneName)));
+    }
+    //判断是否添加"注册模板"
+    $size = M('sms_template')->where("send_scene", $scene)->count('tpl_id');
+    if (!$size) {
+        return array("status" => -1, "msg" => lang('Please add [] SMS template first', array($sceneName)));
+    }
+
+    return array("status"=>1,"msg"=>lang('You can send text messages'));
+}
+
+/**
+ * 发送短信逻辑
+ * @param unknown $scene
+ */
+function sendSms($scene, $sender, $params,$unique_id=0)
+{
+    $smsLogic = new \app\common\logic\SmsLogic;
+    return $smsLogic->sendSms($scene, $sender, $params, $unique_id);
 }
 
 /**
@@ -2343,8 +2387,11 @@ if (!function_exists('auto_hide_index'))
      * URL中隐藏index.php入口文件（适用后台显示前台的URL）
      */
     function auto_hide_index($url, $seo_inlet = null) {
-        $web_adminbasefile = tpCache('web.web_adminbasefile');
-        $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : ROOT_DIR.'/login.php'; // 支持子目录
+        static $web_adminbasefile = null;
+        if (null === $web_adminbasefile) {
+            $web_adminbasefile = tpCache('web.web_adminbasefile');
+            $web_adminbasefile = !empty($web_adminbasefile) ? $web_adminbasefile : ROOT_DIR.'/login.php'; // 支持子目录
+        }
         $url = str_replace($web_adminbasefile, ROOT_DIR.'/index.php', $url); // 支持子目录
         null === $seo_inlet && $seo_inlet = config('ey_config.seo_inlet');
         if (1 == $seo_inlet) {

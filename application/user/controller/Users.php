@@ -141,7 +141,7 @@ class Users extends Base
         if (!empty($Users)) {
             // 已注册
             session('users_id',$Users['users_id']);
-            session('open_id', $Users['open_id']);
+            // session('open_id', $Users['open_id']);
             session('users',   $Users);
             setcookie('users_id',$Users['users_id'],null);
             $this->redirect(session('eyou_referurl'));
@@ -184,7 +184,7 @@ class Users extends Base
                 // 新增成功，将会员信息存入session
                 $GetUsers = $this->users_db->where('users_id',$users_id)->find();
                 session('users_id',$GetUsers['users_id']);
-                session('open_id', $GetUsers['open_id']);
+                // session('open_id', $GetUsers['open_id']);
                 session('users',   $GetUsers);
                 setcookie('users_id',$GetUsers['users_id'],null);
                 $this->redirect(session('eyou_referurl'));
@@ -967,7 +967,7 @@ class Users extends Base
     {
         session('users_id', null);
         session('users', null);
-        session('open_id',null);
+        // session('open_id',null);
         setcookie('users_id','',getTime()-3600);
         $this->redirect(ROOT_DIR.'/');
     }

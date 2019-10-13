@@ -136,7 +136,7 @@ class TagArclist extends Base
                             }
                         }
                         $typeids = get_arr_column($arctype_list, "id");
-                        $typeids[] = $typeid;
+                        !in_array($typeid, $typeids) && $typeids[] = $typeid;
                         $typeid = implode(",", $typeids);
                         /*--end*/
                     } elseif (count($typeidArr) > 1) {
@@ -154,7 +154,7 @@ class TagArclist extends Base
         foreach (array('keywords','typeid','notypeid','flag','noflag','channel','joinaid') as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    array_push($condition, "a.title LIKE %{$param[$key]}%");
+                    array_push($condition, "a.title LIKE '%{$param[$key]}%'");
                 } elseif ($key == 'channel') {
                     array_push($condition, "a.channel IN ({$channeltype})");
                 } elseif ($key == 'typeid') {
@@ -230,7 +230,7 @@ class TagArclist extends Base
         /*用于arclist标签的分页*/
         if(0 < $pagesize) {
             $tag['typeid'] = $typeid;
-            $tag['channel'] = $channeltype;
+            $tag['channelid'] = $channeltype;
             $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
         }
         /*--end*/
@@ -312,7 +312,7 @@ class TagArclist extends Base
         }
 
         //分页特殊处理
-        if(0 < $pagesize)
+        if(false !== $tagidmd5 && 0 < $pagesize)
         {
             $arcmulti_db = \think\Db::name('arcmulti');
             $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagidmd5])->find();
@@ -370,7 +370,8 @@ class TagArclist extends Base
         if (!empty($tag['tagid'])) {
             $tagidmd5 = $tag['tagid'].'_'.$tagmd5;
         } else {
-            $tagidmd5 = 'arclist_'.$tagmd5;
+            $tagidmd5 = false;
+            // $tagidmd5 = 'arclist_'.$tagmd5;
         }
 
         return $tagidmd5;

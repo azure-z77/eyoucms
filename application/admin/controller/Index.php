@@ -93,6 +93,25 @@ class Index extends Base
         $this->assign('share',$share);
         /*--end*/
 
+        // 纠正上传附件的大小，始终以空间大小为准
+        $file_size = $globalConfig['file_size'];
+        $maxFileupload = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 0;
+        $maxFileupload = intval($maxFileupload);
+        if (empty($file_size) || $file_size > $maxFileupload) {
+            /*多语言*/
+            if (is_language()) {
+                $langRow = Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->order('id asc')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('basic', ['file_size'=>$maxFileupload], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('basic', ['file_size'=>$maxFileupload]);
+            }
+            /*--end*/
+        }
+
         /*未备份数据库提示*/
         $system_explanation_welcome = $globalConfig['system_explanation_welcome'];
         $sqlfiles = glob(DATA_PATH.'sqldata/*');

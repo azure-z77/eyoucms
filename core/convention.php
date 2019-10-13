@@ -308,6 +308,9 @@ return [
         'home_lang' => 'cn', // 前台当前语言
         'system_langnum' => 1, // 多语言数量
         'system_home_default_lang'  => 'cn', // 前台默认语言
+        'web_mobile_domain_open'    => 0, // 手机域名开关
+        'web_mobile_domain'     => 'm', // 手机域名配置
     ],
+    'tpcache'   => [],
 
 ];

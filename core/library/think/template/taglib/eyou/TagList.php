@@ -133,7 +133,7 @@ class TagList extends Base
                     }
                 }
                 $typeids = get_arr_column($arctype_list, "id");
-                $typeids[] = $typeid;
+                !in_array($typeid, $typeids) && $typeids[] = $typeid;
                 $typeid = implode(",", $typeids);
                 /*--end*/
             } elseif (count($typeidArr) > 1) {
@@ -161,7 +161,7 @@ class TagList extends Base
         foreach (array('keywords','typeid','notypeid','flag','noflag','channel') as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    array_push($condition, "a.title LIKE %{$param[$key]}%");
+                    array_push($condition, "a.title LIKE '%{$param[$key]}%'");
                 } elseif ($key == 'channel') {
                     array_push($condition, "a.channel IN ({$channeltype})");
                 } elseif ($key == 'typeid') {
@@ -416,14 +416,16 @@ class TagList extends Base
         }
 
         // 应用搜索条件
-        foreach (['keywords','typeid','notypeid','channel','flag','noflag'] as $key) {
+        foreach (['keywords','typeid','notypeid','channelid','flag','noflag'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ('keywords' == $key) {
                     $keywords = trim($param[$key]);
                     $condition['a.title'] = array('LIKE', "%{$keywords}%");
-                } else if (in_array($key, array('typeid','channel'))) {
+                } else if (in_array($key, array('typeid'))) {
                     $param[$key] = str_replace('，', ',', $param[$key]);
                     $condition['a.'.$key] = array('in', $param[$key]);
+                } elseif ($key == 'channelid') {
+                    $condition['a.channel'] = array('eq', $param[$key]);
                 } elseif ($key == 'notypeid') {
                     $param[$key] = str_replace('，', ',', $param[$key]);
                     $condition['a.typeid'] = array('not in', $param[$key]);

@@ -365,34 +365,5 @@
                 </script>
                 <!-- HTML文本 end -->
             {/case}
-
-            {case value="files"}
-                <!-- 多文件 start -->
-<!--                 <dl class="row">
-    <dt class="tit">
-                        <label>{if condition="1 == $vo.is_required"}<em>*</em>{/if}{$vo.title}</label>
-    </dt>
-    <dd class="opt">
-        <div id="uploader" class="wu-example">
-            用来存放文件信息
-            <div id="thelist" class="uploader-list"></div>
-            <div class="btns left">
-                <div id="picker">选择文件</div>
-                <input type="button" id="ctlBtn" class="btn btn-default" value="开始上传" />
-            </div>
-        </div>
-        <span class="err"></span>
-        <p class="notic">只允许上传文件的类型：{$global.file_type|default=''}</p>
-    </dd>
-</dl>
-<link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css">
-<script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
-<script type="text/javascript">
-    var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft'))}";
-</script>
-<script src="__SKIN__/js/getting-started.js"></script> -->
-                <!-- 多文件 end -->
-            {/case}
         {/switch}
 {/volist}

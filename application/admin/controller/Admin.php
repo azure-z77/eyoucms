@@ -164,7 +164,7 @@ class Admin extends Base {
                     $validate = new \think\Validate($rule, $message);
                     if(!$validate->batch()->check($post))
                     {
-                        $this->error('登录校验失败，请检查站点权限问题~');
+                        $this->error('登录校验失败，请尝试Ctrl+F5强制刷新页面！');
                     }
 
                     $role_id = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
@@ -241,6 +241,8 @@ class Admin extends Base {
 
         $ajaxLogic = new AjaxLogic;
         $ajaxLogic->login_handle();
+        
+        session('admin_info', null);
 
         return $this->fetch();
     }

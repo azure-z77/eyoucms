@@ -194,61 +194,65 @@
                     // async: true,
                     success: function(res){
                         layer.closeAll();
-                        if (res.data.msg != '') {
-                            $('input[name=seo_pseudo]').each(function(i,o){
-                                if($(o).val() == seo_pseudo_old){
-                                    $(o).attr('checked',true);
-                                } else {
-                                    $(o).attr('checked',false);
-                                }
-                            })
-                            $('#dl_seo_html_format').show();
-                            $('#seo_right_uphtml').show();
-                            // $('#tab_base_html').show();
-                            var seo_pseudo = $(_this).val();
-                            //询问框
-                            var height = res.data.height + 116;
-                            if (350 <= height) height = 350;
-                            var confirm1 = layer.confirm(res.data.msg, {
-                                    title: false
-                                    ,area: ['320px', height+'px']
-                                    ,btn: ['手工删除','自动删除'] //按钮
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {icon: 5, time: 1500});
+                        } else {
+                            if (res.data.msg != '') {
+                                $('input[name=seo_pseudo]').each(function(i,o){
+                                    if($(o).val() == seo_pseudo_old){
+                                        $(o).attr('checked',true);
+                                    } else {
+                                        $(o).attr('checked',false);
+                                    }
+                                })
+                                $('#dl_seo_html_format').show();
+                                $('#seo_right_uphtml').show();
+                                // $('#tab_base_html').show();
+                                var seo_pseudo = $(_this).val();
+                                //询问框
+                                var height = res.data.height + 116;
+                                if (350 <= height) height = 350;
+                                var confirm1 = layer.confirm(res.data.msg, {
+                                        title: false
+                                        ,area: ['320px', height+'px']
+                                        ,btn: ['手工删除','自动删除'] //按钮
 
-                                }, function(){
-                                    layer.close(confirm1);
+                                    }, function(){
+                                        layer.close(confirm1);
 
-                                }, function(){
-                                    layer_loading('正在处理');
-                                    $.ajax({
-                                        url: "{:url('Seo/ajax_delHtmlDirpath')}",
-                                        type: "POST",
-                                        dataType: "json",
-                                        data: {_ajax:1},
-                                        success: function(res){
-                                            layer.closeAll();
-                                            if (1 == res.code) {
-                                                $('input[name=seo_pseudo]').each(function(i,o){
-                                                    if($(o).val() == seo_pseudo){
-                                                        $(o).attr('checked',true);
-                                                    } else {
-                                                        $(o).attr('checked',false);
-                                                    }
-                                                })
-                                                $('#dl_seo_html_format').hide();
-                                                $('#seo_right_uphtml').hide();
-                                                // $('#tab_base_html').attr('style','display:none!important');
-                                                layer.msg(res.msg, {icon: 1, time: 1500});
-                                            } else {
-                                                layer.alert(res.data.msg, {icon: 5, title: false});
+                                    }, function(){
+                                        layer_loading('正在处理');
+                                        $.ajax({
+                                            url: "{:url('Seo/ajax_delHtmlDirpath')}",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: {_ajax:1},
+                                            success: function(res){
+                                                layer.closeAll();
+                                                if (1 == res.code) {
+                                                    $('input[name=seo_pseudo]').each(function(i,o){
+                                                        if($(o).val() == seo_pseudo){
+                                                            $(o).attr('checked',true);
+                                                        } else {
+                                                            $(o).attr('checked',false);
+                                                        }
+                                                    })
+                                                    $('#dl_seo_html_format').hide();
+                                                    $('#seo_right_uphtml').hide();
+                                                    // $('#tab_base_html').attr('style','display:none!important');
+                                                    layer.msg(res.msg, {icon: 1, time: 1500});
+                                                } else {
+                                                    layer.alert(res.data.msg, {icon: 5, title: false});
+                                                }
+                                            },
+                                            error: function(e){
+                                                layer.closeAll();
+                                                layer.alert(ey_unknown_error, {icon: 5, title:false});
                                             }
-                                        },
-                                        error: function(e){
-                                            layer.closeAll();
-                                            layer.alert(ey_unknown_error, {icon: 5, title:false});
-                                        }
-                                    })
-                                }
-                            );
+                                        })
+                                    }
+                                );
+                            }
                         }
                     },
                     error: function(){

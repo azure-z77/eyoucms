@@ -19,7 +19,7 @@
         <div class="mDiv">
             <div class="ftitle">
                 <h3>数据库表列表</h3>
-                <h5>(共{$tableNum}条记录，共计{$total})</h5>
+                <h5>(共{$tableNum}条数据，共计{$total})</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
         </div>
@@ -155,7 +155,7 @@
             $export.addClass("disabled");
             $export.html("正在发送备份请求...");
             $.post(
-                $form.attr("action"),
+                "{:url('Tools/export', ['_ajax'=>1])}",
                 $form.serialize(),
                 function(res){
                     if(res.status){
@@ -182,7 +182,7 @@
 
         function backup(tab, status){
             status && showmsg(tab.id, "开始备份……(0%)");
-            $.post($form.attr("action"), tab, function(data){
+            $.post("{:url('Tools/export', ['_ajax'=>1])}", tab, function(data){
                 if(data.status){
                     if (tab.table) {
                         showmsg(tab.id, data.info);

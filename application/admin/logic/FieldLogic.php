@@ -53,6 +53,7 @@ class FieldLogic extends Model
             if(preg_match("#[0-9\-]#", $dfvalue))
             {
                 $dfvalue = strtotime($dfvalue);
+                empty($dfvalue) && $dfvalue = 0;
                 $default_sql = "DEFAULT '$dfvalue'";
             }
             $maxlen = 11;

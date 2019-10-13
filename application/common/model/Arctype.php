@@ -183,7 +183,7 @@ class Arctype extends Model
             $typeurl = $res['typelink'];
         } else {
             $ctl_name = get_controller_byct($res['current_channel']);
-            $typeurl = typeurl('home/'.$ctl_name."/lists", $res);
+            $typeurl = typeurl("home/{$ctl_name}/lists", $res);
         }
 
         return $typeurl;

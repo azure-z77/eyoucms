@@ -43,7 +43,7 @@ function post_form(form_id,subbmit_url){
  */
 function del_fun(del_url)
 {
-    if(confirm("此操作不可逆，确认删除？"))
+    if(confirm("此操作不可恢复，确认删除？"))
         location.href = del_url;
 }  
 

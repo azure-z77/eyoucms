@@ -45,14 +45,28 @@ class AppEndBehavior {
     private function sitemap()
     {
         /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $systemCtl= ['Arctype'];
-        $ctlArr = \think\Db::name('channeltype')
-            ->where('nid','NOTIN', ['guestbook','single'])
-            ->column('ctl_name');
-        $ctlArr = array_merge($systemCtl, $ctlArr);
-        $actArr = ['add','edit'];
-        if ('POST' == self::$method && in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
-            sitemap_auto();
+        if ('POST' == self::$method) {
+            $cacheKey = "extra_global_channeltype";
+            $channeltype_row = \think\Cache::get($cacheKey);
+            if (empty($channeltype_row)) {
+                $ctlArr = \think\Db::name('channeltype')
+                    ->where('id','NOTIN', [6,8])
+                    ->column('ctl_name');
+            } else {
+                $ctlArr = array();
+                foreach($channeltype_row as $key => $val){
+                    if (!in_array($val['id'], [6,8])) {
+                        $ctlArr[] = $val['ctl_name'];
+                    }
+                }
+            }
+
+            $systemCtl= ['Arctype'];
+            $ctlArr = array_merge($systemCtl, $ctlArr);
+            $actArr = ['add','edit'];
+            if (in_array(self::$controllerName, $ctlArr) && in_array(self::$actionName, $actArr)) {
+                sitemap_auto();
+            }
         }
         /*--end*/
     }
