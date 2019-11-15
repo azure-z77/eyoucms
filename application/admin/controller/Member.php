@@ -337,7 +337,8 @@ class Member extends Base {
             /*end*/
             
             if (isset($post['users_money'])) {
-                $post['users_money'] = input('post.users_money/f');
+                $users_money = input('post.users_money/f');
+                $post['users_money'] = (99999999 < $users_money) ? 99999999 : $users_money;
             }
 
             if (!empty($post['password'])) {
@@ -1000,8 +1001,8 @@ class Member extends Base {
 
         // 是否填写邮件配置
         $smtp_config = tpCache('smtp');
-        foreach ($smtp_config as $val) {
-            if (empty($val)) {
+        foreach ($smtp_config as $key => $val) {
+            if (preg_match('/^smtp_/i', $key) && empty($val)) {
                 return "请先完善<font color='red'>(邮件配置)</font>，具体步骤【基本信息】->【接口配置】->【邮件配置】";
             }
         }

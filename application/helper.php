@@ -332,7 +332,10 @@ if (!function_exists('typeurl')) {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');
             if (1 == intval($seo_rewrite_format)) {
-                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format).'/';
+                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
+                if (!strstr($eyouUrl, '.htm')){
+                    $eyouUrl .= '/';
+                }
             } else {
                 $eyouUrl = url($url, $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format); // 兼容v1.1.6之前被搜索引擎收录的URL
             }
@@ -522,6 +525,8 @@ if (!function_exists('eyPreventShell')) {
         $data = true;
         if (is_string($data) && (preg_match('/^phar:\/\//i', $data) || stristr($data, 'phar://'))) {
             $data = false;
+        } else if (is_numeric($data)) {
+            $data = intval($data);
         }
 
         return $data;

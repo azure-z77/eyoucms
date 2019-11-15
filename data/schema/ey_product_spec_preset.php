@@ -41,7 +41,7 @@ return array (
     'name' => 'sort_order',
     'type' => 'int(10)',
     'notnull' => false,
-    'default' => '0',
+    'default' => '100',
     'primary' => false,
     'autoinc' => false,
   ),

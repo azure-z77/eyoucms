@@ -61,7 +61,7 @@ class Base extends Controller {
             $web_login_expiretime = tpCache('web.web_login_expiretime');
             empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
             $admin_login_expire = session('admin_login_expire'); // 登录有效期web_login_expiretime
-            if (getTime() - intval($admin_login_expire) < $web_login_expiretime) {
+            if (session('?admin_id') && getTime() - intval($admin_login_expire) < $web_login_expiretime) {
                 session('admin_login_expire', getTime()); // 登录有效期
                 $this->check_priv();//检查管理员菜单操作权限
             }else{

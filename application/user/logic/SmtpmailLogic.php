@@ -53,7 +53,7 @@ class SmtpmailLogic extends Model
         // 是否填写邮件配置
         $smtp_config = tpCache('smtp');
         foreach ($smtp_config as $key => $val) {
-            if (empty($val)) {
+            if (preg_match('/^smtp_/i', $key) && empty($val)) {
                 return ['code'=>0, 'msg'=>"该功能待开放，网站管理员尚未完善邮件配置！"];
             }
         }

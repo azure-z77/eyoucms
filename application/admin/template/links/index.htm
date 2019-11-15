@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -41,8 +41,8 @@
                         <th abbr="ac_id" axis="col4">
                             <div class="">链接地址</div>
                         </th>
-                        <th abbr="article_time" axis="col6" class="w100">
-                            <div class="tc">新窗口打开</div>
+                        <th abbr="article_time" axis="col6" class="w80">
+                            <div class="tc">链接类型</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
@@ -95,11 +95,11 @@
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w100 tc">
-                                    {eq name="$vo['target']" value='1'}
-                                        <span class="yes" {eq name="'Links@edit'|is_check_access" value="1"}onClick="changeTableVal('links','id','{$vo.id}','target',this);"{/eq}><i class="fa fa-check-circle"></i>是</span>
+                                <div class="w80 tc">
+                                    {eq name="$vo['typeid']" value='1'}
+                                        文字
                                     {else /}
-                                        <span class="no" {eq name="'Links@edit'|is_check_access" value="1"}onClick="changeTableVal('links','id','{$vo.id}','target',this);"{/eq}><i class="fa fa-ban"></i>否</span>
+                                        图片
                                     {/eq}
                                 </div>
                             </td>

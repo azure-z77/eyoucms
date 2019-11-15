@@ -85,7 +85,7 @@ function ShopDelAddress(addr_id){
 
         $.ajax({
             url: url,
-            data: {addr_id:addr_id},
+            data: {addr_id:addr_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){
@@ -125,7 +125,7 @@ function SelectEd(idname,addr_id)
         
         $.ajax({
             url : url,
-            data: {addr_id:addr_id},
+            data: {addr_id:addr_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){
@@ -146,6 +146,12 @@ function ShopPaymentPage(){
     layer_loading('正在处理');
     var JsonData = b1decefec6b39feb3be1064e27be2a9;
     var url = JsonData.shop_payment_page;
+    if (url.indexOf('?') > -1) {
+        url += '&';
+    } else {
+        url += '?';
+    }
+    url += '_ajax=1';
     
     $.ajax({
         url : url,

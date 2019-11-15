@@ -122,7 +122,12 @@ class Channeltype extends Base
                     // 复制模型字段基础数据
                     $fieldLogic = new FieldLogic;
                     $fieldLogic->synArchivesTableColumns($insertId);
+
                     try {
+                        /*追加到快速入口列表*/
+                        $this->syn_custom_quickmenu($data, $insertId);
+                        /*end*/
+
                         schemaTable($post['table'].'_content');
                     } catch (\Exception $e) {}
 
@@ -136,6 +141,40 @@ class Channeltype extends Base
         }
 
         return $this->fetch();
+    }
+
+    /**
+     * 同步自定义模型的快捷导航
+     */
+    private function syn_custom_quickmenu($data = [], $insertId)
+    {
+        $saveData = [
+            [
+                'title' => $data['title'],
+                'laytext'   => $data['title'].'列表',
+                'type' => 1,
+                'controller' => 'Custom',
+                'action' => 'index',
+                'vars' => 'channel='.$insertId,
+                'sort_order' => 100,
+                'groups'    => 1,
+                'add_time' => getTime(),
+                'update_time' => getTime(),
+            ],
+            [
+                'title' => $data['title'],
+                'laytext'   => $data['title'].'列表',
+                'type' => 2,
+                'controller' => 'Custom',
+                'action' => 'index',
+                'vars' => 'channel='.$insertId,
+                'sort_order' => 100,
+                'groups'    => 1,
+                'add_time' => getTime(),
+                'update_time' => getTime(),
+            ],
+        ];
+        model('Quickentry')->saveAll($saveData);
     }
 
     /**
@@ -176,6 +215,30 @@ class Channeltype extends Base
                     ->cache(true,null,"channeltype")
                     ->update($data);
                 if ($r) {
+                    /*留言模型 - 同步邮箱模板的开启与关闭*/
+                    if (8 == $post['id']) {
+                        Db::name('smtp_tpl')->where([
+                                'send_scene'    => 1,
+                            ])->update([
+                                'is_open'   => intval($post['smtp_is_open']),
+                                'update_time'   => getTime(),
+                            ]);
+                        
+                        /*留言间隔时间 - 多语言*/
+                        $channel_guestbook_interval = intval($post['channel_guestbook_interval']);
+                        if (is_language()) {
+                            $langRow = \think\Db::name('language')->order('id asc')
+                                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                                ->select();
+                            foreach ($langRow as $key => $val) {
+                                tpSetting('channel_guestbook', ['channel_guestbook_interval'=>$channel_guestbook_interval], $val['mark']);
+                            }
+                        } else {
+                            tpSetting('channel_guestbook',['channel_guestbook_interval'=>$channel_guestbook_interval]);
+                        }
+                        /*--end*/
+                    }
+                    /*end*/
                     extra_cache('admin_channeltype_list_logic', NULL);
                     adminLog('编辑模型：'.$data['title']);
                     $this->success("操作成功", url('Channeltype/index'));
@@ -195,6 +258,25 @@ class Channeltype extends Base
             exit;
         }
         $assign_data['field'] = $info;
+
+        /*留言模型*/
+        $smtpTplRow = [];
+        if (8 == $id) {
+            /*邮箱提醒*/
+            $smtpTplRow = Db::name('smtp_tpl')->field('is_open')
+                ->where([
+                    'send_scene'    => 1,
+                    'lang'          => $this->main_lang,
+                ])->find();
+            /*end*/
+
+            /*间隔时间*/
+            $channel_guestbook_interval = tpSetting('channel_guestbook.channel_guestbook_interval');
+            $assign_data['channel_guestbook_interval'] = is_numeric($channel_guestbook_interval) ? intval($channel_guestbook_interval) : 60;
+            /*end*/
+        }
+        $assign_data['smtpTplRow'] = $smtpTplRow;
+        /*end*/
 
         $this->assign($assign_data);
         return $this->fetch();
@@ -216,7 +298,7 @@ class Channeltype extends Base
                     }
                 } 
 
-                $result = $this->channeltype_db->field('title,nid')->where("id",'IN',$id_arr)->select();
+                $result = $this->channeltype_db->field('id,title,nid')->where("id",'IN',$id_arr)->select();
                 $title_list = get_arr_column($result, 'title');
 
                 $r = $this->channeltype_db->where("id",'IN',$id_arr)->delete();
@@ -235,6 +317,15 @@ class Channeltype extends Base
                         $nid = $value['nid'];
 
                         try {
+                            /*删除快速入口的相关数据*/
+                            Db::name('quickentry')->where([
+                                    'groups'    => 1,
+                                    'controller'    => 'Custom',
+                                    'action'    => 'index',
+                                    'vars'  => 'channel='.$value['id'],
+                                ])->delete();
+                            /*end*/
+
                             // 删除相关数据表
                             Db::execute('DROP TABLE '.PREFIX.$nid.'_content');
                         } catch (\Exception $e) {}

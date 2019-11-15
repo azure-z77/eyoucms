@@ -74,7 +74,7 @@ class Users extends Base
         // 拼装url
         $result = [
             'wechat_url'  => url("user/Users/ajax_wechat_login"),
-            'website_url' => url("user/Users/login",['website'=>'website']),
+            'website_url' => $this->root_dir."/index.php?m=user&c=Users&a=login&website=website",
         ];
 
         // 若后台功能设置-登录设置中，微信端本站登录为关闭状态，则直接跳转到微信授权页面

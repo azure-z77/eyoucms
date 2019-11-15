@@ -76,7 +76,7 @@ class Buildhtml extends Base
             $savepath = './index.html';
             $tpl = 'index';
             $this->request->get(['m'=>'Index']); // 首页焦点
-            $this->filePutContents($savepath,$tpl,'pc');
+            $this->filePutContents($savepath, $tpl, 'pc', 0, '/', 0, 1, $result);
 //            $msg .= '<span>index.html生成成功</span><br>';
         }catch(\Exception $e){
             $msg .= '<span>index.html生成失败！'.$e->getMessage().'</span><br>';
@@ -88,7 +88,7 @@ class Buildhtml extends Base
     /*
      * 写入静态页面
      */
-    private function filePutContents($savepath,$tpl,$model='pc',$pages=0,$dir='/',$tid=0,$top=1)
+    private function filePutContents($savepath, $tpl, $model='pc', $pages=0, $dir='/', $tid=0, $top=1, $result = [])
     {
         ob_start();
         static $templateConfig = null;
@@ -126,7 +126,7 @@ class Buildhtml extends Base
                 $content = str_ireplace ( $value1, $value1_new, $content );
             }
         }
-        $content = $this->pc_to_mobile_js($content); // 生成静态模式下，自动加上PC端跳转移动端的JS代码
+        $content = $this->pc_to_mobile_js($content, $result); // 生成静态模式下，自动加上PC端跳转移动端的JS代码
         echo $content;
         $_cache=ob_get_contents();
         ob_end_clean();
@@ -252,6 +252,9 @@ class Buildhtml extends Base
         $this->request->post(['aid'=>$aid]);
         $this->request->post(['tid'=>$result['typeid']]);
 
+        // tags标签
+        $result['tags'] = empty($allTags[$aid]) ? '' : implode(',', $allTags[$aid]);
+
         $arctypeInfo = $arctypeRow[$result['typeid']];
         /*排除文档模型与栏目模型对不上的文档*/
         if ($arctypeInfo['current_channel'] != $result['channel']) {
@@ -316,7 +319,7 @@ class Buildhtml extends Base
         $savepath = $dir.'/'.$aid.'.html';
 
         try{
-            $this->filePutContents('./'.$savepath,$tpl,'pc');
+            $this->filePutContents('./'.$savepath, $tpl, 'pc', 0, '/', 0, 1, $result);
         }catch(\Exception $e){
              $msg .= '<span>'.$savepath.'生成失败！'.$e->getMessage().'</span><br>';
         }
@@ -457,7 +460,7 @@ class Buildhtml extends Base
                 $savepath  = '.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/'.'lists_'.$eyou['field']['typeid'].".html";
             }
             try{
-                $this->filePutContents($savepath,$tpl,'pc');
+                $this->filePutContents($savepath, $tpl, 'pc', 0, '/', 0, 1, $row);
                 if ($seo_html_listname != 1 || count($dirpath) < 3){
                     copy($savepath,'.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/index.html');
                 }
@@ -506,7 +509,7 @@ class Buildhtml extends Base
         }
         $top = $i > 1 && $seo_html_listname == 1 && count($dirpath) >2 ? 2 :1;
         try{
-            $this->filePutContents($savepath,$tpl,'pc',$i,$dir,$tid,$top);
+            $this->filePutContents($savepath, $tpl, 'pc', $i, $dir, $tid, $top, $row);
             if ($i==1 && ($seo_html_listname != 1 || count($dirpath) < 3)){
                 copy($savepath,'.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/index.html');
             }
@@ -548,7 +551,7 @@ class Buildhtml extends Base
             $this->error("当前非静态模式，不做静态处理");
         }
         if(!empty($del_ids)){    //删除文章页面
-            $info = db('archives')->field('a.*,b.dirpath')
+            $info = Db::name('archives')->field('a.*,b.dirpath')
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
                 ->where([
@@ -692,15 +695,51 @@ class Buildhtml extends Base
      * 生成静态模式下且PC和移动端模板分离，就自动给PC端加上跳转移动端的JS代码
      * @access public
      */
-    private function pc_to_mobile_js($html = '')
+    private function pc_to_mobile_js($html = '', $result = [])
     {
-        if (file_exists('./template/mobile')) {
-            $url = $this->request->domain().ROOT_DIR.'/index.php';
+        if (file_exists('./template/mobile')) { // 分离式模板
+
+            $domain = $this->request->host(true);
+
+            /*是否开启手机站域名，并且配置*/
+            if (!empty($this->eyou['global']['web_mobile_domain_open']) && !empty($this->eyou['global']['web_mobile_domain'])) {
+                $domain = $this->eyou['global']['web_mobile_domain'].'.'.$this->request->rootDomain();
+            }
+            /*end*/
+
+            $aid = input('param.aid/d');
+            $tid = input('param.tid/d');
+            if (!empty($aid)) { // 内容页
+                $url = url('home/View/index', ['aid'=>$aid], true, $domain, 1, 1, 0);
+            } else if (!empty($tid)) { // 列表页
+                $url = url('home/Lists/index', ['tid'=>$tid], true, $domain, 1, 1, 0);
+            } else { // 首页
+                $url = $this->request->scheme().'://'.$domain.ROOT_DIR.'/index.php';
+            }
+
             $jsStr = <<<EOF
     <meta http-equiv="mobile-agent" content="format=xhtml;url={$url}">
     <script type="text/javascript">if(window.location.toString().indexOf('pref=padindex') != -1){}else{if(/applewebkit.*mobile/i.test(navigator.userAgent.toLowerCase()) || (/midp|symbianos|nokia|samsung|lg|nec|tcl|alcatel|bird|dbtel|dopod|philips|haier|lenovo|mot-|nokia|sonyericsson|sie-|amoi|zte/.test(navigator.userAgent.toLowerCase()))){try{if(/android|windows phone|webos|iphone|ipod|blackberry/i.test(navigator.userAgent.toLowerCase())){window.location.href="{$url}";}else if(/ipad/i.test(navigator.userAgent.toLowerCase())){}else{}}catch(e){}}}</script>
 EOF;
             $html = str_ireplace('</head>', $jsStr."\n</head>", $html);
+        } 
+        else { // 响应式模板
+            // 开启手机站域名，且配置
+            if (!empty($this->eyou['global']['web_mobile_domain_open']) && !empty($this->eyou['global']['web_mobile_domain'])) {
+                if (empty($result['pageurl'])) {
+                    $url = $this->request->subDomain($this->eyou['global']['web_mobile_domain']).ROOT_DIR.'/index.php';
+                } else {
+                    $url = !preg_match('/^(http(s?):)?\/\/(.*)$/i', $result['pageurl']) ? $this->request->domain().$result['pageurl'] : $result['pageurl'];
+                    $url = preg_replace('/^(.*)(\/\/)([^\/]*)(\.?)('.$this->request->rootDomain().')(.*)$/i', '${1}${2}'.$this->eyou['global']['web_mobile_domain'].'.${5}${6}', $url);
+                }
+
+                $mobileDomain = $this->eyou['global']['web_mobile_domain'].'.'.$this->request->rootDomain();
+                $jsStr = <<<EOF
+    <meta http-equiv="mobile-agent" content="format=xhtml;url={$url}">
+    <script type="text/javascript">if(window.location.toString().indexOf('pref=padindex') != -1){}else{if(/applewebkit.*mobile/i.test(navigator.userAgent.toLowerCase()) || (/midp|symbianos|nokia|samsung|lg|nec|tcl|alcatel|bird|dbtel|dopod|philips|haier|lenovo|mot-|nokia|sonyericsson|sie-|amoi|zte/.test(navigator.userAgent.toLowerCase()))){try{if(/android|windows phone|webos|iphone|ipod|blackberry/i.test(navigator.userAgent.toLowerCase())){if(window.location.toString().indexOf('{$mobileDomain}') == -1){window.location.href="{$url}";}}else if(/ipad/i.test(navigator.userAgent.toLowerCase())){}else{}}catch(e){}}}</script>
+EOF;
+                $html = str_ireplace('</head>', $jsStr."\n</head>", $html);
+            }
         }
 
         return $html;

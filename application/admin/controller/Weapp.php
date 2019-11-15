@@ -785,7 +785,7 @@ class Weapp extends Base
                             'code'          => $code,
                             'name'          => isset($configdata['name']) ? $configdata['name'] : '配置信息不完善',
                             'config'        => empty($configdata) ? '' : json_encode($configdata),
-                            'data'        => json_encode([]),
+                            'data'        => '',
                             'add_time'      => getTime(),
                         ];
                         $weapp_id = Db::name('weapp')->insertGetId($addData);
@@ -980,9 +980,14 @@ class Weapp extends Base
                 $this->error('插件压缩包打开失败！');
 
             /*打包插件标准结构涉及的文件与目录，并且打包zip*/
+            $is_template = false;
             $filetxt = '';
             foreach ($packfiles as $key => $srcfile) {
-                $filetxt .= $srcfile."\n\r";
+                if (!stristr($srcfile, "weapp/{$code}/") && !stristr($srcfile, "template/plugins/".strtolower($code)."/")) {
+                    $filetxt .= $srcfile."\n";
+                } else if (stristr($srcfile, "template/plugins/".strtolower($code)."/")) {
+                    $is_template = true;
+                }
                 // $dstfile = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$code.DS.$srcfile;
                 // if(true == tp_mkdir(dirname($dstfile))) {
                     if(file_exists($srcfile)) {
@@ -998,6 +1003,10 @@ class Weapp extends Base
                 // }
             }
             // $dst_filelist = DATA_NAME.DS.WEAPP_DIR_NAME.DS.$code.DS.WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
+            if ($is_template) {
+                $filetxt .= "template/plugins/".strtolower($code)."\n";
+            }
+            $filetxt .= "weapp/{$code}"."\n";
             $src_filelist = WEAPP_DIR_NAME.DS.$code.DS.'filelist.txt';
             @file_put_contents($src_filelist, $filetxt); //初始化插件文件列表  
             // copy($src_filelist, $dst_filelist);
@@ -1010,7 +1019,8 @@ class Weapp extends Base
                 $this->error('打包zip文件包失败！');
             }
             
-            $this->success('打包成功', url('Weapp/pack'));
+            $msg = "打包成功，【{$code}.zip】插件包在 data/weapp/ 目录下。";
+            $this->success($msg, url('Weapp/pack'), [], 20);
 
         }
 

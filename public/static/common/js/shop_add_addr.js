@@ -7,7 +7,7 @@ function GetRegionData(t,type){
     var url = $('#GetRegionDataS').val();
     $.ajax({
         url: url,
-        data: {parent_id:parent_id},
+        data: {parent_id:parent_id,_ajax:1},
         type:'post',
         dataType:'json',
         success:function(res){
@@ -32,7 +32,15 @@ function AddAddress(){
     var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
     var types = $('#types').val();
     var url   = $('#ShopAddAddress').val();
+    if (url.indexOf('?') > -1) {
+        url += '&';
+    } else {
+        url += '?';
+    }
+    url += '_ajax=1';
+
     var _parent = parent;
+    
     $.ajax({
         url: url,
         data: $('#theForm').serialize(),

@@ -297,14 +297,28 @@ class Request
      * @access public
      * @return string
      */
-    public function rootDomain()
+    public function rootDomain($domain = '')
     {
         $root = Config::get('url_domain_root');
 
-        if (!$root) {
-            $item  = explode('.', $this->host(true));
-            $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+        if (!$root || !empty($domain)) {
+            $root = '';
+            $host = !empty($domain) ? $domain : $this->host(true);
+            if (empty($host)) {
+                return $root;
+            }
+            $domain_postfix_cn_array = ["com", "net", "org", "gov", "edu", "com.cn", "cn", "co"];
+            $array_domain = explode(".", $host);
+            $array_num = count($array_domain) - 1;
+            if (in_array($array_domain[$array_num], ['cn','tw','hk','nz'])) {
+                if (in_array($array_domain[$array_num - 1], $domain_postfix_cn_array)) {
+                    $root = $array_domain[$array_num - 2] . "." . $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+                } else {
+                    $root = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+                }
+            } else {
+                $root = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
+            }
         }
 
         return $root;

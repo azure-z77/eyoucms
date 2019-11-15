@@ -3,12 +3,12 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/bootstrap/css/bootstrap.min.css?v={$version}">
-    <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
-    <script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
     <script type="text/javascript">
         var __root_dir__ = "__ROOT_DIR__";
         var __lang__ = "{$admin_lang}";
     </script>
+    <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
 </head>
 <style>
     .gray-bg {
@@ -137,7 +137,7 @@
                 send();
             },
             error:function(){
-                parent.layer.alert('文档页生成出错', {icon: 5, title:false});
+                parent.layer.alert('未知错误，文档页生成失败~', {icon: 5, title:false});
             }
         });
     }

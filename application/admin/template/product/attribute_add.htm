@@ -3,9 +3,9 @@
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="box-shadow:none;">
     <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
+        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-chevron-left"></i></a>
             <div class="subject">
                 <h3>新增参数</h3>
                 <h5></h5>
@@ -70,7 +70,7 @@
                 </dd>
             </dl>
             <div class="bot">
-                <a href="JavaScript:void(0);" onclick="check_submit('post_form','{:U('Product/attribute_add')}');"  class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
+                <a href="JavaScript:void(0);" onclick="check_submit('post_form');"  class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
         </div>
     </form>
 </div>
@@ -101,7 +101,7 @@
     * ajax 提交表单 到后台去验证然后回到前台提示错误
     * 验证通过后,再通过 form 自动提交
     */
-    function check_submit(form_id,submit_url)
+    function check_submit(form_id)
     {
         if ($('#typeid').val() == 0) {
             showErrorMsg('请选择栏目…！');
@@ -127,7 +127,7 @@
         layer_loading('正在处理');
         $.ajax({
             type : "POST",
-            url  : submit_url,
+            url  : "{:url('Product/attribute_add', ['_ajax'=>1])}",
             data : $('#'+form_id).serialize(),// 你的formid
             dataType: "JSON",
             error: function(request) {

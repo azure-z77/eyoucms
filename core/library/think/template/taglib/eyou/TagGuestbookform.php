@@ -82,14 +82,18 @@ class TagGuestbookform extends Base
                 $attr_id = $val['attr_id'];
                 /*字段名称*/
                 $name = 'attr_'.$attr_id;
-                $newAttribute[$name] = $name;
+                if (in_array($val['attr_input_type'], [4])) { // 多选框、上传图片或附件
+                    $newAttribute[$name] = $name."[]";
+                } else {
+                    $newAttribute[$name] = $name;
+                }
                 /*--end*/
                 /*表单提示文字*/
                 $itemname = 'itemname_'.$attr_id;
                 $newAttribute[$itemname] = $val['attr_name'];
                 /*--end*/
                 /*针对下拉选择框*/
-                if ($val['attr_input_type'] == 1) {
+                if (in_array($val['attr_input_type'], [1,3,4])) {
                     $tmp_option_val = explode(PHP_EOL, $val['attr_values']);
                     $options = array();
                     foreach($tmp_option_val as $k2=>$v2)
@@ -150,8 +154,9 @@ EOF;
             $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
-            $action = url('home/Lists/gbook_submit');
+            $action = ROOT_DIR."/index.php?m=home&c=Lists&a=gbook_submit&lang={$this->home_lang}";
             $newAttribute['action'] = $action;
+            $newAttribute['formhidden'] = ' enctype="multipart/form-data" ';
 
             /*验证码处理*/
             // 默认开启验证码

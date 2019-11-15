@@ -93,6 +93,11 @@ class Uploadify extends Base
                 $dirArr[$key] = [];
                 continue;
             }
+            /*图库显示数量*/
+            $countFile = 0;
+            $dirfileArr2 = glob("{$val['dirpath']}/*.*"); // 文件数量
+            $countFile = count($dirfileArr2);
+            /*end*/
             $dirname = preg_replace('/([^\/]+)$/i', '', $val['dirpath']);
             $arr_key = array_search(trim($dirname, '/'), $dirArr2);
             if (!empty($arr_key)) {
@@ -101,6 +106,7 @@ class Uploadify extends Base
                 $dirArr[$key]['pId'] = 0;
             }
             $dirArr[$key]['name'] = preg_replace('/^(.*)\/([^\/]+)$/i', '${2}', $val['dirpath']);
+            !empty($countFile) && $dirArr[$key]['name'] .= "({$countFile})"; // 图库显示数量
         }
 
         $zNodes = json_encode($dirArr,true);

@@ -39,6 +39,13 @@ class TagSearchurl extends Base
             $result .= $url.'"><input type="hidden" name="m" value="home" />';
             $result .= '<input type="hidden" name="c" value="Search" />';
             $result .= '<input type="hidden" name="a" value="lists';
+
+            /*手机端域名*/
+            $goto = input('param.goto/s');
+            $goto = trim($goto, '/');
+            !empty($goto) && $result .= '" /><input type="hidden" name="goto" value="'.$goto;
+            /*--end*/
+
             /*多语言*/
             $lang = Request::instance()->param('lang/s');
             !empty($lang) && $result .= '" /><input type="hidden" name="lang" value="'.$lang;

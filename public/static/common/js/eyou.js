@@ -116,7 +116,7 @@ jQuery(function($){
             if( $.trim(text) != '' ) {
                 eyou_layer_loading('正在处理');
                 $.ajax({
-                    url: root_dir+'/index.php?m=api&c=Uiset&a=submit'+'&v='+v+'&lang='+lang,
+                    url: root_dir+'/index.php?m=api&c=Uiset&a=submit&v='+v+'&_ajax=1&lang='+lang,
                     type: 'POST',
                     dataType: 'JSON',
                     data: {

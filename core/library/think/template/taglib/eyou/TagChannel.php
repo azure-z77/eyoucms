@@ -13,6 +13,7 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
 use think\Request;
 
 /**
@@ -159,7 +160,7 @@ class TagChannel extends Base
             'c.is_del'    => 0, // 回收站功能
         );
         $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
-        $res = db('arctype')
+        $res = Db::name('arctype')
             ->field($fields)
             ->alias('c')
             ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')

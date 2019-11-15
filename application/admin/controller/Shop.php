@@ -478,7 +478,7 @@ class Shop extends Base {
 
         $region_name = input('param.region_name');
         if (!empty($region_name)) {
-            $Where['a.name'] = $region_name;
+            $Where['a.name'] = array('LIKE', "%{$region_name}%");
         }
 
         // 省份

@@ -38,7 +38,8 @@ class Eyou extends Taglib
         'position'   => ['attr' => 'symbol,style', 'close' => 0],
         'type'       => ['attr' => 'typeid,type,empty,dirname,id,addfields,addtable'],
         'arcview'    => ['attr' => 'aid,empty,id,addfields,joinaid'],
-        'arcclick'   => ['attr' => '', 'close' => 0],
+        'arcclick'   => ['attr' => 'aid,value,type', 'close' => 0],
+        'downcount'   => ['attr' => 'aid', 'close' => 0],
         'load'       => ['attr' => 'file,href,type,value,basepath', 'close' => 0, 'alias' => ['import,css,js', 'type']],
         'guestbookform'=> ['attr' => 'typeid,type,empty,id,mod,key'],
         'assign'     => ['attr' => 'name,value', 'close' => 0],
@@ -81,7 +82,7 @@ class Eyou extends Taglib
         'notdefined' => ['attr' => 'name'],
         'define'     => ['attr' => 'name,value', 'close' => 0],
         'for'        => ['attr' => 'start,end,name,comparison,step'],
-        'url'        => ['attr' => 'link,vars,suffix,domain', 'close' => 0, 'expression' => true],
+        'url'        => ['attr' => 'link,vars,suffix,domain,seo_pseudo,seo_pseudo_format,seo_inlet', 'close' => 0, 'expression' => true],
         'function'   => ['attr' => 'name,vars,use,call'],
         'diyfield'   => ['attr' => 'name,id,key,mod,type,empty,limit'],
         'attribute'  => ['attr' => 'aid,type,empty,id,mod,key'],
@@ -114,6 +115,8 @@ class Eyou extends Taglib
         'screening' => ['attr' => 'empty,id,mod,key,currentstyle,addfields,addfieldids,alltxt,typeid'],
         // 会员列表
         'memberlist' => ['attr' => 'row,titlelen,limit,empty,mod,id,key,orderby,orderway,js'],
+        //自定义url
+        'diyurl'   => ['attr' => 'type', 'close' => 0],
     ];
 
     /**
@@ -2030,17 +2033,58 @@ class Eyou extends Taglib
      */
     public function tagArcclick($tag)
     {
-        $aid = isset($tag['aid']) ? $tag['aid'] : '';
-        $aid  = $this->varOrvalue($aid);
+        $aid_tmp  = isset($tag['aid']) ? $tag['aid'] : 0;
+        $aid  = $this->varOrvalue($aid_tmp);
 
         $value = isset($tag['value']) ? $tag['value'] : '';
         $value  = $this->varOrvalue($value);
 
+        $type = isset($tag['type']) ? $tag['type'] : '';
+
         $parseStr = '<?php ';
+        // 声明变量
+        if (!empty($aid_tmp)) {
+            $parseStr .= ' $aid = '.$aid.';';
+        } else {
+            $parseStr .= ' if(!isset($aid) || empty($aid)) : $aid = '.$aid.'; endif;';
+        }
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagArcclick = new \think\template\taglib\eyou\TagArcclick;';
-        $parseStr .= ' $__VALUE__ = $tagArcclick->getArcclick('.$aid.', '.$value.');';
+        $parseStr .= ' $__VALUE__ = $tagArcclick->getArcclick($aid, '.$value.', "'.$type.'");';
+        $parseStr .= ' echo $__VALUE__;';
+        $parseStr .= ' ?>';
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * downcount 标签解析
+     * 在内容页模板追加显示浏览量
+     * 格式： {eyou:downcount aid='' /}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagDowncount($tag)
+    {
+        $aid_tmp  = isset($tag['aid']) ? $tag['aid'] : 0;
+        $aid  = $this->varOrvalue($aid_tmp);
+
+        $parseStr = '<?php ';
+        // 声明变量
+        if (!empty($aid_tmp)) {
+            $parseStr .= ' $aid = '.$aid.';';
+        } else {
+            $parseStr .= ' if(!isset($aid) || empty($aid)) : $aid = '.$aid.'; endif;';
+        }
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagDowncount = new \think\template\taglib\eyou\TagDowncount;';
+        $parseStr .= ' $__VALUE__ = $tagDowncount->getDowncount($aid);';
         $parseStr .= ' echo $__VALUE__;';
         $parseStr .= ' ?>';
 
@@ -2239,7 +2283,10 @@ class Eyou extends Taglib
         $vars   = isset($tag['vars']) ? $tag['vars'] : '';
         $suffix = isset($tag['suffix']) ? $tag['suffix'] : 'true';
         $domain = isset($tag['domain']) ? $tag['domain'] : 'false';
-        return '<?php echo url("' . $url . '","' . $vars . '",' . $suffix . ',' . $domain . ');?>';
+        $seo_pseudo = isset($tag['seo_pseudo']) ? $tag['seo_pseudo'] : 'null';
+        $seo_pseudo_format = isset($tag['seo_pseudo_format']) ? $tag['seo_pseudo_format'] : 'null';
+        $seo_inlet = isset($tag['seo_inlet']) ? $tag['seo_inlet'] : 'null';
+        return '<?php echo url("' . $url . '","' . $vars . '",' . $suffix . ',' . $domain . ',' . $seo_pseudo . ',' . $seo_pseudo_format . ',' . $seo_inlet . ');?>';
     }
 
     /**
@@ -3144,6 +3191,33 @@ class Eyou extends Taglib
             $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         }
         $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * diyurl 标签解析
+     * 内置URL
+     * 格式： {eyou:diyurl type='tags' /}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagDiyurl($tag)
+    {
+        $type = isset($tag['type']) ? $tag['type'] : '';
+        $type  = $this->varOrvalue($type);
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagDiyurl = new \think\template\taglib\eyou\TagDiyurl;';
+        $parseStr .= ' $__VALUE__ = $tagDiyurl->getDiyurl('.$type.');';
+        $parseStr .= ' echo $__VALUE__;';
+        $parseStr .= ' ?>';
 
         if (!empty($parseStr)) {
             return $parseStr;

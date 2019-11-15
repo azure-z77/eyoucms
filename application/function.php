@@ -2090,31 +2090,19 @@ if (!function_exists('convert_js_array'))
 // }
 
 
-if (!function_exists('get_urltodomain')) 
+if (!function_exists('GetUrlToDomain')) 
 {
     /**
      * 取得根域名
      * @param type $domain 域名
      * @return string 返回根域名
      */
-    function get_urltodomain($domain = '') {
-        if (empty($domain) || !stristr($domain, '.')) {
-            return '';
-        }
-        $re_domain = '';
-        $domain_postfix_cn_array = array("com", "net", "org", "gov", "edu", "com.cn", "cn", "co");
-        $array_domain = explode(".", $domain);
-        $array_num = count($array_domain) - 1;
-        if (in_array($array_domain[$array_num], ['cn','tw','hk','nz'])) {
-            if (in_array($array_domain[$array_num - 1], $domain_postfix_cn_array)) {
-                $re_domain = $array_domain[$array_num - 2] . "." . $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
-            } else {
-                $re_domain = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
-            }
-        } else {
-            $re_domain = $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
-        }
-        return $re_domain;
+    function GetUrlToDomain($domain = '') {
+        static $request = null;
+        null == $request && $request = \think\Request::instance();
+        $root = $request->rootDomain($domain);
+
+        return $root;
     }
 }
 
@@ -2313,5 +2301,282 @@ if ( ! function_exists('getSubDomain'))
         true === $root_dir && $domain .= ROOT_DIR;
 
         return $domain;
+    }
+}
+
+if ( ! function_exists('get_split_word'))
+{
+    /**
+     *  自动获取关键字
+     *
+     * @access    public
+     * @param     string  $title  标题
+     * @param     array  $body  内容
+     * @return    string
+     */
+    function get_split_word($title = '', $body = '' )
+    {
+        vendor('splitword.autoload');
+        $keywords = '';
+        $kw = new keywords();
+        $keywords = $kw->GetSplitWord($title, $body);
+
+        return $keywords;
+    }
+}
+
+if ( ! function_exists('remote_to_local'))
+{
+    /**
+     *  远程图片本地化
+     *
+     * @access    public
+     * @param     string  $body  内容
+     * @return    string
+     */
+    function remote_to_local( $body = '' )
+    {
+        $web_basehost = tpCache('web.web_basehost');
+        $parse_arr = parse_url($web_basehost);
+        $web_basehost = $parse_arr['scheme'].'://'.$parse_arr['host'];
+
+        $basehost = request()->domain();
+        $img_array = array();
+        preg_match_all("/src=[\"|'|\s]([^\"|^\'|^\s]*?)/isU", $body, $img_array);
+
+        $img_array = array_unique($img_array[1]);
+        foreach ($img_array as $key => $val) {
+            if(preg_match("/^http(s?):\/\/mmbiz.qpic.cn\/(.*)\?wx_fmt=(\w+)&/", $val) == 1){
+                unset($img_array[$key]);
+            }
+        }
+
+        $dirname = './'.UPLOAD_PATH.'ueditor/'.date('Ymd/');
+
+        //创建目录失败
+        if(!file_exists($dirname) && !mkdir($dirname,0777,true)){
+            return $body;
+        }else if(!is_writeable($dirname)){
+            return $body;
+        }
+
+        foreach($img_array as $key=>$value)
+        {
+            $imgUrl = trim($value);
+            // 本站图片
+            if(preg_match("#".$basehost."#i", $imgUrl))
+            {
+                continue;
+            }
+            // 根网址图片
+            if($web_basehost != $basehost && preg_match("#".$web_basehost."#i", $imgUrl))
+            {
+                continue;
+            }
+            // 不是合法链接
+            if(!preg_match("#^http(s?):\/\/#i", $imgUrl))
+            {
+                continue;
+            }
+
+            $heads = @get_headers($imgUrl, 1);
+
+            // 获取请求头并检测死链
+            if (empty($heads)) {
+                continue;
+            } else if(!(stristr($heads[0],"200") && stristr($heads[0],"OK"))){
+                continue;
+            }
+            // 图片扩展名
+            $fileType = substr($heads['Content-Type'], -4, 4);
+            if(!preg_match("#\.(jpg|jpeg|gif|png|ico|bmp)#i", $fileType))
+            {
+                if($fileType=='image/gif')
+                {
+                    $fileType = ".gif";
+                }
+                else if($fileType=='image/png')
+                {
+                    $fileType = ".png";
+                }
+                else if($fileType=='image/x-icon')
+                {
+                    $fileType = ".ico";
+                }
+                else if($fileType=='image/bmp')
+                {
+                    $fileType = ".bmp";
+                }
+                else
+                {
+                    $fileType = '.jpg';
+                }
+            }
+            $fileType = strtolower($fileType);
+            //格式验证(扩展名验证和Content-Type验证)，链接contentType是否正确
+            $is_weixin_img = false;
+            if(preg_match("/^http(s?):\/\/mmbiz.qpic.cn\/(.*)/", $imgUrl) != 1){
+                $allowFiles = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp"];
+                if(!in_array($fileType,$allowFiles) || (isset($heads['Content-Type']) && !stristr($heads['Content-Type'],"image/"))){
+                    continue;
+                }
+            } else {
+                $is_weixin_img = true;
+            }
+
+            //打开输出缓冲区并获取远程图片
+            ob_start();
+            $context = stream_context_create(
+                array('http' => array(
+                    'follow_location' => false // don't follow redirects
+                ))
+            );
+            readfile($imgUrl,false,$context);
+            $img = ob_get_contents();
+            ob_end_clean();
+            preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/",$imgUrl,$m);
+
+            $file = [];
+            $file['oriName'] = $m ? $m[1] : "";
+            $file['filesize'] = strlen($img);
+            $file['ext'] = $fileType;
+            $file['name'] = session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).$file['ext'];
+            $file['fullName'] = $dirname.$file['name'];
+            $fullName = $file['fullName'];
+
+            //检查文件大小是否超出限制
+            if($file['filesize'] >= 20480000){
+                continue;
+            }
+
+            //移动文件
+            if(!(file_put_contents($fullName, $img) && file_exists($fullName))){ //移动失败
+                continue;
+            }
+
+            $fileurl = ROOT_DIR.substr($file['fullName'],1);
+            if ($is_weixin_img == true) {
+                $fileurl .= "?";
+            }
+
+/*            $search  = array("'".$imgUrl."'", '"'.$imgUrl.'"');
+            $replace = array($fileurl, $fileurl);
+            $body = str_replace($search, $replace, $body);*/
+
+            $body = str_replace($imgUrl, $fileurl, $body);
+            // 添加水印
+            print_water($fileurl);
+        }
+        return $body;
+    }
+}
+
+if ( ! function_exists('replace_links'))
+{
+    /**
+     *  清除非站内链接
+     *
+     * @access    public
+     * @param     string  $body  内容
+     * @param     array  $allow_urls  允许的超链接
+     * @return    string
+     */
+    function replace_links( $body, $allow_urls=array() )
+    {
+        // 读取允许的超链接设置
+        $host = request()->host(true);
+        if (!empty($allow_urls)) {
+            $allow_urls = array_merge([$host], $allow_urls);
+        } else {
+            $basic_body_allowurls = tpCache('basic.basic_body_allowurls');
+            if (!empty($basic_body_allowurls)) {
+                $allowurls = explode(PHP_EOL, $basic_body_allowurls);
+                $allow_urls = array_merge([$host], $allowurls);
+            } else {
+                $allow_urls = [$host];
+            }
+        }
+
+        $host_rule = join('|', $allow_urls);
+        $host_rule = preg_replace("#[\n\r]#", '', $host_rule);
+        $host_rule = str_replace('.', "\\.", $host_rule);
+        $host_rule = str_replace('/', "\\/", $host_rule);
+        $arr = '';
+        preg_match_all("#<a([^>]*)>(.*)<\/a>#iU", $body, $arr);
+        if( is_array($arr[0]) )
+        {
+            $rparr = array();
+            $tgarr = array();
+            foreach($arr[0] as $i=>$v)
+            {
+                if( $host_rule != '' && preg_match('#'.$host_rule.'#i', $arr[1][$i]) )
+                {
+                    continue;
+                } else {
+                    $rparr[] = $v;
+                    $tgarr[] = $arr[2][$i];
+                }
+            }
+            if( !empty($rparr) )
+            {
+                $body = str_replace($rparr, $tgarr, $body);
+            }
+        }
+        $arr = $rparr = $tgarr = '';
+        return $body;
+    }
+}
+
+if ( ! function_exists('print_water'))
+{
+    /**
+     *  给图片增加水印
+     *
+     * @access    public
+     * @param     string  $imgpath  不带子目录的图片路径
+     * @return    string
+     */
+    function print_water($imgpath = '')
+    {
+        try {
+            static $water = null;
+            null === $water && $water = tpCache('water');
+            if (empty($imgpath) || $water['is_mark'] != 1) {
+                return $imgpath;
+            }
+
+            $imgpath = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $imgpath); // 支持子目录
+            $imgresource = ".".$imgpath;
+            $image = \think\Image::open($imgresource);
+            if($image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
+                if($water['mark_type'] == 'text'){
+                    //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
+                    $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
+                    if (file_exists($ttf)) {
+                        $size = $water['mark_txt_size'] ? $water['mark_txt_size'] : 30;
+                        $color = $water['mark_txt_color'] ?: '#000000';
+                        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
+                            $color = '#000000';
+                        }
+                        $transparency = intval((100 - $water['mark_degree']) * (127/100));
+                        $color .= dechex($transparency);
+                        $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
+                    }
+                }else{
+                    /*支持子目录*/
+                    $water['mark_img'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $water['mark_img']); // 支持子目录
+                    /*--end*/
+                    //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
+                    $waterPath = "." . $water['mark_img'];
+                    if (eyPreventShell($waterPath) && file_exists($waterPath)) {
+                        $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;
+                        $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
+                        $image->open($waterPath)->save($waterTempPath, null, $quality);
+                        $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
+                        @unlink($waterTempPath);
+                    }
+                }
+            }
+        } catch (\Exception $e) {}
     }
 }

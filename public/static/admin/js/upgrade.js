@@ -87,7 +87,7 @@ function btn_upgrade(obj, type)
  * 检测升级文件的目录权限
  */
 function checkdir(obj) {
-    layer_loading('检测系统');
+    layer_loading2('检测系统');
     $.ajax({
         type : "POST",
         url  : $(obj).data('check_authority'),
@@ -128,7 +128,7 @@ function checkdir(obj) {
  * 升级系统
  */
 function upgrade(obj){
-    layer_loading('升级<font id="upgrade_speed">中</font>');
+    layer_loading2('升级<font id="upgrade_speed">中</font>');
     var version = $(obj).data('version');
     var max_version = $(obj).data('max_version');
     var timer = '';
@@ -216,7 +216,7 @@ function upgrade(obj){
     });                 
 }
 
-function layer_loading(msg){
+function layer_loading2(msg){
     var loading = parent.layer.msg(
     msg+'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请勿刷新页面', 
     {

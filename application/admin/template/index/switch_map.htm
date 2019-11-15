@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;min-width: auto;">
+<body class="bodystyle" style="min-width: auto;">
 <style type="text/css">
     .ncap-form-default dd.opt{
         width: auto;
@@ -31,7 +31,7 @@
                 </div>
                 <p class="notic">开启之后，左侧菜单会显示插件应用入口</p>
                 <span id="guide_web_weapp_switch" style="{if condition='1 != $globalConfig.web_weapp_switch'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Weapp/index')}" data-leftmenu="Weapp_index" onclick="gourl(this);">[上传管理]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Weapp/index')}" data-leftmenu="Weapp_index" onclick="gourl2(this);">[上传管理]</a>
                 </span>
             </dd>
         </dl>
@@ -67,8 +67,8 @@
                 </div>
                 <p class="notic">开启之后，左侧菜单会显示会员中心入口</p>
                 <span id="guide_web_users_switch" style="{if condition='empty($globalConfig.web_users_switch)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员列表]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_config')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[会员列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/users_config')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[功能配置]</a>
                     &nbsp;<a href="javascript:void(0);" onclick="tag_call('web_users_switch');" class="red">[标签调用]</a>
                 </span>
             </dd>
@@ -89,8 +89,8 @@
                 </div>
                 <p class="notic">关闭则自动隐藏支付入口。</p>
                 <span id="guide_pay_open" style="{if condition='!isset($userConfig.pay_open) || empty($userConfig.pay_open)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/money_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[充值列表]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/pay_set')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[接口配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/money_index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[充值列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/pay_set')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[接口配置]</a>
                 </span>
             </dd>
         </dl>
@@ -110,8 +110,8 @@
                 </div>
                 <p class="notic">关闭则自动隐藏商城中心入口。</p>
                 <span id="guide_shop_open" style="{if condition='!isset($userConfig.shop_open) || empty($userConfig.shop_open)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[订单列表]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/conf')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[订单列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/conf')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[功能配置]</a>
                     &nbsp;<a href="javascript:void(0);" onclick="tag_call('shop_open');" class="red">[标签调用]</a>
                 </span>
             </dd>
@@ -132,8 +132,8 @@
                 </div>
                 <p class="notic">关闭则自动隐藏会员升级入口。</p>
                 <span id="guide_level_member_upgrade" style="{if condition='!isset($userConfig.level_member_upgrade) || empty($userConfig.level_member_upgrade)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员产品分类]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/upgrade_index')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[会员业务记录]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[会员产品分类]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Level/upgrade_index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[会员业务记录]</a>
                 </span>
             </dd>
         </dl>
@@ -153,7 +153,7 @@
                 </div>
                 <p class="notic">关闭则自动隐藏会员投稿入口。</p>
                 <span id="guide_users_open_release" style="{if condition='!isset($userConfig.users_open_release) || empty($userConfig.users_open_release)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('UsersRelease/conf')}" data-leftmenu="Member_users_index" onclick="gourl(this);">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('UsersRelease/conf')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[功能配置]</a>
                 </span>
             </dd>
         </dl>
@@ -299,11 +299,15 @@
                     }
                 }
                 // 控制顶部与左侧菜单的显示与隐藏
-                if (1 == value) {
-                    $('#'+lmenuid, window.parent.document).show();
-                } else {
-                    $('#'+lmenuid, window.parent.document).hide();
-                }
+                try{
+                    if (1 == value) {
+                        $('#'+lmenuid, window.parent.document).show();
+                    } else {
+                        if (name == 'web_users_switch') {
+                            $('#'+lmenuid, window.parent.document).hide();
+                        }
+                    }
+                }catch(e){}
             },
             error:function(){
                 _parent.layer.closeAll();
@@ -369,11 +373,11 @@
                     });
                 }
                 // 控制顶部与左侧菜单的显示与隐藏
-                if (1 == value) {
-                    $('#'+lmenuid, window.parent.document).show();
-                } else {
-                    $('#'+lmenuid, window.parent.document).hide();
-                }
+                try{
+                    if (1 == value) {
+                        $('#'+lmenuid, window.parent.document).show();
+                    }
+                }catch(e){}
             },
             error: function(e){
                 parent.layer.closeAll();
@@ -464,7 +468,7 @@
         });
     }
 
-    function gourl(obj)
+    function gourl2(obj)
     {
         var leftmenu = $(obj).data('leftmenu');
         var href = $(obj).data('href');

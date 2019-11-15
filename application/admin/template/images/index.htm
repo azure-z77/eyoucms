@@ -3,12 +3,12 @@
 <body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="box-shadow:none;">
     {include file="article/bar" /}
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <h3>{$arctype_info.typename|default=''}</h3>
+                <h3>{$arctype_info.typename|default='全部文档'}</h3>
                 <h5>(共{$pager->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
@@ -171,6 +171,15 @@
                     <a onclick="func_move(this, 'ids');" data-url="{:url('Archives/move', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="批量移动">
                             <span><i class="fa fa-hdd-o"></i>批量移动</span>
+                        </div>
+                    </a>
+                </div>
+                {/eq}
+                {eq name="'Archives@batch_copy'|is_check_access" value="1"}
+                <div class="fbutton">
+                    <a onclick="func_batch_copy(this, 'ids');" data-url="{:url('Archives/batch_copy', array('typeid'=>$Request.param.typeid))}">
+                        <div class="add" title="批量复制">
+                            <span><i class="fa fa-copy"></i>批量复制</span>
                         </div>
                     </a>
                 </div>

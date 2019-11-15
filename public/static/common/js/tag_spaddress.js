@@ -63,7 +63,7 @@ function ShopDelAddress(addr_id){
         layer_loading('正在处理');
         $.ajax({
             url: url,
-            data: {addr_id:addr_id},
+            data: {addr_id:addr_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){
@@ -103,7 +103,7 @@ function SetDefault(obj, addr_id){
         layer_loading('正在处理');
         $.ajax({
             url: url,
-            data: {addr_id:addr_id},
+            data: {addr_id:addr_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){

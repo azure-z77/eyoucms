@@ -66,7 +66,6 @@
                     <div class="clearfix text-right">
                         <a href="javascript:void(0);" class="help forget_pwd">忘记密码?</a>
                     </div>
-                    <input type="hidden" name="__token__" value="{$Request.token}" />
                     <input type="button" name="submit" class="btn btn-lg btn-primary btn-block show-dialog" value="登录">
                 </form>
             </div> 
@@ -123,7 +122,7 @@
                     {/eq}
 
                     if(vertify && $('#theForm input[name=user_name]').val() != '' && $('#theForm input[name=password]').val() != ''){
-                        var url = "{:url('Admin/login')}";
+                        var url = "{:url('Admin/login', ['_ajax'=>1])}";
                         if (url.indexOf('?') > -1) {
                             url += '&';
                         } else {

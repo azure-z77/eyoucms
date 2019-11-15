@@ -131,6 +131,10 @@ function is_login(url){
     }
 }
 
+function sortNumber(a, b) { 
+    return a - b 
+}
+
 function SpecSelect(spec_mark_id, spec_value_id, discount_price) {
     var JsonData = fe912b5dac71082e12c1827a3107f9b;
 
@@ -158,7 +162,7 @@ function SpecSelect(spec_mark_id, spec_value_id, discount_price) {
     // 字符串转数组
     SelectValueIds = SelectValueIds.split('_');
     // 从小到大排序
-    SelectValueIds = SelectValueIds.sort((a,b)=>(a.key - b.key));
+    SelectValueIds = SelectValueIds.sort(sortNumber);
     // 数组转字符串
     SelectValueIds = SelectValueIds.join('_');
     /* END */

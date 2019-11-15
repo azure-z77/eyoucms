@@ -56,11 +56,20 @@ return array(
         // 2   => 'flash',
         // 3   => '文字',
     ),
+    // 仅用于产品参数
     'attr_input_type_arr' => array(
         0   => '单行文本',
-        1   => '下拉框',
         2   => '多行文本',
-        3   => 'HTML文本',
+        1   => '下拉框',
+    ),
+    // 仅用于留言属性
+    'guestbook_attr_input_type' => array(
+        0   => '单行文本',
+        2   => '多行文本',
+        1   => '下拉框',
+        3   => '单选框',
+        4   => '多选框',
+        5   => '单张图',
     ),
     // 栏目自定义字段的channel_id值
     'arctype_channel_id' => -99,
@@ -73,7 +82,7 @@ return array(
     // 前台语言Cookie变量
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
-    'parse_url_param'   => ['uiset','v','lang','subdomain'],
+    'parse_url_param'   => ['uiset','v','lang','goto'],
     // 会员金额明细类型
     'pay_cause_type_arr' => array(
         0   => '升级消费',

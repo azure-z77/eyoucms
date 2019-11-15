@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow-y: scroll;min-width:auto;">
+<body class="bodystyle" style="overflow-y: scroll;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <style>
     .span_1 {
@@ -47,7 +47,7 @@
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <div class="sDiv">
                 <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                    <input type="button" class="btn" value="缩略图配置" onclick="window.location.href='{:url("System/thumb", ['tabase'=>$Request.param.tabase])}';">
+                    <input type="button" class="btn selected" value="缩略图配置" onclick="window.location.href='{:url("System/thumb", ['tabase'=>$Request.param.tabase])}';">
                 </div>
             </div>
             <div class="sDiv">
@@ -178,7 +178,7 @@
         $.ajax({
             type: "POST",
             url: "{:url('System/ajax_tag_call')}",
-            data: {name:name},
+            data: {name:name,_ajax:1},
             dataType: 'json',
             success: function (res) {
                 if(res.code == 1){

@@ -144,7 +144,8 @@ class FieldLogic extends Model
         {
             $maxlen = 0;
             $dfvalueArr = explode(',', $dfvalue);
-            $default_value = !empty($dfvalueArr[0]) ? $dfvalueArr[0] : '';
+            $default_value = '';
+            // $default_value = !empty($dfvalueArr[0]) ? $dfvalueArr[0] : '';
             $dfvalue = str_replace(',', "','", $dfvalue);
             $dfvalue = "'".$dfvalue."'";
             $fields[0] = " `$fieldname` SET($dfvalue) NULL DEFAULT '{$default_value}' COMMENT '$fieldtitle';";

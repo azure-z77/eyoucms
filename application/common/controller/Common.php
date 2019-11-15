@@ -53,8 +53,10 @@ class Common extends Controller {
         $this->session_id = session_id(); // 当前的 session_id
         !defined('SESSION_ID') && define('SESSION_ID', $this->session_id); //将当前的session_id保存为常量，供其它方法调用
 
+        $global = tpCache('global'); 
+
         /*关闭网站*/
-        if (tpCache('web.web_status') == 1) {
+        if (!empty($global['web_status']) && $global['web_status'] == 1) {
             die("<div style='text-align:center; font-size:20px; font-weight:bold; margin:50px 0px;'>网站暂时关闭，维护中……</div>");
         }
         /*--end*/
@@ -63,7 +65,6 @@ class Common extends Controller {
         $this->view_suffix = config('template.view_suffix'); // 模板后缀htm
         $this->theme_style = THEME_STYLE; // 模板目录
         //全局变量
-        $global = tpCache('global'); 
         $this->eyou['global'] = $global;
         // 多语言变量
         $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";

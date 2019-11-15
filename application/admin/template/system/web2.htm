@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow-y: scroll;">
+<body class="bodystyle" style="overflow-y: scroll;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -35,7 +35,7 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="web_mobile_domain_open">移动端域名</label>
+                    <label for="web_mobile_domain_open">手机站域名</label>
                 </dt>
                 <dd class="opt">
                     <div class="onoff">
@@ -44,7 +44,7 @@
                         <input id="web_mobile_domain_open1" name="web_mobile_domain_open" value="1" type="radio" {if condition="isset($config.web_mobile_domain_open) && $config.web_mobile_domain_open eq 1"} checked="checked"{/if}>
                         <input id="web_mobile_domain_open0" name="web_mobile_domain_open" value="0" type="radio" {if condition="empty($config.web_mobile_domain_open)"} checked="checked"{/if}>
                     </div>
-                    <p class="notic">开启之后，配置独立的手机端域名，访问PC端自动跳转到手机端域名</p>
+                    <p class="notic"></p>
                 </dd>
             </dl>
             <dl class="row {if condition='empty($config.web_mobile_domain_open)'}none{/if}" id="dl_web_mobile_domain">
@@ -52,8 +52,13 @@
                     <label for="web_mobile_domain"></label>
                 </dt>
                 <dd class="opt">
+                    {eq name="$is_localhost" value="1"}
+                    <p class="red">本地url路径不支持指定手机站二级域名</p>
+                    {else /}
                     <input id="web_mobile_domain" name="web_mobile_domain" value="{$config.web_mobile_domain|default=''}" type="text" placeholder="手机域名" onKeyUp="this.value=this.value.replace(/[^0-9a-z]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-z]/g,''));" style="width: 60px;" />.{$Request.rootDomain}__ROOT_DIR__
-                    <p class="notic">为了更好的体验效果，IP访问不会自动跳转到手机端域名访问。</p>
+                    <p class="notic">为了更好的体验效果，IP访问不会自动跳转到手机站域名访问。</p>
+                    <p class="{empty name='$config.web_mobile_domain'}none{/empty} red" id="p_web_mobile_domain">先做好子域名 <span id="span_web_mobile_domain">{$config.web_mobile_domain|default=''}</span>.{$Request.rootDomain} 的解析及绑定 ，已处理请忽略！ <a href="https://www.eyoucms.com/plus/view.php?aid=8432" target="_blank">【操作示例】</a></p>
+                    {/eq}
                 </dd>
             </dl>
             <dl class="row">
@@ -168,18 +173,26 @@
             }
         });
 
+        // 输入手机站域名的事件
+        $('#web_mobile_domain').keyup(function(){
+            var web_mobile_domain = $(this).val();
+            if (web_mobile_domain != '') {
+                $('#p_web_mobile_domain').show();
+                $('#span_web_mobile_domain').html(web_mobile_domain);
+            } else {
+                $('#p_web_mobile_domain').hide();
+            }
+        });
+
     });
 
     function adsubmit(){
+
         // 手机域名开关
         var web_mobile_domain_obj = $('input[name=web_mobile_domain]');
-        if ($('input[name=web_mobile_domain_open]').val() == 1) {
-            if (web_mobile_domain_obj.val() == '') {
-                showErrorMsg('手机域名配置不能为空！');
-                web_mobile_domain_obj.focus();
-                return false;
-            } else if (web_mobile_domain_obj.val() == "{$subDomain|default='www'}") {
-                showErrorMsg('手机域名配置不能与主域名一致！');
+        if ($('input[name=web_mobile_domain_open]:checked').val() == 1) {
+            if (web_mobile_domain_obj.val() == "{$subDomain|default='www'}") {
+                showErrorMsg('手机站域名配置不能与主站域名一致！');
                 web_mobile_domain_obj.focus();
                 return false;
             }

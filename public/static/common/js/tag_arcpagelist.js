@@ -30,7 +30,9 @@
             　　　　document.getElementById(tagid).innerHTML = html + res.data.msg;
                     obj.attributes['data-page'].value = page;
                     if (callback_1565841361 != '') {
-                        eval(callback_1565841361 + "();");
+                        try{
+                            eval(callback_1565841361 + "();");
+                        }catch(e){}
                     }
                     // 加载更多文本
                     if (1 == res.data.lastpage) {

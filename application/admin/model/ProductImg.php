@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -33,7 +34,7 @@ class ProductImg extends Model
      */
     public function getProImg($aid, $field = '*')
     {
-        $result = db('ProductImg')->field($field)
+        $result = Db::name('ProductImg')->field($field)
             ->where('aid', $aid)
             ->order('sort_order asc')
             ->select();
@@ -50,7 +51,7 @@ class ProductImg extends Model
         if (!is_array($aid)) {
             $aid = array($aid);
         }
-        $result = db('ProductImg')->where(array('aid'=>array('IN', $aid)))->delete();
+        $result = Db::name('ProductImg')->where(array('aid'=>array('IN', $aid)))->delete();
 
         return $result;
     }

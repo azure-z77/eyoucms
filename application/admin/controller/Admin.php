@@ -154,19 +154,6 @@ class Admin extends Base {
                         $this->error('用户名被禁用！');
                     }
 
-                    // 数据验证
-                    $rule = [
-                        'user_name'    => 'require|token',
-                    ];
-                    $message = [
-                        'user_name.require' => '用户名不能为空！',
-                    ];
-                    $validate = new \think\Validate($rule, $message);
-                    if(!$validate->batch()->check($post))
-                    {
-                        $this->error('登录校验失败，请尝试Ctrl+F5强制刷新页面！');
-                    }
-
                     $role_id = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
                     $auth_role_info = array();
                     if (!empty($admin_info['parent_id'])) {

@@ -190,6 +190,7 @@ class Seo extends Base
             $param['sitemap_not2'] = isset($param['sitemap_not2']) ? $param['sitemap_not2'] : 0;
             $param['sitemap_xml'] = isset($param['sitemap_xml']) ? $param['sitemap_xml'] : 0;
             $param['sitemap_txt'] = isset($param['sitemap_txt']) ? $param['sitemap_txt'] : 0;
+            $param['sitemap_archives_num'] = isset($param['sitemap_archives_num']) ? intval($param['sitemap_archives_num']) : 100;
         }
         unset($param['inc_type']);
 
@@ -273,13 +274,13 @@ class Seo extends Base
             if($id == 0){
                 $mark = Db::name('language')->order('id asc')->value('mark'); 
                 if($type == 1){
-                    $arctype = db('arctype')->where(['is_del'=>0,'status'=>1,'lang'=>$mark])->getfield('id',true);
+                    $arctype = Db::name('arctype')->where(['is_del'=>0,'status'=>1,'lang'=>$mark])->getfield('id',true);
                 }else{
                     $where['is_del'] = 0;
                     $where['status'] = 1;
                     $where['lang'] = $mark;
                     $where['current_channel'] = array(array('neq',6),array('neq',8));
-                    $arctype = db('arctype')->where($where)->getfield('id',true);                   
+                    $arctype = Db::name('arctype')->where($where)->getfield('id',true);                   
                 }
                 if(empty($arctype)){
                     $this->error('没有要更新的栏目！');

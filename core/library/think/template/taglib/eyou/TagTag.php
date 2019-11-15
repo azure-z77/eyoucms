@@ -13,6 +13,7 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
 
 /**
  * 标签
@@ -42,7 +43,7 @@ class TagTag extends Base
 
         if ($getall == 0 && $aid > 0) {
             $condition['aid'] = array('eq', $aid);
-            $result = db('taglist')
+            $result = Db::name('taglist')
                 ->field('*, tid AS tagid')
                 ->where($condition)
                 ->where('lang', $this->home_lang)
@@ -67,7 +68,7 @@ class TagTag extends Base
             else if($sort == 'total') $orderby=' total DESC ';
             else $orderby = 'add_time DESC  ';
 
-            $result = db('tagindex')
+            $result = Db::name('tagindex')
                 ->field('*, id AS tagid')
                 ->where($condition)
                 ->where('lang', $this->home_lang)

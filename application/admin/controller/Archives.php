@@ -89,7 +89,7 @@ class Archives extends Base
 
         /*跳转到指定栏目的文档列表*/
         if (0 < intval($typeid)) {
-            $row = db('arctype')
+            $row = Db::name('arctype')
                 ->alias('a')
                 ->field('b.ctl_name,b.id')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
@@ -300,7 +300,7 @@ class Archives extends Base
     {
         $typeid = input('param.typeid/d', 0);
         if (!empty($typeid)) {
-            $row = db('arctype')
+            $row = Db::name('arctype')
                 ->alias('a')
                 ->field('b.ctl_name,b.id,b.ifsystem')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
@@ -331,7 +331,7 @@ class Archives extends Base
     {
         $id = input('param.id/d', 0);
         $typeid = input('param.typeid/d', 0);
-        $row = db('archives')
+        $row = Db::name('archives')
             ->alias('a')
             ->field('a.channel,b.ctl_name,b.id,b.ifsystem')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
@@ -455,7 +455,7 @@ class Archives extends Base
         $typeid = input('param.typeid/d', 0);
         if (0 < $typeid) {
             $param = input('param.');
-            $row = db('arctype')
+            $row = Db::name('arctype')
                 ->field('b.ctl_name,b.id')
                 ->alias('a')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
@@ -523,5 +523,93 @@ class Archives extends Base
             'status'    => $status,
             'msg'   => $html,
         ));
+    }
+
+    /**
+     * 复制
+     */
+    public function batch_copy()
+    {
+        if (IS_AJAX_POST) {
+            $typeid = input('post.typeid/d');
+            $aids = input('post.aids/s');
+            $num = input('post.num/d');
+
+            if (empty($typeid) || empty($aids)) {
+                $this->error('复制失败！');
+            } else if (empty($num)) {
+                $this->error('复制数量至少一篇！');
+            }
+
+            // 获取复制栏目的模型ID
+            $current_channel = Db::name('arctype')->where([
+                    'id'    => $typeid,
+                ])->getField('current_channel');
+            // 抽取相符合模型ID的文档aid
+            $aids = Db::name('archives')->where([
+                    'aid'   =>  ['IN', $aids],
+                    'channel'   =>  $current_channel,
+                ])->column('aid');
+            // 复制文档处理
+            $archivesLogic = new \app\admin\logic\ArchivesLogic;
+            $r = $archivesLogic->batch_copy($aids, $typeid, $current_channel, $num);
+            if($r){
+                adminLog('复制文档-id：'.$aids);
+                $this->success('操作成功');
+            }else{
+                $this->error('操作失败');
+            }
+        }
+
+        $typeid = input('param.typeid/d', 0);
+
+        /*允许发布文档列表的栏目*/
+        $allowReleaseChannel = [];
+        if (!empty($typeid)) {
+            $channelId = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+            $allowReleaseChannel[] = $channelId;
+        }
+        $arctype_html = allow_release_arctype($typeid, $allowReleaseChannel);
+        $this->assign('arctype_html', $arctype_html);
+        /*--end*/
+
+        /*表单提交URL*/
+        $form_action = url('Archives/batch_copy');
+        $this->assign('form_action', $form_action);
+        /*--end*/
+
+        return $this->fetch();
+    }
+
+    /**
+     *  远程图片本地化
+     *
+     * @access    public
+     * @return    string
+     */
+    public function ajax_remote_to_local()
+    {
+        if (IS_AJAX_POST) {
+            $body = input('post.body/s', '', null);
+            $body = remote_to_local($body);
+            $this->success('本地化成功！', null, ['body'=>$body]);
+        }
+        $this->error('本地化失败！');
+    }
+
+    /**
+     *  清除非站内链接
+     *
+     * @access    public
+     * @return    string
+     */
+    public function ajax_replace_links()
+    {
+        if (IS_AJAX_POST) {
+            $body = input('post.body/s', '', null);
+            $body = replace_links($body);
+            $this->success('清除成功！', null, ['body'=>$body]);
+        }
+        $this->error('清除失败！');
     }
 }

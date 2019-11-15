@@ -167,6 +167,138 @@ if (!function_exists('tpCache'))
     }
 }
 
+if (!function_exists('tpSetting')) 
+{
+    /**
+     * 获取缓存或者更新缓存，只适用于setting表
+     * @param string $config_key 缓存文件名称
+     * @param array $data 缓存数据  array('k1'=>'v1','k2'=>'v3')
+     * @param array $options 缓存配置
+     * @param string $lang 语言标识
+     * @return array or string or bool
+     */
+    function tpSetting($config_key,$data = array(), $lang = '', $options = null){
+        $tableName = 'setting';
+        $table_db = \think\Db::name($tableName);
+
+        $param = explode('.', $config_key);
+        $cache_inc_type = $tableName.$param[0];
+        // $cache_inc_type = $param[0];
+        $lang = !empty($lang) ? $lang : get_current_lang();
+        if (empty($options)) {
+            $options['path'] = CACHE_PATH.$lang.DS;
+        }
+        if(empty($data)){
+            //如$config_key=shop_info则获取网站信息数组
+            //如$config_key=shop_info.logo则获取网站logo字符串
+            $config = cache($cache_inc_type,'',$options);//直接获取缓存文件
+            if(empty($config)){
+                //缓存文件不存在就读取数据库
+                if ($param[0] == 'global') {
+                    $param[0] = 'global';
+                    $res = $table_db->where([
+                        'lang'  => $lang,
+                    ])->select();
+                } else {
+                    $res = $table_db->where([
+                        'inc_type'  => $param[0],
+                        'lang'  => $lang,
+                    ])->select();
+                }
+                if($res){
+                    foreach($res as $k=>$val){
+                        $config[$val['name']] = $val['value'];
+                    }
+                    cache($cache_inc_type,$config,$options);
+                }
+                // write_global_params($lang, $options);
+            }
+            if(!empty($param) && count($param)>1){
+                $newKey = strtolower($param[1]);
+                return isset($config[$newKey]) ? $config[$newKey] : '';
+            }else{
+                return $config;
+            }
+        }else{
+            //更新缓存
+            $result =  $table_db->where([
+                'inc_type'  => $param[0],
+                'lang'  => $lang,
+            ])->select();
+            if($result){
+                foreach($result as $val){
+                    $temp[$val['name']] = $val['value'];
+                }
+                $add_data = array();
+                foreach ($data as $k=>$v){
+                    $newK = strtolower($k);
+                    $newArr = array(
+                        'name'=>$newK,
+                        'value'=>trim($v),
+                        'inc_type'=>$param[0],
+                        'lang'  => $lang,
+                        'update_time'   => getTime(),
+                    );
+                    if(!isset($temp[$newK])){
+                        array_push($add_data, $newArr); //新key数据插入数据库
+                    }else{
+                        if ($v != $temp[$newK]) {
+                            $table_db->where([
+                                'name'  => $newK,
+                                'lang'  => $lang,
+                            ])->save($newArr);//缓存key存在且值有变更新此项
+                        }
+                    }
+                }
+                if (!empty($add_data)) {
+                    $table_db->insertAll($add_data);
+                }
+                //更新后的数据库记录
+                $newRes = $table_db->where([
+                    'inc_type'  => $param[0],
+                    'lang'  => $lang,
+                ])->select();
+                foreach ($newRes as $rs){
+                    $newData[$rs['name']] = $rs['value'];
+                }
+            }else{
+                if ($param[0] != 'global') {
+                    foreach($data as $k=>$v){
+                        $newK = strtolower($k);
+                        $newArr[] = array(
+                            'name'=>$newK,
+                            'value'=>trim($v),
+                            'inc_type'=>$param[0],
+                            'lang'  => $lang,
+                            'update_time'   => time(),
+                        );
+                    }
+                    $table_db->insertAll($newArr);
+                }
+                $newData = $data;
+            }
+
+            $result = false;
+            $res = $table_db->where([
+                'lang'  => $lang,
+            ])->select();
+            if($res){
+                $global = array();
+                foreach($res as $k=>$val){
+                    $global[$val['name']] = $val['value'];
+                }
+                $result = cache($tableName.'global',$global,$options);
+            } 
+
+            if ($param[0] != 'global') {
+                $result = cache($cache_inc_type,$newData,$options);
+            }
+            
+            return $result;
+        }
+    }
+}
+
 if (!function_exists('write_global_params')) 
 {
     /**
@@ -228,10 +360,11 @@ if (!function_exists('write_html_cache'))
             $request = \think\Request::instance();
             $param = input('param.');
 
-            /*URL模式是否启动页面缓存（排除admin后台、前台可视化装修）*/
+            /*URL模式是否启动页面缓存（排除admin后台、前台可视化装修、前台筛选）*/
             $uiset = input('param.uiset/s', 'off');
             $uiset = trim($uiset, '/');
-            if ('on' == $uiset || 'admin' == $request->module()) {
+            $url_screen_var = config('global.url_screen_var');
+            if (isset($param[$url_screen_var]) || 'on' == $uiset || 'admin' == $request->module()) {
                 return false;
             }
             $seo_pseudo = config('ey_config.seo_pseudo');
@@ -307,11 +440,32 @@ if (!function_exists('write_html_cache'))
                 }
                 empty($filename) && $filename = 'index';
 
+                /*子域名（移动端域名）*/
+                $is_mobile_domain = false;
+                $web_mobile_domain = config('tpcache.web_mobile_domain');
+                $goto = $request->param('goto');
+                $goto = trim($goto, '/');
+                $subDomain = $request->subDomain();
+                if ('m' == $goto || (!empty($subDomain) && $subDomain == $web_mobile_domain)) {
+                    $is_mobile_domain = true;
+                } else {
+                    if (3 == $seo_pseudo) {
+                        $pathinfo = $request->pathinfo();
+                        if (!empty($pathinfo)) {
+                            $s_arr = explode('/', $pathinfo);
+                            if ('m' == $s_arr[0]) {
+                                $is_mobile_domain = true;
+                            }
+                        }
+                    }
+                }
+                /*end*/
+
                 // 缓存时间
-                $web_cmsmode = tpCache('web.web_cmsmode');
+                $web_cmsmode = 1;//tpCache('web.web_cmsmode');
                 if (1 == intval($web_cmsmode)) { // 永久
                     $path = HTML_PATH.$val['filename'].DS.$home_lang;
-                    if (isMobile()) {
+                    if (isMobile() || $is_mobile_domain) {
                         $path .= "_mobile";
                     } else {
                         $path .= "_pc";
@@ -327,6 +481,7 @@ if (!function_exists('write_html_cache'))
                         $path .= "_pc";
                     }
                     $path .= '_cache'.DS;
+                    $web_htmlcache_expires_in = config('tpcache.web_htmlcache_expires_in');
                     $options = array(
                         'path'  => $path,
                         'expire'=> intval($web_htmlcache_expires_in),
@@ -352,6 +507,13 @@ if (!function_exists('read_html_cache'))
             $request = \think\Request::instance();
             $seo_pseudo = config('ey_config.seo_pseudo');
             $param = input('param.');
+
+            /*前台筛选不进行页面缓存*/
+            $url_screen_var = config('global.url_screen_var');
+            if (isset($param[$url_screen_var])) {
+                return false;
+            }
+            /*end*/
 
             if (1 == $seo_pseudo) {
                 isset($param['tid']) && $param['tid'] = input('param.tid/d');
@@ -420,11 +582,32 @@ if (!function_exists('read_html_cache'))
                 }
                 empty($filename) && $filename = 'index';
 
+                /*子域名（移动端域名）*/
+                $is_mobile_domain = false;
+                $web_mobile_domain = config('tpcache.web_mobile_domain');
+                $goto = $request->param('goto');
+                $goto = trim($goto, '/');
+                $subDomain = $request->subDomain();
+                if ('m' == $goto || (!empty($subDomain) && $subDomain == $web_mobile_domain)) {
+                    $is_mobile_domain = true;
+                } else {
+                    if (3 == $seo_pseudo) {
+                        $pathinfo = $request->pathinfo();
+                        if (!empty($pathinfo)) {
+                            $s_arr = explode('/', $pathinfo);
+                            if ('m' == $s_arr[0]) {
+                                $is_mobile_domain = true;
+                            }
+                        }
+                    }
+                }
+                /*end*/
+
                 // 缓存时间
-                $web_cmsmode = tpCache('web.web_cmsmode');
+                $web_cmsmode = 1;//tpCache('web.web_cmsmode');
                 if (1 == intval($web_cmsmode)) { // 永久
                     $path = HTML_PATH.$val['filename'].DS.$home_lang;
-                    if (isMobile()) {
+                    if (isMobile() || $is_mobile_domain) {
                         $path .= "_mobile";
                     } else {
                         $path .= "_pc";
@@ -443,6 +626,7 @@ if (!function_exists('read_html_cache'))
                         $path .= "_pc";
                     }
                     $path .= '_cache'.DS;
+                    $web_htmlcache_expires_in = config('tpcache.web_htmlcache_expires_in');
                     $options = array(
                         'path'  => $path,
                         'expire'=> intval($web_htmlcache_expires_in),
@@ -610,7 +794,7 @@ if (!function_exists('handle_subdir_pic'))
 
             case 'soft':
                 if (!is_http_url($str) && !empty($str)) {
-                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', '$2', $str);
+                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', $root_dir.'$2', $str);
                 }
                 break;
             
@@ -1032,7 +1216,7 @@ if (!function_exists('allow_release_arctype'))
             $arctype_max_level = intval(config('global.arctype_max_level'));
             $where['c.status'] = 1;
             $fields = "c.id, c.parent_id, c.current_channel, c.typename, c.grade, count(s.id) as has_children, '' as children";
-            $res = db('arctype')
+            $res = \think\Db::name('arctype')
                 ->field($fields)
                 ->alias('c')
                 ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
@@ -1718,7 +1902,7 @@ if (!function_exists('download_file'))
         $down_path = iconv("utf-8","gb2312//IGNORE",$down_path);
         
         /*支持子目录*/
-        $down_path = handle_subdir_pic($down_path, 'soft');
+        $down_path = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', '$2', $down_path);
         /*--end*/
 
         //文件名
@@ -1774,7 +1958,7 @@ if (!function_exists('img_style_wh'))
             $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
             if (!empty($imginfo)) {
                 $num = 1;
-                $appendStyle = "max-width:100%!important;height:auto;";
+                $appendStyle = "max-width:100%!important;height:auto!important;";
                 $title = preg_replace('/("|\')/i', '', $title);
                 foreach ($imginfo as $key => $imgstr) {
                     $imgstrNew = $imgstr;
@@ -1942,13 +2126,13 @@ if (!function_exists('getAllChild'))
      */ 
     function getAllChild(&$arctype_child_all,$id,$type = 1){
         if($type == 1){
-            $arctype_child = db('arctype')->where(['is_del'=>0,'status'=>1,'parent_id'=>$id])->getfield('id',true);
+            $arctype_child = \think\Db::name('arctype')->where(['is_del'=>0,'status'=>1,'parent_id'=>$id])->getfield('id',true);
         }else{
             $where['is_del'] = 0;
             $where['status'] = 1;
             $where['parent_id'] = $id;
             $where['current_channel'] = array(array('neq',6),array('neq',8));
-            $arctype_child = db('arctype')->where($where)->getfield('id',true); 
+            $arctype_child = \think\Db::name('arctype')->where($where)->getfield('id',true); 
         }
         
         if(!empty($arctype_child)){
@@ -1969,7 +2153,7 @@ if (!function_exists('getAllChildByList'))
      * @param int $current_channel 当前栏目的模型ID
      */ 
     function getAllChildByList(&$arctype_child_all,$id,$current_channel){
-        $arctype_child = db('arctype')->where(['is_del'=>0,'status'=>1,'parent_id'=>$id,'current_channel'=>$current_channel])->getfield('id',true);
+        $arctype_child = \think\Db::name('arctype')->where(['is_del'=>0,'status'=>1,'parent_id'=>$id,'current_channel'=>$current_channel])->getfield('id',true);
         if(!empty($arctype_child)){
             $arctype_child_all = array_merge($arctype_child_all,$arctype_child);
             for($i=0;$i<count($arctype_child);$i++){
@@ -1986,7 +2170,7 @@ if (!function_exists('getAllChildArctype'))
         $where['a.is_del'] = 0;
         $where['a.status'] = 1;
         $where['a.parent_id'] = $id;
-        $arctype_child = db('arctype')->field('c.*, a.*, a.id as typeid')
+        $arctype_child = \think\Db::name('arctype')->field('c.*, a.*, a.id as typeid')
             ->alias('a')
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
             ->where($where)
@@ -2017,7 +2201,7 @@ if (!function_exists('getAllArctype'))
         $map['a.lang'] = $home_lang;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
-        $info = db('arctype')->field('c.*, a.*, a.id as typeid')
+        $info = \think\Db::name('arctype')->field('c.*, a.*, a.id as typeid')
             ->alias('a')
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
             ->where($map)
@@ -2047,7 +2231,7 @@ if (!function_exists('getAllArctypeCount'))
         $map_arc['status'] = 1;
         $map_arc['lang'] = $home_lang;
         $info = convert_arr_key($info,'typeid');
-        $count_type = db('archives')->field("count(*) as count,typeid")->where($map_arc)->group("typeid")->select();
+        $count_type = \think\Db::name('archives')->field("count(*) as count,typeid")->where($map_arc)->group("typeid")->select();
         $count_type = convert_arr_key($count_type,'typeid');
         foreach($info as $k=>$v){
             if (!isset($info[$k]['count'])){    //判断当前栏目的count是否已经存在
@@ -2111,7 +2295,7 @@ if (!function_exists('getAllArchives'))
         $map['a.lang'] = $home_lang;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
-        $info = db('archives')->field('a.*')
+        $info = \think\Db::name('archives')->field('a.*')
             ->alias('a')
             ->where($map)
             ->select();
@@ -2119,7 +2303,7 @@ if (!function_exists('getAllArchives'))
         $info = getAllContent($info);
 
         /*栏目信息*/
-        $arctypeRow = db('arctype')->field('c.*, a.*, a.id as typeid')
+        $arctypeRow = \think\Db::name('arctype')->field('c.*, a.*, a.id as typeid')
             ->alias('a')
             ->where(['a.lang'=>$home_lang])
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -2150,7 +2334,7 @@ if (!function_exists('getPreviousArchives'))
         $map['a.lang'] = $home_lang;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
-        $info = db('archives')->field('a.*')
+        $info = \think\Db::name('archives')->field('a.*')
             ->alias('a')
             ->where($map)
             ->order("a.aid desc")
@@ -2160,7 +2344,7 @@ if (!function_exists('getPreviousArchives'))
         $info = getAllContent($info);
 
         /*栏目信息*/
-        $arctypeRow = db('arctype')->field('c.*, a.*, a.id as typeid')
+        $arctypeRow = \think\Db::name('arctype')->field('c.*, a.*, a.id as typeid')
             ->alias('a')
             ->where(['a.lang'=>$home_lang])
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -2191,7 +2375,7 @@ if (!function_exists('getNextArchives'))
         $map['a.lang'] = $home_lang;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
-        $info = db('archives')->field('a.*')
+        $info = \think\Db::name('archives')->field('a.*')
             ->alias('a')
             ->where($map)
             ->order("a.aid asc")
@@ -2201,7 +2385,7 @@ if (!function_exists('getNextArchives'))
         $info = getAllContent($info);
 
         /*栏目信息*/
-        $arctypeRow = db('arctype')->field('c.*, a.*, a.id as typeid')
+        $arctypeRow = \think\Db::name('arctype')->field('c.*, a.*, a.id as typeid')
             ->alias('a')
             ->where(['a.lang'=>$home_lang])
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -2227,10 +2411,18 @@ if (!function_exists('getAllContent'))
             $table = array_search($nid, $channeltype_list);
             if (!empty($table)) {
                 $aids = get_arr_column($list, 'aid');
-                $row = $db::name($table.'_content')->field('id,add_time,update_time', true)
+                $row = $db::name($table.'_content')->field('*')
                     ->where(['aid'=>['IN', $aids]])
-                    ->getAllWithIndex('aid');
-                $contentList += $row;
+                    ->select();
+                $result = [];
+                foreach ($row as $_k => $_v) {
+                    unset($_v['id']);
+                    unset($_v['add_time']);
+                    unset($_v['update_time']);
+                    $result[$_v['aid']] = $_v;
+                }
+
+                $contentList += $result;
             }
         }
 
@@ -2272,7 +2464,7 @@ if (!function_exists('getAllTags'))
         $map = [];
         $info = [];
         $map['aid'] = ['in',$aid_arr];
-        $result = db('taglist')->field("aid,tag")->where($map)->select();
+        $result = \think\Db::name('taglist')->field("aid,tag")->where($map)->select();
         if ($result) {
             foreach ($result as $key => $val) {
                 if (!isset($info[$val['aid']])) $info[$val['aid']] = array();
@@ -2370,7 +2562,7 @@ if (!function_exists('getLocationPages'))
         }
         $map_arc['is_del'] = 0;
         $map_arc['status'] = 1;
-        $result = db('archives')->alias('a')->field("a.aid")->where($map_arc)->orderRaw($order)->select();
+        $result = \think\Db::name('archives')->alias('a')->field("a.aid")->where($map_arc)->orderRaw($order)->select();
 
         foreach ($result as $key=>$val){
             if ($aid == $val['aid']){

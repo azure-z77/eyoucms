@@ -35,7 +35,7 @@ class AppEndBehavior {
         $this->resetAuthor(); // 临时处理授权问题
         $this->clearHtmlCache(); // 变动数据之后，清除页面缓存和数据
         $this->seodescriptionHandle(); // 发布或编辑时，截取SEO描述长度
-        $this->sitemap(); // 自动生成sitemap
+        // $this->sitemap(); // 自动生成sitemap
     }
 
     /**

@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: #FFF; overflow: auto;">
+<body class="bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -34,9 +34,10 @@
                 <dd class="opt">
                     <select name="dtype" id="dtype">
                     {volist name='$fieldtype_list' id='vo'}
-                    <option value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}" {eq name="$info.dtype" value="$vo.name"}selected{/eq}>{$vo.title}</option>
+                        <option value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}" {eq name="$info.dtype" value="$vo.name"}selected{/eq}>{$vo.title}</option>
                     {/volist}
                     </select>
+                    <input type="hidden" name="old_dtype" value="{$info.dtype}">
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -86,6 +87,18 @@
     $(function(){
         dtype_change($('#dtype'));
         $('#dtype').change(function(){
+            /*多选项不能切换为指定的字段类型*/
+            var dtype = $(this).val();
+            var old_dtype = $('input[name=old_dtype]').val();
+            if ('checkbox' == old_dtype && 0 <= $.inArray(dtype, ['radio','select'])) {
+                $(this).val(old_dtype);
+                var old_dtype_text = $(this).find("option[value="+old_dtype+"]").text();
+                var dtype_text = $(this).find("option[value="+dtype+"]").text();
+                showErrorMsg(old_dtype_text+"不能更改为"+dtype_text+"！");
+                $(this).focus();
+                return false;
+            }
+            /*end*/
             dtype_change(this);
         });
 

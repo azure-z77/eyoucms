@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -49,7 +49,7 @@
                         <th abbr="article_time" axis="col6" class="w80">
                             <div class="tc">备份状态</div>
                         </th>
-                        <th axis="col1" class="w160">
+                        <th axis="col1" class="w80">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -93,9 +93,9 @@
                                     <div class="info w80 tc">未备份</div>
                                 </td>
                                 <td>
-                                    <div class="w160 tc">
+                                    <div class="w80 tc">
                                         {eq name="$Think.const.CONTROLLER_NAME.'@optimize'|is_check_access" value="1"}
-                                        <a href="{:url('Tools/optimize',array('tablename'=>$vo['Name']))}" class="btn blue"><i class="fa fa-magic"></i>优化</a>
+                                        <!-- <a href="{:url('Tools/optimize',array('tablename'=>$vo['Name']))}" class="btn blue"><i class="fa fa-magic"></i>优化</a> -->
                                         {/eq}
                                         {eq name="$Think.const.CONTROLLER_NAME.'@repair'|is_check_access" value="1"}
                                         <a class="btn green" href="{:url('Tools/repair',array('tablename'=>$vo['Name']))}"><i class="fa fa-wrench"></i>修复</a>

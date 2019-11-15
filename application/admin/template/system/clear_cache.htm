@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow-y: scroll;">
+<body class="bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -110,7 +110,7 @@
                         $.ajax({
                             type : "POST",
                             url  : "__ROOT_DIR__/index.php?m=api&c=Rewrite&a=setInlet",
-                            data : {seo_inlet:0},
+                            data : {seo_inlet:0,_ajax:1},
                             dataType : "JSON",
                             success: function(res) {
 

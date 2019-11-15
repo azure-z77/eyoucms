@@ -39,7 +39,7 @@ class Field extends Model
             return $result;
         }
 
-        $result = db('FieldType')->field($field)->order('sort_order asc')->select();
+        $result = Db::name('FieldType')->field($field)->order('sort_order asc')->select();
 
         if (!empty($index_key)) {
             $result = convert_arr_key($result, $index_key);

@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -59,7 +59,7 @@
                                     {/notempty}
                                     &nbsp;
                                     {eq name="$vo['filemine']" value='image'}
-                                        <a href="{$vo['filepath']}?v={php}echo time();{/php}" target="_blank">{$vo.filename}</a>
+                                        <a href="__ROOT_DIR__{$vo['filepath']}?v={php}echo time();{/php}" target="_blank">{$vo.filename}</a>
                                     {else /}
                                         <a href="{:url('Filemanager/edit',array('filename'=>$vo['filename'], 'activepath'=>replace_path(dirname($vo['filepath']))))}">{$vo.filename}</a>
                                     {/eq}

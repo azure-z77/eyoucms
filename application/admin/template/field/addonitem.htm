@@ -240,13 +240,13 @@
                         // 删除数据库记录
                         $.ajax({
                             type:'GET',
-                            url:"{:url('Field/del_arctypeimgs')}",
+                            url:"{:url('Field/del_arctypeimgs', ['_ajax'=>1])}",
                             data:{filename:path,fieldname:"{$vo.name}",typeid:"{$aid|default='0'}"},
                             success:function(){
                                 $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片
                                 $.ajax({
                                     type:'GET',
-                                    url:"{:url('Uploadify/delupload')}",
+                                    url:"{:url('Uploadify/delupload', ['_ajax'=>1])}",
                                     data:{action:"del", filename:path},
                                     success:function(){}
                                 });
@@ -322,7 +322,7 @@
                         <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
                     </dt>
                     <dd class="opt"> 
-                        <input type="text" class="input-txt" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" value="{$vo['dfvalue']}">        
+                        <input type="text" class="input-txt" name="{$vo.fieldArr}[{$vo.name|default=''}]" id="{$vo.fieldArr}_{$vo.name|default=''}" value="{$vo['dfvalue']}" autocomplete="off">        
                         <span class="add-on input-group-addon">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                         </span> 
@@ -346,6 +346,10 @@
                     </dt>
                     <dd class="opt">          
                         <textarea class="span12 ckeditor" id="{$vo.fieldArr}_{$vo.name|default=''}" data-func="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" title="">{$vo.dfvalue|default=''}</textarea>
+                        <p style="margin-top: 10px;">
+                            <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">远程图片本地化</a>&nbsp;
+                            <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">清除非本站链接</a>
+                        </p>
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
@@ -370,6 +374,56 @@
                         if(UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").queryCommandState('source') != 0) {
                             UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").execCommand('source'); //切换到【设计】视图
                         }
+                    }
+
+                    // 远程图片本地化
+                    function remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}() {
+                        var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
+                        layer_loading('下载中');
+                        $.ajax({
+                            type: 'POST',
+                            url: "{:url('Archives/ajax_remote_to_local')}",
+                            data: {body:body,_ajax:1},
+                            dataType: "JSON",
+                            success: function(res){
+                                layer.closeAll();
+                                if (res.code == 1) {
+                                    UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
+                                    layer.msg(res.msg, {icon: 1, time:1000});
+                                } else {
+                                    showErrorMsg(res.msg);
+                                }
+                            },
+                            error: function(e){
+                                layer.closeAll();
+                                showErrorMsg(res.msg);
+                            }
+                        });
+                    }
+
+                    // 清除非本站链接
+                    function replace_links_{$vo.fieldArr}_{$vo.name|default=''}() {
+                        var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
+                        layer_loading('正在处理');
+                        $.ajax({
+                            type: 'POST',
+                            url: "{:url('Archives/ajax_replace_links')}",
+                            data: {body:body,_ajax:1},
+                            dataType: "JSON",
+                            success: function(res){
+                                layer.closeAll();
+                                if (res.code == 1) {
+                                    UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
+                                    layer.msg(res.msg, {icon: 1, time:1000});
+                                } else {
+                                    showErrorMsg(res.msg);
+                                }
+                            },
+                            error: function(e){
+                                layer.closeAll();
+                                showErrorMsg(res.msg);
+                            }
+                        });
                     }
                 </script>
                 <!-- HTML文本 end -->

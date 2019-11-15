@@ -373,8 +373,8 @@ if (!function_exists('sitemap_xml'))
      */
     function sitemap_xml()
     {
-        $sitemap_config = tpCache('sitemap');
-        if (!isset($sitemap_config['sitemap_xml']) || empty($sitemap_config['sitemap_xml'])) {
+        $globalConfig = tpCache('global');
+        if (!isset($globalConfig['sitemap_xml']) || empty($globalConfig['sitemap_xml'])) {
             return '';
         }
 
@@ -382,33 +382,23 @@ if (!function_exists('sitemap_xml'))
         $filename = ROOT_PATH . "sitemap.xml";
         $main_lang = get_main_lang();
 
-        // 更新频率
-        $sitemap_changefreq_index = !empty($sitemap_config['sitemap_changefreq_index']) ? $sitemap_config['sitemap_changefreq_index'] : 'always';
-        $sitemap_changefreq_list = !empty($sitemap_config['sitemap_changefreq_list']) ? $sitemap_config['sitemap_changefreq_list'] : 'hourly';
-        $sitemap_changefreq_view = !empty($sitemap_config['sitemap_changefreq_view']) ? $sitemap_config['sitemap_changefreq_view'] : 'daily';
-
-        // 优先级别
-        $sitemap_priority_index = !empty($sitemap_config['sitemap_priority_index']) ? $sitemap_config['sitemap_priority_index'] : '1.0';
-        $sitemap_priority_list = !empty($sitemap_config['sitemap_priority_list']) ? $sitemap_config['sitemap_priority_list'] : '0.8';
-        $sitemap_priority_view = !empty($sitemap_config['sitemap_priority_view']) ? $sitemap_config['sitemap_priority_view'] : '0.5';
-
         /* 分类列表(用于生成列表链接的sitemap) */
         $map = array(
             'status'    => 1,
             'is_del'    => 0,
             'lang'      => $main_lang,
         );
-        if (is_array($sitemap_config)) {
+        if (is_array($globalConfig)) {
             // 过滤隐藏栏目
-            if (isset($sitemap_config['sitemap_not1']) && $sitemap_config['sitemap_not1'] > 0) {
+            if (isset($globalConfig['sitemap_not1']) && $globalConfig['sitemap_not1'] > 0) {
                 $map['is_hidden'] = 0;
             }
             // 过滤外部模块
-            if (isset($sitemap_config['sitemap_not2']) && $sitemap_config['sitemap_not2'] > 0) {
+            if (isset($globalConfig['sitemap_not2']) && $globalConfig['sitemap_not2'] > 0) {
                 $map['is_part'] = 0;
             }
         }
-        $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, '{$sitemap_changefreq_list}' AS changefreq, '{$sitemap_priority_list}' AS priority")
+        $result_arctype = M('arctype')->field("*, id AS loc, add_time AS lastmod, 'hourly' AS changefreq, '0.8' AS priority")
             ->where($map)
             ->order('sort_order asc, id asc')
             ->getAllWithIndex('id');
@@ -421,17 +411,22 @@ if (!function_exists('sitemap_xml'))
             'is_del'    => 0,
             'lang'      => $main_lang,
         );
-        if (is_array($sitemap_config)) {
+        if (is_array($globalConfig)) {
             // 过滤外部模块
-            if (isset($sitemap_config['sitemap_not2']) && $sitemap_config['sitemap_not2'] > 0) {
+            if (isset($globalConfig['sitemap_not2']) && $globalConfig['sitemap_not2'] > 0) {
                 $map['is_jump'] = 0;
             }
         }
-        $field = "aid, channel, is_jump, jumplinks, add_time, update_time, typeid, aid AS loc, add_time AS lastmod, '{$sitemap_changefreq_view}' AS changefreq, '{$sitemap_priority_view}' AS priority";
+        if (!isset($globalConfig['sitemap_archives_num']) || $globalConfig['sitemap_archives_num'] == '') {
+            $sitemap_archives_num = 100;
+        } else {
+            $sitemap_archives_num = intval($globalConfig['sitemap_archives_num']);
+        }
+        $field = "aid, channel, is_jump, jumplinks, add_time, update_time, typeid, aid AS loc, add_time AS lastmod, 'daily' AS changefreq, '0.5' AS priority";
         $result_archives = M('archives')->field($field)
             ->where($map)
-            ->order('update_time desc, aid desc')
-            ->limit(48000)
+            ->order('aid desc')
+            ->limit($sitemap_archives_num)
             ->select();
 
             // header('Content-Type: text/xml');//这行很重要，php默认输出text/html格式的文件，所以这里明确告诉浏览器输出的格式为xml,不然浏览器显示不出xml的格式
@@ -450,6 +445,16 @@ XML;
             return true;
         }
 
+        // 更新频率
+        $sitemap_changefreq_index = !empty($globalConfig['sitemap_changefreq_index']) ? $globalConfig['sitemap_changefreq_index'] : 'always';
+        $sitemap_changefreq_list = !empty($globalConfig['sitemap_changefreq_list']) ? $globalConfig['sitemap_changefreq_list'] : 'hourly';
+        $sitemap_changefreq_view = !empty($globalConfig['sitemap_changefreq_view']) ? $globalConfig['sitemap_changefreq_view'] : 'daily';
+
+        // 优先级别
+        $sitemap_priority_index = !empty($globalConfig['sitemap_priority_index']) ? $globalConfig['sitemap_priority_index'] : '1.0';
+        $sitemap_priority_list = !empty($globalConfig['sitemap_priority_list']) ? $globalConfig['sitemap_priority_list'] : '0.8';
+        $sitemap_priority_view = !empty($globalConfig['sitemap_priority_view']) ? $globalConfig['sitemap_priority_view'] : '0.5';
+
         $langRow = \think\Db::name('language')
             ->where(['status'=>1])
             ->order('id asc')
@@ -464,6 +469,11 @@ XML;
 
         /*首页*/
         foreach ($langRow as $key => $val) {
+            /*关闭多语言*/
+            if (empty($globalConfig['web_language_switch']) && 1 != $val['is_home_default']) {
+                continue;
+            }
+            /*end*/
 
             /*单独域名*/
             $mark = $val['mark'];
@@ -526,8 +536,12 @@ XML;
                             }
                             $row = str_replace('&amp;', '&', $row);
                             $row = str_replace('&', '&amp;', $row);
-                        } elseif ($key == 'lastmod') {
+                        } else if ($key == 'lastmod') {
                             $row = date('Y-m-d');
+                        } else if ($key == 'changefreq') {
+                            $row = $sitemap_changefreq_list;
+                        } else if ($key == 'priority') {
+                            $row = $sitemap_priority_list;
                         }
                         try {
                             $node = $item->addChild($key, $row);
@@ -558,9 +572,13 @@ XML;
                             }
                             $row = str_replace('&amp;', '&', $row);
                             $row = str_replace('&', '&amp;', $row);
-                        } elseif ($key == 'lastmod') {
+                        } else if ($key == 'lastmod') {
                             $lastmod_time = empty($val['update_time']) ? $val['add_time'] : $val['update_time'];
                             $row = date('Y-m-d', $lastmod_time);
+                        } else if ($key == 'changefreq') {
+                            $row = $sitemap_changefreq_view;
+                        } else if ($key == 'priority') {
+                            $row = $sitemap_priority_view;
                         }
                         try {
                             $node = $item->addChild($key, $row);

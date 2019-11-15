@@ -9,9 +9,9 @@
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="box-shadow:none;">
     <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
+        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-chevron-left"></i></a>
             <div class="subject">
                 <h3>编辑栏目</h3>
                 <h5></h5>
@@ -310,7 +310,7 @@
 
         // 重新定义模板变量，专用于新建模板功能
         $.ajax({
-            url: "{:url('Arctype/ajax_getTemplateList')}",
+            url: "{:url('Arctype/ajax_getTemplateList', ['_ajax'=>1])}",
             type: 'GET',
             dataType: 'JSON',
             data: {},
@@ -359,7 +359,7 @@
         }
         $(obj).html('正在处理');
         $.ajax({
-            url: "{:url('Arctype/ajax_get_dirpinyin')}",
+            url: "{:url('Arctype/ajax_get_dirpinyin', ['_ajax'=>1])}",
             type: 'POST',
             dataType: 'JSON',
             data: {typename: typename},
@@ -386,7 +386,7 @@
         $('#parent_id').html('<option value="">加载中……</option>');
         var channeltype = parseInt($(obj).find("option:selected").val());
         $.ajax({
-            url: "{:url('Arctype/ajax_get_arctype')}",
+            url: "{:url('Arctype/ajax_get_arctype', ['_ajax'=>1])}",
             type: 'POST',
             dataType: 'JSON',
             data: {channeltype:channeltype},
@@ -476,7 +476,7 @@
         var flag = false;
         var dirpath = $.trim($('input[name=dirpath]').val());
         $.ajax({
-            url: "{:url('Arctype/ajax_check_dirpath')}",
+            url: "{:url('Arctype/ajax_check_dirpath', ['_ajax'=>1])}",
             type: 'POST',
             async: false,
             dataType: 'JSON',

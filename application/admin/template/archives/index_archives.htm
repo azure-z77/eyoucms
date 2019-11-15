@@ -3,7 +3,7 @@
 <body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;min-width:auto;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page" style="min-width:auto;">
+<div class="page" style="min-width:auto;box-shadow:none;">
     <div class="flexigrid" style="margin-top: 0px;">
         <div class="mDiv" style="padding: 5px 0px;">
             <div class="ftitle">
@@ -178,6 +178,15 @@
                     </a>
                 </div>
                 {/eq}
+                {eq name="'Archives@batch_copy'|is_check_access" value="1"}
+                <div class="fbutton">
+                    <a onclick="func_batch_copy(this, 'ids');" data-url="{:url('Archives/batch_copy', array('typeid'=>$Request.param.typeid))}">
+                        <div class="add" title="批量复制">
+                            <span><i class="fa fa-copy"></i>批量复制</span>
+                        </div>
+                    </a>
+                </div>
+                {/eq}
             </div>
             <div style="clear:both"></div>
         </div>
@@ -236,29 +245,6 @@
             maxmin: false, //开启最大化最小化按钮
             area: ['350px', '260px'],
             content: url
-        });
-    }
-
-    function quick_release()
-    {
-        //iframe窗
-        layer.open({
-            type: 2,
-            title: '快捷发布文档',
-            fixed: true, //不固定
-            shadeClose: false,
-            shade: 0.3,
-            maxmin: true, //开启最大化最小化按钮
-            area: ['600px', '520px'],
-            content: "//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=release&iframe=2&lang={$Request.param.lang}",
-            success: function(layero, index){
-                // var body = layer.getChildFrame('body', index);
-                // var gourl = $('.curSelectedNode').attr('href');
-                // if (!$.trim(gourl)) {
-                //     gourl = "{:url('Archives/index_archives')}";
-                // }
-                // body.find('input[name=gourl]').val(gourl);
-            }
         });
     }
 

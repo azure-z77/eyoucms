@@ -47,7 +47,7 @@ class TagSpcart extends Base
             'b.arcrank'  => array('egt','0'),  // 带审核稿件不查询(同等伪删除)
         ];
 
-        $list = M("shop_cart")
+        $list = Db::name("shop_cart")
             ->field('a.*,b.title,b.litpic,b.users_price,b.stock_count,c.spec_price,c.spec_stock')
             ->alias('a')
             ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
@@ -59,7 +59,7 @@ class TagSpcart extends Base
         if (empty($list)) { return false; }
 
         // 规格商品价格及库存处理
-        $CartIds = [];
+        $CartIds = $CartIdsNew = [];
         foreach ($list as $key => $value) {
             if (!empty($value['spec_value_id'])) {
                 if (!empty($value['spec_price'])) {
@@ -69,18 +69,32 @@ class TagSpcart extends Base
                 if (!empty($value['spec_stock'])) {
                     // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
                     $list[$key]['stock_count'] = $value['spec_stock'];
-                }else{
+                    $value['stock_count'] = $value['spec_stock'];
+                } else {
                     $list[$key]['stock_count'] = 0;
                     $list[$key]['selected']    = 0;
                     $list[$key]['IsSoldOut']   = 1; // 已售罄
                     array_push($CartIds, $value['cart_id']);
                 }
             }
+            if ($value['product_num'] > $value['stock_count']) {
+                $CartIdsNew[] = [
+                    'cart_id'     => $value['cart_id'],
+                    'product_num' => $value['stock_count'],
+                    'update_time' => getTime(),
+                    'key'         => $key
+                ];
+            }
         }
 
-        if (!empty($CartIds)) {
-            // 更新购物车库存为空的商品
-            M("shop_cart")->where('cart_id','IN',$CartIds)->update(['selected'=>0]);
+        // 更新购物车库存为空的商品
+        if (!empty($CartIds)) Db::name("shop_cart")->where('cart_id', 'IN', $CartIds)->update(['selected'=>0]);
+        if (!empty($CartIdsNew)) {
+            // 当购物车库存超过商品库存则执行购物车库存为商品最大库存
+            foreach ($CartIdsNew as $value) {
+                Db::name("shop_cart")->where('cart_id', $value['cart_id'])->update($value);
+                $list[$value['key']]['product_num'] = $value['product_num'];
+            }
         }
 
         // 订单数据处理
@@ -193,6 +207,7 @@ EOF;
 
         // 下单地址
         $result['ShopOrderUrl']  = urldecode(url('user/Shop/shop_under_order'));
+        $result['SubmitOrder']   = " onclick=\"SubmitOrder('{$result['ShopOrderUrl']}');\" ";
         $result['InputChecked']  = " id=\"AllChecked\" onclick=\"Checked('*','{$result['AllSelected']}');\" ";
         $result['InputHidden']   = " <input type=\"hidden\" id=\"AllSelected\" value='{$result['AllSelected']}'> ";
         $result['TotalNumberId'] = " id=\"TotalNumber\" ";
@@ -202,6 +217,7 @@ EOF;
         $data['cart_unified_algorithm_url'] = url('user/Shop/cart_unified_algorithm');
         $data['cart_checked_url']           = url('user/Shop/cart_checked');
         $data['cart_del_url']               = url('user/Shop/cart_del');
+        $data['cart_stock_detection']       = url('user/Shop/cart_stock_detection', null, true, false, 1, 1);
         $data_json = json_encode($data);
         $version = getCmsVersion();
         $result['hidden'] = <<<EOF

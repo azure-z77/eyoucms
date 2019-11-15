@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -94,16 +94,12 @@
                             <td class="">
                                 <div class="tl {empty name="$vo.ifsystem"}w230{else /}w160{/empty}">
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                        {eq name="$vo.nid" value="guestbook"}
-                                        &nbsp;&nbsp;&nbsp;———
-                                        {else /}
                                         <a href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue"><i class="fa fa-pencil-square-o blocki"></i>编辑</a>
-                                        {/eq}
                                     {/eq}
 
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
                                         {eq name="$vo.nid" value="guestbook"}
-                                        &nbsp;&nbsp;&nbsp;&nbsp;—————
+                                        <a href="{:url('Field/attribute_index')}" class="btn blue"><i class="fa fa-code blocki"></i>内容字段</a>
                                         {else /}
                                         <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue"><i class="fa fa-code blocki"></i>内容字段</a>
                                         {/eq}

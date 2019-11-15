@@ -112,7 +112,7 @@ class Shop extends Base
     }
 
     // 订单提交
-    public function shop_under_order($error='true')
+    public function shop_under_order($error = 'true')
     {
         if (empty($error)) {
             $this->error('没有提交数据！');
@@ -121,6 +121,48 @@ class Shop extends Base
         session($this->users_id.'_EyouShopOrderUrl', $this->request->url(true));
         // 数据由标签调取生成
         return $this->fetch('users/shop_under_order');
+    }
+
+    // 购物车库存检测
+    public function cart_stock_detection()
+    {
+        if (IS_AJAX_POST) {
+            // 购物车查询条件
+            $CartWhere = [
+                'a.users_id' => $this->users_id,
+                'a.lang'     => $this->home_lang,
+                'a.selected' => 1,
+            ];
+            $list = $this->shop_cart_db->field('a.product_num, b.stock_count, c.spec_value_id, c.spec_stock')
+                ->alias('a')
+                ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+                ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
+                ->where($CartWhere)
+                ->order('a.add_time desc')
+                ->select();
+            if (empty($list)) $this->error('请选择要购买的商品！');
+            
+            $ExceedingStock = 0;
+            // 处理商品库存检测
+            foreach ($list as $key => $value) {
+                // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
+                if (!empty($value['spec_value_id'])) {
+                    $value['stock_count'] = $value['spec_stock'];
+                }
+                // 检测是否有超出库存的产品
+                if ($value['product_num'] > $value['stock_count']) {
+                    $ExceedingStock = 1;
+                    break;
+                }
+                // 若库存为空则清除这条数据
+                if (empty($value['stock_count'])) {
+                    unset($list[$key]);
+                    continue;
+                }
+            }
+
+            $this->success('检测完成', null, $ExceedingStock);
+        }
     }
 
     // 收货地址管理列表

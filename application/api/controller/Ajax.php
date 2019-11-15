@@ -31,6 +31,8 @@ class Ajax extends Base
     {
         if (IS_AJAX) {
             $aid = input('aid/d', 0);
+            $type = input('type/s', '');
+
             $click = 0;
             if (empty($aid)) {
                 echo($click);
@@ -39,11 +41,37 @@ class Ajax extends Base
 
             if ($aid > 0) {
                 $archives_db = Db::name('archives');
-                $archives_db->where(array('aid'=>$aid))->setInc('click'); 
+                if ('view' == $type) {
+                    $archives_db->where(array('aid'=>$aid))->setInc('click'); 
+                }
                 $click = $archives_db->where(array('aid'=>$aid))->getField('click');
             }
 
             echo($click);
+            exit;
+        }
+    }
+
+    /**
+     * 文档下载次数
+     */
+    public function downcount()
+    {
+        if (IS_AJAX) {
+            $aid = input('aid/d', 0);
+
+            $downcount = 0;
+            if (empty($aid)) {
+                echo($downcount);
+                exit;
+            }
+
+            if ($aid > 0) {
+                $archives_db = Db::name('archives');
+                $downcount = $archives_db->where(array('aid'=>$aid))->getField('downcount');
+            }
+
+            echo($downcount);
             exit;
         }
     }
@@ -293,7 +321,7 @@ class Ajax extends Base
     public function send_email()
     {
         // 超时后，断掉邮件发送
-        function_exists('set_time_limit') && set_time_limit(5);
+        function_exists('set_time_limit') && set_time_limit(10);
 
         $type = input('param.type/s');
         
@@ -321,6 +349,14 @@ class Ajax extends Base
                 ->select();
             $content = '';
             foreach ($row as $key => $val) {
+                if (preg_match('/(\.(jpg|gif|png|bmp|jpeg|ico|webp))$/i', $val['attr_value'])) {
+                    if (!stristr($val['attr_value'], '|')) {
+                        $val['attr_value'] = $this->request->domain().handle_subdir_pic($val['attr_value']);
+                        $val['attr_value'] = "<a href='".$val['attr_value']."' target='_blank'><img src='".$val['attr_value']."' width='150' height='150' /></a>";
+                    }
+                } else {
+                    $val['attr_value'] = str_replace(PHP_EOL, ' | ', $val['attr_value']);
+                }
                 $content .= $val['attr_name'] . '：' . $val['attr_value'].'<br/>';
             }
             $html = "<p style='text-align: left;'>{$web_name}</p><p style='text-align: left;'>{$content}</p>";
@@ -344,7 +380,7 @@ class Ajax extends Base
     public function get_arcrank()
     {
         $aid = input('param.aid/d');
-        if (!empty($aid) && IS_AJAX) {
+        if (!empty($aid)) {
             // 用户ID
             $users_id = session('users_id');
             // 文章查看所需等级值
@@ -362,22 +398,42 @@ class Ajax extends Base
                     ->where(['a.users_id'=>$users_id])
                     ->find();
                 if (0 == $Arcrank['arcrank']) {
-                    $this->success('允许查阅！');
+                    if (IS_AJAX_POST) {
+                        $this->success('允许查阅！');
+                    } else {
+                        return true;
+                    }
                 }else if (-1 == $Arcrank['arcrank']) {
                     if ($users_id == $Arcrank['users_id']) {
-                        $this->success('允许查阅！');
+                        if (IS_AJAX_POST) {
+                            $this->success('允许查阅！');
+                        } else {
+                            return true;
+                        }
                     }else{
                         $msg = '待审核稿件，你没有权限阅读！';
                     }
                 }else if ($UsersDataa['level_value'] < $Arcrank['level_value']) {
                     $msg = '内容需要【'.$Arcrank['level_name'].'】才可以查看，您为【'.$UsersDataa['level_name'].'】，请先升级！';
                 }else{
-                   $this->success('允许查阅！');
+                    if (IS_AJAX_POST) {
+                        $this->success('允许查阅！');
+                    } else {
+                        return true;
+                    }
                 }
-                $this->error($msg);
+                if (IS_AJAX_POST) {
+                    $this->error($msg);
+                } else {
+                    return $msg;
+                }
             }else{
                 if (0 == $Arcrank['arcrank']) {
-                    $this->success('允许查阅！');
+                    if (IS_AJAX_POST) {
+                        $this->success('允许查阅！');
+                    } else {
+                        return true;
+                    }
                 }else if (-1 == $Arcrank['arcrank']) {
                     $msg = '待审核稿件，你没有权限阅读！';
                 }else if (!empty($Arcrank['level_name'])) {
@@ -385,7 +441,11 @@ class Ajax extends Base
                 }else{
                     $msg = '游客不可查看，请登录！';
                 }
-                $this->error($msg);
+                if (IS_AJAX_POST) {
+                    $this->error($msg);
+                } else {
+                    return $msg;
+                }
             }
         }
     }

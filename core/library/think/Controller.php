@@ -54,7 +54,7 @@ class Controller
     /**
      * 子目录路径
      */
-    public $root_dir = ROOT_DIR;
+    public $root_dir = '';
 
     /**
      * CMS版本号
@@ -77,6 +77,14 @@ class Controller
             $request = Request::instance();
         }
         $this->request = $request;
+
+        $this->root_dir = ROOT_DIR; // 子目录
+
+        /*多语言*/
+        $this->home_lang = get_home_lang();
+        $this->admin_lang = get_admin_lang();
+        $this->main_lang = get_main_lang();
+        null === $this->version && $this->version = getCmsVersion();
 
         $returnData = $this->pc_to_mobile($this->request);
         $this->is_mobile = $returnData['is_mobile'];
@@ -112,7 +120,7 @@ class Controller
         if ($v == 'mobile') {
             $this->is_mobile = 1;
         }
-        if((isMobile() || $this->is_mobile == 1) && file_exists(ROOT_PATH.'template/mobile')) {
+        if($this->is_mobile == 1 && file_exists(ROOT_PATH.'template/mobile')) {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端模板
         } else {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
@@ -129,10 +137,6 @@ class Controller
         $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
 
         /*多语言*/
-        $this->home_lang = get_home_lang();
-        $this->admin_lang = get_admin_lang();
-        $this->main_lang = get_main_lang();
-        null === $this->version && $this->version = getCmsVersion();
         $this->assign('home_lang', $this->home_lang);
         $this->assign('admin_lang', $this->admin_lang);
         $this->assign('main_lang', $this->main_lang);
@@ -200,56 +204,185 @@ class Controller
             'is_mobile' => 0,
         ];
 
-        $web_mobile_domain_open = config('tpcache.web_mobile_domain_open');
-        if (empty($web_mobile_domain_open)) { // 未开启手机域名访问
+        if (is_null($request)) {
+            $request = Request::instance();
+        }
+
+        $web_mobile_domain_open = config('tpcache.web_mobile_domain_open'); // 是否开启手机域名访问
+        if (empty($web_mobile_domain_open) || in_array($request->module(), ['admin']) || $request->isAjax()) {
+            $data['is_mobile'] = isMobile() ? 1 : 0;
             return $data;
         }
-        else
-        { // 开启手机域名访问
-            if (is_null($request)) {
-                $request = Request::instance();
+
+        $mobileurl = '';
+        $subDomain = $request->subDomain();
+        $web_mobile_domain = config('tpcache.web_mobile_domain');
+
+        if (!isMobile()) { // 浏览器PC模式访问
+            $goto = input('param.goto/s');
+            $goto = trim($goto, '/');
+            // 本地IP或者localhost访问处理
+            if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $request->host(true)) || 'localhost' == $request->host(true)) {
+                if (!empty($goto)) {
+                    $data['is_mobile'] = 1;
+                }
+            } else {
+                // 子域名和手机域名相同，或者URL参数goto值为m，就表示访问手机端模板
+                if ('m' == $goto || (!empty($subDomain) && $subDomain == $web_mobile_domain)) {
+                    $data['is_mobile'] = 1;
+                }
             }
-            $mobileurl = '';
-            $subDomain = $request->subDomain();
-            $web_mobile_domain = config('tpcache.web_mobile_domain');
+        } else { // 浏览器手机模式访问
+            $data['is_mobile'] = 1;
+            $responseType = config('ey_config.response_type'); // 0 = 响应式模板，1 = 分离式模板
 
-            if (isMobile()) {
+            /*辨识IP访问，还是域名访问，如果是IP访问，将会与PC端的URL一致*/
+            if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $request->host(true)) || 'localhost' == $request->host(true)) { // 响应式，且是IP访问，保持URL域名不变
+                if (0 == $responseType) { // 响应式
+                    return $data;
+                } else { // PC与移动分离
+                    $goto = input('param.goto/s');
 
-                /*辨识响应式模板，还是PC与移动的分离模板*/
-                $num = 0;
-                $responseType = 0; // 默认是响应式
-                $tpldirList = glob('template/*');
-                foreach ($tpldirList as $key => $val) {
-                    if (!preg_match('/template\/(pc|mobile)$/i', $val)) {
-                        unset($tpldirList[$key]);
+                    /*处理首页链接最后带斜杆，进行301跳转*/
+                    if ('m/' == $goto && preg_match("/\?goto=m\/$/i", $request->url())) {
+                        $mobileurl = $request->domain().$request->url();
+                        $mobileurl = trim($mobileurl, '/');
+                        header('HTTP/1.1 301 Moved Permanently');
+                        header('Location: '.$mobileurl);
+                        exit;
+                    }
+                    /*end*/
+
+                    $goto = trim($goto, '/');
+                    if (!empty($goto)) {
+                        return $data;
                     } else {
-                        $tpldirList[$key] = preg_replace('/^(.*)template\/(pc|mobile)$/i', '$2', $val);
-                        $num++;
-                        if ($num >= 2) {
-                            $responseType = 1; // PC与移动端分离
+                        return $data;
+                        
+                        $mobileurl = '';
+                        // PC首页跳转到手机端URL
+                        if ($request->module() == 'home' && $request->controller() == 'Index' && $request->action() == 'index') {
+                            $mobileurl = $request->domain().$this->root_dir;
+                            /*去掉小尾巴*/
+                            $seo_inlet = config('ey_config.seo_inlet');
+                            if (1 == $seo_inlet && 2 != tpCache('seo.seo_pseudo')) {
+                                $mobileurl .= "/";
+                            } else {
+                                $mobileurl .= "/index.php";
+                            }
+                            /*end*/
+                            $mobileurl .= "?goto=m";
+                            if ($this->main_lang != $this->home_lang) {
+                                $mobileurl .= "&lang=".$this->home_lang;
+                            }
+                        } 
+                        // PC动态URL跳转到手机端URL
+                        else if (preg_match("#\?m=(\w+)&c=(\w+)&a=(\w+)#i", $request->url())) {
+                            // $mobileurl = $request->url()."&goto=m";
+                            $data['is_mobile'] = 0;
+                        }
+                        // PC伪静态URL不做跳转，在手机端可以正常访问且显示PC模板
+                        // 在没有配置手机域名情况下，手机端URL不可能存在伪静态URL，所以这个URL是来自PC端，就必须在手机端显示PC模板。
+                        else if (!preg_match("#\?m=(\w+)&c=(\w+)&a=(\w+)#i", $request->url())) {
+                            $data['is_mobile'] = 0;
                         }
                     }
+
+/*                        $seo_pseudo = config('ey_config.seo_pseudo');
+                    if (1 == $seo_pseudo || 2 == $seo_pseudo) {
+                        $goto = input('param.goto/s');
+                        $goto = trim($goto, '/');
+                        if (!empty($goto)) {
+                            return $data;
+                        } else {
+                            if ($this->root_dir == rtrim($request->url(), '/')) {
+                                $mobileurl = $request->domain().$request->url()."?goto=m";
+                            } else {
+                                $mobileurl = $request->domain().$request->url()."&goto=m";
+                            }
+                        }
+                    } else if (3 == $seo_pseudo) {
+                        $pathinfo = $request->pathinfo();
+                        if (!empty($pathinfo) && $pathinfo != '/') {
+                            $s_arr = explode('/', $pathinfo);
+                            if (!empty($s_arr[0]) && ($web_mobile_domain == $s_arr[0] || 'm' == $s_arr[0])) {
+                                return $data;
+                            }
+                        }
+                        $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
+                        if (!empty($this->root_dir)) {
+                            $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
+                        }
+                    }*/
+                }
+            } else { // 域名访问
+
+                /*获取当前配置下，手机端带协议的域名URL，要么是与主域名一致，要么是独立二级域名*/
+                $mobileDomainURL = $request->domain();
+                if (!empty($web_mobile_domain)) {
+                    $mobileDomainURL = preg_replace('/^(.*)(\/\/)([^\/]*)(\.?)('.$request->rootDomain().')(.*)$/i', '${1}${2}'.$web_mobile_domain.'.${5}${6}', $mobileDomainURL);
                 }
                 /*end*/
 
-                /*辨识IP访问，还是域名访问，如果是IP访问，将会与PC端的URL一致*/
-                if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $request->host(true)) || 'localhost' == $request->host(true)) { // 响应式，且是IP访问，保持URL域名不变
-                    if (0 == $responseType) { // 响应式
+                if (0 == $responseType) { // 响应式模板
+                    if (!empty($web_mobile_domain) && $subDomain != $web_mobile_domain) { // 配置手机域名
+                        $mobileurl = $mobileDomainURL.$request->url();
+                    } else {
                         return $data;
-                    } else { // PC与移动分离
-                        $seo_pseudo = config('ey_config.seo_pseudo');
-                        if (1 == $seo_pseudo || 2 == $seo_pseudo) {
-                            $subdomain = input('param.subdomain/s');
-                            if (!empty($subdomain)) {
+                    }
+                }
+                else { // 分离式模板
+                    $goto = input('param.goto/s');
+                    if ($subDomain != $web_mobile_domain || (empty($subDomain) && empty($goto))) {
+                        if (!empty($web_mobile_domain)) { // 手机域名不为空
+                            $mobileurl = $mobileDomainURL.$request->url();
+                        } else {
+
+                            /*处理首页链接最后带斜杆，进行301跳转*/
+                            if ('m/' == $goto && preg_match("/\?goto=m\/$/i", $request->url())) {
+                                $mobileurl = $request->domain().$request->url();
+                                $mobileurl = trim($mobileurl, '/');
+                                header('HTTP/1.1 301 Moved Permanently');
+                                header('Location: '.$mobileurl);
+                                exit;
+                            }
+                            /*end*/
+
+                            $goto = trim($goto, '/');
+                            if (!empty($goto)) {
                                 return $data;
                             } else {
-                                if ($this->root_dir == rtrim($request->url(), '/')) {
-                                    $mobileurl = $request->domain().$request->url()."?subdomain=m";
-                                } else {
-                                    $mobileurl = $request->domain().$request->url()."&subdomain=m";
+                                return $data;
+
+                                // PC首页跳转到手机端URL
+                                if ($request->module() == 'home' && $request->controller() == 'Index' && $request->action() == 'index') {
+                                    $mobileurl = $request->domain().$this->root_dir;
+                                    /*去掉小尾巴*/
+                                    $seo_inlet = config('ey_config.seo_inlet');
+                                    if (1 == $seo_inlet && 2 != tpCache('seo.seo_pseudo')) {
+                                        $mobileurl .= "/";
+                                    } else {
+                                        $mobileurl .= "/index.php";
+                                    }
+                                    /*end*/
+                                    $mobileurl .= "?goto=m";
+                                    if ($this->main_lang != $this->home_lang) {
+                                        $mobileurl .= "&lang=".$this->home_lang;
+                                    }
+                                }
+                                // PC动态URL跳转到手机端URL
+                                else if (preg_match("#\?m=(\w+)&c=(\w+)&a=(\w+)#i", $request->url())) {
+                                    // $mobileurl = $request->url()."&goto=m";
+                                    $data['is_mobile'] = 0;
+                                }
+                                // PC伪静态URL不做跳转，在手机端可以正常访问且显示PC模板
+                                // 在没有配置手机域名情况下，手机端URL不可能存在伪静态URL，所以这个URL是来自PC端，就必须在手机端显示PC模板。
+                                else if (!preg_match("#\?m=(\w+)&c=(\w+)&a=(\w+)#i", $request->url())) {
+                                    $data['is_mobile'] = 0;
                                 }
                             }
-                        } else if (3 == $seo_pseudo) {
+
+/*
                             $pathinfo = $request->pathinfo();
                             if (!empty($pathinfo) && $pathinfo != '/') {
                                 $s_arr = explode('/', $pathinfo);
@@ -257,79 +390,39 @@ class Controller
                                     return $data;
                                 }
                             }
-                            $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
-                            if (!empty($this->root_dir)) {
-                                $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
-                            }
-                        }
-                    }
-                } else { // 域名访问
-                    $mobileDomainURL = $request->domain();
-                    if (!empty($web_mobile_domain)) {
-                        $parse_url = parse_url($mobileDomainURL);
-                        $mobileDomainURL = $request->scheme().'://'.$web_mobile_domain.'.'.$request->rootDomain();
-                        if (!empty($parse_url['port'])) {
-                            $mobileDomainURL .= ":".$parse_url['port'];
-                        }
-                    }
 
-                    if (0 == $responseType) { // 响应式
-                        if ($subDomain != $web_mobile_domain && !empty($web_mobile_domain)) { // 配置手机域名
-                            $mobileurl = $mobileDomainURL.$request->url();
-                        } else {
-                            return $data;
-                        }
-                    }
-                    else { // PC与移动分离
-                        if ($subDomain != $web_mobile_domain) {
-                            if (!empty($web_mobile_domain)) {
-                                $mobileurl = $mobileDomainURL.$request->url();
-                            } else {
-                                $pathinfo = $request->pathinfo();
-                                if (!empty($pathinfo) && $pathinfo != '/') {
-                                    $s_arr = explode('/', $pathinfo);
-                                    if (!empty($s_arr[0]) && ($web_mobile_domain == $s_arr[0] || 'm' == $s_arr[0])) {
-                                        return $data;
-                                    }
-                                }
-
-                                $seo_pseudo = config('ey_config.seo_pseudo');
-                                if (1 == $seo_pseudo || 2 == $seo_pseudo) {
-                                    $subdomain = input('param.subdomain/s');
-                                    if (!empty($subdomain)) {
-                                        return $data;
+                            $seo_pseudo = config('ey_config.seo_pseudo');
+                            if (1 == $seo_pseudo || 2 == $seo_pseudo) {
+                                $goto = input('param.goto/s');
+                                $goto = trim($goto, '/');
+                                if (!empty($goto)) {
+                                    return $data;
+                                } else {
+                                    if ($this->root_dir == rtrim($request->url(), '/')) {
+                                        $mobileurl = $request->domain().$request->url()."?goto=m";
                                     } else {
-                                        if ($this->root_dir == rtrim($request->url(), '/')) {
-                                            $mobileurl = $request->domain().$request->url()."?subdomain=m";
-                                        } else {
-                                            $mobileurl = $request->domain().$request->url()."&subdomain=m";
-                                        }
-                                    }
-                                } else if (3 == $seo_pseudo) {
-                                    $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
-                                    if (!empty($this->root_dir)) {
-                                        $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
+                                        $mobileurl = $request->domain().$request->url()."&goto=m";
                                     }
                                 }
-                            }
+                            } else if (3 == $seo_pseudo) {
+                                $mobileurl = $request->domain().$this->root_dir.'/m'.$request->url();
+                                if (!empty($this->root_dir)) {
+                                    $mobileurl = str_replace("{$this->root_dir}/m{$this->root_dir}", "{$this->root_dir}/m", $mobileurl);
+                                }
+                            }*/
                         }
                     }
-                }
-                /*end*/
-
-                if (!empty($mobileurl)) {
-                    // header('HTTP/1.1 301 Moved Permanently');
-                    header('Location: '.$mobileurl);
-                    exit;
-                }
-            } else {
-                if ($subDomain == $web_mobile_domain) {
-                    $data['is_mobile'] = 1;
                 }
             }
+            /*end*/
 
-            return $data;
+            if (!empty($mobileurl)) {
+                header('Location: '.$mobileurl);
+                exit;
+            }
         }
+
+        return $data;
     }
 
     public function _empty($name)

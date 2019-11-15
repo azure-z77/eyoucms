@@ -40,7 +40,7 @@ class Arctype extends Model
         $field .= ', a.id as typeid';
 
         /*当前栏目信息*/
-        $result = db('Arctype')->field($field)
+        $result = Db::name('Arctype')->field($field)
             ->alias('a')
             ->where('a.id', $id)
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -52,7 +52,7 @@ class Arctype extends Model
                 $result['typeurl'] = $this->getTypeUrl($result); // 当前栏目的URL
                 /*获取当前栏目父级栏目信息*/
                 if ($result['parent_id'] > 0) {
-                    $parent_row = db('Arctype')->field($field)
+                    $parent_row = Db::name('Arctype')->field($field)
                         ->alias('a')
                         ->where('a.id', $result['parent_id'])
                         ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -136,7 +136,7 @@ class Arctype extends Model
     {
         $field = 'c.*, a.*, a.id as typeid';
 
-        $result = db('Arctype')->field($field)
+        $result = Db::name('Arctype')->field($field)
             ->alias('a')
             ->where('a.dirname', $dirname)
             ->join('__CHANNELTYPE__ c', 'c.id = a.current_channel', 'LEFT')
@@ -160,13 +160,13 @@ class Arctype extends Model
     {
         if (is_array($id)) {
             $ids = array_unique($id);
-            $row = db('Arctype')->field('parent_id, count(id) AS total')->where([
+            $row = Db::name('Arctype')->field('parent_id, count(id) AS total')->where([
                     'parent_id'=>['IN', $ids],
                     'is_del'    => 0,
                 ])->group('parent_id')->getAllWithIndex('parent_id');
             return $row;
         } else {
-            $count = db('Arctype')->where([
+            $count = Db::name('Arctype')->where([
                     'parent_id' => $id,
                     'is_del'    => 0,
                 ])->count('id');
@@ -362,7 +362,7 @@ class Arctype extends Model
                 'c.is_del'  => 0,
             );
             $fields = "c.*, count(s.id) as has_children";
-            $res = db('arctype')
+            $res = Db::name('arctype')
                 ->field($fields)
                 ->alias('c')
                 ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
@@ -410,7 +410,7 @@ class Arctype extends Model
     public function getAll($field = '*', $map = array(), $index_key = '')
     {
         $lang = get_current_lang(); // 多语言
-        $result = db('arctype')->field($field)
+        $result = Db::name('arctype')->field($field)
             ->where($map)
             ->where('lang',$lang)
             ->order('sort_order asc')
@@ -617,7 +617,7 @@ class Arctype extends Model
         {
             $lang = get_current_lang(); // 多语言
             $fields = "c.id, c.parent_id, c.dirname, c.grade, count(s.id) as has_children";
-            $row = db('arctype')
+            $row = Db::name('arctype')
                 ->field($fields)
                 ->alias('c')
                 ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')

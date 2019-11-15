@@ -87,11 +87,12 @@ class TagGlobal extends Base
                             $value .= http_build_query(['tmp'=>'']);
                         } else {
                             $value = $request->domain().$this->root_dir;
-                            if (1 == $globalTpCache['seo_pseudo']) {
+                            $separate_mobile = config('ey_config.separate_mobile');
+                            if (1 == $globalTpCache['seo_pseudo'] || 1 == $separate_mobile) {
                                 if (!empty($urlParam)) {
                                     /*是否隐藏小尾巴 index.php*/
                                     $seo_inlet = config('ey_config.seo_inlet');
-                                    if (0 == intval($seo_inlet)) {
+                                    if (0 == intval($seo_inlet) || 2 == $globalTpCache['seo_pseudo']) {
                                         $value .= '/index.php';
                                     } else {
                                         $value .= '/';

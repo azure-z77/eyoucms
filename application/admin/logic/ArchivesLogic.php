@@ -49,9 +49,9 @@ class ArchivesLogic extends Model
         $id_arr = eyIntval($del_id);
         if(!empty($id_arr)){
             /*分离并组合相同模型下的文档ID*/
-            $row = db('archives')
+            $row = Db::name('archives')
                 ->alias('a')
-                ->field('a.channel,a.aid,b.ctl_name,b.ifsystem')
+                ->field('a.channel,a.aid,b.table,b.ctl_name,b.ifsystem')
                 ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
                 ->where([
                     'a.aid' => ['IN', $id_arr],
@@ -61,6 +61,7 @@ class ArchivesLogic extends Model
             $data = array();
             foreach ($row as $key => $val) {
                 $data[$val['channel']]['aid'][] = $val['aid'];
+                $data[$val['channel']]['table'] = $val['table'];
                 if (empty($val['ifsystem'])) {
                     $ctl_name = 'Custom';
                 } else {
@@ -75,7 +76,11 @@ class ArchivesLogic extends Model
                 foreach ($data as $key => $val) {
                     $r = M('archives')->where('aid','IN',$val['aid'])->delete();
                     if ($r) {
-                        model($val['ctl_name'])->afterDel($val['aid']);
+                        if (empty($val['ifsystem'])) {
+                            model($val['ctl_name'])->afterDel($val['aid'], $val['table']);
+                        } else {
+                            model($val['ctl_name'])->afterDel($val['aid']);
+                        }
                         adminLog('删除文档-id：'.implode(',', $val['aid']));
                     } else {
                         $err++;
@@ -156,5 +161,155 @@ class ArchivesLogic extends Model
         }
 
         return $templateList;
+    }
+
+    /**
+     * 复制文档
+     */
+    public function batch_copy($aids = [], $typeid, $channel, $num = 1)
+    {
+        // 获取复制栏目的模型ID
+        $channeltypeRow = Db::name('channeltype')->field('nid,table')
+            ->where([
+                'id'    => $channel,
+            ])->find();
+        if (!empty($channeltypeRow)) {
+            // 主表数据
+            $archivesRow = Db::name('archives')->where(['aid'=>['IN', $aids]])->select();
+            // 内容扩展表数据
+            $tableExt = $channeltypeRow['table']."_content";
+            $contentRow = Db::name($tableExt)->field('id', true)->where(['aid'=>['IN', $aids]])->getAllWithIndex('aid');
+
+            // 拥有特性模型的其他数据处理
+            if ('images' == $channeltypeRow['nid']) { // 图集模型的特性表数据
+                $imgUploadRow = Db::name('images_upload')->field('img_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $imgUploadRow = group_same_key($imgUploadRow, 'aid');
+            } 
+            else if ('download' == $channeltypeRow['nid']) { // 下载模型的特性表数据
+                // 附件表
+                $downloadFileRow = Db::name('download_file')->field('file_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $downloadFileRow = group_same_key($downloadFileRow, 'aid');
+                // 附件下载记录表
+                $downloadLogRow = Db::name('download_log')->field('log_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $downloadLogRow = group_same_key($downloadLogRow, 'aid');
+            }
+            else if ('product' == $channeltypeRow['nid']) { // 产品模型的特性表数据
+                // 属性值表
+                $productAttrRow = Db::name('product_attr')->field('product_attr_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $productAttrRow = group_same_key($productAttrRow, 'aid');
+                // 产品图集表
+                $productImgRow = Db::name('product_img')->field('img_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $productImgRow = group_same_key($productImgRow, 'aid');
+            }
+
+            foreach ($archivesRow as $key => $val) {
+                // 原先数据的栏目ID
+                $typeid_old = $val['typeid'];
+
+                // 同步数据
+                $archivesData = [];
+                for ($i = 0; $i < $num; $i++) {
+                    // 主表
+                    $archivesInfo = $val;
+                    unset($archivesInfo['aid']);
+                    $archivesInfo['typeid'] = $typeid;
+                    $archivesInfo['add_time'] = getTime();
+                    $archivesInfo['update_time'] = getTime();
+                    $archivesData[] = $archivesInfo;
+                }
+                if (!empty($archivesData)) {
+                    $rdata = model('Archives')->saveAll($archivesData);
+                    if ($rdata) {
+                        // 内容扩展表的数据
+                        $contentData = [];
+                        $contentInfo = $contentRow[$val['aid']];
+
+                        // 拥有特性模型的其他数据处理
+                        $imgUploadInfo = $imgUploadData = [];
+                        $downloadFileInfo = $downloadLogInfo = [];
+                        $downloadFileData = $downloadLogData = [];
+                        $productAttrInfo = $productImgInfo = [];
+                        $productAttrData = $productImgData = [];
+                        if ('images' == $channeltypeRow['nid']) { // 图集模型的特性表数据
+                            $imgUploadInfo = !empty($imgUploadRow[$val['aid']]) ? $imgUploadRow[$val['aid']] : [];
+                        } else if ('download' == $channeltypeRow['nid']) { // 下载模型的特性表数据
+                            $downloadFileInfo = !empty($downloadFileRow[$val['aid']]) ? $downloadFileRow[$val['aid']] : [];
+                            $downloadLogInfo = !empty($downloadLogRow[$val['aid']]) ? $downloadLogRow[$val['aid']] : [];
+                        } else if ('product' == $channeltypeRow['nid']) { // 新房模型的特性表数据
+                            // 属性值表 - 只复制同栏目的属性值
+                            if ($typeid_old == $typeid) {
+                                $productAttrInfo = !empty($productAttrRow[$val['aid']]) ? $productAttrRow[$val['aid']] : [];
+                            }
+                            // 产品图集表
+                            $productImgInfo = !empty($productImgRow[$val['aid']]) ? $productImgRow[$val['aid']] : [];
+                        }
+
+                        // 需要复制的数据与新产生的文档ID进行关联
+                        foreach ($rdata as $k1 => $v1) {
+                            $aid_new = $v1->getData('aid');
+
+                            // 内容扩展表的数据
+                            $contentInfo['aid'] = $aid_new;
+                            $contentData[] = $contentInfo;
+
+                            // 图集模型
+                            if ('images' == $channeltypeRow['nid']) {
+                                foreach ($imgUploadInfo as $img_k => $img_v) {
+                                    $img_v['aid'] = $aid_new;
+                                    $imgUploadData[] = $img_v;
+                                }
+                            } else if ('download' == $channeltypeRow['nid']) {
+                                // 附件表
+                                foreach ($downloadFileInfo as $file_k => $file_v) {
+                                    $file_v['aid'] = $aid_new;
+                                    $downloadFileData[] = $file_v;
+                                }
+                                // 附件下载记录表
+                                foreach ($downloadLogInfo as $log_k => $log_v) {
+                                    $log_v['aid'] = $aid_new;
+                                    $downloadLogData[] = $log_v;
+                                }
+                            } else if ('product' == $channeltypeRow['nid']) {
+                                // 属性值表
+                                foreach ($productAttrInfo as $attr_k => $attr_v) {
+                                    $attr_v['aid'] = $aid_new;
+                                    $productAttrData[] = $attr_v;
+                                }
+                                // 产品图集表
+                                foreach ($productImgInfo as $img_k => $img_v) {
+                                    $img_v['aid'] = $aid_new;
+                                    $productImgData[] = $img_v;
+                                }
+                            }
+                        }
+
+                        // 批量写入内容扩展表
+                        if (!empty($contentData)) {
+                            Db::name($tableExt)->insertAll($contentData);
+                        }
+                        // 批量写入图集模型的图片表
+                        if ('images' == $channeltypeRow['nid']) {
+                            !empty($imgUploadData) && model('ImagesUpload')->saveAll($imgUploadData);
+                        } else if ('download' == $channeltypeRow['nid']) {
+                            // 附件表
+                            !empty($downloadFileData) && model('DownloadFile')->saveAll($downloadFileData);
+                            // 附件下载记录表
+                            !empty($downloadLogData) && Db::name('download_log')->insertAll($downloadLogData);
+                        } else if ('product' == $channeltypeRow['nid']) {
+                            // 属性值表
+                            !empty($productAttrData) && Db::name('product_attr')->insertAll($productAttrData);
+                            // 产品图集表
+                            !empty($productImgData) && model('ProductImg')->saveAll($productImgData);
+                        }
+                    }
+                    else {
+                        $this->error('复制失败！');
+                    }
+                }
+            }
+            $this->success('复制成功！');
+        } else {
+            $this->error('模型不存在！');
+        }
     }
 }

@@ -45,6 +45,11 @@ class TagSearchform extends Base
             !empty($lang) && $hidden .= '<input type="hidden" name="lang" value="'.$lang.'" />';
             /*--end*/
         }
+        /*手机端域名*/
+        $goto = input('param.goto/s');
+        $goto = trim($goto, '/');
+        !empty($goto) && $hidden .= '<input type="hidden" name="goto" value="'.$goto.'" />';
+        /*--end*/
         !empty($typeid) && $hidden .= '<input type="hidden" name="typeid" id="typeid" value="'.$typeid.'" />';
         !empty($channelid) && $hidden .= '<input type="hidden" name="channelid" id="channelid" value="'.$channelid.'" />';
         !empty($notypeid) && $hidden .= '<input type="hidden" name="notypeid" id="notypeid" value="'.$notypeid.'" />';

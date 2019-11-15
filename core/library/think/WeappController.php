@@ -80,7 +80,7 @@ class WeappController
     /**
      * 子目录路径
      */
-    public $root_dir = ROOT_DIR;
+    public $root_dir = '';
 
     /**
      * CMS版本号
@@ -103,6 +103,8 @@ class WeappController
             $request = Request::instance();
         }
         $this->request = $request;
+
+        $this->root_dir = ROOT_DIR; // 子目录
 
         $class = get_class($this); // 返回对象的类名
         $wmcArr = explode('\\', $class);

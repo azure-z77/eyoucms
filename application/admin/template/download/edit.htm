@@ -10,9 +10,9 @@
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page" style="min-width:auto;">
+<div class="page" style="min-width:auto;box-shadow:none;">
     <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-arrow-circle-o-left"></i></a>
+        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-chevron-left"></i></a>
             <div class="subject">
                 <h3>编辑下载</h3>
                 <h5></h5>
@@ -92,7 +92,7 @@
                                  title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                         </span>
                     </div>
-                    <input type="text" id="litpic_remote" name="litpic_remote" value="{$field.litpic_remote|default=''}" placeholder="http://" class="input-txt" {neq name="$field.is_remote" value="1"}style="display: none;"{/neq}>
+                    <input type="text" id="litpic_remote" name="litpic_remote" value="{$field.litpic_remote|default=''}" placeholder="http://" class="input-txt" onKeyup="keyupRemote(this, 'litpic');" {neq name="$field.is_remote" value="1"}style="display: none;"{/neq}>
                     &nbsp;
                     <label><input type="checkbox" name="is_remote" id="is_remote" value="1" {eq name="$field.is_remote" value="1"}checked="checked"{/eq} onClick="clickRemote(this, 'litpic');">远程图片</label>
                     <span class="err"></span>
@@ -290,7 +290,7 @@
                     <label for="articleForm">发布时间</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" class="input-txt" id="add_time" name="add_time" value="{$field.add_time|date='Y-m-d H:i:s',###}">        
+                    <input type="text" class="input-txt" id="add_time" name="add_time" value="{$field.add_time|date='Y-m-d H:i:s',###}" autocomplete="off">        
                     <span class="add-on input-group-addon">
                         <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                     </span> 
@@ -372,7 +372,7 @@
     // 获取模板属性数据
     function GetTemplateAddr(num = 1){
         $.ajax({
-            url: "{:url('Download/get_template')}",
+            url: "{:url('Download/get_template', ['_ajax'=>1])}",
             data: {num:num},
             type:'post',
             dataType:'json',
@@ -572,7 +572,7 @@
             function(val, index){
                 var admin_id = '{$Think.session.admin_info.admin_id}';
                 $.ajax({
-                    url: "{:url('Admin/ajax_setfield')}",
+                    url: "{:url('Admin/ajax_setfield', ['_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'JSON',
                     data: {id_name:'admin_id',id_value:admin_id,field:'pen_name',value:val},
@@ -644,9 +644,10 @@
 
     function img_call_back(fileurl_tmp)
     {
-      $("#litpic_local").val(fileurl_tmp);
-      $("#img_a").attr('href', fileurl_tmp);
-      $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+        $("#litpic_local").val(fileurl_tmp);
+        $("#img_a").attr('href', fileurl_tmp);
+        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
+        $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
     }
 </script>
 

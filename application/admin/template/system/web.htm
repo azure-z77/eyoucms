@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 <script type="text/javascript" src="__SKIN__/js/clipboard.min.js"></script>
-<body class="system-web" style="background-color: #FFF; overflow-y: scroll;">
+<body class="system-web" style="overflow-y: scroll;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -17,6 +17,7 @@
                         <label for="web_status0" class="cb-disable {if condition='!isset($config.web_status) OR empty($config.web_status)'}selected{/if}">否</label>
                         <input id="web_status1" name="web_status" value="1" type="radio" {if condition="isset($config.web_status) AND $config.web_status eq 1"} checked="checked"{/if}>
                         <input id="web_status0" name="web_status" value="0" type="radio" {if condition="!isset($config.web_status) OR empty($config.web_status)"} checked="checked"{/if}>
+                        <input type="hidden" id="old_web_status" value="{$config.web_status|default='0'}">
                     </div>
                     <p class="notic"></p>
                     {eq name="$web_cmsmode" value="2"}
@@ -39,7 +40,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_name</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_name');" class="ui-btn blue web_name" data-clipboard-text="{literal}{eyou:global name='web_name' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_name');" class="ui-btn3 blue web_name" data-clipboard-text="{literal}{eyou:global name='web_name' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -69,7 +70,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_logo</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_logo');" class="ui-btn blue web_logo" data-clipboard-text="{literal}{eyou:global name='web_logo' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_logo');" class="ui-btn3 blue web_logo" data-clipboard-text="{literal}{eyou:global name='web_logo' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -96,7 +97,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_ico</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_ico');" class="ui-btn blue web_ico" data-clipboard-text="{literal}{eyou:global name='web_ico' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_ico');" class="ui-btn3 blue web_ico" data-clipboard-text="{literal}{eyou:global name='web_ico' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -111,7 +112,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_basehost</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_basehost');" class="ui-btn blue web_basehost" data-clipboard-text="{literal}{eyou:global name='web_basehost' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_basehost');" class="ui-btn3 blue web_basehost" data-clipboard-text="{literal}{eyou:global name='web_basehost' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -127,7 +128,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_title</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_title');" class="ui-btn blue web_title" data-clipboard-text="{literal}{eyou:global name='web_title' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_title');" class="ui-btn3 blue web_title" data-clipboard-text="{literal}{eyou:global name='web_title' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -143,7 +144,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_keywords</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_keywords');" class="ui-btn blue web_keywords" data-clipboard-text="{literal}{eyou:global name='web_keywords' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_keywords');" class="ui-btn3 blue web_keywords" data-clipboard-text="{literal}{eyou:global name='web_keywords' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -159,7 +160,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_description</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_description');" class="ui-btn blue web_description" data-clipboard-text="{literal}{eyou:global name='web_description' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_description');" class="ui-btn3 blue web_description" data-clipboard-text="{literal}{eyou:global name='web_description' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -174,7 +175,7 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_copyright</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_copyright');" class="ui-btn blue web_copyright" data-clipboard-text="{literal}{eyou:global name='web_copyright' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_copyright');" class="ui-btn3 blue web_copyright" data-clipboard-text="{literal}{eyou:global name='web_copyright' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
@@ -189,17 +190,14 @@
                 {eq name="$web_cmsmode" value="2"}
                 <dd class="variable">
                     <div><p>web_recordnum</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_recordnum');" class="ui-btn blue web_recordnum" data-clipboard-text="{literal}{eyou:global name='web_recordnum' /}{/literal}">复制标签</a></div>
+                    <div class="r"><a href="javascript:void(0);" onclick="showtext('web_recordnum');" class="ui-btn3 blue web_recordnum" data-clipboard-text="{literal}{eyou:global name='web_recordnum' /}{/literal}">复制标签</a></div>
                 </dd>
                 {/eq}
             </dl>
             <dl class="row">
                 <dt class="tit" style="width: auto">
                     <label><b>自定义变量</b></label>
-                    {eq name='$main_lang' value='$admin_lang'}
-                    &nbsp;&nbsp;<a href="javascript:void(0);" onclick="customvar_add(this);">[新增]</a>
-                    &nbsp;&nbsp;<!-- <a href="javascript:void(0);" onclick="customvar_recycle(this);">[回收站]</a> -->
-                    {/eq}
+                    &nbsp;&nbsp;<a href="javascript:void(0);" onclick="customvar_index(this);">[管理]</a>
                 </dt>
             </dl>
             {volist name="eyou_row" id="vo"}
@@ -240,21 +238,7 @@
                         {default /}
                         <input id="{$vo['attr_var_name']}" name="{$vo['attr_var_name']}" value="{$vo.value|default=''}" class="input-txt" type="text" />
                     {/switch}
-                    &nbsp;
-                    <a href="javascript:void(0);" onclick="customvar_edit(this);" data-id="{$vo.id}" class="ui-btn blue">编辑</a>
-                    {eq name='$main_lang' value='$admin_lang'}
-                    <a href="javascript:void(0);" onclick="customvar_del(this);" data-id="{$vo.id}" data-attr_var_name="{$vo['attr_var_name']}" class="ui-btn red">删除</a>
-                    {/eq}
-                    {eq name="$web_cmsmode" value="1"}
-                    <a href="javascript:void(0);" onclick="showtext('{$vo['attr_var_name']}');" class="ui-btn blue {$vo['attr_var_name']}" data-clipboard-text="{{php} echo 'eyou:global name=\'';{/php}{$vo['attr_var_name']}{php} echo '\' /';{/php}}">复制标签</a>
-                    {/eq}
                 </dd>
-                {eq name="$web_cmsmode" value="2"}
-                <dd class="variable">
-                    <div><p>{$vo['attr_var_name']}</p></div>
-                    <div class="r"><a href="javascript:void(0);" onclick="showtext('{$vo['attr_var_name']}');" class="ui-btn blue {$vo['attr_var_name']}" data-clipboard-text="{{php} echo 'eyou:global name=\'';{/php}{$vo['attr_var_name']}{php} echo '\' /';{/php}}">复制标签</a></div>
-                </dd>
-                {/eq}
             </dl>
             {/volist}
             <dl class="row"><dt class="tit"><label><b>网站第三方代码</b></label></dt></dl>
@@ -286,6 +270,19 @@
 
     $(function(){
         tipsText();
+
+        // 关闭站点
+        $('input[name=web_status]').click(function(){
+            var seo_pseudo = {$seo_pseudo|default=0};
+            var old_web_status = $('#old_web_status').val();
+            if(2 == seo_pseudo && old_web_status == 0 && $(this).val() == 1){
+                layer.msg('关闭网站，系统会切换成动态URL模式！', {
+                    btnAlign: 'c',
+                    time: 20000, //20s后自动关闭
+                    btn: ['知道了']
+                });
+            }
+        });
     });
 
     function adsubmit(){
@@ -307,93 +304,23 @@
         $("#img_i_web_ico").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" width=32 height=32>',this,{tips: [1, '#fff']});");
     }
 
-    function customvar_add(obj)
+    function customvar_index(obj)
     {
-        var url = "{:url('System/customvar_add', array('inc_type'=>'web'))}";
         //iframe窗
-        layer.open({
+        var iframes = layer.open({
             type: 2,
-            title: '自定义变量',
+            title: '自定义变量列表',
             fixed: true, //不固定
             shadeClose: false,
             shade: 0.3,
-            maxmin: false, //开启最大化最小化按钮
-            area: ['100%', '100%'],
-            content: url
+            content: "{:url('System/customvar_index')}",
+            /*end: function(){
+                layer.load();
+                window.location.reload();
+            }*/
         });
+        layer.full(iframes);
     }
-
-    function customvar_edit(obj)
-    {
-        var id = $(obj).attr('data-id');
-        var url = "{:url('System/customvar_edit', array('inc_type'=>'web'))}";
-        if (url.indexOf('?') > -1) {
-            url += '&';
-        } else {
-            url += '?';
-        }
-        url += "id="+id;
-        //iframe窗
-        layer.open({
-            type: 2,
-            title: '自定义变量',
-            fixed: true, //不固定
-            shadeClose: false,
-            shade: 0.3,
-            maxmin: false, //开启最大化最小化按钮
-            area: ['100%', '100%'],
-            content: url
-        });
-    }
-
-    function customvar_del(obj) {
-        layer.confirm('删除到回收站，确认删除？', {
-                title: false,
-                btn: ['确定','取消'] //按钮
-            }, function(){
-                // 确定
-                layer_loading('正在处理');
-                $.ajax({
-                    type : 'post',
-                    url : "{:url('System/customvar_del')}",
-                    data : {del_id:$(obj).attr('data-id')},
-                    dataType : 'json',
-                    success : function(data){
-                        layer.closeAll();
-                        if(data.code == 1){
-                            layer.msg(data.msg, {icon: 1});
-                            window.location.reload();
-                            // $('#dl_'+$(obj).attr('data-attr_var_name')).remove();
-                        }else{
-                            layer.msg(data.msg, {icon: 2,time: 2000});
-                        }
-                    }
-                });
-            }, function(index){
-                layer.close(index);
-                return false;// 取消
-            }
-        );
-    }
-
-    // function customvar_recycle(obj)
-    // {
-    //     var url = "{:url('System/customvar_recycle')}";
-    //     //iframe窗
-    //     layer.open({
-    //         type: 2,
-    //         title: '自定义变量-回收站列表',
-    //         fixed: true, //不固定
-    //         shadeClose: false,
-    //         shade: 0.3,
-    //         maxmin: false, //开启最大化最小化按钮
-    //         area: ['700px', '450px'],
-    //         content: url,
-    //         end: function(){ //结束弹窗之后的处理
-    //             window.location.reload();
-    //         }
-    //     });
-    // }
 
     function showtext(classname){
         var clipboard1 = new Clipboard("."+classname);clipboard1.on("success", function(e) {layer.msg("复制成功");});clipboard1.on("error", function(e) {layer.msg("复制失败！请手动复制", {icon:2});}); 

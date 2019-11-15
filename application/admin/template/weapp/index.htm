@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -226,6 +226,11 @@
                                     upload($(this).val(), weappfile);
                                 }
                             });
+                        },
+                        btn2: function(index, layero){
+                            layer.close(index);
+                            window.location.reload();
+                            return false;
                         }
                     },
                     function(pwd, index){

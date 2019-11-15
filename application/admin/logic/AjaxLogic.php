@@ -60,7 +60,7 @@ class AjaxLogic extends Model
      */
     private function del_adminlog()
     {
-        $mtime = strtotime("-3 month");
+        $mtime = strtotime("-1 month");
         Db::name('admin_log')->where([
             'log_time'  => ['lt', $mtime],
             ])->delete();

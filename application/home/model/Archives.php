@@ -38,7 +38,7 @@ class Archives extends Model
     public function getViewInfo($aid, $litpic_remote = false)
     {
         $result = array();
-        $row = db('archives')->field('*')->find($aid);
+        $row = Db::name('archives')->field('*')->find($aid);
         if (!empty($row)) {
             /*封面图*/
             if (empty($row['litpic'])) {

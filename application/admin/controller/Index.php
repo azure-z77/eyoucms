@@ -136,7 +136,27 @@ class Index extends Base
         $this->assign('system_explanation_welcome_2', $system_explanation_welcome_2);
         /*end*/
 
+        // 同步导航与内容统计的状态
+        $this->syn_open_quickmenu();
+
+        // 快捷导航
+        $quickMenu = Db::name('quickentry')->where([
+                'type'      => 1,
+                'checked'   => 1,
+                'status'    => 1,
+            ])->order('sort_order asc, id asc')->select();
+        foreach ($quickMenu as $key => $val) {
+            $quickMenu[$key]['vars'] = !empty($val['vars']) ? $val['vars']."&lang=".$this->admin_lang : "lang=".$this->admin_lang;
+        }
+        $this->assign('quickMenu',$quickMenu);
+
+        // 内容统计
+        $contentTotal = $this->contentTotalList();
+        $this->assign('contentTotal',$contentTotal);
+
+        // 服务器信息
         $this->assign('sys_info',$this->get_sys_info());
+        // 升级弹窗
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
 
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
@@ -146,8 +166,269 @@ class Index extends Base
 
         return $this->fetch();
     }
-    
-    public function get_sys_info()
+
+    /**
+     * 内容统计管理
+     */
+    public function ajax_content_total()
+    {
+        if (IS_AJAX_POST) {
+            $checkedids = input('post.checkedids/a', []);
+            $ids = input('post.ids/a', []);
+            $saveData = [];
+            foreach ($ids as $key => $val) {
+                if (in_array($val, $checkedids)) {
+                    $checked = 1;
+                } else {
+                    $checked = 0;
+                }
+                $saveData[$key] = [
+                    'id'            => $val,
+                    'checked'       => $checked,
+                    'sort_order'    => intval($key) + 1,
+                    'update_time'   => getTime(),
+                ];
+            }
+            if (!empty($saveData)) {
+                $r = model('Quickentry')->saveAll($saveData);
+                if ($r) {
+                    $this->success('操作成功', url('Index/welcome'));
+                }
+            }
+            $this->error('操作失败');
+        }
+
+        /*同步v1.3.9以及早期版本的自定义模型*/
+        $this->syn_custom_quickmenu(2);
+        /*end*/
+
+        $totalList = Db::name('quickentry')->where([
+                'type'      => ['IN', [2]],
+                'status'    => 1,
+            ])->order('sort_order asc, id asc')->select();
+        $this->assign('totalList',$totalList);
+
+        return $this->fetch();
+    }
+
+    /**
+     * 内容统计 - 数量处理
+     */
+    private function contentTotalList()
+    {
+        $archivesTotalRow = null;
+        $quickentryList = Db::name('quickentry')->where([
+                'type'      => 2,
+                'checked'   => 1,
+                'status'    => 1,
+            ])->order('sort_order asc, id asc')->select();
+        foreach ($quickentryList as $key => $val) {
+            $code = $val['controller'].'@'.$val['action'].'@'.$val['vars'];
+            $quickentryList[$key]['vars'] = !empty($val['vars']) ? $val['vars']."&lang=".$this->admin_lang : "lang=".$this->admin_lang;
+            if ($code == 'Guestbook@index@') // 留言列表
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                ];
+                $quickentryList[$key]['total'] = Db::name('guestbook')->where($map)->count();
+            }
+            else if (1 == $val['groups']) // 模型内容统计
+            {
+                if (null === $archivesTotalRow) {
+                    $archivesTotalRow = Db::name('archives')->field('channel, count(aid) as total')->where([
+                            'lang'    => $this->admin_lang,
+                            'status'    => 1,
+                            'is_del'    => 0,
+                        ])->group('channel')
+                        ->getAllWithIndex('channel');
+                }
+                parse_str($val['vars'], $vars);
+                $total = !empty($archivesTotalRow[$vars['channel']]['total']) ? intval($archivesTotalRow[$vars['channel']]['total']) : 0;
+                $quickentryList[$key]['total'] = $total;
+            }
+            else if ($code == 'AdPosition@index@') // 广告
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                    'is_del'    => 0,
+                ];
+                $quickentryList[$key]['total'] = Db::name('ad_position')->where($map)->count();
+            }
+            else if ($code == 'Links@index@') // 友情链接
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                ];
+                $quickentryList[$key]['total'] = Db::name('links')->where($map)->count();
+            }
+            else if ($code == 'Tags@index@') // Tags标签
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                ];
+                $quickentryList[$key]['total'] = Db::name('tagindex')->where($map)->count();
+            }
+            else if ($code == 'Member@users_index@') // 会员
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                    'is_del'    => 0,
+                ];
+                $quickentryList[$key]['total'] = Db::name('users')->where($map)->count();
+            }
+            else if ($code == 'Shop@index@') // 订单
+            {
+                $map = [
+                    'lang'    => $this->admin_lang,
+                ];
+                $quickentryList[$key]['total'] = Db::name('shop_order')->where($map)->count();
+            }
+        }
+
+        return $quickentryList;
+    }
+
+    /**
+     * 快捷导航管理
+     */
+    public function ajax_quickmenu()
+    {
+        if (IS_AJAX_POST) {
+            $checkedids = input('post.checkedids/a', []);
+            $ids = input('post.ids/a', []);
+            $saveData = [];
+            foreach ($ids as $key => $val) {
+                if (in_array($val, $checkedids)) {
+                    $checked = 1;
+                } else {
+                    $checked = 0;
+                }
+                $saveData[$key] = [
+                    'id'            => $val,
+                    'checked'       => $checked,
+                    'sort_order'    => intval($key) + 1,
+                    'update_time'   => getTime(),
+                ];
+            }
+            if (!empty($saveData)) {
+                $r = model('Quickentry')->saveAll($saveData);
+                if ($r) {
+                    $this->success('操作成功', url('Index/welcome'));
+                }
+            }
+            $this->error('操作失败');
+        }
+
+        /*同步v1.3.9以及早期版本的自定义模型*/
+        $this->syn_custom_quickmenu(1);
+        /*end*/
+
+        $menuList = Db::name('quickentry')->where([
+                'type'      => ['IN', [1]],
+                'groups'    => 0,
+                'status'    => 1,
+            ])->order('sort_order asc, id asc')->select();
+        $this->assign('menuList',$menuList);
+
+        return $this->fetch();
+    }
+
+    /**
+     * 同步自定义模型的快捷导航
+     */
+    private function syn_custom_quickmenu($type = 1)
+    {
+        $row = Db::name('quickentry')->where([
+                'controller'    => 'Custom',
+                'type'  => $type,
+            ])->count();
+        if (empty($row)) {
+            $customRow = Db::name('channeltype')->field('id,ntitle')
+                ->where(['ifsystem'=>0])->select();
+            $saveData = [];
+            foreach ($customRow as $key => $val) {
+                $saveData[] = [
+                    'title' => $val['ntitle'],
+                    'laytext'   => $val['ntitle'].'列表',
+                    'type' => $type,
+                    'controller' => 'Custom',
+                    'action' => 'index',
+                    'vars' => 'channel='.$val['id'],
+                    'groups'    => 1,
+                    'sort_order' => 100,
+                    'add_time' => getTime(),
+                    'update_time' => getTime(),
+                ];
+            }
+            model('Quickentry')->saveAll($saveData);
+        }
+    }
+
+    /**
+     * 同步受开关控制的导航和内容统计
+     */
+    private function syn_open_quickmenu()
+    {
+        $tpcacheConfig = tpCache('global');
+        $usersConfig = getUsersConfigData('all');
+
+        /*商城中心 - 受本身开关和会员中心开关控制*/
+        if (!empty($tpcacheConfig['web_users_switch']) && !empty($usersConfig['shop_open'])) {
+            $shop_open = 1;
+        } else {
+            $shop_open = 0;
+        }
+        /*end*/
+
+        $saveData = [
+            [
+                'id'    => 31,
+                'status'    => !empty($tpcacheConfig['web_users_switch']) ? 1 : 0,
+                'update_time'   => getTime(),
+            ],
+            [
+                'id'    => 32,
+                'status'    => (1 == $tpcacheConfig['web_weapp_switch']) ? 1 : 0,
+                'update_time'   => getTime(),
+            ],
+            [
+                'id'    => 33,
+                'status'    => !empty($tpcacheConfig['web_users_switch']) ? 1 : 0,
+                'update_time'   => getTime(),
+            ],
+            [
+                'id'    => 34,
+                'status'    => $shop_open,
+                'update_time'   => getTime(),
+            ],
+            [
+                'id'    => 35,
+                'status'    => $shop_open,
+                'update_time'   => getTime(),
+            ],
+        ];
+        model('Quickentry')->saveAll($saveData);
+
+        /*处理模型导航和统计*/
+        $channeltypeRow = Db::name('channeltype')->cache(true,EYOUCMS_CACHE_TIME,"channeltype")->select();
+        foreach ($channeltypeRow as $key => $val) {
+            $updateData = [
+                'groups'    => 1,
+                'vars'  => 'channel='.$val['id'],
+                'status'    => $val['status'],
+                'update_time'   => getTime(),
+            ];
+            Db::name('quickentry')->where([
+                    'vars' => 'channel='.$val['id']
+                ])->update($updateData);
+        }
+        /*end*/
+    }
+
+    /**
+     * 服务器信息
+     */
+    private function get_sys_info()
     {
         $sys_info['os']             = PHP_OS;
         $sys_info['zlib']           = function_exists('gzclose') ? 'YES' : '<font color="red">NO（请开启 php.ini 中的php-zlib扩展）</font>';//zlib

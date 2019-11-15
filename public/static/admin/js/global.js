@@ -35,6 +35,43 @@ $(function(){
 });
 
 /**
+ * 批量复制
+ */
+function func_batch_copy(obj, name)
+{
+    var a = [];
+    var k = 0;
+    aids = '';
+    $('input[name^='+name+']').each(function(i,o){
+        if($(o).is(':checked')){
+            a.push($(o).val());
+            if (k > 0) {
+                aids += ',';
+            }
+            aids += $(o).val();
+            k++;
+        }
+    })
+    if(a.length == 0){
+        layer.alert('请至少选择一项', {icon: 2, title:false});
+        return;
+    }
+
+    var url = $(obj).attr('data-url');
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: '批量复制',
+        fixed: true, //不固定
+        shadeClose: false,
+        shade: 0.3,
+        maxmin: false, //开启最大化最小化按钮
+        area: ['450px', '300px'],
+        content: url
+    });
+}
+
+/**
  * 批量删除提交
  */
 function batch_del(obj, name) {
@@ -123,9 +160,9 @@ function batch_del_pseudo(obj, a) {
     var url = $(obj).attr('data-url');
 
     // 删除按钮
-    layer.confirm('删除到回收站，确认批量删除？', {
+    layer.confirm('将批量删除文档，请选择操作？', {
         title: false,
-        btn: ['直接删除', '确定'] //按钮
+        btn: ['彻底删除', '放入回收站'] //按钮
     }, function () {
         layer_loading('正在处理');
         $.ajax({
@@ -279,9 +316,9 @@ function delfun_pseudo(obj) {
 
     var url = $(obj).attr('data-url');
 
-    layer.confirm('删除到回收站，确认批量删除？', {
+    layer.confirm('将删除该文档，请选择操作？', {
             title: false,
-            btn: ['直接删除', '确定'] //按钮
+            btn: ['彻底删除', '放入回收站'] //按钮
         }, function(){
             // 直接删除
             layer_loading('正在处理');
@@ -381,13 +418,40 @@ function selectAll(name,obj){
  */
 function clickRemote(obj, id)
 {
-    if ($(obj).is(':checked')) {
-        $('#'+id+'_remote').show();
-        $('.div_'+id+'_local').hide();
-    } else {
-        $('.div_'+id+'_local').show();
-        $('#'+id+'_remote').hide();
-    }
+    try {
+        if ($(obj).is(':checked')) {
+            $('#'+id+'_remote').show();
+            $('.div_'+id+'_local').hide();
+            if ($("input[name="+id+"_remote]").val().length > 0) {
+                $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
+            } else {
+                $("input[name=is_litpic]").attr('checked', false); // 自动取消属性[图片]
+            }
+        } else {
+            $('.div_'+id+'_local').show();
+            $('#'+id+'_remote').hide();
+            if ($("input[name="+id+"_local]").val().length > 0) {
+                $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
+            } else {
+                $("input[name=is_litpic]").attr('checked', false); // 自动取消属性[图片]
+            }
+        }
+    }catch(e){}
+}
+
+/**
+ * 监听远程图片文本框的按键输入事件
+ */
+function keyupRemote(obj, id)
+{
+    try {
+        var value = $(obj).val();
+        if (value != '') {
+            $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
+        } else {
+            $("input[name=is_litpic]").attr('checked', false); // 自动取消属性[图片]
+        }
+    }catch(e){}
 }
 
 /**
@@ -852,3 +916,78 @@ function changeNum(elm,txtElm,maxNum,_this) {
     }  
     return ;  
 } 
+
+// 查看大图
+function Images(links, max_width, max_height){
+    var img = "<img src='"+links+"'/>";
+    $(img).load(function() {
+        width  = this.width;
+        height = this.height;
+        if (width > height) {
+            if (width > max_width) {
+                width = max_width;
+            }
+            width += 'px';
+        } else {
+            width = 'auto';
+        }
+        if (width < height) {
+            if (height > max_height) {
+                height = max_height;
+            }
+            height += 'px';
+        } else {
+            height = 'auto';
+        }
+
+        var links_img = "<img style='width:"+width+";height:"+height+";' src="+links+">";
+        
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: true,
+            area: [width, height],
+            skin: 'layui-layer-nobg', //没有背景色
+            content: links_img
+        });
+    });
+}
+
+function gourl(url)
+{
+    window.location.href = url;
+}
+
+// 百度自动推送
+function push_zzbaidu(url, type)
+{
+    $.ajax({
+        url:__root_dir__+"/index.php?m=admin&c=Ajax&a=push_zzbaidu&lang="+__lang__,
+        type:'POST',
+        dataType:'json',
+        data:{"url":url,"type":type,"_ajax":1},
+        success:function(res){
+            console.log(res.msg);
+        },
+        error: function(e){
+            console.log(e);
+        }
+    });
+}
+
+// 更新sitemap.xml地图
+function update_sitemap(controller, action)
+{
+    $.ajax({
+        url:__root_dir__+"/index.php?m=admin&c=Ajax&a=update_sitemap&lang="+__lang__,
+        type:'POST',
+        dataType:'json',
+        data:{"controller":controller,"action":action,"_ajax":1},
+        success:function(res){
+            console.log(res.msg);
+        },
+        error: function(e){
+            console.log(e);
+        }
+    });
+}

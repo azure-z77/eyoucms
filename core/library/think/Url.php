@@ -205,7 +205,7 @@ class Url
             $url = $domain . rtrim(self::$root ?: $request->root(), '/');
             if (1 == $seo_inlet && 'admin' != $m) {
                 $url .= "/";
-                if (2 == $seo_pseudo) {
+                if (2 == $seo_pseudo || stristr($request->url(), '/index.php')) {
                     $url .= "index.php";
                 }
             }
@@ -438,6 +438,20 @@ class Url
             if (empty($pattern)) {
                 return [rtrim($url, '$'), $domain, $suffix];
             }
+
+            /*同个模块、控制器、操作名对应多个路由规则，进行优先级别匹配 by 许宇资*/
+/*            $unequal = 0;
+            foreach ($pattern as $key => $val){
+                if (!isset($vars[$key])){
+                    $unequal = 1;
+                    break;
+                }
+            }
+            if ($unequal){
+                continue;
+            }*/
+            /*end*/
+            
             $type = Config::get('url_common_param');
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {

@@ -13,7 +13,7 @@
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page" style="min-width:auto;">
+<div class="page" style="min-width:auto;box-shadow:none;">
     <form class="form-horizontal" id="post_form" action="{:url('Arctype/ajax_newtpl')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
@@ -70,7 +70,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{:url('Arctype/ajax_newtpl', ['nosubmit'=>1])}",
+                url: "{:url('Arctype/ajax_newtpl', ['nosubmit'=>1,'_ajax'=>1])}",
                 data: $('#post_form').serialize(),
                 dataType: 'json',
                 success: function (res) {
@@ -94,7 +94,7 @@
         layer_loading('正在处理');
         $.ajax({
             type: "POST",
-            url: "{:url('Arctype/ajax_newtpl')}",
+            url: "{:url('Arctype/ajax_newtpl', ['_ajax'=>1])}",
             data: $('#post_form').serialize(),
             dataType: 'json',
             success: function (res) {

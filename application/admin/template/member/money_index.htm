@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -26,7 +26,7 @@
                         <input type="button" class="btn current" value="接口配置" onclick="window.location.href='{:url("Member/pay_set")}';">
                     </div>
                     <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                        <input type="button" class="btn" value="账户充值记录" onclick="window.location.href='{:url("Member/money_index")}';">
+                        <input type="button" class="btn selected" value="账户充值记录" onclick="window.location.href='{:url("Member/money_index")}';">
                     </div>
                 </div>
             </form>

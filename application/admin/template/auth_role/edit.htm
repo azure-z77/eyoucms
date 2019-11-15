@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body class="rolecss">
+<body class="rolecss bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -29,7 +29,7 @@
                     <p><label><input type="radio" name="tmp_role_id" value="-1" />超级管理员</label></p>
                     {foreach name="admin_role_list" item="role" key="k"}
                     <p>
-                        <label><input type="radio" name="tmp_role_id" value="{$role.id}" />{$role.name}</label>
+                        <label><input type="radio" name="tmp_role_id" value="{$role.id}" {eq name="$info.id" value="$role.id"}checked{/eq} />{$role.name}</label>
                     </p>
                     {/foreach}
                 </dd>
@@ -74,6 +74,7 @@
                     <p><label><input type="checkbox" name="cud[]" value="add"{if condition="! empty($info.cud) && in_array('add', $info.cud)"} checked="checked"{/if} />添加信息</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="edit"{if condition="! empty($info.cud) && in_array('edit', $info.cud)"} checked="checked"{/if} />修改信息</label></p>
                     <p><label><input type="checkbox" name="cud[]" value="del"{if condition="! empty($info.cud) && in_array('del', $info.cud)"} checked="checked"{/if} />删除信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="changetableval"{if condition="! empty($info.cud) && in_array('changetableval', $info.cud)"} checked="checked"{/if} />审核信息</label></p>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -167,7 +168,7 @@
                     {/if}
                 </dd>
             </dl>
-            <div class="bot">
+            <div class="bot2">
                 <input type="hidden" name="id" value="{$info.id}">
                 <a href="JavaScript:void(0);" onclick="postSubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
@@ -346,7 +347,7 @@
             $('#postForm').submit();
         {else /}
             $.ajax({
-                url: $('#postForm').attr('action'),
+                url: "{:url('AuthRole/edit', ['_ajax'=>1])}",
                 type: 'POST',
                 dataType: 'JSON',
                 data: $('#postForm').serialize(),

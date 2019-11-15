@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -41,8 +42,6 @@ class Archives extends Model
             $post['aid'] = $aid;
             M('article_content')->insert($post);
         }
-        // 自动推送链接给蜘蛛
-        push_zzbaidu($opt, $aid);
 
         // --处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
@@ -57,13 +56,13 @@ class Archives extends Model
         $result = array();
         if ($isshowbody) {
             $field = !empty($field) ? $field : 'b.*, a.*, a.aid as aid';
-            $result = db('archives')->field($field)
+            $result = Db::name('archives')->field($field)
                 ->alias('a')
                 ->join('__ARTICLE_CONTENT__ b', 'b.aid = a.aid', 'LEFT')
                 ->find($aid);
         } else {
             $field = !empty($field) ? $field : 'a.*';
-            $result = db('archives')->field($field)
+            $result = Db::name('archives')->field($field)
                 ->alias('a')
                 ->find($aid);
         }

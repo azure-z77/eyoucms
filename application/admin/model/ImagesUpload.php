@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -33,7 +34,7 @@ class ImagesUpload extends Model
      */
     public function getImgUpload($aid, $field = '*')
     {
-        $result = db('ImagesUpload')->field($field)
+        $result = Db::name('ImagesUpload')->field($field)
             ->where('aid', $aid)
             ->order('sort_order asc')
             ->select();
@@ -50,7 +51,7 @@ class ImagesUpload extends Model
         if (!is_array($aid)) {
             $aid = array($aid);
         }
-        $result = db('ImagesUpload')->where(array('aid'=>array('IN', $aid)))->delete();
+        $result = Db::name('ImagesUpload')->where(array('aid'=>array('IN', $aid)))->delete();
 
         return $result;
     }

@@ -25,15 +25,17 @@
 <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/layer-v3.1.0/layer.js"></script>
 <script src="__SKIN__/js/upgrade.js?v={$version}"></script>
+<script src="__SKIN__/js/global.js?v={$version}"></script>
 
 </head>
-<body style="background-color: #FFF; overflow: auto;">
+<body style="background-color:#F4F4F4;padding:6px; overflow: auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page" id="explanation_welcome">
+{if condition="empty($system_explanation_welcome) || empty($system_explanation_welcome_2)"}
+<div id="explanation_welcome" style="margin:10px 15px 0px 15px;">
     {empty name="$system_explanation_welcome"}
-    <div class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%;">
+    <div class="explanation" style="color: rgb(44, 188, 163); background-color: #fff!important; width: 99%; height: 100%;">
         <div class="title checkZoom" data-type="1">
             <span title="不再提示" style="display: block;"></span>
         </div>
@@ -44,7 +46,7 @@
     {/empty}
 
     {if condition='empty($system_explanation_welcome_2)'}
-    <div class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%; margin-top: 10px;">
+    <div class="explanation" style="color: rgb(44, 188, 163); background-color: #fff!important; width: 99%; height: 100%; margin-top: 10px;">
         <div class="title checkZoom" data-type="2">
             <span title="不再提示" style="display: block;"></span>
         </div>
@@ -54,84 +56,55 @@
     </div>
     {/if}
 </div>
+{/if}
 <div class="warpper">
-    <div class="title">管理中心</div>
     <div class="content start_content">
         <div class="contentWarp">
             <div class="index_box">
-                <section class="index_point hidden-xs">
-                    <h3>快捷入口</h3>
-                    <div class="container-fluid">
-                        <ul>
-                            {eq name="'System@index'|is_check_access" value="1"}
+                <div class="info_count">
+                     <h3><i class="fa fa-bars"></i>快捷导航</h3>
+                     <div class="container-fluid">
+                         <ul>
+                            {volist name='$quickMenu' id='vo'}
                             <li>
-                                <a href="{:url('System/index', array('inc_type'=>'web'))}">
-                                    <i class="fa fa-newspaper-o"></i>
-                                    基本信息
-                                </a>
-                                <i class="fa fa-angle-right"></i>
+                               <a href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}"><p class="navs">{$vo.title}</p></a>
                             </li>
-                            {/eq}
-                            {eq name="'Arctype@index'|is_check_access" value="1"}
+                            {/volist}
                             <li>
-                                <a href="{:url('Arctype/index')}" >
-                                    <i class="fa fa-sitemap"></i>
-                                    栏目管理
-                                </a>
-                                <i class="fa fa-angle-right"></i>
+                               <a href="javascript:void(0);" id="quickMenuAdd"><p class="navs"><i style="font-size: 20px;" class="fa fa-plus"></i></p></a>
                             </li>
-                            {/eq}
-                            {eq name="'Filemanager@index'|is_check_access" value="1"}
+                         </ul>
+                     </div>
+                </div>
+            </div>
+            <div class="index_box" >
+                <div class="info_count">
+                     <h3><i class="fa fa-bar-chart"></i>内容统计</h3>
+                     <div class="container-fluid">
+                         <ul>
+                            {volist name='$contentTotal' id='vo' length='9'}
                             <li>
-                                <a href="{:url('Filemanager/index')}">
-                                    <i class="fa fa-folder-open"></i>
-                                    模板管理
-                                </a>
-                                <i class="fa fa-angle-right"></i>
+                               <a href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}">
+                                   <h2>{$vo.title}</h2>
+                                   <p><cite>{$vo.total|default='0'}</cite></p>
+                               </a>
                             </li>
-                            {/eq}
-                            {eq name="'Archives@release'|is_check_access" value="1"}
+                            {/volist}
                             <li>
-                                <a href="{:url('Archives/release')}">
-                                    <i class="fa fa-plus"></i>
-                                    发布内容
-                                </a>
-                                <i class="fa fa-angle-right"></i>
+                               <a href="javascript:void(0);" id="contentTotalAdd">
+                                   <h2>添加统计</h2>
+                                   <p><cite><i class="fa fa-plus"></i></cite></p>
+                               </a>
                             </li>
-                            {/eq}
-                            <li>
-                                <div class="">
-                                    <a href="javascript:void(0);" class="bds_more bdsharebuttonbox" data-cmd="more">
-                                        <i class="fa fa-share-alt"></i>分享成果
-                                    </a>
-                                </div>
-                                <script>
-                                    window._bd_share_config = {
-                                        "common":{
-                                            "bdSnsKey":{},
-                                            "bdText":"{$share.bdText}",
-                                            "bdMini":"2",
-                                            "bdMiniList":false,
-                                            "bdPic":"",
-                                            "bdStyle":"2",
-                                            "bdSize":"32",
-                                            "bdUrl":"{$share.bdUrl}",
-                                            "bdRootPath":"__ROOT_DIR__"
-                                        },
-                                        "share":{}
-                                    };
-                                    with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='public/plugins/share/api/js/share.js?v={$version}.js?cdnversion='+~(-new Date()/36e5)];
-                                </script>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
+                         </ul>
+                     </div>
+                </div>
             </div>
             <div class="section system_section" style="float: none;width: inherit;">
                 <div class="system_section_con">
                     <div class="sc_title" style="padding: 26px 0 14px;border-bottom: 1px solid #e4eaec;">
-                        <i class="sc_icon"></i>
-                        <h3>程序信息</h3>
+                      
+                        <h3><i class="fa fa-gear"></i>程序信息</h3>
                     </div>
                     <div class="sc_warp" id="system_warp" style="display: block;">
                         <table cellpadding="0" cellspacing="0" class="system_table">
@@ -167,10 +140,8 @@
                 </div>
                 <div class="system_section_con">
                     <div class="sc_title" style="padding: 26px 0 14px;border-bottom: 1px solid #e4eaec;">
-                        <i class="sc_icon"></i>
-                        <h3>
-                            服务器信息
-                        </h3>
+                        
+                        <h3><i class="fa fa-tasks"></i>服务器信息</h3>
                     </div>
                     <div class="sc_warp" id="system_warp" style="display: block;padding-bottom: 20px;">
                         <table cellpadding="0" cellspacing="0" class="system_table">
@@ -318,5 +289,35 @@
             }
         });
     }
+
+    // 新增内容统计
+    $('#contentTotalAdd').click(function(){
+        //iframe窗
+        var iframes = layer.open({
+            type: 2,
+            title: '内容统计管理',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            // maxmin: false, //开启最大化最小化按钮
+            area: ['550px', '220px'],
+            content: "{:url('Index/ajax_content_total')}"
+        });
+    });
+
+    // 新增快捷导航
+    $('#quickMenuAdd').click(function(){
+        //iframe窗
+        var iframes = layer.open({
+            type: 2,
+            title: '快捷导航管理',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            // maxmin: false, //开启最大化最小化按钮
+            area: ['550px', '300px'],
+            content: "{:url('Index/ajax_quickmenu')}"
+        });
+    });
 </script>
 {include file="public/footer" /}

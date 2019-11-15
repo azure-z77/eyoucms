@@ -96,7 +96,7 @@
 	        }
             
 	        layer_loading('正在处理');
-            var url = "{:url('api/Uiset/submit')}";
+            var url = "{:url('api/Uiset/submit', ['_ajax'=>1])}";
             $.ajax({
                 url: url,
 	        	type: 'POST',

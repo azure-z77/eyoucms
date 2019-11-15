@@ -14,6 +14,8 @@
     <!-- <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/amazeui.min.css"> -->
     <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/iframe.css?v={$version}">
     <link rel="stylesheet" href="__PUBLIC__/plugins/ztree/css/zTreeStyle/zTreeStyle.css?v={$version}" type="text/css">
+    <link href="__SKIN__/font/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="__SKIN__/css/left_nav_tree.css?v={$version}" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
     <script src="__STATIC__/admin/js/jquery.layout-latest.min.js"></script>
     <script type="text/javascript" src="__PUBLIC__/plugins/ztree/js/jquery.ztree.core.min.js"></script>
@@ -65,7 +67,7 @@
             view:{
                 dblClickExpand:false
                 ,showLine:true
-                // ,showIcon: false
+                 ,showIcon: false
             },
             data:{
                 simpleData:{
@@ -161,7 +163,7 @@
 </head>
 <body>
     <div class="ui-layout-west">
-        <!-- <h3><a href="javascript:void(0);" onclick="quick_release();"><i class="fa fa-edit"></i>快捷发布文档</a></h3> -->
+<!--        <h3><a href="javascript:void(0);" onclick="quick_release();"><i class="fa fa-chevron-left"></i>快捷发布文档</a></h3>-->
         <div id="tree" class="ztree"></div>
     </div>
     <div class="ui-layout-center"><iframe name="content_body" id="content_body" src="//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=index_archives&lang={$Request.param.lang}" width="100%" height="100%" frameborder="0"></iframe></div>

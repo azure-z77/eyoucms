@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <style type="text/css">
 
 .system_table{ border:1px solid #dcdcdc; width:100%;}
@@ -529,7 +529,7 @@
     function UpNote(order_id){
         var admin_note = $('#admin_note').val();
         $.ajax({
-            url: "{:url('Shop/update_note')}",
+            url: "{:url('Shop/update_note', ['_ajax'=>1])}",
             data: {order_id:order_id,admin_note:admin_note},
             type:'post',
             dataType:'json',

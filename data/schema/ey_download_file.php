@@ -108,6 +108,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'downcount' => 
+  array (
+    'name' => 'downcount',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'sort_order' => 
   array (
     'name' => 'sort_order',
@@ -121,6 +130,15 @@ return array (
   array (
     'name' => 'add_time',
     'type' => 'int(10) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'update_time' => 
+  array (
+    'name' => 'update_time',
+    'type' => 'int(11)',
     'notnull' => false,
     'default' => '0',
     'primary' => false,

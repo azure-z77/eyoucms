@@ -42,7 +42,7 @@ class Lists extends Base
 
         $map = [];
         /*URL上参数的校验*/
-        $seo_pseudo = config('ey_config.seo_pseudo');
+/*        $seo_pseudo = config('ey_config.seo_pseudo');
         $url_screen_var = config('global.url_screen_var');
         if (!isset($param[$url_screen_var]) && 3 == $seo_pseudo)
         {
@@ -64,8 +64,13 @@ class Lists extends Base
         }else if (2 == $seo_pseudo){ // 生成静态页面代码
             
             $map = array('a.id'=>$tid);
-        }
+        }*/
         /*--end*/
+        if (!is_numeric($tid) || strval(intval($tid)) !== strval($tid)) {
+            $map = array('a.dirname'=>$tid);
+        } else {
+            $map = array('a.id'=>$tid);
+        }
         $map['a.is_del'] = 0; // 回收站功能
         $map['a.lang'] = $this->home_lang; // 多语言
         $row = M('arctype')->field('a.id, a.current_channel, b.nid')
@@ -282,16 +287,23 @@ class Lists extends Base
                 }
             }
             $ip = clientIP();
-            $map = array(
-                'ip'    => $ip,
-                'typeid'    => $typeid,
-                'lang'      => $this->home_lang,
-                'add_time'  => array('gt', getTime() - 60),
-            );
-            $count = M('guestbook')->where($map)->count('aid');
-            if ($count > 0) {
-                $this->error('同一个IP在60秒之内不能重复提交！');
+
+            /*留言间隔限制*/
+            $channel_guestbook_interval = tpSetting('channel_guestbook.channel_guestbook_interval');
+            $channel_guestbook_interval = is_numeric($channel_guestbook_interval) ? intval($channel_guestbook_interval) : 60;
+            if (0 < $channel_guestbook_interval) {
+                $map = array(
+                    'ip'    => $ip,
+                    'typeid'    => $typeid,
+                    'lang'      => $this->home_lang,
+                    'add_time'  => array('gt', getTime() - $channel_guestbook_interval),
+                );
+                $count = M('guestbook')->where($map)->count('aid');
+                if ($count > 0) {
+                    $this->error('同一个IP在'.$channel_guestbook_interval.'秒之内不能重复提交！');
+                }
             }
+            /*end*/
 
             /* 处理判断验证码 */
             $is_vertify = 1; // 默认开启验证码
@@ -350,6 +362,7 @@ class Lists extends Base
                 $data['md5data'] = $md5data;
                 $guestbookRow = M('guestbook')->field('aid')->where(['md5data'=>$md5data])->find();
                 /*--end*/
+                $dataStr = '';
                 if (empty($guestbookRow)) { // 非重复表单的才能写入数据库
                     $aid = M('guestbook')->insertGetId($data);
                     if ($aid > 0) {
@@ -369,7 +382,7 @@ class Lists extends Base
                             'update_time'   => getTime(),
                         ]);
                 }
-                $this->success('操作成功！', null, $dataStr, 3);
+                $this->success('操作成功！', null, $dataStr, 5);
             }  
         }
 
@@ -385,6 +398,22 @@ class Lists extends Base
     {  
         // post 提交的属性  以 attr_id _ 和值的 组合为键名    
         $post = input("post.");
+
+        /*上传图片或附件*/
+        foreach ($_FILES as $fileElementId => $file) {
+            try {
+                if (!empty($file['name']) && !is_array($file['name'])) {
+                    $uplaod_data = func_common($fileElementId, 'allimg');
+                    if (0 == $uplaod_data['errcode']) {
+                        $post[$fileElementId] = $uplaod_data['img_url'];
+                    } else {
+                        $post[$fileElementId] = '';
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+        /*end*/
+
         $attrArr = [];
 
         /*多语言*/
@@ -407,6 +436,7 @@ class Lists extends Base
                 continue;                                 
 
             $attr_id = str_replace('attr_','',$k);
+            is_array($v) && $v = implode(PHP_EOL, $v);
 
             /*多语言*/
             if (!empty($attrArr)) {
@@ -420,7 +450,7 @@ class Lists extends Base
             $adddata = array(
                 'aid'   => $aid,
                 'attr_id'   => $attr_id,
-                'attr_value'   => filter_line_return($v, '。'),
+                'attr_value'   => $v,
                 'lang'  => $this->home_lang,
                 'add_time'   => getTime(),
                 'update_time'   => getTime(),

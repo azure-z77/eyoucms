@@ -169,6 +169,14 @@ class View extends Base
         }
         /*--end*/
 
+        // 若需要会员权限则执行
+        if ($this->eyou['field']['arcrank'] > 0) {
+            $msg = action('api/Ajax/get_arcrank', $aid);
+            if (true !== $msg) {
+                $this->error($msg);
+            }
+        }
+
         return $this->fetch(":{$viewfile}");
     }
 
@@ -240,9 +248,12 @@ class View extends Base
         if (is_http_url($result['file_url'])) {
             if ($result['uhash'] != md5($result['file_url'])) {
                 $this->error('下载地址出错！');
-            } else {
-                $this->success('开始下载中……', $result['file_url']);
             }
+
+            // 记录下载次数
+            $this->download_log($result['file_id'], $result['aid']);
+
+            $this->success('开始下载中……', $result['file_url']);
         } 
         // 本站链接
         else
@@ -251,11 +262,17 @@ class View extends Base
                 $this->error('下载文件包已损坏！');
             }
 
+            // 记录下载次数
+            $this->download_log($result['file_id'], $result['aid']);
+
             $url = $this->root_dir."/index.php?m=home&c=View&a=download_file&file_id={$file_id}";
             $this->success('开始下载中……', $url);
         }
     }
 
+    /**
+     * 本地附件下载
+     */
     public function download_file()
     {
         $file_id = input('param.file_id/d');
@@ -265,5 +282,36 @@ class View extends Base
         $result = M('download_file')->field('file_url,file_mime')->where($map)->find();
         download_file($result['file_url'], $result['file_mime']);
         exit;
+    }
+
+    /**
+     * 记录下载次数（重复下载不做记录，游客可重复记录）
+     */
+    private function download_log($file_id = 0, $aid = 0)
+    {
+        try {
+            $users_id = session('users_id');
+            $users_id = intval($users_id);
+
+            $counts = M('download_log')->where([
+                    'file_id'   => $file_id,
+                    'aid'       => $aid,
+                    'users_id'  => $users_id,
+                ])->count();
+            if (empty($users_id) || empty($counts)) {
+                $saveData = [
+                    'users_id'  => $users_id,
+                    'aid'       => $aid,
+                    'file_id'   => $file_id,
+                    'ip'        => clientIP(),
+                    'add_time'  => getTime(),
+                ];
+                $r = M('download_log')->insertGetId($saveData);
+                if ($r !== false) {
+                    M('download_file')->where(['file_id'=>$file_id])->setInc('downcount');
+                    M('archives')->where(['aid'=>$aid])->setInc('downcount');
+                }
+            }
+        } catch (\Exception $e) {}
     }
 }

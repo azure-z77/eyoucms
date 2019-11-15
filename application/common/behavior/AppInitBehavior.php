@@ -42,7 +42,7 @@ class AppInitBehavior {
                     return true;
                 session($key, 1);
 
-                $sql_mode = db()->query("SELECT @@global.sql_mode AS sql_mode");
+                $sql_mode = \think\Db::query("SELECT @@global.sql_mode AS sql_mode");
                 $system_sql_mode = isset($sql_mode[0]['sql_mode']) ? $sql_mode[0]['sql_mode'] : '';
                 /*多语言*/
                 if (is_language()) {

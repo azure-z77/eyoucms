@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -33,10 +34,16 @@ class DownloadFile extends Model
      */
     public function getDownFile($aid, $field = '*')
     {
-        $result = db('DownloadFile')->field($field)
+        $result = Db::name('DownloadFile')->field($field)
             ->where('aid', $aid)
             ->order('sort_order asc')
             ->select();
+
+        foreach ($result as $key => $val) {
+            if (!empty($val['file_url'])) {
+                $result[$key]['file_url'] = handle_subdir_pic($val['file_url'], 'soft');
+            }
+        }
 
         return $result;
     }
@@ -50,7 +57,10 @@ class DownloadFile extends Model
         if (!is_array($aid)) {
             $aid = array($aid);
         }
-        $result = db('DownloadFile')->where(array('aid'=>array('IN', $aid)))->delete();
+        $result = Db::name('DownloadFile')->where(array('aid'=>array('IN', $aid)))->delete();
+        if ($result !== false) {
+            Db::name('download_log')->where(array('aid'=>array('IN', $aid)))->delete();
+        }
 
         return $result;
     }

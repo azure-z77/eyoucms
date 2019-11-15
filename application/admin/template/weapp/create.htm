@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body class="bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -131,7 +131,7 @@
         }
 
         $.ajax({
-            url: "{:url('Weapp/ajax_check_code')}",
+            url: "{:url('Weapp/ajax_check_code', ['_ajax'=>1])}",
             type: 'GET',
             async: false,
             dataType: 'JSON',

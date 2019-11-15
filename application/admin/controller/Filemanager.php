@@ -108,9 +108,12 @@ class Filemanager extends Base
                 }
             }
 
-            $res = $this->filemanagerLogic->upload('upfile', $activepath, $post['filename']);
-            $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
-            exit;
+            $res = $this->filemanagerLogic->upload('upfile', $activepath, $post['filename'], 'image');
+            if ($res['code'] == 1) {
+                $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
+            } else {
+                $this->error($res['msg'], url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
+            }
         }
 
         $filename = input('param.filename/s', '', null);

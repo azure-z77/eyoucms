@@ -38,13 +38,28 @@ class System extends Base
     public function web()
     {
         $inc_type =  'web';
-        $root_dir = ROOT_DIR; // 支持子目录
 
         if (IS_POST) {
             $param = input('post.');
             $param['web_keywords'] = str_replace('，', ',', $param['web_keywords']);
             $param['web_description'] = filter_line_return($param['web_description']);
             
+            if (1 == $param['web_status']) {
+                /*多语言*/
+                if (is_language()) {
+                    $langRow = \think\Db::name('language')->order('id asc')
+                        ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                        ->select();
+                    foreach ($langRow as $key => $val) {
+                        tpCache('seo',['seo_pseudo'=>1],$val['mark']);
+                    }
+                } else {
+                    tpCache('seo',['seo_pseudo'=>1]);
+                }
+                /*--end*/
+                @unlink('./index.html');
+            }
+
             // 网站根网址
             $web_basehost = rtrim($param['web_basehost'], '/');
             if (!is_http_url($web_basehost) && !empty($web_basehost)) {
@@ -67,10 +82,10 @@ class System extends Base
 
             // 浏览器地址图标
             if (!empty($param['web_ico']) && !is_http_url($param['web_ico'])) {
-                $source = realpath(preg_replace('#^'.$root_dir.'/#i', '', $param['web_ico']));
+                $source = realpath(preg_replace('#^'.$this->root_dir.'/#i', '', $param['web_ico']));
                 $destination = realpath('favicon.ico');
                 if (file_exists($source) && @copy($source, $destination)) {
-                    $param['web_ico'] = $root_dir.'/favicon.ico';
+                    $param['web_ico'] = $this->root_dir.'/favicon.ico';
                 }
             }
 
@@ -90,7 +105,7 @@ class System extends Base
             $config['web_logo_local'] = handle_subdir_pic($config['web_logo']);
         }
 
-        $config['web_ico'] = preg_replace('#^(/[/\w]+)?(/)#i', $root_dir.'$2', $config['web_ico']); // 支持子目录
+        $config['web_ico'] = preg_replace('#^(/[/\w]+)?(/)#i', $this->root_dir.'$2', $config['web_ico']); // 支持子目录
         
         /*系统模式*/
         $web_cmsmode = isset($config['web_cmsmode']) ? $config['web_cmsmode'] : 2;
@@ -117,6 +132,7 @@ class System extends Base
         /*--end*/
 
         $this->assign('config',$config);//当前配置项
+        $this->assign('seo_pseudo', tpCache('seo.seo_pseudo')); // URL模式
         return $this->fetch();
     }
 
@@ -132,15 +148,17 @@ class System extends Base
         if (IS_POST) {
             $param = input('post.');
 
-            $web_mobile_domain = trim($param['web_mobile_domain']);
-            if (empty($web_mobile_domain)) {
-                $this->error("手机域名配置不能为空！");
-            } else if ($web_mobile_domain == 'www' || $web_mobile_domain == $this->request->subDomain()) {
-                $this->error("手机域名配置不能与主域名一致！");
+            if (1 == $param['web_mobile_domain_open']) {
+                $web_mobile_domain = trim($param['web_mobile_domain']);
+                if (!empty($web_mobile_domain) && ($web_mobile_domain == 'www' || $web_mobile_domain == $this->request->subDomain())) {
+                    $this->error("手机站域名配置不能与主站域名一致！");
+                }
+            } else {
+                unset($param['web_mobile_domain']);
             }
 
             /*EyouCMS安装目录*/
-            empty($param['web_cmspath']) && $param['web_cmspath'] = ROOT_DIR; // 支持子目录
+            empty($param['web_cmspath']) && $param['web_cmspath'] = $this->root_dir; // 支持子目录
             $web_cmspath = trim($param['web_cmspath'], '/');
             $web_cmspath = !empty($web_cmspath) ? '/'.$web_cmspath : '';
             $param['web_cmspath'] = $web_cmspath;
@@ -151,7 +169,7 @@ class System extends Base
             /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
-            $param['web_adminbasefile'] = ROOT_DIR.'/'.$adminbasefile; // 支持子目录
+            $param['web_adminbasefile'] = $this->root_dir.'/'.$adminbasefile; // 支持子目录
             $adminbasefile_old = trim($param['adminbasefile_old']).'.php'; // 旧的文件名
             unset($param['adminbasefile']);
             unset($param['adminbasefile_old']);
@@ -166,16 +184,16 @@ class System extends Base
             $web_adminlogo = $param['web_adminlogo'];
             $web_adminlogo_old = tpCache('web.web_adminlogo');
             if ($web_adminlogo != $web_adminlogo_old && !empty($web_adminlogo)) {
-                $source = preg_replace('#^'.ROOT_DIR.'#i', '', $web_adminlogo); // 支持子目录
+                $source = preg_replace('#^'.$this->root_dir.'#i', '', $web_adminlogo); // 支持子目录
                 $web_is_authortoken = tpCache('web.web_is_authortoken');
-                if (empty($web_is_authortoken)) {
-                    $destination = '/public/static/admin/images/logo.png';
-                } else {
+                if (-1 == $web_is_authortoken) {
                     $destination = '/public/static/admin/images/logo_ey.png';
+                } else {
+                    $destination = '/public/static/admin/images/logo.png';
                 }
 
                 if (@copy('.'.$source, '.'.$destination)) {
-                    $param['web_adminlogo'] = ROOT_DIR.$destination;
+                    $param['web_adminlogo'] = $this->root_dir.$destination;
                 }
             }
             /*--end*/
@@ -203,7 +221,7 @@ class System extends Base
             /*--end*/
 
             $refresh = false;
-            $gourl = request()->domain().ROOT_DIR.'/'.$adminbasefile; // 支持子目录
+            $gourl = request()->domain().$this->root_dir.'/'.$adminbasefile; // 支持子目录
             /*更改自定义后台路径名*/
             if ($adminbasefile_old != $adminbasefile && eyPreventShell($adminbasefile_old)) {
                 if (file_exists($adminbasefile_old)) {
@@ -242,6 +260,18 @@ class System extends Base
         // 数据库备份目录
         $sqlbackuppath = config('DATA_BACKUP_PATH');
         $this->assign('sqlbackuppath', $sqlbackuppath);
+        // 后台logo
+        if (-1 == $config['web_is_authortoken']) {
+            $config['web_adminlogo'] = $this->root_dir.'/public/static/admin/images/logo_ey.png';
+        } else {
+            $config['web_adminlogo'] = $this->root_dir.'/public/static/admin/images/logo.png';
+        }
+        // 当前域名是否IP或者localhost本地
+        $is_localhost = 0;
+        if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $this->request->host(true)) || 'localhost' == $this->request->host(true)) {
+            $is_localhost = 1;
+        }
+        $this->assign('is_localhost',$is_localhost);
 
         $this->assign('config',$config);//当前配置项
         return $this->fetch();
@@ -273,13 +303,34 @@ class System extends Base
                 $this->error("附件上传大小超过空间的最大限制".$maxFileupload);
             }
 
-            // 禁止php扩展名的附件类型
-            $param['image_type'] = str_ireplace('|php|', '|', '|'.$param['image_type'].'|');
-            $param['image_type'] = trim($param['image_type'], '|');
-            $param['file_type'] = str_ireplace('|php|', '|', '|'.$param['file_type'].'|');
-            $param['file_type'] = trim($param['file_type'], '|');
-            $param['media_type'] = str_ireplace('|php|', '|', '|'.$param['media_type'].'|');
-            $param['media_type'] = trim($param['media_type'], '|');
+            // 过滤php扩展名的附件类型
+            $image_type = explode('|', $param['image_type']);
+            foreach ($image_type as $key => $val) {
+                $val = trim($val);
+                if (stristr($val, 'php') || empty($val)) {
+                    unset($image_type[$key]);
+                }
+            }
+            $param['image_type'] = implode('|', $image_type);
+
+            $file_type = explode('|', $param['file_type']);
+            foreach ($file_type as $key => $val) {
+                $val = trim($val);
+                if (stristr($val, 'php') || empty($val)) {
+                    unset($file_type[$key]);
+                }
+            }
+            $param['file_type'] = implode('|', $file_type);
+
+            $media_type = explode('|', $param['media_type']);
+            foreach ($media_type as $key => $val) {
+                $val = trim($val);
+                if (stristr($val, 'php') || empty($val)) {
+                    unset($media_type[$key]);
+                }
+            }
+            $param['media_type'] = implode('|', $media_type);
+            /*end*/
 
             /*多语言*/
             if (is_language()) {
@@ -483,11 +534,16 @@ class System extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
-            $this->success('操作成功', url('System/smtp'));
+            $iframes = input('param.iframes/d');
+            $this->success('操作成功', url('System/smtp', ['iframes'=>$iframes]));
         }
 
         $config = tpCache($inc_type);
         $this->assign('config',$config);//当前配置项
+        /*是否弹窗显示*/
+        $iframes = input('param.iframes/d');
+        $this->assign('iframes',$iframes);
+        /*end*/
         return $this->fetch();
     }
 
@@ -789,193 +845,151 @@ class System extends Base
     }
 
     /**
-     * 新增自定义变量
+     * 自定义变量列表
      */
-    public function customvar_add()
+    public function customvar_index()
     {
-        $this->language_access(); // 多语言功能操作权限
+        $list = array();
+        $keywords = input('keywords/s');
 
-        if (IS_POST) {
-            $configAttributeM = model('ConfigAttribute');
-
-            $post_data = input('post.');
-            $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '';
-
-            if ($attr_input_type == 3) {
-                // 本地/远程图片上传的处理
-                $is_remote = !empty($post_data['is_remote']) ? $post_data['is_remote'] : 0;
-                $litpic = '';
-                if ($is_remote == 1) {
-                    $litpic = $post_data['value_remote'];
-                } else {
-                    $litpic = $post_data['value_local'];
-                }
-                $attr_values = $litpic;
-            } else {
-                $attr_values = input('attr_values');
-                // $attr_values = str_replace('_', '', $attr_values); // 替换特殊字符
-                // $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符
-                $attr_values = trim($attr_values);
-                $attr_values = isset($attr_values) ? $attr_values : '';
-            }
-
-            $savedata = array(
-                'inc_type'    => $post_data['inc_type'],
-                'attr_name' => $post_data['attr_name'],
-                'attr_input_type'   => $attr_input_type,
-                'attr_values'   => $attr_values,
-                'update_time'   => getTime(),
-            );
-
-            // 数据验证            
-            $validate = \think\Loader::validate('ConfigAttribute');
-            if(!$validate->batch()->check($savedata))
-            {
-                $error = $validate->getError();
-                $error_msg = array_values($error);
-                $this->error($error_msg[0]);
-            } else {
-                $langRow = Db::name('language')->order('id asc')
-                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                    ->select();
-
-                $attr_var_name = '';
-                foreach ($langRow as $key => $val) {
-                    $savedata['add_time'] = getTime();
-                    $savedata['lang'] = $val['mark'];
-                    $insert_id = Db::name('config_attribute')->insertGetId($savedata);
-                    // 更新变量名
-                    if (!empty($insert_id)) {
-                        if (0 == $key) {
-                            $attr_var_name = $post_data['inc_type'].'_attr_'.$insert_id;
-                        }
-                        Db::name('config_attribute')->where([
-                                'attr_id'   => $insert_id,
-                                'lang'  => $val['mark'],
-                            ])->update(array('attr_var_name'=>$attr_var_name));
-                    }
-                }
-                adminLog('新增自定义变量：'.$savedata['attr_name']);
-
-                // 保存到config表，更新缓存
-                $inc_type = $post_data['inc_type'];
-                $configData = array(
-                    $attr_var_name  => $attr_values,
-                );
-
-                // 多语言
-                if (is_language()) {
-                    foreach ($langRow as $key => $val) {
-                        tpCache($inc_type, $configData, $val['mark']);
-                    }
-                } else { // 单语言
-                    tpCache($inc_type, $configData);
-                }
-
-                $this->success('操作成功');
-            }  
+        $condition = array();
+        // 应用搜索条件
+        if (!empty($keywords)) {
+            $condition['a.attr_name'] = array('LIKE', "%{$keywords}%");
         }
+        // 多语言
+        $condition['a.lang'] = array('eq', $this->admin_lang);
 
-        $inc_type = input('param.inc_type/s', '');
-        $this->assign('inc_type', $inc_type);
+        $attr_var_names = M('config')->field('name')
+            ->where([
+                'name'  => ['LIKE', "web_attr_%"],
+                'lang'  => $this->admin_lang,
+                'is_del'    => 0,
+            ])->getAllWithIndex('name');
+        $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
+
+        $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
+        $pageObj = new Page($count, 100);// 实例化分页类 传入总记录数和每页显示的记录数
+        $list = M('config_attribute')->alias('a')
+            ->field('a.*, b.id')
+            ->join('__CONFIG__ b', 'b.name = a.attr_var_name AND b.lang = a.lang', 'LEFT')
+            ->where($condition)
+            ->order('a.attr_id asc')
+            ->limit($pageObj->firstRow.','.$pageObj->listRows)
+            ->select();
+
+        $pageStr = $pageObj->show();// 分页显示输出
+        $this->assign('pageStr',$pageStr);// 赋值分页输出
+        $this->assign('list',$list);// 赋值数据集
+        $this->assign('pageObj',$pageObj);// 赋值分页对象
 
         return $this->fetch();
     }
 
     /**
-     * 编辑自定义变量
+     * 保存自定义变量
      */
-    public function customvar_edit()
+    public function customvar_save()
     {
-        if (IS_POST) {
-            $configAttributeM = model('ConfigAttribute');
+        if (IS_AJAX_POST) {
+            $post = input('post.');
 
-            $post_data = input('post.');
-            $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '';
+            if (empty($post['attr_name'])) {
+                $this->error('至少新增一个自定义变量！');
+            }
 
-            if ($attr_input_type == 3) {
-                // 本地/远程图片上传的处理
-                $is_remote = !empty($post_data['is_remote']) ? $post_data['is_remote'] : 0;
-                $litpic = '';
-                if ($is_remote == 1) {
-                    $litpic = $post_data['value_remote'];
+            // 数据拼装
+            $addData = $editData = [];
+            foreach ($post['attr_name'] as $key => $val) {
+                $attr_name  = trim($val);
+                $attr_input_type = intval($post['attr_input_type'][$key]);
+                if (empty($post['attr_id'][$key])) {
+                    if ($this->admin_lang == $this->main_lang) {
+                        $addData[] = [
+                            'inc_type'  => 'web',
+                            'attr_name'  => $attr_name,
+                            'attr_input_type' => $attr_input_type,
+                            'lang'  => $this->admin_lang,
+                            'add_time' => getTime(),
+                        ];
+                    }
                 } else {
-                    $litpic = $post_data['value_local'];
-                }
-                $attr_values = $litpic;
-            } else {
-                $attr_values = input('attr_values');
-                // $attr_values = str_replace('_', '', $attr_values); // 替换特殊字符
-                // $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符
-                $attr_values = trim($attr_values);
-                $attr_values = isset($attr_values) ? $attr_values : '';
-            }
-
-            $savedata = array(
-                'inc_type'    => $post_data['inc_type'],
-                'attr_name' => $post_data['attr_name'],
-                'attr_input_type'   => $attr_input_type,
-                'attr_values'   => $attr_values,
-                'update_time'   => getTime(),
-            );
-
-            // 数据验证            
-            $validate = \think\Loader::validate('ConfigAttribute');
-            if(!$validate->batch()->check($savedata))
-            {
-                $error = $validate->getError();
-                $error_msg = array_values($error);
-                $this->error($error_msg[0]);
-            } else {
-                $langRow = Db::name('language')->order('id asc')
-                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                    ->select();
-
-                $configAttributeM->data($savedata,true); // 收集数据
-                $configAttributeM->isUpdate(true, [
-                        'attr_id'   => $post_data['attr_id'],
+                    $attr_id = intval($post['attr_id'][$key]);
+                    $editData[] = [
+                        'attr_id'  => $attr_id,
+                        'inc_type'  => 'web',
+                        'attr_name'  => $attr_name,
+                        'attr_input_type' => $attr_input_type,
                         'lang'  => $this->admin_lang,
-                    ])->save(); // 写入数据到数据库  
-                // 更新变量名
-                $attr_var_name = $post_data['name'];
-                adminLog('编辑自定义变量：'.$savedata['attr_name']);
-
-                // 保存到config表，更新缓存
-                $inc_type = $post_data['inc_type'];
-                $configData = array(
-                    $attr_var_name  => $attr_values,
-                );
-
-                tpCache($inc_type, $configData);
-
-                $this->success('操作成功');
-            }  
-        }
-
-        $field = array();
-        $id = input('param.id/d', 0);
-        $field = M('config')->field('a.id, a.value, a.name, b.attr_id, b.attr_name, b.attr_input_type')
-            ->alias('a')
-            ->join('__CONFIG_ATTRIBUTE__ b', 'a.name=b.attr_var_name AND a.lang=b.lang', 'LEFT')
-            ->where([
-                'a.id'    => $id,
-                'a.lang'  => $this->admin_lang,
-            ])->find();
-        if ($field['attr_input_type'] == 3) {
-            if (is_http_url($field['value'])) {
-                $field['is_remote'] = 1;
-                $field['value_remote'] = $field['value'];
-            } else {
-                $field['is_remote'] = 0;
-                $field['value_local'] = $field['value'];
+                        'update_time' => getTime(),
+                    ];
+                }
             }
+            if (!empty($addData)) {
+                $rdata = model('ConfigAttribute')->saveAll($addData);
+                if ($rdata) {
+                    foreach ($rdata as $k1 => $v1) {
+                        $attr_id = $v1->getData('attr_id');
+                        $addData[$k1]['attr_id'] = $attr_id;
+                        $addData[$k1]['attr_var_name'] = 'web_attr_'.$attr_id;
+                        $addData[$k1]['update_time'] = getTime();
+                        unset($addData[$k1]['add_time']);
+                    }
+                    $editData = array_merge($editData, $addData);
+                }
+
+                /*多语言*/
+                $langRow = [];
+                if (is_language()) {
+                    $langAddData = [];
+                    $langRow = Db::name('language')->order('id asc')
+                        ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                        ->select();
+                    foreach ($langRow as $key => $val) {
+                        if ($this->admin_lang == $val['mark']) {
+                            continue;
+                        }
+
+                        foreach ($rdata as $k1 => $v1) {
+                            $attr_data = $v1->getData();
+                            $attr_data['lang'] = $val['mark'];
+                            $attr_data['attr_var_name'] = 'web_attr_'.$attr_data['attr_id'];
+                            unset($attr_data['attr_id']);
+                            $langAddData[] = $attr_data;
+                        }
+                    }
+                    !empty($langAddData) && model('ConfigAttribute')->saveAll($langAddData);
+                }
+                /*end*/
+            }
+            if (!empty($editData)) {
+                $r = model('ConfigAttribute')->saveAll($editData);
+                if ($r) {
+                    // 新增到config表，更新缓存
+                    if (!empty($addData)) {
+                        $configData = [];
+                        foreach ($addData as $key => $val) {
+                            $configData[$val['attr_var_name']] = '';
+                        }
+                        // 多语言
+                        if (is_language()) {
+                            foreach ($langRow as $key => $val) {
+                                tpCache('web', $configData, $val['mark']);
+                            }
+                        } else { // 单语言
+                            tpCache('web', $configData);
+                        }
+                    }
+                    // end
+
+                    adminLog('保存自定义变量：'.implode(',', $post['attr_name']));
+                    $this->success('操作成功', url('System/web'));
+                } else {
+                    $this->error('操作失败');
+                }
+            } 
         }
-        $this->assign('field', $field);
-
-        $inc_type = input('param.inc_type/s', '');
-        $this->assign('inc_type', $inc_type);
-
-        return $this->fetch();
+        $this->error('非法访问！');
     }
 
     /**

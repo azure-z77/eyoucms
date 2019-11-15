@@ -154,6 +154,12 @@ class TagSpsubmitorder extends Base
                 $value['stock_count'] = $value['spec_stock'];
                 $result['list'][$key]['stock_count'] = $value['spec_stock'];
             }
+
+            if ($value['product_num'] > $value['stock_count']) {
+                $result['list'][$key]['product_num'] = $value['stock_count'];
+                $result['list'][$key]['stock_count'] = $value['stock_count'];
+            }
+
             // 若库存为空则清除这条数据
             if (empty($value['stock_count'])) {
                 unset($result['list'][$key]);
@@ -196,8 +202,8 @@ class TagSpsubmitorder extends Base
                 foreach ($attrData as $val) {
                     $attr_name  = Db::name('product_attribute')->where('attr_id',$val['attr_id'])->field('attr_name')->find();
                     $attr_value .= $attr_name['attr_name'].'：'.$val['attr_value'].'<br/>';
-                    $result['list'][$key]['attr_value'] = $attr_value;
                 }
+                $result['list'][$key]['attr_value'] = $attr_value;
             }
 
             // 规格处理

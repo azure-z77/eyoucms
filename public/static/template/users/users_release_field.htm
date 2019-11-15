@@ -249,13 +249,13 @@
                         // 删除数据库记录
                         $.ajax({
                             type:'GET',
-                            url:"{:url('Field/del_channelimgs')}",
+                            url:"{:url('Field/del_channelimgs', ['_ajax'=>1])}",
                             data:{filename:path,channel:"{$channeltype|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
                             success:function(){
                                 $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
                                 $.ajax({
                                     type:'GET',
-                                    url:"{:url('Uploadify/delupload')}",
+                                    url:"{:url('Uploadify/delupload', ['_ajax'=>1])}",
                                     data:{action:"del", filename:path},
                                     success:function(){}
                                 });

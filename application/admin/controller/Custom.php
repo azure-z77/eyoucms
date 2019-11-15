@@ -40,7 +40,6 @@ class Custom extends Base
         }
 
         $this->nid = $channeltypeRow['nid'];
-        $this->table = $channeltypeRow['table'];
 
         $this->assign('nid', $this->nid);
         $this->assign('channeltype', $this->channeltype);
@@ -276,7 +275,7 @@ class Custom extends Base
             $_POST['aid'] = $aid;
             if ($aid) {
                 // ---------后置操作
-                model($this->table)->afterSave($aid, $data, 'add');
+                model('Custom')->afterSave($aid, $data, 'add');
                 // ---------end
                 adminLog('新增数据：'.$data['title']);
 
@@ -441,7 +440,7 @@ class Custom extends Base
             
             if ($r) {
                 // ---------后置操作
-                model($this->table)->afterSave($data['aid'], $data, 'edit');
+                model('Custom')->afterSave($data['aid'], $data, 'edit');
                 // ---------end
                 adminLog('编辑文章：'.$data['title']);
 
@@ -461,7 +460,7 @@ class Custom extends Base
         $assign_data = array();
 
         $id = input('id/d');
-        $info = model($this->table)->getInfo($id, null, false);
+        $info = model('Custom')->getInfo($id, null, false);
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;

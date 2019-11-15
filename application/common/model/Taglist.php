@@ -13,6 +13,7 @@
 
 namespace app\common\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -33,7 +34,7 @@ class Taglist extends Model
      */
     public function getInfo($tid, $field = '*')
     {
-        $result = db('Taglist')->field($field)->where('tid', $tid)->find();
+        $result = Db::name('Taglist')->field($field)->where('tid', $tid)->find();
 
         return $result;
     }
@@ -45,7 +46,7 @@ class Taglist extends Model
     public function getListByAid($aid = '', $typeid = 0, $field = 'tag')
     {
         $str = '';
-        $result = db('Taglist')->field($field)
+        $result = Db::name('Taglist')->field($field)
             ->where(array('aid'=>$aid, 'typeid'=>$typeid))
             ->order('aid asc')
             ->select();
@@ -64,7 +65,7 @@ class Taglist extends Model
     public function getListByAids($aids = array(), $field = '*')
     {
         $data = array();
-        $result = db('Taglist')->field($field)
+        $result = Db::name('Taglist')->field($field)
             ->where(array('aid'=>array('IN', $aids)))
             ->order('aid asc')
             ->select();

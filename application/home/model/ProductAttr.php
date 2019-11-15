@@ -13,6 +13,7 @@
 
 namespace app\home\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -36,7 +37,7 @@ class ProductAttr extends Model
         $where = [];
         !empty($aids) && $where['b.aid'] = ['IN', $aids];
         $where['a.is_del'] = 0;
-        $result = db('ProductAttribute')->field($field)
+        $result = Db::name('ProductAttribute')->field($field)
             ->alias('a')
             ->join('__PRODUCT_ATTR__ b', 'b.attr_id = a.attr_id', 'LEFT')
             ->where($where)

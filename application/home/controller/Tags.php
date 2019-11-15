@@ -24,7 +24,29 @@ class Tags extends Base
      */
     public function index()
     {
-        return $this->lists();
+        /*获取当前页面URL*/
+        $result['pageurl'] = $this->request->url(true);
+        /*--end*/
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->eyou = array_merge($this->eyou, $eyou);
+        $this->assign('eyou', $this->eyou);
+        
+        /*模板文件*/
+        $viewfile = 'index_tags';
+        /*--end*/
+
+        /*多语言内置模板文件名*/
+        if (!empty($this->home_lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
+            if (file_exists($viewfilepath)) {
+                $viewfile .= "_{$this->home_lang}";
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 
     /**

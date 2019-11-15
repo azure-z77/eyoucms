@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow: auto;">
+<body class="bodystyle">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page atta">
@@ -527,7 +527,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('生成失败！', {icon: 5, title:false});
+                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                         } else {
                             var url = eyou_basefile+"?m=admin&c=Seo&a=site&lang="+__lang__;
                             var index = layer.open({type: 2,title: '开始生成',area: ['500px', '300px'],fix: false, maxmin: false,content: url});
@@ -535,7 +535,7 @@
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert('生成失败！', {icon: 5, title:false});
+                        layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                     }
                 });
             })
@@ -553,7 +553,7 @@
                     success: function(res){
                         if (0 == res.code) {
                             layer.closeAll();
-                            layer.alert('生成失败！', {icon: 5, title:false});
+                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                         } else {
                             var timestamp1 = Date.parse(new Date());
                             $.ajax({
@@ -583,14 +583,14 @@
                                 },
                                 error: function(e){
                                     layer.closeAll();
-                                    layer.alert('生成失败！', {icon: 5, title:false});
+                                    layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                                 }
                             });
                         }
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert('生成失败！', {icon: 5, title:false});
+                        layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                     }
                 });
             })
@@ -608,7 +608,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('生成失败！', {icon: 5, title:false});
+                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                         } else {
                             var typeid = $("#html_typeid").val();     //栏目id
                             var url = eyou_basefile+"?m=admin&c=Seo&a=channel&typeid="+typeid+"&lang="+__lang__;
@@ -635,7 +635,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('生成失败！', {icon: 5, title:false});
+                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                         } else {
                             var typeid = $("#html_arc_typeid").val();     //栏目id
                             var url = eyou_basefile+"?m=admin&c=Seo&a=article&typeid="+typeid+"&lang="+__lang__;
@@ -644,7 +644,7 @@
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert('生成失败！', {icon: 5, title:false});
+                        layer.alert('未知错误，生成失败！', {icon: 5, title:false});
                     }
                 });
             })

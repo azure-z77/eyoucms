@@ -12,8 +12,10 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
     }
     var NumV = $('#'+cart_id+'_num'); //数量
     var CartNum = NumV.val();
-    if ('change' != symbol) {
+    if ('+' == symbol) {
         CartNum = Number(NumV.val()) + 1;
+    } else if ('-' == symbol) {
+        CartNum = Number(NumV.val()) - 1;
     }
     if (Number(is_sold_out) < Number(CartNum)) {
         layer.msg('商品库存仅！'+is_sold_out+'件', {time: 1500});
@@ -62,7 +64,7 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
 
     $.ajax({
         url: url,
-        data: {aid:aid,symbol:symbol,num:Number(NumV.val()),spec_value_id:spec_value_id},
+        data: {aid:aid,symbol:symbol,num:Number(NumV.val()),spec_value_id:spec_value_id,_ajax:1},
         type:'post',
         dataType:'json',
         success:function(res){
@@ -176,7 +178,7 @@ function Checked(cart_id,selected){
     // 修改购物车选中数据
     $.ajax({
         url: url,
-        data: {cart_id:cart_id,selected:selected},
+        data: {cart_id:cart_id,selected:selected,_ajax:1},
         type:'post',
         dataType:'json',
         success:function(res){
@@ -196,7 +198,7 @@ function CartDel(cart_id,title){
     }, function () {
         $.ajax({
             url: url,
-            data: {cart_id:cart_id},
+            data: {cart_id:cart_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){
@@ -209,5 +211,34 @@ function CartDel(cart_id,title){
                 }
             }
         });
+    });
+}
+
+// 检查购物车商品是否库存都充足，不足时提示
+function SubmitOrder(GetUrl) {
+    var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
+    var PostUrl  = JsonData.cart_stock_detection;
+    $.ajax({
+        url: PostUrl,
+        data: {_ajax:1},
+        type:'post',
+        dataType:'json',
+        success:function(res){
+            if (1 == res.code) {
+                if (1 == res.data) {
+                    layer.confirm('部分商品库存数量不足，是否确认提交？', {
+                        btn: ['确认', '取消'],
+                        title:false,
+                        closeBtn: 0
+                    }, function () {
+                        window.location.href = GetUrl;
+                    });
+                } else {
+                    window.location.href = GetUrl;
+                }
+            } else {
+                layer.msg(res.msg, {time: 2000});
+            }
+        }
     });
 }

@@ -293,7 +293,7 @@ class TagList extends Base
                     'query' => $query_get,
                 );
                 $field = "b.*, a.*";
-                $pages = db('archives')
+                $pages = Db::name('archives')
                     ->field($field)
                     ->alias('a')
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
@@ -366,7 +366,7 @@ class TagList extends Base
                             if (!isset($downloadFileArr[$val['aid']]) || empty($downloadFileArr[$val['aid']])) {
                                 $downloadFileArr[$val['aid']] = array();
                             }
-                            $val['downurl'] = url("home/View/downfile", array('id'=>$val['file_id'], 'uhash'=>$val['uhash']));
+                            $val['downurl'] = ROOT_DIR."/index.php?m=home&c=View&a=downfile&id={$val['file_id']}&uhash={$val['uhash']}&lang={$this->home_lang}";
                             $downloadFileArr[$val['aid']][] = $val;
                         }
                         /*--end*/
@@ -500,7 +500,7 @@ class TagList extends Base
             'var_page' => config('paginate.var_page'),
             'query' => $query_get,
         );
-        $pages = db('archives')
+        $pages = Db::name('archives')
             ->field("a.aid")
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
@@ -517,7 +517,7 @@ class TagList extends Base
             $list = $pages->items();
             $aids = get_arr_column($list, 'aid');
             $fields = "b.*, a.*";
-            $row = db('archives')
+            $row = Db::name('archives')
                 ->field($fields)
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
@@ -621,52 +621,58 @@ class TagList extends Base
                 // 根据需求新增条件
             ];
             // 所有应用于搜索的自定义字段
-            $channelfield = db('channelfield')->where($where)->field('channel_id,id,name')->select();
+            $channelfield = Db::name('channelfield')->where($where)->field('channel_id,id,name')->select();
             // 查询当前栏目所属模型
-            $channel_id = db('arctype')->where('id',$param_new['tid'])->getField('current_channel');
+            $channel_id = Db::name('arctype')->where('id',$param_new['tid'])->getField('current_channel');
             // 所有模型类别
             $channeltype_list = config('global.channeltype_list');
             $channel_table = array_search($channel_id, $channeltype_list);
 
             // 查询获取aid初始sql语句
-            $mysql  = 'select aid from `'.PREFIX . $channel_table.'_content` where ';
-            // $null   = '';
+            $wheres = [];
+            $where_multiple = "";
             foreach ($channelfield as $key => $value) {
                 // 值不为空则执行
-                if (!empty($param_new[$value['name']])) {
-                    $name = $value['name'];
-                    if (!empty($name)) {
-                        // 分割参数，判断多选或单选，拼装sql语句
-                        $val  = explode('|', $param_new[$value['name']]);
-                        if (!empty($val)) {
-                            if ('' == $val[0]) {
-                                // 选择全部时拼装sql语句
-                                // $mysql .= $name." <> '".$null."' and ";
+                $fieldname = $value['name'];
+                if (!empty($fieldname) && !empty($param_new[$fieldname])) {
+                    // 分割参数，判断多选或单选，拼装sql语句
+                    $val_arr  = explode('|', $param_new[$fieldname]);
+                    if (!empty($val_arr)) {
+                        if ('' == $val_arr[0]) {
+                            // 选择全部时拼装sql语句
+                            // $wheres[$fieldname] = ['NEQ', null];
+                        }else{
+                            if (1 == count($val_arr)) {
+                                // 单选
+                                $wheres[$fieldname] = $val_arr[0];
                             }else{
-                                if ('1' == count($val)) {
-                                    // 单选
-                                    $mysql .= $name." = '".$val[0]."' and ";
-                                }else{
-                                    // 多选
-                                    $mysql .= " (FIND_IN_SET('".$val[0]."',".$name.")) and ";
+                                // 多选
+                                $where_or_arr = array();
+                                foreach ($val_arr as $k2 => $v2) {
+                                    // $v2 = func_preg_replace(['"','\'',';'], '', $v2);
+                                    $v2 = addslashes($v2);
+                                    array_push($where_or_arr, "'{$v2}' IN ({$fieldname})");
+                                }
+                                if (!empty($where_or_arr)) {
+                                    $where_multiple = implode(" OR ", $where_or_arr);
                                 }
                             }
                         }
                     }
                 }
             }
-
-            if (' and ' == strtolower(substr($mysql, -5))) {
-                $mysql = strtolower(substr($mysql, 0, -5));
-            }else if (' where ' == strtolower(substr($mysql, -7))) {
-                $mysql = strtolower(substr($mysql, 0, -7));
+            $aid_result = Db::name($channel_table.'_content')->field('aid')
+                ->where($wheres)
+                ->where($where_multiple)
+                ->select();
+            if (!empty($aid_result)) {
+                array_push($condition, "a.aid IN (".implode(',', get_arr_column($aid_result, "aid")).")");
+            } else {
+                $pages = Db::name('archives')->field("aid")->where("aid=0")->paginate($pagesize);
+                $result['pages'] = $pages; // 分页显示输出
+                $result['list'] = []; // 赋值数据集
+                return $result;
             }
-            $aid_arr = Db::query($mysql);
-            $aid_new = "(0)";
-            if (!empty($aid_arr)) {
-                $aid_new = '('.implode(',', get_arr_column($aid_arr, "aid")).')';
-            }
-            array_push($condition, "a.aid IN ".$aid_new);
             /*结束*/
         }
 
@@ -738,8 +744,8 @@ class TagList extends Base
         array_push($condition, "a.status = 1");
         array_push($condition, "a.is_del = 0");// 回收站功能
 
-        // 是否伪静态下
         $seo_pseudo = config('ey_config.seo_pseudo');
+        // 是否伪静态下
         if (!isset($param_new[$this->url_screen_var]) && 3 == $seo_pseudo) {
              $arctype_where = [
                 'dirname' => $param_new['tid'],
@@ -805,7 +811,7 @@ class TagList extends Base
             'query' => $query_get,
         );
 
-        $pages = db('archives')
+        $pages = Db::name('archives')
             ->field("a.aid")
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
@@ -822,7 +828,7 @@ class TagList extends Base
             $list = $pages->items();
             $aids = get_arr_column($list, 'aid');
             $fields = "b.*, a.*";
-            $row = db('archives')
+            $row = Db::name('archives')
                 ->field($fields)
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')

@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;min-width:auto;">
+<body class="bodystyle">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width:auto;">
@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="fbutton">
-                    <a href="javascript:void(0);" data-url="{:url('Level/add_level_data')}" onclick="AddLevelData(this);">
+                    <a href="javascript:void(0);" data-url="{:url('Level/add_level_data', ['_ajax'=>1])}" onclick="AddLevelData(this);">
                         <div class="add" title="保存">
                             <span class="">保存</span>
                         </div>
@@ -165,7 +165,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {type_id:$(obj).attr('data-id')},
+                data : {type_id:$(obj).attr('data-id'),_ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();

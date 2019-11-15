@@ -257,40 +257,7 @@ class Ueditor extends Base
                 $file_ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
                 $fileextArr = explode(',', $this->fileExt);
                 if (stristr($file_type, 'image') && 'ico' != $file_ext) {
-                    $imgresource = ".".$data['url'];
-                    $image = \think\Image::open($imgresource);
-                    $water = tpCache('water');
-                    $return_data['mark_type'] = $water['mark_type'];
-                    if($water['is_mark']==1 && $image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
-                        if($water['mark_type'] == 'text'){
-                            //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
-                            $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
-                            if (file_exists($ttf)) {
-                                $size = $water['mark_txt_size'] ? $water['mark_txt_size'] : 30;
-                                $color = $water['mark_txt_color'] ?: '#000000';
-                                if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
-                                    $color = '#000000';
-                                }
-                                $transparency = intval((100 - $water['mark_degree']) * (127/100));
-                                $color .= dechex($transparency);
-                                $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
-                                $return_data['mark_txt'] = $water['mark_txt'];
-                            }
-                        }else{
-                            /*支持子目录*/
-                            $water['mark_img'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $water['mark_img']); // 支持子目录
-                            /*--end*/
-                            //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
-                            $waterPath = "." . $water['mark_img'];
-                            if (eyPreventShell($waterPath) && file_exists($waterPath)) {
-                                $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;
-                                $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
-                                $image->open($waterPath)->save($waterTempPath, null, $quality);
-                                $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
-                                @unlink($waterTempPath);
-                            }
-                        }
-                    }
+                    print_water($data['url']);
                 }
             }
 
@@ -379,8 +346,13 @@ class Ueditor extends Base
             return json_encode($data);
         }
         //获取请求头并检测死链
-        $heads = get_headers($imgUrl);
-        if(!(stristr($heads[0],"200") && stristr($heads[0],"OK"))){
+        $heads = @get_headers($imgUrl, 1);
+        if (empty($heads)) {
+            $data=array(
+                'state' => '链接不可用',
+            );
+            return json_encode($data);
+        } else if(!(stristr($heads[0],"200") && stristr($heads[0],"OK"))){
             $data=array(
                 'state' => '链接不可用',
             );
@@ -389,12 +361,17 @@ class Ueditor extends Base
         //格式验证(扩展名验证和Content-Type验证)
         if(preg_match("/^http(s?):\/\/mmbiz.qpic.cn\/(.*)/", $imgUrl) != 1){
             $fileType = strtolower(strrchr($imgUrl,'.'));
-            if(!in_array($fileType,$config['allowFiles']) || (isset($heads['Content-Type']) && stristr($heads['Content-Type'],"image"))){
+            if(!in_array($fileType,$config['allowFiles']) || (isset($heads['Content-Type']) && !stristr($heads['Content-Type'],"image"))){
                 $data=array(
                     'state' => '链接contentType不正确',
                 );
                 return json_encode($data);
             }
+        } else {
+            $data=array(
+                'state' => '微信公众号图片请点击远程本地化处理！',
+            );
+            return json_encode($data);
         }
 
         //打开输出缓冲区并获取远程图片
@@ -413,7 +390,7 @@ class Ueditor extends Base
         $file['oriName'] = $m ? $m[1] : "";
         $file['filesize'] = strlen($img);
         $file['ext'] = strtolower(strrchr($config['oriName'],'.'));
-        $file['name'] = uniqid().$file['ext'];
+        $file['name'] = session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).$file['ext'];
         $file['fullName'] = $dirname.$file['name'];
         $fullName = $file['fullName'];
 
@@ -445,7 +422,7 @@ class Ueditor extends Base
             );
             return json_encode($data);
         }else{ //移动成功
-            $data=array(
+            $data = array(
                 'state' => 'SUCCESS',
                 'url' => ROOT_DIR.substr($file['fullName'],1), // 支持子目录
                 'title' => $file['name'],
@@ -453,6 +430,8 @@ class Ueditor extends Base
                 'type' => $file['ext'],
                 'size' => $file['filesize'],
             );
+
+            print_water($data['url']); // 添加水印
 
             $ossConfig = tpCache('oss');
             if ($ossConfig['oss_switch']) {
@@ -611,40 +590,7 @@ class Ueditor extends Base
         
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
             if(true && $this->savePath!='adminlogo/'){ // 添加水印
-                $imgresource = ".".$return_url;
-                $image = \think\Image::open($imgresource);
-                $water = tpCache('water');
-                $return_data['mark_type'] = $water['mark_type'];
-                if($water['is_mark']==1 && $image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
-                    if($water['mark_type'] == 'text'){
-                        //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
-                        $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
-                        if (file_exists($ttf)) {
-                            $size = $water['mark_txt_size'] ? $water['mark_txt_size'] : 30;
-                            $color = $water['mark_txt_color'] ?: '#000000';
-                            if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
-                                $color = '#000000';
-                            }
-                            $transparency = intval((100 - $water['mark_degree']) * (127/100));
-                            $color .= dechex($transparency);
-                            $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
-                            $return_data['mark_txt'] = $water['mark_txt'];
-                        }
-                    }else{
-                        /*支持子目录*/
-                        $water['mark_img'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $water['mark_img']); // 支持子目录
-                        /*--end*/
-                        //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
-                        $waterPath = "." . $water['mark_img'];
-                        if (eyPreventShell($waterPath) && file_exists($waterPath)) {
-                            $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;
-                            $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
-                            $image->open($waterPath)->save($waterTempPath, null, $quality);
-                            $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
-                            @unlink($waterTempPath);
-                        }
-                    }
-                }
+                print_water($return_url);
             }
         }
         $return_data['title'] = $title;

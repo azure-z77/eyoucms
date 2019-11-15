@@ -1,10 +1,13 @@
 {include file="public/layout"/}
-<body style="background-color: #FFF; overflow-y: scroll;">
+<body class="bodystyle" style=" overflow-y: scroll;min-width:auto;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="min-width:auto;">
+    {empty name="$iframes"}
     {include file="system/bar" /}
+    {/empty}
     <div class="flexigrid">
+        {empty name="$iframes"}
         <div class="mDiv">
             <div class="ftitle">
                 <h3>接口配置</h3>
@@ -17,10 +20,11 @@
             </div> -->
             <div class="sDiv">
                 <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                    <input type="button" class="btn" value="邮件配置" onclick="window.location.href='{:url("System/smtp")}';">
+                    <input type="button" class="btn selected" value="邮件配置" onclick="window.location.href='{:url("System/smtp")}';">
                 </div>
             </div>
         </div>
+        {/empty}
         <form method="post" id="handlepost" action="{:url('System/smtp')}">
             <div class="ncap-form-default">
                 <dl class="row">
@@ -68,7 +72,7 @@
                     </dt>
                     <dd class="opt">
                         <input id="smtp_pwd"  name="smtp_pwd" value="{$config.smtp_pwd|default=''}" class="input-txt" type="text"/>
-                        <p class="">使用发送邮件的邮箱授权码。具体请点击参看【<a href="http://note.youdao.com/noteshare?id=7680aba7a0faac4a4ae7f47c1c01e9fe" target="_blank">使用指南</a>】</p>
+                        <p class="">使用发送邮件的邮箱授权码。具体请点击参看【<a href="https://www.eyoucms.com/plus/view.php?aid=5552" target="_blank">使用指南</a>】</p>
                     </dd>
                 </dl>
                 <dl class="row">
@@ -79,7 +83,10 @@
                         <p class="notic">多个邮箱可以用逗号隔开</p>
                     </dd>
                 </dl>
-                <div class="bot"><a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="check_form();">确认提交</a></div>
+                <div class="bot">
+                    <input type="hidden" name="iframes" value="{$iframes}">
+                    <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="check_form();">确认提交</a>
+                </div>
             </div>
         </form>
     </div>

@@ -8,7 +8,14 @@ function ajax_submit_form(form_id,submit_url){
 
          if(before_request == 0)
             return false;
-              
+
+            if (submit_url.indexOf('?') > -1) {
+                submit_url += '&';
+            } else {
+                submit_url += '?';
+            }
+            submit_url += '_ajax=1';
+
 	       $("[id^='err_']").hide();  // 隐藏提示
             $.ajax({
                 type : "POST",

@@ -211,17 +211,22 @@ function changeTableVal(table,id_name,id_value,field,obj)
         var value = $(obj).val();            
     }      
 
+    var url = eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&_ajax=1";
     $.ajax({
         type:'POST',
-        url: eyou_basefile + "?m="+module_name+"&c=Index&a=changeTableVal&table="+table+"&id_name="+id_name+"&id_value="+id_value+"&field="+field+'&value='+value,
-        data: {_ajax:1},
-        success: function(data){
-            if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
-                layer.msg('更新成功', {icon: 1});  
-            } else {
-                if (0 == data.code) {
-                    layer.msg(data.msg, {icon: 2});  
+        url: url,
+        data: {table:table,id_name:id_name,id_value:id_value,field:field,value:value},
+        dataType: 'json',
+        success: function(res){
+            if (res.code == 1) {
+                if(!$(obj).hasClass('no') && !$(obj).hasClass('yes')){
+                    layer.msg(res.msg, {icon: 1});
                 }
+                window.location.reload();
+            } else {
+                layer.msg(res.msg, {icon: 2, time: 2000}, function(){
+                    window.location.reload();
+                }); 
             }
         }
     }); 

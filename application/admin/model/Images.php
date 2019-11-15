@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -46,8 +47,6 @@ class Images extends Model
         $post['aid'] = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
         model('Field')->dealChannelPostData($post['channel'], $post, $addonFieldExt);
-        // 自动推送链接给蜘蛛
-        push_zzbaidu($opt, $aid);
 
         // ---------多图
         model('ImagesUpload')->saveimg($aid, $post);
@@ -55,11 +54,6 @@ class Images extends Model
 
         // --处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
-
-        /*清除页面缓存*/
-        // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-        // $htmlCacheLogic->clear_archives([$aid]);
-        /*--end*/
     }
 
     /**
@@ -70,7 +64,7 @@ class Images extends Model
     {
         $result = array();
         $field = !empty($field) ? $field : '*';
-        $result = db('archives')->field($field)
+        $result = Db::name('archives')->field($field)
             ->where([
                 'aid'   => $aid,
                 'lang'  => get_admin_lang(),
@@ -78,7 +72,7 @@ class Images extends Model
             ->find();
         if ($isshowbody) {
             $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
-            $result['addonFieldExt'] = db($tableName.'_content')->where('aid',$aid)->find();
+            $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
         // 图集TAG标签
@@ -116,7 +110,7 @@ class Images extends Model
         }
         $map['a.channel'] = $this->channeltype;
 
-        $result = db('archives')
+        $result = Db::name('archives')
             ->field($field)
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
@@ -136,7 +130,7 @@ class Images extends Model
     {
         $map['channel'] = $this->channeltype;
         $map['status'] = 1;
-        $result = db('archives')
+        $result = Db::name('archives')
             ->field($field)
             ->where($map)
             // ->cache(true,EYOUCMS_CACHE_TIME)

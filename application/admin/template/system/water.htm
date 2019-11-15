@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body style="background-color: #FFF; overflow-y: scroll;min-width:auto;">
+<body class="bodystyle" style="overflow-y: scroll;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <style>
     .span_1 {
@@ -51,7 +51,7 @@
             </div>
             <div class="sDiv">
                 <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                    <input type="button" class="btn" value="水印配置" onclick="window.location.href='{:url("System/water", ['tabase'=>$Request.param.tabase])}';">
+                    <input type="button" class="btn selected" value="水印配置" onclick="window.location.href='{:url("System/water", ['tabase'=>$Request.param.tabase])}';">
                 </div>
             </div>
         </div>

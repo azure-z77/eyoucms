@@ -2,7 +2,7 @@
 <script src="__SKIN__/js/users_upgrade.js?v={$version}"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/colpick/js/colpick.js"></script>
 <link href="__PUBLIC__/plugins/colpick/css/colpick.css" rel="stylesheet" type="text/css"/>
-<body style="background-color: rgb(255, 255, 255); overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <style type="text/css">
 #picker {
     /*margin:0;*/
@@ -285,7 +285,7 @@
         // $.ajax({
         //     type : "GET",
         //     url  : "{:url('Member/ajax_check_upgrade_version')}",
-        //     data : {},
+        //     data : {_ajax:1},
         //     dataType : "JSON",
         //     success: function(res) {
         //         if (1 == res.code) {
@@ -314,7 +314,7 @@
             url: "{:url('Member/ajax_users_config_email')}",
             type: 'GET',
             dataType: 'JSON',
-            data: {},
+            data: {_ajax:1},
             success: function(res){
                 if (res.code == 0) {
                     $("input[name='users[users_verification]'][value=0]").attr("checked","checked" );

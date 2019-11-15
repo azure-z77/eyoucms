@@ -190,7 +190,7 @@ $(function(){
     {
         $.ajax({
             type: "POST",
-            url: "{:url('Product/ajax_save_productimg')}",
+            url: "{:url('Product/ajax_save_productimg', ['_ajax'=>1])}",
             data: {proimg:a, aid:aid},
             dataType: 'json',
             success: function (data) {

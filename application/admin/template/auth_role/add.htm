@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body class="rolecss">
+<body class="rolecss bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -71,9 +71,10 @@
                 </dt>
                 <dd class="opt">
                     <p><label><input type="checkbox" id="select_cud" checked="checked" />完全控制</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="add" checked="checked" />新增功能</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="edit" checked="checked" />编辑功能</label></p>
-                    <p><label><input type="checkbox" name="cud[]" value="del" checked="checked" />删除功能</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="add" checked="checked" />新增信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="edit" checked="checked" />编辑信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="del" checked="checked" />删除信息</label></p>
+                    <p><label><input type="checkbox" name="cud[]" value="changetableval" checked="checked" />审核信息</label></p>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -168,7 +169,7 @@
                 </dd>
             </dl>
 
-            <div class="bot">
+            <div class="bot2">
                 <a href="JavaScript:void(0);" onclick="postSubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div>
@@ -346,7 +347,7 @@
             $('#postForm').submit();
         {else /}
             $.ajax({
-                url: $('#postForm').attr('action'),
+                url: "{:url('AuthRole/add', ['_ajax'=>1])}",
                 type: 'POST',
                 dataType: 'JSON',
                 data: $('#postForm').serialize(),

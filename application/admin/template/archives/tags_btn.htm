@@ -86,4 +86,27 @@
             }
             $('#searchForm').submit();
         }
+
+        function quick_release()
+        {
+            //iframe窗
+            layer.open({
+                type: 2,
+                title: '快捷发布文档',
+                fixed: true, //不固定
+                shadeClose: false,
+                shade: 0.3,
+                maxmin: true, //开启最大化最小化按钮
+                area: ['600px', '520px'],
+                content: "//{$Request.host}{$Request.baseFile}?m=admin&c=Archives&a=release&iframe=2&lang={$Request.param.lang}",
+                success: function(layero, index){
+                    // var body = layer.getChildFrame('body', index);
+                    // var gourl = $('.curSelectedNode').attr('href');
+                    // if (!$.trim(gourl)) {
+                    //     gourl = "{:url('Archives/index_archives')}";
+                    // }
+                    // body.find('input[name=gourl]').val(gourl);
+                }
+            });
+        }
     </script>

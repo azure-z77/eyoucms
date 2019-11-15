@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: rgb(255, 255, 255); overflow: auto; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -252,12 +252,21 @@
                 }
                 break;
 
+            case 'datetime':
+                {
+                    contentdiv += '<dd>列表/内容页：</dd>';
+                    contentdiv += '<dd><input type="text" style=" width:470px;margin-bottom:10px;" value="{$'+'eyou.field.'+fieldname+'|MyDate=\'Y-m-d H:i:s\',###}"></dd>'
+                    contentdiv += '<dd>标签 type / arclist / list 内调用：</dd>'
+                    contentdiv += '<dd><input type="text" style=" width:470px;" value="{$'+'field.'+fieldname+'|MyDate=\'Y-m-d H:i:s\',###}"></dd>';
+                }
+                break;
+
             default:
                 {
                     contentdiv += '<dd>列表/内容页：</dd>';
                     contentdiv += '<dd><input type="text" style=" width:470px;margin-bottom:10px;" value="{$'+'eyou.field.'+fieldname+'}"></dd>'
                     contentdiv += '<dd>标签 type / arclist / list 内调用：</dd>'
-                    contentdiv += '<dd><input type="text" style=" width:470px;" value="{$'+'field.'+fieldname+'}"></dd>'
+                    contentdiv += '<dd><input type="text" style=" width:470px;" value="{$'+'field.'+fieldname+'}"></dd>';
                 }
                 break;
         }

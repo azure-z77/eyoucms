@@ -12,6 +12,7 @@
  */
 namespace app\user\model;
 
+use think\Db;
 use think\Model;
 use think\Config;
 
@@ -54,7 +55,7 @@ class UsersRelease extends Model
     {
         $result = array();
         $field = !empty($field) ? $field : '*';
-        $result = db('archives')->field($field)
+        $result = Db::name('archives')->field($field)
             ->where([
                 'aid'   => $aid,
                 'lang'  => get_home_lang(),
@@ -62,7 +63,7 @@ class UsersRelease extends Model
             ->find();
         if ($isshowbody) {
             $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
-            $result['addonFieldExt'] = db($tableName.'_content')->where('aid',$aid)->find();
+            $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
         // 文章TAG标签

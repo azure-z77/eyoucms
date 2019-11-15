@@ -2,6 +2,7 @@ function tag_user(result)
 {
     var obj = document.getElementById(result.id);
     var txtObj = document.getElementById(result.txtid);
+    var before_display = document.getElementById(result.id).style.display;
     var before_html = '';
     var before_txt_html = '';
     if (txtObj) {
@@ -23,7 +24,12 @@ function tag_user(result)
     //步骤一:创建异步对象
     var ajax = new XMLHttpRequest();
     //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
-    ajax.open("get", result.root_dir+"/index.php?m=api&c=Ajax&a=check_user&type="+result.type+"&img="+result.img+"&currentstyle="+result.currentstyle, true);
+    var url = result.root_dir+"/index.php?m=api&c=Ajax&a=check_user&type="+result.type+"&img="+result.img;
+    if (result.currentstyle != '') {
+        url += "&currentstyle="+result.currentstyle;
+    }
+    url += "&_ajax=1";
+    ajax.open("get", url, true);
     // 给头部添加ajax信息
     ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
     // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
@@ -48,9 +54,11 @@ function tag_user(result)
                             } else {
                                 obj.innerHTML = res.data.html;
                             }
-                            obj.style.display="inline";
                             try {
                                 obj.setAttribute("href", result.url);
+                                if (!before_display) {
+                                    obj.style.display=before_display;
+                                }
                             }
                             catch(err){}
                         } else if ('logout' == result.type) {
@@ -59,7 +67,12 @@ function tag_user(result)
                             } else {
                                 obj.innerHTML = before_html;
                             }
-                            obj.style.display="inline";
+                            try {
+                                if (!before_display) {
+                                    obj.style.display=before_display;
+                                }
+                            }
+                            catch(err){}
                         } else if ('reg' == result.type) {
                             obj.style.display="none";
                         }
@@ -75,14 +88,24 @@ function tag_user(result)
                         if ('logout' == result.type) {
                             obj.style.display="none";
                         } else {
-                            obj.style.display="inline";
+                            try {
+                                if (!before_display) {
+                                    obj.style.display=before_display;
+                                }
+                            }
+                            catch(err){}
                         }
                     }
                 }
             } else {
                 if (obj) {
                     obj.innerHTML = 'Error';
-                    obj.style.display="inline";
+                    try {
+                        if (!before_display) {
+                            obj.style.display=before_display;
+                        }
+                    }
+                    catch(err){}
                 }
             }
       　}
@@ -92,7 +115,9 @@ function tag_user(result)
 function tag_user_info(result)
 {
     var obj = document.getElementById(result.t_uniqid);
+    var before_display = '';
     if (obj) {
+        before_display = obj.style.display;
         obj.style.display="none";
     }
 
@@ -129,7 +154,12 @@ function tag_user_info(result)
                         }
                     }
                     if (obj) {
-                        obj.style.display="inline";
+                        try {
+                            if (!before_display) {
+                                obj.style.display=before_display;
+                            }
+                        }
+                        catch(err){}
                     }
                 } else {
                     if (obj) {

@@ -112,7 +112,6 @@ class TagScreening extends Base
             // 封装onchange事件
             $row[$key]['onChange'] = "onChange='{$OnchangeScreening}(this);'";
             // 在伪静态下拼装控制器方式参数名
-            $seo_pseudo  = config('ey_config.seo_pseudo');
             if (!isset($param[$url_screen_var]) && 3 == $seo_pseudo) {
                 $param_query = [];
                 $param_query['m'] = 'home';
@@ -132,8 +131,15 @@ class TagScreening extends Base
                 $param_query['c'] = 'Lists';
                 $param_query['a'] = 'index';
                 unset($param_query['_ajax']);
+                unset($param_query['id']);
+                unset($param_query['fid']);
+                unset($param_query['lang']);
             }
             /* end */
+
+            /*筛选时，去掉url上的页码page参数*/
+            unset($param_query['page']);
+            /*end*/
             
             // 筛选值处理
             if ('region' == $value['dtype']) {
@@ -158,6 +164,12 @@ class TagScreening extends Base
                 }else{
                     $is_data = $alltxt;
                 }
+
+                /*参数值含有单引号、双引号、分号，直接跳转404*/
+                if (preg_match('#(\'|\"|;)#', $is_data)) {
+                    abort(404,'页面不存在');
+                }
+                /*end*/
 
                 // 处理后台添加的区域数据
                 $RegionData = [];
@@ -243,6 +255,12 @@ class TagScreening extends Base
                 }else{
                     $is_data = $alltxt;
                 }
+
+                /*参数值含有单引号、双引号、分号，直接跳转404*/
+                if (preg_match('#(\'|\"|;)#', $is_data)) {
+                    abort(404,'页面不存在');
+                }
+                /*end*/
                 
                 // 合并数组
                 $dfvalue  = array_merge($all,$dfvalue);

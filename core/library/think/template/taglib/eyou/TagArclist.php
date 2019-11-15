@@ -230,7 +230,7 @@ class TagArclist extends Base
         /*用于arclist标签的分页*/
         if(0 < $pagesize) {
             $tag['typeid'] = $typeid;
-            $tag['channelid'] = $channeltype;
+            isset($tag['channelid']) && $tag['channelid'] = $channeltype;
             $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
         }
         /*--end*/

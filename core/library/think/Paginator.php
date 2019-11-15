@@ -123,8 +123,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         // URL模式
         static $seo_pseudo = null;
         null === $seo_pseudo && $seo_pseudo = config('ey_config.seo_pseudo');
+        // 筛选标识
         static $url_screen_var = null;
-        null === $url_screen_var && config('global.url_screen_var');
+        null === $url_screen_var && $url_screen_var = config('global.url_screen_var');
         if (3 == $seo_pseudo) { // 伪静态模式 by 小虎哥
             if (!isset($this->options['query'][$url_screen_var])) {
                 static $seo_rewrite_format = null;
@@ -140,6 +141,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         /*------------------------end*/
 
         if (!empty($parameters)) {
+            if (!stristr($url, 'index.php')) {
+                $url = rtrim($url, '/').'/';
+            }
             $url .= '?' . http_build_query($parameters, null, '&');
         }
         return $url . $this->buildFragment();

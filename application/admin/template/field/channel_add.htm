@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 
-<body style="background-color: #FFF; overflow: auto;">
+<body class="bodystyle">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
@@ -257,7 +257,7 @@
         var url = $('#GetRegionDataUrl').val();
         $.ajax({
             url: url,
-            data: {parent_id:parent_id},
+            data: {parent_id:parent_id,_ajax:1},
             type:'post',
             dataType:'json',
             success:function(res){

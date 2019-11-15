@@ -31,30 +31,42 @@ class TagArcclick extends Base
      * 在内容页模板追加显示浏览量
      * @author wengxianhu by 2018-4-20
      */
-    public function getArcclick($aid = '', $value = '')
+    public function getArcclick($aid = '', $value = '', $type = '')
     {
-        $aid = !empty($aid) ? $aid : $this->aid;
+        $aid = !empty($aid) ? intval($aid) : $this->aid;
 
         if (empty($aid)) {
             return '标签arcclick报错：缺少属性 aid 值。';
         }
 
-        if (empty($value)) {
+/*        if (empty($value)) {
             $value = M('archives')->where([
                     'aid'   => $aid,
                     'lang'  => $this->home_lang,
                 ])->getField('click');
         }
+        $value = intval($value);*/
 
-        $parseStr = <<<EOF
-<i id="eyou_arcclick" class="eyou_arcclick" style="font-style:normal">{$value}</i> 
+        /*内容页或者其他页*/
+        if (empty($type)) {
+            if (!empty($this->aid)) {
+                $type = 'view';
+            } else {
+                $type = 'lists';
+            }
+        }
+        /*end*/
+
+        static $arcclick_js = null;
+        if ('buildarticle' == strtolower(request()->action()) || null === $arcclick_js) {
+            $arcclick_js = <<<EOF
 <script type="text/javascript">
-    function tag_arcclick()
+    function tag_arcclick(aid)
     {
         //步骤一:创建异步对象
         var ajax = new XMLHttpRequest();
         //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
-        ajax.open("get", "{$this->root_dir}/index.php?m=api&c=Ajax&a=arcclick&aid={$aid}", true);
+        ajax.open("get", "{$this->root_dir}/index.php?m=api&c=Ajax&a=arcclick&aid="+aid+"&type={$type}&_ajax=1", true);
         // 给头部添加ajax信息
         ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
         //步骤三:发送请求
@@ -63,13 +75,22 @@ class TagArcclick extends Base
         ajax.onreadystatechange = function () {
             //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
             if (ajax.readyState==4 && ajax.status==200) {
-        　　　　document.getElementById("eyou_arcclick").innerHTML = ajax.responseText;
+        　　　　document.getElementById("eyou_arcclick_"+aid).innerHTML = ajax.responseText;
           　}
         } 
     }
-    tag_arcclick();
 </script>
 EOF;
+        } else {
+            $arcclick_js = '';
+        }
+
+        $parseStr = <<<EOF
+<i id="eyou_arcclick_{$aid}" class="eyou_arcclick" style="font-style:normal"></i> 
+<script type="text/javascript">tag_arcclick({$aid});</script>
+EOF;
+
+        $parseStr = $arcclick_js . $parseStr;
 
         return $parseStr;
     }

@@ -376,11 +376,11 @@ class UsersRelease extends Base
         $field = 'id, parent_id, typename, is_release';
 
         // 查询所有可投稿的栏目
-        $ArcTypeData = db('arctype')->field($field)->where($where)->select();
+        $ArcTypeData = Db::name('arctype')->field($field)->where($where)->select();
 
         // 读取上级ID并去重读取上级栏目
         $ParentIds = array_unique(get_arr_column($ArcTypeData, 'parent_id'));
-        $PidData = db('arctype')->field($field)->where('id', 'IN', $ParentIds)->select();
+        $PidData = Db::name('arctype')->field($field)->where('id', 'IN', $ParentIds)->select();
 
         // 处理顶级栏目
         $PidDataNew = [];
