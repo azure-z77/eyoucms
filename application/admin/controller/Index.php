@@ -438,8 +438,8 @@ class Index extends Base
         $sys_info['web_server']     = $_SERVER['SERVER_SOFTWARE'];
         $sys_info['phpv']           = phpversion();
         $sys_info['ip']             = serverIP();
-        $sys_info['postsize']       = @ini_get('file_uploads') ? ini_get('post_max_size') :'unknown';
-        $sys_info['fileupload']     = @ini_get('file_uploads') ? ini_get('upload_max_filesize') :'unknown';
+        $sys_info['postsize']       = @ini_get('file_uploads') ? ini_get('post_max_size') :'未知';
+        $sys_info['fileupload']     = @ini_get('file_uploads') ? ini_get('upload_max_filesize') :'未开启';
         $sys_info['max_ex_time']    = @ini_get("max_execution_time").'s'; //脚本最大执行时间
         $sys_info['set_time_limit'] = function_exists("set_time_limit") ? true : false;
         $sys_info['domain']         = $_SERVER['HTTP_HOST'];
@@ -708,15 +708,6 @@ class Index extends Base
                                 'channel_id'  => 2,
                             ])->update([
                                 'ifeditable'    => 1,
-                                'update_time'   => getTime(),
-                            ]);
-                    } else {
-                        // 同时隐藏发布文档时的价格文本框
-                        Db::name('channelfield')->where([
-                                'name'   => 'users_price',
-                                'channel_id'  => 2,
-                            ])->update([
-                                'ifeditable'    => 0,
                                 'update_time'   => getTime(),
                             ]);
                     }

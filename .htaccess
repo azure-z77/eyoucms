@@ -18,6 +18,9 @@
     #RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
     #RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
 
+    #禁止指定脚本的运行
     RewriteCond % !^$
-    RewriteRule ^/?(.*)/.*\.sql - [F]
+    RewriteRule data/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe|js|sql)$ – [F]
+    RewriteRule template/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe)$ – [F]
+    RewriteRule uploads/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe|js)$ – [F] 
 </IfModule>

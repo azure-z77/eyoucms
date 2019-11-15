@@ -393,7 +393,7 @@ switch ($step) {
         {               
             $result = mysqli_query($conn,"show tables");      
             $tables=$result->fetch_all(MYSQLI_NUM);//参数MYSQL_ASSOC、MYSQLI_NUM、MYSQLI_BOTH规定产生数组类型
-            $bl_table = array('ey_admin','ey_arcrank','ey_auth_access','ey_auth_modular','ey_auth_role','ey_auth_role_admin','ey_auth_rule','ey_channeltype','ey_config','ey_smtp_tpl','ey_users_level','ey_users_parameter');
+            $bl_table = array('ey_admin','ey_arcrank','ey_auth_role','ey_channelfield','ey_channeltype','ey_config','ey_download_attr_field','ey_field_type','ey_language','ey_language_mark','ey_language_pack','ey_product_spec_preset','ey_region','ey_shop_express','ey_shop_shipping_template','ey_smtp_tpl','ey_users_config','ey_users_level','ey_users_menu','ey_users_parameter');
             foreach($bl_table as $k => $v)
             {
                 $bl_table[$k] = preg_replace('/^ey_/i', $dbPrefix, $v); 
