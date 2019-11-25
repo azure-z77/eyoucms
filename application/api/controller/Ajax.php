@@ -456,9 +456,6 @@ class Ajax extends Base
      */
     public function get_tag_memberlist()
     {
-        // https://gitee.com/weng_xianhu/eyoucms/issues/I15J1A
-        $this->success('此代码有安全漏洞！');
-
         if (IS_AJAX_POST) {
             $htmlcode = input('post.htmlcode/s');
             $htmlcode = htmlspecialchars_decode($htmlcode);
@@ -468,9 +465,13 @@ class Ajax extends Base
             $attarray = json_decode(base64_decode($attarray));
 
             /*拼接完整的memberlist标签语法*/
+            $eyou = new \think\template\taglib\Eyou('');
+            $tagsList = $eyou->getTags();
+            $tagsAttr = $tagsList['memberlist'];
+            
             $innertext = "{eyou:memberlist";
             foreach ($attarray as $key => $val) {
-                if (in_array($key, ['js'])) {
+                if (!in_array($key, $tagsAttr) || in_array($key, ['js'])) {
                     continue;
                 }
                 $innertext .= " {$key}='{$val}'";
