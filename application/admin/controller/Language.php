@@ -285,7 +285,7 @@ class Language extends Base
             }
             /*--end*/
 
-            $result = $this->langModel->where("id",'IN',$id_arr)->select();
+            $result = Db::name('language')->where("id",'IN',$id_arr)->select();
             $title_list = get_arr_column($result, 'title');
             $lang_list = get_arr_column($result, 'mark');
 

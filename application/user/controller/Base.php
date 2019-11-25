@@ -29,42 +29,7 @@ class Base extends Common {
         if(session('?users_id'))
         {
             $users_id = session('users_id');
-            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
-                ->alias('a')
-                ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
-                ->where([
-                    'a.users_id'        => $users_id,
-                    'a.lang'            => $this->home_lang,
-                    'a.is_activation'   => 1,
-                ])->find();
-
-            /*会员级别*/
-            if ($users['level_maturity_days'] >= '36600') {
-                $users['maturity_code'] = 1;
-                $users['maturity_date'] = '终身';
-            }else if (0 == $users['open_level_time'] && 0 == $users['level_maturity_days']) {
-                $users['maturity_code'] = 0;
-                $users['maturity_date'] = '未升级会员';
-            }else{
-                /*计算剩余天数*/
-                $days = $users['open_level_time'] + ($users['level_maturity_days'] * 86400);
-                // 取整
-                $days = ceil(($days - getTime()) / 86400);
-                if (0 >= $days) {
-                    /*更新会员的级别*/
-                    $users = model('Users')->UpUsersSessionData($users_id);
-                    /* END */
-                    $users['maturity_code'] = 2;
-                    $users['maturity_date'] = '未升级会员';
-                }else{
-                    $users['maturity_code'] = 3;
-                    $users['maturity_date'] = $days.' 天';
-                }
-                /* end */
-            }
-            /* end */
-
-            session('users',$users);  //覆盖session 中的 users
+            $users = GetUsersLatestData($users_id);
             $this->users = $users;
             $this->users_id = $users['users_id'];
             

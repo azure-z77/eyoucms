@@ -225,7 +225,7 @@ class Index extends Base
         foreach ($quickentryList as $key => $val) {
             $code = $val['controller'].'@'.$val['action'].'@'.$val['vars'];
             $quickentryList[$key]['vars'] = !empty($val['vars']) ? $val['vars']."&lang=".$this->admin_lang : "lang=".$this->admin_lang;
-            if ($code == 'Guestbook@index@') // 留言列表
+            if ($code == 'Guestbook@index@channel=8') // 留言列表
             {
                 $map = [
                     'lang'    => $this->admin_lang,

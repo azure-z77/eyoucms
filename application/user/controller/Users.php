@@ -289,9 +289,6 @@ class Users extends Base
                     $this->users_db->where('users_id',$users_id)->update($data);
                     // 回跳路径
                     $url =  input('post.referurl/s', null, 'htmlspecialchars_decode,urldecode');
-
-                    // 更新用户Session信息
-                    model('Users')->UpUsersSessionData($users_id);
                     $this->success('登录成功', $url);
                 }else{
                     $this->error('密码不正确！', null, ['status'=>1]);

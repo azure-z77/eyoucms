@@ -731,13 +731,13 @@ if (!function_exists('handle_subdir_pic'))
             case 'img':
                 if (!is_http_url($str) && !empty($str)) {
                     // if (!empty($root_dir)) { // 子目录之间切换
-                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
+                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/)#i', $root_dir.'$2', $str);
                     // } else { // 子目录与根目录切换
                         // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
                     // }
                 }else if (is_http_url($str) && !empty($str)) {
                     // 图片路径处理
-                    $str     = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
+                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/)#i', $root_dir.'$2', $str);
                     $StrData = parse_url($str);
                     $strlen  = strlen($root_dir);
                     if (empty($StrData['scheme'])) {
@@ -1514,8 +1514,8 @@ if (!function_exists('switch_language'))
         }
         \think\Lang::setLangCookieVar($langCookieVar);
 
-        /*单语言执行代码*/
-        $langRow = \think\Db::name('language')->field('mark')
+        /*单语言执行代码 - 排序不要乱改，影响很大*/
+        $langRow = \think\Db::name('language')->field('mark,is_home_default')
             ->order('id asc')
             ->select();
         if (1 >= count($langRow)) {
@@ -1541,7 +1541,22 @@ if (!function_exists('switch_language'))
             }
         }
         /*--end*/
-        empty($current_lang) && $current_lang = !empty($langRow[0]['mark']) ? $langRow[0]['mark'] : 'cn';
+
+        /*前后台默认语言*/
+        if (empty($current_lang)) {
+            if ($is_admin) {
+                $current_lang = !empty($langRow[0]['mark']) ? $langRow[0]['mark'] : 'cn';
+            } else {
+                foreach ($langRow as $key => $val) {
+                    if (1 == $val['is_home_default']) {
+                        $current_lang = $val['mark'];
+                        break;
+                    }
+                }
+                empty($current_lang) && $current_lang = !empty($langRow[0]['mark']) ? $langRow[0]['mark'] : 'cn';
+            }
+        }
+        /*end*/
 
         $lang = $request->param('lang/s', $current_lang);
         $lang = trim($lang, '/');
@@ -1551,11 +1566,16 @@ if (!function_exists('switch_language'))
         }
         if (empty($lang)) {
             if ($is_admin) {
-                $lang = \think\Db::name('language')->order('id asc')
-                    ->getField('mark');
+                $lang = !empty($langRow[0]['mark']) ? $langRow[0]['mark'] : 'cn';
+                // $lang = \think\Db::name('language')->order('id asc')->getField('mark');
             } else {
                 abort(404,'页面不存在');
-                $lang = $language_db->where('is_home_default',1)->getField('mark');
+                foreach ($langRow as $key => $val) {
+                    if (1 == $val['is_home_default']) {
+                        $lang = $val['mark'];
+                        break;
+                    }
+                }
             }
         }
         \think\Config::set('cache.path', CACHE_PATH.$lang.DS);
@@ -2658,7 +2678,7 @@ if (!function_exists('GetUsersLatestData'))
                 $users['maturity_date'] = '终身';
             }else if (0 == $users['open_level_time'] && 0 == $users['level_maturity_days']) {
                 $users['maturity_code'] = 0;
-                $users['maturity_date'] = '';// 没有升级会员，置空
+                $users['maturity_date'] = '未升级会员';// 没有升级会员，置空
             }else{
                 /*计算剩余天数*/
                 $days = $users['open_level_time'] + ($users['level_maturity_days'] * 86400);
@@ -2669,7 +2689,7 @@ if (!function_exists('GetUsersLatestData'))
                     $LevelData = model('EyouUsers')->UpUsersLevelData($users_id);
                     /* END */
                     $users['maturity_code'] = 2;
-                    $users['maturity_date'] = '';// 会员过期，置空
+                    $users['maturity_date'] = '未升级会员';// 会员过期，置空
                 }else{
                     $users['maturity_code'] = 3;
                     $users['maturity_date'] = $days.' 天';
