@@ -473,7 +473,7 @@ class Eyou extends Taglib
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
         $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
-        $row = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 10;
+        $row = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 100;
         if (!empty($tag['limit'])) {
             $limitArr = explode(',', $tag['limit']);
             $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
@@ -3152,7 +3152,7 @@ class Eyou extends Taglib
         $empty  = htmlspecialchars($empty);
         $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
         $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
-        $row = !empty($tag['row']) ? intval($tag['row']) : 0;
+        $row = !empty($tag['row']) ? intval($tag['row']) : 20;
         $limit   = !empty($tag['limit']) ? $tag['limit'] : '';
         if (empty($limit) && !empty($row)) {
             $limit = "0,{$row}";

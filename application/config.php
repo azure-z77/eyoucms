@@ -336,10 +336,20 @@ return array(
     // | 404页面跳转
     // +----------------------------------------------------------------------
     'http_exception_template' => array(
-        // 定义404错误的重定向页面地址
-        404 => ROOT_PATH.'public/static/errpage/404.html',
+        // 还可以定义其它的HTTP status
+        400 => ROOT_PATH.'public/static/errpage/400.html',
         // 还可以定义其它的HTTP status
         401 => ROOT_PATH.'public/static/errpage/401.html',
+        // 还可以定义其它的HTTP
+        403 => ROOT_PATH.'public/static/errpage/403.html',
+        // 还可以定义其它的HTTP
+        404 => ROOT_PATH.'public/static/errpage/404.html',
+        // 还可以定义其它的HTTP
+        405 => ROOT_PATH.'public/static/errpage/405.html',
+        // 还可以定义其它的HTTP
+        500 => ROOT_PATH.'public/static/errpage/500.html',
+        // 还可以定义其它的HTTP status
+        503 => ROOT_PATH.'public/static/errpage/503.html',
     ),
 
     /**假设这个访问地址是 www.xxxxx.dev/home/goods/goodsInfo/id/1.html 

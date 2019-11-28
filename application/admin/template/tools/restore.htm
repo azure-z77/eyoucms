@@ -130,11 +130,11 @@
                 </div>
                 {/eq}
                 {eq name="$Think.const.CONTROLLER_NAME.'@restoreUpload'|is_check_access" value="1"}
-                <div class="fbutton">
+                <!-- <div class="fbutton">
                     <form class="navbar-form form-inline" action="{:U('Tools/restoreUpload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
                         <a href="javascript:void(0);" class="a-upload"><input type="file" name="sqlfile" id="sqlfile" title="请选择…"><i class="fa fa-upload"></i>上传执行sql文件</a>
                     </form>
-                </div>
+                </div> -->
                 {/eq}
             </div>
             <div style="clear:both"></div>
@@ -156,7 +156,7 @@
             location.href = location.href;
         });
 
-        $('#sqlfile').change(function(){
+/*        $('#sqlfile').change(function(){
             restoreUpload();
         });
     
@@ -181,7 +181,7 @@
                 layer.closeAll();
                 return false;
             });
-        }
+        }*/
 
     });
 
@@ -190,44 +190,7 @@
         $('#form_tmp').attr('action', url);
         layer_loading('正在处理');
         $('#form_tmp').submit();
-    }); 
-
-/*    $(".db-import").click(function(){
-        var self = this, status = ".";
-        $.get(self.href, success, "json");
-        window.onbeforeunload = function(){ return "正在还原数据库，请不要关闭！" }
-        return false;
-        function success(data){
-            if(data.code){
-                if(data.gz){
-                    data.info += status;
-                    if(status.length === 5){
-                        status = ".";
-                    } else {
-                        status += ".";
-                    }
-                }
-                var loading = layer.msg(data.msg+data.rate+'，请不要关闭本页面！', 
-                {
-                    icon: 1,
-                    time: 3600000, //1小时后后自动关闭
-                    shade: [0.2] //0.1透明度的白色背景
-                });
-                $(self).parent().parent().prev().find('div').text(data.msg+data.rate);
-                if(data.data){
-                    $.get(self.href, {"part" : data.data.part, "start" : data.data.start}, success, "json");
-                }  else {
-                    setTimeout(function(){
-                        layer.closeAll();
-                        layer.alert('还原成功！', {icon: 6, title:false});
-                    }, 1000);
-                    window.onbeforeunload = function(){ return null; }
-                }
-            } else {
-                layer.alert(data.msg,{icon:2, title:false});
-            }
-        }
-    });*/
+    });
 </script>
 
 {include file="public/footer" /}

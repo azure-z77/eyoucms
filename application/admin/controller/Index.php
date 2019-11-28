@@ -160,7 +160,6 @@ class Index extends Base
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
 
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
-        $ajaxLogic->update_robots(); // 自动纠正蜘蛛抓取文件rotots.txt
         $ajaxLogic->update_template('users'); // 升级前台会员中心的模板文件
         $ajaxLogic->sys_level_data(); // 第一次同步会员等级数据和会员产品分类
 

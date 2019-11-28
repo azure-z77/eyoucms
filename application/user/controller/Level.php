@@ -88,6 +88,20 @@ class Level extends Base
         $OrderNumber = $this->GetMoneyData('order_number');
         $this->assign('OrderNumber',$OrderNumber);
 
+        // 是否开启微信支付方式
+        $is_open_wechat = 1;
+        if (!empty($this->pay_wechat_config)) {
+            $is_open_wechat = !empty($this->pay_wechat_config['is_open_wechat']) ? $this->pay_wechat_config['is_open_wechat'] : 0;
+        }
+        $this->assign('is_open_wechat', $is_open_wechat);
+
+        // 是否开启支付宝支付方式
+        $is_open_alipay = 1;
+        if (!empty($this->pay_alipay_config)) {
+            $is_open_alipay = !empty($this->pay_alipay_config['is_open_alipay']) ? $this->pay_alipay_config['is_open_alipay'] : 0;
+        }
+        $this->assign('is_open_alipay', $is_open_alipay);
+
         $result = [];
         // 菜单名称
         $result['title'] = Db::name('users_menu')->where([

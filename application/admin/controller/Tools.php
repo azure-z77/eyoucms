@@ -289,40 +289,39 @@ class Tools extends Base {
     /**
      * 上传sql文件
      */
-    public function restoreUpload()
-    {
-        $file = request()->file('sqlfile');
-        if(empty($file)){
-            $this->error('请上传sql文件');
-        }
-        // 移动到框架应用根目录/data/sqldata/ 目录下
-        $path = tpCache('global.web_sqldatapath');
-        $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
-        $path = trim($path, '/');
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        $info = $file->validate(['size'=>$image_upload_limit_size,'ext'=>'sql,gz'])->move($path, $_FILES['sqlfile']['name']);
-        if ($info) {
-            //上传成功 获取上传文件信息
-            $file_path_full = $info->getPathName();
-            if (file_exists($file_path_full)) {
-                $sqls = Backup::parseSql($file_path_full);
-                if(Backup::install($sqls)){
-//                    array_map("unlink", glob($path));
-                    /*清除缓存*/
-                    delFile(RUNTIME_PATH);
-                    /*--end*/
-                    $this->success("执行sql成功", url('Tools/restore'));
-                }else{
-                    $this->error('执行sql失败');
-                }
-            } else {
-                $this->error('sql文件上传失败');
-            }
-        } else {
-            //上传错误提示错误信息
-            $this->error($file->getError());
-        }
-    }
+    // public function restoreUpload()
+    // {
+    //     $file = request()->file('sqlfile');
+    //     if(empty($file)){
+    //         $this->error('请上传sql文件');
+    //     }
+    //     // 移动到框架应用根目录/data/sqldata/ 目录下
+    //     $path = tpCache('global.web_sqldatapath');
+    //     $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
+    //     $path = trim($path, '/');
+    //     $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+    //     $info = $file->validate(['size'=>$image_upload_limit_size,'ext'=>'sql,gz'])->move($path, $_FILES['sqlfile']['name']);
+    //     if ($info) {
+    //         //上传成功 获取上传文件信息
+    //         $file_path_full = $info->getPathName();
+    //         if (file_exists($file_path_full)) {
+    //             $sqls = Backup::parseSql($file_path_full);
+    //             if(Backup::install($sqls)){
+    //                 /*清除缓存*/
+    //                 delFile(RUNTIME_PATH);
+    //                 /*--end*/
+    //                 $this->success("执行sql成功", url('Tools/restore'));
+    //             }else{
+    //                 $this->error('执行sql失败');
+    //             }
+    //         } else {
+    //             $this->error('sql文件上传失败');
+    //         }
+    //     } else {
+    //         //上传错误提示错误信息
+    //         $this->error($file->getError());
+    //     }
+    // }
 
     /**
      * 执行还原数据库操作

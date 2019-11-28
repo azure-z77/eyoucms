@@ -32,7 +32,7 @@ if (!empty($files)) {
 }
 /*--end*/
 
-/*引入全部插件的app_begin行为*/
+/*引入全部插件的module_init行为*/
 $module_init = [];
 $files = glob(WEAPP_DIR_NAME.DS.'*'.DS.'behavior'.DS.'ModuleInitBehavior.php');
 if (!empty($files)) {

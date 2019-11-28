@@ -230,10 +230,17 @@
                     </dd>
                 </dl>
             {/if}
-
+        {/if}
+        
+        {if condition="!empty($ifcontrolRow['users_price'])"}
             <dl class="row">
                 <dt class="tit">
-                    <label for="users_price"><em>*</em>价格</label>
+                    <label for="users_price">
+                        {if condition="1 == $shopConfig['shop_open']"}
+                        <em>*</em>
+                        {/if}
+                        价格
+                    </label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="users_price" id="users_price" maxlength="100" placeholder="原价" style="width: 10%;" value="{$field.users_price}">
@@ -241,7 +248,9 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-
+        {/if}
+        
+        {if condition="1 == $shopConfig['shop_open'] && !empty($ifcontrolRow['users_price'])"}
             {if condition="empty($shopConfig['shop_open_spec'])"}
                 <input type="hidden" name="stock_count" value="{empty name='$field.stock_count'}99999{else /}{$field.stock_count}{/empty}">
             {else /}

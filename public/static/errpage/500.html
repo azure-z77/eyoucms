@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-    <title>ERROR 401 - Unauthorized!</title>
+    <title>ERROR 500 - Internal Server Error!</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="robots" content="noindex" />
     <style type="text/css"><!--
@@ -45,13 +45,13 @@
 </head>
 <body>
     <div id="page">
-        <div id="header" class="status4xx">
-            <h1>ERROR 401 - Unauthorized!</h1>
+        <div id="header" class="status5xx">
+            <h1>ERROR 500 - Internal Server Error!</h1>
         </div>
         <div id="content">
             <h2>发生以下错误：</h2>
-            <p>请求的URL需要授权。</p>
-            <P>如有任何疑问，请与网站管理员联系。</p>
+            <p>请求的URL导致内部服务器错误。</p>
+            <P>如果您反复收到此消息，请与网站管理员联系。</p>
         </div>
         <div id="footer">
             <p>Powered by <a href="{$Request.domain}__ROOT_DIR__/" rel="nofollow">{$Request.host}</a></p>

@@ -18,7 +18,7 @@ $route_list = glob(WEAPP_DIR_NAME.DS.'*'.DS.'route.php');
 if (!empty($route_list)) {
     foreach ($route_list as $key => $file) {
         $route_value = include_once $file;
-        if (!empty($route_value)) {
+        if (!empty($route_value) && is_array($route_value)) {
             $plugins_route = array_merge($route_value, $plugins_route);
         }
     }

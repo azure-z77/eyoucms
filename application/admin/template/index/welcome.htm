@@ -219,6 +219,18 @@
                 success: function(res) {
                     if (1 == res.code) {
                         if (2 == res.data.code) {
+
+                            /*显示顶部导航更新提示*/
+                            try{
+                                $("#upgrade_filelist", window.parent.document).html(res.data.msg.upgrade);    
+                                $("#upgrade_intro", window.parent.document).html(res.data.msg.intro);
+                                $("#upgrade_notice", window.parent.document).html(res.data.msg.notice);
+                                $('#a_upgrade', window.parent.document).attr('data-version',res.data.msg.key_num)
+                                    .attr('data-max_version',res.data.msg.max_version)
+                                    .show();
+                            }catch(e){}
+                            /*--end*/
+                            
                             $('#upgrade_filelist').html(res.data.msg.upgrade);
                             $('#upgrade_intro').html(res.data.msg.intro);
                             $('#upgrade_notice').html(res.data.msg.notice);

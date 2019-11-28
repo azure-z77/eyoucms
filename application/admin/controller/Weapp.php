@@ -790,6 +790,7 @@ class Weapp extends Base
                         ];
                         $weapp_id = Db::name('weapp')->insertGetId($addData);
                         if (!empty($weapp_id)) {
+                            \think\Cache::clear('weapp');
                             $this->install($weapp_id);
                         }
                     }
