@@ -158,13 +158,47 @@ function ShopPaymentPage(){
         data: $('#theForm').serialize(),
         type:'post',
         dataType:'json',
-        success:function(res){
+        success:function(res) {
             if (1 == res.code) {
-                window.location.href = res.url;
+                var IsSendEmail = 1;
+                var IsSendMobile = 1;
+                if (res.data.email) IsSendEmail = SendEmail(res.data.email);
+                if (res.data.mobile) IsSendMobile = SendMobile(res.data.mobile);
+                if (IsSendEmail || IsSendMobile) window.location.href = res.url;
             } else {
                 layer.closeAll();
-                layer.msg(res.msg, {icon: 2,time: 2000});
+                layer.msg(res.msg, {icon: 2,time: 1000}, function(){
+                    if (1 == res.data.add_addr) ShopAddAddress();
+                });
             }
         }
     });
+}
+
+// 邮箱发送
+function SendEmail(result) {
+    var ResultID = 1;
+    if (result) {
+        $.ajax({
+            url: result.url,
+            data: result.data,
+            type:'post',
+            dataType:'json'
+        });
+    }
+    return ResultID;
+}
+ 
+// 手机发送
+function SendMobile(result) {
+    var ResultID = 1;
+    if (result) {
+        $.ajax({
+            url: result.url,
+            data: result.data,
+            type:'post',
+            dataType:'json'
+        });
+    }
+    return ResultID;
 }

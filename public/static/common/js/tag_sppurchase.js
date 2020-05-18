@@ -8,6 +8,16 @@ function shop_add_cart() {
     var url = JsonData.shop_add_cart_url;
     var ajaxdata = 'aid='+aid+'&num='+num+'&spec_value_id='+SelectValueIds.value;
 
+    // 库存数量
+    var StockCountObj = document.getElementById('ey_stock_1565602291').value;
+    if (parseInt(StockCountObj) == 0) {
+        alert('商品已售罄！');
+        return false;
+    } else if (parseInt(StockCountObj) < parseInt(num)) {
+        alert('商品库存不足！');
+        return false;
+    }
+
     //创建异步对象
     var ajaxObj = new XMLHttpRequest();
     ajaxObj.open("post", url, true);
@@ -46,6 +56,16 @@ function BuyNow(aid){
     var aid = JsonData.aid;
     var num = QuantityObj.value;
     var ajaxdata = 'aid='+aid+'&num='+num+'&spec_value_id='+SelectValueIds.value;
+
+    // 库存数量
+    var StockCountObj = document.getElementById('ey_stock_1565602291').value;
+    if (parseInt(StockCountObj) == 0) {
+        alert('商品已售罄！');
+        return false;
+    } else if (parseInt(StockCountObj) < parseInt(num)) {
+        alert('商品库存不足！');
+        return false;
+    }
 
     //创建异步对象
     var ajaxObj = new XMLHttpRequest();

@@ -13,7 +13,7 @@ function tag_memberlist(result)
         // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
         ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         //步骤三:发送请求+数据
-        ajax.send("htmlcode="+htmlcode+"&attarray="+result.attarray);
+        ajax.send("_ajax=1&htmlcode="+htmlcode+"&attarray="+result.attarray);
         //步骤四:注册事件 onreadystatechange 状态改变就会调用
         ajax.onreadystatechange = function () {
             //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的

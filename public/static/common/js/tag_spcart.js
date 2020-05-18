@@ -28,9 +28,6 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
     var TotalNumberV = $('#TotalNumber');           //总数
     var TotalAmountV = $('#TotalAmount');           //总价
 
-    var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
-    var url = JsonData.cart_unified_algorithm_url;
-
     // 数量处理逻辑
     if ('change' == symbol) {
         // 手动输入数量
@@ -42,26 +39,28 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
         var SubTotalNums = Number(PriceV.html()) * Number(NumV.val());
         SubTotalV.html(SubTotalNums.toFixed(2));
         
-    }else if ('+' == symbol) {
+    } else if ('+' == symbol) {
         // 计算单品数量
         NumV.val(Number(NumV.val()) + 1);
         // 计算单品小计
         var SubTotalNums = Number(PriceV.html()) * Number(NumV.val());
         SubTotalV.html(SubTotalNums.toFixed(2));
 
-    }else if ('-' == symbol && NumV.val() > '1') {
+    } else if ('-' == symbol && NumV.val() > '1') {
         // 计算单品数量
         NumV.val(Number(NumV.val()) - 1);
         // 计算单品小计
         var SubTotalNums = Number(PriceV.html()) * Number(NumV.val());
         SubTotalV.html(SubTotalNums.toFixed(2));
 
-    }else{
+    } else {
         // 数量减少，为1时不可减。
         layer.msg('商品数量最少为1', {time: 1500});
         return false;
     }
 
+    var JsonData = b82ac06cf24687eba9bc5a7ba92be4c8;
+    var url = JsonData.cart_unified_algorithm_url;
     $.ajax({
         url: url,
         data: {aid:aid,symbol:symbol,num:Number(NumV.val()),spec_value_id:spec_value_id,_ajax:1},
@@ -76,7 +75,7 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
                         window.location.reload();
                     }
                 });
-            }else{
+            } else {
                 TotalNumberV.html(res.data.NumberVal);
                 TotalAmountV.html(res.data.AmountVal);
             }
@@ -202,11 +201,12 @@ function CartDel(cart_id,title){
             type:'post',
             dataType:'json',
             success:function(res){
-                if ('1' == res.code) {
-                    layer.msg(res.msg, {time: 1500});
-                    $('#'+cart_id+'_product').remove();
-                    layer.closeAll();
-                }else{
+                if (1 == res.code) {
+                    layer.msg(res.msg, {time: 1000});
+                    $('#' + cart_id + '_product').remove();
+                    $('#TotalNumber').html(res.data.NumberVal);
+                    $('#TotalAmount').html(res.data.AmountVal);
+                } else {
                     layer.msg(res.msg, {time: 2000});
                 }
             }

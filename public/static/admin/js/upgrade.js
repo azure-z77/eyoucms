@@ -105,8 +105,10 @@ function checkdir(obj) {
                 upgrade($(obj));
             } else {
                 //提示框
-                if (2 == res.data.code) {
-                    var alert = parent.layer.alert(res.msg, {icon: 2, title:false});
+                if (2 == res.data.code) { 
+                    var alert = parent.layer.alert(res.msg, {icon: 2, title:false, btn: ['立即查看']}, function(){
+                        window.parent.open('http://www.eyoucms.com/plus/view.php?aid=9105');
+                    });
                 } else {
                     var confirm = parent.layer.confirm(res.msg, {
                             title: '检测系统结果'
@@ -206,6 +208,12 @@ function upgrade(obj){
                     },500);
                 // },40000); // 睡眠1分钟，让复制文件执行完
             }
+            else if (-2 == res.data.code) {
+                parent.layer.closeAll();
+                parent.layer.alert(res.msg, {icon: 2, title:false, btn: ['立即查看']}, function(){
+                    window.parent.open('http://www.eyoucms.com/plus/view.php?aid=9105');
+                });
+            }
             else{
                 parent.layer.closeAll();
                 parent.layer.alert(res.msg, {icon: 2, title:false}, function(){
@@ -298,6 +306,20 @@ function backup_data(tab){
                         time: 2000, //1小时后后自动关闭
                         shade: [0.2] //0.1透明度的白色背景
                     });
+                    setTimeout(function(){
+                        parent.layer.closeAll();
+                        var full = parent.layer.alert('已升级最新版本！', {
+                                title: false,
+                                icon: 1,
+                                closeBtn: 0,
+                                btn: ['关闭'] //按钮
+                            }, function(){
+                                parent.layer.close(full);
+                                top.location.href = eyou_basefile;
+                            }
+                        );
+                    }, 1000);
+                    return;
                 }
                 backup_data(res.tab);
             } else {

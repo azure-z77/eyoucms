@@ -255,7 +255,7 @@ function delfun(obj) {
     if ('pseudo' == deltype) {
         delfun_pseudo(obj);
     } else {
-        title = '此操作不可恢复，确定批量删除？';
+        title = '此操作不可恢复，确定删除？';
         btn = ['确定', '取消']; //按钮
         layer.confirm(title, {
                 title: false,
@@ -962,7 +962,7 @@ function gourl(url)
 function push_zzbaidu(url, type)
 {
     $.ajax({
-        url:__root_dir__+"/index.php?m=admin&c=Ajax&a=push_zzbaidu&lang="+__lang__,
+        url:__root_dir__+"/index.php?m=api&c=Ajax&a=push_zzbaidu&lang="+__lang__,
         type:'POST',
         dataType:'json',
         data:{"url":url,"type":type,"_ajax":1},
@@ -989,5 +989,20 @@ function update_sitemap(controller, action)
         error: function(e){
             console.log(e);
         }
+    });
+}
+
+//在iframe内打开易优官网的页面
+function click_to_eyou_1575506523(url,title) {
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: title,
+        fixed: true, //不固定
+        shadeClose: false,
+        shade: 0.3,
+        maxmin: true, //开启最大化最小化按钮
+        area: ['80%', '80%'],
+        content: url
     });
 }

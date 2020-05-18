@@ -48,12 +48,12 @@ function AddAddress(){
         dataType:'json',
         success:function(res){
             if(res.code == 1){
-                if (res.url) {
+                if (res.data.url) {
                     parent.layer.close(parentObj);
                     parent.layer.msg(res.msg, {time: 1000}, function(){
-                        _parent.ReturnUrl(res.url);
+                        _parent.ReturnUrl(res.data.url);
                     });
-                }else{
+                } else {
                     parent.layer.close(parentObj);
                     AddHtml(res.data,types);
                     parent.layer.msg(res.msg, {time: 1000});    
