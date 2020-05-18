@@ -678,6 +678,7 @@ class Arctype extends Model
                         } else {
                             $post['addonFieldExt']['typeid'] = $archivesData['typeid'];
                         }
+                        $post['addonFieldExt']['content'] = !empty($post['addonFieldExt']['content']) ? $post['addonFieldExt']['content'] : '';
                         $addData = array(
                             'addonFieldExt' => $post['addonFieldExt'],
                         );
@@ -702,6 +703,186 @@ class Arctype extends Model
             }
         }
         return $insertId;
+    }
+
+    /**
+     * 批量增加顶级栏目数据
+     *
+     * @param array $data
+     * @return intval|boolean
+     */
+    public function batchAddTopData($addData = [], $post = [])
+    {
+        $arctypeLogic = new \app\common\logic\ArctypeLogic;
+
+        $result = [];
+        if (!empty($addData)) {
+            $rdata = $this->saveAll($addData);
+            if ($rdata) {
+                // --存储单页模型的主表
+                $archivesData = [];
+                foreach ($rdata as $k1 => $v1) {
+                    $info = $v1->getData();
+                    if ($info['current_channel'] == 6) {
+                        $archivesData[] = [
+                            'title' => $info['typename'],
+                            'typeid'=> $info['id'],
+                            'channel'   => $info['current_channel'],
+                            'sort_order'    => 100,
+                            'lang'  => $info['lang'],
+                            'add_time'  => getTime(),
+                        ];
+                    } else {
+                        break;
+                    }
+                }
+                // --存储单页模型的附表
+                if (!empty($archivesData)) {
+                    $arcdata = model('Archives')->saveAll($archivesData);
+                    if ($arcdata) {
+                        $singleData = [];
+                        foreach ($arcdata as $k1 => $v1) {
+                            $info = $v1->getData();
+                            $singleData[] = [
+                                'aid' => $info['aid'],
+                                'typeid'=> $info['typeid'],
+                                'content'   => '',
+                                'add_time'  => getTime(),
+                                'update_time'  => getTime(),
+                            ];
+                        }
+                        !empty($singleData) && Db::name('single_content')->insertAll($singleData);
+                    }
+                }
+
+                foreach ($rdata as $k1 => $v1) {
+                    $info = $v1->getData();
+                    $result[] = $info;
+
+                    /*同步栏目ID到权限组，默认是赋予该栏目的权限*/
+                    model('AuthRole')->syn_auth_role($info['id']);
+                    /*--end*/
+
+                    /*同步栏目ID到多语言的模板栏目变量里*/
+                    $arctypeLogic->syn_add_language_attribute($info['id']);
+                    /*--end*/
+                }
+
+                /*新增顶级栏目的下级栏目*/
+                $saveData = [];
+                $dirnameArr = [];
+                foreach ($result as $key => $val) {
+                    if (!empty($post['sontype'][$key])) {
+                        $sontype = $post['sontype'][$key];
+                        foreach ($sontype as $son_k => $son_v) {
+                            $typename = trim($son_v);
+                            if (empty($typename)) continue;
+
+                            // 目录名称
+                            $dirname = $arctypeLogic->get_dirname($typename, '', 0, $dirnameArr);
+                            array_push($dirnameArr, $dirname);
+
+                            $dirpath = $val['dirpath'].'/'.$dirname;
+
+                            $data = [
+                                'typename'  => $typename,
+                                'channeltype'   => $val['channeltype'],
+                                'current_channel'   => $val['current_channel'],
+                                'parent_id' => intval($val['id']),
+                                'dirname'   => $dirname,
+                                'dirpath'   => $dirpath,
+                                'grade' => intval($val['grade']) + 1,
+                                'templist'  => !empty($val['templist']) ? $val['templist'] : '',
+                                'tempview'  => !empty($val['tempview']) ? $val['tempview'] : '',
+                                'is_hidden'  => $val['is_hidden'],
+                                'seo_description'   => '',
+                                'admin_id'  => $val['admin_id'],
+                                'lang'  => $val['lang'],
+                                'sort_order'    => $val['sort_order'],
+                                'add_time'  => $val['add_time'],
+                                'update_time'  => $val['update_time'],
+                            ];
+
+                            $saveData[] = $data;
+                        }
+                    }
+                }
+                if (!empty($saveData)) {
+                    $result2 = $this->batchAddSubData($saveData);
+                    $result = array_merge($result, $result2);
+                }
+                /*end*/
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 批量增加下级栏目数据
+     *
+     * @param array $data
+     * @return intval|boolean
+     */
+    public function batchAddSubData($addData = [])
+    {
+        $result = [];
+        if (!empty($addData)) {
+            $rdata = $this->saveAll($addData);
+            if ($rdata) {
+                // --存储单页模型的主表
+                $archivesData = [];
+                foreach ($rdata as $k1 => $v1) {
+                    $info = $v1->getData();
+                    if ($info['current_channel'] == 6) {
+                        $archivesData[] = [
+                            'title' => $info['typename'],
+                            'typeid'=> $info['id'],
+                            'channel'   => $info['current_channel'],
+                            'sort_order'    => 100,
+                            'lang'  => $info['lang'],
+                            'add_time'  => getTime(),
+                        ];
+                    } else {
+                        break;
+                    }
+                }
+                // --存储单页模型的附表
+                if (!empty($archivesData)) {
+                    $arcdata = model('Archives')->saveAll($archivesData);
+                    if ($arcdata) {
+                        $singleData = [];
+                        foreach ($arcdata as $k1 => $v1) {
+                            $info = $v1->getData();
+                            $singleData[] = [
+                                'aid' => $info['aid'],
+                                'typeid'=> $info['typeid'],
+                                'content'   => '',
+                                'add_time'  => getTime(),
+                                'update_time'  => getTime(),
+                            ];
+                        }
+                        !empty($singleData) && Db::name('single_content')->insertAll($singleData);
+                    }
+                }
+
+                foreach ($rdata as $k1 => $v1) {
+                    $info = $v1->getData();
+                    $result[] = $info;
+
+                    /*同步栏目ID到权限组，默认是赋予该栏目的权限*/
+                    model('AuthRole')->syn_auth_role($info['id']);
+                    /*--end*/
+
+                    /*同步栏目ID到多语言的模板栏目变量里*/
+                    $arctypeLogic = new \app\common\logic\ArctypeLogic;
+                    $arctypeLogic->syn_add_language_attribute($info['id']);
+                    /*--end*/
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

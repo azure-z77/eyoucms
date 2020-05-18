@@ -200,6 +200,15 @@ class ArchivesLogic extends Model
                 // 产品图集表
                 $productImgRow = Db::name('product_img')->field('img_id', true)->where(['aid'=>['IN', $aids]])->select();
                 $productImgRow = group_same_key($productImgRow, 'aid');
+                // 产品虚拟表
+                $productNetdiskRow = Db::name('product_netdisk')->field('nd_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $productNetdiskRow = group_same_key($productNetdiskRow, 'aid');
+                // 产品规格数据表
+                $productSpecRow = Db::name('product_spec_data')->field('spec_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $productSpecRow = group_same_key($productSpecRow, 'aid');
+                // 产品多规格组装表
+                $productSpecValueRow = Db::name('product_spec_value')->field('value_id', true)->where(['aid'=>['IN', $aids]])->select();
+                $productSpecValueRow = group_same_key($productSpecValueRow, 'aid');
             }
 
             foreach ($archivesRow as $key => $val) {
@@ -228,8 +237,8 @@ class ArchivesLogic extends Model
                         $imgUploadInfo = $imgUploadData = [];
                         $downloadFileInfo = $downloadLogInfo = [];
                         $downloadFileData = $downloadLogData = [];
-                        $productAttrInfo = $productImgInfo = [];
-                        $productAttrData = $productImgData = [];
+                        $productAttrInfo = $productImgInfo = $productNetdiskInfo = $productSpecInfo = $productSpecValueInfo = [];
+                        $productAttrData = $productImgData = $productNetdiskData = $productSpecData = $productSpecValueData = [];
                         if ('images' == $channeltypeRow['nid']) { // 图集模型的特性表数据
                             $imgUploadInfo = !empty($imgUploadRow[$val['aid']]) ? $imgUploadRow[$val['aid']] : [];
                         } else if ('download' == $channeltypeRow['nid']) { // 下载模型的特性表数据
@@ -242,6 +251,12 @@ class ArchivesLogic extends Model
                             }
                             // 产品图集表
                             $productImgInfo = !empty($productImgRow[$val['aid']]) ? $productImgRow[$val['aid']] : [];
+                            // 产品虚拟表
+                            $productNetdiskInfo = !empty($productNetdiskRow[$val['aid']]) ? $productNetdiskRow[$val['aid']] : [];
+                            // 产品规格数据表
+                            $productSpecInfo = !empty($productSpecRow[$val['aid']]) ? $productSpecRow[$val['aid']] : [];
+                            // 产品多规格组装表
+                            $productSpecValueInfo = !empty($productSpecValueRow[$val['aid']]) ? $productSpecValueRow[$val['aid']] : [];
                         }
 
                         // 需要复制的数据与新产生的文档ID进行关联
@@ -280,6 +295,21 @@ class ArchivesLogic extends Model
                                     $img_v['aid'] = $aid_new;
                                     $productImgData[] = $img_v;
                                 }
+                                // 产品虚拟表
+                                foreach ($productNetdiskInfo as $nd_k => $nd_v) {
+                                    $nd_v['aid'] = $aid_new;
+                                    $productNetdiskData[] = $nd_v;
+                                }
+                                // 产品规格数据表
+                                foreach ($productSpecInfo as $spec_k => $spec_v) {
+                                    $spec_v['aid'] = $aid_new;
+                                    $productSpecData[] = $spec_v;
+                                }
+                                // 产品多规格组装表
+                                foreach ($productSpecValueInfo as $specv_k => $specv_v) {
+                                    $specv_v['aid'] = $aid_new;
+                                    $productSpecValueData[] = $specv_v;
+                                }
                             }
                         }
 
@@ -300,6 +330,12 @@ class ArchivesLogic extends Model
                             !empty($productAttrData) && Db::name('product_attr')->insertAll($productAttrData);
                             // 产品图集表
                             !empty($productImgData) && model('ProductImg')->saveAll($productImgData);
+                            // 产品虚拟表
+                            !empty($productNetdiskData) && model('ProductNetdisk')->saveAll($productNetdiskData);
+                            // 产品规格数据表
+                            !empty($productSpecData) && model('ProductSpecData')->saveAll($productSpecData);
+                            // 产品多规格组装表
+                            !empty($productSpecValueData) && model('ProductSpecValue')->saveAll($productSpecValueData);
                         }
                     }
                     else {

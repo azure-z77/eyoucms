@@ -34,17 +34,17 @@
                     </li>
                 {/eq}
 
-                {eq name="'Member@pay_set'|is_check_access" value="1"}
+                {eq name="'Member@money_index'|is_check_access" value="1"}
                     {if condition="1 == $userConfig.pay_open"}
                         <li>
-                            <a href="{:url('Member/pay_set')}" {if condition="in_array($Think.const.ACTION_NAME, ['pay_set','money_index','money_edit'])"}class="current"{/if}>
-                                <span>支付功能</span>
+                            <a href="{:url('Member/money_index')}" {if condition="in_array($Think.const.ACTION_NAME, ['money_index', 'money_edit'])"}class="current"{/if}>
+                                <span>充值记录</span>
                             </a>
                         </li>
                     {/if}
                 {/eq}
-
-                {eq name="'Shop@index'|is_check_access" value="1"}
+ 
+                <!-- {eq name="'Shop@index'|is_check_access" value="1"}
                     {if condition="1 == $userConfig.shop_open"}
                         <li>
                             <a href="{:url('Shop/index')}" {if condition="in_array($Think.const.CONTROLLER_NAME, ['Shop'])"}class="current"{/if}>
@@ -52,7 +52,7 @@
                             </a>
                         </li>
                     {/if}
-                {/eq}
+                {/eq} -->
                 
                 {eq name="'Level@index'|is_check_access" value="1"}
                     {if condition="1 == $userConfig.level_member_upgrade"}

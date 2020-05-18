@@ -59,6 +59,7 @@ class Tools extends Base {
     {
         //防止备份数据过程超时
         function_exists('set_time_limit') && set_time_limit(0);
+        @ini_set('memory_limit','-1');
 
         /*升级完自动备份所有数据表*/
         if ('all' == $tables) {
@@ -155,14 +156,16 @@ class Tools extends Base {
                             /*替换所有表的前缀为官方默认ey_，并重写安装数据包里*/
                             $eyouDbStr = file_get_contents($dstfile);
                             $dbtables = Db::query('SHOW TABLE STATUS');
+                            $tableName = $eyTableName = [];
                             foreach ($dbtables as $k => $v) {
-                                $tableName = $v['Name'];
-                                if (preg_match('/^'.PREFIX.'/i', $tableName)) {
-                                    $eyTableName = preg_replace('/^'.PREFIX.'/i', 'ey_', $tableName);
-                                    $eyouDbStr = str_replace('`'.$tableName.'`', '`'.$eyTableName.'`', $eyouDbStr);
+                                if (preg_match('/^'.PREFIX.'/i', $v['Name'])) {
+                                    $tableName[] = "`{$v['Name']}`";
+                                    $eyTableName[] = preg_replace('/^`'.PREFIX.'/i', '`ey_', "`{$v['Name']}`");
                                 }
                             }
+                            $eyouDbStr = str_replace($tableName, $eyTableName, $eyouDbStr);
                             @file_put_contents($dstfile, $eyouDbStr);
+                            unset($eyouDbStr);
                             /*--end*/
                         } else {
                             @unlink($dstfile); // 复制失败就删掉，避免安装错误的数据包
@@ -289,39 +292,41 @@ class Tools extends Base {
     /**
      * 上传sql文件
      */
-    // public function restoreUpload()
-    // {
-    //     $file = request()->file('sqlfile');
-    //     if(empty($file)){
-    //         $this->error('请上传sql文件');
-    //     }
-    //     // 移动到框架应用根目录/data/sqldata/ 目录下
-    //     $path = tpCache('global.web_sqldatapath');
-    //     $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
-    //     $path = trim($path, '/');
-    //     $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-    //     $info = $file->validate(['size'=>$image_upload_limit_size,'ext'=>'sql,gz'])->move($path, $_FILES['sqlfile']['name']);
-    //     if ($info) {
-    //         //上传成功 获取上传文件信息
-    //         $file_path_full = $info->getPathName();
-    //         if (file_exists($file_path_full)) {
-    //             $sqls = Backup::parseSql($file_path_full);
-    //             if(Backup::install($sqls)){
-    //                 /*清除缓存*/
-    //                 delFile(RUNTIME_PATH);
-    //                 /*--end*/
-    //                 $this->success("执行sql成功", url('Tools/restore'));
-    //             }else{
-    //                 $this->error('执行sql失败');
-    //             }
-    //         } else {
-    //             $this->error('sql文件上传失败');
-    //         }
-    //     } else {
-    //         //上传错误提示错误信息
-    //         $this->error($file->getError());
-    //     }
-    // }
+    public function restoreUpload()
+    {
+        $this->error('该功能仅限技术人员使用！');
+        
+        $file = request()->file('sqlfile');
+        if(empty($file)){
+            $this->error('请上传sql文件');
+        }
+        // 移动到框架应用根目录/data/sqldata/ 目录下
+        $path = tpCache('global.web_sqldatapath');
+        $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
+        $path = trim($path, '/');
+        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $info = $file->validate(['size'=>$image_upload_limit_size,'ext'=>'sql,gz'])->move($path, $_FILES['sqlfile']['name']);
+        if ($info) {
+            //上传成功 获取上传文件信息
+            $file_path_full = $info->getPathName();
+            if (file_exists($file_path_full)) {
+                $sqls = Backup::parseSql($file_path_full);
+                if(Backup::install($sqls)){
+                    /*清除缓存*/
+                    delFile(RUNTIME_PATH);
+                    /*--end*/
+                    $this->success("执行sql成功", url('Tools/restore'));
+                }else{
+                    $this->error('执行sql失败');
+                }
+            } else {
+                $this->error('sql文件上传失败');
+            }
+        } else {
+            //上传错误提示错误信息
+            $this->error($file->getError());
+        }
+    }
 
     /**
      * 执行还原数据库操作
@@ -412,6 +417,7 @@ class Tools extends Base {
     public function new_import($time = 0)
     {
         function_exists('set_time_limit') && set_time_limit(0);
+        @ini_set('memory_limit','-1');
 
         if(is_numeric($time) && intval($time) > 0){
             //获取备份文件信息

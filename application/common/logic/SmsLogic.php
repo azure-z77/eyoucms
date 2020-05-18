@@ -7,8 +7,8 @@
  * ----------------------------------------------------------------------------
  * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
  * ============================================================================
- * Author: 小虎哥 <1105415366@qq.com>
- * Date: 2018-4-3
+ * Author: 易而优团队 by 陈风任 <491085389@qq.com>
+ * Date: 2020-03-31
  */
 
 namespace app\common\logic;
@@ -22,59 +22,87 @@ class SmsLogic
 {
     private $config;
     
-    public function __construct() 
+    public function __construct($sms_config = []) 
     {
-        $this->config = tpCache('sms') ?: [];
+        $this->config = !empty($sms_config) ? $sms_config : tpCache('sms');
     }
 
     /**
      * 发送短信逻辑
-     * @param unknown $scene
+     * @param unknown $source
      */
-    public function sendSms($scene, $sender, $params, $unique_id=0)
+    public function sendSms($source = null, $sender = null, $params = [], $unique_id = 0)
     {
-        $smsTemp = M('sms_template')->where("send_scene", $scene)->find();    //用户注册.
-        $code = !empty($params['code']) ? $params['code'] : false;
+        $smsTemp = M('sms_template')->where("send_scene", $source)->find();
+        if (empty($smsTemp) || empty($smsTemp['sms_sign']) || empty($smsTemp['sms_tpl_code'])|| empty($smsTemp['tpl_content'])){
+            return $result = ['status' => -1, 'msg' => '尚未正确配置短信模板，请联系管理员！'];
+        }
+        if (0 == $smsTemp['is_open']) return $result = ['status' => -1, 'msg' => '模板类型已关闭，请先开启'];
+
         $content = !empty($params['content']) ? $params['content'] : false;
+        $code    = !empty($params['code']) ? $params['code'] : $content;
+
         if(empty($unique_id)){
             $session_id = session_id();
         }else{
             $session_id = $unique_id;
         }
-        $product = $this->config['sms_product'];
 
-        $smsParams = array(
-            1 => "{\"code\":\"$code\",\"product\":\"$product\"}", //1. 用户注册
-            2 => "{\"code\":\"$code\"}", //2. 用户找回密码
-            3 => "{\"code\":\"$code\"}", //3. 
-            4 => "{\"content\":\"$content\"}", //4. 
-        );
-
-        $smsParam = $smsParams[$scene];
+        if (strpos($smsTemp['tpl_content'], 'code') !== false) { 
+            $smsParams = array(
+                0 => "{\"code\":\"$code\"}",
+                1 => "{\"code\":\"$code\"}",
+                2 => "{\"code\":\"$code\"}",
+                3 => "{\"code\":\"$code\"}",
+                4 => "{\"code\":\"$code\"}",
+                5 => "{\"code\":\"$code\"}",
+            );
+        } else if (strpos($smsTemp['tpl_content'], 'content') !== false) {
+            $smsParams = array(
+                0 => "{\"content\":\"$content\"}",
+                1 => "{\"content\":\"$content\"}",
+                2 => "{\"content\":\"$content\"}",
+                3 => "{\"content\":\"$content\"}",
+                4 => "{\"content\":\"$content\"}",
+                5 => "{\"content\":\"$content\"}",
+            );
+        } else if (strpos($smsTemp['tpl_content'], 'name') !== false) {
+            $smsParams = array(
+                0 => "{\"name\":\"$name\"}",
+                1 => "{\"name\":\"$name\"}",
+                2 => "{\"name\":\"$name\"}",
+                3 => "{\"name\":\"$name\"}",
+                4 => "{\"name\":\"$name\"}",
+                5 => "{\"name\":\"$name\"}",
+            );
+        }
+        $smsParam = $smsParams[$source];
 
         //提取发送短信内容
-        $scenes = config('SEND_SCENE');
-        $msg = $scenes[$scene][1];
+        $msg = $smsTemp['tpl_content'];
         $params_arr = json_decode($smsParam);
         foreach ($params_arr as $k => $v) {
             $msg = str_replace('${' . $k . '}', $v, $msg);
         }
 
         //发送记录存储数据库
-        $log_id = M('sms_log')->insertGetId(array('mobile' => $sender, 'code' => $code, 'add_time' => time(), 'session_id' => $session_id, 'status' => 0, 'scene' => $scene, 'msg' => $msg));
-        if ($sender != '' && check_mobile($sender)) {//如果是正常的手机号码才发送
+        $log_id = M('sms_log')->insertGetId(array('source' => $source, 'mobile' => $sender, 'code' => $code, 'add_time' => time(), 'status' => 0, 'msg' => $msg, 'is_use' => 0, 'error_msg'=>''));
+        if ($sender != '' && check_mobile($sender)) {
+            // 如果是正常的手机号码才发送
             try {
                 $resp = $this->realSendSms($sender, $smsTemp['sms_sign'], $smsParam, $smsTemp['sms_tpl_code']);
             } catch (\Exception $e) {
                 $resp = ['status' => -1, 'msg' => $e->getMessage()];
             }
             if ($resp['status'] == 1) {
-                M('sms_log')->where(array('id' => $log_id))->save(array('status' => 1)); //修改发送状态为成功
-            }else{
-                M('sms_log')->where(array('id' => $log_id))->update(array('error_msg'=>$resp['msg'])); //发送失败, 将发送失败信息保存数据库
+                // 修改发送状态为成功
+                M('sms_log')->where(array('id' => $log_id))->save(array('status' => 1));
+            } else {
+                // 发送失败, 将发送失败信息保存数据库
+                M('sms_log')->where(array('id' => $log_id))->update(array('error_msg'=>$resp['msg']));
             }
             return $resp;
-        }else{
+        } else {
            return $result = ['status' => -1, 'msg' => '接收手机号不正确['.$sender.']'];
         }
         
@@ -85,73 +113,16 @@ class SmsLogic
         if (config('sms_debug') == true) {
             return array('status' => 1, 'msg' => '专用于越过短信发送');
         }
-        
         $type = (int)$this->config['sms_platform'] ?: 1;
         switch($type) {
             case 1:
                 $result = $this->sendSmsByAliyun($mobile, $smsSign, $smsParam, $templateCode);
-                break;
-            case 2:
-                $result = $this->sendSmsByAlidayu($mobile, $smsSign, $smsParam, $templateCode);
                 break;
             default:
                 $result = ['status' => -1, 'msg' => '不支持的短信平台'];
         }
         
         return $result;
-    }
-    
-    /**
-     * 发送短信（阿里大于）
-     * @param $mobile  手机号码
-     * @param $code    验证码
-     * @return bool    短信发送成功返回true失败返回false
-     */
-    private function sendSmsByAlidayu($mobile, $smsSign, $smsParam, $templateCode)
-    {
-        //时区设置：亚洲/上海
-        date_default_timezone_set('Asia/Shanghai');
-        //这个是你下面实例化的类
-        vendor('Alidayu.TopClient');
-        //这个是topClient 里面需要实例化一个类所以我们也要加载 不然会报错
-        vendor('Alidayu.ResultSet');
-        //这个是成功后返回的信息文件
-        vendor('Alidayu.RequestCheckUtil');
-        //这个是错误信息返回的一个php文件
-        vendor('Alidayu.TopLogger');
-        //这个也是你下面示例的类
-        vendor('Alidayu.AlibabaAliqinFcSmsNumSendRequest');
-
-        $c = new \TopClient;
-        //App Key的值 这个在开发者控制台的应用管理点击你添加过的应用就有了
-        $c->appkey = $this->config['sms_appkey'];
-        //App Secret的值也是在哪里一起的 你点击查看就有了
-        $c->secretKey = $this->config['sms_secretkey'];
-        //这个是用户名记录那个用户操作
-        $req = new \AlibabaAliqinFcSmsNumSendRequest;
-        //代理人编号 可选
-        $req->setExtend("123456");
-        //短信类型 此处默认 不用修改
-        $req->setSmsType("normal");
-        //短信签名 必须
-        $req->setSmsFreeSignName($smsSign);
-        //短信模板 必须
-        $req->setSmsParam($smsParam);
-        //短信接收号码 支持单个或多个手机号码，传入号码为11位手机号码，不能加0或+86。群发短信需传入多个号码，以英文逗号分隔，
-        $req->setRecNum("$mobile");
-        //短信模板ID，传入的模板必须是在短信平台“管理中心-短信模板管理”中的可用模板。
-        $req->setSmsTemplateCode($templateCode); // templateCode
-
-        $c->format = 'json';
-
-        //发送短信
-        $resp = $c->execute($req);
-        //短信发送成功返回True，失败返回false
-        if ($resp && $resp->result) {
-            return array('status' => 1, 'msg' => $resp->sub_msg);
-        } else {
-            return array('status' => -1, 'msg' => $resp->msg . ' ,sub_msg :' . $resp->sub_msg . ' subcode:' . $resp->sub_code);
-        }
     }
 
     /**
@@ -167,6 +138,9 @@ class SmsLogic
         
         $accessKeyId = $this->config['sms_appkey'];
         $accessKeySecret = $this->config['sms_secretkey'];
+        if (empty($accessKeyId) || empty($accessKeySecret)){
+            return array('status' => -1, 'msg' => '请设置短信平台appkey和secretKey');
+        }
         //短信API产品名
         $product = "Dysmsapi";
         //短信API产品域名
@@ -190,15 +164,15 @@ class SmsLogic
         $request->setTemplateParam($smsParam);
         //选填-发送短信流水号
         //$request->setOutId("1234");
-
+        
         //发起访问请求
         $resp = $acsClient->getAcsResponse($request);
         
         //短信发送成功返回True，失败返回false
         if ($resp && $resp->Code == 'OK') {
-            return array('code' => 1, 'msg' => '发送成功');
+            return array('status' => 1, 'msg' => $resp->Code);
         } else {
-            return array('code' => -1, 'msg' => $resp->Message . '. Code: ' . $resp->Code);
+            return array('status' => -1, 'msg' => $resp->Message . '. Code: ' . $resp->Code);
         }
     }
-}
+} 

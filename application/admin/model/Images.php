@@ -53,7 +53,7 @@ class Images extends Model
         // ---------end
 
         // --处理TAG标签
-        model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
+        model('Taglist')->savetags($aid, $post['typeid'], $post['tags'], $post['arcrank'], $opt);
     }
 
     /**

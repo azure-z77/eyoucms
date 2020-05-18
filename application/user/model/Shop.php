@@ -247,23 +247,45 @@ class Shop extends Model
         return $str;
     }
 
-    // 产品属性处理
+    // 旧产品属性处理
     public function ProductAttrProcessing($value = array())
     {
         $attr_value = '';
         $AttrWhere = [
             'a.aid'     => $value['aid'],
-            'b.lang'    => $this->home_lang,
+            'b.lang'    => $this->home_lang
         ];
-        $AttrData = Db::name('product_attr')
+        $attrData = Db::name('product_attr')
             ->alias('a')
-            ->field('a.attr_value,b.attr_name')
+            ->field('a.attr_value as value, b.attr_name as name')
             ->join('__PRODUCT_ATTRIBUTE__ b', 'a.attr_id = b.attr_id', 'LEFT')
             ->where($AttrWhere)
             ->order('b.sort_order asc, a.attr_id asc')
             ->select();
-        foreach ($AttrData as $val) {
-            $attr_value .= $val['attr_name'].'：'.$val['attr_value'].'<br/>';
+        foreach ($attrData as $val) {
+            $attr_value .= $val['name'].'：'.$val['value'].'<br/>';
+        }
+        return $attr_value;
+    }
+
+    // 新产品属性处理
+    public function ProductNewAttrProcessing($value = array())
+    {
+        $attr_value = '';
+        $where = [
+            'a.list_id' => $value['attrlist_id'],
+            'a.status'  => 1,
+            'b.aid'     => $value['aid']
+        ];
+        $attrData = Db::name('shop_product_attribute')
+            ->alias('a')
+            ->field('a.attr_name as name, b.attr_value as value')
+            ->join('__SHOP_PRODUCT_ATTR__ b', 'a.attr_id = b.attr_id', 'LEFT')
+            ->where($where)
+            ->order('sort_order asc')
+            ->select();
+        foreach ($attrData as $val) {
+            $attr_value .= $val['name'].'：'.$val['value'].'<br/>';
         }
         return $attr_value;
     }
@@ -301,20 +323,25 @@ class Shop extends Model
                     'spec_stock' => Db::raw('spec_stock-'.($value['quantity'])),
                     'spec_sales_num' => Db::raw('spec_sales_num+'.($value['quantity'])),
                 ];
+                
+                $ArcUpData[] = [
+                    'aid'         => $value['aid'],
+                    'stock_count' => Db::raw('stock_count-' . ($value['quantity'])),
+                    'sales_num'   => Db::raw('sales_num+' . ($value['quantity']))
+                ];
             }else{
                 $ArcUpData[] = [
                     'aid'         => $value['aid'],
                     'stock_count' => Db::raw('stock_count-'.($value['quantity'])),
+                    'sales_num'   => Db::raw('sales_num+' . ($value['quantity']))
                 ];
             }
         }
 
-        if (!empty($SpecUpData)) {
-            model('ProductSpecValue')->saveAll($SpecUpData);
-        }
+        // 更新规格库存销量
+        if (!empty($SpecUpData)) model('ProductSpecValue')->saveAll($SpecUpData);
 
-        if (!empty($ArcUpData)) {
-            model('Archives')->saveAll($ArcUpData);
-        }
+        // 更新商品库存销量
+        if (!empty($ArcUpData)) model('Archives')->saveAll($ArcUpData);
     }
 }

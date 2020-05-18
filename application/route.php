@@ -30,12 +30,9 @@ $goto = trim($goto, '/');
 /*辨识响应式模板，还是PC与移动的分离模板*/
 $num = 0;
 $response_type = 0; // 默认是响应式
-$tpldirList = glob('template/*');
+$tpldirList = ['template/pc','template/mobile'];
 foreach ($tpldirList as $key => $val) {
-    if (!preg_match('/template\/(pc|mobile)$/i', $val)) {
-        unset($tpldirList[$key]);
-    } else {
-        $tpldirList[$key] = preg_replace('/^(.*)template\/(pc|mobile)$/i', '$2', $val);
+    if (is_dir($val)) {
         $num++;
         if ($num >= 2) {
             $response_type = 1; // PC与移动端分离
@@ -115,7 +112,7 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
             ];
         }
         /*--end*/
-        if (1 == $seo_rewrite_format) { // 精简伪静态
+        if (1 == $seo_rewrite_format || 3 == $seo_rewrite_format) { // 精简伪静态
             $home_rewrite = array(
                 // 会员中心
                 $lang_rewrite_str.'user$' => array('user/Users/login',array('ext' => ''), 'cache'=>1),

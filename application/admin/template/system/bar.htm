@@ -27,8 +27,8 @@
                 {/eq}
 
                 {eq name='$main_lang' value='$admin_lang'}
-                {eq name="$Think.const.CONTROLLER_NAME.'@smtp'|is_check_access" value="1"}
-                <li><a href="{:url('System/smtp')}" {if condition="preg_match('/^smtp/i', $Think.const.ACTION_NAME)"}class="current"{/if}><span>接口配置</span></a></li>
+                {eq name="$Think.const.CONTROLLER_NAME.'@api_conf'|is_check_access" value="1"}
+                <li><a href="{:url('System/api_conf')}" {if condition="preg_match('/^api_conf/i', $Think.const.ACTION_NAME)"}class="current"{/if}><span>接口配置</span></a></li>
                 {/eq}
                 {/eq}
             </ul>

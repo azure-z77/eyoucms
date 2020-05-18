@@ -46,11 +46,12 @@ class Uploadify extends Base {
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
+        $resource = input('param.resource/s');
         $info = array(
             'num'=> $num,
             'title' => '',          
-            'upload' =>url('Uploadify/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
-            'fileList'=>url('Uploadify/fileList',array('path'=>$path)),
+            'upload' =>url('Uploadify/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images','resource'=>$resource)),
+            'fileList'=>url('Uploadify/fileList',array('path'=>$path,'resource'=>$resource)),
             'size' => $size,
             'type' => $this->image_type,
             'input' => input('input'),
@@ -374,23 +375,23 @@ class Uploadify extends Base {
                 'size' => $file['filesize'],
             );
 
-            $ossConfig = tpCache('oss');
-            if ($ossConfig['oss_switch']) {
-                //图片可选择存放在oss
-                $savePath = $this->upload_path.$this->savePath.$this->sub_name;
-                $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
-                $getRealPath = ltrim($data['url'], '/');
-                $ossClient = new \app\common\logic\OssLogic;
-                $return_url = $ossClient->uploadFile($getRealPath, $object);
-                if (!$return_url) {
-                    $state = "ERROR" . $ossClient->getError();
-                    $return_url = '';
-                } else {
-                    $state = "SUCCESS";
-                }
-                @unlink($getRealPath);
-                $data['url'] = $return_url;
-            }
+            // $ossConfig = tpCache('oss');
+            // if ($ossConfig['oss_switch']) {
+            //     //图片可选择存放在oss
+            //     $savePath = $this->upload_path.$this->savePath.$this->sub_name;
+            //     $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
+            //     $getRealPath = ltrim($data['url'], '/');
+            //     $ossClient = new \app\common\logic\OssLogic;
+            //     $return_url = $ossClient->uploadFile($getRealPath, $object);
+            //     if (!$return_url) {
+            //         $state = "ERROR" . $ossClient->getError();
+            //         $return_url = '';
+            //     } else {
+            //         $state = "SUCCESS";
+            //     }
+            //     @unlink($getRealPath);
+            //     $data['url'] = $return_url;
+            // }
         }
         return json_encode($data);
     }
@@ -430,8 +431,8 @@ class Uploadify extends Base {
 
         /*验证图片一句话木马*/
         $imgstr = @file_get_contents($file->getInfo('tmp_name'));
-        if (false !== $imgstr && preg_match('#<\?php#i', $imgstr)) {
-            $result = '上传图片不合格';
+        if (false !== $imgstr && preg_match('#<([^?]*)\?php#i', $imgstr)) {
+            $result = '禁止上传木马图片！';
         }
         /*--end*/
 
@@ -443,33 +444,35 @@ class Uploadify extends Base {
             } else {
                 $savePath = $this->upload_path.$this->savePath.$this->sub_name;
             }
-            $ossConfig = tpCache('oss');
-            if ($ossConfig['oss_switch']) {
-                //商品图片可选择存放在oss
-                // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-                $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-                $ossClient = new \app\common\logic\OssLogic;
-                $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-                if (!$return_url) {
-                    $state = "ERROR" . $ossClient->getError();
-                    $return_url = '';
-                } else {
-                    $state = "SUCCESS";
-                }
-                @unlink($file->getRealPath());
+
+            // 移动到框架应用根目录/public/uploads/ 目录下
+            $info = $file->rule(function ($file) {
+                // return  md5(mt_rand()); // 使用自定义的文件保存规则
+                return session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
+            })->move($savePath);
+            if ($info) {
+                $state = "SUCCESS";
             } else {
-                // 移动到框架应用根目录/public/uploads/ 目录下
-                $info = $file->rule(function ($file) {
-                    // return  md5(mt_rand()); // 使用自定义的文件保存规则
-                    return session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
-                })->move($savePath);
-                if ($info) {
-                    $state = "SUCCESS";
-                } else {
-                    $state = "ERROR" . $file->getError();
-                }
-                $return_url = '/'.$savePath.$info->getSaveName();
+                $state = "ERROR" . $file->getError();
             }
+            $return_url = '/'.$savePath.$info->getSaveName();
+
+            // $ossConfig = tpCache('oss');
+            // if ($ossConfig['oss_switch']) {
+            //     //商品图片可选择存放在oss
+            //     // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+            //     $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+            //     $ossClient = new \app\common\logic\OssLogic;
+            //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
+            //     if (!$return_url) {
+            //         $state = "ERROR" . $ossClient->getError();
+            //         $return_url = '';
+            //     } else {
+            //         $state = "SUCCESS";
+            //     }
+            //     @unlink($file->getRealPath());
+            // }
+
             $return_data['url'] = ROOT_DIR.$return_url; // 支持子目录
         }
         
@@ -515,6 +518,91 @@ class Uploadify extends Base {
         $return_data['original'] = ''; // 这里好像没啥用 暂时注释起来
         $return_data['state'] = $state;
         $return_data['path'] = $path;
+        respose($return_data,'json');
+    }
+
+    /**
+     * @function imageUp
+     */
+    public function DownloadUploadFileAjax()
+    {
+        if (!IS_POST) {
+            $return_data['state'] = '非法上传';
+            respose($return_data,'json');
+        }
+        $fileExt = tpCache('basic.file_type');
+        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+
+        $file = request()->file('file');
+        // 定义文件名
+        $fileName = $file->getInfo('name');
+        //拓展名
+        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+
+        /*拓展名验证start*/
+        $fileExtArr = explode('|',$fileExt);
+        //拓展名
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (!in_array($ext,$fileExtArr)){
+            $res = [ 'state' => '上传文件后缀名必须为' . $fileExt];
+            respose($res,'json');
+
+        }
+        /*拓展名验证end*/
+        $result = $this->validate(
+            ['file' => $file],
+//            ['file'=>'image|fileSize:'.$image_upload_limit_size.'|fileExt:'.$fileExt],
+//            ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$fileExt]
+            ['file'=>'fileSize:'.$image_upload_limit_size],
+            ['file.fileSize' => '上传文件过大']
+        );
+
+
+        if (true !== $result || empty($file)) {
+            $state = "ERROR：" . $result;
+        } else {
+            if ('weapp/' == $this->savePath) {
+                $savePath = UPLOAD_PATH . $this->savePath . 'user/' . $this->users_id .'/' . $this->sub_name;
+            } else {
+                $savePath = $this->upload_path.$this->savePath.$this->sub_name;
+            }
+
+            // 移动到框架应用根目录/public/uploads/ 目录下
+            $info = $file->rule(function ($file) {
+                // return  md5(mt_rand()); // 使用自定义的文件保存规则
+                return session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
+            })->move($savePath);
+            if ($info) {
+                $state = "SUCCESS";
+            } else {
+                $state = "ERROR" . $file->getError();
+            }
+            $return_url = '/'.$savePath.$info->getSaveName();
+
+            // $ossConfig = tpCache('oss');
+            // if ($ossConfig['oss_switch']) {
+            //     //商品图片可选择存放在oss
+            //     // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+            //     $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.$ext;
+            //     $ossClient = new \app\common\logic\OssLogic;
+            //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
+            //     if (!$return_url) {
+            //         $state = "ERROR" . $ossClient->getError();
+            //         $return_url = '';
+            //     } else {
+            //         $state = "SUCCESS";
+            //     }
+            //     @unlink($file->getRealPath());
+            // }
+
+            $return_data['url'] = ROOT_DIR.$return_url;// 支持子目录
+
+        }
+        $return_data['state'] = $state;
         respose($return_data,'json');
     }
 }

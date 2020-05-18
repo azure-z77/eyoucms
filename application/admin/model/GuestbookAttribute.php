@@ -30,7 +30,7 @@ class GuestbookAttribute extends Model
         // 需要调用`Model`的`initialize`方法
         parent::initialize();
         $this->admin_lang = get_admin_lang();
-        $this->main_lang = get_main_lang();
+        $this->main_lang  = get_main_lang();
     }
 
     /**
@@ -44,44 +44,44 @@ class GuestbookAttribute extends Model
         }
         /*--end*/
 
-        $attr_group = 'guestbook_attribute';
+        $attr_group  = 'guestbook_attribute';
         $languageRow = Db::name('language')->field('mark')->order('id asc')->select();
         if (!empty($languageRow) && $this->admin_lang == $this->main_lang) { // 当前语言是主体语言，即语言列表最早新增的语言
-            $result = Db::name('guestbook_attribute')->find($attr_id);
-            $attr_name = 'attr_'.$attr_id;
-            $r = Db::name('language_attribute')->save([
-                'attr_title'    => $result['attr_name'],
-                'attr_name'     => $attr_name,
-                'attr_group'    => $attr_group,
-                'add_time'      => getTime(),
-                'update_time'   => getTime(),
+            $result    = Db::name('guestbook_attribute')->find($attr_id);
+            $attr_name = 'attr_' . $attr_id;
+            $r         = Db::name('language_attribute')->save([
+                'attr_title'  => $result['attr_name'],
+                'attr_name'   => $attr_name,
+                'attr_group'  => $attr_group,
+                'add_time'    => getTime(),
+                'update_time' => getTime(),
             ]);
             if (false !== $r) {
                 $data = [];
                 foreach ($languageRow as $key => $val) {
                     /*同步新留言属性到其他语言留言属性列表*/
                     if ($val['mark'] != $this->admin_lang) {
-                        $addsaveData = $result;
-                        $addsaveData['lang'] = $val['mark'];
-                        $newTypeid = Db::name('language_attr')->where([
-                                'attr_name' => 'tid'.$result['typeid'],
-                                'attr_group'    => 'arctype',
-                                'lang'  => $val['mark'],
-                            ])->getField('attr_value');
+                        $addsaveData           = $result;
+                        $addsaveData['lang']   = $val['mark'];
+                        $newTypeid             = Db::name('language_attr')->where([
+                            'attr_name'  => 'tid' . $result['typeid'],
+                            'attr_group' => 'arctype',
+                            'lang'       => $val['mark'],
+                        ])->getField('attr_value');
                         $addsaveData['typeid'] = $newTypeid;
                         unset($addsaveData['attr_id']);
                         $attr_id = Db::name('guestbook_attribute')->insertGetId($addsaveData);
                     }
                     /*--end*/
-                    
+
                     /*所有语言绑定在主语言的ID容器里*/
                     $data[] = [
-                        'attr_name' => $attr_name,
-                        'attr_value'    => $attr_id,
-                        'lang'  => $val['mark'],
-                        'attr_group'    => $attr_group,
-                        'add_time'      => getTime(),
-                        'update_time'   => getTime(),
+                        'attr_name'   => $attr_name,
+                        'attr_value'  => $attr_id,
+                        'lang'        => $val['mark'],
+                        'attr_group'  => $attr_group,
+                        'add_time'    => getTime(),
+                        'update_time' => getTime(),
                     ];
                     /*--end*/
                 }
@@ -90,5 +90,37 @@ class GuestbookAttribute extends Model
                 }
             }
         }
+    }
+
+    /**
+     * 验证后台列表显示 - 是否已超过4个
+     */
+    public function isValidate($id_name = '', $id_value = '', $field = '', $value = '')
+    {
+        $return = true;
+        $value  = trim($value);
+        $where  = [
+            $id_name => $id_value,
+            'lang'   => $this->admin_lang,
+        ];
+        if ($value == 1 && $field == 'is_showlist') {
+            $typeid          = Db::name('guestbook_attribute')->where($where)->getField('typeid');
+            $where['typeid'] = $typeid;
+            $count           = Db::name('guestbook_attribute')->where($where)->count();
+            if ($count > 4) {
+                $return = [
+                    'time'=>1,
+                    'msg' => '所属栏目的列表字段显示数量已达4个',
+                ];
+                return $return;
+            }
+        }
+        //更新数据库
+        Db::name('guestbook_attribute')->where($where)->update([
+            'is_showlist'   => $value,
+            'update_time'   => getTime(),
+        ]);
+
+        return $return;
     }
 }

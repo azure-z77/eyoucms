@@ -252,7 +252,7 @@ class Archives extends Base
         /*当前栏目信息*/
         $arctype_info = array();
         if ($typeid > 0) {
-            $arctype_info = M('arctype')->field('typename')->find($typeid);
+            $arctype_info = M('arctype')->field('typename,current_channel')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
         /*--end*/
@@ -456,7 +456,7 @@ class Archives extends Base
         if (0 < $typeid) {
             $param = input('param.');
             $row = Db::name('arctype')
-                ->field('b.ctl_name,b.id')
+                ->field('b.ctl_name,b.id,b.ifsystem')
                 ->alias('a')
                 ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
                 ->where('a.id', 'eq', $typeid)
@@ -468,8 +468,18 @@ class Archives extends Base
             }
             /*-----end*/
 
+            $data = [
+                'typeid'    => $typeid,
+            ];
+            if (empty($row['ifsystem'])) {
+                $ctl_name = 'Custom';
+                $data['channel'] = $row['id'];
+            } else {
+                $ctl_name = $row['ctl_name'];
+            }
             $gourl = url('Archives/index_archives', array('typeid'=>$typeid), true, true);
-            $jumpUrl = url("{$row['ctl_name']}/add", array('typeid'=>$typeid,'gourl'=>$gourl), true, true);
+            $data['gourl'] = $gourl;
+            $jumpUrl = url("{$ctl_name}/add", $data, true, true);
             header('Location: '.$jumpUrl);
             exit;
         }

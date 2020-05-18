@@ -84,8 +84,20 @@ class System extends Base
             if (!empty($param['web_ico']) && !is_http_url($param['web_ico'])) {
                 $source = realpath(preg_replace('#^'.$this->root_dir.'/#i', '', $param['web_ico']));
                 $destination = realpath('favicon.ico');
-                if (file_exists($source) && @copy($source, $destination)) {
-                    $param['web_ico'] = $this->root_dir.'/favicon.ico';
+                if (empty($destination) || $source == $destination) {
+                    unset($param['web_ico']);
+                } else {
+                    /*修复copy一句话图片木马漏洞*/
+                    $image_ext = config('global.image_ext');
+                    $image_ext_arr = explode(',', $image_ext);
+                    $source_ext = pathinfo($source, PATHINFO_EXTENSION);
+                    if (!empty($source_ext) && !in_array($source_ext, $image_ext_arr)) {
+                        $this->error('地址栏图标必须是ico扩展名的图片');
+                    }
+                    /*end*/
+                    if (file_exists($source) && @copy($source, $destination)) {
+                        $param['web_ico'] = $this->root_dir.'/favicon.ico';
+                    }
                 }
             }
 
@@ -192,6 +204,15 @@ class System extends Base
                     $destination = '/public/static/admin/images/logo.png';
                 }
 
+                /*修复copy一句话图片木马漏洞*/
+                $image_ext = config('global.image_ext');
+                $image_ext_arr = explode(',', $image_ext);
+                $source_ext = pathinfo('.'.$source, PATHINFO_EXTENSION);
+                if (!empty($source_ext) && !in_array($source_ext, $image_ext_arr)) {
+                    $this->error('上传图片扩展名错误！');
+                }
+                /*end*/
+
                 if (@copy('.'.$source, '.'.$destination)) {
                     $param['web_adminlogo'] = $this->root_dir.$destination;
                 }
@@ -297,17 +318,20 @@ class System extends Base
 
         if (IS_POST) {
             $param = input('post.');
-            $param['file_size'] = intval($param['file_size']);
+            $old_basic_img_style_wh = $param['old_basic_img_style_wh'];
+            unset($param['old_basic_img_style_wh']);
 
+            $param['file_size'] = intval($param['file_size']);
             if (0 < $max_filesize && $max_filesize < $param['file_size']) {
                 $this->error("附件上传大小超过空间的最大限制".$maxFileupload);
             }
 
-            // 过滤php扩展名的附件类型
+            $image_ext = config('global.image_ext');
+            $image_ext_arr = explode(',', $image_ext);
             $image_type = explode('|', $param['image_type']);
             foreach ($image_type as $key => $val) {
                 $val = trim($val);
-                if (stristr($val, 'php') || empty($val)) {
+                if (!in_array($val, $image_ext_arr) || empty($val)) {
                     unset($image_type[$key]);
                 }
             }
@@ -349,6 +373,14 @@ class System extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
+
+            if ($old_basic_img_style_wh != $param['basic_img_style_wh']) {
+                // 清空详情页缓存
+                foreach (['http','https'] as $key => $val) {
+                    delFile(RUNTIME_PATH.'html/'.$val.'/view');
+                }
+            }
+
             $this->success('操作成功', url('System/basic'));
         }
 
@@ -484,32 +516,54 @@ class System extends Base
         return $this->fetch();
     }
 
-    /**
-     * 短信配置
-     */
-    public function sms()
+    // 所有API接口的配置
+    public function api_conf()
     {
-        $inc_type =  'sms';
+        /*会员中心总配置信息*/
+        $userConfig = getUsersConfigData('all');
+        $this->assign('userConfig', $userConfig);
+        /* END */
 
-        if (IS_POST) {
-            $param = input('post.');
-            /*多语言*/
-            if (is_language()) {
-                $langRow = \think\Db::name('language')->order('id asc')
-                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                    ->select();
-                foreach ($langRow as $key => $val) {
-                    tpCache($inc_type, $param, $val['mark']);
-                }
-            } else {
-                tpCache($inc_type,$param);
-            }
-            /*--end*/
-            $this->success('操作成功', url('System/sms'));
+        /*是否开启支付功能*/
+        $this->assign('pay_open', $userConfig['pay_open']);
+        /* END */
+
+        /*微信支付配置*/
+        $wechat = !empty($userConfig['pay_wechat_config']) ? unserialize($userConfig['pay_wechat_config']) : [];
+        $this->assign('wechat', $wechat);
+        /* END */
+
+        /*支付宝支付配置*/
+        $alipay = !empty($userConfig['pay_alipay_config']) ? unserialize($userConfig['pay_alipay_config']) : [];
+        $this->assign('alipay', $alipay);
+        if (version_compare(PHP_VERSION,'5.5.0','<')) {
+            $php_version = 1; // PHP5.4.0或更低版本，可使用旧版支付方式
+        } else {
+            $php_version = 0;// PHP5.5.0或更高版本，可使用新版支付方式，兼容旧版支付方式
         }
+        $this->assign('php_version',$php_version);
+        /* END */
 
-        $config = tpCache($inc_type);
-        $this->assign('config',$config);//当前配置项
+        /*微站点配置*/
+        $login = !empty($userConfig['wechat_login_config']) ? unserialize($userConfig['wechat_login_config']) : [];
+        $this->assign('login', $login);
+        /* END */
+
+        /*邮箱配置*/
+        $smtp = tpCache('smtp');
+        $this->assign('smtp', $smtp);
+        /* END */
+
+        /*手机短信配置*/
+        $sms = tpCache('sms');
+        $this->assign('sms', $sms);
+        /* END */
+
+        /*阿里云OSS配置*/
+        $oss = tpCache('oss');
+        $this->assign('oss', $oss);
+        /* END */
+
         return $this->fetch();
     }
 
@@ -519,9 +573,11 @@ class System extends Base
     public function smtp()
     {
         $inc_type =  'smtp';
-
         if (IS_POST) {
             $param = input('post.');
+            $param['smtp_shop_order_pay'] = !empty($param['smtp_shop_order_pay']) ? 1 : 0;
+            $param['smtp_shop_order_send'] = !empty($param['smtp_shop_order_send']) ? 1 : 0;
+
             /*多语言*/
             if (is_language()) {
                 $langRow = \think\Db::name('language')->order('id asc')
@@ -531,7 +587,7 @@ class System extends Base
                     tpCache($inc_type, $param, $val['mark']);
                 }
             } else {
-                tpCache($inc_type,$param);
+                tpCache($inc_type, $param);
             }
             /*--end*/
             $iframes = input('param.iframes/d');
@@ -576,6 +632,94 @@ class System extends Base
         
         return $this->fetch();
     }
+
+    /**
+     * 短信配置
+     */
+    public function sms()
+    {
+        $inc_type =  'sms';
+        if (IS_POST) {
+            $param = input('post.');
+            $param['sms_shop_order_pay'] = !empty($param['sms_shop_order_pay']) ? 1 : 0;
+            $param['sms_shop_order_send'] = !empty($param['sms_shop_order_send']) ? 1 : 0;
+
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type, $param);
+            }
+            /*--end*/
+            $this->success('操作成功', url('System/sms'));
+        }
+    }
+
+    /**
+     * 短信模板列表
+     */
+    public function sms_tpl()
+    {
+        $list = array();
+        $keywords = input('keywords/s');
+
+        $map = [
+            'lang' => $this->admin_lang
+        ];
+        if (!empty($keywords)) $map['tpl_title'] = array('LIKE', "%{$keywords}%");
+
+        $count = Db::name('sms_template')->where($map)->count('tpl_id');// 查询满足要求的总记录数
+        $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list = Db::name('sms_template')->where($map)
+            ->order('tpl_id asc')
+            ->limit($pageObj->firstRow.','.$pageObj->listRows)
+            ->select();
+        $pageStr = $pageObj->show(); // 分页显示输出
+        $this->assign('list', $list); // 赋值数据集
+        $this->assign('pageStr', $pageStr); // 赋值分页输出
+        $this->assign('pageObj', $pageObj); // 赋值分页对象
+        
+        return $this->fetch();
+    }
+
+    /**
+     * 微站点配置
+     */
+    public function microsite()
+    {
+        if (IS_POST) {
+            $post = input('post.');
+            if (!empty($post)) {
+                if (1 == $post['shop']['shop_micro']) {
+                    if (empty($post['login']['appid']) || empty($post['login']['appsecret'])) {
+                        $post['shop']['shop_micro'] = 0;
+                    }
+                }
+                if (1 == $post['shop']['shop_force_use_wechat']) {
+                    if (empty($post['login']['appid']) || empty($post['login']['appsecret'])) {
+                        $post['shop']['shop_force_use_wechat'] = 0;
+                    } else {
+                        $post['shop']['shop_micro'] = 1;
+                    }
+                }
+
+                // 微信登录配置处理
+                $post['wechat']['wechat_login_config'] = serialize($post['login']);
+                unset($post['login']);
+
+                foreach ($post as $key => $val) {
+                    is_array($val) && getUsersConfigData($key, $val);
+                }
+                $this->success('设置成功！', url('Shop/conf'));
+            }
+        }
+    }
+    
     
     /**
      * 邮件模板列表 - 编辑
@@ -626,11 +770,28 @@ class System extends Base
     }
 
     /**
-     * 清空缓存 - 兼容升级没刷新后台，点击报错404，过1.2.5版本之后清除掉代码
+     * 阿里云OSS配置
      */
-    public function clearCache()
+    public function oss()
     {
-        return $this->clear_cache();
+        $inc_type =  'oss';
+        if (IS_POST) {
+            $param = input('post.');
+            
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache($inc_type, $param, $val['mark']);
+                }
+            } else {
+                tpCache($inc_type, $param);
+            }
+            /*--end*/
+            $this->success('操作成功');
+        }
     }
 
     /**
@@ -824,7 +985,7 @@ class System extends Base
     public function send_mobile()
     {
         $param = $sms_config = input('post.');
-        $res = sendSms(4,$param['sms_test_mobile'],array('content'=>mt_rand(1000,9999)));
+        $res = sendSms(0, $param['sms_test_mobile'], array('content'=>mt_rand(1000,9999)));
         if (intval($res['code']) == 1) {
             /*多语言*/
             if (is_language()) {
@@ -835,7 +996,7 @@ class System extends Base
                     tpCache('sms', $sms_config, $val['mark']);
                 }
             } else {
-                tpCache('sms',$sms_config);
+                tpCache('sms', $sms_config);
             }
             /*--end*/
             $this->success($res['msg']);

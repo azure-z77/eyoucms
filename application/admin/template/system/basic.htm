@@ -61,10 +61,23 @@
                     <p class="notic">附件上传大小限制，如果空间不支持，请与空间商联系修改php.ini部分参数</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">编辑器的图片自适应</dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="basic_img_style_wh1" class="cb-enable {if condition='!isset($config.basic_img_style_wh) || $config.basic_img_style_wh eq 1'}selected{/if}" >开启</label>
+                        <label for="basic_img_style_wh0" class="cb-disable {if condition='isset($config.basic_img_style_wh) && $config.basic_img_style_wh == 0'}selected{/if}" >关闭</label>
+                        <input id="basic_img_style_wh1" name="basic_img_style_wh" value="1" {if condition="!isset($config.basic_img_style_wh) || $config.basic_img_style_wh == 1"}checked{/if} type="radio">
+                        <input id="basic_img_style_wh0" name="basic_img_style_wh" value="0" {if condition="isset($config.basic_img_style_wh) && $config.basic_img_style_wh == 0"}checked{/if} type="radio">
+                    </div>
+                    <p class="notic">自动加上自适应代码，确保手机端下图片不变形</p>
+                </dd>
+            </dl>
             {/eq}
             <div class="bot">
                 <input type="hidden" name="max_filesize" id="max_filesize" value="{$max_filesize}">
                 <input type="hidden" name="max_sizeunit" id="max_sizeunit" value="{$max_sizeunit}">
+                <input type="hidden" name="old_basic_img_style_wh" value="{$config.basic_img_style_wh|default=1}">
                 <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a>
             </div>
         </div>

@@ -4,7 +4,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page atta">
     {include file="seo/bar" /}
-    <form method="post" id="handlepost" action="{:U('Seo/handle')}" enctype="multipart/form-data" name="form1">
+    <form method="post" id="handlepost" action="{:U('Sitemap/index')}" enctype="multipart/form-data" name="form1">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">自动生成</dt>
@@ -151,7 +151,6 @@
                 </dd>
             </dl>
             <div class="bot">
-                <input type="hidden" name="inc_type" value="{$inc_type}">
                 <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a>
             </div>
         </div>

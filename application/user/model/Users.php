@@ -12,6 +12,7 @@
  */
 namespace app\user\model;
 
+use think\Db;
 use think\Model;
 use think\Config;
 
@@ -109,7 +110,7 @@ class Users extends Model
         /*--end*/
 
         $users_verification = getUsersConfigData('users.users_verification');
-        if ('2' == $users_verification) {
+        if (2 == $users_verification) {
             $time = getTime();
             /*处理邮箱验证码逻辑*/
             if (!empty($email)) {
@@ -144,6 +145,41 @@ class Users extends Model
                         return '邮箱验证码不正确，请重新输入！';
                     }
                 }
+            }
+            /*--end*/
+        } else if (3 == $users_verification) {
+            $time = getTime();
+            /*处理手机验证码逻辑*/
+            if (!empty($mobile)) {
+                $where = [
+                    'mobile' => $mobile,
+                    'code' => $mobile_code
+                ];
+                $smslog = Db::name('sms_log')->where($where)->field('is_use, add_time')->order('id desc')->find();
+                if (!empty($smslog)) {
+                    $smslog['add_time'] += Config::get('global.mobile_default_time_out');
+                    if (1 == $smslog['is_use'] || $smslog['add_time'] <= $time) {
+                        $data = '手机验证码已被使用或超时，请重新发送！';
+                    } else {
+                        // 返回后处理手机验证码失效操作
+                        $data = [
+                            'code_status' => 1,// 正确
+                            'mobile' => $mobile
+                        ];
+                    }
+                } else {
+                    if (!empty($users_id)) {
+                        // 当会员修改手机地址，验证码为空或错误返回
+                        $row = $this->getUsersListData('mobile', $users_id);
+                        if ($mobile != $row['mobile']) {
+                            $data = '手机验证码不正确，请重新输入！';
+                        }
+                    } else {
+                        // 当会员注册时，验证码为空或错误返回
+                        $data = '手机验证码不正确，请重新输入！';
+                    }
+                }
+                return $data;
             }
             /*--end*/
         }

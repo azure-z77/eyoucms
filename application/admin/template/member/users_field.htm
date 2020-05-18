@@ -365,5 +365,55 @@
                 </script>
                 <!-- HTML文本 end -->
             {/case}
+
+            {/eyou:case}
+            {case value="file"}
+            <!-- 单个文件 start -->
+            <dl class="row">
+                <dt class="tit">
+                    <label>{if condition="1 == $vo.is_required"}<!-- <em>*</em> -->{/if}{$vo.title}</label>
+                </dt>
+                <dd class="opt">
+                    <a id="download_file_{$vo.fieldArr}_{$vo.name|default=''}" style="margin-right: 30px;text-decoration: underline;{eyou:notempty name='$vo.dfvalue' /}display: '';{eyou:else /}display: none;{/eyou:notempty}"
+                       {eyou:notempty name='$vo.dfvalue' /} href="{$vo.dfvalue|default=''}" download="{$vo.dfvalue|get_filename=###}" {/eyou:notempty}>
+                    <img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">下载附件</a>
+                    <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.dfvalue|default=''}" style="display: none;">
+                    <button type="button" class="layui-btn" id="upload_{$vo.fieldArr}_{$vo.name|default=''}" style="height: 30px;line-height: 30px;padding: 0 5px;background-color: #4fc0e8;">上传文件</button>
+                </dd>
+            </dl>
+            <script type="text/javascript">
+                layui.use('upload', function(){
+                    var upload = layui.upload;
+
+                    //执行实例
+                    upload.render({
+                        elem: '#upload_{$vo.fieldArr}_{$vo.name|default=""}' //绑定元素
+                        ,url: "{:url('user/Uploadify/DownloadUploadFileAjax')}"
+                        ,accept: 'file' //普通文件
+                        ,done: function(res){
+                            if (res.state=="SUCCESS"){
+                                layer.msg('上传成功!');
+                                $("#{$vo.fieldArr}_{$vo.name|default=''}").val(res.url);
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('display','');
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").attr('href',res.url);
+                                var  arr = res.url.split("/");
+                                var download = arr[arr.length-1];
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").attr('download',download);
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('color','#000');
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").html('<img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">下载附件');
+                            }else {
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('display','');
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('color','red');
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").text(res.state);
+                            }
+                        }
+                        ,error: function(){
+                            //请求异常回调
+                        }
+                    });
+                });
+            </script>
+            <!-- 单个文件 end -->
+            {/case}
         {/switch}
 {/volist}

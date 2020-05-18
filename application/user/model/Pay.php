@@ -32,17 +32,61 @@ class Pay extends Model
         $this->home_lang = get_home_lang();
     }
 
+    /**
+     * 虚拟网盘支付后自动发货,收货
+     * @param array $where =[ 'users_id'=>'','lang'=> $this->home_lang,'order_id'=> ''] 用户id  语言  订单id
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function afterVirtualProductPay($where = [])
+    {
+        //判断是否为需要自动发货的虚拟商品  archives表prom_type=2,3
+        $details_data = Db::name('shop_order_details')->where($where)->select();
+        $result       = true;//多商品合并的订单，需要先判断是否都是需要自动发货的
+        foreach ($details_data as &$key) {
+            if ($key['prom_type'] == 0 || $key['prom_type'] == 1) {
+                $result = false;
+                break;    //只要存在一个需要手动发货的就结束循环，并且不进入自动发货
+            }
+        }
+        //直接发货
+        if ($result){
+            $UpdateData = [
+                'order_status' => 2,
+                'express_time' => getTime(),
+                'update_time'  => getTime(),
+                //'virtual_delivery' => $virtual_delivery,  //注释,每次取出的时候再拼接
+            ];
+
+            $updateOrder = Db::name('shop_order')->where($where)->update($UpdateData);
+            if ($updateOrder) {
+                AddOrderAction($where['order_id'], '0', session('admin_id'), '2', '1', '1', '虚拟商品自动发货成功！', '发货成功');
+                //自动确认收货
+                $confirmOrder = Db::name('shop_order')->where($where)->update([
+                    'order_status' => 3,
+                    'confirm_time' => getTime(),
+                    'update_time'  => getTime(),
+                ]);
+                if ($confirmOrder) {
+                    AddOrderAction($where['order_id'], '0', session('admin_id'), '3', '1', '1', '虚拟商品自动收货成功！', '确认订单已收货');
+                }
+            }
+        }
+    }
+
     // 处理充值订单，超过指定时间修改为已取消订单，针对未付款订单
-    public function UpdateOrderData($users_id){
+    public function UpdateOrderData($users_id)
+    {
         $time  = getTime() - Config::get('global.get_order_validity');
         $where = array(
-            'users_id'  => $users_id,
+            'users_id' => $users_id,
             'status'   => 1,
-            'add_time' => array('<',$time),
+            'add_time' => array('<', $time),
         );
-        $data = [
-            'status'        => 4, // 订单取消
-            'update_time'   => getTime(),
+        $data  = [
+            'status'      => 4, // 订单取消
+            'update_time' => getTime(),
         ];
         Db::name('users_money')->where($where)->update($data);
     }
@@ -54,7 +98,7 @@ class Pay extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string  $ReturnData : 微信支付所需参数数组
      */
-    public function getWechatPay($openid,$out_trade_no,$total_fee,$body="支付",$attach="微信端H5支付")
+    public function getWechatPay($openid, $out_trade_no, $total_fee, $body="支付", $attach="微信端H5支付", $is_applets = 0)
     {
         // 获取微信配置信息
         $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
@@ -63,6 +107,14 @@ class Pay extends Model
         }
         $wechat = unserialize($pay_wechat_config);
         $this->key = $wechat['key'];
+
+        if (1 === $is_applets) {
+            // 小程序配置
+            $MiniproValue = Db::name('weapp_minipro0002')->where('type', 'minipro')->getField('value');
+            if (empty($MiniproValue)) return false;
+            $MiniproValue = !empty($MiniproValue) ? json_decode($MiniproValue, true) : [];
+            $wechat['appid'] = $MiniproValue['appId'];
+        }
 
         //支付数据
         $data['body']             = $body;
@@ -76,7 +128,7 @@ class Pay extends Model
         $data['trade_type']       = "JSAPI";
         $data['notify_url']       = url('users/Pay/mobile_pay_notify');
         $data['openid']           = $openid;
-
+ 
         $sign = $this->getParam($data);
         $dataXML = "<xml>
            <appid>".$data['appid']."</appid>
@@ -96,7 +148,8 @@ class Pay extends Model
         $url    = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
         $result =  $this->https_post($url,$dataXML);
         $ret    =  $this->xmlToArray($result);
-        if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+
+        if ($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
             $timeStamp  = getTime();
             $ReturnData = [
                 'appId'     => $wechat['appid'],
@@ -108,10 +161,11 @@ class Pay extends Model
             $ReturnSign = $this->getParam($ReturnData);
             $ReturnData['paySign'] = $ReturnSign;
             return $ReturnData;
-        }else{
-            return false;
+        } else if ($ret['return_code'] == 'FAIL') {
+            return $ret;
+        } else {
+            return $ret;
         }
-
     }
 
     /*
@@ -229,17 +283,18 @@ class Pay extends Model
     }
 
     // 获取客户端IP
-    private function get_client_ip() {
-        if(getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
+    private function get_client_ip()
+    {
+        if (getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
             $ip = getenv('HTTP_CLIENT_IP');
-        } elseif(getenv('HTTP_X_FORWARDED_FOR') && strcasecmp(getenv('HTTP_X_FORWARDED_FOR'), 'unknown')) {
+        } elseif (getenv('HTTP_X_FORWARDED_FOR') && strcasecmp(getenv('HTTP_X_FORWARDED_FOR'), 'unknown')) {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
-        } elseif(getenv('REMOTE_ADDR') && strcasecmp(getenv('REMOTE_ADDR'), 'unknown')) {
+        } elseif (getenv('REMOTE_ADDR') && strcasecmp(getenv('REMOTE_ADDR'), 'unknown')) {
             $ip = getenv('REMOTE_ADDR');
-        } elseif(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
+        } elseif (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
-        return preg_match ( '/[\d\.]{7,15}/', $ip, $matches ) ? $matches [0] : '';
+        return preg_match('/[\d\.]{7,15}/', $ip, $matches) ? $matches [0] : '';
     }
 
     //对参数排序，生成MD5加密签名
@@ -249,14 +304,13 @@ class Pay extends Model
         ksort($paramArray);
         $i = 0;
 
-        foreach ($paramArray as $key => $value)
-        {
-            if ($key == 'Signature'){
+        foreach ($paramArray as $key => $value) {
+            if ($key == 'Signature') {
                 continue;
             }
-            if ($i == 0){
+            if ($i == 0) {
                 $paramStr .= '';
-            }else{
+            } else {
                 $paramStr .= '&';
             }
             $paramStr .= $key . '=' . ($isencode ? urlencode($value) : $value);
@@ -307,7 +361,8 @@ class Pay extends Model
      *   @params string $data   : 订单表数据，必须传入
      *   return string $alipay_url : 支付宝支付链接
      */
-    public function getNewAliPayPayUrl($data){
+    public function getNewAliPayPayUrl($data)
+    {
         // 引入SDK文件
         vendor('alipay.pagepay.service.AlipayTradeService');
         vendor('alipay.pagepay.buildermodel.AlipayTradePagePayContentBuilder');
@@ -359,12 +414,13 @@ class Pay extends Model
      *   @params string $alipay : 支付宝配置信息，通过 getUsersConfigData 方法调用数据
      *   return string $alipay_url : 支付宝支付链接
      */
-    public function getOldAliPayPayUrl($data,$alipay){
+    public function getOldAliPayPayUrl($data, $alipay)
+    {
         // 重要参数，支付宝配置信息
         if (empty($alipay)) {
             return false;
         }
-        
+
         // 参数设置
         $order['out_trade_no'] = $data['unified_number']; //订单号
         $order['price']        = $data['unified_amount']; //订单金额
@@ -420,26 +476,26 @@ class Pay extends Model
         $param = '';
         $sign  = '';
 
-        foreach ($parameter AS $key => $val)
-        {
-            $param .= "$key=" .urlencode($val). "&";
+        foreach ($parameter AS $key => $val) {
+            $param .= "$key=" . urlencode($val) . "&";
             $sign  .= "$key=$val&";
         }
-        
-        $param = substr($param, 0, -1);
-        $sign  = substr($sign, 0, -1). $security_check_code;
-        $alipay_url = 'https://www.alipay.com/cooperate/gateway.do?'.$param. '&sign='.MD5($sign).'&sign_type=MD5';
+
+        $param      = substr($param, 0, -1);
+        $sign       = substr($sign, 0, -1) . $security_check_code;
+        $alipay_url = 'https://www.alipay.com/cooperate/gateway.do?' . $param . '&sign=' . MD5($sign) . '&sign_type=MD5';
         return $alipay_url;
     }
 
     // 获取随机字符串
     // 长度 length
     // 结果 str
-    public function GetRandomString($length){
+    public function GetRandomString($length)
+    {
         $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         $str   = "";
         for ($i = 0; $i < $length; $i++) {
-          $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
         }
         return $str;
     }

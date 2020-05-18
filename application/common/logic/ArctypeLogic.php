@@ -138,7 +138,7 @@ class ArctypeLogic extends Model
                 {
                     $select .= str_repeat('&nbsp;', $var['level'] * 4);
                 }
-                $select .= htmlspecialchars(addslashes($var['typename'])) . '</option>';
+                $select .= htmlspecialchars_decode(addslashes($var['typename'])) . '</option>';
             }
     
             return $select;
@@ -192,7 +192,7 @@ class ArctypeLogic extends Model
                         $options[$id]          = $value;
                         $options[$id]['level'] = $level;
                         $options[$id]['id']    = $id;
-                        $options[$id]['typename']  = $value['typename'];
+                        $options[$id]['typename']  = htmlspecialchars_decode($value['typename']);
                         unset($arr[$key]);
     
                         if ($value['has_children'] == 0)
@@ -210,7 +210,7 @@ class ArctypeLogic extends Model
                         $options[$id]          = $value;
                         $options[$id]['level'] = $level;
                         $options[$id]['id']    = $id;
-                        $options[$id]['typename']  = $value['typename'];
+                        $options[$id]['typename']  = htmlspecialchars_decode($value['typename']);
                         unset($arr[$key]);
     
                         if ($value['has_children'] > 0)
@@ -375,7 +375,7 @@ class ArctypeLogic extends Model
     /**
      * 获取栏目的目录名称，确保唯一性
      */
-    public function get_dirname($typename = '', $dirname = '', $id = 0)
+    public function get_dirname($typename = '', $dirname = '', $id = 0, $newDirnameArr = [])
     {
         $id = intval($id);
         if (!trim($dirname) || empty($dirname)) {
@@ -385,9 +385,9 @@ class ArctypeLogic extends Model
             $dirname .= get_rand_str(3,0,2);
         }
         $dirname = preg_replace('/(\s)+/', '_', $dirname);
-        if (!$this->dirname_unique($dirname, $id)) {
+        if (!$this->dirname_unique($dirname, $id, $newDirnameArr)) {
             $nowDirname = $dirname.get_rand_str(3,0,2);
-            return $this->get_dirname($typename, $nowDirname, $id);
+            return $this->get_dirname($typename, $nowDirname, $id, $newDirnameArr);
         }
 
         return $dirname;
@@ -396,7 +396,7 @@ class ArctypeLogic extends Model
     /**
      * 判断目录名称的唯一性
      */
-    public function dirname_unique($dirname = '', $typeid = 0)
+    public function dirname_unique($dirname = '', $typeid = 0, $newDirnameArr = [])
     {
         $result = Db::name('arctype')->field('id,dirname')
             ->where(['lang'=>get_admin_lang()])
@@ -409,6 +409,7 @@ class ArctypeLogic extends Model
         $langMarks = Db::name('language_mark')->column('mark'); // 多语言标识
         $disableDirname = config('global.disable_dirname');
         $disableDirname = array_merge($disableDirname, $langMarks, $result);
+        !empty($newDirnameArr) && $disableDirname = array_merge($disableDirname, $newDirnameArr);
         if (in_array(strtolower($dirname), $disableDirname)) {
             return false;
         }

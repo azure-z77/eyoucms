@@ -316,6 +316,9 @@ class Buildhtml extends Base
         /*--end*/
 
         $dir = $this->getArticleDir($result['dirpath']);
+        if (!empty($result['htmlfilename'])){
+            $aid =  $result['htmlfilename'];
+        }
         $savepath = $dir.'/'.$aid.'.html';
 
         try{
@@ -335,6 +338,13 @@ class Buildhtml extends Base
             $dirpath_arr = explode('/',$dirpath);
             if(count($dirpath_arr) > 2){
                 $dir = '.'.$seo_html_arcdir.'/'.$dirpath_arr[1];
+            }else{
+                $dir = '.'.$seo_html_arcdir.$dirpath;
+            }
+        } else if ($seo_html_pagename == 3) { //存放子级目录
+            $dirpath_arr = explode('/',$dirpath);
+            if(count($dirpath_arr) > 2){
+                $dir = '.'.$seo_html_arcdir.'/'.end($dirpath_arr);
             }else{
                 $dir = '.'.$seo_html_arcdir.$dirpath;
             }
@@ -454,14 +464,19 @@ class Buildhtml extends Base
         if(in_array($row['current_channel'], [6,8])){   //留言模型或单页模型，不存在多页
             $this->request->get(['page'=>'']);
             $dirpath = explode('/',$eyou['field']['dirpath']);
+            $dirpath_end = end($dirpath);
             if($seo_html_listname == 1){  //存放顶级目录
                 $savepath  = '.'.$seo_html_arcdir.'/'.$dirpath[1]."/lists_".$eyou['field']['typeid'].".html";
+            } else if ($seo_html_listname == 3) { // //存放子级目录
+                $savepath  = '.'.$seo_html_arcdir.'/'.$dirpath_end."/lists_".$eyou['field']['typeid'].".html";
             }else{
                 $savepath  = '.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/'.'lists_'.$eyou['field']['typeid'].".html";
             }
             try{
                 $this->filePutContents($savepath, $tpl, 'pc', 0, '/', 0, 1, $row);
-                if ($seo_html_listname != 1 || count($dirpath) < 3){
+                if ($seo_html_listname == 3) {
+                    copy($savepath,'.'.$seo_html_arcdir.'/'.$dirpath_end.'/index.html');
+                } else if ($seo_html_listname == 2 || count($dirpath) < 3){
                     copy($savepath,'.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/index.html');
                 }
             }catch(\Exception $e){
@@ -495,9 +510,13 @@ class Buildhtml extends Base
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
         $dirpath = explode('/',$eyou['field']['dirpath']);
+        $dirpath_end = end($dirpath);
         if($seo_html_listname == 1){  //存放顶级目录
             $dir = '.'.$seo_html_arcdir.'/'.$dirpath[1];
             $savepath  = '.'.$seo_html_arcdir.'/'.$dirpath[1]."/lists_".$eyou['field']['typeid'];
+        } else if ($seo_html_listname == 3) { //存放子级目录
+            $dir = '.'.$seo_html_arcdir.'/'.$dirpath_end;
+            $savepath  = '.'.$seo_html_arcdir.'/'.$dirpath_end."/lists_".$eyou['field']['typeid'];
         }else{
             $dir = '.'.$seo_html_arcdir.$eyou['field']['dirpath'];
             $savepath  = '.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/'.'lists_'.$eyou['field']['typeid'];
@@ -507,10 +526,17 @@ class Buildhtml extends Base
         }else{
             $savepath .= '.html';
         }
-        $top = $i > 1 && $seo_html_listname == 1 && count($dirpath) >2 ? 2 :1;
+        $top = 1;
+        if ($i > 1 && $seo_html_listname == 1 && count($dirpath) >2) {
+            $top = 2;
+        } else if ($i > 1 && $seo_html_listname == 3) {
+            $top = 1;
+        }
         try{
             $this->filePutContents($savepath, $tpl, 'pc', $i, $dir, $tid, $top, $row);
-            if ($i==1 && ($seo_html_listname != 1 || count($dirpath) < 3)){
+            if ($i==1 && $seo_html_listname == 3) {
+                copy($savepath,'.'.$seo_html_arcdir.'/'.$dirpath_end.'/index.html');
+            } else if ($i==1 && ($seo_html_listname == 2 || count($dirpath) < 3)){
                 copy($savepath,'.'.$seo_html_arcdir.$eyou['field']['dirpath'].'/index.html');
             }
         }catch(\Exception $e){

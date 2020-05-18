@@ -43,6 +43,8 @@ class DownloadFile extends Model
 
         if (!empty($result)) {
             $hidden = '';
+            $n = 1;
+            $n2 = 1;
             foreach ($result as $key => $val) {
                 $downurl     = ROOT_DIR."/index.php?m=home&c=View&a=downfile&id={$val['file_id']}&uhash={$val['uhash']}";
 
@@ -50,6 +52,14 @@ class DownloadFile extends Model
                 if (!empty($val['extract_code'])) {
                     $result[$key]['title'] = '提取码：'.$val['extract_code'];
                 }
+                if (is_http_url($val['file_url'])) {
+                    $result[$key]['server_name'] = !empty($val['file_name']) ? $val['file_name'] : "远程服务器({$n})";
+                    $n++;
+                } else {
+                    $result[$key]['server_name'] = "本地服务器({$n2})";
+                    $n2++;
+                }
+                $result[$key]['softlinks'] = $downurl;
                 $result[$key]['downurl'] = "javascript:ey_1563185380({$val['file_id']});";
                 $result[$key]['ey_1563185380'] = "<input type='hidden' id='ey_file_list_{$val['file_id']}' value='{$downurl}' />";
                 $result[$key]['ey_1563185376'] = $this->handleDownJs($hidden);

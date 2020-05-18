@@ -11,82 +11,95 @@
 </script> 
 </head>
 <body>
-<div class="upload-box" style="height: 90%;">
-    <ul class="tabs">
-        <li class="checked" id="upload_tab">本地上传</li>
-        <a href="javascript:void(0);" onclick="picture_folder(this);" data-url="{:url('Uploadify/picture_folder',['num'=>$info['num'],'input'=>$info['input'],'path'=>$info['path'],'func'=>$info['func']])}"><li>在线管理</li></a>
-        <!-- <li id="search_tab">文件搜索</li> -->
-    </ul>
-    <div class="container">
-        <div class="area upload-area area-checked" id="upload_area">
-            <div id="uploader">
-                <div class="statusBar" style="display:none;">
-                    <div class="progress">
-                        <span class="text">0%</span>
-                        <span class="percentage"></span>
-                    </div><div class="info"></div>
-                    <div class="btns">
-                        <div id="filePicker2"></div><div class="uploadBtn">开始上传</div>
-                        <div class="saveBtn">确定使用</div>
-                    </div>
-                </div>
-                <div class="queueList">
-                    <div id="dndArea" class="placeholder">
-                        <div id="filePicker"></div>
-                        <p>或将文件拖到这里，本次最多可选{$info.num|default=1}个</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="area manage-area" id="manage_area">
-            <ul class="choose-btns">
-                <li class="btn sure checked">确定</li>
-                <li class="btn cancel">取消</li>
-            </ul>
-            <div class="file-list">
-                <ul id="file_all_list">
-                    <!--<li class="checked">
-                        <div class="img">
-                            <img src="" />
-                            <span class="icon"></span>
-                        </div>
-                        <div class="desc"></div>
-                    </li>-->
-                </ul>
-            </div>
-        </div>
-        <div class="area search-area" id="search_area">
-            <ul class="choose-btns">
-                <li class="search">
-                    <div class="search-condition">
-                        <input class="key" type="text" />
-                        <input class="submit" type="button" hidefocus="true" value="搜索" />
-                    </div>
-                </li>
-                <li class="btn sure checked">确定</li>
-                <li class="btn cancel">取消</li>
-            </ul>
-            <div class="file-list">
-                <ul id="file_search_list">
-                    <!--<li>
-                        <div class="img">
-                            <img src="" />
-                            <span class="icon"></span>
-                        </div>
-                        <div class="desc"></div>
-                    </li>-->
-                </ul>
-            </div>
-        </div>
-        <div class="fileWarp" style="display:none;">
-            <fieldset>
-                <legend>列表</legend>
-                <ul>
-                </ul>
-            </fieldset>
-        </div>
-    </div>
+<div class="upload-main">
+	<div class="upload-main-left">
+		<div class="upload-nav">
+			<ul>
+				<li><a class="upload-nav-active" href="javascript:void(0);" id="upload_tab">本地上传</a></li>
+				<li> <a href="javascript:void(0);" onclick="picture_folder(this);" data-url="{:url('Uploadify/picture_folder',['num'=>$info['num'],'input'=>$info['input'],'path'=>$info['path'],'func'=>$info['func']])}">在线管理</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="upload-content">
+		<div class="upload-box" style="padding: 20px;">
+		 <!--   <ul class="tabs">
+		        <li class="checked" id="upload_tab">本地上传</li>
+		        <a href="javascript:void(0);" onclick="picture_folder(this);" data-url="{:url('Uploadify/picture_folder',['num'=>$info['num'],'input'=>$info['input'],'path'=>$info['path'],'func'=>$info['func']])}"><li>在线管理</li></a>
+		    </ul> -->
+		    <div class="container">
+		        <div class="area upload-area area-checked" id="upload_area">
+		            <div id="uploader">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div><div class="uploadBtn">开始上传</div>
+		                        <div class="saveBtn">确定使用</div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将文件拖到这里，本次最多可选{$info.num|default=1}个</p>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		        <div class="area manage-area" id="manage_area">
+		            <ul class="choose-btns">
+		                <li class="btn sure checked">确定</li>
+		                <li class="btn cancel">取消</li>
+		            </ul>
+		            <div class="file-list">
+		                <ul id="file_all_list">
+		                    <!--<li class="checked">
+		                        <div class="img">
+		                            <img src="" />
+		                            <span class="icon"></span>
+		                        </div>
+		                        <div class="desc"></div>
+		                    </li>-->
+		                </ul>
+		            </div>
+		        </div>
+		        <div class="area search-area" id="search_area">
+		            <ul class="choose-btns">
+		                <li class="search">
+		                    <div class="search-condition">
+		                        <input class="key" type="text" />
+		                        <input class="submit" type="button" hidefocus="true" value="搜索" />
+		                    </div>
+		                </li>
+		                <li class="btn sure checked">确定</li>
+		                <li class="btn cancel">取消</li>
+		            </ul>
+		            <div class="file-list">
+		                <ul id="file_search_list">
+		                    <!--<li>
+		                        <div class="img">
+		                            <img src="" />
+		                            <span class="icon"></span>
+		                        </div>
+		                        <div class="desc"></div>
+		                    </li>-->
+		                </ul>
+		            </div>
+		        </div>
+		        <div class="fileWarp" style="display:none;">
+		            <fieldset>
+		                <legend>列表</legend>
+		                <ul>
+		                </ul>
+		            </fieldset>
+		        </div>
+		    </div>
+		</div>
+	</div>
+
 </div>
+
 
 <script type="text/javascript" src="__STATIC__/common/js/jquery.min.js"></script>
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js?v={$version|default='1.2.9'}"></script>

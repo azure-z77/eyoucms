@@ -140,7 +140,6 @@
                 </dd>
             </dl>
 
-    
         {if condition="!empty($shopConfig['shop_open']) && 1 == $shopConfig['shop_open']"}
             <!-- 产品价格属性 -->
             {empty name="$shopConfig['shop_type']"}
@@ -151,22 +150,141 @@
             {eq name="$shopConfig['shop_type']" value="1"}
                 <!-- 虚拟产品 -->
                 <input type="hidden" name="prom_type" value="1"/>
+                <dl class="row" id="fahuoxingshi" >
+                    <dt class="tit">
+                        <label for="fahuo">发货形式</label>
+                    </dt>
+                    <dd class="opt">
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="1" checked="checked" onclick="change_prom_type(2)"/>手动发货
+                        </label>
+                        &nbsp;
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="2" onclick="change_prom_type(3)"/>网盘下载
+                        </label>
+                        &nbsp;
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="3" onclick="change_prom_type(4)"/>文本内容
+                        </label>
+                    </dd>
+                </dl>
+                <div id="wangpanxiazai" class="none">
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="netdisk_url"><em>*</em>网盘地址</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="netdisk_url" value="" id="netdisk_url" class="input-txt" placeholder="http://">
+                            <span class="err"></span>
+                            <p class="notic">输入完整的URL网址（包含http或https）</p>
+                        </dd>
+                    </dl>
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="netdisk_pwd">提取码</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="netdisk_pwd" value="" id="netdisk_pwd" class="input-txt">
+                            <span class="err"></span>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="unzip_pwd">解压密码</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="unzip_pwd" value="" id="unzip_pwd" class="input-txt">
+                            <span class="err"></span>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
+                </div>
+                <dl class="row none" id="wenbenneirong">
+                    <dt class="tit">
+                        <label for="text_content"><em>*</em>文本内容</label>
+                    </dt>
+                    <dd class="opt">
+                        <textarea rows="5" cols="80" id="text_content" name="text_content" style="width: 375px;height:160px;"></textarea>
+                        <p class="notic"></p>
+                    </dd>
+                </dl>
             {/eq}
 
             {eq name="$shopConfig['shop_type']" value="2"}
                 <!-- 两者都有 -->
                 <dl class="row">
                     <dt class="tit">
-                        <label for="uname"><em></em>产品类型</label>
+                        <label for="uname">产品类型</label>
                     </dt>
                     <dd class="opt">
                         <label>
-                            <input type="radio" name="prom_type" value="0" checked="checked"/>普通产品
+                            <input type="radio" name="prom_type" value="0" checked="checked" onclick="change_prom_type(0)"/>普通产品
                         </label>
                         <br/>
                         <label>
-                            <input type="radio" name="prom_type" value="1" />虚拟产品
+                            <input type="radio" name="prom_type" value="1" onclick="change_prom_type(1)"/>虚拟产品
                         </label>
+                    </dd>
+                </dl>
+
+                <dl class="row none" id="fahuoxingshi">
+                    <dt class="tit">
+                        <label for="fahuo">发货形式</label>
+                    </dt>
+                    <dd class="opt">
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="1" checked="checked" onclick="change_prom_type(2)"/>手动发货
+                        </label>
+                        &nbsp;
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="2" onclick="change_prom_type(3)"/>网盘下载
+                        </label>
+                        &nbsp;
+                        <label>
+                            <input type="radio" name="prom_type_vir" value="3" onclick="change_prom_type(4)"/>文本内容
+                        </label>
+                    </dd>
+                </dl>
+                <div id="wangpanxiazai" class="none">
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="netdisk_url"><em>*</em>网盘地址</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="netdisk_url" value="" id="netdisk_url" class="input-txt" placeholder="http://">
+                            <span class="err"></span>
+                            <p class="notic">输入完整的URL网址（包含http或https）</p>
+                        </dd>
+                    </dl>
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="netdisk_pwd">提取码</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="netdisk_pwd" value="" id="netdisk_pwd" class="input-txt">
+                            <span class="err"></span>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
+                    <dl class="row">
+                        <dt class="tit">
+                            <label for="unzip_pwd">解压密码</label>
+                        </dt>
+                        <dd class="opt">
+                            <input type="text" name="unzip_pwd" value="" id="unzip_pwd" class="input-txt">
+                            <span class="err"></span>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
+                </div>
+                <dl class="row none" id="wenbenneirong">
+                    <dt class="tit">
+                        <label for="text_content"><em>*</em>文本内容</label>
+                    </dt>
+                    <dd class="opt">
+                        <textarea rows="5" cols="80" id="text_content" name="text_content" style="width: 375px;height:160px;"></textarea>
+                        <p class="notic"></p>
                     </dd>
                 </dl>
             {/eq}
@@ -216,10 +334,7 @@
             <dl class="row">
                 <dt class="tit">
                     <label for="users_price">
-                        {if condition="1 == $shopConfig['shop_open']"}
-                        <em>*</em>
-                        {/if}
-                        价格
+                        {if condition="1 == $shopConfig['shop_open']"}<em>*</em>{/if}价格
                     </label>
                 </dt>
                 <dd class="opt">
@@ -233,7 +348,20 @@
 
         {if condition="1 == $shopConfig['shop_open'] && !empty($ifcontrolRow['users_price'])"}
             {if condition="empty($shopConfig['shop_open_spec'])"}
-                <input type="hidden" name="stock_count" value="99999">
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="stock_count">库存</label>
+                    </dt>
+                    <dd class="opt">
+                        <input type="text" name="stock_count" style="width: 10%;" value="99999">
+                        <label>
+                            <input type="checkbox" name="stock_show" value="1" checked="checked">
+                            页面显示商品库存
+                        </label>
+                        <span class="err"></span>
+                        <p class="notic"></p>
+                    </dd>
+                </dl>
             {else /}
                 <dl class="row">
                     <dt class="tit">
@@ -776,6 +904,16 @@
                     <span class="err"></span>
                 </dd>
             </dl>
+            <dl class="row" {neq name='$seo_pseudo' value='2'}style="display: none;"{/neq}>
+                <dt class="tit">
+                    <label>自定义文件名</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" value="" name="htmlfilename" id="htmlfilename" style="width: 120px;" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'');">.html
+                    <span class="err"></span>
+                    <p class="notic">自定义文件名可由字母/数字/'_'/'-'等符号组成</p>
+                </dd>
+            </dl>
 <!--             <dl class="row">
                 <dt class="tit">
                     <label>排序号</label>
@@ -831,6 +969,27 @@
             }
         });
     });
+    
+    function change_prom_type(val) {
+        if ( val == 1 ){
+            $("input[name=prom_type_vir]:eq(0)").attr("checked",'checked');
+            $("#fahuoxingshi").show();
+        } else if ( val == 2 ){
+            $("#wangpanxiazai").hide();
+            $("#wenbenneirong").hide();
+        } else if ( val == 3 ){
+            $("#wangpanxiazai").show();
+            $("#wenbenneirong").hide();
+        } else if( val == 4 ){
+            $("#wangpanxiazai").hide();
+            $("#wenbenneirong").show();
+        }
+        else {
+            $("#wangpanxiazai").hide();
+            $("#wenbenneirong").hide();
+            $("#fahuoxingshi").hide();
+        }
+    }
 
     function set_author()
     {
@@ -905,6 +1064,18 @@
             showErrorMsg('请选择栏目…！');
             $('#typeid').focus();
             return false;
+        }
+        if ($('input[name=prom_type]:checked').val() == 1) {
+            if($('input[name=prom_type_vir]:checked').val() == 2 && $.trim($('input[name=netdisk_url]').val()) == ''){
+                showErrorMsg('网盘地址不能为空！');
+                $('input[name=netdisk_url]').focus();
+                return false;
+            }
+            if($('input[name=prom_type_vir]:checked').val() == 3 && $.trim($('textarea[name=text_content]').val()) == ''){
+                showErrorMsg('虚拟文本内容不能为空！');
+                $('textarea[name=text_content]').focus();
+                return false;
+            }
         }
         layer_loading('正在处理');
         $('#post_form').submit();

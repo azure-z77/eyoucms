@@ -9,14 +9,14 @@
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
-                    <label for="site_url">关闭网站</label>
+                    <label for="site_url">网站状态</label>
                 </dt>
                 <dd class="opt">
                     <div class="onoff">
-                        <label for="web_status1" class="cb-enable {if condition='isset($config.web_status) AND $config.web_status eq 1'}selected{/if}">是</label>
-                        <label for="web_status0" class="cb-disable {if condition='!isset($config.web_status) OR empty($config.web_status)'}selected{/if}">否</label>
-                        <input id="web_status1" name="web_status" value="1" type="radio" {if condition="isset($config.web_status) AND $config.web_status eq 1"} checked="checked"{/if}>
+                        <label for="web_status0" class="cb-enable {if condition='!isset($config.web_status) OR empty($config.web_status)'}selected{/if}">开启</label>
+                        <label for="web_status1" class="cb-disable {if condition='isset($config.web_status) AND $config.web_status eq 1'}selected{/if}">关闭</label>
                         <input id="web_status0" name="web_status" value="0" type="radio" {if condition="!isset($config.web_status) OR empty($config.web_status)"} checked="checked"{/if}>
+                        <input id="web_status1" name="web_status" value="1" type="radio" {if condition="isset($config.web_status) AND $config.web_status eq 1"} checked="checked"{/if}>
                         <input type="hidden" id="old_web_status" value="{$config.web_status|default='0'}">
                     </div>
                     <p class="notic"></p>

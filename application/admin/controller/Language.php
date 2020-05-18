@@ -239,6 +239,10 @@ class Language extends Base
                         }
                     }
                     /*--end*/
+
+                    /*统计多语言数量*/
+                    model('Language')->setLangNum();
+                    
                     adminLog('编辑多语言：'.$post['title']); // 写入操作日志
                     $this->success("操作成功!", url('Language/index'));
                 }

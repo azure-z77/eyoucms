@@ -49,6 +49,8 @@ class Ajax extends Base
 
             echo($click);
             exit;
+        } else {
+            abort(404);
         }
     }
 
@@ -73,6 +75,8 @@ class Ajax extends Base
 
             echo($downcount);
             exit;
+        } else {
+            abort(404);
         }
     }
 
@@ -81,6 +85,10 @@ class Ajax extends Base
      */
     public function arcpagelist()
     {
+        if (!IS_AJAX) {
+            abort(404);
+        }
+
         $pnum = input('page/d', 0);
         $pagesize = input('pagesize/d', 0);
         $tagid = input('tagid/s', '');
@@ -173,6 +181,8 @@ class Ajax extends Base
         if (IS_AJAX) {
             echo $this->request->token($name);
             exit;
+        } else {
+            abort(404);
         }
     }
 
@@ -184,8 +194,8 @@ class Ajax extends Base
         if (IS_AJAX) {
             $type = input('param.type/s', 'default');
             $img = input('param.img/s');
+            $users_id = session('users_id');
             if ('login' == $type) {
-                $users_id = session('users_id');
                 if (!empty($users_id)) {
                     $currentstyle = input('param.currentstyle/s');
                     $users = M('users')->field('username,nickname,head_pic')
@@ -212,7 +222,7 @@ class Ajax extends Base
             }
             else if ('reg' == $type)
             {
-                if (session('?users_id')) {
+                if (!empty($users_id)) {
                     $users['ey_is_login'] = 1;
                 } else {
                     $users['ey_is_login'] = 0;
@@ -221,15 +231,28 @@ class Ajax extends Base
             }
             else if ('logout' == $type)
             {
-                if (session('?users_id')) {
+                if (!empty($users_id)) {
                     $users['ey_is_login'] = 1;
                 } else {
                     $users['ey_is_login'] = 0;
                 }
                 $this->success('请求成功', null, $users);
             }
+            else if ('cart' == $type)
+            {
+                if (!empty($users_id)) {
+                    $users['ey_is_login'] = 1;
+                    $users['ey_cart_num_20191212'] = Db::name('shop_cart')->where(['users_id'=>$users_id])->sum('product_num');
+                } else {
+                    $users['ey_is_login'] = 0;
+                    $users['ey_cart_num_20191212'] = 0;
+                }
+                $this->success('请求成功', null, $users);
+            }
+            $this->error('访问错误');
+        } else {
+            abort(404);
         }
-        $this->error('访问错误');
     }
 
     /**
@@ -237,6 +260,10 @@ class Ajax extends Base
      */
     public function get_tag_user_info()
     {
+        if (!IS_AJAX) {
+            abort(404);
+        }
+
         $t_uniqid = input('param.t_uniqid/s', '');
         if (IS_AJAX && !empty($t_uniqid)) {
             $users_id = session('users_id');
@@ -376,11 +403,95 @@ class Ajax extends Base
         }
     }
 
-    // 判断文章内容阅读权限
-    public function get_arcrank()
+    /**
+     * 手机短信发送
+     */
+    public function SendMobileCode()
     {
-        $aid = input('param.aid/d');
-        if (!empty($aid)) {
+        // 超时后，断掉发送
+        function_exists('set_time_limit') && set_time_limit(5);
+
+        // 发送手机验证码
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+            $source = !empty($post['source']) ? $post['source'] : 0;
+            if (5 == $post['scene']) {
+                if (empty($post['mobile'])) return false;
+                /*发送并返回结果*/
+                $data = $post['data'];
+                switch ($data['type']) {
+                    case '1':
+                        $content = '您有新的待发货订单';
+                        break;
+                    case '2':
+                        $content = '您有新的待收货订单';
+                        break;
+                }
+                $Result = sendSms($post['scene'], $post['mobile'], array('content'=>$content, 'code'=>mt_rand(100000,999999)));
+                if (intval($Result['status']) == 1) {
+                    $this->success('发送成功！');
+                } else {
+                    $this->error($Result['msg']);
+                }
+                /* END */
+            } else {
+                $mobile = !empty($post['mobile']) ? $post['mobile'] : session('mobile');
+                $is_mobile = !empty($post['is_mobile']) ? $post['is_mobile'] : false;
+                if (empty($mobile)) $this->error('请先绑定手机号码');
+                if ('true' === $is_mobile) {
+                    /*是否存在手机号码*/
+                    $where = [
+                        'mobile' => $mobile
+                    ];
+                    $Result = Db::name('users')->where($where)->count();
+                    /* END */
+                    if (0 == $post['source']) {
+                        if (!empty($Result)) $this->error('手机号码已注册');
+                    } else if (4 == $post['source']) {
+                        if (empty($Result)) $this->error('手机号码不存在');
+                    } else {
+                        if (!empty($Result)) $this->error('手机号码已存在');
+                    }
+                }
+
+                /*是否允许再次发送*/
+                $where = [
+                    'mobile'   => $mobile,
+                    'source'   => $source,
+                    'status'   => 1,
+                    'is_use'   => 0,
+                    'add_time' => ['>', getTime() - 120]
+                ];
+                $Result = Db::name('sms_log')->where($where)->order('id desc')->count();
+                if (!empty($Result)) $this->error('120秒内只能发送一次！');
+                /* END */
+
+                /*图形验证码判断*/
+                if (!empty($post['IsVertify'])) {
+                    if (empty($post['vertify'])) $this->error('请输入图形验证码！');
+                    $verify = new \think\Verify();
+                    if (!$verify->check($post['vertify'], $post['type'])) $this->error('图形验证码错误！');
+                }
+                /* END */
+
+                /*发送并返回结果*/
+                $Result = sendSms($source, $mobile, array('content' => mt_rand(100000, 999999)));
+                if (intval($Result['status']) == 1) {
+                    $this->success('发送成功！');
+                } else {
+                    $this->error($Result['msg']);
+                }
+                /* END */
+            }
+        }
+    }
+
+    // 判断文章内容阅读权限
+    public function get_arcrank($aid = '', $vars = '')
+    {
+        $aid = intval($aid);
+        $vars = intval($vars);
+        if ((IS_AJAX || !empty($vars)) && !empty($aid)) {
             // 用户ID
             $users_id = session('users_id');
             // 文章查看所需等级值
@@ -398,14 +509,14 @@ class Ajax extends Base
                     ->where(['a.users_id'=>$users_id])
                     ->find();
                 if (0 == $Arcrank['arcrank']) {
-                    if (IS_AJAX_POST) {
+                    if (IS_AJAX) {
                         $this->success('允许查阅！');
                     } else {
                         return true;
                     }
                 }else if (-1 == $Arcrank['arcrank']) {
                     if ($users_id == $Arcrank['users_id']) {
-                        if (IS_AJAX_POST) {
+                        if (IS_AJAX) {
                             $this->success('允许查阅！');
                         } else {
                             return true;
@@ -416,20 +527,20 @@ class Ajax extends Base
                 }else if ($UsersDataa['level_value'] < $Arcrank['level_value']) {
                     $msg = '内容需要【'.$Arcrank['level_name'].'】才可以查看，您为【'.$UsersDataa['level_name'].'】，请先升级！';
                 }else{
-                    if (IS_AJAX_POST) {
+                    if (IS_AJAX) {
                         $this->success('允许查阅！');
                     } else {
                         return true;
                     }
                 }
-                if (IS_AJAX_POST) {
+                if (IS_AJAX) {
                     $this->error($msg);
                 } else {
                     return $msg;
                 }
             }else{
                 if (0 == $Arcrank['arcrank']) {
-                    if (IS_AJAX_POST) {
+                    if (IS_AJAX) {
                         $this->success('允许查阅！');
                     } else {
                         return true;
@@ -441,12 +552,14 @@ class Ajax extends Base
                 }else{
                     $msg = '游客不可查看，请登录！';
                 }
-                if (IS_AJAX_POST) {
+                if (IS_AJAX) {
                     $this->error($msg);
                 } else {
                     return $msg;
                 }
             }
+        } else {
+            abort(404);
         }
     }
 
@@ -456,9 +569,11 @@ class Ajax extends Base
      */
     public function get_tag_memberlist()
     {
+        $this->error('暂时没用上！');
         if (IS_AJAX_POST) {
             $htmlcode = input('post.htmlcode/s');
             $htmlcode = htmlspecialchars_decode($htmlcode);
+            $htmlcode = preg_replace('/<\?(\s*)php(\s+)/i', '', $htmlcode);
 
             $attarray = input('post.attarray/s');
             $attarray = htmlspecialchars_decode($attarray);
@@ -486,5 +601,54 @@ class Ajax extends Base
             $this->success('读取成功！', null, $data);
         }
         $this->error('加载失败！');
+    }
+
+    /**
+     * 发布或编辑文档时，百度自动推送
+     */
+    public function push_zzbaidu($url = '', $type = 'add')
+    {
+        $msg = '百度推送URL失败！';
+        if (IS_AJAX_POST) {
+            \think\Session::pause(); // 暂停session，防止session阻塞机制
+
+            // 获取token的值：http://ziyuan.baidu.com/linksubmit/index?site=http://www.eyoucms.com/
+            $sitemap_zzbaidutoken = config('tpcache.sitemap_zzbaidutoken');
+            if (empty($sitemap_zzbaidutoken)) {
+                $this->error('尚未配置实时推送Url的token！', null, ['code'=>0]);
+            } else if (!function_exists('curl_init')) {
+                $this->error('请开启php扩展curl_init', null, ['code'=>1]);
+            }
+
+            $urlsArr[] = $url;
+            $type = ('edit' == $type) ? 'update' : 'urls';
+
+            if (is_http_url($sitemap_zzbaidutoken)) {
+                $searchs = ["/urls?","/update?"];
+                $replaces = ["/{$type}?", "/{$type}?"];
+                $api = str_replace($searchs, $replaces, $sitemap_zzbaidutoken);
+            } else {
+                $api = 'http://data.zz.baidu.com/'.$type.'?site='.$this->request->host(true).'&token='.trim($sitemap_zzbaidutoken);
+            }
+
+            $ch = curl_init();
+            $options =  array(
+                CURLOPT_URL => $api,
+                CURLOPT_POST => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POSTFIELDS => implode("\n", $urlsArr),
+                CURLOPT_HTTPHEADER => array('Content-Type: text/plain'),
+            );
+            curl_setopt_array($ch, $options);
+            $result = curl_exec($ch);
+            !empty($result) && $result = json_decode($result, true);
+            if (!empty($result['success'])) {
+                $this->success('百度推送URL成功！');
+            } else {
+                $msg = !empty($result['message']) ? $result['message'] : $msg;
+            }
+        }
+
+        $this->error($msg);
     }
 }

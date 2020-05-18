@@ -25,6 +25,7 @@ class AjaxLogic extends Model
 {
     private $request = null;
     private $admin_lang = 'cn';
+    private $main_lang = 'cn';
 
     /**
      * 析构函数
@@ -32,6 +33,7 @@ class AjaxLogic extends Model
     function  __construct() {
         $this->request = request();
         $this->admin_lang = get_admin_lang();
+        $this->main_lang = get_main_lang();
     }
 
     /**
@@ -275,74 +277,318 @@ class AjaxLogic extends Model
         closedir($dir);
     }
 
-    /**
-     * 第一次同步会员等级数据和会员产品分类 【1.4.1版本可以删掉这个方法，以及调用这个方法的代码】
-     */
-    public function sys_level_data()
+    // 只同步一次每个留言栏目的字段列表前4个显示(v1.5.0节点去掉)
+    public function syn_guestbook_attribute()
     {
-        $system_synleveldata = tpCache('system.system_synleveldata');
-        if (empty($system_synleveldata)) {
-            $levelRow = Db::name('users_level')->where(['is_system'=>0])->select();
-            if (empty($levelRow)) {
-                $saveData = [
-                    [
-                        'level_name'    => '中级会员',
-                        'level_value'   => 50,
-                        'is_system'     => 0,
-                        'discount'      => 100,
-                        'posts_count'   => 10,
-                        'lang'          => $this->admin_lang,
-                        'add_time'      => getTime(),
-                        'update_time'   => getTime(),
-                    ],
-                    [
-                        'level_name'    => '高级会员',
-                        'level_value'   => 100,
-                        'is_system'     => 0,
-                        'discount'      => 100,
-                        'posts_count'   => 20,
-                        'lang'          => $this->admin_lang,
-                        'add_time'      => getTime(),
-                        'update_time'   => getTime(),
-                    ],
-                ];
-                Db::name('users_level')->insertAll($saveData);
+        $syn_gb_attribute_showlist = tpCache('syn.syn_gb_attribute_showlist');
+        if (empty($syn_gb_attribute_showlist)) {
+            $arctypeRow = Db::name('arctype')->field('id')->where('current_channel', 8)->select();
+            foreach ($arctypeRow as $key => $val) {
+                $attr_ids = Db::name('guestbook_attribute')->where('typeid', $val['id'])->order('attr_id asc')->limit(4)->column('attr_id');
+                $attr_id = end($attr_ids);
+                Db::name('guestbook_attribute')->where([
+                    'typeid'    => $val['id'],
+                    'attr_id'   => ['elt', intval($attr_id)],
+                ])->update([
+                    'is_showlist'   => 1,
+                    'update_time'   => getTime(),
+                ]);
             }
+            tpCache('syn', ['syn_gb_attribute_showlist'=>1]);
+        }
+    }
+    
+    // 记录当前是多语言还是单语言到文件里
+    public function system_langnum_file()
+    {
+        model('Language')->setLangNum();
+    }
 
-            $count = Db::name('users_type_manage')->count();
-            if (empty($count)) {
-                $levelRow = Db::name('users_level')->where(['is_system'=>0])->select();
-                if (!empty($levelRow)) {
-                    $saveData = [];
-                    foreach ($levelRow as $key => $val) {
-                        $saveData[] = [
-                            'type_name'     => '升级为本站'.$val['level_name'],
-                            'level_id'      => $val['level_id'],
-                            'price'         => intval($val['level_value']) * 2,
-                            'limit_id'      => intval($key) + 2,
-                            'sort_order'    => 100,
-                            'lang'          => $this->admin_lang,
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
-                        ];
-                    }
-                    $r = Db::name('users_type_manage')->insertAll($saveData);
-                    if ($r) {
-                        /*多语言*/
-                        if (is_language()) {
-                            $langRow = \think\Db::name('language')->order('id asc')
-                                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                                ->select();
-                            foreach ($langRow as $key => $val) {
-                                tpCache('system', ['system_synleveldata'=>1], $val['mark']);
-                            }
-                        } else { // 单语言
-                            tpCache('system', ['system_synleveldata'=>1]);
-                        }
-                        /*--end*/
+    // 只同步一次微信登录配置信息(v1.5.1节点去掉)
+    public function syn_wechat_login_config()
+    {
+        $syn_wechat_login_config = tpCache('syn.syn_wechat_login_config');
+        if (empty($syn_wechat_login_config)) {
+            $ResultData = getUsersConfigData('pay.pay_wechat_config');
+            $value = !empty($ResultData) ? unserialize($ResultData) : [];
+            if (!empty($value['appid']) && !empty($value['appsecret'])) {
+                $SynData = [
+                    'appid' => $value['appid'],
+                    'appsecret' => $value['appsecret'],
+                    'wechat_name' => '',
+                    'wechat_pic' => ''
+                ];
+                $Data['wechat']['wechat_login_config'] = serialize($SynData);
+                foreach ($Data as $key => $val) {
+                    getUsersConfigData($key, $val);
+                }
+                tpCache('syn', ['syn_wechat_login_config'=>1]);
+            }
+        }
+    }
+
+    // 删除多余Minipro的文件(v1.5.1节点去掉)
+    public function admin_logic_unlink()
+    {
+        $syn_admin_logic_unlink = tpCache('syn.syn_admin_logic_unlink', [], 'cn');
+        if (empty($syn_admin_logic_unlink)) {
+
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    tpCache('php', ['php_weapp_plugin_open'=>1], $val['mark']);
+                }
+            } else { // 单语言
+                tpCache('php', ['php_weapp_plugin_open'=>1]);
+            }
+            /*--end*/
+
+            session('isset_author', null);
+
+            // 删除多余的文件
+            $files = [
+                'application/admin/controller/Minipro.php',
+                'application/admin/model/Minipro.php',
+                'application/admin/model/MiniproCategory.php',
+                'application/admin/model/MiniproHelp.php',
+                'application/admin/model/MiniproPage.php',
+                'application/admin/model/MiniproTabbar.php',
+                'application/admin/template/minipro/',
+                'application/api/controller/Minipro.php',
+                'application/api/controller/MiniproBase.php',
+                'application/api/model/Minipro.php',
+                'application/api/model/MiniproCategory.php',
+                'application/api/model/MiniproPage.php',
+                'application/common/logic/MiniproLogic.php',
+                'application/common/model/Minipro.php',
+                'application/common/model/MiniproBase.php',
+                'application/common/model/MiniproCategory.php',
+                'application/common/model/MiniproHelp.php',
+                'application/common/model/MiniproPage.php',
+                'application/common/model/MiniproSetting.php',
+                'application/common/model/MiniproTabbar.php',
+                'data/schema/ey_minipro.php',
+                'data/schema/ey_minipro_category.php',
+                'data/schema/ey_minipro_help.php',
+                'data/schema/ey_minipro_page.php',
+                'data/schema/ey_minipro_setting.php',
+                'data/schema/ey_minipro_tabbar.php',
+                'public/static/common/minipro/',
+            ];
+            foreach ($files as $key => $val) {
+                if (file_exists($val)) {
+                    if (is_file($val)) {
+                        @unlink('./' . $val);
+                    } else if (is_dir($val)) {
+                        delFile('./' . $val, true);
                     }
                 }
             }
+            tpCache('syn', ['syn_admin_logic_unlink'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 纠正允许上传文件类型(v1.5.1节点去掉)
+     */
+    public function admin_logic_update_basic()
+    {
+        $syn_admin_logic_update_basic = tpCache('syn.syn_admin_logic_update_basic', [], 'cn');
+        if (empty($syn_admin_logic_update_basic)) {
+            /*多语言*/
+            if (is_language()) {
+                $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    $file_type = tpCache('basic.file_type', [], $val['mark']);
+                    $file_types = explode('|', $file_type);
+                    foreach ($file_types as $_k => $_v) {
+                        if ('xsl' == trim($_v)) {
+                            $file_types[$_k] = 'xls';
+                        }
+                    }
+                    $file_type = implode('|', $file_types);
+                    tpCache('basic', ['file_type'=>$file_type], $val['mark']);
+                }
+            } else { // 单语言
+                $file_type = tpCache('basic.file_type');
+                $file_types = explode('|', $file_type);
+                foreach ($file_types as $key => $val) {
+                    if ('xsl' == trim($val)) {
+                        $file_types[$key] = 'xls';
+                    }
+                }
+                $file_type = implode('|', $file_types);
+                tpCache('basic', ['file_type'=>$file_type]);
+            }
+            /*--end*/
+            tpCache('syn', ['syn_admin_logic_update_basic'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 同步手机短信模板
+     * @return [type] [description]
+     */
+    public function syn_admin_logic_sms_template()
+    {
+        $syn_admin_logic_sms_template = tpCache('syn.syn_admin_logic_sms_template', [], 'cn');
+        if (empty($syn_admin_logic_sms_template)) {
+            if (is_language()) {
+                // 多语言
+                $langRow = \think\Db::name('language')->field('mark')->order('id asc')->select();
+                foreach ($langRow as $key => $val) {
+                    $array[] = [
+                        'tpl_title' => '账号注册',
+                        'sms_sign' => '',
+                        'sms_tpl_code' => '',
+                        'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                        'send_scene' => 0,
+                        'is_open' => 1,
+                        'lang' => $val['mark'],
+                        'add_time' => getTime(),
+                        'update_time' => getTime()
+                    ];
+                    $array[] = [
+                        'tpl_title' => '手机绑定',
+                        'sms_sign' => '',
+                        'sms_tpl_code' => '',
+                        'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                        'send_scene' => 1,
+                        'is_open' => 1,
+                        'lang' => $val['mark'],
+                        'add_time' => getTime(),
+                        'update_time' => getTime()
+                    ];
+                    $array[] = [
+                        'tpl_title' => '找回密码',
+                        'sms_sign' => '',
+                        'sms_tpl_code' => '',
+                        'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                        'send_scene' => 4,
+                        'is_open' => 1,
+                        'lang' => $val['mark'],
+                        'add_time' => getTime(),
+                        'update_time' => getTime()
+                    ];
+                    $array[] = [
+                        'tpl_title' => '订单通知',
+                        'sms_sign' => '',
+                        'sms_tpl_code' => '',
+                        'tpl_content' => '您有新的消息：${content}，请注意查收！',
+                        'send_scene' => 5,
+                        'is_open' => 1,
+                        'lang' => $val['mark'],
+                        'add_time' => getTime(),
+                        'update_time' => getTime()
+                    ];
+                }
+            } else {
+                // 单语言
+                $array[0] = [
+                    'tpl_title' => '账号注册',
+                    'sms_sign' => '',
+                    'sms_tpl_code' => '',
+                    'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                    'send_scene' => 0,
+                    'is_open' => 1,
+                    'lang' => $this->admin_lang,
+                    'add_time' => getTime(),
+                    'update_time' => getTime()
+                ];
+                $array[1] = [
+                    'tpl_title' => '手机绑定',
+                    'sms_sign' => '',
+                    'sms_tpl_code' => '',
+                    'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                    'send_scene' => 1,
+                    'is_open' => 1,
+                    'lang' => $this->admin_lang,
+                    'add_time' => getTime(),
+                    'update_time' => getTime()
+                ];
+                $array[2] = [
+                    'tpl_title' => '找回密码',
+                    'sms_sign' => '',
+                    'sms_tpl_code' => '',
+                    'tpl_content' => '验证码为 ${content} ，请在30分钟内输入验证。',
+                    'send_scene' => 4,
+                    'is_open' => 1,
+                    'lang' => $this->admin_lang,
+                    'add_time' => getTime(),
+                    'update_time' => getTime()
+                ];
+                $array[3] = [
+                    'tpl_title' => '订单通知',
+                    'sms_sign' => '',
+                    'sms_tpl_code' => '',
+                    'tpl_content' => '您有新的消息：${content}，请注意查收！',
+                    'send_scene' => 5,
+                    'is_open' => 1,
+                    'lang' => $this->admin_lang,
+                    'add_time' => getTime(),
+                    'update_time' => getTime()
+                ];
+            }
+            // 批量新增
+            $r = Db::name('sms_template')->insertAll($array);
+            if ($r !== false) {
+                tpCache('syn', ['syn_admin_logic_sms_template'=>1], 'cn');
+            }
+        }
+    }
+
+    /**
+     * 纠正栏目层级的错误
+     * @return [type] [description]
+     */
+    public function admin_logic_update_arctype()
+    {
+        $syn_admin_logic_update_arctype = tpCache('syn.syn_admin_logic_update_arctype', [], 'cn');
+        if (empty($syn_admin_logic_update_arctype)) {
+            $saveData = [];
+            $arctypeRow = Db::name('arctype')->field('id,dirpath,grade,seo_description')->select();
+            foreach ($arctypeRow as $key => $val) {
+                if (empty($val['seo_description'])) {
+                    $val['seo_description'] = '';
+                }
+                $dirpath = trim($val['dirpath'], '/');
+                $dirpath_arr = explode('/', $dirpath);
+                $count = count($dirpath_arr);
+                if (1 < $count) {
+                    $val['grade'] = $count - 1;
+                } else {
+                    $val['grade'] = 0;
+                }
+                $saveData[] = $val;
+            }
+            $r = model('Arctype')->saveAll($saveData);
+            if ($r !== false) {
+                \think\Cache::clear("arctype");
+                tpCache('syn', ['syn_admin_logic_update_arctype'=>1], 'cn');
+            }
+        }
+    }
+
+    /**
+     * 纠正未审核文档tag标签显示问题
+     */
+    public function admin_logic_update_tag()
+    {
+        $syn_admin_logic_update_tag = tpCache('syn.syn_admin_logic_update_tag', [], 'cn');
+        if (empty($syn_admin_logic_update_tag)) {
+            try{
+                $archives = Db::name('archives')->field('aid,arcrank')->where([
+                    'arcrank'   => -1,
+                ])->getAllWithIndex('aid');
+                if (!empty($archives)) {
+                    $aids = array_keys($archives);
+                    Db::name('taglist')->where([
+                        'aid'   => ['IN', $aids],
+                    ])->update(['arcrank'=>-1,'update_time'=>getTime()]);
+                }
+            }catch(\Exception $e){}
+            tpCache('syn', ['syn_admin_logic_update_tag'=>1], 'cn');
         }
     }
 }

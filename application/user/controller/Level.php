@@ -10,7 +10,7 @@
  * Author: 陈风任 <491085389@qq.com>
  * Date: 2019-6-21
  */
-
+ 
 namespace app\user\controller;
 
 use think\Db;
@@ -30,7 +30,7 @@ class Level extends Base
         $this->users_level_db        = Db::name('users_level');
         // 会员等级管理表
         $this->users_type_manage_db  = Db::name('users_type_manage');
-	    // 商城微信配置信息
+        // 商城微信配置信息
         $this->pay_wechat_config = unserialize(getUsersConfigData('pay.pay_wechat_config'));
         // 商城支付宝配置信息
         $this->pay_alipay_config = unserialize(getUsersConfigData('pay.pay_alipay_config'));
@@ -577,9 +577,11 @@ class Level extends Base
     // 微信订单查询
     public function wechat_order_inquiry()
     {
-        if (IS_AJAX_POST) {
+        if (IS_POST) {
             $unified_number   = input('post.unified_number/s');
             $transaction_type = input('post.transaction_type/s');
+            $is_applets_pay   = input('post.is_applets_pay/s');
+
             if(!empty($unified_number)){
                 // ajax异步查询订单是否完成并处理相应逻辑返回。
                 vendor('wechatpay.lib.WxPayApi');
@@ -594,44 +596,45 @@ class Level extends Base
                 $config_data['mch_id'] = $this->pay_wechat_config['mchid'];
                 $config_data['key']    = $this->pay_wechat_config['key'];
 
+                // 若为小程序接入则执行
+                if (1 == $is_applets_pay) {
+                    $MiniproValue = Db::name('weapp_minipro0002')->where('type', 'minipro')->getField('value');
+                    $MiniproValue = !empty($MiniproValue) ? json_decode($MiniproValue, true) : [];
+                    $config_data['app_id'] = !empty($MiniproValue) ? $MiniproValue['appId'] : null;
+                }
+
                 // 实例化微信配置
                 $config = new \WxPayConfig($config_data);
                 $wxpayapi = new \WxPayApi;
-                if (empty($config->app_id)) {
-                    $this->error('微信支付配置尚未配置完成。');
-                }
+                if (empty($config->app_id)) $this->error('微信支付配置尚未配置完成。');
+                
                 // 返回结果
                 $result = $wxpayapi->orderQuery($config, $input);
 
                 // 业务处理
                 if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
                     if ($result['trade_state'] == 'SUCCESS' && !empty($result['transaction_id'])) {
-                        if ('1' == $transaction_type) {
+                        if (1 == $transaction_type) {
                             // 支付成功
                             $Where = [
-                                'users_id'     => $this->users_id,
-                                'lang'         => $this->home_lang,
                                 'order_number' => $result['out_trade_no'],
                             ];
                             $MoneyData = $this->users_money_db->where($Where)->find();
-                            if (empty($MoneyData)) {
-                                $this->error('支付异常，请刷新页面后重试');
-                            }
+                            if (empty($MoneyData)) $this->error('支付异常，请刷新页面后重试');
 
                             // 微信支付成功后，订单并未修改状态时，修改订单状态并返回
                             if ($MoneyData['status'] == 1) {
                                 // 更新条件
                                 $Where = [
                                     'moneyid'  => $MoneyData['moneyid'],
-                                    'users_id' => $this->users_id,
+                                    'users_id' => $MoneyData['users_id'],
                                 ];
                                 // 获取更新金额明细表数据数组
                                 $UpMoneyData = $this->GetUpMoneyData(session('UsersTypeData'), $MoneyData['wechat_pay_type']);
                                 $ReturnId = $this->users_money_db->where($Where)->update($UpMoneyData);
                                 if (!empty($ReturnId)) {
                                     $Where = [
-                                        'users_id' => $this->users_id,
-                                        'lang'     => $this->home_lang,
+                                        'users_id' => $MoneyData['users_id'],
                                     ];
                                     // 获取更新会员数据数组
                                     $UpUsersData = $this->GetUpUsersData(session('UsersTypeData'));
@@ -639,10 +642,10 @@ class Level extends Base
                                     if (!empty($ReturnId)) {
                                         $url = url('user/Level/level_centre');
                                         $this->success('支付成功，请勿刷新，即将跳转', $url, ['status'=>1]);    
-                                    }else{
+                                    } else {
                                         $this->success('支付成功，升级更新失败，请联系管理员', null, ['status'=>2]);
                                     }
-                                }else{
+                                } else {
                                     $this->success('支付成功，数据更新失败，请联系管理员', null, ['status'=>2]);
                                 }
                             }
@@ -653,11 +656,11 @@ class Level extends Base
                                 $this->success('订单已支付，即将跳转，请勿刷新', $url, ['status'=>1]);
                             }
                         }
-                    }else if ($result['trade_state'] == 'NOTPAY') {
+                    } else if ($result['trade_state'] == 'NOTPAY') {
                         // 支付中
                         $this->success('微信已扫码，正在支付中，请勿刷新', null, ['status'=>0]);
                     }
-                }else{
+                } else {
                     // 支付中
                     $this->success('订单号：'.$unified_number.'，正在支付中', null, ['status'=>0]);
                 }

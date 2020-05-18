@@ -49,10 +49,11 @@ class WeappLogic extends Model
      * 更新插件到数据库
      * @param $weapp_list array 本地插件数组
      */
-    public function insertWeapp(){
-        $row = M('weapp')->field('id,code,config')->getAllWithIndex('code'); // 数据库
-        $new_arr = array(); // 本地
-        $addData = array(); // 数据存储变量
+    public function insertWeapp()
+    {
+        $row        = M('weapp')->field('id,code,config,is_buy')->getAllWithIndex('code'); // 数据库
+        $new_arr    = array(); // 本地
+        $addData    = array(); // 数据存储变量
         $updateData = array(); // 数据存储变量
         $weapp_list = $this->scanWeapp();
         //  本地对比数据库
@@ -92,7 +93,7 @@ class WeappLogic extends Model
         }
         //数据库有 本地没有
         foreach($row as $k => $v){
-            if (!in_array($v['code'], $new_arr)) {
+            if (!in_array($v['code'], $new_arr) && $v['is_buy'] < 1) {//is_buy  0->本地安装,1-线上购买
                 M('weapp')->where($v)->delete();
             }
         }

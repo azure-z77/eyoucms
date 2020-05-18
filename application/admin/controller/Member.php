@@ -27,6 +27,7 @@ class Member extends Base {
      */
     public function __construct(){
         parent::__construct();
+        $this->language_access(); // 多语言功能操作权限
         /*会员中心数据表*/
         $this->users_db        = Db::name('users');         // 会员信息表
         $this->users_list_db   = Db::name('users_list');    // 会员资料表
@@ -87,7 +88,9 @@ class Member extends Base {
 
         /*纠正数据*/
         $web_is_authortoken = tpCache('web.web_is_authortoken');
-        (is_realdomain() && !empty($web_is_authortoken)) && getUsersConfigData('shop', ['shop_open'=>0]);
+        if (is_realdomain() && !empty($web_is_authortoken)) {
+            getUsersConfigData('shop', ['shop_open'=>0]);
+        }
         
         /*检测是否存在会员中心模板*/
         if ('v1.0.1' > getVersion('version_themeusers')) {
@@ -777,6 +780,22 @@ class Member extends Base {
 
             $post['dfvalue']     = str_replace('，', ',', $post['dfvalue']);
             $post['dfvalue'] = trim($post['dfvalue'], ',');
+
+            /*判断默认值是否含有重复值*/
+            if (in_array($post['dtype'], ['radio','checkbox','select'])) {
+                if (!empty($post['dfvalue'])){
+                    $dfvalue_arr = [];
+                    $dfvalue_arr = explode(',', $post['dfvalue']);
+                    foreach ($dfvalue_arr as &$v) {
+                        $v = trim($v);
+                    }
+                    if (count($dfvalue_arr) != count(array_unique($dfvalue_arr))) {
+                        $this->error('默认值不能含有相同的值！');
+                    }
+                }
+            }
+            /*end*/
+
             $post['add_time'] = getTime();
             $post['lang']        = $this->admin_lang;
             $post['sort_order'] = '100';
@@ -798,9 +817,10 @@ class Member extends Base {
 
         $field = $this->field_type_db->field('name,title,ifoption')
             ->where([
-                'name'  => ['IN', ['text','checkbox','multitext','radio','select']]
+                'name'  => ['IN', ['text','checkbox','multitext','radio','select','img','file']]
             ])
             ->select();
+
         $this->assign('field',$field);
         return $this->fetch();
     }
@@ -831,6 +851,22 @@ class Member extends Base {
 
             $post['dfvalue'] = str_replace('，', ',', $post['dfvalue']);
             $post['dfvalue'] = trim($post['dfvalue'], ',');
+
+            /*判断默认值是否含有重复值*/
+            if (in_array($post['dtype'], ['radio','checkbox','select'])) {
+                if (!empty($post['dfvalue'])){
+                    $dfvalue_arr = [];
+                    $dfvalue_arr = explode(',', $post['dfvalue']);
+                    foreach ($dfvalue_arr as &$v) {
+                        $v = trim($v);
+                    }
+                    if (count($dfvalue_arr) != count(array_unique($dfvalue_arr))) {
+                        $this->error('默认值不能含有相同的值！');
+                    }
+                }
+            }
+            /*end*/
+
             $post['update_time'] = getTime();
             $return = $this->users_parameter_db->where([
                     'para_id'   => $para_id,
@@ -852,7 +888,7 @@ class Member extends Base {
 
         $field = $this->field_type_db->field('name,title,ifoption')
             ->where([
-                'name'  => ['IN', ['text','checkbox','multitext','radio','select']]
+                'name'  => ['IN', ['text','checkbox','multitext','radio','select','img','file']]
             ])
             ->select();
         $this->assign('field',$field);
@@ -955,9 +991,7 @@ class Member extends Base {
         if (IS_AJAX) {
             // 邮件验证的检测
             $users_config_email = $this->users_config_email();
-            if (!empty($users_config_email)) {
-               $this->error($users_config_email);
-            }
+            if (!empty($users_config_email)) $this->error($users_config_email);
             $this->success('检验通过');
         }
         $this->error('参数有误');
@@ -1001,13 +1035,64 @@ class Member extends Base {
 
         // 是否填写邮件配置
         $smtp_config = tpCache('smtp');
-        foreach ($smtp_config as $key => $val) {
-            if (preg_match('/^smtp_/i', $key) && empty($val)) {
-                return "请先完善<font color='red'>(邮件配置)</font>，具体步骤【基本信息】->【接口配置】->【邮件配置】";
+        if (empty($smtp_config['smtp_user']) || empty($smtp_config['smtp_pwd'])) {
+            return "请先完善<font color='red'>(邮件配置)</font>，具体步骤【基本信息】->【接口配置】->【邮件配置】";
+        }
+
+        return false;
+    }
+
+    // 手机验证的检测
+    public function ajax_users_config_mobile()
+    {   
+        if (IS_AJAX) {
+            // 邮件验证的检测
+            $users_config_mobile = $this->users_config_mobile();
+            if (!empty($users_config_mobile)) $this->error($users_config_mobile);
+            $this->success('检验通过');
+        }
+        $this->error('参数有误');
+    }
+        
+    private function users_config_mobile(){
+        // 会员属性信息
+        $where = array(
+            'name'      => ['LIKE', "mobile_%"],
+            'lang'      => $this->admin_lang,
+            'is_system' => 1
+        );
+
+        // 是否要为必填项
+        $param = $this->users_parameter_db->where($where)->field('title, is_hidden')->find();
+        if (empty($param) || 1 == $param['is_hidden']) {
+            return "请先把会员属性的<font color='red'>{$param['title']}</font>设置为显示，且为必填项！";
+        }
+
+        $param = $this->users_parameter_db->where($where)->field('title, is_required')->find();
+        if (empty($param) || 0 == $param['is_required']) {
+            return "请先把会员属性的<font color='red'>{$param['title']}</font>设置为必填项！";
+        }
+
+        // 自动启用注册手机模板
+        Db::name('sms_template')->where([
+                'send_scene'  => 0,
+                'lang'        => $this->admin_lang,
+            ])->update([
+                'is_open'     => 1,
+                'update_time' => getTime()
+            ]);
+
+        // 是否填写手机短信配置
+        $sms_config = tpCache('sms');
+        foreach ($sms_config as $key => $val) {
+            if (!in_array($key, ['sms_shop_order_pay', 'sms_shop_order_send'])) {
+                if (preg_match('/^sms_/i', $key) && empty($val)) {
+                    return "请先完善<font color='red'>(短信配置)</font>，具体步骤【基本信息】->【接口配置】->【短信配置】";
+                }
             }
         }
 
-        return '';
+        return false;
     }
 
     // 支付方式配置
@@ -1046,18 +1131,17 @@ class Member extends Base {
             if (empty($post['wechat']['key'])) {
                 $this->error('微信KEY值不能为空！');
             }
-            if (empty($post['wechat']['appsecret'])) {
-                $this->error('微信AppSecret值不能为空！');
-            }
 
             $data = model('Pay')->payForQrcode($post['wechat']);
             if ($data['return_code'] == 'FAIL') {
                 if ('签名错误' == $data['return_msg']) {
                     $this->error('微信KEY值错误！');
-                }else if ('appid不存在' == $data['return_msg']) {
+                }else if (stristr($data['return_msg'], 'appid')) {
                     $this->error('微信AppId错误！');
-                }else if ('商户号mch_id或sub_mch_id不存在' == $data['return_msg']) {
+                }else if (stristr($data['return_msg'], 'mch_id')) {
                     $this->error('微信商户号错误！');
+                } else {
+                    $this->error($data['return_msg']);
                 }
             }
 
@@ -1197,6 +1281,38 @@ class Member extends Base {
         $this->assign('pay_method_arr',$pay_method_arr);
 
         return $this->fetch();
+    }
+    
+    /**
+     * 删除充值记录
+     */
+    public function money_del()
+    {
+        if (IS_POST) {
+            $id_arr = input('del_id/a');
+            $id_arr = eyIntval($id_arr);
+            if(!empty($id_arr)){
+                $result = Db::name('users_money')->field('order_number')
+                    ->where([
+                        'moneyid'    => ['IN', $id_arr],
+                        'lang'  => $this->admin_lang,
+                    ])->select();
+                $order_number_list = get_arr_column($result, 'order_number');
+
+                $r = Db::name('users_money')->where([
+                        'moneyid'    => ['IN', $id_arr],
+                        'lang'  => $this->admin_lang,
+                    ])
+                    ->cache(true, null, "users_money")
+                    ->delete();
+                if($r !== false){
+                    adminLog('删除充值记录：'.implode(',', $order_number_list));
+                    $this->success('删除成功');
+                }
+            }
+            $this->error('删除失败');
+        }
+        $this->error('非法访问');
     }
 
     // 标记订单逻辑
@@ -1456,7 +1572,6 @@ class Member extends Base {
 
         // 多语言
         $condition['a.lang'] = array('eq', $this->admin_lang);
-        $condition['a.status'] = array('eq', 1);
 
         /**
          * 数据查询

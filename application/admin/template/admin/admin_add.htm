@@ -9,7 +9,7 @@
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
-                    <label for="user_name"><em>*</em>用户名</label>
+                    <label for="user_name"><em>*</em>用&nbsp;&nbsp;户&nbsp;&nbsp;名</label>
                 </dt>
                 <dd class="opt">
                     <input type="text" name="user_name" value="" id="user_name" onkeyup="check_user_name(this);" class="input-txt">
@@ -22,7 +22,8 @@
                 </dt>
                 <dd class="opt">
                     <input type="password" name="password" value="" id="password" autocomplete="off" class="input-txt">
-                    <p class="notic"></p>
+                    <p class="notic">推荐密码至少是以大写字母、小写字母、数字等组合！</p>
+                    <p id="password_tips"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -32,6 +33,7 @@
                 <dd class="opt">
                     <input type="password" name="password2" value="" id="password2" autocomplete="off" class="input-txt">
                     <p class="notic"></p>
+                    <p id="password2_tips"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -210,7 +212,7 @@
                     {/if}
                 </dd>
             </dl>
-            <div class="bot"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
+            <div class="bot" style="position: relative;"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
         </div>
     </form>
 </div>
@@ -443,6 +445,35 @@
             }
         });
     }
+
+    $('#password').keyup(function(){
+        var password = $(this).val();
+        $.ajax({
+            url: "{:url('Admin/ajax_checkPasswordLevel')}",
+            type: "POST",
+            dataType: "JSON",
+            data: {password:password, _ajax:1},
+            success: function(res){
+                $('#password_tips').removeAttr('class');
+                if (1 == res.code) {
+                    $('#password_tips').addClass('rank r'+res.data.pwdLevel);
+                }
+            }
+        });
+    });
+
+    $('#password2').keyup(function(){
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        $('#password2_tips').hide();
+        if (password != '' || password2 != '') {
+            if (password != password2) {
+                $('#password2_tips').html('<font color="red">两次密码输入不一致！</font>').show();
+            } else {
+                $('#password2_tips').html('<font color="green">校验通过！</font>').show();
+            }
+        }
+    });
 
     // 判断输入框是否为空
     function adsubmit(){

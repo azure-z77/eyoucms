@@ -86,6 +86,27 @@ if (!empty($uiset_pc_arr) || !empty($uiset_mobile_arr)) {
 }
 /*--end*/
 
+/*基本信息*/
+$ctlactArr = [
+    'System@web',
+    'System@web2',
+    'System@basic',
+    'System@water',
+    'System@smtp',
+];
+$system_index_arr = array();
+foreach ($ctlactArr as $key => $val) {
+    if (is_check_access($val)) {
+        $arr = explode('@', $val);
+        $system_index_arr = array(
+            'controller' => !empty($arr[0]) ? $arr[0] : '',
+            'action'     => !empty($arr[1]) ? $arr[1] : '',
+        );
+        break;
+    }
+}
+/*--end*/
+
 /*SEO优化URl*/
 $seo_index_arr = array();
 if ($main_lang != $admin_lang) {
@@ -93,6 +114,22 @@ if ($main_lang != $admin_lang) {
         'controller' => 'Links',
         'action'     => 'index',
     );
+} else {
+    $ctlactArr = [
+        'Seo@seo',
+        'Sitemap@index',
+        'Links@index',
+    ];
+    foreach ($ctlactArr as $key => $val) {
+        if (is_check_access($val)) {
+            $arr = explode('@', $val);
+            $seo_index_arr = array(
+                'controller' => !empty($arr[0]) ? $arr[0] : '',
+                'action'     => !empty($arr[1]) ? $arr[1] : '',
+            );
+            break;
+        }
+    }
 }
 /*--end*/
 
@@ -125,7 +162,6 @@ if ($main_lang == $admin_lang) {
 
 /*插件应用URl*/
 $weapp_index_arr = array();
-// $weappDirList = glob(ROOT_PATH.'weapp/*');
 if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
     $weapp_index_arr = array(
         'is_menu' => 1,
@@ -138,6 +174,25 @@ $users_index_arr = array();
 if (1 == tpCache('web.web_users_switch') && $main_lang == $admin_lang) {
     $users_index_arr = array(
         'is_menu' => 1,
+        'is_modules' => 1,
+    );
+}
+/*--end*/
+
+/*商城中心URl*/
+$shop_index_arr = array();
+if (1 == tpCache('web.web_users_switch') && 1 == getUsersConfigData('shop.shop_open') && $main_lang == $admin_lang) {
+    $shop_index_arr = array(
+        'is_menu' => 1,
+        'is_modules' => 1,
+    );
+}
+/*--end*/
+
+/*小程序*/
+$diyminipro_index_arr = array();
+if (is_dir('./weapp/Diyminipro/') && 1 == tpCache('web.web_diyminipro_switch') && $main_lang == $admin_lang) {
+    $diyminipro_index_arr = array(
         'is_modules' => 1,
     );
 }
@@ -157,6 +212,7 @@ if (1 == tpCache('web.web_users_switch') && $main_lang == $admin_lang) {
  *      grade   层级
  *      is_menu 是否显示菜单
  *      is_modules  是否显示权限模块分组
+ *      is_subshowmenu  子模块是否有显示的模块
  *      child   子模块
  */
 return  array(
@@ -171,6 +227,7 @@ return  array(
         'grade'=>0,
         'is_menu'=>1,
         'is_modules'=>1,
+        'is_subshowmenu'=>1,
         'child'=>array(
             '1001' => array(
                 'id'=>1001,
@@ -184,6 +241,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
+                'is_subshowmenu'=>0,
                 'child' => array(),
             ),
             '1002' => array(
@@ -198,6 +256,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
+                'is_subshowmenu'=>0,
                 'child' => array(),
             ),
             '1003' => array(
@@ -212,6 +271,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
+                'is_subshowmenu'=>0,
                 'child' => array(),
             ),
         ),
@@ -228,20 +288,98 @@ return  array(
         'grade'=>0,
         'is_menu'=>1,
         'is_modules'=>1,
+        'is_subshowmenu'=>1,
         'child'=>array(
             '2001' => array(
                 'id'=>2001,
                 'parent_id'=>2000,
                 'name' => '基本信息',
-                'controller'=>'System',
-                'action'=>'web',
+                'controller'=>isset($system_index_arr['controller']) ? $system_index_arr['controller'] : 'System',
+                'action'=>isset($system_index_arr['action']) ? $system_index_arr['action'] : 'index',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-cog',
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
-                'child' => array(),
+                'is_subshowmenu'=>0,
+                'child' => array(
+                    '2001001' => array(
+                        'id'=>2001001,
+                        'parent_id'=>2001,
+                        'name' => '网站设置',
+                        'controller'=>'System',
+                        'action'=>'web',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2001002' => array(
+                        'id'=>2001002,
+                        'parent_id'=>2001,
+                        'name' => '核心设置',
+                        'controller'=>'System',
+                        'action'=>'web2',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2001003' => array(
+                        'id'=>2001003,
+                        'parent_id'=>2001,
+                        'name' => '附件设置',
+                        'controller'=>'System',
+                        'action'=>'basic',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2001004' => array(
+                        'id'=>2001004,
+                        'parent_id'=>2001,
+                        'name' => '图片水印',
+                        'controller'=>'System',
+                        'action'=>'water',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2001005' => array(
+                        'id'=>2001005,
+                        'parent_id'=>2001,
+                        'name' => '接口配置',
+                        'controller'=>'System',
+                        'action'=>'smtp',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                ),
             ),
             '2002' => array(
                 'id'=>2002,
@@ -255,6 +393,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>isset($uiset_index_arr['is_menu']) ? $uiset_index_arr['is_menu'] : 0,
                 'is_modules'=>1,
+                'is_subshowmenu'=>1,
                 'child'=>array(
                     '2002001' => array(
                         'id'=>2002001,
@@ -268,6 +407,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>isset($uiset_pc_arr['is_menu']) ? $uiset_pc_arr['is_menu'] : 0,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2002002' => array(
@@ -282,6 +422,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>isset($uiset_mobile_arr['is_menu']) ? $uiset_mobile_arr['is_menu'] : 0,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2002003' => array(
@@ -296,6 +437,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                 ),
@@ -305,42 +447,60 @@ return  array(
                 'parent_id'=>2000,
                 'name' => 'SEO设置',
                 'controller'=>isset($seo_index_arr['controller']) ? $seo_index_arr['controller'] : 'Seo',
-                'action'=>isset($seo_index_arr['action']) ? $seo_index_arr['action'] : 'index',
+                'action'=>isset($seo_index_arr['action']) ? $seo_index_arr['action'] : 'seo',
                 'url'=>'', 
                 'target'=>'workspace',
                 'icon'=>'fa fa-paper-plane',
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
+                'is_subshowmenu'=>0,
                 'child'=>array(
-                    // '2003001' => array(
-                    //     'id'=>2003001,
-                    //     'parent_id'=>2003,
-                    //     'name' => 'URL配置', 
-                    //     'controller'=>'Seo',
-                    //     'action'=>'index',
-                    //     'url'=>'',
-                    //     'target'=>'workspace',
-                    //     'icon'=>'fa fa-newspaper-o',
-                    //     'grade'=>2,
-                    //     'is_menu'=>0,
-                    //     'is_modules'=>0,
-                    //     'child' => array(),
-                    // ),
-                    // '2003002' => array(
-                    //     'id'=>2003002,
-                    //     'parent_id'=>2003,
-                    //     'name' => '友情链接', 
-                    //     'controller'=>'Links',
-                    //     'action'=>'index', 
-                    //     'url'=>'', 
-                    //     'target'=>'workspace',
-                    //     'icon'=>'fa fa-link',
-                    //     'grade'=>2,
-                    //     'is_menu'=>0,
-                    //     'is_modules'=>0,
-                    //     'child' => array(),
-                    // ),
+                    '2003001' => array(
+                        'id'=>2003001,
+                        'parent_id'=>2003,
+                        'name' => 'URL配置', 
+                        'controller'=>'Seo',
+                        'action'=>'seo',
+                        'url'=>'',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-newspaper-o',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2003002' => array(
+                        'id'=>2003002,
+                        'parent_id'=>2003,
+                        'name' => 'Sitemap', 
+                        'controller'=>'Sitemap',
+                        'action'=>'index',
+                        'url'=>'',
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-newspaper-o',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2003003' => array(
+                        'id'=>2003003,
+                        'parent_id'=>2003,
+                        'name' => '友情链接', 
+                        'controller'=>'Links',
+                        'action'=>'index', 
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-link',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
                 ),
             ),
             '2004' => array(
@@ -355,6 +515,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>1,
                 'is_modules'=>1,
+                'is_subshowmenu'=>1,
                 'child' => array(
                     '2004001' => array(
                         'id'=>2004001,
@@ -368,6 +529,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2004006' => array(
@@ -382,6 +544,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>isset($recyclebin_index_arr['is_menu']) ? $recyclebin_index_arr['is_menu'] : 0,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2004003' => array(
@@ -396,6 +559,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2004002' => array(
@@ -410,6 +574,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>isset($tools_index_arr['is_menu']) ? $tools_index_arr['is_menu'] : 0,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     // '2004004' => array(
@@ -424,6 +589,7 @@ return  array(
                     //     'grade'=>2,
                     //     'is_menu'=>0,
                     //     'is_modules'=>0,
+                    //     'is_subshowmenu'=>0,
                     //     'child' => array(),
                     // ),
                     '2004007' => array(
@@ -438,6 +604,7 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>isset($channeltype_index_arr['is_menu']) ? $channeltype_index_arr['is_menu'] : 0,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                     '2004005' => array(
@@ -452,6 +619,22 @@ return  array(
                         'grade'=>2,
                         'is_menu'=>1,
                         'is_modules'=>0,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2004008' => array(
+                        'id'=>2004008,
+                        'parent_id'=>2004,
+                        'name' => '功能开关',
+                        'controller'=>'Index',
+                        'action'=>'switch_map', 
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-toggle-on',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
                         'child' => array(),
                     ),
                 ),
@@ -468,6 +651,7 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>isset($weapp_index_arr['is_menu']) ? $weapp_index_arr['is_menu'] : 0,
                 'is_modules'=>0,
+                'is_subshowmenu'=>0,
                 'child'=>array(),
             ),
             '2006' => array(
@@ -482,20 +666,37 @@ return  array(
                 'grade'=>1,
                 'is_menu'=>isset($users_index_arr['is_menu']) ? $users_index_arr['is_menu'] : 0,
                 'is_modules'=>isset($users_index_arr['is_modules']) ? $users_index_arr['is_modules'] : 0,
+                'is_subshowmenu'=>0,
                 'child' => array(),
             ),
-            '2007' => array(
-                'id'=>2007,
+            '2008' => array(
+                'id'=>2008,
                 'parent_id'=>2000,
-                'name' => '功能开关',
-                'controller'=>'Index',
-                'action'=>'switch_map',
+                'name' => '商城中心',
+                'controller'=>'Shop',
+                'action'=>'home',
                 'url'=>'',
                 'target'=>'workspace',
-                'icon'=>'fa fa-toggle-on',
+                'icon'=>'fa fa-shopping-cart',
+                'grade'=>1,
+                'is_menu'=>isset($shop_index_arr['is_menu']) ? $shop_index_arr['is_menu'] : 0,
+                'is_modules'=>isset($shop_index_arr['is_modules']) ? $shop_index_arr['is_modules'] : 0,
+                'is_subshowmenu'=>0,
+                'child' => array(),
+            ),
+            '2009' => array(
+                'id'=>2009,
+                'parent_id'=>2000,
+                'name' => '可视化小程序',
+                'controller'=>'Diyminipro',
+                'action'=>'page_edit',
+                'url'=>'', 
+                'target'=>'workspace',
+                'icon'=>'fa fa-code',
                 'grade'=>1,
                 'is_menu'=>0,
-                'is_modules'=>1,
+                'is_modules'=>isset($diyminipro_index_arr['is_modules']) ? $diyminipro_index_arr['is_modules'] : 0,
+                'is_subshowmenu'=>0,
                 'child' => array(),
             ),
         ),

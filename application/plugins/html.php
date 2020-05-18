@@ -32,9 +32,12 @@ $html_cache_arr = array();
 /*--end*/
 
 /*引入全部插件的页面缓存规则*/
-$html_list = glob(WEAPP_DIR_NAME.DS.'*'.DS.'html.php');
-if (!empty($html_list)) {
-    foreach ($html_list as $key => $file) {
+$weappRow = \think\Db::name('weapp')->field('code')->where([
+    'status'    => 1,
+])->cache(true, null, "weapp")->select();
+foreach ($weappRow as $key => $val) {
+    $file = WEAPP_DIR_NAME.DS.$val['code'].DS.'html.php';
+    if (file_exists($file)) {
         $html_value = include_once $file;
         if (empty($html_value)) {
             continue;

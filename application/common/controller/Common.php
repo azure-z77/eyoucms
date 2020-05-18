@@ -61,13 +61,31 @@ class Common extends Controller {
         }
         /*--end*/
 
+        /*强制微信模式，仅允许微信端访问*/
+        $shop_force_use_wechat = getUsersConfigData('shop.shop_force_use_wechat');
+        if (!empty($shop_force_use_wechat) && 1 == $shop_force_use_wechat  && !isWeixin()) {
+            $html = "<div style='text-align:center; font-size:20px; font-weight:bold; margin:50px 0px;'>网站仅微信端可访问</div>";
+            $WeChatLoginConfig = getUsersConfigData('wechat.wechat_login_config') ? unserialize(getUsersConfigData('wechat.wechat_login_config')) : [];
+            if (!empty($WeChatLoginConfig['wechat_name'])) $html .= "<div style='text-align:center; font-size:20px; font-weight:bold; margin:50px 0px;'>关注微信公众号：".$WeChatLoginConfig['wechat_name']."</div>";
+            if (!empty($WeChatLoginConfig['wechat_pic'])) $html .= "<div style='text-align:center; font-size:20px; font-weight:bold; margin:50px 0px;'><img style='width: 400px; height: 400px;' src='".$WeChatLoginConfig['wechat_pic']."'></div>";
+            die($html);
+        }
+        /*END*/
+
         $this->global_assign(); // 获取网站全局变量值
         $this->view_suffix = config('template.view_suffix'); // 模板后缀htm
         $this->theme_style = THEME_STYLE; // 模板目录
         //全局变量
         $this->eyou['global'] = $global;
         // 多语言变量
-        $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+        try {
+            $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+        } catch (\Exception $e) {
+            $this->home_lang = $this->main_lang;
+            $langCookieVar = \think\Config::get('global.home_lang');
+            \think\Cookie::set($langCookieVar, $this->home_lang);
+            $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+        }
         $this->eyou['lang'] = !empty($langArr) ? $langArr : [];
         /*电脑版与手机版的切换*/
         $v = I('param.v/s', 'pc');

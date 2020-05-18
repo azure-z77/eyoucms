@@ -27,10 +27,11 @@ class Product extends Base
     public $channeltype = '';
     // 表单类型
     public $attrInputTypeArr = array();
-    
-    public function _initialize() {
+
+    public function _initialize()
+    {
         parent::_initialize();
-        $channeltype_list = config('global.channeltype_list');
+        $channeltype_list  = config('global.channeltype_list');
         $this->channeltype = $channeltype_list[$this->nid];
         empty($this->channeltype) && $this->channeltype = 2;
         $this->attrInputTypeArr = config('global.attr_input_type_arr');
@@ -66,9 +67,6 @@ class Product extends Base
                     if (0 < intval($admin_info['role_id'])) {
                         $auth_role_info = $admin_info['auth_role_info'];
                         if(! empty($auth_role_info)){
-                            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
-                                $condition['a.admin_id'] = $admin_info['admin_id'];
-                            }
                             if(! empty($auth_role_info['permission']['arctype'])){
                                 if (!empty($typeid)) {
                                     $typeids = array_intersect($typeids, $auth_role_info['permission']['arctype']);
@@ -94,6 +92,18 @@ class Product extends Base
             }
         }
 
+        /*权限控制 by 小虎哥*/
+        $admin_info = session('admin_info');
+        if (0 < intval($admin_info['role_id'])) {
+            $auth_role_info = $admin_info['auth_role_info'];
+            if(! empty($auth_role_info)){
+                if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                    $condition['a.admin_id'] = $admin_info['admin_id'];
+                }
+            }
+        }
+        /*--end*/
+        
         // 时间检索
         if ($begin > 0 && $end > 0) {
             $condition['a.add_time'] = array('between',"$begin,$end");
@@ -235,6 +245,36 @@ class Product extends Base
                 unset($post['type_tempview']);
                 unset($post['tempview']);
             }
+            
+            //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
+            if (!empty($post['htmlfilename'])) {
+                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
+                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+                //判断是否存在相同的自定义文件名
+                $filenameCount = Db::name('archives')->where([
+                        'htmlfilename'  => $post['htmlfilename'],
+                    ])->count();
+                if (!empty($filenameCount)) {
+                    $this->error("自定义文件名已存在，请重新设置！");
+                }
+            }
+
+            // 产品类型
+            if (!empty($post['prom_type'])) {
+                if ($post['prom_type_vir'] == 2) {
+                    $post['netdisk_url'] = trim($post['netdisk_url']);
+                    if (empty($post['netdisk_url'])) {
+                        $this->error("网盘地址不能为空！");
+                    }
+                    $post['prom_type'] = 2;
+                } else if ($post['prom_type_vir'] == 3) {
+                    $post['text_content'] = trim($post['text_content']);
+                    if (empty($post['text_content'])) {
+                        $this->error("虚拟文本内容不能为空！");
+                    }
+                    $post['prom_type'] = 3;
+                }
+            }
 
             // --存储数据
             $newData = array(
@@ -258,7 +298,7 @@ class Product extends Base
             );
             $data = array_merge($post, $newData);
 
-            $aid = M('archives')->insertGetId($data);
+            $aid = Db::name('archives')->insertGetId($data);
             $_POST['aid'] = $aid;
             if ($aid) {
                 // ---------后置操作
@@ -267,6 +307,11 @@ class Product extends Base
                 // 添加产品规格
                 model('ProductSpecPreset')->ProductSpecInsertAll($aid, $data);
                 adminLog('新增产品：'.$data['title']);
+
+                //虚拟商品保存
+                if (!empty($post['prom_type']) && in_array($post['prom_type'], [2,3])) {
+                    model('ProductNetdisk')->saveProductNetdisk($aid, $data);
+                }
 
                 // 生成静态页面代码
                 $successData = [
@@ -347,6 +392,9 @@ class Product extends Base
             $assign_data['preset_value'] = Db::name('product_spec_preset')->where('lang',$this->admin_lang)->field('preset_id,preset_mark_id,preset_name')->group('preset_mark_id')->order('preset_mark_id desc')->select();
         }
 
+        // URL模式
+        $tpcache = config('tpcache');
+        $assign_data['seo_pseudo'] = !empty($tpcache['seo_pseudo']) ? $tpcache['seo_pseudo'] : 1;
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -412,6 +460,37 @@ class Product extends Base
                 unset($post['tempview']);
             }
 
+            // 产品类型
+            if (!empty($post['prom_type'])) {
+                if ($post['prom_type_vir'] == 2) {
+                    $post['netdisk_url'] = trim($post['netdisk_url']);
+                    if (empty($post['netdisk_url'])) {
+                        $this->error("网盘地址不能为空！");
+                    }
+                    $post['prom_type'] = 2;
+                } else if ($post['prom_type_vir'] == 3) {
+                    $post['text_content'] = trim($post['text_content']);
+                    if (empty($post['text_content'])) {
+                        $this->error("虚拟文本内容不能为空！");
+                    }
+                    $post['prom_type'] = 3;
+                }
+            }
+
+            //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
+            if (!empty($post['htmlfilename'])) {
+                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
+                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+                //判断是否存在相同的自定义文件名
+                $filenameCount = Db::name('archives')->where([
+                        'aid'   => ['NEQ', $post['aid']],
+                        'htmlfilename'  => $post['htmlfilename'],
+                    ])->count();
+                if (!empty($filenameCount)) {
+                    $this->error("自定义文件名已存在，请重新设置！");
+                }
+            }
+
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
             // --存储数据
@@ -433,7 +512,7 @@ class Product extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where([
+            $r = Db::name('archives')->where([
                     'aid'   => $data['aid'],
                     'lang'  => $this->admin_lang,
                 ])->update($data);
@@ -443,6 +522,12 @@ class Product extends Base
                 model('Product')->afterSave($data['aid'], $data, 'edit');
                 // 更新规格名称数据
                 // model('ProductSpecData')->ProducSpecNameEditSave($data);
+
+                //虚拟商品保存
+                if (!empty($post['prom_type']) && in_array($post['prom_type'], [2,3])) {
+                    model('ProductNetdisk')->saveProductNetdisk($data['aid'], $data);
+                }
+
                 // 更新规格值及金额数据
                 model('ProductSpecValue')->ProducSpecValueEditSave($data);
                 // ---------end
@@ -539,6 +624,10 @@ class Product extends Base
                 'status'        => 1,
             ])->getAllWithIndex('name');
 
+        /*虚拟商品内容读取*/
+        $assign_data['netdisk'] = Db::name("product_netdisk")->where('aid', $id)->find();
+        /*end*/
+
         // 阅读权限
         $arcrank_list = get_arcrank_list();
         $assign_data['arcrank_list'] = $arcrank_list;
@@ -568,11 +657,17 @@ class Product extends Base
         if (empty($shopConfig['shop_type']) || 1 == $shopConfig['shop_type']) {
             if ($shopConfig['shop_type'] == $assign_data['field']['prom_type']) {
                 $IsSame = '0'; // 相同
+            }elseif ($shopConfig['shop_type']==1 && in_array($assign_data['field']['prom_type'], [2,3])) {
+                $IsSame = '0'; // 相同
             }else{
                 $IsSame = '1'; // 不相同
             }
         }
         $assign_data['IsSame'] = $IsSame;
+
+        // URL模式
+        $tpcache = config('tpcache');
+        $assign_data['seo_pseudo'] = !empty($tpcache['seo_pseudo']) ? $tpcache['seo_pseudo'] : 1;
 
         $this->assign($assign_data);
         return $this->fetch();

@@ -57,6 +57,7 @@
             $arcurl = get_arcurl($row);
             $arcurl_home = get_arcurl($row, false);
             $channel = $row['channel'];
+            $arcrank = $row['arcrank'];
             $seo_pseudo = tpCache('seo.seo_pseudo');
             $lang = input('param.lang/s', 'cn');
             $gourl = cookie('ENV_GOBACK_URL');
@@ -67,7 +68,7 @@
                 $addurl .= "&channel=".$data['channel'];
             }
             $env_is_uphtml = cookie('ENV_IS_UPHTML');
-            $action_name = request()->action();
+            $action_name = $push_zzbaidu_type = request()->action();
             $ctl_name = request()->controller();
             if ('add' == $action_name) {
                 $msg = '发布';
@@ -75,6 +76,12 @@
             } else {
                 $msg = '编辑';
                 $msg1 = '发布';
+            }
+            if (0 > $row['click'] && -1 < $arcrank) {
+                $push_zzbaidu_type = 'add';
+                \think\DB::name('archives')
+                    ->where('aid', 'eq', $data['aid'])
+                    ->update(['click'=>mt_rand(100, 300), 'update_time'=>getTime()]);
             }
         {/php}
         <div class="system-message">
@@ -114,9 +121,10 @@
         {/php}
         <script type="text/javascript">
         /* 生成静态页面代码 */
-        var aid = "{$data['aid']}";
-        var typeid = "{$data['tid']}";
-		var ctl_name = "{$ctl_name}";
+        var aid = {$data['aid']|default=0};
+        var arcrank = {$arcrank|default=0};
+        var typeid = {$data['tid']|default=0};
+        var ctl_name = "{$ctl_name}";
         if(aid > 0){
             $.ajax({
                 url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=upHtml&lang="+__lang__,
@@ -134,10 +142,12 @@
                         success:function(res){
                             layer.closeAll();
                             $('#tips').html('');
-                            // 百度自动推送
-                            push_zzbaidu('{$arcurl_home}', '{$action_name}');
-                            // 更新sitemap.xml地图
-                            update_sitemap('{$ctl_name}', '{$action_name}');
+                            if (arcrank >= 0) {
+                                // 百度自动推送
+                                push_zzbaidu('{$arcurl_home}', '{$push_zzbaidu_type}');
+                                // 更新sitemap.xml地图
+                                update_sitemap('{$ctl_name}', '{$push_zzbaidu_type}');
+                            }
                         },
                         error: function(e){
                             layer.closeAll();
@@ -164,12 +174,13 @@
         {/php}
         <script type="text/javascript">
         /* 生成静态页面代码 */
-        var aid = "{$data['aid']}";
-        if(aid > 0){
+        var aid = {$data['aid']|default=0};
+        var arcrank = {$arcrank|default=0};
+        if(aid > 0 && arcrank >= 0){
             // 百度自动推送
-            push_zzbaidu('{$arcurl_home}', '{$action_name}');
+            push_zzbaidu('{$arcurl_home}', '{$push_zzbaidu_type}');
             // 更新sitemap.xml地图
-            update_sitemap('{$ctl_name}', '{$action_name}');
+            update_sitemap('{$ctl_name}', '{$push_zzbaidu_type}');
         }
         /* end */
         </script>

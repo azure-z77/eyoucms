@@ -93,6 +93,7 @@ class Admin extends Base {
         if (!function_exists('imagettftext') || empty($admin_login_captcha['is_on'])) {
             $is_vertify = 0; // 函数不存在，不符合开启的条件
         }
+        $this->assign('is_vertify', $is_vertify);
 
         if (IS_POST) {
 
@@ -109,6 +110,20 @@ class Admin extends Base {
                 $verify = new Verify();
                 if (!$verify->check(input('post.vertify'), "admin_login")) {
                     $this->error('验证码错误');
+                }
+            }
+
+            $is_clicap = 0; // 默认关闭文字验证码
+            if (is_dir('./weapp/Clicap/')) {
+                $ClicapRow = model('Weapp')->getWeappList('Clicap');
+                if (!empty($ClicapRow['status']) && 1 == $ClicapRow['status']) {
+                    if (!empty($ClicapRow['data']) && $ClicapRow['data']['captcha']['admin_login']['is_on'] == 1) {
+                        $clicaptcha_info = input('post.clicaptcha-submit-info');
+                        $clicaptcha = new \weapp\Clicap\vendor\Clicaptcha;
+                        if (empty($clicaptcha_info) || !$clicaptcha->check($clicaptcha_info, false)) {
+                            $this->error('文字点击验证错误！');
+                        }
+                    }
                 }
             }
 
@@ -223,8 +238,6 @@ class Admin extends Base {
                 $this->error('请填写用户名/密码');
             }
         }
-
-        $this->assign('is_vertify', $is_vertify);
 
         $ajaxLogic = new AjaxLogic;
         $ajaxLogic->login_handle();

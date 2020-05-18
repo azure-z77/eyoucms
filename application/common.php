@@ -140,7 +140,7 @@ if (!function_exists('tpCache'))
                             'update_time'   => time(),
                         );
                     }
-                    $table_db->insertAll($newArr);
+                    !empty($newArr) && $table_db->insertAll($newArr);
                 }
                 $newData = $data;
             }
@@ -705,7 +705,7 @@ if (!function_exists('get_default_pic'))
                 $domain = '';
             }
             
-            $pic_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $pic_url); // 支持子目录
+            $pic_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', '$2', $pic_url); // 支持子目录
             $realpath = realpath(trim($pic_url, '/'));
             if ( is_file($realpath) && file_exists($realpath) ) {
                 $pic_url = $domain . ROOT_DIR . $pic_url;
@@ -724,14 +724,14 @@ if (!function_exists('handle_subdir_pic'))
      * 处理子目录与根目录的图片平缓切换
      * @param string $str 图片路径或html代码
      */
-    function handle_subdir_pic($str = '', $type = 'img')
+    function handle_subdir_pic($str = '', $type = 'img', $domain = false)
     {
         $root_dir = ROOT_DIR;
         switch ($type) {
             case 'img':
                 if (!is_http_url($str) && !empty($str)) {
                     // if (!empty($root_dir)) { // 子目录之间切换
-                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/)#i', $root_dir.'$2', $str);
+                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $root_dir.'$2', $str);
                     // } else { // 子目录与根目录切换
                         // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
                     // }
@@ -797,10 +797,28 @@ if (!function_exists('handle_subdir_pic'))
                     $str = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', $root_dir.'$2', $str);
                 }
                 break;
-            
+
+            case 'media':  //多媒体文件
+                if (!is_http_url($str) && !empty($str)) {
+                    $str = preg_replace('#^(/[/\w]+)?(/uploads/media/)#i', $root_dir.'$2', $str);
+                }
+                break;
+
             default:
                 # code...
                 break;
+        }
+
+        if (!empty($str) && !is_http_url($str) && false !== $domain) {
+            if (true === $domain) {
+                static $domain_new = null;
+                if (null === $domain_new) {
+                    $request = \think\Request::instance();
+                    $domain_new = $request->domain();
+                }
+                $domain = $domain_new;
+            }
+            $str = $domain.$str;
         }
 
         return $str;
@@ -869,10 +887,10 @@ if (!function_exists('thumb_img'))
         $imgArr = explode('/', $original_img);    
         $imgArr = end($imgArr);
         $filename = preg_replace("/\.([^\.]+)$/i", "", $imgArr);
+        $file_ext = preg_replace("/^(.*)\.([^\.]+)$/i", "$2", $imgArr);
 
         // 如果图片参数是缩略图，则直接获取到原图，并进行缩略处理
         if (preg_match('/\/uploads\/thumb\/\d{1,}_\d{1,}\//i', $original_img)) {
-            $file_ext = preg_replace("/^(.*)\.([^\.]+)$/i", "$2", $imgArr);
             $pattern = UPLOAD_PATH.'allimg/*/'.$filename;
             if (in_array(strtolower($file_ext), ['jpg','jpeg'])) {
                 $pattern .= '.jp*g';
@@ -882,6 +900,10 @@ if (!function_exists('thumb_img'))
             $original_img_tmp = glob($pattern);
             if (!empty($original_img_tmp)) {
                 $original_img = '/'.current($original_img_tmp);
+            }
+        } else {
+            if ('bmp' == $file_ext && version_compare(PHP_VERSION,'7.2.0','<')) {
+                return $original_img;
             }
         }
         // --end
@@ -893,6 +915,10 @@ if (!function_exists('thumb_img'))
         //检测图像合法性
         if (false === $info || (IMAGETYPE_GIF === $info[2] && empty($info['bits']))) {
             return $original_img;
+        } else {
+            if (!empty($info['mime']) && stristr($info['mime'], 'bmp') && version_compare(PHP_VERSION,'7.2.0','<')) {
+                return $original_img;
+            }
         }
 
         // 缩略图宽高度
@@ -1187,6 +1213,7 @@ if (!function_exists('allow_release_arctype'))
     {
         $where = [];
 
+        $where['c.weapp_code'] = ''; // 回收站功能
         $where['c.lang']   = get_current_lang(); // 多语言 by 小虎哥
         $where['c.is_del'] = 0; // 回收站功能
 
@@ -1288,7 +1315,7 @@ if (!function_exists('allow_release_arctype'))
                     {
                         $select_html .= str_repeat('&nbsp;', $val['grade'] * 4);
                     }
-                    $select_html .= htmlspecialchars(addslashes($val['typename'])) . '</option>';
+                    $select_html .= htmlspecialchars_decode(addslashes($val['typename'])) . '</option>';
 
                     if (empty($val['children'])) {
                         continue;
@@ -1304,7 +1331,7 @@ if (!function_exists('allow_release_arctype'))
                         {
                             $select_html .= str_repeat('&nbsp;', $val2['grade'] * 4);
                         }
-                        $select_html .= htmlspecialchars(addslashes($val2['typename'])) . '</option>';
+                        $select_html .= htmlspecialchars_decode(addslashes($val2['typename'])) . '</option>';
 
                         if (empty($val2['children'])) {
                             continue;
@@ -1320,7 +1347,7 @@ if (!function_exists('allow_release_arctype'))
                             {
                                 $select_html .= str_repeat('&nbsp;', $val3['grade'] * 4);
                             }
-                            $select_html .= htmlspecialchars(addslashes($val3['typename'])) . '</option>';
+                            $select_html .= htmlspecialchars_decode(addslashes($val3['typename'])) . '</option>';
                         }
                     }
                 }
@@ -1695,7 +1722,7 @@ if (!function_exists('getUsersConfigData'))
                             'update_time'   => time(),
                         );
                     }
-                    $table_db->insertAll($newArr);
+                    !empty($newArr) && $table_db->insertAll($newArr);
                 }
                 $newData = $data;
             }
@@ -1738,35 +1765,6 @@ if (!function_exists('send_email'))
         $res = $emailLogic->send_email($to, $subject, $data, $scene);
         return $res;
     }
-}
-
-/**
- * 检测是否能够发送短信
- * @param unknown $scene
- * @return multitype:number string
- */
-function checkEnableSendSms($scene)
-{
-    $scenes = config('SEND_SCENE');
-    $sceneItem = $scenes[$scene];
-    if (!$sceneItem) {
-        return array("status" => -1, "msg" => lang('Scene parameter scene error'));
-    }
-    $key = $sceneItem[2];
-    $sceneName = $sceneItem[0];
-    $config = tpCache('sms');
-    $smsEnable = $config[$key];
-
-    if (!$smsEnable) {
-        return array("status" => -1, "msg" => lang('[]sending SMS is closed', array($sceneName)));
-    }
-    //判断是否添加"注册模板"
-    $size = M('sms_template')->where("send_scene", $scene)->count('tpl_id');
-    if (!$size) {
-        return array("status" => -1, "msg" => lang('Please add [] SMS template first', array($sceneName)));
-    }
-
-    return array("status"=>1,"msg"=>lang('You can send text messages'));
 }
 
 /**
@@ -1910,6 +1908,132 @@ if (!function_exists('AddOrderAction'))
     }
 }
 
+if (!function_exists('GetEamilSendData')) 
+{
+    /**
+     * 获取邮箱发送数据
+     * 参数说明：
+     * $SmtpConfig 后台设置的邮箱配置信息
+     * $users      会员数据
+     * $OrderData  订单信息
+     * $type       订单操作
+     * $pay_method 支付方式
+     * 返回说明：
+     * return 邮箱发送所需参数
+     */
+    function GetEamilSendData($SmtpConfig = [], $users = [], $OrderData = [], $type = 1, $pay_method = null)
+    {
+        if (empty($SmtpConfig) || empty($users) || empty($OrderData)) return false;
+        if (1 == $type) {
+            if (isset($SmtpConfig['smtp_shop_order_pay']) && 0 == $SmtpConfig['smtp_shop_order_pay']) return false;
+        } else if (2 == $type) {
+            if (isset($SmtpConfig['smtp_shop_order_send']) && 0 == $SmtpConfig['smtp_shop_order_send']) return false;
+        }
+        if (in_array($type, [1])) {
+            $email = !empty($SmtpConfig['smtp_from_eamil']) ? $SmtpConfig['smtp_from_eamil'] : null;
+        } else if (in_array($type, [2])) {
+            $email = !empty($users['email']) ? $users['email'] : null;
+        }
+        if (empty($email)) return false;
+        
+        if (!empty($SmtpConfig['smtp_server']) && !empty($SmtpConfig['smtp_user']) && !empty($SmtpConfig['smtp_pwd'])) {
+            $Result = [];
+            switch ($type) {
+                case '1':
+                    $title = '订单支付';
+                    break;
+                case '2':
+                    $title = '订单发货';
+                    break;
+            }
+            $Result = [
+                'url' => ROOT_DIR . '/index.php?m=user&c=Smtpmail&a=send_email&_ajax=1',
+                'data' => [
+                    'email' => $email,
+                    'title' => $title,
+                    'type'  => 'order_msg',
+                    'scene' => 5,
+                    'data'  => [
+                        'type' => $type,
+                        'nickname' => !empty($users['nickname']) ? $users['nickname'] : $users['username'],
+                        'pay_method' => $pay_method,
+                        'order_id'   => !empty($OrderData['order_id']) ? $OrderData['order_id'] : '',
+                        'order_code' => !empty($OrderData['order_code']) ? $OrderData['order_code'] : '',
+                        'service_id' => !empty($OrderData['service_id']) ? $OrderData['service_id'] : ''
+                    ],
+                ]
+            ];
+            return $Result;
+        }
+        return false;
+    }
+}
+
+if (!function_exists('GetMobileSendData')) 
+{
+    /**
+     * 获取手机发送数据
+     * 参数说明：
+     * $SmtpConfig 后台设置的短信配置信息
+     * $users      会员数据
+     * $OrderData  订单信息
+     * $type       订单操作
+     * $pay_method 支付方式
+     * 返回说明：
+     * return 手机短信发送所需参数
+     */
+    function GetMobileSendData($SmsConfig = [], $users = [], $OrderData = [], $type = 1, $pay_method = null)
+    {
+        if (empty($SmsConfig) || empty($users) || empty($OrderData)) return false;
+        if (1 == $type) {
+            if (isset($SmsConfig['sms_shop_order_pay']) && 0 == $SmsConfig['sms_shop_order_pay']) return false;
+        } else if (2 == $type) {
+            if (isset($SmsConfig['sms_shop_order_send']) && 0 == $SmsConfig['sms_shop_order_send']) return false;
+        } else {
+            return false;
+        }
+
+        if (in_array($type, [1])) {
+            $mobile = $SmsConfig['sms_test_mobile'];
+        } else if (in_array($type, [2])) {
+            $mobile = $users['mobile'];
+        } else {
+            return false;
+        }
+        
+        if (empty($mobile)) return false;
+        
+        if (!empty($SmsConfig['sms_appkey']) && !empty($SmsConfig['sms_secretkey'])) {
+            $Result = [];
+            switch ($type) {
+                case '1':
+                    $title = '订单支付';
+                    break;
+                case '2':
+                    $title = '订单发货';
+                    break;
+            }
+            $Result = [
+                'url' => ROOT_DIR . '/index.php?m=api&c=Ajax&a=SendMobileCode&_ajax=1',
+                'data' => [
+                    'mobile' => $mobile,
+                    'scene' => 5,
+                    'title' => $title,
+                    'type'  => 'order_msg',
+                    'data'  => [
+                        'type' => $type,
+                        'nickname' => !empty($users['nickname']) ? $users['nickname'] : $users['username'],
+                        'pay_method' => $pay_method,
+                        'order_code' => !empty($OrderData['order_code']) ? $OrderData['order_code'] : '',
+                    ],
+                ]
+            ];
+            return $Result;
+        }
+        return false;
+    }
+}
+
 if (!function_exists('download_file')) 
 {
     /**
@@ -1974,6 +2098,13 @@ if (!function_exists('img_style_wh'))
     function img_style_wh($content = '', $title = '')
     {
         if (!empty($content)) {
+            
+            // 是否开启图片大小自适应
+            $basic_img_style_wh = tpCache('basic.basic_img_style_wh');
+            if (empty($basic_img_style_wh)) {
+                return $content;
+            }
+
             preg_match_all('/<img.*(\/)?>/iUs', $content, $imginfo);
             $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
             if (!empty($imginfo)) {
@@ -2135,6 +2266,52 @@ if (!function_exists('SynchronizeQiniu'))
         return $images;
     }
 }
+
+// if (!function_exists('SynchronizeOSS')) 
+// {
+//     /**
+//      * 参数说明：
+//      * $images   本地图片地址
+//      * $OssCo OSS配置信息
+//      * 返回说明：
+//      * return false 没有配置齐全
+//      * return true  同步成功
+//      */
+//     function SynchronizeOSS($ossConfig = [], $images = null, $file = [])
+//     {
+//         static $ossConfig = null;
+//         // 若没有传入配信信息则读取数据库
+//         if (null == $ossConfig) $ossConfig = tpCache('oss');
+        
+//         // 配置为空则返回原图片路径
+//         if (empty($ossConfig)) {
+//             $result = [
+//                 'url' => ROOT_DIR . $images,
+//                 'state' => 'SUCCESS',
+//             ];
+//             return $result;
+//         }
+
+//         // 上传OSS
+//         $ossClient = new \app\common\logic\OssLogic;
+//         $url = $ossClient->uploadFile($file->getRealPath(), $images);
+//         $state = "SUCCESS";
+//         if (empty($url)) {
+//             $url = '';
+//             $state = "ERROR" . $ossClient->getError();
+//         }
+
+//         // 删除图片源链接
+//         @unlink($file->getRealPath());
+
+//         // 返回数据
+//         $result = [
+//             'url' => $url,
+//             'state' => $state,
+//         ];
+//         return $result;
+//     }
+// }
 
 if (!function_exists('getAllChild')) 
 {   
@@ -2313,6 +2490,7 @@ if (!function_exists('getAllArchives'))
         $allow_release_channel = config('global.allow_release_channel');
         $map['a.channel']  = ['IN', $allow_release_channel];
         $map['a.lang'] = $home_lang;
+        $map['a.is_jump'] = 0;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
         $info = \think\Db::name('archives')->field('a.*')
@@ -2352,6 +2530,7 @@ if (!function_exists('getPreviousArchives'))
         $allow_release_channel = config('global.allow_release_channel');
         $map['a.channel']  = ['IN', $allow_release_channel];
         $map['a.lang'] = $home_lang;
+        $map['a.is_jump'] = 0;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
         $info = \think\Db::name('archives')->field('a.*')
@@ -2393,6 +2572,7 @@ if (!function_exists('getNextArchives'))
         $allow_release_channel = config('global.allow_release_channel');
         $map['a.channel']  = ['IN', $allow_release_channel];
         $map['a.lang'] = $home_lang;
+        $map['a.is_jump'] = 0;
         $map['a.is_del'] = 0;
         $map['a.status'] = 1;
         $info = \think\Db::name('archives')->field('a.*')
@@ -2668,7 +2848,7 @@ if (!function_exists('GetUsersLatestData'))
             // 昵称处理
             $users['nickname'] = empty($users['nickname']) ? $users['username'] : $users['nickname'];
             // 密码为空并且存在openid则表示微信注册登录，密码字段更新为0，可重置密码一次。
-            $users['password'] = empty($users['password']) && !empty($users['open_id']) ? 0 : 1;
+            $users['password'] = empty($users['password']) && !empty($users['thirdparty']) ? 1 : 1;
             // 删除登录密码及支付密码
             unset($users['paypwd']);
             // 级别处理
@@ -2701,8 +2881,7 @@ if (!function_exists('GetUsersLatestData'))
             // 合并数据
             $LatestData = array_merge($users, $LevelData);
             /*更新session*/
-            session('users',    $LatestData);
-            // session('open_id',  $LatestData['open_id']);
+            session('users', $LatestData);
             session('users_id', $LatestData['users_id']);
             setcookie('users_id', $LatestData['users_id'], null);
             /* END */
@@ -2711,6 +2890,41 @@ if (!function_exists('GetUsersLatestData'))
         }else{
             // session中不存在会员ID则返回空
             return false;
+        }
+    }
+}
+
+if (!function_exists('GetTotalArc')) 
+{
+    /**
+     * 统计栏目文章数
+     */
+    function GetTotalArc($typeid = 0)
+    {
+        if (empty($typeid)) {
+            return 0;
+        } else {
+            $row = model('Arctype')->getHasChildren($typeid);
+            if (empty($row)) return 0;
+            
+            $typeids = array_keys($row);
+            $condition = [
+                'typeid'    => ['IN', $typeids],
+                'arcrank'   => ['gt', -1],
+                'status'    => 1,
+                'is_del'    => 0,
+            ];
+            /*定时文档显示插件*/
+            if (is_dir('./weapp/TimingTask/')) {
+                $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+                if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                    $condition['add_time'] = ['elt', getTime()]; // 只显当天或之前的文档
+                }
+            }
+            /*end*/
+            $count = \think\Db::name('archives')->where($condition)->count('aid');
+            
+            return intval($count);
         }
     }
 }

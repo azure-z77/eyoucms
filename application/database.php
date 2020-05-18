@@ -17,7 +17,7 @@ return array(
     // 服务器地址
     'hostname'        => '127.0.0.1',
     // 数据库名
-    'database'        => 'eyoucms_release',
+    'database'        => 'e6',
     // 用户名
     'username'        => 'root',
     // 密码
@@ -57,5 +57,5 @@ return array(
     // Query类
     'query'           => '\\think\\db\\Query',
     // 是否需要断线重连
-    'break_reconnect' => true,
+    'break_reconnect' => false,
 );

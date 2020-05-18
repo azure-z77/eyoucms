@@ -36,6 +36,7 @@
 <script type="text/javascript" src="__SKIN__/js/dialog/dialog.js?v={$version}" id="dialog_js"></script>
 <script src="__SKIN__/js/upgrade.js?v={$version}"></script>
 <script src="__SKIN__/js/global.js?v={$version}"></script>
+<link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
 </head>
 <body>
 {include file="public/menubox" /}
@@ -44,7 +45,7 @@
   height: 100%;
   -webkit-overflow-scrolling: touch;   
   overflow-y: auto;   
-}  
+} 
 </style>
 <div class="admincp-container unfold">
 {include file="public/left" /}
@@ -106,6 +107,15 @@
                </em>
               <!-- 多语言 -->   
 
+              <!-- 小程序 start --> 
+              {eq name="'Diyminipro@page_edit'|is_check_access" value="1"}
+              <a id="Diyminipro_theme_index" class="btn btn-default dropdown-toggle" href="{:url('Diyminipro/page_edit')}" target="_blank" {if condition='$web_diyminipro_switch == -1'} style="display: none;" {/if} title="可视化小程序">
+                <i class="fa fa-compass"></i>
+                <span class="hidden-xs">小程序</span>
+              </a>
+              {/eq}
+              <!-- 小程序 end --> 
+
               <!-- 服务器升级 -->   
               <div id="upgrade_filelist" style="display:none;"></div> 
               <div id="upgrade_intro" style="display:none;"></div> 
@@ -115,26 +125,31 @@
                 <span class="hidden-xs">系统更新</span>
               </a>
               <!-- 服务器升级 end -->
-              
             </div>
-            <span class="avatar">
-            <img id="admin_head_pic" tptype="admin_avatar" src="{$admin_info.head_pic|get_head_pic=###}" style="cursor: pointer;"> </span><i class="arrow" id="admin-manager-btn" title="显示快捷管理菜单"></i>
-            <div class="manager-menu">
-              <div class="title">
-                <h4>最后登录</h4>
-                <a href="javascript:void(0);" onClick="CUR_DIALOG = ajax_form('modifypw', '修改密码', '{:url('Admin/admin_pwd',array('admin_id'=>$admin_info['admin_id'], '_ajax'=>1))}');" class="edit-password" title="修改密码">修改密码</a> </div>
-              <div class="login-date"> 
-                {php}echo date('Y-m-d H:i:s',session('admin_info.last_login'));{/php} <span>(IP: {php}echo session('admin_info.last_ip');{/php} )</span> 
+            
+            <div class="admin_user_dropup">
+              <div class="admin_user_dropup_bt">
+                <img id="admin_head_pic" tptype="admin_avatar" src="{$admin_info.head_pic|get_head_pic=###}" style="cursor: pointer;width: 34px;height: 34px;">
+                <i class="fa fa-angle-down" aria-hidden="true"></i>
               </div>
-              <div class="title">
-                <h4>常用操作</h4>
-                <!-- <a href="javascript:void(0);" onClick="openItem('Admin|modular')" class="add-menu">新增菜单</a> -->
+              <div class="admin_user_dropup_con">
+                <ul>
+                  <li><a href="javascript:void(0);" onclick="openItem('Admin|admin_edit|id|{$admin_info['admin_id']}');">个人信息</a></li>
+                  <li><a href="{:url('Admin/logout')}">安全退出</a></li>
+                </ul>
               </div>
-              <ul class="nc-row" tptype="quick_link">
-                  <li><a href="javascript:void(0);" onClick="openItem('System|web');" title="站点设置">站点设置</a></li>
-                  <li><a href="{:url('Admin/logout')}" title="安全退出">安全退出</a></li>
-              </ul>
             </div>
+            <script type="text/javascript">
+              $(".admin_user_dropup").mouseover(function(){
+                 $(".admin_user_dropup_con").show();
+                 $(".admin_user_dropup_bt").children('i').removeClass('fa-angle-down').addClass('fa-angle-up');
+              });
+              $(".admin_user_dropup").mouseout(function(){
+                 $(".admin_user_dropup_con").hide();
+                 $(".admin_user_dropup_bt").children('i').removeClass('fa-angle-up').addClass('fa-angle-down');
+              });
+            </script>
+            
           </div>
         </div>
         <div class="clear"></div>

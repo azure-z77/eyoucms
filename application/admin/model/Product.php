@@ -36,7 +36,7 @@ class Product extends Model
      * @param array $post post数据
      * @param string $opt 操作
      */
-    public function afterSave($aid, $post, $opt)
+    public function afterSave($aid, $post, $opt, $new = '')
     {
         // -----------内容
         $post['aid'] = $aid;
@@ -49,10 +49,19 @@ class Product extends Model
 
         // 处理产品 属性
         $productLogic = new ProductLogic();
-        $productLogic->saveProductAttr($aid, $post['typeid']); 
 
+        // 处理产品 属性
+        $productLogic = new ProductLogic();
+        if (empty($new)) {
+            // 旧参数处理
+            $productLogic->saveProductAttr($aid, $post['typeid']);
+        } else {
+            // 新参数处理
+            $productLogic->saveShopProductAttr($aid, $post['typeid']);
+        }
+        
         // --处理TAG标签
-        model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
+        model('Taglist')->savetags($aid, $post['typeid'], $post['tags'],$post['arcrank'], $opt);
     }
 
     /**
@@ -129,6 +138,12 @@ class Product extends Model
             )
             ->delete();
         }
+        //同时删除虚拟商品
+        Db::name("product_netdisk")->where('aid','IN',$aidArr)->delete();
+        //产品规格数据表
+        Db::name("product_spec_data")->where('aid','IN',$aidArr)->delete();
+        //产品多规格组装表
+        Db::name("product_spec_value")->where('aid','IN',$aidArr)->delete();
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

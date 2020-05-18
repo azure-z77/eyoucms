@@ -78,7 +78,7 @@ class ViewFilterBehavior {
 
         if (true === $is_appendJs) {
             // 加载JS需要的参数
-            $data['get_url'] = ROOT_DIR."/index.php?m=api&c=Ajax&a=get_arcrank&aid={$aid}&_ajax=1";
+            $data['get_url'] = ROOT_DIR."/index.php?m=api&c=Ajax&a=get_arcrank&aid={$aid}";
             
             $data_json = json_encode($data);
             $version   = getCmsVersion();

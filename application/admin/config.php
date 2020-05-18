@@ -62,7 +62,7 @@ $admin_config = array(
 
     // 数据管理
     'DATA_BACKUP_PATH' => '/data/sqldata', //数据库备份根路径
-    'DATA_BACKUP_PART_SIZE' => 52428800, //数据库备份卷大小 50M
+    'DATA_BACKUP_PART_SIZE' => 524288000, //数据库备份卷大小 50M
     'DATA_BACKUP_COMPRESS' => 0, //数据库备份文件是否启用压缩
     'DATA_BACKUP_COMPRESS_LEVEL' => 9, //数据库备份文件压缩级别
 

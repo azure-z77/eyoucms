@@ -73,9 +73,6 @@
                 </span>
             </dd>
         </dl>
-        {/eq}
-
-        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">支付功能</label>
@@ -94,9 +91,6 @@
                 </span>
             </dd>
         </dl>
-        {/eq}
-
-        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">商城中心</label>
@@ -105,20 +99,17 @@
                 <div class="onoff">
                     <label for="shop_open1" class="cb-enable {if condition="$userConfig.shop_open == 1"}selected{/if}">开启</label>
                     <label for="shop_open0" class="cb-disable {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"}selected{/if}">关闭</label>
-                    <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Member_users_index">
-                    <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Member_users_index">
+                    <input id="shop_open1" name="shop[shop_open]" value="1" type="radio" {if condition="$userConfig.shop_open == 1"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_home">
+                    <input id="shop_open0" name="shop[shop_open]" value="0" type="radio" {if condition="!isset($userConfig.shop_open) || empty($userConfig.shop_open)"} checked="checked"{/if} data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" onclick="ajax_submit(this, 'shop', 'shop_open');" data-lmenuid="Shop_home">
                 </div>
                 <p class="notic">关闭则自动隐藏商城中心入口。</p>
                 <span id="guide_shop_open" style="{if condition='!isset($userConfig.shop_open) || empty($userConfig.shop_open)'} display: none;{/if}">
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[订单列表]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/conf')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[功能配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/index')}" data-leftmenu="Shop_home" onclick="gourl2(this);">[订单列表]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Shop/conf')}" data-leftmenu="Shop_home" onclick="gourl2(this);">[功能配置]</a>
                     &nbsp;<a href="javascript:void(0);" onclick="tag_call('shop_open');" class="red">[标签调用]</a>
                 </span>
             </dd>
         </dl>
-        {/eq}
-        
-        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">会员升级</label>
@@ -137,9 +128,6 @@
                 </span>
             </dd>
         </dl>
-        {/eq}
-
-        {eq name='$main_lang' value='$admin_lang'}
         <dl class="row">
             <dt class="tit">
                 <label for="uname">会员投稿</label>
@@ -157,6 +145,23 @@
                 </span>
             </dd>
         </dl>
+<!--         <dl class="row">
+            <dt class="tit">
+                <label for="site_url">小程序</label>
+            </dt>
+            <dd class="opt">
+                <div class="onoff">
+                    <label for="web_diyminipro_switch1" class="cb-enable {if condition='empty($globalConfig.web_diyminipro_switch) || $globalConfig.web_diyminipro_switch eq 1'}selected{/if}">开启</label>
+                    <label for="web_diyminipro_switch0" class="cb-disable {if condition='isset($globalConfig.web_diyminipro_switch) && $globalConfig.web_diyminipro_switch eq -1'}selected{/if}">关闭</label>
+                    <input id="web_diyminipro_switch1" name="web[web_diyminipro_switch]" value="1" type="radio" {if condition='empty($globalConfig.web_diyminipro_switch) || $globalConfig.web_diyminipro_switch eq 1'} checked="checked"{/if} onclick="ajax_submit(this, 'web', 'web_diyminipro_switch');" data-lmenuid="Diyminipro_theme_index">
+                    <input id="web_diyminipro_switch0" name="web[web_diyminipro_switch]" value="-1" type="radio" {if condition='isset($globalConfig.web_diyminipro_switch) && $globalConfig.web_diyminipro_switch eq -1'}selected{/if} checked="checked"{/if} onclick="ajax_submit(this, 'web', 'web_diyminipro_switch');" data-lmenuid="Diyminipro_theme_index">
+                </div>
+                <p class="notic">开启之后，顶部菜单会显示小程序入口</p>
+                <span id="guide_web_diyminipro_switch" style="{if condition='!empty($globalConfig.web_diyminipro_switch) && $globalConfig.web_diyminipro_switch == -1'} display: none;{/if}">
+                    &nbsp;<a href="{:url('Diyminipro/page_edit')}">[进入后台]</a>
+                </span>
+            </dd>
+        </dl> -->
         {/eq}
     </div>
 </div>
@@ -302,9 +307,17 @@
                 try{
                     if (1 == value) {
                         $('#'+lmenuid, window.parent.document).show();
+                        if ('shop_open' == name) {
+                            $('#Member_users_index', window.parent.document).show();
+                        } else if ('web_users_switch' == name && 1 == $("input[name='shop[shop_open]']:checked").val()) {
+                            $('#Shop_home', window.parent.document).show();
+                        }
                     } else {
-                        if (name == 'web_users_switch') {
+                        if (-1 < $.inArray(name, ['web_users_switch','web_language_switch','web_diyminipro_switch','shop_open'])) {
                             $('#'+lmenuid, window.parent.document).hide();
+                            if ('web_users_switch' == name) {
+                                $('#Shop_home', window.parent.document).hide();
+                            }
                         }
                     }
                 }catch(e){}
@@ -375,6 +388,7 @@
                 // 控制顶部与左侧菜单的显示与隐藏
                 try{
                     if (1 == value) {
+                        $('#Member_users_index', window.parent.document).show();
                         $('#'+lmenuid, window.parent.document).show();
                     }
                 }catch(e){}

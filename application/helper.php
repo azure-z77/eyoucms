@@ -305,6 +305,9 @@ if (!function_exists('typeurl')) {
                     }else{
                         $url = $seo_html_arcdir.'/'.$dirpath[1]."/lists_".$param['id'].'.html';
                     }
+                } else if ($seo_html_listname == 3) { // 存放子级目录
+                    $dirpath = explode('/',$param['dirpath']);
+                    $url = $seo_html_arcdir.'/'.end($dirpath).'/';
                 }else{
                     $url = $seo_html_arcdir.$param['dirpath'].'/';
                 }
@@ -332,6 +335,11 @@ if (!function_exists('typeurl')) {
             /*伪静态格式*/
             $seo_rewrite_format = config('ey_config.seo_rewrite_format');
             if (1 == intval($seo_rewrite_format)) {
+                $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
+                if (!strstr($eyouUrl, '.htm')){
+                    $eyouUrl .= '/';
+                }
+            } else if (3 == intval($seo_rewrite_format)) {
                 $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
                 if (!strstr($eyouUrl, '.htm')){
                     $eyouUrl .= '/';
@@ -422,7 +430,11 @@ if (!function_exists('arcurl')) {
             }
             else
             { // PC端访问是静态页面
-                $aid = $param['aid'];
+                if (!empty($param['htmlfilename'])){
+                    $aid = $param['htmlfilename'];
+                }else{
+                    $aid = $param['aid'];
+                }
                 $url = $param['dirpath']."/{$aid}.html";
                 static $seo_html_pagename = null;
                 null === $seo_html_pagename && $seo_html_pagename = tpCache('seo.seo_html_pagename');
@@ -431,6 +443,9 @@ if (!function_exists('arcurl')) {
                 if($seo_html_pagename == 1){//存放顶级目录
                     $dirpath = explode('/',$param['dirpath']);
                     $url = $seo_html_arcdir.'/'.$dirpath[1].'/'.$aid.'.html';
+                } else if ($seo_html_pagename == 3) {
+                    $dirpath = explode('/',$param['dirpath']);
+                    $url = $seo_html_arcdir.'/'.end($dirpath).'/'.$aid.'.html';
                 }else{
                     $url = $seo_html_arcdir.$param['dirpath'].'/'.$aid.'.html';
                 }
@@ -459,6 +474,8 @@ if (!function_exists('arcurl')) {
                     $param['dirname'] = $tdirnameArr[md5($param['dirname'])]['tdirname'];
                 }
                 /*--end*/
+            } else if (3 == intval($seo_rewrite_format)) {
+                $url = 'home/View/index';
             }
             /*--end*/
             if (is_array($param)) {

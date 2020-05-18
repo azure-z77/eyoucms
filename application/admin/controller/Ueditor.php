@@ -182,7 +182,11 @@ class Ueditor extends Base
     private function upFile($fieldName){
         $file = request()->file($fieldName);
         if(empty($file)){
-            return json_encode(['state' =>'ERROR，请上传文件']);
+            if (!@ini_get('file_uploads')) {
+                return json_encode(['state' =>'请检查空间是否开启文件上传功能！']);
+            } else {
+                return json_encode(['state' =>'ERROR，请上传文件']);
+            }
         }
         $error = $file->getError();
         if(!empty($error)){
@@ -209,39 +213,37 @@ class Ueditor extends Base
             return json_encode(['state' =>$state]);
         }
 
-        $ossConfig = tpCache('oss');
-        if ($ossConfig['oss_switch']) {
-            //商品图片可选择存放在oss
-            $savePath = $this->savePath.date('Ymd/');
-            // $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-            $object = UPLOAD_PATH.$savePath.session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-            $ossClient = new \app\common\logic\OssLogic;
-            $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-            if (!$return_url) {
-                $data = array('state' => 'ERROR'.$ossClient->getError());
-            } else {
-                $data = array(
-                    'state'     => 'SUCCESS',
-                    'url'       => $return_url,
-                    'title'     => $file->getInfo('name'),
-                    'original'  => $file->getInfo('name'),
-                    'type'      => $file->getInfo('type'),
-                    'size'      => $file->getInfo('size'),
-                );
-            }
-            @unlink($file->getRealPath());
-            return json_encode($data);
-        } else {
-            // 移动到框架应用根目录/public/uploads/ 目录下
-            $this->savePath = $this->savePath.date('Ymd/');
-            // 使用自定义的文件保存规则
-            $info = $file->rule(function ($file) {
-                // return  md5(mt_rand());
-                return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
-            })->move(UPLOAD_PATH.$this->savePath);
-        }
-        
-        if($info){
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $this->savePath = $this->savePath.date('Ymd/');
+        // 使用自定义的文件保存规则
+        $info = $file->rule(function ($file) {
+            return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
+        })->move(UPLOAD_PATH.$this->savePath);
+
+        // $ossConfig = tpCache('oss');
+        // if ($ossConfig['oss_switch']) {
+        //     //商品图片可选择存放在oss
+        //     $savePath = $this->savePath;
+        //     $object = UPLOAD_PATH . $savePath . session('admin_id') . '-' . dd2char(date("ymdHis").mt_rand(100,999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        //     $ossClient = new \app\common\logic\OssLogic;
+        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
+        //     if (empty($return_url)) {
+        //         $data = array('state' => 'ERROR' . $ossClient->getError());
+        //     } else {
+        //         $data = array(
+        //             'state'     => 'SUCCESS',
+        //             'url'       => $return_url,
+        //             'title'     => $file->getInfo('name'),
+        //             'original'  => $file->getInfo('name'),
+        //             'type'      => $file->getInfo('type'),
+        //             'size'      => $file->getInfo('size'),
+        //         );
+        //     }
+        //     @unlink($file->getRealPath());
+        //     return json_encode($data);
+        // }
+
+        if (!empty($info)) {
             $data = array(
                 'state' => 'SUCCESS',
                 'url' => '/'.UPLOAD_PATH.$this->savePath.$info->getSaveName(),
@@ -252,7 +254,7 @@ class Ueditor extends Base
             );
 
             //图片加水印
-            if($data['state'] == 'SUCCESS'){
+            if ($data['state'] == 'SUCCESS') {
                 $file_type = $file->getInfo('type');
                 $file_ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
                 $fileextArr = explode(',', $this->fileExt);
@@ -262,7 +264,7 @@ class Ueditor extends Base
             }
 
             $data['url'] = ROOT_DIR.$data['url']; // 支持子目录
-        }else{
+        } else {
             $data = array('state' => 'ERROR'.$info->getError());
         }
         return json_encode($data);
@@ -352,7 +354,7 @@ class Ueditor extends Base
                 'state' => '链接不可用',
             );
             return json_encode($data);
-        } else if(!(stristr($heads[0],"200") && stristr($heads[0],"OK"))){
+        } else if(!(stristr($heads[0],"200") && !stristr($heads[0],"304"))){
             $data=array(
                 'state' => '链接不可用',
             );
@@ -433,23 +435,23 @@ class Ueditor extends Base
 
             print_water($data['url']); // 添加水印
 
-            $ossConfig = tpCache('oss');
-            if ($ossConfig['oss_switch']) {
-                //图片可选择存放在oss
-                $savePath = $this->savePath.date('Ymd/');
-                $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
-                $getRealPath = ltrim($data['url'], '/');
-                $ossClient = new \app\common\logic\OssLogic;
-                $return_url = $ossClient->uploadFile($getRealPath, $object);
-                if (!$return_url) {
-                    $state = "ERROR" . $ossClient->getError();
-                    $return_url = '';
-                } else {
-                    $state = "SUCCESS";
-                }
-                @unlink($getRealPath);
-                $data['url'] = $return_url;
-            }
+            // $ossConfig = tpCache('oss');
+            // if ($ossConfig['oss_switch']) {
+            //     //图片可选择存放在oss
+            //     $savePath = $this->savePath.date('Ymd/');
+            //     $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
+            //     $getRealPath = ltrim($data['url'], '/');
+            //     $ossClient = new \app\common\logic\OssLogic;
+            //     $return_url = $ossClient->uploadFile($getRealPath, $object);
+            //     if (!$return_url) {
+            //         $state = "ERROR" . $ossClient->getError();
+            //         $return_url = '';
+            //     } else {
+            //         $state = "SUCCESS";
+            //     }
+            //     @unlink($getRealPath);
+            //     $data['url'] = $return_url;
+            // }
         }
         return json_encode($data);
     }
@@ -529,24 +531,30 @@ class Ueditor extends Base
         //$input_file ['upfile'] = $info['Filedata'];  一个是上传插件里面来的, 另外一个是 文章编辑器里面来的
         // 获取表单上传文件
         $file = request()->file('file');
-        if(empty($file))
-            $file = request()->file('upfile');    
-
+        empty($file) && $file = request()->file('upfile');
+        if (empty($file) || !@ini_get('file_uploads')) {
+            $return_data['state'] = '请检查空间是否开启文件上传功能！';
+            respose($return_data,'json');
+        }
         // ico图片文件不进行验证
         if (pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico') {
             $result = $this->validate(
                 ['file' => $file], 
-                ['file'=>'image|fileSize:'.$image_upload_limit_size.'|fileExt:'.$this->fileExt],
-                ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$this->fileExt]                
-               );
+                ['file' => 'image|fileSize:' . $image_upload_limit_size . '|fileExt:' . $this->fileExt],
+                [
+                    'file.image'    => '上传文件必须为图片',
+                    'file.fileSize' => '上传文件过大',
+                    'file.fileExt'  => '上传文件后缀名必须为' . $this->fileExt
+                ]                
+            );
         } else {
             $result = true;
         }
 
         /*验证图片一句话木马*/
         $imgstr = @file_get_contents($file->getInfo('tmp_name'));
-        if (false !== $imgstr && preg_match('#<\?php#i', $imgstr)) {
-            $result = '上传图片不合格';
+        if (false !== $imgstr && preg_match('#<([^?]*)\?php#i', $imgstr)) {
+            $result = '禁止上传木马图片！';
         }
         /*--end*/
 
@@ -556,55 +564,52 @@ class Ueditor extends Base
             if ('adminlogo/' == $this->savePath) {
                 $savePath = 'public/static/admin/logo/';
             } else {
-                $savePath = UPLOAD_PATH.$this->savePath.date('Ymd/');
+                $savePath = UPLOAD_PATH . $this->savePath . date('Ymd/');
             }
-            $ossConfig = tpCache('oss');
-            if ($ossConfig['oss_switch']) {
-                //商品图片可选择存放在oss
-                // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-                $object = $savePath.session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-                $ossClient = new \app\common\logic\OssLogic;
-                $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-                if (!$return_url) {
-                    $state = "ERROR" . $ossClient->getError();
-                    $return_url = '';
-                } else {
-                    $state = "SUCCESS";
-                }
-                @unlink($file->getRealPath());
+            // 移动到框架应用根目录/public/uploads/ 目录下
+            $info = $file->rule(function ($file) {
+                // return  md5(mt_rand()); // 使用自定义的文件保存规则
+                return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)); // 使用自定义的文件保存规则
+            })->move($savePath);
+            if ($info) {
+                $state = "SUCCESS";
             } else {
-                // 移动到框架应用根目录/public/uploads/ 目录下
-                $info = $file->rule(function ($file) {
-                    // return  md5(mt_rand()); // 使用自定义的文件保存规则
-                    return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)); // 使用自定义的文件保存规则
-                })->move($savePath);
-                if ($info) {
-                    $state = "SUCCESS";
-                } else {
-                    $state = "ERROR" . $file->getError();
-                }
-                $return_url = '/'.$savePath.$info->getSaveName();
+                $state = "ERROR" . $file->getError();
             }
-            $return_data['url'] = ROOT_DIR.$return_url; // 支持子目录
+            $return_url = '/' . $savePath . $info->getSaveName();
+            $return_data['url'] = ROOT_DIR . $return_url; // 支持子目录
         }
-        
+
+        // 添加水印
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
-            if(true && $this->savePath!='adminlogo/'){ // 添加水印
-                print_water($return_url);
-            }
+            if(true && $this->savePath != 'adminlogo/') print_water($return_url);
         }
-        $return_data['title'] = $title;
-        $return_data['original'] = $title; // 这里好像没啥用 暂时注释起来
-        $return_data['state'] = $state;
-        $return_data['path'] = $path;
+
+        // $ossConfig = tpCache('oss');
+        // if (!empty($ossConfig['oss_switch'])) {
+        //     //商品图片可选择存放在oss
+        //     $images = $savePath . session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+
+        //     // 同步OSS
+        //     $ResultOss = SynchronizeOSS($ossConfig, $images, $file);
+
+        //     // 数据覆盖
+        //     $state = $ResultOss['state'];
+        //     $return_data['url'] = $ResultOss['url'];
+        // }
 
         // 是否开启七牛云插件
-        $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
+        $data = Db::name('weapp')->where('code', 'Qiniuyun')->field('status')->find();
         if (!empty($data) && 1 == $data['status']) {
             // 同步图片到七牛云
             $return_data['url'] = SynchronizeQiniu($return_data['url']);
         }
 
+        // 返回数据
+        $return_data['title']    = $title;
+        $return_data['original'] = $title;
+        $return_data['state']    = $state;
+        $return_data['path']     = $path;
         respose($return_data,'json');
     }
     
@@ -732,5 +737,184 @@ class Ueditor extends Base
             $return = array('msg' => $info->getError());
         }
         echo json_encode($return);
+    }
+
+    //上传文件
+    public function DownloadUploadFileAjax()
+    {
+        // 获取定义的上传最大参数
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $fileExt = tpCache('basic.file_type');
+
+        // 获取上传的文件信息
+        $file = request()->file('file');
+
+        /*判断上传文件是否存在错误*/
+        if (empty($file)) {
+            $res = ['code' => 0, 'msg' => '文件过大或文件已损坏！'];
+            respose($res);
+        }
+
+        $error = $file->getError();
+        if (!empty($error)) {
+            $res = ['code' => 0, 'msg' => $error];
+            respose($res);
+        }
+
+        /*拓展名验证start*/
+        $fileExtArr = explode('|',$fileExt);
+        //拓展名
+        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        if (!in_array($ext,$fileExtArr)){
+            $res = ['code' => 0, 'msg' => '上传文件后缀名必须为' . $fileExt];
+            respose($res);
+        }
+        /*拓展名验证end*/
+        // $result = $this->validate(
+        //     ['file' => $file], 
+        //     ['file'=>'image|fileSize:'.$max_file_size.'|fileExt:'.$fileExtArr],
+        //     ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$this->fileExt]                
+        //    );
+        $result  = $this->validate(
+            ['file' => $file],
+//            ['file' => 'fileSize:' . $max_file_size . '|fileExt:' . $fileExt],
+//            ['file.fileSize' => '上传文件过大', 'file.fileExt' => '上传文件后缀名必须为' . $fileExt]
+            ['file'=>'fileSize:'.$max_file_size],
+            ['file.fileSize' => '上传文件过大']
+        );
+
+        if (true !== $result || empty($file)) {
+            $res = ['code' => 0, 'msg' => $result];
+            respose($res);
+        }
+        /*--end*/
+
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $this->savePath = "soft/" . date('Ymd/');
+        // 定义文件名
+        $fileName = $file->getInfo('name');
+        // 提取文件名后缀
+        $file_ext = pathinfo($fileName, PATHINFO_EXTENSION);
+
+        // 使用自定义的文件保存规则
+        $info = $file->rule(function ($file) {
+            return session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
+        })->move(UPLOAD_PATH . $this->savePath);
+        if ($info) {
+            // 拼装数据存入session
+            $file_path = UPLOAD_PATH . $this->savePath . $info->getSaveName();
+            $return    = array(
+                'code'      => 1,
+                'msg'       => '上传成功',
+                'file_url'  => ROOT_DIR.'/' . UPLOAD_PATH . $this->savePath . $info->getSaveName(),
+                'file_mime' => $file->getInfo('type'),
+                'file_name' => $fileName,
+                'file_ext'  => '.' . $file_ext,
+                'file_size' => $info->getSize(),
+                'uhash'     => $this->uhash($file_path),
+                'md5file'   => md5_file($file_path),
+            );
+        } else {
+            $res = ['code' => 0, 'msg' => $info->getError()];
+        }
+        respose($return);
+    }
+
+    // 上传视频
+    public function upVideo()
+    {
+        $file     = request()->file('file');
+        $tmp_name = $file->getInfo('tmp_name');
+        // 引入getid3SDK
+
+        if (empty($file)) {
+            if (!@ini_get('file_uploads')) {
+                return json_encode(['state' => '请检查空间是否开启文件上传功能！']);
+            } else {
+                return json_encode(['state' => 'ERROR，请上传文件']);
+            }
+        }
+        $error = $file->getError();
+        if (!empty($error)) {
+            return json_encode(['state' => $error]);
+        }
+
+//        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $fileExt                 = tpCache('basic.media_type');
+        /*拓展名验证start*/
+        $fileExtArr = explode('|',$fileExt);
+        //拓展名
+        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        if (!in_array($ext,$fileExtArr)){
+            return json_encode(['state' =>  '上传文件后缀名必须为' . $fileExt]);
+        }
+//        $result  = $this->validate(
+//            ['file' => $file],
+//            ['file' => 'fileSize:' . $image_upload_limit_size . '|fileExt:' . $fileExt],
+//            ['file.fileSize' => '上传文件过大', 'file.fileExt' => '上传文件后缀名必须为' . $fileExt]
+//        );
+//        if (true !== $result || empty($file)) {
+//            $state = "ERROR" . $result;
+//            return json_encode(['state' => $state]);
+//        }
+        //获取视频时长start
+        vendor('getid3.getid3');
+        // 实例化
+        $getID3       = new \getID3();  //实例化类
+        $ThisFileInfo = $getID3->analyze($tmp_name); //分析文件，$path为音频文件的地址
+        $fileduration = intval($ThisFileInfo['playtime_seconds']); //这个获得的便是音频文件的时长
+        //获取视频时长end
+
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        if (!file_exists('media')){
+            mkdir('media');
+        }
+        $savePath = "media/" . date('Ymd/');
+        // 使用自定义的文件保存规则
+        $info = $file->rule(function ($file) {
+            // return  md5(mt_rand());
+            return session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
+        })->move(UPLOAD_PATH . $savePath);
+
+        // $ossConfig = tpCache('oss');
+        // if ($ossConfig['oss_switch']) {
+        //     //可选择存放在oss
+        //     $savePath   = $this->savePath . date('Ymd/');
+        //     $object     = UPLOAD_PATH . $savePath . session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        //     $ossClient  = new \app\common\logic\OssLogic;
+        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
+        //     if (!$return_url) {
+        //         $data = array('state' => 'ERROR' . $ossClient->getError());
+        //     } else {
+        //         $data = array(
+        //             'state'    => 'SUCCESS',
+        //             'url'      => $return_url,
+        //             'time'     => $fileduration,
+        //             'title'    => $file->getInfo('name'),
+        //             'original' => $file->getInfo('name'),
+        //             'type'     => $file->getInfo('type'),
+        //             'size'     => $file->getInfo('size'),
+        //         );
+        //     }
+        //     @unlink($file->getRealPath());
+        //     return json_encode($data);
+        // }
+        
+        if ($info) {
+            $data = array(
+                'state'    => 'SUCCESS',
+                'url'      => '/' . UPLOAD_PATH . $savePath . $info->getSaveName(),
+                'time'     => $fileduration,
+                'title'    => '',//$info->getSaveName(),
+                'original' => $info->getSaveName(),
+                'type'     => '.' . $info->getExtension(),
+                'size'     => $info->getSize(),
+            );
+
+            $data['url'] = ROOT_DIR . $data['url']; // 支持子目录
+        } else {
+            $data = array('state' => 'ERROR' . $info->getError());
+        }
+        return $data;
     }
 }

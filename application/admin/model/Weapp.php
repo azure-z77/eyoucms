@@ -43,4 +43,23 @@ class Weapp extends Model
         }
         return $result;
     }
+
+    /**
+     * 清除插件列表的缓存
+     */
+    public function clearWeappCache()
+    {
+        extra_cache('common_weapp_getWeappList', NULL);
+        $weappM = new \app\common\model\Weapp;
+        $weappM->getWeappList();
+    }
+
+    /**
+     * 获取插件列表所有信息，方便系统其它地方使用
+     */
+    public function getWeappList($code = '')
+    {
+        $weappM = new \app\common\model\Weapp;
+        return $weappM->getWeappList($code);
+    }
 }

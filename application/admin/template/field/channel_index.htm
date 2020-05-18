@@ -326,7 +326,7 @@
                         contentdiv += '<dd>标签 arclist / list 内调用 <font color="red">(更多简洁调法请参考标签 arclist /list)</font>：</dd>';
                         contentdiv += '<dd><textarea rows="4" cols="60" style="width:470px;height:120px;">' + liststr + '}</textarea></dd>';
                         if (1 == is_screening) {
-                            contentdiv += '<dd style="color: red;">自定义字段应用于条件筛选，请参考标签用法：<a id="call_tags_help" href="https://www.eyoucms.com/plus/view.php?aid=7881" target="_blank">查看标签调用</a></dd>';
+                            contentdiv += '<dd style="color: red;">自定义字段应用于条件筛选，请参考标签用法：<a id="call_tags_help" href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('+"'https://www.eyoucms.com/plus/view.php?aid=7881','筛选标签调用'"+')">查看标签调用</a></dd>';
                         }
                     }
                     break;
@@ -338,6 +338,24 @@
                         var liststr = "{eyou:arcview aid='$"+"field.aid' id='eyoav' addfields='"+fieldname+"'}\r\n    {$"+"eyoav."+fieldname+"|MyDate=\'Y-m-d H:i:s\',###}\r\n{/eyou:arcview";
                         contentdiv += '<dd>标签 arclist / list 内调用 <font color="red">(更多简洁调法请参考标签 arclist /list)</font>：</dd>';
                         contentdiv += '<dd><textarea rows="4" cols="60" style="width:470px;height:60px;">' + liststr + '}</textarea></dd>';
+                    }
+                    break;
+
+                case 'htmltext':
+                    {
+                        contentdiv += '<dd>内容页：</dd>';
+                        contentdiv += '<dd><input type="text" style=" width:470px;margin-bottom:10px;" value="{$'+'eyou.field.'+fieldname+'}"></dd>';
+                        if (1 == ifmain) {
+                            contentdiv += '<dd>标签 arclist / list 内调用：</dd>';
+                            contentdiv += '<dd><input type="text" style=" width:470px;margin-bottom:10px;" value="{$'+'field.'+fieldname+'}"></dd>';
+                        } else {
+                            var liststr = "eyou:field aid='$"+"field.aid' addfields='"+fieldname+"|html_msubstr=###,0,150,true' /";
+                            contentdiv += '<dd>标签 arclist / list 内调用：</dd>';
+                            contentdiv += '<dd><input type="text" style=" width:470px;margin-bottom:10px;" value="{'+liststr+'}"></dd>';
+                        }
+                        if (1 == is_screening) {
+                            contentdiv += '<dd style="color: red;">自定义字段应用于条件筛选，请参考标签用法：<a id="call_tags_help" href="https://www.eyoucms.com/plus/view.php?aid=7881" target="_blank">查看标签调用</a></dd>';
+                        }
                     }
                     break;
 

@@ -49,95 +49,92 @@ class Seo extends Base
         $this->assign("typeid",$typeid);
         return $this->fetch();
     }
-
+    
     /*
-     * 配置入口
+     * URL配置
      */
-    public function index()
+    public function seo()
     {
         /* 纠正栏目的HTML目录路径字段值 */
         $this->correctArctypeDirpath();
         /* end */
 
-        $inc_type =  input('get.inc_type','seo');
-        $this->assign('inc_type',$inc_type);
+        $inc_type =  'seo';
         $config = tpCache($inc_type);
         $config['seo_pseudo'] = tpCache('seo.seo_pseudo');
-        if('seo' == $inc_type){
-            $seo_pseudo_list = get_seo_pseudo_list();
-            $this->assign('seo_pseudo_list', $seo_pseudo_list);
+        $seo_pseudo_list = get_seo_pseudo_list();
+        $this->assign('seo_pseudo_list', $seo_pseudo_list);
 
-            /* 生成静态页面代码 - 多语言统一设置URL模式 */
-            $seo_pseudo_lang = '';
-            $web_language_switch = tpCache('web.web_language_switch');
-            if (is_language() && !empty($web_language_switch)) {
-                $markArr = Db::name('language')->field('mark')->order('id asc')->limit('1,1')->select();
-                if (!empty($markArr[0]['mark'])) {
-                    $seo_pseudo_lang = tpCache('seo.seo_pseudo', [], $markArr[0]['mark']);
-                }
-                $seo_pseudo_lang = !empty($seo_pseudo_lang) ? $seo_pseudo_lang : 1;
+        /* 生成静态页面代码 - 多语言统一设置URL模式 */
+        $seo_pseudo_lang = '';
+        $web_language_switch = tpCache('web.web_language_switch');
+        if (is_language() && !empty($web_language_switch)) {
+            $markArr = Db::name('language')->field('mark')->order('id asc')->limit('1,1')->select();
+            if (!empty($markArr[0]['mark'])) {
+                $seo_pseudo_lang = tpCache('seo.seo_pseudo', [], $markArr[0]['mark']);
             }
-            $this->assign('seo_pseudo_lang', $seo_pseudo_lang);
-            /* end */
-
-            /* 限制文档HTML保存路径的名称 */
-            $wwwroot_dir = config('global.wwwroot_dir'); // 网站根目录的目录列表
-            $disable_dirname = config('global.disable_dirname'); // 栏目伪静态时的路由路径
-            $wwwroot_dir = array_merge($wwwroot_dir, $disable_dirname);
-            // 不能与栏目的一级目录名称重复
-            $arctypeDirnames = Db::name('arctype')->where(['parent_id'=>0])->column('dirname');
-            is_array($arctypeDirnames) && $wwwroot_dir = array_merge($wwwroot_dir, $arctypeDirnames);
-            // 不能与多语言的标识重复
-            $markArr = Db::name('language_mark')->column('mark');
-            is_array($markArr) && $wwwroot_dir = array_merge($wwwroot_dir, $markArr);
-            $wwwroot_dir = array_unique($wwwroot_dir);
-            $this->assign('seo_html_arcdir_limit', implode(',', $wwwroot_dir));
-            /* end */
-
-            $seo_html_arcdir_1 = '';
-            if (!empty($config['seo_html_arcdir'])) {
-                $config['seo_html_arcdir'] = trim($config['seo_html_arcdir'], '/');
-                $seo_html_arcdir_1 = '/'.$config['seo_html_arcdir'];
-            }
-            $this->assign('seo_html_arcdir_1', $seo_html_arcdir_1);
-
-            // 栏目列表
-            $map = array(
-                'status'  => 1,
-                'is_del'  => 0, // 回收站功能
-            );
-            $arctypeLogic = new ArctypeLogic();
-            $select_html = $arctypeLogic->arctype_list(0, 0, true, config('global.arctype_max_level'), $map);
-            $this->assign('select_html',$select_html);
-            // 允许发布文档列表的栏目
-            $arc_select_html = allow_release_arctype();
-            $this->assign('arc_select_html', $arc_select_html);
-            // 生成完页面之后，清除缓存
-            $this->buildhtml_clear_cache();
-
-            /*标记是否第一次切换静态页面模式*/
-            if (!isset($config['seo_html_arcdir'])) {
-                $init_html = 1; // 第一次切换
-            } else {
-                $init_html = 2; // 多次切换
-            }
-            $this->assign('init_html', $init_html);
-            /*--end*/
+            $seo_pseudo_lang = !empty($seo_pseudo_lang) ? $seo_pseudo_lang : 1;
         }
+        $this->assign('seo_pseudo_lang', $seo_pseudo_lang);
+        /* end */
+
+        /* 限制文档HTML保存路径的名称 */
+        $wwwroot_dir = config('global.wwwroot_dir'); // 网站根目录的目录列表
+        $disable_dirname = config('global.disable_dirname'); // 栏目伪静态时的路由路径
+        $wwwroot_dir = array_merge($wwwroot_dir, $disable_dirname);
+        // 不能与栏目的一级目录名称重复
+        $arctypeDirnames = Db::name('arctype')->where(['parent_id'=>0])->column('dirname');
+        is_array($arctypeDirnames) && $wwwroot_dir = array_merge($wwwroot_dir, $arctypeDirnames);
+        // 不能与多语言的标识重复
+        $markArr = Db::name('language_mark')->column('mark');
+        is_array($markArr) && $wwwroot_dir = array_merge($wwwroot_dir, $markArr);
+        $wwwroot_dir = array_unique($wwwroot_dir);
+        $this->assign('seo_html_arcdir_limit', implode(',', $wwwroot_dir));
+        /* end */
+
+        $seo_html_arcdir_1 = '';
+        if (!empty($config['seo_html_arcdir'])) {
+            $config['seo_html_arcdir'] = trim($config['seo_html_arcdir'], '/');
+            $seo_html_arcdir_1 = '/'.$config['seo_html_arcdir'];
+        }
+        $this->assign('seo_html_arcdir_1', $seo_html_arcdir_1);
+
+        // 栏目列表
+        $map = array(
+            'status'  => 1,
+            'is_del'  => 0, // 回收站功能
+        );
+        $arctypeLogic = new ArctypeLogic();
+        $select_html = $arctypeLogic->arctype_list(0, 0, true, config('global.arctype_max_level'), $map);
+        $this->assign('select_html',$select_html);
+        // 允许发布文档列表的栏目
+        $arc_select_html = allow_release_arctype();
+        $this->assign('arc_select_html', $arc_select_html);
+        // 生成完页面之后，清除缓存
+        $this->buildhtml_clear_cache();
+
+        /*标记是否第一次切换静态页面模式*/
+        if (!isset($config['seo_html_arcdir'])) {
+            $init_html = 1; // 第一次切换
+        } else {
+            $init_html = 2; // 多次切换
+        }
+        $this->assign('init_html', $init_html);
+        /*--end*/
+
         $this->assign('config',$config);//当前配置项
-        return $this->fetch($inc_type);
+        return $this->fetch();
     }
     
     /*
-     * 新增修改配置（同步数据到其他语言里）
+     * 保存URL配置
      */
     public function handle()
     {
-        $param = input('post.');
-        $successData = [];
-        $inc_type = $param['inc_type'];
-        $globalConfig = tpCache('global');
-        if ($inc_type == 'seo') {
+        if (IS_POST) {
+            $inc_type = 'seo';
+            $param = input('post.');
+            $globalConfig = tpCache('global');
             $seo_pseudo_new = $param['seo_pseudo'];
             /* 生成静态页面代码 */
             unset($param['seo_html_arcdir_limit']);
@@ -185,40 +182,30 @@ class Seo extends Base
             }
             /*--end*/
 
-        } else if($inc_type == 'sitemap'){
-            $param['sitemap_not1'] = isset($param['sitemap_not1']) ? $param['sitemap_not1'] : 0;
-            $param['sitemap_not2'] = isset($param['sitemap_not2']) ? $param['sitemap_not2'] : 0;
-            $param['sitemap_xml'] = isset($param['sitemap_xml']) ? $param['sitemap_xml'] : 0;
-            $param['sitemap_txt'] = isset($param['sitemap_txt']) ? $param['sitemap_txt'] : 0;
-            $param['sitemap_archives_num'] = isset($param['sitemap_archives_num']) ? intval($param['sitemap_archives_num']) : 100;
-        }
-        unset($param['inc_type']);
-
-        /*多语言*/
-        if (is_language()) {
-            $seo_pseudo_lang = !empty($param['seo_pseudo_lang']) ? $param['seo_pseudo_lang'] : 1;
-            unset($param['seo_pseudo_lang']);
-            $langRow = \think\Db::name('language')->order('id asc')
-                ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                ->select();
-            foreach ($langRow as $key => $val) {
-                if (2 != $seo_pseudo_new) { // 非生成静态模式下，所有语言的URL模式一致
-                    tpCache($inc_type,$param,$val['mark']);
-                } else {
-                    if($key == 0){ // 主体语言（第一个语言）是生成静态模式
+            /*多语言*/
+            if (is_language()) {
+                $seo_pseudo_lang = !empty($param['seo_pseudo_lang']) ? $param['seo_pseudo_lang'] : 1;
+                unset($param['seo_pseudo_lang']);
+                $langRow = \think\Db::name('language')->order('id asc')
+                    ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    if (2 != $seo_pseudo_new) { // 非生成静态模式下，所有语言的URL模式一致
                         tpCache($inc_type,$param,$val['mark']);
-                    }else{//其他语言统一设置URL模式非静态模式
-                        $param['seo_pseudo'] = $seo_pseudo_lang;
-                        tpCache($inc_type,$param,$val['mark']);
+                    } else {
+                        if($key == 0){ // 主体语言（第一个语言）是生成静态模式
+                            tpCache($inc_type,$param,$val['mark']);
+                        }else{//其他语言统一设置URL模式非静态模式
+                            $param['seo_pseudo'] = $seo_pseudo_lang;
+                            tpCache($inc_type,$param,$val['mark']);
+                        }
                     }
                 }
+            } else {
+                tpCache($inc_type,$param);
             }
-        } else {
-            tpCache($inc_type,$param);
-        }
-        /*--end*/
-        
-        if ($inc_type == 'seo') {
+            /*--end*/
+            
             /* 生成静态页面代码 - 更新分页php文件支持生成静态功能*/
             $this->update_paginatorfile();
             /* end */
@@ -226,11 +213,9 @@ class Seo extends Base
             // 清空缓存
             delFile(rtrim(HTML_ROOT, '/'));
             \think\Cache::clear();
-        } else if($inc_type == 'sitemap'){
-            /* 生成sitemap */
-            sitemap_all();
+            $this->success('操作成功', url('Seo/seo'));
         }
-        $this->success('操作成功', url('Seo/index',array('inc_type'=>$inc_type)), $successData);
+        $this->error('操作失败');
     }
 
     /**
@@ -372,10 +357,15 @@ class Seo extends Base
         $seo_pseudo_new = input('param.seo_pseudo_new/d');
         if (3 == $seo_pseudo_new) {
             $dirArr = [];
+            $seo_html_listname = tpCache('seo.seo_html_listname');
             $row = Db::name('arctype')->field('dirpath')->select();
             foreach ($row as $key => $val) {
                 $dirpathArr = explode('/', $val['dirpath']);
-                $dir = !empty($dirpathArr[1]) ? $dirpathArr[1] : '';
+                if (3 == $seo_html_listname) {
+                    $dir = end($dirpathArr);
+                } else {
+                    $dir = !empty($dirpathArr[1]) ? $dirpathArr[1] : '';
+                }
                 if (!empty($dir) && !in_array($dir, $dirArr)) {
                     array_push($dirArr, $dir);
                 }
@@ -408,10 +398,15 @@ class Seo extends Base
         if (IS_AJAX_POST) {
             $error = false;
             $dirArr = [];
+            $seo_html_listname = tpCache('seo.seo_html_listname');
             $row = Db::name('arctype')->field('dirpath')->select();
             foreach ($row as $key => $val) {
                 $dirpathArr = explode('/', $val['dirpath']);
-                $dir = !empty($dirpathArr[1]) ? $dirpathArr[1] : '';
+                if (3 == $seo_html_listname) {
+                    $dir = end($dirpathArr);
+                } else {
+                    $dir = !empty($dirpathArr[1]) ? $dirpathArr[1] : '';
+                }
                 $filepath = "./{$dir}";
                 if (!empty($dir) && !in_array($dir, $dirArr) && file_exists($filepath)) {
                     @unlink($filepath."/index.html");

@@ -22,6 +22,9 @@
                         <th abbr="ac_id" axis="col4">
                             <div class="">菜单名称</div>
                         </th>
+                        <th abbr="article_time" axis="col4" class="w60">
+                            <div class="tc">显示</div>
+                        </th>
                         <th abbr="article_time" axis="col4" class="w100">
                             <div class="tc">默认会员首页</div>
                         </th>
@@ -53,6 +56,15 @@
                             <td style="width: 100%">
                                 <div style="">
                                     <input type="text" name="title" value="{$vo.title}" onchange="changeTableVal('users_menu','id','{$vo.id}','title',this);">
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w60 tc">
+                                    {eq name="$vo['status']" value='1'}
+                                        <span class="yes" onClick="changeTableVal('users_menu','id','{$vo.id}','status',this);"><i class="fa fa-check-circle"></i>是</span>
+                                    {else /}
+                                        <span class="no" onClick="changeTableVal('users_menu','id','{$vo.id}','status',this);"><i class="fa fa-ban"></i>否</span>
+                                    {/eq}
                                 </div>
                             </td>
                             <td class="">

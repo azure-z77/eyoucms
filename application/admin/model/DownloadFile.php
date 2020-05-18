@@ -43,6 +43,9 @@ class DownloadFile extends Model
             if (!empty($val['file_url'])) {
                 $result[$key]['file_url'] = handle_subdir_pic($val['file_url'], 'soft');
             }
+            if (!isset($val['server_name'])) {
+                $result[$key]['server_name'] = $result[$key]['file_name'];
+            }
         }
 
         return $result;
@@ -114,17 +117,17 @@ class DownloadFile extends Model
             foreach($post['remote_file'] as $kkk => $vvv)
             {
                 if($vvv == null || empty($vvv)) continue;
-                $title = !empty($post['server_name'][$kkk]) ? $post['server_name'][$kkk] : $post['title'];
-                $extract_code = !empty($post['extract_code'][$kkk]) ? $post['extract_code'][$kkk] : '';
+                $server_name = !empty($post['server_name'][$kkk]) ? trim($post['server_name'][$kkk]) : '';
+                $extract_code = !empty($post['extract_code'][$kkk]) ? trim($post['extract_code'][$kkk]) : '';
                 ++$sort_order;
                 $data_new[] = array(
                     'aid'        => $aid,
-                    'title'      => $title,
+                    'title'      => $post['title'],
                     'file_url'   => $vvv,
                     'extract_code' => $extract_code,
                     'file_size'  => '0',
                     'file_ext'   => '',
-                    'file_name'  => $title,
+                    'file_name'  => $server_name,
                     'file_mime'  => '',
                     'uhash'      => md5($vvv),
                     'md5file'    => md5($vvv),
@@ -144,11 +147,12 @@ class DownloadFile extends Model
         }else if (!empty($data_new)) {
             $data_new_new = $data_new;
         }
+        
+        // 删除
+        $this->delDownFile($aid);
 
         // 添加到数据库
         if (!empty($data_new_new)) {
-            // 删除
-            $this->delDownFile($aid);
             // 批量添加
             M('DownloadFile')->insertAll($data_new_new);
         }

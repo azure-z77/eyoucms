@@ -25,6 +25,17 @@ class Index extends Base
 
     public function index()
     {
+        /*处理多语言首页链接最后带斜杆，进行301跳转*/
+        $lang = input('param.lang/s');
+        if (preg_match("/\?lang=".$this->home_lang."\/$/i", $this->request->url(true)) && $lang == $this->home_lang.'/') {
+            $langurl = $this->request->url(true);
+            $langurl = rtrim($langurl, '/');
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: '.$langurl);
+            exit;
+        }
+        /*end*/
+
         /*首页焦点*/
         $m = input('param.m/s');
         if (empty($m)) {

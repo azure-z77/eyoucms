@@ -8,7 +8,7 @@
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <h3>账户充值记录</h3>
+                <h3>会员充值记录</h3>
                 <h5>(共{$pager->totalRows}条数据)</h5>
             </div>
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
@@ -18,15 +18,6 @@
                     <div class="sDiv2 fl" style="margin-right: 6px;">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="搜索订单号...">
                         <input type="submit" class="btn" value="搜索">
-                    </div>
-                    <!-- <div class="sDiv2 fl" style="margin-right: 6px;">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Member/money_index')}';">
-                    </div> -->
-                    <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                        <input type="button" class="btn current" value="接口配置" onclick="window.location.href='{:url("Member/pay_set")}';">
-                    </div>
-                    <div class="sDiv2 addartbtn fl" style="margin-right: 6px;">
-                        <input type="button" class="btn selected" value="账户充值记录" onclick="window.location.href='{:url("Member/money_index")}';">
                     </div>
                 </div>
             </form>
@@ -56,7 +47,7 @@
                         <th abbr="ac_id" axis="col4" class="w100">
                             <div class="tc">状态</div>
                         </th>
-                        <th abbr="ac_id" axis="col4" class="w100">
+                        <th abbr="ac_id" axis="col4" class="w120">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -116,14 +107,17 @@
                                 </div>
                             </td>
                             <td class="">
-                                <div class="tc w100">
+                                <div class="tc w120">
                                     {if condition='$vo.status == 1'}
-                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="手工充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>充值</a>
+                                        <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="手工充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>充值</a>
                                     {elseif condition='$vo.status == 3' /}
-                                    <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="撤销充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>撤销</a>
+                                        <a class="btn blue"  href="javascript:void(0);" data-url="{:url('Member/money_mark_order')}" data-moneyid="{$vo.moneyid}" data-title="撤销充值" data-status="{$vo.status}" data-username="{$vo.username}" data-money="{$vo.money}" onClick="handle(this);"><i class="fa fa-trash-o"></i>撤销</a>
                                     {else /}
-                                    ————
+                                        &nbsp;&nbsp;——&nbsp;&nbsp;
                                     {/if}
+                                    {eq name="$Think.const.CONTROLLER_NAME.'@money_del'|is_check_access" value="1"}
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Member/money_del')}" data-id="{$vo.moneyid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    {/eq}
                                 </div>
                             </td>
                         </tr>
@@ -135,8 +129,9 @@
             <div class="iDiv" style="display: none;"></div>
         </div>
         <!--分页位置-->
-        {$page} </div>
-</div>
+        {$page} 
+    </div>
+</div> 
 <script>
     $(document).ready(function(){
         // 表格行点击选中切换

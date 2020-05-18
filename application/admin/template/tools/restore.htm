@@ -130,11 +130,11 @@
                 </div>
                 {/eq}
                 {eq name="$Think.const.CONTROLLER_NAME.'@restoreUpload'|is_check_access" value="1"}
-                <!-- <div class="fbutton">
+                <div class="fbutton" style="display: none;">
                     <form class="navbar-form form-inline" action="{:U('Tools/restoreUpload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
                         <a href="javascript:void(0);" class="a-upload"><input type="file" name="sqlfile" id="sqlfile" title="请选择…"><i class="fa fa-upload"></i>上传执行sql文件</a>
                     </form>
-                </div> -->
+                </div>
                 {/eq}
             </div>
             <div style="clear:both"></div>
@@ -156,7 +156,7 @@
             location.href = location.href;
         });
 
-/*        $('#sqlfile').change(function(){
+        $('#sqlfile').change(function(){
             restoreUpload();
         });
     
@@ -181,7 +181,7 @@
                 layer.closeAll();
                 return false;
             });
-        }*/
+        }
 
     });
 

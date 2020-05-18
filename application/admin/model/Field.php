@@ -279,6 +279,24 @@ class Field extends Model
                         break;
                     }
 
+                    case 'file':
+                        {
+                            $val[$val['name'].'_eyou_is_remote'] = 0;
+                            $val[$val['name'].'_eyou_remote'] = '';
+                            $val[$val['name'].'_eyou_local'] = '';
+                            if (array_key_exists($val['name'], $addonRow)) {
+                                if (is_http_url($addonRow[$val['name']])) {
+                                    $val[$val['name'].'_eyou_is_remote'] = 1;
+                                    $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
+                                } else {
+                                    $val[$val['name'].'_eyou_is_remote'] = 0;
+                                    $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
+                                }
+                            }
+                            $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                            break;
+                        }
+
                     case 'htmltext':
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
@@ -299,7 +317,7 @@ class Field extends Model
                         /*--end*/
                         break;
                     }
-                    
+
                     default:
                     {
                         $val['dfvalue'] = array_key_exists($val['name'], $addonRow) ? $addonRow[$val['name']] : $val['dfvalue'];
@@ -383,18 +401,29 @@ class Field extends Model
                         break;
                     }
 
-                    case 'files':
+                    case 'file':
                     {
-                        foreach ($val as $k2 => $v2) {
-                            if (empty($v2)) {
-                                unset($val[$k2]);
-                                continue;
-                            }
-                            $val[$k2] = trim($v2);
+                        $is_remote = !empty($dataExt[$key.'_eyou_is_remote']) ? $dataExt[$key.'_eyou_is_remote'] : 0;
+                        if (1 == $is_remote) {
+                            $val = $dataExt[$key.'_eyou_remote'];
+                        } else {
+                            $val = $dataExt[$key.'_eyou_local'];
                         }
-                        $val = implode(',', $val);
                         break;
                     }
+
+                    // case 'files':
+                    // {
+                    //     foreach ($val as $k2 => $v2) {
+                    //         if (empty($v2)) {
+                    //             unset($val[$k2]);
+                    //             continue;
+                    //         }
+                    //         $val[$k2] = trim($v2);
+                    //     }
+                    //     $val = implode(',', $val);
+                    //     break;
+                    // }
 
                     case 'datetime':
                     {
@@ -410,7 +439,7 @@ class Field extends Model
                         $val = $money1.'.'.$money2;
                         break;
                     }
-
+                    
                     // case 'htmltext':
                     // {
                     //     /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/

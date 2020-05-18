@@ -14,20 +14,30 @@
 $cacheKey = "extra_global_channeltype";
 $channeltype_row = \think\Cache::get($cacheKey);
 if (empty($channeltype_row)) {
-    $channeltype_row = \think\Db::name('channeltype')->field('id,nid,ctl_name')
+    $channeltype_row = \think\Db::name('channeltype')->field('id,nid,ctl_name,ntitle,ifsystem,table')
         ->order('id asc')
-        ->select();
+        ->getAllWithIndex('id');
     \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
 }
 
-$channeltype_list = [];
-$allow_release_channel = [];
+$channeltype_list = []; // 模型标识
+$allow_release_channel = []; // 发布文档的模型ID
 foreach ($channeltype_row as $key => $val) {
     $channeltype_list[$val['nid']] = $val['id'];
     if (!in_array($val['nid'], ['guestbook','single'])) {
         array_push($allow_release_channel, $val['id']);
     }
 }
+
+// URL全局参数（比如：可视化uiset、多模板v、多语言lang）
+$parse_url_param = [];
+if (file_exists(ROOT_PATH.'template/pc/uiset.txt') || file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
+    $parse_url_param[] = 'uiset';
+    $parse_url_param[] = 'v';
+}
+$lang_switch_on = \think\Config::get('lang_switch_on');
+$lang_switch_on == true && $parse_url_param[] = 'lang';
+$parse_url_param[] = 'goto';
 
 return array(
     // CMS根目录文件夹
@@ -38,6 +48,10 @@ return array(
     'email_default_time_out' => 3600,
     // 邮箱发送倒计时 2分钟
     'email_send_time' => 120,
+    // 发送短信默认有效时间
+    'mobile_default_time_out' => 1800,
+    // 手机发送倒计时 2分钟 
+    'mobile_send_time' => 120,
     // 充值订单默认有效时间，会员中心用到，2小时
     'get_order_validity' => 7200,
     // 支付订单默认有效时间，商城中心用到，2小时
@@ -70,7 +84,21 @@ return array(
         3   => '单选框',
         4   => '多选框',
         5   => '单张图',
+        6   => '手机号码',
+        7   => 'Email邮箱',
+        8   => '附件类型',
     ),
+    //留言属性正则规则管理（仅用于留言属性）
+    'validate_type_list' => [
+        6 => [
+            'name' => '手机号码',
+            'value' => '/^1\d{10}$/'
+        ],
+        7 => [
+            'name' => 'Email邮箱',
+            'value' => '/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/'
+        ],
+    ],
     // 栏目自定义字段的channel_id值
     'arctype_channel_id' => -99,
     // 栏目表原始字段
@@ -82,7 +110,7 @@ return array(
     // 前台语言Cookie变量
     'home_lang' => 'home_lang',
     // URL全局参数（比如：可视化uiset、多模板v、多语言lang）
-    'parse_url_param'   => ['uiset','v','lang','goto'],
+    'parse_url_param'   => $parse_url_param,
     // 会员金额明细类型
     'pay_cause_type_arr' => array(
         0   => '升级消费',
@@ -140,11 +168,27 @@ return array(
     'field_region_all_type' => ['-1','0','1','338','10543','31929'],
     // URL中筛选标识变量
     'url_screen_var' => 'ZXljbXM',
+    //百度地图ak值
+    'baidu_map_ak'  => 'RVRMWGdDeElvVml4Z2dIY0FrNm1LcE1k',
     // 会员投稿发布的文章状态，前台使用
     'home_article_arcrank' => array(
         -1  => '未审核',
         0   => '审核通过',
     ),
+    // 插件入口的问题列表
+    'weapp_askanswer_list' => [
+        1   => '您常用的手机号码是？',
+        2   => '您常用的电子邮箱是？',
+        3   => '您配偶的姓名是？',
+        4   => '您初中学校名是？',
+        5   => '您的出生地名是？',
+        6   => '您配偶的姓名是？',
+        7   => '您的身份证号后四位是？',
+        8   => '您高中班主任的名字是？',
+        9   => '您初中班主任的名字是？',
+        10   => '您最喜欢的明星名字是？',
+        11  => '对您影响最大的人名字是？',
+    ],
     // 会员期限，后台使用
     'admin_member_limit_arr' => array(
         1 => array(

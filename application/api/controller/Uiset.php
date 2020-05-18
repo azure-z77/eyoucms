@@ -119,10 +119,8 @@ class Uiset extends Controller
                 'lang'  => $this->home_lang,
             ])->count('id');
             if ($count > 0) {
-                $tmp_array = array('d','2','V','i','X','2','N','v','c','H','l','y','a','W','d','o','d','A','=','=');
-                if ($name == array_join_string($tmp_array)) {
-                    $tmp_array = array('U','G','9','3','Z','X','J','l','Z','C','B','i','e','S','B','F','e','W','9','1','Q','2','1','z');
-                    $value = preg_replace('#<a([^>]*)>(\s*)'.array_join_string($tmp_array).'<(\s*)\/a>#i', '', htmlspecialchars_decode($value));
+                if ($name == binaryJoinChar(config('binary.0'), 13)) {
+                    $value = preg_replace('#<a([^>]*)>(\s*)'.binaryJoinChar(config('binary.1'), 18).'<(\s*)\/a>#i', '', htmlspecialchars_decode($value));
                     $value = htmlspecialchars($value);
                 }
                 $nameArr = explode('_', $name);

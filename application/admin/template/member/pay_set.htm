@@ -81,24 +81,13 @@
                     </dd>
                 </dl>
                 <dl class="row">
-                    <dt class="tit">
-                        <label for="username"><em>*</em>微信AppSecret</label>
-                    </dt>
-                    <dd class="opt">
-                        <input type="text" name="wechat[appsecret]" id="appsecret" value="{$wechat.appsecret}" class="input-txt">
-                        <p class="notic">请输入您的微信公众平台中的微信AppSecret，用于手机端微信支付。</p>
-                    </dd>
-                </dl>
-                <dl class="row">
                     <div class="bot" style="padding-bottom:0px;">
                         <a href="JavaScript:void(0);" onclick="wechatset();" class="ncap-btn-big ncap-btn-green" id="submitWechatBtn">确认提交</a>
-                        &nbsp;<a href="https://www.eyoucms.com/ask/?ct=question&askaid=202" target="_blank" style="font-size: 12px;padding-left: 10px;position:absolute;top: 30px">不会配置？</a>
+                        &nbsp;<a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=8829','微信支付配置教程')" style="font-size: 12px;padding-left: 10px;position:absolute;top: 30px">不会配置？</a>
                     </div>
                 </dl>
             </div>
-        </form>
-
-
+        </form>  
         <form class="form-horizontal" id="postAlipayForm" action="{:url('Member/alipay_set')}" method="post">
             <div class="hDiv">
                 <div class="hDivBox">
@@ -246,11 +235,6 @@
 
         if($('#postWechatForm input[id=key]').val() == ''){
             layer.alert('微信KEY值不能为空！', {icon: 2, title:false});
-            return false;
-        }
-
-        if($('#postWechatForm input[id=appsecret]').val() == ''){
-            layer.alert('微信AppSecret不能为空！', {icon: 2, title:false});
             return false;
         }
 

@@ -213,6 +213,16 @@
                     <span class="err"></span>
                 </dd>
             </dl>
+            <dl class="row" {neq name='$seo_pseudo' value='2'}style="display: none;"{/neq}>
+                <dt class="tit">
+                    <label>自定义文件名</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" value="" name="htmlfilename" id="htmlfilename" style="width: 120px;" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'');">.html
+                    <span class="err"></span>
+                    <p class="notic">自定义文件名可由字母/数字/'_'/'-'等符号组成</p>
+                </dd>
+            </dl>
         </div>
         <!-- 其他参数 -->
         <div class="ncap-form-default">

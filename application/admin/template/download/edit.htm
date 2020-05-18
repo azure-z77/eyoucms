@@ -140,7 +140,7 @@
                                         {empty name='$vo.is_remote'}
                                             <tr>
                                                 <td><a href="{$vo.file_url}" target="_blank">{$vo.file_name}</a></td>
-                                                <td>{$vo.file_size} KB</td>
+                                                <td>{$vo.file_size|format_bytes=###}</td>
                                                 <td><span style="color: #5FB878;">上传成功</span></td>
                                                 <td>
                                                     <span class="layui-btn layui-btn-xs layui-btn-danger" onclick="DeleteFile(this)">移除</span>
@@ -185,7 +185,7 @@
                                                 远程地址{php} static $num = 1; echo $num++; {/php}：<input type="text" name="remote_file[]" value="{$vo.file_url}" placeholder="http://" style="width: 50%;">
                                                 {volist name="attr_field" id="f_vo"}
                                                     <span class="ey_{$f_vo.field_name}">
-                                                        <span class="title_{$f_vo.field_name}">{$f_vo.field_title}</span>：<input type="text" name="{$f_vo.field_name}[]" value="{eq name='$f_vo.field_name' value='server_name'} {$vo.title} {else/} {$vo[$f_vo.field_name]} {/eq}" style="width: 7%;">
+                                                        <span class="title_{$f_vo.field_name}">{$f_vo.field_title}</span>：<input type="text" name="{$f_vo.field_name}[]" value="{$vo[$f_vo.field_name]}" style="width: 7%;">
                                                     </span>
                                                 {/volist}
                                             </div>
@@ -273,6 +273,16 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
+                    <label>下载量</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" value="{$field.downcount|default='0'}" name="downcount" id="downcount" class="input-txt">
+                    <span class="err"></span>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
                     <label>阅读权限</label>
                 </dt>
                 <dd class="opt">
@@ -309,6 +319,16 @@
                     </select>
                     <input type="hidden" name="type_tempview" value="{$tempview}" />
                     <span class="err"></span>
+                </dd>
+            </dl>
+            <dl class="row" {neq name='$seo_pseudo' value='2'}style="display: none;"{/neq}>
+                <dt class="tit">
+                    <label>自定义文件名</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" value="{$field.htmlfilename}" name="htmlfilename" id="htmlfilename" style="width: 120px;" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'');">.html
+                    <span class="err"></span>
+                    <p class="notic">自定义文件名可由字母/数字/'_'/'-'等符号组成</p>
                 </dd>
             </dl>
 <!--             <dl class="row">

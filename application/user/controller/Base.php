@@ -47,17 +47,22 @@ class Base extends Common {
             $ctl_all = CONTROLLER_NAME.'@*';
             $filter_login_action = config('filter_login_action');
             if (!in_array($ctl_act, $filter_login_action) && !in_array($ctl_all, $filter_login_action)) {
-                if (IS_AJAX) {
-                    $this->error('请先登录！');
+                $resource = input('param.resource/s');
+                if ('Uploadify@*' == $ctl_all && 'reg' == $resource) {
+                    // 注册时上传图片不验证登录行为
                 } else {
-                    if (isWeixin()) {
-                        //微信端
-                        $this->redirect('user/Users/users_select_login');
-                        exit;
-                    }else{
-                        // 其他端
-                        $this->redirect('user/Users/login');
-                        exit;
+                    if (IS_AJAX) {
+                        $this->error('请先登录！');
+                    } else {
+                        if (isWeixin()) {
+                            //微信端
+                            $this->redirect('user/Users/users_select_login');
+                            exit;
+                        } else {
+                            // 其他端
+                            $this->redirect('user/Users/login');
+                            exit;
+                        }
                     }
                 }
             }
@@ -77,6 +82,13 @@ class Base extends Common {
             // 登录的会员被后台删除，立马退出会员中心
             $logut_redirect_url = url('user/Users/centre');
         }
+
+        // 是否开启会员注册功能
+        $Method = request()->action();
+        if (isset($this->usersConfig['users_open_reg']) && $this->usersConfig['users_open_reg'] == 1 && 'reg' == $Method) {
+            $logut_redirect_url = ROOT_DIR.'/';
+        }
+
         if (!empty($logut_redirect_url)) {
             // 清理session并回到首页
             session('users_id', null);
@@ -111,5 +123,8 @@ class Base extends Common {
             $is_wechat_applets = 1; // 在微信小程序中
         }
         $this->assign('is_wechat_applets',$is_wechat_applets);
+
+        // 子目录
+        $this->assign('RootDir', ROOT_DIR); 
     }
 }

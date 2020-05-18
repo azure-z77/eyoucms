@@ -3,9 +3,7 @@
 // 应用行为扩展定义文件
 return array(
     // 模块初始化
-    'module_init'  => array(
-        'app\\admin\\behavior\\ModuleInitBehavior',
-    ),
+    'module_init'  => array(),
     // 操作开始执行
     'action_begin' => array(
         'app\\admin\\behavior\\AuthRoleBehavior',

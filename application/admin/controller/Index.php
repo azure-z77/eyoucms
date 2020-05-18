@@ -35,6 +35,14 @@ class Index extends Base
         $this->assign('web_language_switch', $web_language_switch);
         /*--end*/
 
+        /*小程序开关*/
+        $web_diyminipro_switch = tpCache('web.web_diyminipro_switch');
+        if (!is_dir('./weapp/Diyminipro/') || $this->admin_lang != $this->main_lang) {
+            $web_diyminipro_switch = -1;
+        }
+        $this->assign('web_diyminipro_switch', $web_diyminipro_switch);
+        /*end*/
+
         /*网站首页链接*/
         // 去掉入口文件
         $inletStr = '/index.php';
@@ -85,13 +93,21 @@ class Index extends Base
     {
         $globalConfig = tpCache('global');
         /*百度分享*/
-        $share = array(
+/*        $share = array(
             'bdText'    => $globalConfig['web_title'],
             'bdPic'     => is_http_url($globalConfig['web_logo']) ? $globalConfig['web_logo'] : request()->domain().$globalConfig['web_logo'],
             'bdUrl'     => $globalConfig['web_basehost'],
         );
-        $this->assign('share',$share);
+        $this->assign('share',$share);*/
         /*--end*/
+
+        /*小程序组件更新*/
+        $is_update_component_access = 1;
+        if (!is_dir('./weapp/Diyminipro/') || $this->admin_lang != $this->main_lang) {
+            $is_update_component_access = 0;
+        }
+        $this->assign('is_update_component_access', $is_update_component_access);
+        /*end*/
 
         // 纠正上传附件的大小，始终以空间大小为准
         $file_size = $globalConfig['file_size'];
@@ -113,7 +129,7 @@ class Index extends Base
         }
 
         /*未备份数据库提示*/
-        $system_explanation_welcome = $globalConfig['system_explanation_welcome'];
+        $system_explanation_welcome = !empty($globalConfig['system_explanation_welcome']) ? $globalConfig['system_explanation_welcome'] : 0;
         $sqlfiles = glob(DATA_PATH.'sqldata/*');
         foreach ($sqlfiles as $file) {
             if(stristr($file, getCmsVersion())){
@@ -125,7 +141,7 @@ class Index extends Base
 
         /*检查密码复杂度*/
         $admin_login_pwdlevel = -1;
-        $system_explanation_welcome_2 = $globalConfig['system_explanation_welcome_2'];
+        $system_explanation_welcome_2 = !empty($globalConfig['system_explanation_welcome_2']) ? $globalConfig['system_explanation_welcome_2'] : 0;
         if (empty($system_explanation_welcome_2)) {
             $admin_login_pwdlevel = session('admin_login_pwdlevel');
             if (!session('?admin_login_pwdlevel') || 3 < intval($admin_login_pwdlevel)) {
@@ -159,11 +175,62 @@ class Index extends Base
         // 升级弹窗
         $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
 
+        // 升级系统时，同时处理sql语句
+        $this->synExecuteSql();
+
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
         $ajaxLogic->update_template('users'); // 升级前台会员中心的模板文件
-        $ajaxLogic->sys_level_data(); // 第一次同步会员等级数据和会员产品分类
+        $ajaxLogic->syn_guestbook_attribute(); // 只同步一次每个留言栏目的字段列表前4个显示(v1.5.1节点去掉)
+        $ajaxLogic->syn_wechat_login_config(); // 只同步一次微信登录配置信息(v1.5.1节点去掉)
+        $ajaxLogic->system_langnum_file(); // 记录当前是多语言还是单语言到文件里
+        $ajaxLogic->syn_admin_logic_sms_template(); // 同步手机短信模板(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_unlink(); // 删除多余Minipro的文件(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_update_basic(); // 纠正允许上传文件类型(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_update_tag(); // 纠正tag标签的阅读权限(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_update_arctype(); // 纠正批量新增栏目的错误层级(v1.5.1节点去掉)
 
         return $this->fetch();
+    }
+
+    /**
+     * 升级系统时，同时处理sql语句
+     * @return [type] [description]
+     */
+    private function synExecuteSql()
+    {
+        // 新增订单提醒的邮箱模板
+        if (!tpCache('system.system_smtp_tpl_5')){
+            /*多语言*/
+            if (is_language()) {
+                $langRow = Db::name('language')->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                    ->order('id asc')
+                    ->select();
+                foreach ($langRow as $key => $val) {
+                    $r = Db::name('smtp_tpl')->insert([
+                        'tpl_name'      => '订单提醒',
+                        'tpl_title'     => '您有新的订单消息，请查收！',
+                        'tpl_content'   => '${content}',
+                        'send_scene'    => 5,
+                        'is_open'       => 1,
+                        'lang'          => $val['mark'],
+                        'add_time'      => getTime(),
+                    ]);
+                    false !== $r && tpCache('system', ['system_smtp_tpl_5' => 1], $val['mark']);
+                }
+            } else { // 单语言
+                $r = Db::name('smtp_tpl')->insert([
+                    'tpl_name'      => '订单提醒',
+                    'tpl_title'     => '您有新的订单消息，请查收！',
+                    'tpl_content'   => '${content}',
+                    'send_scene'    => 5,
+                    'is_open'       => 1,
+                    'lang'          => $this->admin_lang,
+                    'add_time'      => getTime(),
+                ]);
+                false !== $r && tpCache('system', ['system_smtp_tpl_5' => 1]);
+            }
+            /*--end*/
+        }
     }
 
     /**
@@ -234,11 +301,23 @@ class Index extends Base
             else if (1 == $val['groups']) // 模型内容统计
             {
                 if (null === $archivesTotalRow) {
-                    $archivesTotalRow = Db::name('archives')->field('channel, count(aid) as total')->where([
-                            'lang'    => $this->admin_lang,
-                            'status'    => 1,
-                            'is_del'    => 0,
-                        ])->group('channel')
+                    $map = [
+                        'lang'    => $this->admin_lang,
+                        'status'    => 1,
+                        'is_del'    => 0,
+                    ];
+                    /*权限控制 by 小虎哥*/
+                    $admin_info = session('admin_info');
+                    if (0 < intval($admin_info['role_id'])) {
+                        $auth_role_info = $admin_info['auth_role_info'];
+                        if(! empty($auth_role_info)){
+                            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                                $map['admin_id'] = $admin_info['admin_id'];
+                            }
+                        }
+                    }
+                    /*--end*/
+                    $archivesTotalRow = Db::name('archives')->field('channel, count(aid) as total')->where($map)->group('channel')
                         ->getAllWithIndex('channel');
                 }
                 parse_str($val['vars'], $vars);
@@ -603,10 +682,12 @@ class Index extends Base
                 // 会员中心菜单表
                 case 'users_menu':
                     {
-                        Db::name('users_menu')->where('id','gt',0)->update([
-                                'is_userpage'   => 0,
-                                'update_time'   => getTime(),
-                            ]);
+                        if ('is_userpage' == $field) {
+                            Db::name('users_menu')->where('id','gt',0)->update([
+                                    'is_userpage'   => 0,
+                                    'update_time'   => getTime(),
+                                ]);
+                        }
                         $data['refresh'] = 1;
                     }
                     break;
@@ -633,6 +714,30 @@ class Index extends Base
                     }
                     break;
 
+                // 留言属性表
+                case 'guestbook_attribute':
+                    {
+                        $return = model('GuestbookAttribute')->isValidate($id_name,$id_value,$field,$value);
+                        if (is_array($return)) {
+                            $time = !empty($return['time']) ? $return['time'] : 3;
+                            $this->error($return['msg'], null, [], $time);
+                        }
+                    }
+                    break;
+
+                // 小程序页面表
+                case 'diyminipro_page':
+                    {
+                        $re = Db::name('diyminipro_page')->where([
+                            'is_home'    => 1,
+                            $id_name    => ['EQ', $id_value],
+                        ])->count();
+                        if (!empty($re)) {
+                            $this->error('禁止取消默认项', null, [], 3);
+                        }
+                    }
+                    break;
+
                 default:
                     # code...
                     break;
@@ -642,30 +747,67 @@ class Index extends Base
                 $field => $value,
                 'update_time'   => getTime(),
             ];
-            M($table)->where("$id_name = $id_value")->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
-
-            // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
             switch ($table) {
-                case 'auth_modular':
-                    extra_cache('admin_auth_modular_list_logic', null);
-                    extra_cache('admin_all_menu', null);
+                case 'diyminipro_page':
+                {
+                    if ('is_home' == $field) {
+                        if ($value == 1) {
+                            $savedata['page_type'] = 1;
+                        } else {
+                            $savedata['page_type'] = -1;
+                        }
+                    }
                     break;
-                
-                default:
-                    // 清除logic逻辑定义的缓存
-                    extra_cache('admin_'.$table.'_list_logic', null);
-                    // 清除一下缓存
-                    // delFile(RUNTIME_PATH.'html'); // 先清除缓存, 否则不好预览
-                    \think\Cache::clear($table);
-                    break;
+                }
             }
+            $r = Db::name($table)->where([$id_name => $id_value])->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
+            if ($r !== false) {
+                // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
+                switch ($table) {
+                    case 'auth_modular':
+                        extra_cache('admin_auth_modular_list_logic', null);
+                        extra_cache('admin_all_menu', null);
+                        break;
 
-            /*清除页面缓存*/
-            // $htmlCacheLogic = new \app\common\logic\HtmlCacheLogic;
-            // $htmlCacheLogic->clear_archives();
-            /*--end*/
-            
-            $this->success('更新成功', $url, $data);
+                    case 'diyminipro_page':
+                    {
+                        if ('is_home' == $field) {
+                            $data['refresh'] = 1;
+                            Db::name('diyminipro_page')->where([
+                                $id_name    => ['NEQ', $id_value],
+                                'lang'      => $this->admin_lang,
+                            ])->update([
+                                'is_home'    => 0, 
+                                'page_type'    => -1, 
+                                'update_time'   => getTime()
+                            ]);
+                        }
+                        break;
+                    }
+                
+                    // 会员投稿功能
+                    case 'archives':
+                    {
+                        if ('arcrank' == $field) {
+                            Db::name('taglist')->where('aid', $id_value)->update([
+                                'arcrank'=>$value,
+                                'update_time'   => getTime(),
+                            ]);
+                        }
+                        break;
+                    }
+                    
+                    default:
+                        // 清除logic逻辑定义的缓存
+                        extra_cache('admin_'.$table.'_list_logic', null);
+                        // 清除一下缓存
+                        // delFile(RUNTIME_PATH.'html'); // 先清除缓存, 否则不好预览
+                        \think\Cache::clear($table);
+                        break;
+                }
+                $this->success('更新成功', $url, $data);
+            }
+            $this->error('更新失败', null, []);
         }
     }
 
@@ -831,6 +973,11 @@ class Index extends Base
                         }
                         $data['is_syn'] = $is_syn;
                         /*--end*/
+                    } else if ($name == 'web_language_switch') { // 多语言开关
+                        // 统计多语言数量
+                        model('Language')->setLangNum();
+                        // 重新生成sitemap.xml
+                        sitemap_all();
                     }
                     break;
                 }

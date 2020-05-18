@@ -36,6 +36,7 @@
                detectBrowser();
             </script>
         <![endif]-->
+        <link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
     </head>
 
     <body>
@@ -63,9 +64,14 @@
                         <img src="{:url('Admin/vertify')}" class="chicuele" id="imgVerify" alt="" onclick="fleshVerify();" style="position:absolute; right: 3px;top: 3px;height: 36px;">
                     </div>
                     {/eq}
-                    <div class="clearfix text-right">
+
+                    <!--点选文字验证码 start-->
+                    <!-- weapp_clicap_input -->
+                    <!--点选文字验证码 end-->
+
+                    <!-- <div class="clearfix text-right">
                         <a href="javascript:void(0);" class="help forget_pwd">忘记密码?</a>
-                    </div>
+                    </div> -->
                     <input type="button" name="submit" class="btn btn-lg btn-primary btn-block show-dialog" value="登录">
                 </form>
             </div> 
@@ -156,10 +162,6 @@
                     }else{
                         return false;
                     }
-                });
-
-                $(".forget_pwd").click(function(){
-                    layer.alert('请联系网站管理员！', {icon: 6, title:false});
                 });
             });
             

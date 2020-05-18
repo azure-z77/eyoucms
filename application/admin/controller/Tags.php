@@ -13,12 +13,17 @@
 
 namespace app\admin\controller;
 
+use think\Db;
 use think\Page;
 
 class Tags extends Base
 {
     public function index()
     {
+        /*纠正tags标签的文档数*/
+        $this->correct();
+        /*end*/
+
         $list = array();
         $keywords = input('keywords/s');
 
@@ -95,6 +100,33 @@ class Tags extends Base
             $this->success('操作成功');
         }else{
             $this->error('操作失败');
+        }
+    }
+
+    /**
+     * 纠正tags文档数
+     */
+    private function correct()
+    {
+        $taglistRow = Db::name('taglist')->field('count(tid) as total, tid, add_time')
+            ->where(['lang'=>$this->admin_lang])
+            ->group('tid')
+            ->getAllWithIndex('tid');
+        $updateData = [];
+        $weekup = getTime();
+        foreach ($taglistRow as $key => $val) {
+            $updateData[] = [
+                'id'    => $val['tid'],
+                'total' => $val['total'],
+                'weekup'    => $weekup,
+                'add_time'  => $val['add_time'] + 1,
+            ];
+        }
+        if (!empty($updateData)) {
+            $r = model('Tagindex')->saveAll($updateData);
+            if (false !== $r) {
+                // Db::name('tagindex')->where(['weekup'=>['lt', $weekup],'lang'=>$this->admin_lang])->delete();
+            }
         }
     }
 }

@@ -66,9 +66,11 @@
                         <label>列表页面名称</label>
                     </dt>
                     <dd class="opt">
-                        <label><input type="radio" name="seo_html_listname" value="1" {if condition="isset($config.seo_html_listname) && $config.seo_html_listname eq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}顶级目录名称/lists_ID.html（<a href="javascript:void(0);" onclick="view_exp('view_2_1');">查看例子</a><span id="view_2_1" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/lists_1.html</span>）</label>&nbsp;
+                        <label><input type="radio" name="seo_html_listname" value="1" {if condition="isset($config.seo_html_listname) && $config.seo_html_listname eq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}顶级目录名称/lists_ID.html（<a href="javascript:void(0);" onclick="view_exp('lists_2_1');">查看例子</a><span id="lists_2_1" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/lists_1.html</span>）</label>&nbsp;
                         <br/>
-                        <label><input type="radio" name="seo_html_listname" value="2" {if condition="!isset($config.seo_html_listname) || $config.seo_html_listname neq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}父级目录名称/子目录名称/（<a href="javascript:void(0);" onclick="view_exp('view_2_2');">查看例子</a><span id="view_2_2" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/lol/</span>）</label>&nbsp;
+                        <label><input type="radio" name="seo_html_listname" value="2" {if condition="!isset($config.seo_html_listname) || $config.seo_html_listname neq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}父级目录名称/子目录名称/（<a href="javascript:void(0);" onclick="view_exp('lists_2_2');">查看例子</a><span id="lists_2_2" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/lol/</span>）</label>&nbsp;
+                        <br/>
+                        <label><input type="radio" name="seo_html_listname" value="3" {if condition="isset($config.seo_html_listname) && $config.seo_html_listname eq 3"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}子目录名称/（<a href="javascript:void(0);" onclick="view_exp('lists_2_3');">查看例子</a><span id="lists_2_3" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/lol/</span>）</label>&nbsp;
                         <span class="err"></span>
                         <p class="notic"></p>
                     </dd>
@@ -81,6 +83,8 @@
                         <label><input type="radio" name="seo_html_pagename" value="1" {if condition="isset($config.seo_html_pagename) && $config.seo_html_pagename eq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}顶级目录名称/ID.html（<a href="javascript:void(0);" onclick="view_exp('view_2_3');">查看例子</a><span id="view_2_3" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/10.html</span>）</label>&nbsp;
                         <br/>
                         <label><input type="radio" name="seo_html_pagename" value="2" {if condition="!isset($config.seo_html_pagename) || $config.seo_html_pagename neq 1"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}父级目录名称/子目录名称/ID.html（<a href="javascript:void(0);" onclick="view_exp('view_2_4');">查看例子</a><span id="view_2_4" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/news/lol/20.html</span>）</label>&nbsp;
+                        <br/>
+                        <label><input type="radio" name="seo_html_pagename" value="3" {if condition="isset($config.seo_html_pagename) && $config.seo_html_pagename eq 3"}checked="checked"{/if}>{notempty name='$root_dir'}子目录名称/{/notempty}子目录名称/ID.html（<a href="javascript:void(0);" onclick="view_exp('view_2_5');">查看例子</a><span id="view_2_5" class="none">：__SITE_URL____ROOT_DIR__<span id="exp_seo_html_arcdir">{$seo_html_arcdir_1}</span>/lol/20.html</span>）</label>&nbsp;
                         <span class="err"></span>
                         <p class="notic"></p>
                     </dd>
@@ -94,6 +98,8 @@
                     <label><input type="radio" name="seo_rewrite_format" value="1" {if condition="!isset($config.seo_rewrite_format) OR $config.seo_rewrite_format eq 1"}checked="checked"{/if}>目录名称（<a href="javascript:void(0);" onclick="view_exp('view_3_1');">查看例子</a><span id="view_3_1" class="none">：__SITE_URL____ROOT_DIR__/about/</span>）</label>&nbsp;
                     <br/>
                     <label><input type="radio" name="seo_rewrite_format" value="2" {if condition="isset($config.seo_rewrite_format) AND $config.seo_rewrite_format eq 2"}checked="checked"{/if}>模型标识（<a href="javascript:void(0);" onclick="view_exp('view_3_2');">查看例子</a><span id="view_3_2" class="none">：__SITE_URL____ROOT_DIR__/single/about.html</span>）</label>&nbsp;
+                    <br/>
+                    <label><input type="radio" name="seo_rewrite_format" value="3" {if condition="isset($config.seo_rewrite_format) AND $config.seo_rewrite_format eq 3"}checked="checked"{/if}>子目录名称（<a href="javascript:void(0);" onclick="view_exp('view_3_3');">查看例子</a><span id="view_3_3" class="none">：__SITE_URL____ROOT_DIR__/news/</span>）</label>&nbsp;
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -141,7 +147,6 @@
                 </dd>
             </dl>
             <div class="bot">
-                <input type="hidden" name="inc_type" value="{$inc_type}">
                 <a href="JavaScript:void(0);" class="ncap-btn-big ncap-btn-green" onclick="adsubmit();">确认提交</a>
             </div>
         </div>

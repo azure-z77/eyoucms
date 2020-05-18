@@ -240,7 +240,7 @@ class UpgradeLogic extends Model
                         }
                     }
                 } catch (\Exception $e) {
-                    return ['code' => 0, 'msg' => "数据库执行中途失败，请第一时间请求技术支持，否则将影响后续的版本升级！"];
+                    return ['code' => -2, 'msg' => "数据库执行中途失败，请查看官方解决教程，否则将影响后续的版本升级！"];
                 }
             }
         }
@@ -278,6 +278,11 @@ class UpgradeLogic extends Model
         // 清空缓存
         delFile(rtrim(RUNTIME_PATH, '/'));
         tpCache('global');
+
+        // 清空检测标记
+        $s_key = 'aXNzZXRfYXV0aG9y';
+        $s_key = base64_decode($s_key);
+        session($s_key, null);
 
         /*删除下载的升级包*/
         $ziplist = glob($this->data_path.'backup'.DS.'*.zip');

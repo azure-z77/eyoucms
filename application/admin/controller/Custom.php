@@ -73,9 +73,6 @@ class Custom extends Base
                     if (0 < intval($admin_info['role_id'])) {
                         $auth_role_info = $admin_info['auth_role_info'];
                         if(! empty($auth_role_info)){
-                            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
-                                $condition['a.admin_id'] = $admin_info['admin_id'];
-                            }
                             if(! empty($auth_role_info['permission']['arctype'])){
                                 if (!empty($typeid)) {
                                     $typeids = array_intersect($typeids, $auth_role_info['permission']['arctype']);
@@ -101,6 +98,18 @@ class Custom extends Base
             }
         }
 
+        /*权限控制 by 小虎哥*/
+        $admin_info = session('admin_info');
+        if (0 < intval($admin_info['role_id'])) {
+            $auth_role_info = $admin_info['auth_role_info'];
+            if(! empty($auth_role_info)){
+                if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                    $condition['a.admin_id'] = $admin_info['admin_id'];
+                }
+            }
+        }
+        /*--end*/
+        
         // 时间检索
         if ($begin > 0 && $end > 0) {
             $condition['a.add_time'] = array('between',"$begin,$end");
@@ -250,6 +259,17 @@ class Custom extends Base
                 unset($post['tempview']);
             }
 
+            //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
+            if (!empty($post['htmlfilename'])) {
+                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
+                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+                //判断是否存在相同的自定义文件名
+                $filenameCount = Db::name('archives')->where('htmlfilename', $post['htmlfilename'])->count();
+                if (!empty($filenameCount)) {
+                    $this->error("自定义文件名已存在，请重新设置！");
+                }
+            }
+
             // --存储数据
             $newData = array(
                 'typeid'=> empty($post['typeid']) ? 0 : $post['typeid'],
@@ -341,6 +361,9 @@ class Custom extends Base
         !empty($arctypeInfo['tempview']) && $tempview = $arctypeInfo['tempview'];
         $this->assign('tempview', $tempview);
         /*--end*/
+        // URL模式
+        $tpcache = config('tpcache');
+        $assign_data['seo_pseudo'] = !empty($tpcache['seo_pseudo']) ? $tpcache['seo_pseudo'] : 1;
 
         $this->assign($assign_data);
 
@@ -415,6 +438,21 @@ class Custom extends Base
 
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
+
+            //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
+            if (!empty($post['htmlfilename'])) {
+                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
+                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+                //判断是否存在相同的自定义文件名
+                $filenameCount = Db::name('archives')->where([
+                        'aid'   => ['NEQ', $post['aid']],
+                        'htmlfilename'  => $post['htmlfilename'],
+                    ])->count();
+                if (!empty($filenameCount)) {
+                    $this->error("自定义文件名已存在，请重新设置！");
+                }
+            }
+            
             // --存储数据
             $newData = array(
                 'typeid'=> $typeid,
@@ -537,6 +575,10 @@ class Custom extends Base
         empty($tempview) && $tempview = $arctypeInfo['tempview'];
         $this->assign('tempview', $tempview);
         /*--end*/
+
+        // URL模式
+        $tpcache = config('tpcache');
+        $assign_data['seo_pseudo'] = !empty($tpcache['seo_pseudo']) ? $tpcache['seo_pseudo'] : 1;
 
         $this->assign($assign_data);
         return $this->fetch();

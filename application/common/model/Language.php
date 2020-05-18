@@ -252,8 +252,25 @@ class Language extends Model
     {
         \think\Cache::clear('system_langnum');
         $languageRow = Db::name('language')->field('mark')->select();
+        $system_langnum = count($languageRow);
         foreach ($languageRow as $key => $val) {
-            tpCache('system', ['system_langnum'=>count($languageRow)], $val['mark']);
+            tpCache('system', ['system_langnum'=>$system_langnum], $val['mark']);
+        }
+
+        // 记录多语言启用数量
+        $system_langnum = 1;
+        $web_language_switch = tpCache('web.web_language_switch');
+        if (!empty($web_language_switch)) {
+            $system_langnum = Db::name('language')->where(['status'=>1])->count();
+        }
+        $tfile = DATA_PATH.'conf'.DS.'lang_enable_num.txt';
+        $fp = @fopen($tfile,'w');
+        if(!$fp) {
+            @file_put_contents($tfile, $system_langnum);
+        }
+        else {
+            fwrite($fp, $system_langnum);
+            fclose($fp);
         }
     }
 

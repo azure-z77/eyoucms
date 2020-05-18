@@ -38,6 +38,12 @@
                             <div class="">标签</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
+                            <div class="tc">点击</div>
+                        </th>
+                        <th abbr="article_time" axis="col6" class="w100">
+                            <div class="tc">文档数</div>
+                        </th>
+                        <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">新增时间</div>
                         </th>
                         <th axis="col1" class="w120">
@@ -67,6 +73,16 @@
                             <td style="width: 100%">
                                 <div style="">
                                     {$vo.tag}
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w100 tc">
+                                    <input style="text-align:center;width: 80px;" type="text" onchange="changeTableVal('tagindex','id','{$vo.id}','count',this);" value="{$vo.count}" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" />
+                                </div>
+                            </td>
+                            <td class="">
+                                <div class="w100 tc">
+                                    {$vo.total}
                                 </div>
                             </td>
                             <td class="">

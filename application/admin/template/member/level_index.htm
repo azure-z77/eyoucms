@@ -98,7 +98,7 @@
                                 <td>
                                     <div class="w160 tc">
                                         {eq name="'Member@level_edit'|is_check_access" value="1"}
-                                            <input type="text" name="discount[]" value="{$vo.discount}" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" class="tc w60">
+                                            <input type="text" name="discount[]" value="{$vo.discount}" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" class="tc w60">
                                         {else /}
                                             {$vo.discount}
                                         {/eq}

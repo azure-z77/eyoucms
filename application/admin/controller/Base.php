@@ -33,12 +33,6 @@ class Base extends Controller {
         parent::__construct();
 
         $this->global_assign();
-
-        /*---------*/
-        $is_eyou_authortoken = session('web_is_authortoken');
-        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
-        $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
-        /*--end*/
     }
     
     /*
@@ -71,8 +65,12 @@ class Base extends Controller {
                 session::clear();
                 cookie('admin-treeClicked', null); // 清除并恢复栏目列表的展开方式
                 /*--end*/
-                $url = request()->baseFile().'?s=Admin/login';
-                $this->redirect($url);
+                if (IS_AJAX) {
+                    $this->error('登录超时！');
+                } else {
+                    $url = request()->baseFile().'?s=Admin/login';
+                    $this->redirect($url);
+                }
             }
         }
 
@@ -135,7 +133,7 @@ class Base extends Controller {
                 $this->error('您没有操作权限，请联系超级管理员分配权限');
             }
         }
-    }  
+    }
 
     /**
      * 保存系统设置 

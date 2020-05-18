@@ -57,7 +57,7 @@
                     {else /}
                     <input id="web_mobile_domain" name="web_mobile_domain" value="{$config.web_mobile_domain|default=''}" type="text" placeholder="手机域名" onKeyUp="this.value=this.value.replace(/[^0-9a-z]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-z]/g,''));" style="width: 60px;" />.{$Request.rootDomain}__ROOT_DIR__
                     <p class="notic">为了更好的体验效果，IP访问不会自动跳转到手机站域名访问。</p>
-                    <p class="{empty name='$config.web_mobile_domain'}none{/empty} red" id="p_web_mobile_domain">先做好子域名 <span id="span_web_mobile_domain">{$config.web_mobile_domain|default=''}</span>.{$Request.rootDomain} 的解析及绑定 ，已处理请忽略！ <a href="https://www.eyoucms.com/plus/view.php?aid=8432" target="_blank">【操作示例】</a></p>
+                    <p class="{empty name='$config.web_mobile_domain'}none{/empty} red" id="p_web_mobile_domain">先做好子域名 <span id="span_web_mobile_domain">{$config.web_mobile_domain|default=''}</span>.{$Request.rootDomain} 的解析及绑定 ，已处理请忽略！ <a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=8432','域名解析与绑定')">【操作示例】</a></p>
                     {/eq}
                 </dd>
             </dl>

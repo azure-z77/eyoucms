@@ -13,6 +13,7 @@
 
 namespace app\common\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -58,5 +59,20 @@ class EyouUsers extends Model
         }
 
         return [];
+    }
+
+    // 会员登录之后的业务逻辑
+    public function loginAfter($users)
+    {
+        session('users', $users);
+        session('users_id', $users['users_id']);
+        setcookie('users_id', $users['users_id'], null);
+
+        $data = [
+            'last_ip'     => clientIP(),
+            'last_login'  => getTime(),
+            'login_count' => Db::raw('login_count+1'),
+        ];
+        Db::name('users')->where('users_id', $users['users_id'])->update($data);
     }
 }

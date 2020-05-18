@@ -51,22 +51,18 @@
                         <th abbr="article_title" axis="col3" class="">
                             <div style="text-align: left; padding-left: 10px;" class="">字段标题</div>
                         </th>
-                        <th abbr="article_title" axis="col3"  class="w100">
-                            <div class="tc">字段名称</div>
-                        </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">属性类型</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">所属栏目</div>
                         </th>
-                        <th abbr="article_time" axis="col6" class="w160">
-                            <div class="tc">更新时间</div>
+                        <th abbr="article_title" axis="col3"  class="w100">
+                            <div class="tc">后台列表显示</div>
                         </th>
                         <th axis="col1" class="w180">
                             <div class="tc">操作</div>
                         </th>
-                        
                     </tr>
                     </thead>
                 </table>
@@ -107,11 +103,6 @@
                                     {/eq}
                                 </div>
                             </td>
-                            <td class="">
-                                <div class="w100 tc">
-                                    {$vo.fieldname|default=''}
-                                </div>
-                            </td>
                             <td align="center" class="">
                                 <div class="w100 tc">
                                     {$attrInputTypeArr[$vo['attr_input_type']]|default=''}
@@ -121,8 +112,12 @@
                                 <div class="w100 tc">{$vo.typename|default='<i class="red">数据出错！</i>'}</div>
                             </td>
                             <td>
-                                <div class="w160 tc">
-                                    {$vo.update_time|date='Y-m-d H:i:s',###}
+                                <div class="tc w100">
+                                    {if condition="$vo['is_showlist'] eq 1"}
+                                    <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('guestbook_attribute','attr_id','{$vo.attr_id}','is_showlist',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
+                                    {else /}
+                                    <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('guestbook_attribute','attr_id','{$vo.attr_id}','is_showlist',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                                    {/if}
                                 </div>
                             </td>
                             <td>
@@ -138,7 +133,6 @@
                                     <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo.fieldname}', '{$vo.attr_id}', {$vo.attr_input_type|default='0'})">标签调用</a>
                                 </div>
                             </td>
-                           
                         </tr>
                         {/volist}
                     {/empty}
@@ -149,7 +143,7 @@
         </div>
         <div class="tDiv">
             <div class="tDiv2">
-                {eq name='$main_lang' value='$admin_lang'}
+            {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
                     <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
@@ -164,14 +158,27 @@
                 {/eq}
                 {eq name="$Think.const.CONTROLLER_NAME.'@attribute_add'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="{:url('Field/attribute_add', array('typeid'=>$Request.param.typeid))}">
+                    <a href="javascript:void(0);" onclick="attribute_add(this);" data-href="{:url('Field/attribute_add', array('typeid'=>$Request.param.typeid))}">
                         <div class="add" title="新增属性">
                             <span class="red"><i class="fa fa-plus"></i>新增属性</span>
                         </div>
                     </a>
                 </div>
+                <script type="text/javascript">
+                    function attribute_add(obj)
+                    {
+                        var count = "{$arctypeCount|default='0'}";
+                        count = parseInt(count);
+                        if (0 == count) {
+                            layer.alert('请先建立留言栏目，并关联留言模型后再操作！', {icon: 5, title:false});
+                        } else {
+                            var href = $(obj).data('href');
+                            window.location.href = href;
+                        }
+                    }
+                </script>
                 {/eq}
-                {/eq}
+            {/eq}
             </div>
             <div style="clear:both"></div>
         </div>
@@ -249,9 +256,17 @@
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.itemname_'+attr_id+'}"></dd>';
             contentdiv += '<dd>表单调用代码：</dd>';
             contentdiv += '<dd><input type="text" style="width:400px;" value="' + liststr + '" /></dd>';
-            contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color:red; ">特别注意：请在前台模板的留言标签里追加 {$'+'field.formhidden} 到 &lt;form  &gt;表单里，<a href="https://www.eyoucms.com/plus/view.php?aid=8378" target="_blank">详细说明</a>。</dd>'
+            contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color:red; ">特别注意：请在前台模板的留言标签里追加 {$'+'field.formhidden} 到 &lt;form  &gt;表单里，<a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('+"'https://www.eyoucms.com/plus/view.php?aid=8378','单张图类型教程说明'"+')">详细说明</a>。</dd>'
             height = '300px';
-        } 
+        } else if (8 == attr_input_type) { // 上传附件
+            var liststr = "<input type='file' name='{$"+"field."+fieldname+"}' value=''>";
+            var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>属性提示文字：</dd>';
+            contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.itemname_'+attr_id+'}"></dd>';
+            contentdiv += '<dd>表单调用代码：</dd>';
+            contentdiv += '<dd><input type="text" style="width:400px;" value="' + liststr + '" /></dd>';
+            contentdiv += '<dd style="border-top: dotted 1px #E7E7E7; color:red; ">特别注意：请在前台模板的留言标签里追加 {$'+'field.formhidden} 到 &lt;form  &gt;表单里。</dd>'
+            height = '300px';
+        }
         else {
             var contentdiv = '<div class="dialog_content" style="margin: 0px; padding: 0px;"><dl style="padding:10px 30px;line-height:30px;"><dd>属性提示文字：</dd>'
             contentdiv += '<dd><input type="text" style=" width:400px;margin-bottom:10px;" value="{$'+'field.itemname_'+attr_id+'}"></dd>'

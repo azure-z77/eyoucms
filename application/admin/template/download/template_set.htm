@@ -16,7 +16,7 @@
                             <div class="">参数名称</div>
                         </th>
                         <th axis="col1" class="w80">
-                            <div class="tc">使用</div>
+                            <div class="tc">启用</div>
                         </th>
                     </tr>
                     </thead>
@@ -46,7 +46,9 @@
                             </td>
                             <td>
                                 <div class="w80 tc">
-                                    <input type="checkbox" data-id='{$vo.field_id}' data-title="{$vo.field_title}" data-name='{$vo.field_name}' {eq name='$vo.field_use' value='1'}checked{/eq} onclick="UpFieldUse(this);">
+                                    <label>
+                                        <input type="checkbox" data-id='{$vo.field_id}' data-title="{$vo.field_title}" data-name='{$vo.field_name}' {eq name='$vo.field_use' value='1'}checked{/eq} onclick="UpFieldUse(this);">
+                                    </label>
                                 </div>
                             </td>
                         </tr>

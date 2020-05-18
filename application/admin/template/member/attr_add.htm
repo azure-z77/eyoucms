@@ -98,7 +98,7 @@
         function dtype_change(obj){
             var dtype = $(obj).val();
             var ifoption = $(obj).find('option:selected').data('ifoption');
-            if (0 <= $.inArray(dtype, ['datetime','switch','img','imgs','files'])) {
+            if (0 <= $.inArray(dtype, ['datetime','switch','img','imgs','file'])) {
                 $('#dl_dfvalue').hide();
             } else {
                 if (1 == ifoption) {
@@ -131,7 +131,19 @@
                 }
             }
         }
-        
+        if($('#dtype').val() == 'radio' || $('#dtype').val() == 'checkbox' || $('#dtype').val() == 'select'){
+            var data = $.trim($('#dfvalue').val());
+            data = data.split(',');
+            for(var i = 0;i < data.length ;i++) {
+                for(var j = i+1;j < data.length;j++) {
+                    if ($.trim(data[i]) == $.trim(data [j])){
+                        showErrorMsg('默认值不能含有相同的值！');
+                        $('textarea[name=dfvalue]').focus();
+                        return false;
+                    }
+                }
+            }
+        }
         layer_loading('正在处理');
         $('#post_form').submit();
     }

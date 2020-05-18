@@ -81,7 +81,7 @@ class UsersRelease extends Base
             ->alias('a')
             ->join('__ARCTYPE__ t', 'a.typeid = t.id', 'LEFT')
             ->where($condition)
-            ->order('a.sort_order asc')
+            ->order('a.sort_order asc, a.aid desc')
             ->limit($Page->firstRow.','.$Page->listRows)
             ->select();
 
@@ -153,7 +153,7 @@ class UsersRelease extends Base
             $aid = $this->archives_db->insertGetId($data);
             if ($aid) {
                 /*后置操作*/
-                model('UsersRelease')->afterSave($aid, $data);
+                model('UsersRelease')->afterSave($aid, $data, 'add');
                 /* END */
                 $url = url('user/UsersRelease/release_centre',['list'=>1]);
                 $this->success("投稿成功！", $url);
@@ -199,7 +199,7 @@ class UsersRelease extends Base
             $r = $this->archives_db->where($where)->update($data);
             if ($r) {
                 /*后置操作*/
-                model('UsersRelease')->afterSave($data['aid'], $data);
+                model('UsersRelease')->afterSave($data['aid'], $data, 'edit');
                 /* END */
                 $url = url('user/UsersRelease/release_centre',['list'=>1]);
                 $this->success("编辑成功！", $url);
@@ -337,6 +337,8 @@ class UsersRelease extends Base
         if ('add' == $type && !empty($content)) {
             $post['seo_description']= @msubstr(checkStrHtml($content), 0, config('global.arc_seo_description_length'), false);
         }
+
+        $post['addonFieldExt']['content'] = htmlspecialchars(strip_sql($content));
 
         if (empty($this->UsersConfig['is_automatic_review'])) {
             // 自动审核关闭，文章默认待审核

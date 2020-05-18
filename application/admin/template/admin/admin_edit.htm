@@ -46,6 +46,7 @@
                 <dd class="opt">
                     <input type="password" name="password2" value="" id="password2" autocomplete="off" class="input-txt">
                     <p class="notic"></p>
+                    <p id="password2_tips"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -226,7 +227,7 @@
                 </dd>
             </dl>
             {/if}
-            <div class="bot"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
+            <div class="bot" style="position: relative;"><a href="JavaScript:void(0);" onclick="adsubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a></div>
         </div>
     </form>
 </div>
@@ -459,6 +460,19 @@
                 }
             }
         });
+    });
+
+    $('#password2').keyup(function(){
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        $('#password2_tips').hide();
+        if (password != '' || password2 != '') {
+            if (password != password2) {
+                $('#password2_tips').html('<font color="red">两次密码输入不一致！</font>').show();
+            } else {
+                $('#password2_tips').html('<font color="green">校验通过！</font>').show();
+            }
+        }
     });
 
     // 判断输入框是否为空

@@ -41,6 +41,9 @@
                         <th abbr="ac_id" axis="col4">
                             <div class="">链接地址</div>
                         </th>
+                        <th abbr="article_time" axis="col6" class="w50">
+                            <div class="tc">显示</div>
+                        </th>
                         <th abbr="article_time" axis="col6" class="w80">
                             <div class="tc">链接类型</div>
                         </th>
@@ -92,6 +95,15 @@
                             <td style="width: 100%">
                                 <div style="">
                                     <a href="{$vo.url}" target="_blank">{$vo.url}</a>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="tc w50">
+                                    {if condition="$vo['status'] eq 1"}
+                                        <span class="yes" {eq name="'Links@edit'|is_check_access" value="1"}onClick="changeTableVal('links','id','{$vo.id}','status',this);"{/eq}><i class="fa fa-check-circle"></i>是</span>
+                                    {else /}
+                                        <span class="no" {eq name="'Links@edit'|is_check_access" value="1"}onClick="changeTableVal('links','id','{$vo.id}','status',this);"{/eq}><i class="fa fa-ban"></i>否</span>
+                                    {/if}
                                 </div>
                             </td>
                             <td class="">

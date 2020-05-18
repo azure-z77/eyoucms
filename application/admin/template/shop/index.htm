@@ -3,8 +3,9 @@
 <body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;min-width:auto;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page" style="min-width:auto;">
-    {include file="member/bar" /}
+{include file="shop/left" /}
+<div class="page" style="min-width:auto;margin-left:98px;">
+    {include file="shop/shop_bar" /}
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
@@ -15,22 +16,13 @@
             <form class="navbar-form form-inline" id="postForm" action="{:url('Shop/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
-                    <!-- 订单状态查询 -->
-                    <div class="sDiv2 fl" style="margin-right: 6px;">  
-                        <select name="order_status" class="select" style="margin:0px 5px;" onchange="OrderQueryStatus();">
-                            <option value="">查看全部</option>
-                            {volist name="$OrderStatus" id="vo"}
-                                <option value="{$vo.order_status}" {eq name="$Request.param.order_status" value="$vo.order_status"}selected{/eq}>{$vo.status_name}</option>
-                            {/volist}
-                        </select>
-                    </div>
                     <!-- 订单号查询 -->
                     <div class="sDiv2 fl" style="margin-right: 6px;">
                         <input type="text" size="50"  name="order_code" class="qsbox" style="width: 200px;" value="{$Request.param.order_code}" placeholder="搜索订单号...">
                         <input type="submit" class="btn" value="搜索">
                     </div>
-                    {include file="shop/shop_bar" /}
                 </div>
+                <!-- {include file="shop/shop_bar_new" /} -->
             </form>
         </div>
         <div class="hDiv">
@@ -283,7 +275,6 @@
                 UpNote(order_id,value);
                 layer.close(index);
             });
-            
             return false;
         }else if('ddsc' == status_name){
             var msg = '确认删除订单？';
@@ -291,6 +282,7 @@
 
         layer.confirm(msg, {
             title:false,
+            closeBtn : 0,
             btn: ['确定','取消'],
         },function(){
             $.ajax({

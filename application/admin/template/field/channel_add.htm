@@ -29,14 +29,15 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="dtype"><em>*</em>字段类型</label>
+                    <label for="dtype"><em>*</em>数据类型</label>
                 </dt>
                 <dd class="opt">
-                    <select name="dtype" id="dtype">
                     {volist name='$fieldtype_list' id='vo'}
-                        <option value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}">{$vo.title}</option>
+                        <div style="width: 150px; float: left;">
+                            <label><input type="radio" name="dtype" value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}" {eq name='$i' value='1'} checked="checked" {/eq} data-text="{$vo.title}">{$vo.title}</label>&nbsp;
+                        </div>
+                        {if condition="$i % 4 == 0"}<br/>{/if}
                     {/volist}
-                    </select>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -132,7 +133,7 @@
                     &nbsp;
                     <span class="err"></span>
                     <p class="notic">是否应用于列表的条件筛选中</p>
-                    <a id="call_tags_help" href="https://www.eyoucms.com/plus/view.php?aid=7881" target="_blank" class="none">查看标签调用</a>
+                    <a id="call_tags_help" href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=7881','筛选标签调用')" class="none">查看标签调用</a>
                 </dd>
             </dl>
             <!-- <dl class="row" id='IsSelect' style="display: none;">
@@ -202,14 +203,14 @@
         var screening_value = $('input:radio[name="is_screening"]:checked').val();
         $('#IsScreening_'+screening_value).click();
 
-        $('#dtype').change(function(){
+        $('input[name=dtype]').click(function(){
             dtype_change(this);
         });
 
         function dtype_change(obj) {
             var dtype = $(obj).val();
-            var ifoption = $(obj).find('option:selected').data('ifoption');
-            if (0 <= $.inArray(dtype, ['datetime','switch','img','imgs','files'])) {
+            var ifoption = $(obj).data('ifoption');
+            if (0 <= $.inArray(dtype, ['datetime','switch','img','imgs','file','media'])) {
                 $('#dl_dfvalue').hide();
                 ClearAreaData();
             } else if ('region' == dtype) {
@@ -236,6 +237,11 @@
                 $('#dl_dfvalue_unit').show();
             } else {
                 $('#dl_dfvalue_unit').hide();
+            }
+            if (0 <= $.inArray(dtype, ['media'])) {
+                $('#IsRelease').hide();
+            } else {
+                $('#IsRelease').show();
             }
         }
     });
@@ -317,19 +323,18 @@
             $('input[name=name]').focus();
             return false;
         }
-        if($('#dtype').val() == ''){
+        if($('input[name=dtype]:checked').val() == ''){
             showErrorMsg('请选择字段类型！');
             $('input[name=dtype]').focus();
             return false;
-        } else if ('region' == $('#dtype').val()){
+        } else if ('region' == $('input[name=dtype]:checked').val()){
             if (-1 == $('#RegionId').val()) {
                 showErrorMsg('请选择区域范围！');
                 $('#province').focus();
                 return false;
             }
         } else {
-            var ifoption = $('#dtype').find('option:selected').data('ifoption');
-            console.log(ifoption)
+            var ifoption = $('input[name=dtype]:checked').data('ifoption');
             if (1 == ifoption) {
                 if ($.trim($('#dfvalue').val()) == '') {
                     showErrorMsg('默认值不能为空！');
@@ -338,10 +343,24 @@
                 }
                 var tag = '|';
                 if($('#dfvalue').val().indexOf(tag) != -1){
-               　　  showErrorMsg('默认值不能输入 | 符号！');
+                    showErrorMsg('默认值不能输入 | 符号！');
                     $('#dfvalue').focus();
                     return false;
             　　}
+            }
+            
+            if (0 <= $.inArray($('input[name=dtype]:checked').val(), ['radio','checkbox','select'])) {
+                var dfvalue = $.trim($('#dfvalue').val());
+                data = dfvalue.split(',');
+                for(var i = 0;i < data.length ;i++) {
+                    for(var j = i+1;j < data.length;j++) {
+                        if ($.trim(data[i]) == $.trim(data [j])){
+                            showErrorMsg('默认值不能含有相同的值！');
+                            $('#dfvalue').focus();
+                            return false;
+                        }
+                    }
+                }
             }
         }
         if (0 >= parseInt($('#typeid').find('option:selected').length)) {

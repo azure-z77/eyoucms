@@ -18,6 +18,7 @@ use think\Db;
 use think\Config;
 use app\admin\logic\ShopLogic;
 use app\admin\logic\ProductSpecLogic; // 用于产品规格逻辑功能处理
+use app\user\model\Pay as PayModel;  //用于虚拟网盘商品付款后自动走流程处理
 
 class Shop extends Base {
 
@@ -28,6 +29,7 @@ class Shop extends Base {
      */
     public function __construct(){
         parent::__construct();
+        $this->language_access(); // 多语言功能操作权限
         $this->users_db              = Db::name('users');                   // 会员信息表
         $this->shop_order_db         = Db::name('shop_order');              // 订单主表
         $this->shop_order_details_db = Db::name('shop_order_details');      // 订单明细表
@@ -44,6 +46,12 @@ class Shop extends Base {
         $this->ProductSpecLogic = new ProductSpecLogic;
     }
 
+    public function home()
+    {
+        $this->redirect(url('Statistics/index'));
+        exit;
+    }
+
     /**
      * 商城设置
      */
@@ -51,12 +59,20 @@ class Shop extends Base {
         if (IS_POST) {
             $post = input('post.');
             if (!empty($post)) {
+                /*邮件提醒*/
+                $smtp['smtp_shop_order_pay']  = !empty($post['smtp_shop_order_pay'])  ? 1 : 0;
+                $smtp['smtp_shop_order_send'] = !empty($post['smtp_shop_order_send']) ? 1 : 0;
+                tpCache('smtp', $smtp);
+                unset($post['smtp_shop_order_pay']);
+                unset($post['smtp_shop_order_send']);
+                /*END*/
+
                 $TestPass = $post['TestPass'];
                 unset($post['TestPass']);
                 if (0 == $TestPass) unset($post['shop']['shop_open_spec']);
 
                 foreach ($post as $key => $val) {
-                    getUsersConfigData($key, $val);
+                    is_array($val) && getUsersConfigData($key, $val);
                 }
                 $this->success('设置成功！', url('Shop/conf'));
             }
@@ -65,11 +81,11 @@ class Shop extends Base {
         $Result = VerifyLatestTemplate();
         if (!empty($Result)) getUsersConfigData('shop', ['shop_open_spec' => 0]);
         $TestPass = empty($Result) ? 1 : 0;
-        $this->assign('TestPass',$TestPass);
+        $this->assign('TestPass', $TestPass);
 
         // 商城配置信息
-        $ConfigData = getUsersConfigData('shop');
-        $this->assign('Config',$ConfigData);
+        $smtp = tpCache('smtp');
+        $this->assign('smtp', $smtp);
         return $this->fetch('conf');
     }
 
@@ -85,14 +101,10 @@ class Shop extends Base {
         ];
         // 订单号查询
         $order_code = input('order_code/s');
-        if (!empty($order_code)) {
-            $Where['order_code'] = array('LIKE', "%{$order_code}%");
-        }
+        if (!empty($order_code)) $Where['order_code'] = array('LIKE', "%{$order_code}%");
         // 订单状态查询
         $order_status = input('order_status/s');
-        if (!empty($order_status)) {
-            $Where['order_status'] = $order_status;
-        }
+        if (!empty($order_status)) $Where['order_status'] = 10 == $order_status ? 0 : $order_status;
         // 查询满足要求的总记录数
         $count = $this->shop_order_db->where($Where)->count('order_id');
         // 实例化分页类 传入总记录数和每页显示的记录数
@@ -236,7 +248,7 @@ class Shop extends Base {
                 // 数据存在则表示为修改发货内容
                 $OrderData = $this->shop_order_db->where($Where)->field('prom_type')->find();
                 $Desc = '修改发货内容！';
-                if ('1' == $post['prom_type']) {
+                if (1 == $post['prom_type']) {
                     // 提交的数据为虚拟订单
                     if ($OrderData['prom_type'] != $post['prom_type']) {
                         // 此处判断后，提交的订单类型和数据库中的订单类型不相同，表示普通订单修改为虚拟订单
@@ -293,9 +305,21 @@ class Shop extends Base {
                 // 更新订单明细表信息
                 $Data['update_time'] = getTime();
                 $this->shop_order_details_db->where('order_id',$post['order_id'])->update($Data);
+
                 // 添加订单操作记录
                 AddOrderAction($post['order_id'],'0',session('admin_id'),'2','1','1',$Desc,$Note);
-                $this->success('发货成功');
+
+                $Field = 'username, nickname, email, mobile';
+                $Users = $this->users_db->field($Field)->where('users_id', $post['users_id'])->find();
+                // 邮箱发送
+                $SmtpConfig = tpCache('smtp');
+                $Result['email'] = GetEamilSendData($SmtpConfig, $Users, $post, 2);
+
+                // 手机发送
+                $SmsConfig = tpCache('sms');
+                $Result['mobile'] = GetMobileSendData($SmsConfig, $Users, $post, 2);
+                
+                $this->success('发货成功', null, $Result);
             } else {
                 $this->error('发货失败');
             }
@@ -433,8 +457,12 @@ class Shop extends Base {
                     }
 
                     // 添加订单操作记录
-                    AddOrderAction($post['order_id'],'0',session('admin_id'),$order_status,$express_status,$pay_status,$action_desc,$action_note);
+                    AddOrderAction($post['order_id'], 0, session('admin_id'), $order_status, $express_status, $pay_status, $action_desc, $action_note);
 
+                    // 判断是否为虚拟商品
+                    if ('yfk' == $post['status_name'] && $OrderData['prom_type'] == 1) {
+                        PayModel::afterVirtualProductPay($Where);
+                    }
                     $this->success('操作成功！');
                 }
             }
@@ -556,23 +584,34 @@ class Shop extends Base {
         $OrderData['district'] = get_area_name($OrderData['district']);
 
         $array_new = get_archives_data($DetailsData,'product_id');
+        $OrderData['prom_type_virtual'] = false;
         // 处理订单详细表数据处理
         foreach ($DetailsData as $key => $value) {
+            if ($value['prom_type'] == 1) {
+                $OrderData['prom_type_virtual'] = true;
+            }
             // 产品属性处理
-            $value['data'] = unserialize($value['data']);
-            $attr_value = htmlspecialchars_decode($value['data']['attr_value']);
-            $attr_value = htmlspecialchars_decode($attr_value);
-
-            $spec_value = htmlspecialchars_decode($value['data']['spec_value']);
+            $ValueData = unserialize($value['data']);
+            // 规制值
+            $spec_value = !empty($ValueData['spec_value']) ? htmlspecialchars_decode($ValueData['spec_value']) : '';
             $spec_value = htmlspecialchars_decode($spec_value);
-
-            $DetailsData[$key]['data'] = $attr_value . $spec_value;
+            // 旧参数
+            $attr_value = !empty($ValueData['attr_value']) ? htmlspecialchars_decode($ValueData['attr_value']) : '';
+            $attr_value = htmlspecialchars_decode($attr_value);
+            // 新参数
+            $attr_value_new = !empty($ValueData['attr_value_new']) ? htmlspecialchars_decode($ValueData['attr_value_new']) : '';
+            $attr_value_new = htmlspecialchars_decode($attr_value_new);
+            // 优先显示新参数
+            $attr_value = !empty($attr_value_new) ? $attr_value_new : $attr_value;
+            $DetailsData[$key]['data'] = $spec_value . $attr_value;
 
             // 产品内页地址
             $DetailsData[$key]['arcurl'] = get_arcurl($array_new[$value['product_id']]);
             
             // 小计
             $DetailsData[$key]['subtotal'] = $value['product_price'] * $value['num'];
+            
+            $DetailsData[$key]['litpic'] = handle_subdir_pic($DetailsData[$key]['litpic']); // 支持子目录
         }
 
         // 订单类型
@@ -839,7 +878,8 @@ class Shop extends Base {
 
             // 刷新或重新进入产品添加页则清除关于产品session
             if (isset($post['initialization']) && !empty($post['initialization'])) {
-                session('spec_arr', null); $this->success('初始化完成');
+                session('spec_arr', null);
+                $this->success('初始化完成');
             }
 
             // 若清除一整条规格信息则清除session中相应的数据并且重置规格名称下拉框选项
@@ -1104,6 +1144,16 @@ class Shop extends Base {
             getUsersConfigData('shop', ['shop_open_spec' => 0]);
             // 返回提示
             $this->error($msg);
+        }
+    }
+
+    public function FindSmptConfig() {
+        $Smtp = tpCache('smtp');
+        if (empty($Smtp['smtp_server']) || empty($Smtp['smtp_port']) || empty($Smtp['smtp_user']) || empty($Smtp['smtp_pwd']) || empty($Smtp['smtp_from_eamil'])) {
+            $this->error('邮箱配置尚未配置完成，前往配置？', url('System/smtp'));
+        } else {
+            // tpCache('smtp', [input('post.field') => 1]);
+            $this->success('配置完成');
         }
     }
 }

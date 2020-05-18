@@ -166,6 +166,52 @@
                 <!-- 单张图 end -->
             {/case}
 
+            {case value="file"}
+            <!-- 单个文件 start -->
+            <dl class="row">
+                <dt class="tit">
+                    <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
+                </dt>
+                <dd class="opt">
+                    <div class="input-file-show div_{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" {neq name="$vo[$vo['name'].'_eyou_is_remote']" value="0"}style="display: none;"{/neq}>
+                        <span class="type-file-box">
+                            <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
+                            <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
+                            <input class="type-file-file" type="file" onchange="upload_file_1585641738(this)" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}">
+                        </span>
+                    </div>
+                    <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_remote" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_remote]" value="{$vo[$vo['name'].'_eyou_remote']|default=''}" placeholder="http://" class="input-txt" {neq name="$vo[$vo['name'].'_eyou_is_remote']" value="1"}style="display: none;"{/neq}>
+                    &nbsp;
+                    <label><input type="checkbox" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_is_remote]" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_is_remote" value="1" {eq name="$vo[$vo['name'].'_eyou_is_remote']" value="1"}checked="checked"{/eq} onClick="clickRemote(this, '{$vo.fieldArr}_{$vo.name|default=''}_eyou');">远程文件</label>
+                    <span class="err"></span>
+                    <p class="notic">{$vo.remark|default=''}</p>
+                </dd>
+            </dl>
+            <script type="text/javascript">
+                function upload_file_1585641738(e){
+                    var file = $(e)[0].files[0]
+                    var formData = new FormData();
+                    formData.append('file',file);
+                    $.ajax({
+                        type: 'post',
+                        url: "{:url('Ueditor/DownloadUploadFileAjax')}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res.code==0){
+                                layer.msg(res.msg)
+                            }else {
+                                $("#{$vo.fieldArr}_{$vo.name|default=''}_eyou_local").val(res.file_url);
+                            }
+                        }
+                    })
+                }
+            </script>
+            <!-- 单个文件 end -->
+            {/case}
+
             {case value="imgs"}
                 <!-- 多张图 start -->
                 <dl class="row" id="dl_{$vo.fieldArr}_{$vo.name|default=''}">
@@ -346,10 +392,12 @@
                     </dt>
                     <dd class="opt">          
                         <textarea class="span12 ckeditor" id="{$vo.fieldArr}_{$vo.name|default=''}" data-func="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" title="">{$vo.dfvalue|default=''}</textarea>
-                        <p style="margin-top: 10px;">
-                            <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">远程图片本地化</a>&nbsp;
-                            <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">清除非本站链接</a>
-                        </p>
+                        <div class="opt-moreOper">
+							<p>
+								<a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">远程图片本地化</a>&nbsp;
+								<a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2 ncap-btn-green">清除非本站链接</a>&nbsp;
+							</p>
+						</div>
                         <span class="err"></span>
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>

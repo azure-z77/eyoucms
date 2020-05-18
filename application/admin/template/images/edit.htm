@@ -121,7 +121,7 @@
                                             </a>
                                             <a href="javascript:void(0)" onclick="ClearPicArr2(this,'{$vo['image_url']}')" class="delect">删除</a>
                                         </div>
-                                        <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 136px;" placeholder="图片注释">{$vo.intro}</textarea>
+                                        <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 136px;" placeholder="图片注释" title="标签调用：{literal}{$field.intro}{/literal}">{$vo.intro}</textarea>
                                     </div>
                                     {/volist}
                                     <div class="images_upload">
@@ -141,7 +141,7 @@
                                 </a>
                                 <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
                             </div>
-                            <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 136px;" placeholder="图片注释"></textarea>
+                            <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 136px;" placeholder="图片注释" title="标签调用：{literal}{$field.intro}{/literal}"></textarea>
                         </div>
                     </div>
                     <!-- 上传图片显示的样板 end -->
@@ -254,6 +254,16 @@
                     </select>
                     <input type="hidden" name="type_tempview" value="{$tempview}" />
                     <span class="err"></span>
+                </dd>
+            </dl>
+            <dl class="row" {neq name='$seo_pseudo' value='2'}style="display: none;"{/neq}>
+                <dt class="tit">
+                    <label>自定义文件名</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" value="{$field.htmlfilename}" name="htmlfilename" id="htmlfilename" style="width: 120px;" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'');">.html
+                    <span class="err"></span>
+                    <p class="notic">自定义文件名可由字母/数字/'_'/'-'等符号组成</p>
                 </dd>
             </dl>
 <!--             <dl class="row">

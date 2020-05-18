@@ -25,14 +25,15 @@ class Field extends Base
     public $fieldLogic;
     public $arctype_channel_id;
 
-    public function _initialize() {
+    public function _initialize()
+    {
         parent::_initialize();
         $this->language_access(); // 多语言功能操作权限
-        $this->fieldLogic = new FieldLogic();
+        $this->fieldLogic         = new FieldLogic();
         $this->arctype_channel_id = config('global.arctype_channel_id');
 
         $userConfig = getUsersConfigData('users');
-        $this->assign('userConfig',$userConfig);
+        $this->assign('userConfig', $userConfig);
     }
 
     /**
@@ -44,9 +45,9 @@ class Field extends Base
         $this->syn_channelfield_bind();
         /*--end*/
 
-        $channel_id = input('param.channel_id/d', 1);
+        $channel_id  = input('param.channel_id/d', 1);
         $assign_data = array();
-        $condition = array();
+        $condition   = array();
         // 获取到所有GET参数
         $param = input('param.');
 
@@ -68,7 +69,7 @@ class Field extends Base
                     //     array('notin', $banFields),
                     // );
                 } else {
-                    $condition['a.'.$key] = array('eq', $param[$key]);
+                    $condition['a.' . $key] = array('eq', $param[$key]);
                 }
             }
         }
@@ -77,25 +78,25 @@ class Field extends Base
         $condition['a.channel_id'] = array('IN', [$channel_id]);
 
         /*模型列表*/
-        $channeltype_list = model('Channeltype')->getAll('*', [], 'id');
+        $channeltype_list                = model('Channeltype')->getAll('*', [], 'id');
         $assign_data['channeltype_list'] = $channeltype_list;
         /*--end*/
 
         $condition['a.ifcontrol'] = 0;
 
-        $cfieldM =  M('channelfield');
-        $count = $cfieldM->alias('a')->where($condition)->count('a.id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $cfieldM->field('a.*')
+        $cfieldM = M('channelfield');
+        $count   = $cfieldM->alias('a')->where($condition)->count('a.id');// 查询满足要求的总记录数
+        $Page    = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list    = $cfieldM->field('a.*')
             ->alias('a')
             ->where($condition)
             ->order('a.sort_order asc, a.ifmain asc, a.ifcontrol asc, a.id desc')
-            ->limit($Page->firstRow.','.$Page->listRows)
+            ->limit($Page->firstRow . ',' . $Page->listRows)
             ->select();
 
-        $show = $Page->show();// 分页显示输出
-        $assign_data['page'] = $show; // 赋值分页输出
-        $assign_data['list'] = $list; // 赋值数据集
+        $show                 = $Page->show();// 分页显示输出
+        $assign_data['page']  = $show; // 赋值分页输出
+        $assign_data['list']  = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
         /*字段类型列表*/
@@ -116,26 +117,26 @@ class Field extends Base
     private function syn_channelfield_bind()
     {
         $field_ids = Db::name('channelfield')->where([
-                'ifmain'  => 0,
-                'channel_id'=> ['NEQ', -99],
-            ])->column('id');
+            'ifmain'     => 0,
+            'channel_id' => ['NEQ', -99],
+        ])->column('id');
         if (!empty($field_ids)) {
             $totalRow = Db::name('channelfield_bind')->count();
             if (empty($totalRow)) {
                 $sveData = [];
                 foreach ($field_ids as $key => $val) {
                     $sveData[] = [
-                        'typeid'        => 0,
-                        'field_id'      => $val,
-                        'add_time'      => getTime(),
-                        'update_time'   => getTime(),
+                        'typeid'      => 0,
+                        'field_id'    => $val,
+                        'add_time'    => getTime(),
+                        'update_time' => getTime(),
                     ];
                 }
                 model('ChannelfieldBind')->saveAll($sveData);
             }
         }
     }
-    
+
     /**
      * 新增-模型字段
      */
@@ -171,17 +172,18 @@ class Field extends Base
             }
 
             /*去除中文逗号，过滤左右空格与空值、以及单双引号*/
-            $dfvalue = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue = func_preg_replace(['"','\'',';'], '', $dfvalue);
+            $dfvalue    = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
-                if ('' == $tmp_val) {
+                if (empty($tmp_val)) {
                     unset($dfvalueArr[$key]);
                     continue;
                 }
-                $dfvalueArr[$key] = trim($val);
+                $dfvalueArr[$key] = $tmp_val;
             }
+            $dfvalueArr = array_unique($dfvalueArr);
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
 
@@ -189,7 +191,7 @@ class Field extends Base
                 if (!empty($post['region_data'])) {
                     $post['dfvalue']     = $post['region_data']['region_id'];
                     $post['region_data'] = serialize($post['region_data']);
-                }else{
+                } else {
                     $this->error("请选择区域范围！");
                 }
             } else {
@@ -197,7 +199,7 @@ class Field extends Base
                 $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
                 if (isset($fieldtype_list[$post['dtype']]) && 1 == $fieldtype_list[$post['dtype']]['ifoption']) {
                     if (empty($dfvalue)) {
-                        $this->error("你设定了字段为【".$fieldtype_list[$post['dtype']]['title']."】类型，默认值不能为空！ ");
+                        $this->error("你设定了字段为【" . $fieldtype_list[$post['dtype']]['title'] . "】类型，默认值不能为空！ ");
                     }
                 }
                 /*--end*/
@@ -205,13 +207,13 @@ class Field extends Base
             }
 
             /*当前模型对应的数据表*/
-            $table = M('channeltype')->where('id',$channel_id)->getField('table');
-            $table = PREFIX.$table.'_content';
+            $table = M('channeltype')->where('id', $channel_id)->getField('table');
+            $table = PREFIX . $table . '_content';
             /*--end*/
 
             /*检测字段是否存在于主表与附加表中*/
             if (true == $this->fieldLogic->checkChannelFieldList($table, $post['name'], $channel_id)) {
-                $this->error("字段名称 ".$post['name']." 与系统字段冲突！");
+                $this->error("字段名称 " . $post['name'] . " 与系统字段冲突！");
             }
             /*--end*/
 
@@ -220,10 +222,10 @@ class Field extends Base
             }
             /*组装完整的SQL语句，并执行新增字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
-            $ntabsql = $fieldinfos[0];
-            $buideType = $fieldinfos[1];
-            $maxlength = $fieldinfos[2];
-            $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
+            $ntabsql    = $fieldinfos[0];
+            $buideType  = $fieldinfos[1];
+            $maxlength  = $fieldinfos[2];
+            $sql        = " ALTER TABLE `$table` ADD  $ntabsql ";
             if (false !== Db::execute($sql)) {
                 if (!empty($post['region_data'])) {
                     $dfvalue = $post['region_data'];
@@ -231,19 +233,19 @@ class Field extends Base
                 }
                 /*保存新增字段的记录*/
                 $newData = array(
-                    'dfvalue'   => $dfvalue,
-                    'maxlength' => $maxlength,
-                    'define'  => $buideType,
-                    'ifcontrol' => 0,
-                    'sort_order'    => 100,
-                    'add_time' => getTime(),
+                    'dfvalue'     => $dfvalue,
+                    'maxlength'   => $maxlength,
+                    'define'      => $buideType,
+                    'ifcontrol'   => 0,
+                    'sort_order'  => 100,
+                    'add_time'    => getTime(),
                     'update_time' => getTime(),
                 );
-                $data = array_merge($post, $newData);
+                $data    = array_merge($post, $newData);
                 M('channelfield')->save($data);
                 $field_id = M('channelfield')->getLastInsID();
                 /*--end*/
-                
+
                 /*保存栏目与字段绑定的记录*/
                 $typeids = $post['typeids'];
                 if (!empty($typeids)) {
@@ -251,12 +253,12 @@ class Field extends Base
                     if (is_language()) {
                         $attr_name_arr = [];
                         foreach ($typeids as $key => $val) {
-                            $attr_name_arr[] = 'tid'.$val;
+                            $attr_name_arr[] = 'tid' . $val;
                         }
                         $new_typeid_arr = Db::name('language_attr')->where([
-                                'attr_name' => ['IN', $attr_name_arr],
-                                'attr_group'    => 'arctype',
-                            ])->column('attr_value');
+                            'attr_name'  => ['IN', $attr_name_arr],
+                            'attr_group' => 'arctype',
+                        ])->column('attr_value');
                         !empty($new_typeid_arr) && $typeids = $new_typeid_arr;
                     }
                     /*--end*/
@@ -266,16 +268,16 @@ class Field extends Base
                             continue;
                         }
                         $addData[] = [
-                            'typeid'        => $val,
-                            'field_id'      => $field_id,
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
+                            'typeid'      => $val,
+                            'field_id'    => $field_id,
+                            'add_time'    => getTime(),
+                            'update_time' => getTime(),
                         ];
                     }
                     !empty($addData) && model('ChannelfieldBind')->saveAll($addData);
                 }
                 /*--end*/
-                
+
                 /*重新生成数据表字段缓存文件*/
                 try {
                     schemaTable($table);
@@ -283,7 +285,7 @@ class Field extends Base
                 /*--end*/
 
                 \think\Cache::clear('channelfield');
-                $this->success("操作成功！", url('Field/channel_index', array('channel_id'=>$channel_id)));
+                $this->success("操作成功！", url('Field/channel_index', array('channel_id' => $channel_id)));
             }
             $this->error('操作失败');
         }
@@ -294,37 +296,38 @@ class Field extends Base
 
         /*允许发布文档列表的栏目*/
         $select_html = allow_release_arctype(0, [$channel_id]);
-        $this->assign('select_html',$select_html);
+        $this->assign('select_html', $select_html);
         /*--end*/
-        
+
         /*模型ID*/
         $assign_data['channel_id'] = $channel_id;
         /*--end*/
 
-        $China[] = [
-            'id' => 0,
+        $China[]                 = [
+            'id'   => 0,
             'name' => '全国',
         ];
-        $Province = get_province_list();
+        $Province                = get_province_list();
         $assign_data['Province'] = array_merge($China, $Province);
         $this->assign($assign_data);
         return $this->fetch();
     }
 
     // 联动地址获取
-    public function get_region_data(){
-        $parent_id  = input('param.parent_id/d');
+    public function get_region_data()
+    {
+        $parent_id = input('param.parent_id/d');
         // 获取指定区域ID下的城市并判断是否需要处理特殊市返回值
         $RegionData = $this->SpecialCityDealWith($parent_id);
         // 处理数据
         $region_html = $region_names = $region_ids = '';
-        if($RegionData){
+        if ($RegionData) {
             // 拼装下拉选项
-            foreach($RegionData as $key => $value){
+            foreach ($RegionData as $key => $value) {
                 $region_html .= "<option value='{$value['id']}'>{$value['name']}</option>";
-                if ($key > '0') { 
-                    $region_names .= '，'; 
-                    $region_ids   .= ','; 
+                if ($key > '0') {
+                    $region_names .= '，';
+                    $region_ids   .= ',';
                 }
                 $region_names .= $value['name'];
                 $region_ids   .= $value['id'];
@@ -347,11 +350,11 @@ class Field extends Base
 
         /*parent_id在特殊范围内则执行*/
         // 处理北京市，上海市，天津市，重庆市逻辑
-        $RegionData   = Db::name('region')->where("parent_id",$parent_id)->select();
+        $RegionData   = Db::name('region')->where("parent_id", $parent_id)->select();
         $parent_array = config('global.field_region_type');
         if (in_array($parent_id, $parent_array)) {
             $region_ids = get_arr_column($RegionData, 'id');
-            $RegionData = Db::name('region')->where('parent_id','IN',$region_ids)->select();
+            $RegionData = Db::name('region')->where('parent_id', 'IN', $region_ids)->select();
         }
         /*结束*/
         return $RegionData;
@@ -370,7 +373,7 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
-            if ('checkbox' == $post['old_dtype'] && in_array($post['dtype'], ['radio','select'])) {
+            if ('checkbox' == $post['old_dtype'] && in_array($post['dtype'], ['radio', 'select'])) {
                 $fieldtype_list = model('Field')->getFieldTypeAll('name,title', 'name');
                 $this->error("{$fieldtype_list['checkbox']['title']}不能更改为{$fieldtype_list[$post['dtype']]['title']}！");
             }
@@ -399,17 +402,18 @@ class Field extends Base
 
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
-            $dfvalue = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue = func_preg_replace(['"','\'',';'], '', $dfvalue);
+            $dfvalue    = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
-                if ('' == $tmp_val) {
+                if (empty($tmp_val)) {
                     unset($dfvalueArr[$key]);
                     continue;
                 }
-                $dfvalueArr[$key] = trim($val);
+                $dfvalueArr[$key] = $tmp_val;
             }
+            $dfvalueArr = array_unique($dfvalueArr);
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
 
@@ -417,7 +421,7 @@ class Field extends Base
                 if (!empty($post['region_data'])) {
                     $post['dfvalue']     = $post['region_data']['region_id'];
                     $post['region_data'] = serialize($post['region_data']);
-                }else{
+                } else {
                     $this->error("请选择区域范围！");
                 }
             } else {
@@ -425,7 +429,7 @@ class Field extends Base
                 $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
                 if (isset($fieldtype_list[$post['dtype']]) && 1 == $fieldtype_list[$post['dtype']]['ifoption']) {
                     if (empty($dfvalue)) {
-                        $this->error("你设定了字段为【".$fieldtype_list[$post['dtype']]['title']."】类型，默认值不能为空！ ");
+                        $this->error("你设定了字段为【" . $fieldtype_list[$post['dtype']]['title'] . "】类型，默认值不能为空！ ");
                     }
                 }
                 /*--end*/
@@ -433,13 +437,14 @@ class Field extends Base
             }
 
             /*当前模型对应的数据表*/
-            $table = M('channeltype')->where('id',$post['channel_id'])->getField('table');
-            $table = PREFIX.$table.'_content';
+            $table = M('channeltype')->where('id', $post['channel_id'])->getField('table');
+            $tableName = $table . '_content';
+            $table = PREFIX . $tableName;
             /*--end*/
 
             /*检测字段是否存在于主表与附加表中*/
             if (true == $this->fieldLogic->checkChannelFieldList($table, $post['name'], $channel_id, array($old_name))) {
-                $this->error("字段名称 ".$post['name']." 与系统字段冲突！");
+                $this->error("字段名称 " . $post['name'] . " 与系统字段冲突！");
             }
             /*--end*/
 
@@ -447,43 +452,79 @@ class Field extends Base
                 $this->error('请选择可见栏目！');
             }
 
+            /*针对单选项、多选项、下拉框：修改之前，将该字段不存在的值都更新为默认值第一个*/
+            if (in_array($post['old_dtype'], ['radio', 'select', 'checkbox']) && in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                $whereArr = [];
+                $dfvalueArr = explode(',', $dfvalue);
+                foreach($dfvalueArr as $key => $val){
+                    $whereArr[] = "`{$post['name']}` <> '{$val}'";
+                }
+                $whereStr = implode(' OR ', $whereArr);
+                if (in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                    $new_dfvalue = NULL;
+                } else {
+                    $new_dfvalue = '';
+                }
+                Db::name($tableName)->where($whereStr)->update([$post['name']=>$new_dfvalue]);
+            }
+            /*end*/
+
             /*组装完整的SQL语句，并执行编辑字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
-            $ntabsql = $fieldinfos[0];
-            $buideType = $fieldinfos[1];
-            $maxlength = $fieldinfos[2];
-            $sql = " ALTER TABLE `$table` CHANGE COLUMN `{$old_name}` $ntabsql ";
+            $ntabsql    = $fieldinfos[0];
+            $buideType  = $fieldinfos[1];
+            $maxlength  = $fieldinfos[2];
+            $sql        = " ALTER TABLE `$table` CHANGE COLUMN `{$old_name}` $ntabsql ";
             if (false !== Db::execute($sql)) {
+
+                /*针对单选项、多选项、下拉框：修改之前，将该字段不存在的值都更新为默认值第一个*/
+                if (in_array($post['old_dtype'], ['radio', 'select', 'checkbox']) && in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                    $whereArr = [];
+                    $new_dfvalue = '';
+                    $dfvalueArr = explode(',', $dfvalue);
+                    foreach($dfvalueArr as $key => $val){
+                        if ($key == 0) {
+                            $new_dfvalue = $val;
+                        }
+                        $whereArr[] = "`{$post['name']}` <> '{$val}'";
+                    }
+                    $whereArr[] = "`{$post['name']}` is NULL";
+                    $whereArr[] = "`{$post['name']}` = ''";
+                    $whereStr = implode(' OR ', $whereArr);
+                    Db::name($tableName)->where($whereStr)->update([$post['name']=>$new_dfvalue]);
+                }
+                /*end*/
+
                 /*保存更新字段的记录*/
                 if (!empty($post['region_data'])) {
                     $dfvalue = $post['region_data'];
                     unset($post['region_data']);
                 }
                 $newData = array(
-                    'dfvalue'   => $dfvalue,
-                    'maxlength' => $maxlength,
-                    'define'  => $buideType,
+                    'dfvalue'     => $dfvalue,
+                    'maxlength'   => $maxlength,
+                    'define'      => $buideType,
                     'update_time' => getTime(),
                 );
-                $data = array_merge($post, $newData);
-                M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
+                $data    = array_merge($post, $newData);
+                M('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
                 /*--end*/
-                
+
                 /*保存栏目与字段绑定的记录*/
                 $field_id = $post['id'];
-                model('ChannelfieldBind')->where(['field_id'=>$field_id])->delete();
+                model('ChannelfieldBind')->where(['field_id' => $field_id])->delete();
                 $typeids = $post['typeids'];
                 if (!empty($typeids)) {
                     /*多语言*/
                     if (is_language()) {
                         $attr_name_arr = [];
                         foreach ($typeids as $key => $val) {
-                            $attr_name_arr[] = 'tid'.$val;
+                            $attr_name_arr[] = 'tid' . $val;
                         }
                         $new_typeid_arr = Db::name('language_attr')->where([
-                                'attr_name' => ['IN', $attr_name_arr],
-                                'attr_group'    => 'arctype',
-                            ])->column('attr_value');
+                            'attr_name'  => ['IN', $attr_name_arr],
+                            'attr_group' => 'arctype',
+                        ])->column('attr_value');
                         !empty($new_typeid_arr) && $typeids = $new_typeid_arr;
                     }
                     /*--end*/
@@ -493,10 +534,10 @@ class Field extends Base
                             continue;
                         }
                         $addData[] = [
-                            'typeid'        => $val,
-                            'field_id'      => $field_id,
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
+                            'typeid'      => $val,
+                            'field_id'    => $field_id,
+                            'add_time'    => getTime(),
+                            'update_time' => getTime(),
                         ];
                     }
                     !empty($addData) && model('ChannelfieldBind')->saveAll($addData);
@@ -509,7 +550,7 @@ class Field extends Base
                 } catch (\Exception $e) {}
                 /*--end*/
 
-                $this->success("操作成功！", url('Field/channel_index', array('channel_id'=>$post['channel_id'])));
+                $this->success("操作成功！", url('Field/channel_index', array('channel_id' => $post['channel_id'])));
             } else {
                 $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
                 if (false === Db::execute($sql)) {
@@ -518,7 +559,7 @@ class Field extends Base
             }
         }
 
-        $id = input('param.id/d', 0);
+        $id   = input('param.id/d', 0);
         $info = array();
         if (!empty($id)) {
             $info = model('Channelfield')->getInfo($id);
@@ -531,12 +572,12 @@ class Field extends Base
         /*--end*/
 
         /*允许发布文档列表的栏目*/
-        $typeids = Db::name('channelfield_bind')->where(['field_id'=>$id])->column('typeid');
+        $typeids     = Db::name('channelfield_bind')->where(['field_id' => $id])->column('typeid');
         $select_html = allow_release_arctype($typeids, [$channel_id]);
-        $this->assign('select_html',$select_html);
-        $this->assign('typeids',$typeids);
+        $this->assign('select_html', $select_html);
+        $this->assign('typeids', $typeids);
         /*--end*/
-        
+
         /*模型ID*/
         $assign_data['channel_id'] = $channel_id;
         /*--end*/
@@ -551,11 +592,11 @@ class Field extends Base
         ];
         // 定义全国参数
         $China[] = [
-            'id' => 0,
+            'id'   => 0,
             'name' => '全国',
         ];
         // 查询省份信息并且拼装上$China数组
-        $Province = get_province_list();
+        $Province                = get_province_list();
         $assign_data['Province'] = array_merge($China, $Province);
         // 区域选择时，指定不出现下级地区列表
         $assign_data['parent_array'] = "[]";
@@ -565,16 +606,16 @@ class Field extends Base
             $dfvalue = unserialize($info['dfvalue']);
             if (0 == $dfvalue['region_id']) {
                 $parent_id = $dfvalue['region_id'];
-            }else{
+            } else {
                 // 查询当前选中的区域父级ID
-                $parent_id = Db::name('region')->where("id",$dfvalue['region_id'])->getField('parent_id');
+                $parent_id = Db::name('region')->where("id", $dfvalue['region_id'])->getField('parent_id');
                 if (0 == $parent_id) {
                     $parent_id = $dfvalue['region_id'];
                 }
             }
-            
+
             // 查询市\区\县信息
-            $assign_data['City'] = Db::name('region')->where("parent_id",$parent_id)->select();
+            $assign_data['City'] = Db::name('region')->where("parent_id", $parent_id)->select();
             // 加载数据到模板
             $assign_data['region'] = [
                 'parent_id'    => $parent_id,
@@ -594,46 +635,46 @@ class Field extends Base
         $this->assign($assign_data);
         return $this->fetch();
     }
-    
+
     /**
      * 删除-模型字段
      */
     public function channel_del()
     {
         $channel_id = input('channel_id/d', 0);
-        $id = input('del_id/d', 0);
-        if(!empty($id)){
+        $id         = input('del_id/d', 0);
+        if (!empty($id)) {
             /*删除表字段*/
             $row = $this->fieldLogic->delChannelField($id);
             /*--end*/
             if (0 < $row['code']) {
-                $map = array(
-                    'id'    => array('eq', $id),
-                    'channel_id'    => $channel_id,
+                $map       = array(
+                    'id'         => array('eq', $id),
+                    'channel_id' => $channel_id,
                 );
-                $result = M('channelfield')->field('channel_id,name')->where($map)->select();
+                $result    = M('channelfield')->field('channel_id,name')->where($map)->select();
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
                 M('channelfield')->where($map)->delete();
                 /*--end*/
                 /*删除栏目与字段绑定的记录*/
-                model('ChannelfieldBind')->where(['field_id'=>$id])->delete();
+                model('ChannelfieldBind')->where(['field_id' => $id])->delete();
                 /*--end*/
 
                 /*获取模型标题*/
                 $channel_title = '';
                 if (!empty($channel_id)) {
-                    $channel_title = M('channeltype')->where('id',$channel_id)->getField('title');
+                    $channel_title = M('channeltype')->where('id', $channel_id)->getField('title');
                 }
                 /*--end*/
-                adminLog('删除'.$channel_title.'字段：'.implode(',', $name_list));
+                adminLog('删除' . $channel_title . '字段：' . implode(',', $name_list));
                 $this->success('删除成功');
             }
 
             \think\Cache::clear('channelfield');
-            respose(array('status'=>0, 'msg'=>$row['msg']));
+            respose(array('status' => 0, 'msg' => $row['msg']));
 
-        }else{
+        } else {
             $this->error('参数有误');
         }
     }
@@ -643,13 +684,13 @@ class Field extends Base
      */
     public function del_arctypeimgs()
     {
-        $typeid = input('typeid/d','0');
+        $typeid = input('typeid/d', '0');
         if (!empty($typeid)) {
-            $path = input('filename',''); // 图片路径
+            $path      = input('filename', ''); // 图片路径
             $fieldname = input('fieldname/s', ''); // 多图字段
 
             /*除去多图字段值中的图片*/
-            $info = M('arctype')->field("{$fieldname}")->where("id", $typeid)->find();
+            $info     = M('arctype')->field("{$fieldname}")->where("id", $typeid)->find();
             $valueArr = explode(',', $info[$fieldname]);
             foreach ($valueArr as $key => $val) {
                 if ($path == $val) {
@@ -657,7 +698,7 @@ class Field extends Base
                 }
             }
             $value = implode(',', $valueArr);
-            M('arctype')->where('id', $typeid)->update(array($fieldname=>$value, 'update_time'=>getTime()));
+            M('arctype')->where('id', $typeid)->update(array($fieldname => $value, 'update_time' => getTime()));
             /*--end*/
         }
     }
@@ -667,19 +708,19 @@ class Field extends Base
      */
     public function del_channelimgs()
     {
-        $aid = input('aid/d','0');
+        $aid     = input('aid/d', '0');
         $channel = input('channel/d', ''); // 模型ID
         if (!empty($aid) && !empty($channel)) {
-            $path = input('filename',''); // 图片路径
+            $path      = input('filename', ''); // 图片路径
             $fieldname = input('fieldname/s', ''); // 多图字段
 
             /*模型附加表*/
-            $table = M('channeltype')->where('id',$channel)->getField('table');
-            $tableExt = $table.'_content';
+            $table    = M('channeltype')->where('id', $channel)->getField('table');
+            $tableExt = $table . '_content';
             /*--end*/
 
             /*除去多图字段值中的图片*/
-            $info = M($tableExt)->field("{$fieldname}")->where("aid", $aid)->find();
+            $info     = M($tableExt)->field("{$fieldname}")->where("aid", $aid)->find();
             $valueArr = explode(',', $info[$fieldname]);
             foreach ($valueArr as $key => $val) {
                 if ($path == $val) {
@@ -687,7 +728,7 @@ class Field extends Base
                 }
             }
             $value = implode(',', $valueArr);
-            M($tableExt)->where('aid', $aid)->update(array($fieldname=>$value, 'update_time'=>getTime()));
+            M($tableExt)->where('aid', $aid)->update(array($fieldname => $value, 'update_time' => getTime()));
             /*--end*/
         }
     }
@@ -698,25 +739,25 @@ class Field extends Base
     public function ajax_channel_show()
     {
         if (IS_POST) {
-            $id = input('id/d');
+            $id         = input('id/d');
             $ifeditable = input('ifeditable/d');
-            if(!empty($id)){
+            if (!empty($id)) {
                 $row = Db::name('channelfield')->where([
-                        'id'    => $id,
-                    ])->find();
+                    'id' => $id,
+                ])->find();
                 if (!empty($row) && 1 == intval($row['ifcontrol'])) {
                     $this->error('系统内置表单，禁止操作！');
                 }
                 $r = Db::name('channelfield')->where([
-                        'id'    => $id,
-                    ])->update([
-                        'ifeditable'    => $ifeditable,
-                        'update_time'   => getTime(),
-                    ]);
-                if($r){
-                    adminLog('操作自定义模型表单：'.$row['name']);
+                    'id' => $id,
+                ])->update([
+                    'ifeditable'  => $ifeditable,
+                    'update_time' => getTime(),
+                ]);
+                if ($r) {
+                    adminLog('操作自定义模型表单：' . $row['name']);
                     $this->success('操作成功');
-                }else{
+                } else {
                     $this->error('操作失败');
                 }
             } else {
@@ -731,9 +772,9 @@ class Field extends Base
      */
     public function arctype_index()
     {
-        $channel_id = $this->arctype_channel_id;
+        $channel_id  = $this->arctype_channel_id;
         $assign_data = array();
-        $condition = array();
+        $condition   = array();
         // 获取到所有GET参数
         $param = input('param.');
 
@@ -756,16 +797,16 @@ class Field extends Base
 
         // 模型ID
         $condition['channel_id'] = array('eq', $channel_id);
-        $condition['ifsystem'] = array('neq', 1);
+        $condition['ifsystem']   = array('neq', 1);
 
-        $cfieldM =  M('channelfield');
-        $count = $cfieldM->where($condition)->count('id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $cfieldM->where($condition)->order('sort_order asc, ifsystem asc, id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        $cfieldM = M('channelfield');
+        $count   = $cfieldM->where($condition)->count('id');// 查询满足要求的总记录数
+        $Page    = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list    = $cfieldM->where($condition)->order('sort_order asc, ifsystem asc, id desc')->limit($Page->firstRow . ',' . $Page->listRows)->select();
 
-        $show = $Page->show();// 分页显示输出
-        $assign_data['page'] = $show; // 赋值分页输出
-        $assign_data['list'] = $list; // 赋值数据集
+        $show                 = $Page->show();// 分页显示输出
+        $assign_data['page']  = $show; // 赋值分页输出
+        $assign_data['list']  = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
         /*字段类型列表*/
@@ -777,7 +818,7 @@ class Field extends Base
         $this->assign($assign_data);
         return $this->fetch();
     }
-    
+
     /**
      * 新增-栏目字段
      */
@@ -802,17 +843,18 @@ class Field extends Base
             }
 
             /*去除中文逗号，过滤左右空格与空值*/
-            $dfvalue = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue = func_preg_replace(['"','\'',';'], '', $dfvalue);
+            $dfvalue    = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
-                if ('' == $tmp_val) {
+                if (empty($tmp_val)) {
                     unset($dfvalueArr[$key]);
                     continue;
                 }
-                $dfvalueArr[$key] = trim($val);
+                $dfvalueArr[$key] = $tmp_val;
             }
+            $dfvalueArr = array_unique($dfvalueArr);
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
 
@@ -820,41 +862,41 @@ class Field extends Base
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
             if (isset($fieldtype_list[$post['dtype']]) && 1 == $fieldtype_list[$post['dtype']]['ifoption']) {
                 if (empty($dfvalue)) {
-                    $this->error("你设定了字段为【".$fieldtype_list[$post['dtype']]['title']."】类型，默认值不能为空！ ");
+                    $this->error("你设定了字段为【" . $fieldtype_list[$post['dtype']]['title'] . "】类型，默认值不能为空！ ");
                 }
             }
             /*--end*/
 
             /*栏目对应的单页表*/
-            $tableExt = PREFIX.'single_content';
+            $tableExt = PREFIX . 'single_content';
             /*--end*/
 
             /*检测字段是否存在于主表与附加表中*/
             if (true == $this->fieldLogic->checkChannelFieldList($tableExt, $post['name'], 6)) {
-                $this->error("字段名称 ".$post['name']." 与系统字段冲突！");
+                $this->error("字段名称 " . $post['name'] . " 与系统字段冲突！");
             }
             /*--end*/
 
             /*组装完整的SQL语句，并执行新增字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
-            $ntabsql = $fieldinfos[0];
-            $buideType = $fieldinfos[1];
-            $maxlength = $fieldinfos[2];
-            $table = PREFIX.'arctype';
-            $sql = " ALTER TABLE `$table` ADD  $ntabsql ";
+            $ntabsql    = $fieldinfos[0];
+            $buideType  = $fieldinfos[1];
+            $maxlength  = $fieldinfos[2];
+            $table      = PREFIX . 'arctype';
+            $sql        = " ALTER TABLE `$table` ADD  $ntabsql ";
             if (false !== Db::execute($sql)) {
                 /*保存新增字段的记录*/
                 $newData = array(
-                    'dfvalue'   => $dfvalue,
-                    'maxlength' => $maxlength,
-                    'define'  => $buideType,
-                    'ifmain'    => 1,
-                    'ifsystem'  => 0,
-                    'sort_order'    => 100,
-                    'add_time' => getTime(),
+                    'dfvalue'     => $dfvalue,
+                    'maxlength'   => $maxlength,
+                    'define'      => $buideType,
+                    'ifmain'      => 1,
+                    'ifsystem'    => 0,
+                    'sort_order'  => 100,
+                    'add_time'    => getTime(),
                     'update_time' => getTime(),
                 );
-                $data = array_merge($post, $newData);
+                $data    = array_merge($post, $newData);
                 M('channelfield')->save($data);
                 /*--end*/
 
@@ -872,9 +914,16 @@ class Field extends Base
         }
 
         /*字段类型列表*/
-        $assign_data['fieldtype_list'] = model('Field')->getFieldTypeAll('name,title,ifoption');
+        $fieldtype_list = [];
+        $fieldtype_list_tmp = model('Field')->getFieldTypeAll('name,title,ifoption');
+        foreach ($fieldtype_list_tmp as $key => $val) {
+            if (!in_array($val['name'], ['file','media'])) {
+                $fieldtype_list[] = $val;
+            }
+        }
+        $assign_data['fieldtype_list'] = $fieldtype_list;
         /*--end*/
-        
+
         /*模型ID*/
         $assign_data['channel_id'] = $channel_id;
         /*--end*/
@@ -882,7 +931,7 @@ class Field extends Base
         $this->assign($assign_data);
         return $this->fetch();
     }
-    
+
     /**
      * 编辑-栏目字段
      */
@@ -896,7 +945,7 @@ class Field extends Base
         if (IS_POST) {
             $post = input('post.', '', 'trim');
 
-            if ('checkbox' == $post['old_dtype'] && in_array($post['dtype'], ['radio','select'])) {
+            if ('checkbox' == $post['old_dtype'] && in_array($post['dtype'], ['radio', 'select'])) {
                 $fieldtype_list = model('Field')->getFieldTypeAll('name,title', 'name');
                 $this->error("{$fieldtype_list['checkbox']['title']}不能更改为{$fieldtype_list[$post['dtype']]['title']}！");
             }
@@ -918,17 +967,18 @@ class Field extends Base
 
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
-            $dfvalue = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue = func_preg_replace(['"','\'',';'], '', $dfvalue);
+            $dfvalue    = str_replace('，', ',', $post['dfvalue']);
+            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
-                if ('' == $tmp_val) {
+                if (empty($tmp_val)) {
                     unset($dfvalueArr[$key]);
                     continue;
                 }
-                $dfvalueArr[$key] = trim($val);
+                $dfvalueArr[$key] = $tmp_val;
             }
+            $dfvalueArr = array_unique($dfvalueArr);
             $dfvalue = implode(',', $dfvalueArr);
             /*--end*/
 
@@ -936,40 +986,76 @@ class Field extends Base
             $fieldtype_list = model('Field')->getFieldTypeAll('name,title,ifoption', 'name');
             if (isset($fieldtype_list[$post['dtype']]) && 1 == $fieldtype_list[$post['dtype']]['ifoption']) {
                 if (empty($dfvalue)) {
-                    $this->error("你设定了字段为【".$fieldtype_list[$post['dtype']]['title']."】类型，默认值不能为空！ ");
+                    $this->error("你设定了字段为【" . $fieldtype_list[$post['dtype']]['title'] . "】类型，默认值不能为空！ ");
                 }
             }
             /*--end*/
 
             /*栏目对应的单页表*/
-            $tableExt = PREFIX.'single_content';
+            $tableExt = PREFIX . 'single_content';
             /*--end*/
 
             /*检测字段是否存在于主表与附加表中*/
             if (true == $this->fieldLogic->checkChannelFieldList($tableExt, $post['name'], 6, array($old_name))) {
-                $this->error("字段名称 ".$post['name']." 与系统字段冲突！");
+                $this->error("字段名称 " . $post['name'] . " 与系统字段冲突！");
             }
             /*--end*/
 
+            /*针对单选项、多选项、下拉框：修改之前，将该字段不存在的值都更新为默认值第一个*/
+            if (in_array($post['old_dtype'], ['radio', 'select', 'checkbox']) && in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                $whereArr = [];
+                $dfvalueArr = explode(',', $dfvalue);
+                foreach($dfvalueArr as $key => $val){
+                    $whereArr[] = "`{$post['name']}` <> '{$val}'";
+                }
+                $whereStr = implode(' OR ', $whereArr);
+                if (in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                    $new_dfvalue = NULL;
+                } else {
+                    $new_dfvalue = '';
+                }
+                Db::name('single_content')->where($whereStr)->update([$post['name']=>$new_dfvalue]);
+            }
+            /*end*/
+
             /*组装完整的SQL语句，并执行编辑字段*/
             $fieldinfos = $this->fieldLogic->GetFieldMake($post['dtype'], $post['name'], $dfvalue, $post['title']);
-            $ntabsql = $fieldinfos[0];
-            $buideType = $fieldinfos[1];
-            $maxlength = $fieldinfos[2];
-            $table = PREFIX.'arctype';
-            $sql = " ALTER TABLE `$table` CHANGE COLUMN `{$old_name}` $ntabsql ";
+            $ntabsql    = $fieldinfos[0];
+            $buideType  = $fieldinfos[1];
+            $maxlength  = $fieldinfos[2];
+            $table      = PREFIX . 'arctype';
+            $sql        = " ALTER TABLE `$table` CHANGE COLUMN `{$old_name}` $ntabsql ";
             if (false !== Db::execute($sql)) {
+
+                /*针对单选项、多选项、下拉框：修改之前，将该字段不存在的值都更新为默认值第一个*/
+                if (in_array($post['old_dtype'], ['radio', 'select', 'checkbox']) && in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
+                    $whereArr = [];
+                    $new_dfvalue = '';
+                    $dfvalueArr = explode(',', $dfvalue);
+                    foreach($dfvalueArr as $key => $val){
+                        if ($key == 0) {
+                            $new_dfvalue = $val;
+                        }
+                        $whereArr[] = "`{$post['name']}` <> '{$val}'";
+                    }
+                    $whereArr[] = "`{$post['name']}` is NULL";
+                    $whereArr[] = "`{$post['name']}` = ''";
+                    $whereStr = implode(' OR ', $whereArr);
+                    Db::name('single_content')->where($whereStr)->update([$post['name']=>$new_dfvalue]);
+                }
+                /*end*/
+
                 /*保存更新字段的记录*/
                 $newData = array(
-                    'dfvalue'   => $dfvalue,
-                    'maxlength' => $maxlength,
-                    'define'  => $buideType,
-                    'ifmain'    => 1,
-                    'ifsystem'  => 0,
+                    'dfvalue'     => $dfvalue,
+                    'maxlength'   => $maxlength,
+                    'define'      => $buideType,
+                    'ifmain'      => 1,
+                    'ifsystem'    => 0,
                     'update_time' => getTime(),
                 );
-                $data = array_merge($post, $newData);
-                M('channelfield')->where('id',$post['id'])->cache(true,null,"channelfield")->save($data);
+                $data    = array_merge($post, $newData);
+                M('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
                 /*--end*/
 
                 /*重新生成数据表字段缓存文件*/
@@ -988,7 +1074,7 @@ class Field extends Base
             }
         }
 
-        $id = input('param.id/d', 0);
+        $id   = input('param.id/d', 0);
         $info = array();
         if (!empty($id)) {
             $info = model('Channelfield')->getInfo($id);
@@ -999,9 +1085,16 @@ class Field extends Base
         $assign_data['info'] = $info;
 
         /*字段类型列表*/
-        $assign_data['fieldtype_list'] = model('Field')->getFieldTypeAll('name,title,ifoption');
+        $fieldtype_list = [];
+        $fieldtype_list_tmp = model('Field')->getFieldTypeAll('name,title,ifoption');
+        foreach ($fieldtype_list_tmp as $key => $val) {
+            if (!in_array($val['name'], ['file','media'])) {
+                $fieldtype_list[] = $val;
+            }
+        }
+        $assign_data['fieldtype_list'] = $fieldtype_list;
         /*--end*/
-        
+
         /*模型ID*/
         $assign_data['channel_id'] = $channel_id;
         /*--end*/
@@ -1009,38 +1102,38 @@ class Field extends Base
         $this->assign($assign_data);
         return $this->fetch();
     }
-    
+
     /**
      * 删除-栏目字段
      */
     public function arctype_del()
     {
         $channel_id = $this->arctype_channel_id;
-        $id = input('del_id/d', 0);
-        if(!empty($id)){
+        $id         = input('del_id/d', 0);
+        if (!empty($id)) {
             /*删除表字段*/
             $row = $this->fieldLogic->delArctypeField($id);
             /*--end*/
             if (0 < $row['code']) {
-                $map = array(
-                    'id'    => array('eq', $id),
-                    'channel_id'    => $channel_id,
+                $map       = array(
+                    'id'         => array('eq', $id),
+                    'channel_id' => $channel_id,
                 );
-                $result = M('channelfield')->field('channel_id,name')->where($map)->select();
+                $result    = M('channelfield')->field('channel_id,name')->where($map)->select();
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
                 M('channelfield')->where($map)->delete();
                 /*--end*/
 
-                adminLog('删除栏目字段：'.implode(',', $name_list));
+                adminLog('删除栏目字段：' . implode(',', $name_list));
                 $this->success('删除成功');
             }
 
             \think\Cache::clear('channelfield');
             \think\Cache::clear("arctype");
-            respose(array('status'=>0, 'msg'=>$row['msg']));
+            respose(array('status' => 0, 'msg' => $row['msg']));
 
-        }else{
+        } else {
             $this->error('参数有误');
         }
     }
@@ -1051,26 +1144,26 @@ class Field extends Base
     public function attribute_index()
     {
         $assign_data = array();
-        $condition = array();
+        $condition   = array();
         // 获取到所有GET参数
-        $get = input('get.');
+        $get    = input('get.');
         $typeid = input('typeid/d');
 
         // 应用搜索条件
-        foreach (['keywords','typeid'] as $key) {
+        foreach (['keywords', 'typeid'] as $key) {
             if (isset($get[$key]) && $get[$key] !== '') {
                 if ($key == 'keywords') {
                     $condition['a.attr_name'] = array('LIKE', "%{$get[$key]}%");
                 } else if ($key == 'typeid') {
-                    $typeids = model('Arctype')->getHasChildren($get[$key]);
+                    $typeids               = model('Arctype')->getHasChildren($get[$key]);
                     $condition['a.typeid'] = array('IN', array_keys($typeids));
                 } else {
-                    $condition['a.'.$key] = array('eq', $get[$key]);
+                    $condition['a.' . $key] = array('eq', $get[$key]);
                 }
             }
         }
 
-        $condition['b.id'] = ['gt', 0];
+        $condition['b.id']     = ['gt', 0];
         $condition['a.is_del'] = 0;
         // 多语言
         $condition['a.lang'] = $this->admin_lang;
@@ -1082,14 +1175,14 @@ class Field extends Base
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
             ->where($condition)
             ->count();// 查询满足要求的总记录数
-        $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = DB::name('guestbook_attribute')
+        $Page  = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $list  = DB::name('guestbook_attribute')
             ->field("a.attr_id")
             ->alias('a')
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
             ->where($condition)
             ->order('a.typeid desc, a.sort_order asc, a.attr_id asc')
-            ->limit($Page->firstRow.','.$Page->listRows)
+            ->limit($Page->firstRow . ',' . $Page->listRows)
             ->getAllWithIndex('attr_id');
 
         /**
@@ -1098,36 +1191,36 @@ class Field extends Base
          */
         if ($list) {
             $attr_ida = array_keys($list);
-            $fields = "b.*, a.*";
-            $row = DB::name('guestbook_attribute')
+            $fields   = "b.*, a.*";
+            $row      = DB::name('guestbook_attribute')
                 ->field($fields)
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
                 ->where('a.attr_id', 'in', $attr_ida)
                 ->getAllWithIndex('attr_id');
-            
+
             /*获取多语言关联绑定的值*/
             $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute', $this->main_lang); // 多语言
             /*--end*/
 
             foreach ($row as $key => $val) {
-                $val['fieldname'] = 'attr_'.$val['attr_id'];
-                $row[$key] = $val;
+                $val['fieldname'] = 'attr_' . $val['attr_id'];
+                $row[$key]        = $val;
             }
             foreach ($list as $key => $val) {
                 $list[$key] = $row[$val['attr_id']];
             }
         }
-        $show = $Page->show(); // 分页显示输出
-        $assign_data['page'] = $show; // 赋值分页输出
-        $assign_data['list'] = $list; // 赋值数据集
+        $show                 = $Page->show(); // 分页显示输出
+        $assign_data['page']  = $show; // 赋值分页输出
+        $assign_data['list']  = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
         /*获取当前模型栏目*/
         $select_html = allow_release_arctype($typeid, array(8));
-        $typeidNum = substr_count($select_html, '</option>');
-        $this->assign('select_html',$select_html);
-        $this->assign('typeidNum',$typeidNum);
+        $typeidNum   = substr_count($select_html, '</option>');
+        $this->assign('select_html', $select_html);
+        $this->assign('typeidNum', $typeidNum);
         /*--end*/
 
         // 栏目ID
@@ -1135,12 +1228,20 @@ class Field extends Base
         /*当前栏目信息*/
         $arctype_info = array();
         if ($typeid > 0) {
-            $arctype_info = M('arctype')->field('typename')->find($typeid);
+            $arctype_info = Db::name('arctype')->field('typename')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
         /*--end*/
 
         $assign_data['attrInputTypeArr'] = config('global.guestbook_attr_input_type'); // 表单类型
+
+        //留言模型的栏目数量
+        $assign_data['arctypeCount'] = Db::name('arctype')->where([
+                'current_channel'   => 6,
+                'is_del'    => 0,
+                'lang'  => $this->admin_lang,
+            ])->count();
+
         $this->assign($assign_data);
         return $this->fetch();
     }
@@ -1152,46 +1253,72 @@ class Field extends Base
     {
         //防止php超时
         function_exists('set_time_limit') && set_time_limit(0);
-        
+
         $this->language_access(); // 多语言功能操作权限
 
-        if(IS_AJAX && IS_POST)//ajax提交验证
+        if (IS_AJAX && IS_POST)//ajax提交验证
         {
             $model = model('GuestbookAttribute');
 
             $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
-            
+
+            /*过滤重复值*/
+            $attr_values_arr = explode(PHP_EOL, $attr_values);
+            foreach ($attr_values_arr as $key => $val) {
+                $tmp_val = trim($val);
+                if (empty($tmp_val)) {
+                    unset($attr_values_arr[$key]);
+                    continue;
+                }
+                $attr_values_arr[$key] = $tmp_val;
+            }
+            $attr_values_arr = array_unique($attr_values_arr);
+            $attr_values = implode(PHP_EOL, $attr_values_arr);
+            /*end*/
+
             $post_data = input('post.');
             $post_data['attr_values'] = $attr_values;
+            $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : 0;
+
+            /*前台输入是否JS验证*/
+            $validate_type = 0;
+            $validate_type_list = config("global.validate_type_list"); // 前台输入验证类型
+            if (!empty($validate_type_list[$attr_input_type])) {
+                $validate_type = $attr_input_type;
+            }
+            /*end*/
 
             $savedata = array(
-                'attr_name' => $post_data['attr_name'],
-                'typeid'    => $post_data['typeid'],
-                'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
-                'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
-                'sort_order'    => 100,
-                'lang'  => $this->admin_lang,
-                'add_time'  => getTime(),
-                'update_time'   => getTime(),
+                'attr_name'       => $post_data['attr_name'],
+                'typeid'          => $post_data['typeid'],
+                'attr_input_type' => $attr_input_type,
+                'attr_values'     => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
+                'sort_order'      => 100,
+                'is_showlist'     => $post_data['is_showlist'],
+                'required'        => $post_data['required'],
+                'validate_type'   => $validate_type,
+                'lang'            => $this->admin_lang,
+                'add_time'        => getTime(),
+                'update_time'     => getTime(),
             );
 
             // 数据验证            
             $validate = \think\Loader::validate('GuestbookAttribute');
-            if(!$validate->batch()->check($savedata))
-            {
-                $error = $validate->getError();
-                $error_msg = array_values($error);
+            if (!$validate->batch()->check($savedata)) {
+                $error      = $validate->getError();
+                $error_msg  = array_values($error);
                 $return_arr = array(
                     'status' => -1,
-                    'msg' => $error_msg[0],
-                    'data' => $error,
+                    'msg'    => $error_msg[0],
+                    'data'   => $error,
                 );
                 respose($return_arr);
             } else {
-                $model->data($savedata,true); // 收集数据
+                $model->data($savedata, true);// 收集数据
                 $model->save(); // 写入数据到数据库
+
                 $insertId = $model->getLastInsID();
 
                 /*同步留言属性ID到多语言的模板变量里*/
@@ -1200,13 +1327,13 @@ class Field extends Base
 
                 $return_arr = array(
                     'status' => 1,
-                    'msg'   => '操作成功',
-                    'data'  => array('url'=>url('Field/attribute_index', array('typeid'=>$post_data['typeid']))),
+                    'msg'    => '操作成功',
+                    'data'   => array('url' => url('Field/attribute_index', array('typeid' => $post_data['typeid']))),
                 );
-                adminLog('新增留言表单：'.$savedata['attr_name']);
+                adminLog('新增留言表单：' . $savedata['attr_name']);
                 respose($return_arr);
-            }  
-        }  
+            }
+        }
 
         $typeid = input('param.typeid/d', 0);
         if ($typeid > 0) {
@@ -1216,8 +1343,8 @@ class Field extends Base
             $select_html = allow_release_arctype($typeid, array(8));
         }
         $assign_data['select_html'] = $select_html; // 
-        $assign_data['typeid'] = $typeid; // 栏目ID
-        
+        $assign_data['typeid']      = $typeid; // 栏目ID
+
         $assign_data['attrInputTypeArr'] = config('global.guestbook_attr_input_type'); // 表单类型
 
         $this->assign($assign_data);
@@ -1229,53 +1356,78 @@ class Field extends Base
      */
     public function attribute_edit()
     {
-        if(IS_AJAX && IS_POST)//ajax提交验证
+        if (IS_AJAX && IS_POST)//ajax提交验证
         {
             $model = model('GuestbookAttribute');
 
             $attr_values = str_replace('_', '', input('attr_values')); // 替换特殊字符
             $attr_values = str_replace('@', '', $attr_values); // 替换特殊字符            
             $attr_values = trim($attr_values);
-            
-            $post_data = input('post.');
+
+            /*过滤重复值*/
+            $attr_values_arr = explode(PHP_EOL, $attr_values);
+            foreach ($attr_values_arr as $key => $val) {
+                $tmp_val = trim($val);
+                if (empty($tmp_val)) {
+                    unset($attr_values_arr[$key]);
+                    continue;
+                }
+                $attr_values_arr[$key] = $tmp_val;
+            }
+            $attr_values_arr = array_unique($attr_values_arr);
+            $attr_values = implode(PHP_EOL, $attr_values_arr);
+            /*end*/
+
+            $post_data                = input('post.');
             $post_data['attr_values'] = $attr_values;
+            $attr_input_type = isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : 0;
+
+            /*前台输入是否JS验证*/
+            $validate_type = 0;
+            $validate_type_list = config("global.validate_type_list"); // 前台输入验证类型
+            if (!empty($validate_type_list[$attr_input_type])) {
+                $validate_type = $attr_input_type;
+            }
+            /*end*/
 
             $savedata = array(
-                'attr_id'   => $post_data['attr_id'],
-                'attr_name' => $post_data['attr_name'],
-                'typeid'    => $post_data['typeid'],
-                'attr_input_type'   => isset($post_data['attr_input_type']) ? $post_data['attr_input_type'] : '',
-                'attr_values'   => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
-                'sort_order'    => 100,
-                'update_time'   => getTime(),
+                'attr_id'         => $post_data['attr_id'],
+                'attr_name'       => $post_data['attr_name'],
+                'typeid'          => $post_data['typeid'],
+                'attr_input_type' => $attr_input_type,
+                'attr_values'     => isset($post_data['attr_values']) ? $post_data['attr_values'] : '',
+                'is_showlist'     => $post_data['is_showlist'],
+                'required'        => $post_data['required'],
+                'validate_type'   => $validate_type,
+                'sort_order'      => 100,
+                'update_time'     => getTime(),
             );
             // 数据验证            
             $validate = \think\Loader::validate('GuestbookAttribute');
-            if(!$validate->batch()->check($savedata))
-            {
-                $error = $validate->getError();
-                $error_msg = array_values($error);
+            if (!$validate->batch()->check($savedata)) {
+                $error      = $validate->getError();
+                $error_msg  = array_values($error);
                 $return_arr = array(
                     'status' => -1,
-                    'msg' => $error_msg[0],
-                    'data' => $error,
+                    'msg'    => $error_msg[0],
+                    'data'   => $error,
                 );
                 respose($return_arr);
             } else {
-                $model->data($savedata,true); // 收集数据
+                $model->data($savedata, true); // 收集数据
                 $model->isUpdate(true, [
-                        'attr_id'   => $post_data['attr_id'],
-                        'lang'  => $this->admin_lang,
-                    ])->save(); // 写入数据到数据库     
+                    'attr_id' => $post_data['attr_id'],
+                    'lang'    => $this->admin_lang,
+                ])->save(); // 写入数据到数据库
                 $return_arr = array(
-                     'status' => 1,
-                     'msg'   => '操作成功',                        
-                     'data'  => array('url'=>url('Field/attribute_index', array('typeid'=>$post_data['typeid']))),
+                    'status' => 1,
+                    'msg'    => '操作成功',
+                    'data'   => array('url' => url('Field/attribute_index', array('typeid' => $post_data['typeid']))),
                 );
-                adminLog('编辑留言表单：'.$savedata['attr_name']);
+                adminLog('编辑留言表单：' . $savedata['attr_name']);
                 respose($return_arr);
-            }  
-        }  
+            }
+        }
 
         $assign_data = array();
 
@@ -1285,9 +1437,9 @@ class Field extends Base
         !empty($new_id) && $id = $new_id;
         /*--end*/
         $info = M('GuestbookAttribute')->where([
-                'attr_id'    => $id,
-                'lang'  => $this->admin_lang,
-            ])->find();
+            'attr_id' => $id,
+            'lang'    => $this->admin_lang,
+        ])->find();
         if (empty($info)) {
             $this->error('数据不存在，请联系管理员！');
             exit;
@@ -1295,16 +1447,16 @@ class Field extends Base
         $assign_data['field'] = $info;
 
         // 所在栏目
-        $select_html = M('arctype')->where('id', $info['typeid'])->getField('typename');
-        $select_html = !empty($select_html) ? $select_html : '该栏目不存在';
+        $select_html                = M('arctype')->where('id', $info['typeid'])->getField('typename');
+        $select_html                = !empty($select_html) ? $select_html : '该栏目不存在';
         $assign_data['select_html'] = $select_html;
-        
+
         $assign_data['attrInputTypeArr'] = config('global.guestbook_attr_input_type'); // 表单类型
 
         $this->assign($assign_data);
         return $this->fetch();
     }
-    
+
     /**
      * 删除留言表单
      */
@@ -1314,34 +1466,59 @@ class Field extends Base
 
         $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
-        if(!empty($id_arr)){
+        if (!empty($id_arr)) {
             /*多语言*/
             if (is_language()) {
                 $attr_name_arr = [];
                 foreach ($id_arr as $key => $val) {
-                    $attr_name_arr[] = 'attr_'.$val;
+                    $attr_name_arr[] = 'attr_' . $val;
                 }
                 $new_id_arr = Db::name('language_attr')->where([
-                        'attr_name' => ['IN', $attr_name_arr],
-                        'attr_group'    => 'guestbook_attribute',
-                    ])->column('attr_value');
+                    'attr_name'  => ['IN', $attr_name_arr],
+                    'attr_group' => 'guestbook_attribute',
+                ])->column('attr_value');
                 !empty($new_id_arr) && $id_arr = $new_id_arr;
             }
             /*--end*/
-            $r = M('GuestbookAttribute')->where([
-                    'attr_id'   => ['IN', $id_arr],
-                ])->update([
-                    'is_del'    => 1,
-                    'update_time'   => getTime(),
-                ]);
-            if($r){
-                adminLog('删除留言表单-id：'.implode(',', $id_arr));
+            $r = Db::name('GuestbookAttribute')->where([
+                'attr_id' => ['IN', $id_arr],
+            ])->update([
+                'is_del'      => 1,
+                'update_time' => getTime(),
+            ]);
+            if ($r) {
+                adminLog('删除留言表单-id：' . implode(',', $id_arr));
                 $this->success('删除成功');
-            }else{
+            } else {
                 $this->error('删除失败');
             }
-        }else{
+        } else {
             $this->error('参数有误');
         }
+    }
+
+    /**
+     * 检测列表显示字段数量是都超过4个
+     */
+    public function ajax_attribute_show()
+    {
+        if (IS_AJAX_POST) {
+            $typeid  = input('post.typeid/d');
+            $is_showlist  = input('post.is_showlist/d');
+            if ($is_showlist == 1){
+                $count = Db::name('guestbook_attribute')->where([
+                        'typeid' => $typeid,
+                        'is_showlist' => $is_showlist,
+                        'lang'   => $this->admin_lang,
+                    ])->count();
+                if ($count >= 4) {
+                    $this->error('所属栏目的列表字段显示数量已达4个');
+                } else {
+                    $this->success('正常');
+                }
+            }
+            $this->success('正常');
+        }
+        $this->error('非法访问');
     }
 }

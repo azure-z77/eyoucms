@@ -108,7 +108,7 @@
                     </dl>
                 </div>
 
-                <div class="{eq name='$OrderData.prom_type' value='0'}none{/eq}" id="VirtualDelivery">
+                <div class="{if condition='$OrderData.prom_type == 0 && $OrderData.prom_type_virtual == false'}none{/if}" id="VirtualDelivery">
                     <dl class="row">
                         <dt class="tit">
                             <label>给买家回复</label>
@@ -253,7 +253,7 @@
     }
 
     // 表单提交
-    function checkForm(){
+    function checkForm() {
         if(0 == $('#prom_type').val() && $('input[name=express_order]').val() == ''){
             showErrorMsg('配送单号不能为空！');
             $('input[name=express_order]').focus();
@@ -273,12 +273,22 @@
                 data: $('#postForm').serialize(),
                 dataType: 'json',
                 success: function (res) {
-                    layer.closeAll();
                     if(res.code == 1){
-                        layer.msg(res.msg, {icon: 1, time: 1000}, function(){
-                            _parent.window.location.reload();
-                        });
-                    }else{
+                        if (!res.data.email && !res.data.mobile) {
+                            layer.closeAll();
+                            layer.msg(res.msg, {icon: 1, time: 1000}, function(){
+                                _parent.window.location.reload();
+                            });
+                        } else {
+                            if (res.data.email) SendEmail(res.data.email);
+                            if (res.data.mobile) SendMobile(res.data.mobile);
+                            layer.closeAll();
+                            layer.msg('发货成功', {icon: 1, time: 1000}, function(){
+                                _parent.window.location.reload();
+                            });
+                        }
+                    } else {
+                        layer.closeAll();
                         layer.alert(res.msg, {icon: 2, title:false});
                         return false;
                     }
@@ -290,5 +300,27 @@
             });
         });
     }
-</script>
+
+    function SendEmail(result) {
+        if (result) {
+            $.ajax({
+                url: result.url,
+                data: result.data,
+                type:'post',
+                dataType:'json'
+            });
+        }
+    }
+
+    function SendMobile(result) {
+        if (result) {
+            $.ajax({
+                url: result.url,
+                data: result.data,
+                type:'post',
+                dataType:'json'
+            });
+        }
+    }
+</script> 
 {include file="public/footer" /}

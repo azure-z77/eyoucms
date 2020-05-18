@@ -38,14 +38,14 @@ class UsersRelease extends Model
      * @param array $post post数据
      * @param string $opt 操作
      */
-    public function afterSave($aid, $post)
+    public function afterSave($aid, $post, $opt)
     {
         $post['aid']   = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
         $this->dealChannelPostData($post['channel'], $post, $addonFieldExt);
 
         // --处理TAG标签
-        model('Taglist')->savetags($aid, $post['typeid'], $post['tags']);
+        model('Taglist')->savetags($aid, $post['typeid'], $post['tags'], $post['arcrank'], $opt);
     }
 
     /**
@@ -104,12 +104,7 @@ class UsersRelease extends Model
 
                     case 'img':
                     {
-                        $is_remote = !empty($dataExt[$key.'_eyou_is_remote']) ? $dataExt[$key.'_eyou_is_remote'] : 0;
-                        if (1 == $is_remote) {
-                            $val = $dataExt[$key.'_eyou_remote'];
-                        } else {
-                            $val = $dataExt[$key.'_eyou_local'];
-                        }
+                        $val = $dataExt[$key];
                         break;
                     }
 
@@ -338,20 +333,22 @@ class UsersRelease extends Model
 
                     case 'img':
                     {
-                        $val[$val['name'].'_eyou_is_remote'] = 0;
-                        $val[$val['name'].'_eyou_remote'] = '';
-                        $val[$val['name'].'_eyou_local'] = '';
                         if (isset($addonRow[$val['name']])) {
-                            if (is_http_url($addonRow[$val['name']])) {
-                                $val[$val['name'].'_eyou_is_remote'] = 1;
-                                $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
-                            } else {
-                                $val[$val['name'].'_eyou_is_remote'] = 0;
-                                $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
-                            }
+                            $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
                         }
                         break;
                     }
+
+                    case 'file':
+                        {
+                            if (isset($addonRow[$val['name']])) {
+                                $val[$val['name'].'_eyou_is_remote'] = 0;
+                                $val[$val['name'].'_eyou_remote'] = '';
+                                $val[$val['name'].'_eyou_local'] =  handle_subdir_pic($addonRow[$val['name']]);
+                                $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                            }
+                            break;
+                        }
 
                     case 'imgs':
                     {

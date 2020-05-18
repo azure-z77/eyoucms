@@ -38,7 +38,7 @@ class SmtpmailLogic extends Model
     /**
      * 发送邮件
      */
-    public function send_email($email = '', $title = '', $type = 'reg', $scene = 2)
+    public function send_email($email = '', $title = '', $type = 'reg', $scene = 2, $data = [])
     {
         if (empty($email)) {
             return ['code'=>0, 'msg'=>"邮箱地址参数不能为空！"];
@@ -52,10 +52,8 @@ class SmtpmailLogic extends Model
 
         // 是否填写邮件配置
         $smtp_config = tpCache('smtp');
-        foreach ($smtp_config as $key => $val) {
-            if (preg_match('/^smtp_/i', $key) && empty($val)) {
-                return ['code'=>0, 'msg'=>"该功能待开放，网站管理员尚未完善邮件配置！"];
-            }
+        if (empty($smtp_config['smtp_user']) || empty($smtp_config['smtp_pwd'])) {
+            return ['code'=>0, 'msg'=>"该功能待开放，网站管理员尚未完善邮件配置！"];
         }
 
         // 邮件使用场景
@@ -226,18 +224,51 @@ class SmtpmailLogic extends Model
                 return ['code'=>0, 'msg'=>'邮箱已存在！'];
             }
         }
+        else if ('order_msg' == $type) 
+        {
+            $content = '订单有新的消息，请登录查看。';
+            if (!empty($data)) {
+                $PayMethod = '';
+                if (!empty($data['pay_method'])) {
+                    switch ($data['pay_method']) {
+                        case 'balance':
+                            $PayMethod = '余额支付';
+                            break;
+                        case 'delivery_pay':
+                            $PayMethod = '货到付款';
+                            break;
+                        case 'wechat':
+                            $PayMethod = '微信';
+                            break;
+                        case 'alipay':
+                            $PayMethod = '支付宝';
+                            break;
+                    }
+                }
+
+                switch ($data['type']) {
+                    case '1':
+                        $content = '您好，管理员。 会员(' . $data['nickname'] . ')使用'. $PayMethod .'对订单(' . $data['order_code'] . ')支付完成，请登录后台审查并及时发货。';
+                        break;
+                    case '2':
+                        $url = request()->domain() . url('user/Shop/shop_order_details', ['order_id'=>$data['order_id']]);
+                        $chayue = '<a href="'. $url .'">查阅</a>';
+                        $content = '您好，' . $data['nickname'] . '。 管理员已对订单(' . $data['order_code'] . ')发货完成，请登录会员中心'. $chayue .'。';
+                        break;
+                }
+            }
+        }
 
         // 判断标题拼接
         $web_name = $emailtemp['tpl_name'].'：'.$title.'-'.tpCache('web.web_name');
-
-        $content = '感谢您的注册,您的邮箱验证码为: '.$datas['code'];
+        $content = !empty($content) ? $content : '感谢您的注册,您的邮箱验证码为: '.$datas['code'];
         $html = "<p style='text-align: left;'>{$web_name}</p><p style='text-align: left;'>{$content}</p>";
+
         if (isMobile()) {
             $html .= "<p style='text-align: left;'>——来源：移动端</p>";
         } else {
             $html .= "<p style='text-align: left;'>——来源：电脑端</p>";
         }
-
 
         // 实例化类库，调用发送邮件
         $res = send_email($email,$emailtemp['tpl_title'],$html, $send_scene);

@@ -116,6 +116,13 @@ class FieldLogic extends Model
             $fields[1] = "varchar($maxlen)";
             $fields[2] = $maxlen;
         }
+        else if("media" == $dtype)
+        {
+            $maxlen = 200;
+            $fields[0] = " `$fieldname` varchar($maxlen) NOT NULL DEFAULT '$dfvalue' COMMENT '$fieldtitle';";
+            $fields[1] = "varchar($maxlen)";
+            $fields[2] = $maxlen;
+        }
         else if("files" == $dtype)
         {
             if(empty($dfvalue)) {

@@ -101,6 +101,8 @@ class View extends Base
                     $dirname2 = $toptypeinfo['dirname'];
                 } else if (2 == $seo_rewrite_format) {
                     $dirname2 = $arctypeInfo['dirname'];
+                } else if (3 == $seo_rewrite_format) {
+                    $dirname2 = $arctypeInfo['dirname'];
                 }
                 if ($dirname != $dirname2) {
                     abort(404,'页面不存在');
@@ -129,7 +131,7 @@ class View extends Base
         // 文档链接
         $result['arcurl'] = $result['pageurl'] = '';
         if ($result['is_jump'] != 1) {
-            $result['arcurl'] = $result['pageurl'] = arcurl('home/View/index', $result, true, true);
+            $result['arcurl'] = $result['pageurl'] = $this->request->url(true);
         }
         /*--end*/
 
@@ -171,7 +173,7 @@ class View extends Base
 
         // 若需要会员权限则执行
         if ($this->eyou['field']['arcrank'] > 0) {
-            $msg = action('api/Ajax/get_arcrank', $aid);
+            $msg = action('api/Ajax/get_arcrank', ['aid'=>$aid, 'vars'=>1]);
             if (true !== $msg) {
                 $this->error($msg);
             }
@@ -208,7 +210,8 @@ class View extends Base
             ->find();
 
         $file_url_gbk = iconv("utf-8","gb2312//IGNORE",$result['file_url']);
-        if (empty($result) || (!is_http_url($result['file_url']) && !is_file('.'.$file_url_gbk))) {
+        $file_url_gbk = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', '$2', $file_url_gbk);
+        if (empty($result) || (!is_http_url($result['file_url']) && !file_exists('.'.$file_url_gbk))) {
             $this->error('下载文件不存在！');
             exit;
         }
@@ -253,7 +256,12 @@ class View extends Base
             // 记录下载次数
             $this->download_log($result['file_id'], $result['aid']);
 
-            $this->success('开始下载中……', $result['file_url']);
+            if (IS_AJAX) {
+                $this->success('正在跳转中……', $result['file_url']);
+            } else {
+                $this->redirect($result['file_url']);
+                exit;
+            }
         } 
         // 本站链接
         else
@@ -265,8 +273,15 @@ class View extends Base
             // 记录下载次数
             $this->download_log($result['file_id'], $result['aid']);
 
-            $url = $this->root_dir."/index.php?m=home&c=View&a=download_file&file_id={$file_id}";
-            $this->success('开始下载中……', $url);
+            $uhash_mch = mchStrCode($uhash);
+            $url = $this->root_dir."/index.php?m=home&c=View&a=download_file&file_id={$file_id}&uhash={$uhash_mch}";
+            if (IS_AJAX) {
+                $this->success('开始下载中……', $url);
+            } else {
+                $url = $this->request->domain().$url;
+                $this->redirect($url);
+                exit;
+            }
         }
     }
 
@@ -276,10 +291,15 @@ class View extends Base
     public function download_file()
     {
         $file_id = input('param.file_id/d');
+        $uhash = input('param.uhash/s', '');
+        $uhash = mchStrCode($uhash, 'DECODE');
         $map = array(
             'file_id'   => $file_id,
         );
-        $result = M('download_file')->field('file_url,file_mime')->where($map)->find();
+        $result = M('download_file')->field('file_url,file_mime,uhash')->where($map)->find();
+        if (!empty($result['uhash']) && $uhash != $result['uhash']) {
+            $this->error('下载地址出错！');
+        }
         download_file($result['file_url'], $result['file_mime']);
         exit;
     }
