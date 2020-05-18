@@ -1,26 +1,13 @@
 
-<IfModule dir_module>
-    #生成静态模式下，设置默认首页为 index.html
-    #DirectoryIndex index.html index.php index.htm
-</IfModule>
-
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks -Multiviews
     RewriteEngine On
-
-    #http跳转到https
-    #RewriteCond %{SERVER_PORT} !^443$
-    #RewriteRule ^(.*)$ https://www.xxxxx.com/$1 [L,R=301]
-
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php?s=/$1 [QSA,PT,L]
     #RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
     #RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
 
-    #禁止指定脚本的运行
     RewriteCond % !^$
-    RewriteRule data/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe|js|sql)$ – [F]
-    RewriteRule template/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe)$ – [F]
-    RewriteRule uploads/(.*).(php|php3|php4|php5|php6|php7|pht|phtml|asp|aspx|jsp|exe|js)$ – [F] 
+    RewriteRule ^/?(.*)/.*\.sql - [F]
 </IfModule>
