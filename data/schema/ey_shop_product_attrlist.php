@@ -1,72 +1,54 @@
 <?php 
 return array (
-  'attr_id' => 
+  'list_id' => 
   array (
-    'name' => 'attr_id',
+    'name' => 'list_id',
     'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => NULL,
     'primary' => true,
     'autoinc' => true,
   ),
-  'attr_name' => 
+  'list_name' => 
   array (
-    'name' => 'attr_name',
+    'name' => 'list_name',
     'type' => 'varchar(60)',
     'notnull' => false,
     'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'typeid' => 
+  'status' => 
   array (
-    'name' => 'typeid',
+    'name' => 'status',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '1',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'attr_count' => 
+  array (
+    'name' => 'attr_count',
     'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
-  'attr_input_type' => 
+  'desc' => 
   array (
-    'name' => 'attr_input_type',
-    'type' => 'tinyint(1) unsigned',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'attr_values' => 
-  array (
-    'name' => 'attr_values',
+    'name' => 'desc',
     'type' => 'text',
     'notnull' => false,
     'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),
-  'is_showlist' => 
+  'is_del' => 
   array (
-    'name' => 'is_showlist',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'required' => 
-  array (
-    'name' => 'required',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'validate_type' => 
-  array (
-    'name' => 'validate_type',
-    'type' => 'smallint(5)',
+    'name' => 'is_del',
+    'type' => 'tinyint(1) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
@@ -77,32 +59,14 @@ return array (
     'name' => 'sort_order',
     'type' => 'int(11) unsigned',
     'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'lang' => 
-  array (
-    'name' => 'lang',
-    'type' => 'varchar(50)',
-    'notnull' => false,
-    'default' => 'cn',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'is_del' => 
-  array (
-    'name' => 'is_del',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
+    'default' => '100',
     'primary' => false,
     'autoinc' => false,
   ),
   'add_time' => 
   array (
     'name' => 'add_time',
-    'type' => 'int(11)',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
@@ -111,7 +75,7 @@ return array (
   'update_time' => 
   array (
     'name' => 'update_time',
-    'type' => 'int(11)',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,

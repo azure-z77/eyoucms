@@ -18,15 +18,6 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
-  'content' => 
-  array (
-    'name' => 'content',
-    'type' => 'longtext',
-    'notnull' => false,
-    'default' => NULL,
-    'primary' => false,
-    'autoinc' => false,
-  ),
   'add_time' => 
   array (
     'name' => 'add_time',
@@ -45,30 +36,66 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
-  'fxrq' => 
+  'gzdd' => 
   array (
-    'name' => 'fxrq',
-    'type' => 'enum(\'2019年\',\'2018年\',\'2017年\')',
+    'name' => 'gzdd',
+    'type' => 'varchar(200)',
     'notnull' => false,
-    'default' => '2019年',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'jiawei' => 
+  'xlyq' => 
   array (
-    'name' => 'jiawei',
-    'type' => 'enum(\'0-1000\',\'1000-1699\',\'1700-2799\',\'2800-3500\',\'3500-10000\')',
+    'name' => 'xlyq',
+    'type' => 'varchar(200)',
     'notnull' => false,
-    'default' => '0-1000',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'yanse' => 
+  'xzdy' => 
   array (
-    'name' => 'yanse',
-    'type' => 'enum(\'银色\',\'绿色\',\'黑色\',\'灰色\')',
+    'name' => 'xzdy',
+    'type' => 'varchar(200)',
     'notnull' => false,
-    'default' => '银色',
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'gzxz' => 
+  array (
+    'name' => 'gzxz',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'gznx' => 
+  array (
+    'name' => 'gznx',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'zprs' => 
+  array (
+    'name' => 'zprs',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'nnxq' => 
+  array (
+    'name' => 'nnxq',
+    'type' => 'longtext',
+    'notnull' => false,
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

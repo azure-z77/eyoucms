@@ -237,9 +237,18 @@ return array (
   'open_id' => 
   array (
     'name' => 'open_id',
-    'type' => 'varchar(30)',
+    'type' => 'varchar(50)',
     'notnull' => false,
     'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'thirdparty' => 
+  array (
+    'name' => 'thirdparty',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),

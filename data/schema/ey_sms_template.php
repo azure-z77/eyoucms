@@ -1,90 +1,72 @@
 <?php 
 return array (
-  'level_id' => 
+  'tpl_id' => 
   array (
-    'name' => 'level_id',
-    'type' => 'int(10) unsigned',
+    'name' => 'tpl_id',
+    'type' => 'mediumint(8) unsigned',
     'notnull' => false,
     'default' => NULL,
     'primary' => true,
     'autoinc' => true,
   ),
-  'level_name' => 
+  'tpl_title' => 
   array (
-    'name' => 'level_name',
-    'type' => 'varchar(30)',
+    'name' => 'tpl_title',
+    'type' => 'varchar(128)',
     'notnull' => false,
     'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'level_value' => 
+  'sms_sign' => 
   array (
-    'name' => 'level_value',
-    'type' => 'int(10)',
+    'name' => 'sms_sign',
+    'type' => 'varchar(50)',
     'notnull' => false,
-    'default' => '0',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'is_system' => 
+  'sms_tpl_code' => 
   array (
-    'name' => 'is_system',
-    'type' => 'tinyint(1)',
+    'name' => 'sms_tpl_code',
+    'type' => 'varchar(100)',
     'notnull' => false,
-    'default' => '0',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'amount' => 
+  'tpl_content' => 
   array (
-    'name' => 'amount',
-    'type' => 'decimal(10,2)',
+    'name' => 'tpl_content',
+    'type' => 'varchar(1000)',
     'notnull' => false,
-    'default' => '0.00',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'discount' => 
+  'send_scene' => 
   array (
-    'name' => 'discount',
-    'type' => 'float(10,2)',
+    'name' => 'send_scene',
+    'type' => 'varchar(100)',
     'notnull' => false,
-    'default' => '100.00',
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'posts_count' => 
+  'is_open' => 
   array (
-    'name' => 'posts_count',
-    'type' => 'int(10)',
-    'notnull' => false,
-    'default' => '5',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'ask_is_release' => 
-  array (
-    'name' => 'ask_is_release',
-    'type' => 'tinyint(1)',
+    'name' => 'is_open',
+    'type' => 'tinyint(1) unsigned',
     'notnull' => false,
     'default' => '1',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'ask_is_review' => 
-  array (
-    'name' => 'ask_is_review',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
   'lang' => 
   array (
     'name' => 'lang',
-    'type' => 'varchar(20)',
+    'type' => 'varchar(50)',
     'notnull' => false,
     'default' => 'cn',
     'primary' => false,
@@ -95,7 +77,7 @@ return array (
     'name' => 'add_time',
     'type' => 'int(11)',
     'notnull' => false,
-    'default' => '0',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

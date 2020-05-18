@@ -1,65 +1,47 @@
 <?php 
 return array (
-  'aid' => 
+  'product_attr_id' => 
   array (
-    'name' => 'aid',
-    'type' => 'int(11)',
+    'name' => 'product_attr_id',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => NULL,
     'primary' => true,
     'autoinc' => true,
   ),
-  'typeid' => 
+  'aid' => 
   array (
-    'name' => 'typeid',
-    'type' => 'int(11)',
+    'name' => 'aid',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
-  'channel' => 
+  'attr_id' => 
   array (
-    'name' => 'channel',
-    'type' => 'smallint(5)',
+    'name' => 'attr_id',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
-  'md5data' => 
+  'attr_value' => 
   array (
-    'name' => 'md5data',
-    'type' => 'varchar(50)',
+    'name' => 'attr_value',
+    'type' => 'text',
     'notnull' => false,
-    'default' => '',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),
-  'ip' => 
+  'attr_price' => 
   array (
-    'name' => 'ip',
+    'name' => 'attr_price',
     'type' => 'varchar(255)',
     'notnull' => false,
     'default' => '',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'is_read' => 
-  array (
-    'name' => 'is_read',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'lang' => 
-  array (
-    'name' => 'lang',
-    'type' => 'varchar(50)',
-    'notnull' => false,
-    'default' => 'cn',
     'primary' => false,
     'autoinc' => false,
   ),

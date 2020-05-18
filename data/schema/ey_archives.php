@@ -180,6 +180,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'attrlist_id' => 
+  array (
+    'name' => 'attrlist_id',
+    'type' => 'int(11) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'users_price' => 
   array (
     'name' => 'users_price',
@@ -195,6 +204,15 @@ return array (
     'type' => 'decimal(10,2)',
     'notnull' => false,
     'default' => '0.00',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'sales_num' => 
+  array (
+    'name' => 'sales_num',
+    'type' => 'int(10) unsigned',
+    'notnull' => false,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
@@ -321,6 +339,15 @@ return array (
     'type' => 'int(10)',
     'notnull' => false,
     'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'htmlfilename' => 
+  array (
+    'name' => 'htmlfilename',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),

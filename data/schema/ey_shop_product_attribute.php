@@ -1,44 +1,53 @@
 <?php 
 return array (
-  'id' => 
+  'attr_id' => 
   array (
-    'name' => 'id',
-    'type' => 'int(11)',
+    'name' => 'attr_id',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => NULL,
     'primary' => true,
     'autoinc' => true,
   ),
-  'code' => 
+  'attr_name' => 
   array (
-    'name' => 'code',
-    'type' => 'varchar(50)',
+    'name' => 'attr_name',
+    'type' => 'varchar(60)',
     'notnull' => false,
     'default' => '',
     'primary' => false,
     'autoinc' => false,
   ),
-  'name' => 
+  'list_id' => 
   array (
-    'name' => 'name',
-    'type' => 'varchar(55)',
+    'name' => 'list_id',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
-    'default' => '',
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
-  'config' => 
+  'attr_index' => 
   array (
-    'name' => 'config',
-    'type' => 'text',
+    'name' => 'attr_index',
+    'type' => 'tinyint(1) unsigned',
     'notnull' => false,
-    'default' => NULL,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
-  'data' => 
+  'attr_input_type' => 
   array (
-    'name' => 'data',
+    'name' => 'attr_input_type',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'attr_values' => 
+  array (
+    'name' => 'attr_values',
     'type' => 'text',
     'notnull' => false,
     'default' => NULL,
@@ -48,54 +57,27 @@ return array (
   'status' => 
   array (
     'name' => 'status',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'tag_weapp' => 
-  array (
-    'name' => 'tag_weapp',
-    'type' => 'tinyint(1)',
+    'type' => 'tinyint(1) unsigned',
     'notnull' => false,
     'default' => '1',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'thorough' => 
-  array (
-    'name' => 'thorough',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'position' => 
-  array (
-    'name' => 'position',
-    'type' => 'varchar(30)',
-    'notnull' => false,
-    'default' => 'default',
-    'primary' => false,
-    'autoinc' => false,
-  ),
-  'is_buy' => 
-  array (
-    'name' => 'is_buy',
-    'type' => 'tinyint(1)',
-    'notnull' => false,
-    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
   'sort_order' => 
   array (
     'name' => 'sort_order',
-    'type' => 'int(10)',
+    'type' => 'int(11) unsigned',
     'notnull' => false,
-    'default' => '100',
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'is_del' => 
+  array (
+    'name' => 'is_del',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
     'primary' => false,
     'autoinc' => false,
   ),
