@@ -1,184 +1,178 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head> 
-  <title>{$eyou.field.seo_title}</title> 
-  <meta name="renderer" content="webkit" /> 
-  <meta charset="utf-8" /> 
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0,minimal-ui" /> 
-  <meta name="description" content="{$eyou.field.seo_description}" /> 
-  <meta name="keywords" content="{$eyou.field.seo_keywords}" />
-  <link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" /> 
-  {eyou:static file="skin/css/basic.css" /} 
-  {eyou:static file="skin/css/common.css" /} 
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=0">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<!--页面seo标题-->
+<title>{$eyou.field.seo_title}</title>
+<!--页面seo描述-->
+<meta name="description" content="{$eyou.field.seo_description}" />
+<!--页面seo关键词-->
+<meta name="keywords" content="{$eyou.field.seo_keywords}" />
+<!--网站地址栏图标-->
+<link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+{eyou:static file="skin/css/amazeui.min.css" /}
+{eyou:static file="skin/css/app.css" /}
+<!--[if lt IE 9]>
+<div class="notsupport">
+	<h1>:( 非常遗憾</h1>
+	<h2>您的浏览器版本太低，请升级您的浏览器</h2>
+</div>
+<![endif]--> 
+{eyou:static file="skin/js/jquery.min.js" /}
+{eyou:static file="skin/js/amazeui.min.js" /}
+{eyou:static file="skin/js/app.js" /} 
+</head>
+<body>
+<!--网站公用头部——开始-->
+{eyou:include file="header.htm" /}
+<!--网站公用头部——结束-->
+<!--网站公用自定义文件——开始-->
+{eyou:include file="banner.htm" /}
+<!--网站公用自定义文件——结束-->
+<div class="width inner_container">
+  <!--当前位置调用-->
+<ol class="am-breadcrumb">
+    <li><i class="am-icon-home"></i>{eyou:position style="" /}</li>  
+  </ol>
+  <div class="pro_show">
+    <div class="left">
+     <!--图集循环调用——开始-->
+     <!--调用一条数据-->
+      {eyou:volist name="$eyou.field.image_list" row='1'}
+      <div id="zoom_pic" class="zoom"><img src="{$field.image_url}" alt="{$eyou.field.title}" width="500" id="zoom"></div>
+      {/eyou:volist}
+     <!--图集循环调用——结束--> 
+      <div class="thumb_pic">
+        <ul>
+          <!--图集循环调用——开始-->
+          {eyou:volist name="$eyou.field.image_list"}
+          <li {eyou:eq name='$i' value='1'}class="hover"{/eyou:eq}><img src="{$field.image_url}" data-url="{$field.image_url}" alt="{$eyou.field.title}" width="60" height="60"></li>
+          {/eyou:volist}
+        </ul>
+        <!--图集循环调用——结束-->
+      </div>
+    </div>
+    <div class="right">
+      <!--产品标题-->
+      <h1>{$eyou.field.title}</h1>
+      <!--产品描述-->
+      <div class="intro"> {$eyou.field.seo_description}</div>
+      <hr>
+      <!--产品参数调用——开始-->
+      <ul class="attribute">
+       {eyou:attribute type='auto'}
+		<li><em>{$attr.name}：</em>{$attr.value} </li> 
+	   {/eyou:attribute}
+      </ul>
+      <!--产品参数调用——结束-->
+      <!--商城购买行为调用——开始-->
+     <!--购物车组件start--> 
+{eyou:sppurchase id='field' currentstyle='btn-danger'} 
+    <!-- 价格 标签开始 --> 
+    <div class="ey-price"><span>￥{$field.users_price}</span> </div> 
+    <!-- 价格 标签结束 --> 
 
-    <!--[if lte IE 9]>
-    {eyou:static file="skin/js/lteie9.js" /}
-<![endif]--> 
-</head> 
- <!--[if lte IE 8]>
-    <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
-    <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span>×</span>
-    </button>
-    你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
-<![endif]--> 
-<body> 
-    <!--header-s-->
-    {eyou:include file="header.htm"/}
-    <!--header-e-->
-    <div class="ey-banner-ny vertical-align text-center"> 
-     <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
- </div> 
- <section class="ey-crumbs hidden-sm-down" m-id="met_position" m-type="nocontent"> 
-     <div class="container"> 
-        <div class="row"> 
-           <div class="border-bottom clearfix"> 
-              <ol class="breadcrumb m-b-0 subcolumn-crumbs breadcrumb-arrow"> 
-                 <li class="breadcrumb-item"> {eyou:lang name='yybl5' /}：{eyou:position style="crumb" /} </li> 
-             </ol> 
-         </div> 
-     </div> 
- </div> 
-</section> 
-<section class="ey-column-nav"> 
- <div class="container"> 
-    <div class="row"> 
-       <ul class="clearfix ey-column-nav-ul"> 
-          <li> <a href="{$eyou.field.toptypeurl}" title="{eyou:lang name='yybl2' /}" {eyou:gt name="$eyou.field.has_children" value="0"}class="active"{/eyou:gt}>{eyou:lang name='yybl2' /}</a> </li> 
-          {eyou:channel type="first" currentstyle="active" id="field"}
-          <li class="dropdown"> <a href="{$field.typeurl}" title="{$field.typename}" {eyou:gt name="$field.has_children" value="0"}class="dropdown-toggle" data-toggle="dropdown"{/eyou:gt}>{$field.typename}</a> 
-            {eyou:gt name="$field.has_children" value="0"}
-            <div class="dropdown-menu animate"> 
-              <a href="{$field.typeurl}" title="{eyou:lang name='yybl2' /}" class="dropdown-item ">{eyou:lang name='yybl2' /}</a> 
-              {eyou:channel name="$field.children" id="field2"}
-              <a href="{$field2.typeurl}" title="{$field2.typename}" class="dropdown-item ">{$field2.typename}</a> 
-              {/eyou:channel}
-          </div>
-          {/eyou:gt}
-          </li> 
-          {/eyou:channel}
-      </ul> 
+    <!-- 规格 标签开始 --> 
+    <div class="ey-spec"> 
+    {eyou:volist name="$field.ReturnData" id='field2'} 
+        <div class="row m-t-15"> 
+            <label class="form-control-label col-sm-7">{$field2.spec_name}</label> 
+            <div class="col-sm-10"> 
+            {eyou:volist name="$field2.spec_value" id='field3'} 
+                <a href="JavaScript:void(0);" {$field3.SpecData} class="btn btn-default btn-selected {$field3.SpecClass}">{$field3.spec_value}</a> 
+            {/eyou:volist} 
+            </div> 
+        </div> 
+    {/eyou:volist} 
     </div> 
-</div> 
-</section> 
-<main class="ey-showproduct pagetype1 animsition"> 
- <div class="ey-showproduct-head page-content block-bg"> 
-    <div class="container"> 
-       <div class="row"> 
-          <div class="col-lg-7"> 
-             <div class="ey-showproduct-list fngallery cover text-xs-center" id="ey-imgs-slick"> 
-                {eyou:volist name="$eyou.field.image_list"}
-                <!--fngallery：启用lightGallery插件的类名--> 
-                <div class="slick-slide"> 
-                   <a href="{$field.image_url}" data-med="{$field.image_url}" class="lg-item-box" data-src="{$field.image_url}" data-exthumbimage="{$field.image_url}" data-sub-html="{$eyou.field.title}"> 
-                      <!--类名lg-item-box之前为initPhotoSwipeFromDOM插件所用参数；之后为lightGallery插件所用参数，lg-item-box：lightGallery插件对应的类名--> 
-                      <img src="{$field.image_url}" class="img-fluid" alt="{$eyou.field.title}" /> 
-                    </a> 
-                  </div> 
-                  {/eyou:volist}
-              </div> 
-          </div> 
-          <div class="col-lg-5"> 
-             <div class="product-intro"> 
-                <h1 class="m-t-0 font-size-24">{$eyou.field.title}</h1> 
-                <p class="description">{$eyou.field.seo_description}</p> 
-                <ul class="product-para paralist blocks-100 blocks-sm-2 blocks-md-3 blocks-lg-2"> 
-                  {eyou:attribute type='auto'}
-                  <li> <span>{$attr.name}：</span> {$attr.value} </li> 
-                  {/eyou:attribute}
-                </ul>
+    <!-- 规格 标签结束 --> 
 
-              <!--购物车组件start--> 
-              {eyou:sppurchase id='field' currentstyle='btn-danger'}
-                    <!-- 价格 -->
-                    <div class="ey-price"><span>￥{$field.users_price}</span></div>
-                    <!-- END -->
+    <!-- 数量操作 标签开始 --> 
+    <div class="ey-number"> 
+        <label>数量</label> 
+        <div class="btn-input"> 
+            <button class="layui-btn" {$field.ReduceQuantity}>-</button> 
+            <input type="text" class="layui-input" {$field.UpdateQuantity}> 
+            <button class="layui-btn" {$field.IncreaseQuantity}>+</button> 
+        </div> 
+    </div> 
+    <!-- 数量操作 标签结束 --> 
 
-                    <!-- 规格 -->
-                    <div class="ey-spec">
-                    {eyou:volist name="$field.ReturnData" id='field2'}
-                        <div class="row m-t-15">
-                            <label class="form-control-label col-sm-7">{$field2.spec_name}</label>
-                            <div class="col-sm-10">
-                                {eyou:volist name="$field2.spec_value" id='field3'}
-                                    <a href="JavaScript:void(0);" {$field3.SpecData} class="btn btn-default btn-selected {$field3.SpecClass}">{$field3.spec_value}</a>
-                                {/eyou:volist}
-                            </div>
-                        </div>
-                    {/eyou:volist}
-                    </div>
-                    <!-- END -->
+    <!-- 库存量 标签开始 --> 
+    <span {$field.stock_show}>库存量：{$field.stock_count} 件</span> 
+    <!-- 库存量 标签结束 --> 
 
-                    <!-- 数量操作 -->
-                    <div class="ey-number">
-                        <label>数量</label>
-                        <div class="btn-input">
-                            <button class="layui-btn" {$field.ReduceQuantity}>-</button>
-                            <input type="text" class="layui-input" {$field.UpdateQuantity}>
-                            <button class="layui-btn" {$field.IncreaseQuantity}>+</button>
-                        </div>
-                    </div>
-                    <!-- END -->
+    <!-- 购买按钮 标签开始 --> 
+    <div class="ey-buyaction"> 
+        <a class="ey-joinin" href="JavaScript:void(0);" {$field.ShopAddCart}>加入购物车</a> 
+        <a class="ey-joinbuy" href="JavaScript:void(0);" {$field.BuyNow}>立即购买</a> 
+    </div> 
+    <!-- 购买按钮 标签结束 --> 
 
-                    <!-- 库存量 -->
-                    <span {$field.stock_show}>库存量：{$field.stock_count} 件</span>
-                    <!-- END -->
+    {$field.hidden} 
+{/eyou:sppurchase} 
+<!--购物车组件end-->
+      <!--商城购买行为调用——结束-->
+      <!--tag标签——开始-->
+      {eyou:notempty name='$eyou.field.tags'}
+      <div class="tags"><span class="am-icon-tags"></span> 标签：
+      {eyou:tag sort='now' getall='0' row='100' empty=''}
+		<a href="{$field.link}"  {$field.target}>{$field.tag}</a>
+	  {/eyou:tag}
+	  </div>
+	  {/eyou:notempty}
+	<!--tag标签——结束-->
+    </div>
+    <div class="clear"></div>
+  </div>
+  <div class="pro_intro">
+    <div class="left">
+      <div class="tabs">
+        <ul>
+          <li class="hover"><a>推荐产品</a></li>
+        </ul>
+        <div class="clear"></div>
+      </div>
+      <div class="plist">
+        <ul>
+         {eyou:arclist flag='c' orderby='now' titlelen='30' row='5' typeid='3'}
+          <li><a href="{$field.arcurl}" title="{$field.title}">
+            <div><img src="{$field.litpic}" alt="{$field.title}"></div>
+            <p>{$field.title}</p>
+            </a></li>
+         {/eyou:arclist} 
+        </ul>
+        <div class="clear"></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="tabs">
+        <ul>
+          <li class="hover"><a>产品介绍</a></li>
+        </ul>
+        <div class="clear"></div>
+      </div>
+      <div class="intro" >
+        <!--产品详情-->
+        {$eyou.field.content} 
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+</div>
 
-                    <!-- 加入购物车、立即购买 -->
-                    <div class="ey-buyaction">
-                        <a class="ey-joinin" href="JavaScript:void(0);" {$field.ShopAddCart}>加入购物车</a>
-                        <a class="ey-joinbuy" href="JavaScript:void(0);" {$field.BuyNow}>立即购买</a>
-                    </div>
-                    <!-- END -->
-                  {$field.hidden}
-              {/eyou:sppurchase}
-              <!--购物车组件end--> 
-              
-          </div> 
-      </div> 
-  </div> 
-</div> 
-</div> 
-<div class="ey-showproduct-body page-content"> 
-    <div class="container"> 
-       <div class="row"> 
-          <div class="col-lg-9 pull-lg-right"> 
-             <div class="row"> 
-                <div class="panel panel-body m-b-0 product-detail"> 
-                   <ul class="nav nav-tabs nav-tabs-line m-b-20 ey-showproduct-navtabs"> 
-                      <li class="nav-item"> <a class="nav-link active">{eyou:lang name='yybl9' /}</a> </li> 
-                  </ul> 
-                  <article class="tab-content"> 
-                      <section class="tab-pane ey-editor clearfix animation-fade active"> {$eyou.field.content}
-                      </section>
-                  </article> 
-                  
-              </div> 
-          </div> 
-      </div> 
-      <div class="col-lg-3"> 
-         <div class="row"> 
-            <aside class="panel panel-body m-b-0 product-hot ey-sidebar leftsidebar"> 
-               <div class="sidebar-piclist"> 
-                  <h3 class="m-0 font-size-16 font-weight-300">{eyou:lang name='yybl8' /}</h3> 
-                  <ul class="blocks-2 blocks-md-3 blocks-lg-100 m-t-20 text-xs-center imagesize sidebar-piclist-ul">
-                      {eyou:arclist row='3' titlelen='30' orderby="rand"}
-                      <li class="masonry-child"> <a href="{$field.arcurl}" title="{$field.title}" class="block m-b-0"> <img data-original="{$field.litpic}" class="cover-image" alt="{$field.title}" src="{eyou:global name='web_templets_pc' /}/skin/images/ajax-loader.gif" /></a> <h4 class="m-t-10 m-b-0 font-size-14"> <a href="{$field.arcurl}" title="{$field.title}">{$field.title}</a> </h4> </li> 
-                      {/eyou:arclist}
-                  </ul> 
-              </div> 
-          </aside> 
-      </div> 
-  </div> 
-</div> 
-</div> 
-</div> 
-</main>
-<!--footer-s-->
+<!--网站公用底部——开始-->
 {eyou:include file="footer.htm" /}
-<!--footer-e-->
-{eyou:static file="skin/js/PhotoSwipe.js" /}
-{eyou:ui open='off' /}
+<!--网站公用底部——结束-->
+
+{eyou:static file="skin/js/jquery.zoombie.js" /}
+{eyou:static file="skin/css/toastr.css" /}
+{eyou:static file="skin/js/toastr.min.js" /}
+{eyou:static file="skin/js/jquery.validator.min.js" /} 
+
 </body>
 </html>

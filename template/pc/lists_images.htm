@@ -1,101 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
- <head> 
-  <title>{$eyou.field.seo_title}</title> 
-  <meta name="renderer" content="webkit" /> 
-  <meta charset="utf-8" /> 
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0,minimal-ui" /> 
-  <meta name="description" content="{$eyou.field.seo_description}" /> 
-  <meta name="keywords" content="{$eyou.field.seo_keywords}" />
-  <link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" /> 
-  {eyou:static file="skin/css/basic.css" /} 
-  {eyou:static file="skin/css/common.css" /} 
-    <!--[if lte IE 9]>
-    {eyou:static file="skin/js/lteie9.js" /}
-    <![endif]--> 
- </head> 
- <!--[if lte IE 8]>
-    <div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
-    <button type="button" class="close" aria-label="Close" data-dismiss="alert">
-        <span>×</span>
-    </button>
-    你正在使用一个 <strong>过时</strong> 的浏览器。请 <a href=https://browsehappy.com/ target=_blank>升级您的浏览器</a>，以提高您的体验。</div>
-<![endif]--> 
- <body> 
-<!--header-s-->
-    {eyou:include file="header.htm"/}
-<!--header-e-->
-  <div class="ey-banner-ny vertical-align text-center"> 
-   <h1 class="vertical-align-middle">{$eyou.field.typename}</h1> 
-  </div> 
-  <section class="ey-crumbs hidden-sm-down"> 
-   <div class="container"> 
-    <div class="row"> 
-     <div class="border-bottom clearfix"> 
-      <ol class="breadcrumb m-b-0 subcolumn-crumbs breadcrumb-arrow"> 
-       <li class="breadcrumb-item"> {eyou:lang name='yybl5' /}：{eyou:position style="crumb" /} </li> 
-      </ol> 
-     </div> 
-    </div> 
-   </div> 
-  </section> 
-  <div class="ey-img animsition"> 
-   <div class="container"> 
-
-    <!--筛选组件start--> 
-    {eyou:screening id='field' currentstyle='active' alltxt='不限' }
-    <div class="row">
-        <div class="filter-box">
-            <!-- 筛选项栏目循环 -->
-            {eyou:volist name='$field.list' id='vo'}
-              <div class="filter-boxs">
-                <!-- 筛选项标题 -->
-                <div class="filter-tit">
-                 {$vo.title} ： 
-                </div>
-                <!-- 筛选的可选值循环 -->
-                 <div class="filter-cen">
-                {eyou:volist name='$vo.dfvalue' id='val'}
-                    <a {$val.onClick} class="{$val.currentstyle}">{$val.name}</a>&nbsp;
-                {/eyou:volist}
-                </div>
-                <!-- 筛选的可选值循环结束 -->
-              </div>
-            {/eyou:volist}
-            <!-- 筛选项栏目循环结束 -->
-            <!-- 清除所有筛选条件按钮 -->
-            <div class="filter-bt"><a href="{$field.resetUrl}">清除筛选条件</a></div>
-        </div>
-        <!-- 隐藏域 -->
-        {$field.hidden}
-    </div>
-    {/eyou:screening}
-    <!--筛选组件end--> 
-
-    <div class="row"> 
-     <ul class="blocks-100 blocks-md-2 blocks-lg-4 blocks-xxl-4  no-space ey-pager-ajax imagesize ey-img-list"> 
-      {eyou:list pagesize="8" titlelen="20"}
-      <li class="widget "> 
-       <div class="cover overlay overlay-hover"> 
-        <a href="{$field.arcurl}" title="{$field.title}" class="btn btn-outline btn-inverse ey-img-showbtn"> <img class="cover-image overlay-scale" src="{$field.litpic}" alt="{$field.title}" /> </a> 
-       </div> 
-       <div class="cover-title"> 
-        <h3><a href="{$field.arcurl}" title="{$field.title}">{$field.title}</a></h3> 
-       </div> </li> 
-      {/eyou:list}
-     </ul> 
-     <div class="m-t-20 text-xs-center hidden-sm-down"> 
-      <ul class="tcdPageCode">
-      {eyou:pagelist listitem="index,end,pre,next" listsize="2"/}
-      </ul>
-     </div> 
-    </div> 
-   </div> 
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=0">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp"/>
+<!--页面seo标题-->
+<title>{$eyou.field.seo_title}</title>
+<!--页面seo描述-->
+<meta name="description" content="{$eyou.field.seo_description}" />
+<!--页面seo关键词-->
+<meta name="keywords" content="{$eyou.field.seo_keywords}" />
+<!--网站地址栏图标-->
+<link href="{eyou:global name='web_cmspath' /}/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+{eyou:static file="skin/css/amazeui.min.css" /}
+{eyou:static file="skin/css/app.css" /}
+<!--[if lt IE 9]>
+<div class="notsupport">
+	<h1>:( 非常遗憾</h1>
+	<h2>您的浏览器版本太低，请升级您的浏览器</h2>
+</div>
+<![endif]-->
+{eyou:static file="skin/js/jquery.min.js" /}
+{eyou:static file="skin/js/amazeui.min.js" /}
+{eyou:static file="skin/js/app.js" /}
+</head>
+<body>
+<!--网站公用头部——开始-->
+{eyou:include file="header.htm" /}
+<!--网站公用头部——结束-->
+<!--网站公用自定义文件——开始-->
+{eyou:include file="banner.htm" /}
+<!--网站公用自定义文件——结束-->
+<div class="width inner_container">
+  <!--当前位置调用-->
+<ol class="am-breadcrumb">
+    <li><i class="am-icon-home"></i>{eyou:position style="" /}</li>  
+  </ol>
+  <div class="home_nav">
+    <ul id="subnav">
+     <!--当前栏目下所有子栏目调用-->
+      {eyou:channel type="first" currentstyle="hover"}
+      <li class="{$field.currentstyle}"><a href="{$field.typeurl}" title="{$field.typename}">{$field.typename}</a> </li>
+      {/eyou:channel}
+    </ul>
+    <div class="clear"></div>
   </div>
-  <!--footer-s-->
-  {eyou:include file="footer.htm" /}
-  <!--footer-e-->
-  {eyou:ui open='off' /}
- </body>
+  <div class="list_pic">
+    <ul>
+     {eyou:list titlelen='60' pagesize='8'}
+      <li><a href="{$field.arcurl}" title="{$field.title}">
+        <div><img src="{$field.litpic}" alt="{$field.title}" height="200"></div>
+        <p class="title">{$field.title}</p>
+        </a></li>
+     {/eyou:list}  
+    </ul>
+    <div class="clear"></div>
+  </div>
+  <!--列表分页——开始-->
+  <div class="pagelist">
+    <ul>
+       {eyou:pagelist listitem='index,pre,pageno,next,end' listsize='2' /}
+    </ul>
+  </div>
+  <!--列表分页——结束-->
+</div>
+<!--网站公用底部——开始-->
+{eyou:include file="footer.htm" /}
+<!--网站公用底部——结束-->
+</body>
 </html>
