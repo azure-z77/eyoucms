@@ -20,8 +20,11 @@ use think\Db;
 /**
  * 提交订单
  */
+load_trait('controller/Jump');
 class TagSpsubmitorder extends Base
-{
+{ 
+    use \traits\controller\Jump;
+
     /**
      * 会员ID
      */
@@ -45,58 +48,70 @@ class TagSpsubmitorder extends Base
     {
         // 获取解析数据
         $querystr   = input('param.querystr/s');
-        $querydata  = unserialize(base64_decode($querystr));
-        $aid = $querydata['aid'];
-        $num = $querydata['product_num'];
-        $spec_value_id = isset($querydata['spec_value_id']) ? $querydata['spec_value_id'] : '';
+        $hash   = input('param.hash/s');
+        $auth_code = tpCache('system.system_auth_code');
+        if(!empty($querystr) && md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
+
+        // 数据解析拆分
+        parse_str(mchStrCode($querystr,'DECODE'), $querydata);
+        $aid = !empty($querydata['aid']) ? intval($querydata['aid']) : 0;
+        $num = !empty($querydata['product_num']) ? intval($querydata['product_num']) : 0;
+        $spec_value_id = !empty($querydata['spec_value_id']) ? $querydata['spec_value_id'] : '';
 
         if (!empty($aid)) {
-            if ($num >= '1') {
+            if ($num >= 1) {
                 // 立即购买查询条件
                 $ArchivesWhere = [
                     'a.aid'  => $aid,
                     'a.lang' => $this->home_lang,
                 ];
-
                 if (!empty($spec_value_id)) $ArchivesWhere['b.spec_value_id'] = $spec_value_id;
                 
-                $result['list'] = Db::name('archives')->field('a.aid,a.title,a.litpic,a.users_price,a.stock_count,a.prom_type,b.spec_price,b.spec_stock,b.spec_value_id')
+                $field = 'a.aid, a.title, a.litpic, a.users_price, a.stock_count, a.prom_type, a.attrlist_id, b.spec_price, b.spec_stock, b.spec_value_id, c.spec_is_select';
+                $result['list'] = Db::name('archives')->field($field)
                     ->alias('a')
                     ->join('__PRODUCT_SPEC_VALUE__ b', 'a.aid = b.aid', 'LEFT')
+                    ->join('__PRODUCT_SPEC_DATA__ c', 'a.aid = c.aid', 'LEFT')
                     ->where($ArchivesWhere)
                     ->limit('0, 1')
                     ->select();
 
+                if (empty($result['list'][0]['spec_is_select'])) {
+                    $result['list'][0]['spec_price']    = '';
+                    $result['list'][0]['spec_stock']    = '';
+                    $result['list'][0]['spec_value_id'] = '';
+                }
                 $result['list'][0]['product_num'] = $num;
-                $submit_order_type = '1';
+                $submit_order_type = 1;
                 // 加密不允许更改的数据值
-                $aid  = base64_encode(serialize($aid));
-                $num  = base64_encode(serialize($num));
-                $type = base64_encode(serialize('1'));// 1表示直接下单购买，不走购物车
-                $spec_value_id = base64_encode(serialize($spec_value_id));
+                $aid  = mchStrCode($aid,'ENCODE');
+                $num  = mchStrCode($num,'ENCODE');
+                $type = mchStrCode('1','ENCODE'); // 1表示直接下单购买，不走购物车
+                $spec_value_id  = mchStrCode($spec_value_id,'ENCODE');
 
                 $result['list'][0]['ProductHidden'] = '<input type="hidden" name="aid" value="'.$aid.'"> <input type="hidden" name="num" value="'.$num.'"> <input type="hidden" name="type" value="'.$type.'"> <input type="hidden" name="spec_value_id[]" value="'.$spec_value_id.'">';
-            }else{
+            } else {
                 action('user/Shop/shop_under_order', false);
                 exit;
             }
-        }else{
+        } else {
             // 购物车查询条件
             $CartWhere = [
                 'a.users_id' => $this->users_id,
                 'a.lang'     => $this->home_lang,
                 'a.selected' => 1,
             ];
-            $result['list'] = Db::name('shop_cart')->field('a.*,b.aid,b.title,b.litpic,b.users_price,b.stock_count,b.prom_type,c.spec_price,c.spec_stock')
+            $field = 'a.*, b.aid, b.title, b.litpic, b.users_price, b.stock_count, b.prom_type, b.attrlist_id, c.spec_price, c.spec_stock, d.spec_is_select';
+            $result['list'] = Db::name('shop_cart')->field($field)
                 ->alias('a')
                 ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
                 ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
+                ->join('__PRODUCT_SPEC_DATA__ d', 'a.product_id = d.aid and a.spec_value_id = d.spec_value_id', 'LEFT')
                 ->where($CartWhere)
                 ->order('a.add_time desc')
                 ->select();
-            $submit_order_type = '0';
+            $submit_order_type = 0;
         }
-        
         // 获取商城配置信息
         $ConfigData = getUsersConfigData('shop');
 
@@ -167,6 +182,8 @@ class TagSpsubmitorder extends Base
             }
         }
 
+        if (empty($result['list'])) $this->error('商品库存不足或已过期！');
+
         // 产品数据处理
         foreach ($result['list'] as $key => $value) {
             if ($value['users_price'] >= 0 && !empty($value['product_num'])) {
@@ -195,29 +212,29 @@ class TagSpsubmitorder extends Base
                 $result['list'][$key]['ProductHidden'] = '<input type="hidden" name="spec_value_id[]" value="'.$value['spec_value_id'].'">';
             }
 
-            // 产品属性处理
+            // 产品旧参数属性处理
+            $result['list'][$key]['attr_value'] = '';
             if (!empty($value['aid'])) { 
-                $attrData   = Db::name('product_attr')->where('aid',$value['aid'])->field('attr_value,attr_id')->select();
-                $attr_value = '';
+                $attrData   = Db::name('product_attr')->where('aid', $value['aid'])->field('attr_value, attr_id')->select();
                 foreach ($attrData as $val) {
                     $attr_name  = Db::name('product_attribute')->where('attr_id',$val['attr_id'])->field('attr_name')->find();
-                    $attr_value .= $attr_name['attr_name'].'：'.$val['attr_value'].'<br/>';
+                    $result['list'][$key]['attr_value'] .= $attr_name['attr_name'].'：'.$val['attr_value'].'<br/>';
                 }
-                $result['list'][$key]['attr_value'] = $attr_value;
             }
 
             // 规格处理
+            $result['list'][$key]['product_spec'] = '';
             if (!empty($value['spec_value_id'])) {
                 $spec_value_id = explode('_', $value['spec_value_id']);
                 if (!empty($spec_value_id)) {
                     $SpecWhere = [
                         'aid'           => $value['aid'],
                         'lang'          => $this->home_lang,
-                        'spec_value_id' => ['IN',$spec_value_id],
+                        'spec_value_id' => ['IN',$spec_value_id]
                     ];
-                    $ProductSpecData = M("product_spec_data")->where($SpecWhere)->field('spec_name,spec_value')->select();
+                    $ProductSpecData = Db::name("product_spec_data")->where($SpecWhere)->field('spec_name, spec_value')->select();
                     foreach ($ProductSpecData as $spec_value) {
-                        $result['list'][$key]['attr_value'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
+                        $result['list'][$key]['product_spec'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
                     }
                 }
             }
@@ -269,7 +286,7 @@ class TagSpsubmitorder extends Base
             $data['addr_height'] = '100%';
         }else{
             $data['addr_width']  = '350px';
-            $data['addr_height'] = '550px';
+            $data['addr_height'] = '480px';
         }
         $data_json = json_encode($data);
         $version   = getCmsVersion();

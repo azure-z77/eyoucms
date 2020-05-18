@@ -48,7 +48,9 @@ class Url
             // aaa=1&bbb=2 转换成数组
             parse_str($vars, $vars);
         }
-        if (is_language()) {
+
+        $is_language = is_language();
+        if ($is_language) {
             if (empty($vars['lang'])) {
                 $lang = $request->param('lang/s', '');
                 if ('admin' == $module) {
@@ -229,6 +231,15 @@ class Url
                     if (3 == count($mca) && 'admin' != $mca[0]) { // 排除带有admin分组模块
                         unset($vars['lang']);
                     }
+                } else {
+                    if (2 == count($mca) || 'admin' == $mca[0]) { // 排除带有admin分组模块
+                        !isset($vars['lang']) && $vars['lang'] = get_current_lang();
+                    }
+                }
+            } else {
+                /*URL全局参数（单语言不携带lang参数）*/
+                if (!$is_language) {
+                    unset($vars['lang']);
                 }
             }
             /*--end*/
@@ -427,7 +438,7 @@ class Url
                 $suffix = substr($suffix, 0, $pos);
             }
         }
-        return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
+        return (empty($suffix) || 0 === strpos($suffix, '.') || '/' == $suffix) ? $suffix : '.' . $suffix;
     }
 
     // 匹配路由地址
@@ -440,7 +451,7 @@ class Url
             }
 
             /*同个模块、控制器、操作名对应多个路由规则，进行优先级别匹配 by 许宇资*/
-/*            $unequal = 0;
+            $unequal = 0;
             foreach ($pattern as $key => $val){
                 if (!isset($vars[$key])){
                     $unequal = 1;
@@ -449,7 +460,7 @@ class Url
             }
             if ($unequal){
                 continue;
-            }*/
+            }
             /*end*/
             
             $type = Config::get('url_common_param');

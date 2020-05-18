@@ -30,7 +30,7 @@ class TagSearchform extends Base
      * 获取搜索表单
      * @author wengxianhu by 2018-4-20
      */
-    public function getSearchform($typeid = '', $channelid = '', $notypeid = '', $flag = '', $noflag = '')
+    public function getSearchform($typeid = '', $channelid = '', $notypeid = '', $flag = '', $noflag = '', $type = '')
     {
         $searchurl = url('home/Search/lists');
 
@@ -55,6 +55,7 @@ class TagSearchform extends Base
         !empty($notypeid) && $hidden .= '<input type="hidden" name="notypeid" id="notypeid" value="'.$notypeid.'" />';
         !empty($flag) && $hidden .= '<input type="hidden" name="flag" id="flag" value="'.$flag.'" />';
         !empty($noflag) && $hidden .= '<input type="hidden" name="noflag" id="noflag" value="'.$noflag.'" />';
+        !empty($type) && 'default' != $type && $hidden .= '<input type="hidden" name="type" id="type" value="'.$type.'" />';
 
         $result[0] = array(
             'searchurl' => $searchurl,

@@ -70,7 +70,7 @@ class TagArcpagelist extends Base
 
         $result = [];
         $version = getCmsVersion();
-        $result['onclick'] = ' data-page="1" data-tips="'.$tips.'" data-loading="'.$loading.'" data-root_dir="'.$this->root_dir.'" data-tagidmd5="'.$tagidmd5.'"  onClick="tag_arcpagelist_multi(this,\''.$tagid.'\','.intval($pagesize).',\''.$callback.'\');" ';
+        $result['onclick'] = ' data-page="1" data-tips="'.$tips.'" data-loading="'.$loading.'" data-root_dir="'.$this->root_dir.'" data-tagidmd5="'.$tagidmd5.'" data-lang="'.$this->home_lang.'"  onClick="tag_arcpagelist_multi(this,\''.$tagid.'\','.intval($pagesize).',\''.$callback.'\');" ';
         $result['js'] = <<<EOF
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_arcpagelist.js?v={$version}"></script>
 EOF;

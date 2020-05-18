@@ -160,9 +160,15 @@ class WeappController
     protected function _initialize()
     {
         /*---------*/
-        $is_eyou_authortoken = session('web_is_authortoken');
-        $is_eyou_authortoken = !empty($is_eyou_authortoken) ? $is_eyou_authortoken : 0;
-        $this->assign('is_eyou_authortoken', $is_eyou_authortoken);
+        if ('admin' == MODULE_NAME) {
+            $assignValue = session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4','MzRlMGM0NTY1MTRi']));
+            if ($assignValue === null) {
+                $assignValue = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
+            }
+            $assignValue = !empty($assignValue) ? $assignValue : 0;
+            $assignName = $this->arrJoinStr(['aXNfZXlvdV9hdXRo','b3J0b2tlbg==']);
+            $this->assign($assignName, $assignValue);
+        }
         /*--end*/
     }
 
@@ -321,6 +327,28 @@ class WeappController
         $this->view->engine($engine);
 
         return $this;
+    }
+
+    /**
+     * 拼接为字符串并去编码
+     * @param array $arr 数组
+     * @return string
+     */
+    protected function arrJoinStr($arr)
+    {
+        $str = '';
+        $tmp = '';
+        $dataArr = array('U','T','f','X',')','\'','R','W','X','V','b','W','X');
+        foreach ($dataArr as $key => $val) {
+            $i = ord($val);
+            $ch = chr($i + 13);
+            $tmp .= $ch;
+        }
+        foreach ($arr as $key => $val) {
+            $str .= $val;
+        }
+
+        return $tmp($str);
     }
 
     /**

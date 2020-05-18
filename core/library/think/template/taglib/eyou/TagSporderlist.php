@@ -129,7 +129,12 @@ class TagSporderlist extends Base
                     }
 
                     // 产品内页地址
-                    $result['list'][$key]['details'][$kk]['arcurl'] = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$vv['product_id']]));
+                    $arcurl = '';
+                    $vars = !empty($array_new[$vv['product_id']]) ? $array_new[$vv['product_id']] : [];
+                    if (!empty($vars)) {
+                        $arcurl = urldecode(arcurl('home/'.$controller_name.'/view', $vars));
+                    }
+                    $result['list'][$key]['details'][$kk]['arcurl'] = $arcurl;
 
                     // 图片处理
                     $result['list'][$key]['details'][$kk]['litpic'] = handle_subdir_pic(get_default_pic($vv['litpic']));
@@ -141,8 +146,19 @@ class TagSporderlist extends Base
                         'order_id'   => $value['order_id'],
                         'order_code' => $value['order_code'],
                     ];
-                    $querystr   = base64_encode(serialize($querydata));
-                    $result['list'][$key]['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail',['querystr'=>$querystr]));
+
+                    /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                    $querystr = '';
+                    foreach($querydata as $_qk => $_qv)
+                    {
+                        $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                    }
+                    $querystr = str_replace('=', '', mchStrCode($querystr));
+                    $auth_code = tpCache('system.system_auth_code');
+                    $hash = md5("payment".$querystr.$auth_code);
+                    /*end*/
+                    
+                    $result['list'][$key]['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
                 }
 
                 // 获取订单状态

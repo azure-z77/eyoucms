@@ -34,6 +34,9 @@ class TagDiyurl extends Base
             case "reg":     // 注册
                 $parseStr = url('user/Users/reg');
                 break;
+            case "Mobile":     // 发送手机短信方法
+                $parseStr = url('api/Ajax/SendMobileCode');
+                break;
             default:
                 $parseStr = "";
                 break;

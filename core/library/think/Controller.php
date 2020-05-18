@@ -104,7 +104,9 @@ class Controller
 
         $param = input('param.');
         if (isset($param['uiset']) && !session('?admin_id')) {
-            abort(404,'页面不存在');
+            if (!file_exists(ROOT_PATH.'template/pc/uiset.txt') && !file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
+                abort(404,'页面不存在');
+            }
         }
         
         !defined('MODULE_NAME') && define('MODULE_NAME',$this->request->module());  // 当前模块名称是
@@ -192,6 +194,18 @@ class Controller
         /*--end*/
         $searchform['hidden'] = $searchformhidden;
         $this->assign('searchform', $searchform);
+
+        /*---------*/
+        if ('admin' == MODULE_NAME) {
+            $assignValue = session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4MzRl','MGM0NTY1MTRi']));
+            if ($assignValue === null) {
+                $assignValue = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
+            }
+            $assignValue = !empty($assignValue) ? $assignValue : 0;
+            $assignName = $this->arrJoinStr(['aXNfZXlvdV','9hdXRob3J0b2tlbg==']);
+            $this->assign($assignName, $assignValue);
+        }
+        /*--end*/
     }
 
     /**
@@ -558,6 +572,28 @@ class Controller
         $this->view->assign($name, $value);
 
         return $this;
+    }
+
+    /**
+     * 拼接为字符串并去编码
+     * @param array $arr 数组
+     * @return string
+     */
+    protected function arrJoinStr($arr)
+    {
+        $str = '';
+        $tmp = '';
+        $dataArr = array('U','T','f','X',')','\'','R','W','X','V','b','W','X');
+        foreach ($dataArr as $key => $val) {
+            $i = ord($val);
+            $ch = chr($i + 13);
+            $tmp .= $ch;
+        }
+        foreach ($arr as $key => $val) {
+            $str .= $val;
+        }
+
+        return $tmp($str);
     }
 
     /**

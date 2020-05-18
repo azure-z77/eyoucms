@@ -37,7 +37,6 @@ class TagTag extends Base
     {
         $aid = !empty($aid) ? $aid : $this->aid;
         $getall = intval($getall);
-        !empty($typeid) && $getall = 1;
         $result = false;
         $condition = array();
 
@@ -59,19 +58,24 @@ class TagTag extends Base
             
             if (!empty($typeid)) {
                 $typeid = $this->getTypeids($typeid, $type);
-                $condition['typeid'] = array('in', $typeid);
+                $condition['a.typeid'] = array('in', $typeid);
             }
             if($sort == 'rand') $orderby = 'rand() ';
-            else if($sort == 'week') $orderby=' weekcc DESC ';
-            else if($sort == 'month') $orderby=' monthcc DESC ';
-            else if($sort == 'hot') $orderby=' count DESC ';
-            else if($sort == 'total') $orderby=' total DESC ';
-            else $orderby = 'add_time DESC  ';
+            else if($sort == 'week') $orderby=' a.weekcc DESC ';
+            else if($sort == 'month') $orderby=' a.monthcc DESC ';
+            else if($sort == 'hot') $orderby=' a.count DESC ';
+            else if($sort == 'total') $orderby=' a.total DESC ';
+            else $orderby = 'a.add_time DESC  ';
+
+            $condition['b.arcrank'] = ['gt', -1];
+            $condition['a.lang'] = $this->home_lang;
 
             $result = Db::name('tagindex')
-                ->field('*, id AS tagid')
+                ->alias('a')
+                ->field('a.*, a.id AS tagid')
+                ->join('taglist b','a.id=b.tid')
                 ->where($condition)
-                ->where('lang', $this->home_lang)
+                ->group('a.id')
                 ->orderRaw($orderby)
                 ->limit($row)
                 ->select();

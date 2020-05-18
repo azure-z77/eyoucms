@@ -81,14 +81,24 @@ class TagArcview extends Base
         /*--end*/
 
         /*附加表*/
+        $addtableName = $channeltype_table.'_content';
         if (!empty($addfields)) {
             $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
             $addfields = trim($addfields, ',');
+            /*过滤不相关的字段*/
+            $addfields_arr = explode(',', $addfields);
+            $extFields = M($addtableName)->getTableFields();
+            $addfields_arr = array_intersect($addfields_arr, $extFields);
+            if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                $addfields = implode(',', $addfields_arr);
+            } else {
+                $addfields = '*';
+            }
+            /*end*/
         } else {
             $addfields = '*';
         }
-        $tableContent = $channeltype_table.'_content';
-        $row = M($tableContent)->field($addfields)->where('aid',$aid)->find();
+        $row = M($addtableName)->field($addfields)->where('aid',$aid)->find();
         if (is_array($row)) {
             $result = array_merge($result, $row);
         } else {
@@ -97,7 +107,7 @@ class TagArcview extends Base
                 'add_time'      => getTime(),
                 'update_time'   => getTime(),
             ];
-            M($tableContent)->save($saveData);
+            M($addtableName)->save($saveData);
         }
         $result = $this->fieldLogic->getChannelFieldList($result, $result['channel']); // 自定义字段的数据格式处理
         /*--end*/

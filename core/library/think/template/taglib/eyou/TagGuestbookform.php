@@ -13,6 +13,7 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
 use think\Request;
 
 /**
@@ -36,7 +37,7 @@ class TagGuestbookform extends Base
      * 获取留言表单
      * @author wengxianhu by 2018-4-20
      */
-    public function getGuestbookform($typeid = '', $type = 'default')
+    public function getGuestbookform($typeid = '', $type = 'default', $beforeSubmit = '')
     {
         $typeid = !empty($typeid) ? $typeid : $this->tid;
 
@@ -58,7 +59,7 @@ class TagGuestbookform extends Base
         $result = false;
 
         /*当前栏目下的表单属性*/
-        $row = M('guestbook_attribute')
+        $row = Db::name('guestbook_attribute')
             ->where([
                 'typeid'    => $typeid,
                 'lang'      => $this->home_lang,
@@ -77,8 +78,10 @@ class TagGuestbookform extends Base
 
             $newAttribute = array();
             $attr_input_type_1 = 1; // 兼容v1.1.6之前的版本
+            //检测规则
+            $validate_type_list = config("global.validate_type_list");
+            $check_js = '';
             foreach ($row as $key => $val) {
-                // $newKey = $key + 1;
                 $attr_id = $val['attr_id'];
                 /*字段名称*/
                 $name = 'attr_'.$attr_id;
@@ -113,33 +116,71 @@ class TagGuestbookform extends Base
                     /*--end*/
                 }
                 /*--end*/
+
+                //是否必填（js判断）
+                if (!empty($val['required'])){
+                    $check_js .= "
+                        if(x[i].name == '".'attr_'.$val['attr_id']."' && x[i].value.length == 0){
+                            alert('".$val['attr_name']."不能为空！');
+                            return false;
+                        }
+                    ";
+                }
+                //是否正则限制（js判断）
+                if (!empty($val['validate_type']) && !empty($validate_type_list[$val['validate_type']]['value'])){
+                    $check_js .= " 
+                    if(x[i].name == '".'attr_'.$val['attr_id']."' && !(".$validate_type_list[$val['validate_type']]['value'].".test( x[i].value))){
+                        alert('".$val['attr_name']."格式不正确！');
+                        return false;
+                    }
+                   ";
+                }
+            }
+
+            if (!empty($check_js)) {
+                $check_js = <<<EOF
+    var x = elements;
+    for (var i=0;i<x.length;i++) {
+        {$check_js}
+    }
+EOF;
+            }
+
+            if (!empty($beforeSubmit)) {
+                $beforeSubmit = "try{if(false=={$beforeSubmit}()){return false;}}catch(e){}";
             }
 
             $token_id = md5('guestbookform_token_'.$typeid.md5(getTime().uniqid(mt_rand(), TRUE)));
             $funname = 'f'.md5("ey_guestbookform_token_{$typeid}");
+            $submit = 'submit'.$token_id;
             $tokenStr = <<<EOF
 <script type="text/javascript">
+    function {$submit}(elements)
+    {
+        {$check_js}
+        {$beforeSubmit}
+        elements.submit();
+    }
+
     function ey_fleshVerify(id)
     {
         var src = "{$this->root_dir}/index.php?m=api&c=Ajax&a=vertify&type=guestbook&lang={$this->home_lang}";
-        if (src.indexOf('?') > -1) {
-            src += '&';
-        } else {
-            src += '?';
-        }
-        src += 'r='+ Math.floor(Math.random()*100);
+        src += "&r="+ Math.floor(Math.random()*100);
         document.getElementById(id).src = src;
     }
+
     function {$funname}()
     {
         //步骤一:创建异步对象
         var ajax = new XMLHttpRequest();
         //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
-        ajax.open("get", "{$this->root_dir}/index.php?m=api&c=Ajax&a=get_token&name=__token__{$token_id}", true);
+        ajax.open("post", "{$this->root_dir}/index.php?m=api&c=Ajax&a=get_token&name=__token__{$token_id}", true);
         // 给头部添加ajax信息
         ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
+        // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
+        ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         //步骤三:发送请求+数据
-        ajax.send();
+        ajax.send('_ajax=1');
         //步骤四:注册事件 onreadystatechange 状态改变就会调用
         ajax.onreadystatechange = function () {
             //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
@@ -154,9 +195,10 @@ EOF;
             $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
-            $action = ROOT_DIR."/index.php?m=home&c=Lists&a=gbook_submit&lang={$this->home_lang}";
+            $action = $this->root_dir."/index.php?m=home&c=Lists&a=gbook_submit&lang={$this->home_lang}";
             $newAttribute['action'] = $action;
             $newAttribute['formhidden'] = ' enctype="multipart/form-data" ';
+            $newAttribute['submit'] = "return {$submit}(this);";
 
             /*验证码处理*/
             // 默认开启验证码
@@ -186,7 +228,7 @@ EOF;
     public function getAttrInput($typeid)
     {
         header("Content-type: text/html; charset=utf-8");
-        $attributeList = M('GuestbookAttribute')->where("typeid = $typeid")
+        $attributeList = Db::name('GuestbookAttribute')->where("typeid = $typeid")
             ->where('lang', $this->home_lang)
             ->order('sort_order asc')
             ->select();

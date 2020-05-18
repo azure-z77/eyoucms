@@ -95,6 +95,7 @@ class TagScreening extends Base
             ->alias('a')
             ->join('__CHANNELFIELD_BIND__ b', 'b.field_id = a.id', 'LEFT')
             ->where($where)
+            ->order('a.sort_order asc')
             ->select();
 
         // Onclick点击事件方法名称加密，防止冲突
@@ -267,6 +268,9 @@ class TagScreening extends Base
                 // 处理参数输出
                 $data_new = [];
                 foreach ($dfvalue as $kk => $vv) {
+                    if ('off' == $alltxt && empty($vv)) {
+                        continue;
+                    }
                     $param_query[$name]    = $vv;
                     $data_new[$kk]['id']           = $vv;
                     $data_new[$kk]['name']         = "{$vv}";

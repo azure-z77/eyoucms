@@ -69,9 +69,13 @@ class TagUser extends Base
                             $shop_open = getUsersConfigData('shop.shop_open');
                             if (empty($shop_open)) return false; // 关闭商城中心，同时隐藏购物车入口
                             $url = url('user/Shop/shop_cart_list');
+                        } else if ('reg' == $type) {
+                            $users_open_reg = getUsersConfigData('users.users_open_reg');
+                            if (isset($users_open_reg) && 1 == $users_open_reg) return false;
+                            $url = url('user/Users/'.$type);
                         } else {
                             $url = url('user/Users/'.$type);
-                        }
+                        } 
 
                         $t_uniqid = md5(getTime().uniqid(mt_rand(), TRUE));
                         // A标签ID
@@ -80,6 +84,8 @@ class TagUser extends Base
                         $result['txtid'] = !empty($txtid) ? md5($txtid) : md5("ey_{$type}_txt_{$this->users_id}_{$t_uniqid}");
                         // 文字文案
                         $result['txt'] = $txt;
+                        // 购物车的数量ID
+                        $result['cartid'] = md5("ey_{$type}_cartid_{$this->users_id}_{$t_uniqid}");
                         // IMG标签里的ID
                         // $result['imgid'] = md5("ey_{$type}_img_{$this->users_id}_{$t_uniqid}");
                         // 图片文案
@@ -129,6 +135,7 @@ class TagUser extends Base
                     case 'login':
                     case 'reg':
                     case 'logout':
+                    case 'cart':
                         $hidden = <<<EOF
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_user.js?v={$version}"></script>
 <script type="text/javascript">

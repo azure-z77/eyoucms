@@ -57,9 +57,10 @@ class TagArclist extends Base
      * @param     string  $tag  标签属性集合
      * @param     string  $pagesize  分页显示条数
      * @param     string  $thumb  是否开启缩略图
+     * @param     string  $arcrank  是否显示会员权限
      * @return    array
      */
-    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderway = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '')
+    public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderway = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '', $arcrank = '')
     {
         $result = false;
 
@@ -214,6 +215,14 @@ class TagArclist extends Base
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
         array_push($condition, "a.is_del = 0"); // 回收站功能
+        /*定时文档显示插件*/
+        if (is_dir('./weapp/TimingTask/')) {
+            $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+            if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                array_push($condition, "a.add_time <= ".getTime()); // 只显当天或之前的文档
+            }
+        }
+        /*end*/
         $where_str = "";
         if (0 < count($condition)) {
             $where_str = implode(" AND ", $condition);
@@ -234,6 +243,12 @@ class TagArclist extends Base
             $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
         }
         /*--end*/
+
+        // 是否显示会员权限
+        $users_level_list = [];
+        if ('on' == $arcrank) {
+            $users_level_list = Db::name('users_level')->field('level_name,level_value')->where('lang',$this->home_lang)->order('is_system desc, level_value asc')->getAllWithIndex('level_value');
+        }
 
         // 查询数据处理
         $aidArr = array();
@@ -287,15 +302,41 @@ class TagArclist extends Base
                     }
                     /*--end*/
 
+                    /*是否显示会员权限*/
+                    !isset($val['level_name']) && $val['level_name'] = $val['arcrank'];
+                    !isset($val['level_value']) && $val['level_value'] = 0;
+                    if ('on' == $arcrank) {
+                        if (!empty($users_level_list[$val['arcrank']])) {
+                            $val['level_name'] = $users_level_list[$val['arcrank']]['level_name'];
+                            $val['level_value'] = $users_level_list[$val['arcrank']]['level_value'];
+                        } else if (empty($val['arcrank'])) {
+                            $firstUserLevel = current($users_level_list);
+                            $val['level_name'] = $firstUserLevel['level_name'];
+                            $val['level_value'] = $firstUserLevel['level_value'];
+                        }
+                    }
+                    /*--end*/
+
                     $result[$key] = $val;
                 }
 
                 /*附加表*/
                 if (!empty($addfields) && !empty($aidArr)) {
+                    $addtableName = $channeltype_table.'_content';
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
-                    $addtableName = $channeltype_table.'_content';
-                    $resultExt = M($addtableName)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
                     $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
                     /*--end*/

@@ -41,8 +41,9 @@ class TagFlink extends Base
         if (!empty($typeid)) {
             $map['typeid'] = array('eq', $typeid);
         }
+        $map['lang'] = $this->home_lang;
+        $map['status'] = 1;
         $result = M("links")->where($map)
-            ->where('lang', $this->home_lang)
             ->order('sort_order asc')
             ->limit($limit)
             ->cache(true,EYOUCMS_CACHE_TIME,"links")

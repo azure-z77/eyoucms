@@ -52,7 +52,7 @@ class TagList extends Base
      * 获取分页列表
      * @author wengxianhu by 2018-4-20
      */
-    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderway = '', $thumb = '')
+    public function getList($param = array(), $pagesize = 10, $orderby = '', $addfields = '', $orderway = '', $thumb = '', $arcrank = '')
     {
         $module_name_tmp = strtolower(request()->module());
         $ctl_name_tmp = strtolower(request()->controller());
@@ -221,6 +221,14 @@ class TagList extends Base
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
         array_push($condition, "a.is_del = 0"); // 回收站功能
+        /*定时文档显示插件*/
+        if (is_dir('./weapp/TimingTask/')) {
+            $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+            if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                array_push($condition, "a.add_time <= ".getTime()); // 只显当天或之前的文档
+            }
+        }
+        /*end*/
         
         $where_str = "";
         if (0 < count($condition)) {
@@ -229,6 +237,12 @@ class TagList extends Base
 
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby,$orderway);
+
+        // 是否显示会员权限
+        $users_level_list = [];
+        if ('on' == $arcrank) {
+            $users_level_list = Db::name('users_level')->field('level_name,level_value')->where('lang',$this->home_lang)->order('is_system desc, level_value asc')->getAllWithIndex('level_value');
+        }
 
         // 获取查询的表名
         $channeltype_info = model('Channeltype')->getInfo($channeltype);
@@ -331,6 +345,21 @@ class TagList extends Base
                         $val['litpic'] = thumb_img($val['litpic']);
                     }
                     /*--end*/
+
+                    /*是否显示会员权限*/
+                    !isset($val['level_name']) && $val['level_name'] = $val['arcrank'];
+                    !isset($val['level_value']) && $val['level_value'] = 0;
+                    if ('on' == $arcrank) {
+                        if (!empty($users_level_list[$val['arcrank']])) {
+                            $val['level_name'] = $users_level_list[$val['arcrank']]['level_name'];
+                            $val['level_value'] = $users_level_list[$val['arcrank']]['level_value'];
+                        } else if (empty($val['arcrank'])) {
+                            $firstUserLevel = current($users_level_list);
+                            $val['level_name'] = $firstUserLevel['level_name'];
+                            $val['level_value'] = $firstUserLevel['level_value'];
+                        }
+                    }
+                    /*--end*/
                     
                     $list[$key] = $val;
 
@@ -339,10 +368,21 @@ class TagList extends Base
 
                 /*附加表*/
                 if (!empty($addfields) && !empty($aidArr)) {
+                    $addtableName = $channeltype_table.'_content';
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
-                    $tableContent = $channeltype_table.'_content';
-                    $resultExt = M($tableContent)->field("aid,$addfields")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$aidArr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
                     $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
                     /*--end*/
@@ -421,14 +461,34 @@ class TagList extends Base
                 if ('keywords' == $key) {
                     $keywords = trim($param[$key]);
                     $condition['a.title'] = array('LIKE', "%{$keywords}%");
-                } else if (in_array($key, array('typeid'))) {
+                } else if ('typeid' == $key) {
                     $param[$key] = str_replace('，', ',', $param[$key]);
-                    $condition['a.'.$key] = array('in', $param[$key]);
+                    $param[$key] = preg_replace('/([^0-9,])/i', '', $param[$key]);
+                    if (stristr($param[$key], ',')) { // 指定多个栏目ID
+                        $typeids = explode(',', $param[$key]);
+                    } else {
+                        $search_type = input('param.type/s', 'default');
+                        if ('default' == $search_type) { // 默认只检索指定的栏目ID，不涉及下级栏目
+                            $typeids = [$param[$key]];
+                        } else if ('sonself' == $search_type) { // 当前栏目以及下级栏目
+                            $arctype_info = Db::name('arctype')->field('id,current_channel')->where(['id'=>['eq', $param[$key]], 'is_del'=>0])->find();
+                            $childrenRow = model('Arctype')->getHasChildren($param[$key]);
+                            foreach ($childrenRow as $k2 => $v2) {
+                                if ($arctype_info['current_channel'] != $v2['current_channel']) {
+                                    unset($childrenRow[$k2]); // 排除不是同一模型的栏目
+                                }
+                            }
+                            $typeids = get_arr_column($childrenRow, 'id');
+                        }
+                    }
+                    $condition['a.typeid'] = ['IN', $typeids];
                 } elseif ($key == 'channelid') {
                     $condition['a.channel'] = array('eq', $param[$key]);
                 } elseif ($key == 'notypeid') {
                     $param[$key] = str_replace('，', ',', $param[$key]);
-                    $condition['a.typeid'] = array('not in', $param[$key]);
+                    $param[$key] = preg_replace('/([^0-9,])/i', '', $param[$key]);
+                    $notypeids = explode(',', $param[$key]);
+                    $condition['a.typeid'] = ['NOT IN', $notypeids];
                 } elseif ($key == 'flag') {
                     $flag_arr = explode(",", $param[$key]);
                     $where_or_flag = array();
@@ -482,6 +542,14 @@ class TagList extends Base
         $condition['a.arcrank'] = array('gt', -1);
         $condition['a.status'] = array('eq', 1);
         $condition['a.is_del'] = array('eq', 0); // 回收站功能
+        /*定时文档显示插件*/
+        if (is_dir('./weapp/TimingTask/')) {
+            $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+            if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                $condition['a.add_time'] = array('elt', getTime()); // 只显当天或之前的文档
+            }
+        }
+        /*end*/
 
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby,$orderway);
@@ -566,11 +634,22 @@ class TagList extends Base
                     $addtableName = ''; // 附加字段的数据表名
                     $tmp_aid_arr = get_arr_column($tmp_list, 'aid');
                     $channeltype_table = $channeltypeRow[$channelid]['table']; // 每个模型对应的数据表
+                    $addtableName = $channeltype_table.'_content';
 
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
-                    $addtableName = $channeltype_table.'_content';
-                    $resultExt = M($addtableName)->field("aid,$addfields")->where('aid','in',$tmp_aid_arr)->getAllWithIndex('aid');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$tmp_aid_arr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
                     $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channelid, true);
                     /*--end*/
@@ -621,7 +700,7 @@ class TagList extends Base
                 // 根据需求新增条件
             ];
             // 所有应用于搜索的自定义字段
-            $channelfield = Db::name('channelfield')->where($where)->field('channel_id,id,name')->select();
+            $channelfield = Db::name('channelfield')->where($where)->field('channel_id,id,name,dtype')->select();
             // 查询当前栏目所属模型
             $channel_id = Db::name('arctype')->where('id',$param_new['tid'])->getField('current_channel');
             // 所有模型类别
@@ -636,15 +715,20 @@ class TagList extends Base
                 $fieldname = $value['name'];
                 if (!empty($fieldname) && !empty($param_new[$fieldname])) {
                     // 分割参数，判断多选或单选，拼装sql语句
-                    $val_arr  = explode('|', $param_new[$fieldname]);
+                    $val_arr  = explode('|', trim($param_new[$fieldname], '|'));
                     if (!empty($val_arr)) {
                         if ('' == $val_arr[0]) {
                             // 选择全部时拼装sql语句
                             // $wheres[$fieldname] = ['NEQ', null];
                         }else{
                             if (1 == count($val_arr)) {
-                                // 单选
-                                $wheres[$fieldname] = $val_arr[0];
+                                // 多选字段类型
+                                if ('checkbox' == $value['dtype']) {
+                                    $val_arr[0] = addslashes($val_arr[0]);
+                                    $where_multiple = Db::raw("FIND_IN_SET('".$val_arr[0]."',{$fieldname})");
+                                } else {
+                                    $wheres[$fieldname] = $val_arr[0];
+                                }
                             }else{
                                 // 多选
                                 $where_or_arr = array();
@@ -743,6 +827,14 @@ class TagList extends Base
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
         array_push($condition, "a.is_del = 0");// 回收站功能
+        //定时文档显示插件
+        if (is_dir('./weapp/TimingTask/')) {
+            $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
+            if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
+                array_push($condition, "a.add_time <= ".getTime()); // 只显当天或之前的文档
+            }
+        }
+        //end
 
         $seo_pseudo = config('ey_config.seo_pseudo');
         // 是否伪静态下
@@ -874,11 +966,22 @@ class TagList extends Base
                     $addtableName = ''; // 附加字段的数据表名
                     $tmp_aid_arr = get_arr_column($tmp_list, 'aid');
                     $channeltype_table = $channeltypeRow[$channelid]['table']; // 每个模型对应的数据表
+                    $addtableName = $channeltype_table.'_content';
 
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
-                    $addtableName = $channeltype_table.'_content';
-                    $resultExt = M($addtableName)->field("aid,$addfields")->where('aid','in',$tmp_aid_arr)->getAllWithIndex('aid');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$tmp_aid_arr)->getAllWithIndex('aid');
                     /*自定义字段的数据格式处理*/
                     $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channelid, true);
                     /*--end*/

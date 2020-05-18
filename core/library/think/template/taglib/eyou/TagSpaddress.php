@@ -54,7 +54,7 @@ class TagSpaddress extends Base
                 $data['addr_height'] = '100%';
             }else{
                 $data['addr_width']  = '350px';
-                $data['addr_height'] = '550px';
+                $data['addr_height'] = '480px';
             }
             $data_json = json_encode($data);
             $version   = getCmsVersion();

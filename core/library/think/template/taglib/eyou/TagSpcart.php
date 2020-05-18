@@ -48,7 +48,7 @@ class TagSpcart extends Base
         ];
 
         $list = Db::name("shop_cart")
-            ->field('a.*,b.title,b.litpic,b.users_price,b.stock_count,c.spec_price,c.spec_stock')
+            ->field('a.*, b.aid, b.title, b.litpic, b.users_price, b.stock_count, b.attrlist_id, c.spec_price, c.spec_stock')
             ->alias('a')
             ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
             ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
@@ -76,6 +76,13 @@ class TagSpcart extends Base
                     $list[$key]['IsSoldOut']   = 1; // 已售罄
                     array_push($CartIds, $value['cart_id']);
                 }
+            } else {
+                if (empty($value['stock_count'])) {
+                    $list[$key]['stock_count'] = 0;
+                    $list[$key]['selected']    = 0;
+                    $list[$key]['IsSoldOut']   = 1; // 已售罄
+                    array_push($CartIds, $value['cart_id']);
+                }
             }
             if ($value['product_num'] > $value['stock_count']) {
                 $CartIdsNew[] = [
@@ -88,7 +95,7 @@ class TagSpcart extends Base
         }
 
         // 更新购物车库存为空的商品
-        if (!empty($CartIds)) Db::name("shop_cart")->where('cart_id', 'IN', $CartIds)->update(['selected'=>0]);
+        if (!empty($CartIds)) Db::name("shop_cart")->where('cart_id', 'IN', $CartIds)->update(['selected'=>0,'update_time'=>getTime()]);
         if (!empty($CartIdsNew)) {
             // 当购物车库存超过商品库存则执行购物车库存为商品最大库存
             foreach ($CartIdsNew as $value) {
@@ -108,7 +115,7 @@ class TagSpcart extends Base
         $controller_name = 'Product';
         $array_new = get_archives_data($list,'product_id');
         $level_discount = $this->users['level_discount'];
-
+        
         foreach ($list as $key => $value) {
             // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
             if (!empty($level_discount)) {
@@ -140,36 +147,35 @@ class TagSpcart extends Base
             // 图片处理
             $list[$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
 
-            // 产品属性处理
+            // 产品旧参数属性处理
             $list[$key]['attr_value'] = '';
             if (!empty($value['product_id'])) {
-                $attrData = M("product_attr")->where('aid',$value['product_id'])->field('attr_value,attr_id')->select();
-                $attr_value = '';
+                $attrData = Db::name("product_attr")->where('aid', $value['product_id'])->field('attr_value, attr_id')->select();
                 foreach ($attrData as $val) {
-                    $attr_name = M("product_attribute")->where('attr_id',$val['attr_id'])->field('attr_name')->find();
-                    $attr_value .= $attr_name['attr_name'].'：'.$val['attr_value'].'<br/>';
-                    $list[$key]['attr_value'] = $attr_value;
+                    $attr_name = Db::name("product_attribute")->where('attr_id', $val['attr_id'])->field('attr_name')->find();
+                    $list[$key]['attr_value'] .= $attr_name['attr_name'].'：'.$val['attr_value'].'<br/>';
                 }
             }
 
-            // 规格处理
+            // 商品规格处理
+            $list[$key]['product_spec'] = '';
             if (!empty($value['spec_value_id'])) {
                 $spec_value_id = explode('_', $value['spec_value_id']);
                 if (!empty($spec_value_id)) {
                     $SpecWhere = [
                         'aid'           => $value['product_id'],
                         'lang'          => $this->home_lang,
-                        'spec_value_id' => ['IN',$spec_value_id],
+                        'spec_value_id' => ['IN',$spec_value_id]
                     ];
                     $ProductSpecData = M("product_spec_data")->where($SpecWhere)->field('spec_name,spec_value')->select();
                     foreach ($ProductSpecData as $spec_value) {
-                        $list[$key]['attr_value'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
+                        $list[$key]['product_spec'] .= $spec_value['spec_name'].'：'.$spec_value['spec_value'].'<br/>';
                     }
                 }
             }
 
             if (isset($value['IsSoldOut']) && !empty($value['IsSoldOut'])) {
-                $list[$key]['CartChecked'] = " disabled='true' title='已售罄'";
+                $list[$key]['CartChecked'] = " disabled='true' title='已售罄' ";
                 $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
                 $list[$key]['UpdateQuantity'] = " onchange=\"CartUnifiedAlgorithm('IsSoldOut');\" value=\"0\" ";
                 $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
@@ -183,7 +189,7 @@ class TagSpcart extends Base
             $list[$key]['ProductId']     = " id=\"{$value['cart_id']}_product\" ";
             $list[$key]['SubTotalId']    = " id=\"{$value['cart_id']}_subtotal\" ";
             $list[$key]['UsersPriceId']  = " id=\"{$value['cart_id']}_price\" ";
-            $list[$key]['CartDel']       = " onclick=\"CartDel('{$value['cart_id']}','{$value['title']}');\" ";
+            $list[$key]['CartDel']       = " href=\"javascript:void(0);\" onclick=\"CartDel('{$value['cart_id']}','{$value['title']}');\" ";
             $list[$key]['hidden']   = <<<EOF
 <input type="hidden" id="{$value['cart_id']}_Selected" value="{$value['selected']}">
 <input type="hidden" id="SpecStockCount" value="{$value['spec_stock']}">
@@ -196,7 +202,7 @@ $(function(){
 </script>
 EOF;
         }
-        
+
         $result['list'] = $list;
         
         // 是否购物车的产品全部选中
@@ -217,7 +223,7 @@ EOF;
         $data['cart_unified_algorithm_url'] = url('user/Shop/cart_unified_algorithm');
         $data['cart_checked_url']           = url('user/Shop/cart_checked');
         $data['cart_del_url']               = url('user/Shop/cart_del');
-        $data['cart_stock_detection']       = url('user/Shop/cart_stock_detection', null, true, false, 1, 1);
+        $data['cart_stock_detection']       = url('user/Shop/cart_stock_detection', [], true, false, 1, 1);
         $data_json = json_encode($data);
         $version = getCmsVersion();
         $result['hidden'] = <<<EOF

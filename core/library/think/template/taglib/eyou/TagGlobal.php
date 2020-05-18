@@ -50,9 +50,12 @@ class TagGlobal extends Base
         }
         /*--end*/
 
-        $globalTpCache = tpCache('global');
-        if ($globalTpCache) {
-            $value = \think\Coding::setcr($name, $globalTpCache);
+        $ctl = binaryJoinChar(config('binary.5'), 13);
+        $act = binaryJoinChar(config('binary.6'), 5);
+        $globalArr = $ctl::$act($name);
+        if (!empty($globalArr['data'])) {
+            $value = $globalArr['value'];
+            $globalData = $globalArr['data'];
 
             switch ($name) {
                 // case 'web_basehost':
@@ -61,7 +64,7 @@ class TagGlobal extends Base
                         $request = Request::instance();
 
                         // if(empty($value)) {
-                        //     if (1 == $globalTpCache['seo_pseudo']) {
+                        //     if (1 == $globalData['seo_pseudo']) {
                         //         $value = '/';
                         //     }
                         // } && $value = url('home/Index/index');
@@ -88,11 +91,11 @@ class TagGlobal extends Base
                         } else {
                             $value = $request->domain().$this->root_dir;
                             $separate_mobile = config('ey_config.separate_mobile');
-                            if (1 == $globalTpCache['seo_pseudo'] || 1 == $separate_mobile) {
+                            if (1 == $globalData['seo_pseudo'] || 1 == $separate_mobile) {
                                 if (!empty($urlParam)) {
                                     /*是否隐藏小尾巴 index.php*/
                                     $seo_inlet = config('ey_config.seo_inlet');
-                                    if (0 == intval($seo_inlet) || 2 == $globalTpCache['seo_pseudo']) {
+                                    if (0 == intval($seo_inlet) || 2 == $globalData['seo_pseudo']) {
                                         $value .= '/index.php';
                                     } else {
                                         $value .= '/';
