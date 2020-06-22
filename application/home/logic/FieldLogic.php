@@ -157,6 +157,40 @@ class FieldLogic extends Model
                         $val = number_format($val,'2','.',',');
                         break;
                     }
+
+                    case 'region':
+                    {
+                        // 先在默认值里寻找是否存在对应区域ID的名称
+                        $dfvalue = !empty($fieldInfo[$key]['dfvalue']) ? $fieldInfo[$key]['dfvalue'] : '';
+                        if (!empty($dfvalue)) {
+                            $dfvalue_tmp = unserialize($dfvalue);
+                            $region_ids = !empty($dfvalue_tmp['region_ids']) ? explode(',', $dfvalue_tmp['region_ids']) : [];
+                            if (!empty($region_ids)) {
+                                $arr_index = array_search($val, $region_ids);
+                                if (false !== $arr_index && 0 <= $arr_index) {
+                                    $dfvalue_tmp['region_names'] = str_replace('，', ',', $dfvalue_tmp['region_names']);
+                                    $region_names = explode(',', $dfvalue_tmp['region_names']);
+                                    $val = $region_names[$arr_index];
+                                }
+                            }
+                        }
+                        // 默认值里不存在，则去区域表里获取
+                        if (!empty($val) && is_numeric($val)) {
+                            $city_list = get_city_list();
+                            if (!empty($city_list[$val])) {
+                                $val = $city_list[$val]['name'];
+                            } else {
+                                $province_list = get_province_list();
+                                if (!empty($province_list[$val])) {
+                                    $val = $province_list[$val]['name'];
+                                } else {
+                                    $area_list = get_area_list();
+                                    $val = !empty($area_list[$val]) ? $area_list[$val]['name'] : '';
+                                }
+                            }
+                        }
+                        break;
+                    }
                     
                     default:
                     {

@@ -613,9 +613,9 @@ cursor: pointer; }
 /*数据表格查看操作项*/
 .flexigrid .bDiv .handle div { font-size: 0; *word-spacing:-1px/*IE6、7*/;
 }
-.flexigrid .bDiv a.btn , a.ui-btn{  font-weight: normal; line-height: 20px; color: #777; background: #FFF none; vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;
-*zoom:1/*IE7*/;
-height: 20px; padding: 1px 6px;  cursor: pointer !important; }
+.flexigrid .bDiv a.btn , a.ui-btn{  font-weight: normal; line-height: 20px; color: #777; background: #FFF none; vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;*zoom:1/*IE7*/;
+height: 20px; padding: 1px 6px;  cursor: pointer !important;position: relative; }
+.flexigrid .bDiv a.btn .num{width: 14px; height: 14px; border-radius: 50px;background-color: red;color: #fff;font-size: 12px;line-height: 14px;position: absolute;right:-7px;top: -7px;}
 a.ui-btn3{  font-weight: normal; line-height: 20px; color: #666; background: #eee none; vertical-align: top; letter-spacing: normal; display: inline-block; *display: inline/*IE7*/;*zoom:1/*IE7*/;height: 20px; padding: 0px 8px;  cursor: pointer !important;border-radius: 4px;height: 26px; line-height: 26px; font-size: 12px;}
 a.ui-btn{ height: 26px; line-height: 26px; font-size: 12px;}
 .flexigrid .bDiv a.btn i{ display: none; }

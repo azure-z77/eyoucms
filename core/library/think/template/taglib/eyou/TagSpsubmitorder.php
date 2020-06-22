@@ -47,16 +47,26 @@ class TagSpsubmitorder extends Base
     public function getSpsubmitorder()
     {
         // 获取解析数据
-        $querystr   = input('param.querystr/s');
-        $hash   = input('param.hash/s');
-        $auth_code = tpCache('system.system_auth_code');
-        if(!empty($querystr) && md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
+        // $querystr   = input('param.querystr/s');
+        // $hash   = input('param.hash/s');
+        // $auth_code = tpCache('system.system_auth_code');
+        // if(!empty($querystr) && md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
 
         // 数据解析拆分
-        parse_str(mchStrCode($querystr,'DECODE'), $querydata);
-        $aid = !empty($querydata['aid']) ? intval($querydata['aid']) : 0;
-        $num = !empty($querydata['product_num']) ? intval($querydata['product_num']) : 0;
-        $spec_value_id = !empty($querydata['spec_value_id']) ? $querydata['spec_value_id'] : '';
+        // parse_str(mchStrCode($querystr,'DECODE'), $querydata);
+        // $aid = !empty($querydata['aid']) ? intval($querydata['aid']) : 0;
+        // $num = !empty($querydata['product_num']) ? intval($querydata['product_num']) : 0;
+        // $spec_value_id = !empty($querydata['spec_value_id']) ? $querydata['spec_value_id'] : '';
+
+        // 获取解析数据
+        $GetMd5 = input('param.querystr/s');
+        $querystr = cookie($GetMd5);
+        if(empty($querystr)) $this->error('无效链接！');
+
+        // 赋值数据
+        $product_id = $aid = !empty($querystr['aid']) ? $querystr['aid'] : 0;
+        $product_num = $num = !empty($querystr['product_num']) ? $querystr['product_num'] : 0;
+        $spec_value_id = !empty($querystr['spec_value_id']) ? $querystr['spec_value_id'] : '';
 
         if (!empty($aid)) {
             if ($num >= 1) {
@@ -81,15 +91,16 @@ class TagSpsubmitorder extends Base
                     $result['list'][0]['spec_stock']    = '';
                     $result['list'][0]['spec_value_id'] = '';
                 }
-                $result['list'][0]['product_num'] = $num;
                 $submit_order_type = 1;
-                // 加密不允许更改的数据值
-                $aid  = mchStrCode($aid,'ENCODE');
-                $num  = mchStrCode($num,'ENCODE');
-                $type = mchStrCode('1','ENCODE'); // 1表示直接下单购买，不走购物车
-                $spec_value_id  = mchStrCode($spec_value_id,'ENCODE');
+                $result['list'][0]['product_num'] = $num;
+                $result['list'][0]['ProductHidden'] = '<input type="hidden" name="Md5Value" value="' . $GetMd5 . '"> <input type="hidden" name="type" value="' . $submit_order_type . '">';
 
-                $result['list'][0]['ProductHidden'] = '<input type="hidden" name="aid" value="'.$aid.'"> <input type="hidden" name="num" value="'.$num.'"> <input type="hidden" name="type" value="'.$type.'"> <input type="hidden" name="spec_value_id[]" value="'.$spec_value_id.'">';
+                /*// 加密不允许更改的数据值
+                $aid  = mchStrCode($aid, 'ENCODE');
+                $num  = mchStrCode($num, 'ENCODE');
+                $type = mchStrCode(1, 'ENCODE'); // 1表示直接下单购买，不走购物车
+                $spec_value_id  = mchStrCode($spec_value_id, 'ENCODE');
+                $result['list'][0]['ProductHidden'] = '<input type="hidden" name="aid" value="'.$aid.'"> <input type="hidden" name="num" value="'.$num.'"> <input type="hidden" name="type" value="'.$type.'"> <input type="hidden" name="spec_value_id[]" value="'.$spec_value_id.'">';*/
             } else {
                 action('user/Shop/shop_under_order', false);
                 exit;
@@ -112,6 +123,7 @@ class TagSpsubmitorder extends Base
                 ->select();
             $submit_order_type = 0;
         }
+
         // 获取商城配置信息
         $ConfigData = getUsersConfigData('shop');
 

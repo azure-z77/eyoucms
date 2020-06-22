@@ -13,11 +13,11 @@
             <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
         </div>
 
-        {eq name="$pay_open" value="1"}
+        <!-- {eq name="$pay_open" value="1"} -->
         <!-- 微信、支付宝支付配置 -->
-        {include file="system/pay_set" /}
+        <!-- {include file="system/pay_set" /} -->
         <!-- END -->
-        {/eq}
+        <!-- {/eq} -->
 
         <!-- 邮箱配置 -->
         {include file="system/smtp" /}
@@ -30,10 +30,6 @@
         <!-- 微站点配置 -->
         {include file="system/microsite" /}
         <!-- END -->
-
-        <!-- OSS点配置 -->
-        <!-- {include file="system/oss" /} -->
-        <!-- END -->
     </div>
 </div>
 
@@ -44,14 +40,14 @@
     </div>
     <div class="floatNav-con">
         <ul>
-            <li>
+            <!-- <li>
                 <div class="dot"></div>
                 <div class="event" data-to="wechat_set"><a href="javascript:void(0);">微信支付配置</a></div>
             </li>
             <li>
                 <div class="dot"></div>
                 <div class="event" data-to="alipay_set"><a href="javascript:void(0);">支付宝支付配置</a></div>
-            </li>
+            </li> -->
             <li>
                 <div class="dot"></div>
                 <div class="event" data-to="smtp"><a href="javascript:void(0);">邮箱配置</a></div>

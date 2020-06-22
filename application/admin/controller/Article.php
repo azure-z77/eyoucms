@@ -276,7 +276,7 @@ class Article extends Base
             );
             $data = array_merge($post, $newData);
 
-            $aid = M('archives')->insertGetId($data);
+            $aid          = Db::name('archives')->insertGetId($data);
             $_POST['aid'] = $aid;
             if ($aid) {
                 // ---------后置操作
@@ -443,7 +443,7 @@ class Article extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where([
+            $r = Db::name('archives')->where([
                     'aid'   => $data['aid'],
                     'lang'  => $this->admin_lang,
                 ])->update($data);

@@ -37,9 +37,10 @@ class UpgradeLogic extends Model
         $this->version_txt_path = $this->data_path.'conf'.DS.'version.txt'; // 版本文件路径
         $this->curent_version = getCmsVersion();
         // api_Service_checkVersion
+        $upgrade_dev = config('global.upgrade_dev');
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT1jaGVja1ZlcnNpb24=';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
-        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->curent_version;
+        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->curent_version . '&dev=' . $upgrade_dev;
     }
 
     /**
@@ -403,13 +404,29 @@ class UpgradeLogic extends Model
         $downFileName = end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.$downFileName; // 保存目录
         tp_mkdir(dirname($saveDir));
-        if(!file_get_contents($fileUrl, 0, null, 0, 1)){
+        $content = @file_get_contents($fileUrl, 0, null, 0, 1);
+        if (false === $content) {
+            $fileUrl = str_replace('http://service', 'https://service', $fileUrl);
+            $content = @file_get_contents($fileUrl, 0, null, 0, 1);
+        }
+
+        if(!$content){
             return ['code' => 0, 'msg' => '官方升级包不存在']; // 文件存在直接退出
         }
-        $ch = curl_init($fileUrl);            
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-        $file = curl_exec ($ch);
+
+        if (!stristr($fileUrl, 'https://service')) {
+            $ch = curl_init($fileUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+            $file = curl_exec ($ch);
+        } else {
+            $file = httpRequest($fileUrl);
+        }
+
+        if (preg_match('#__HALT_COMPILER()#i', $file)) {
+            return ['code' => 0, 'msg' => '下载包损坏，请联系官方客服！'];
+        }
+
         curl_close ($ch);                                                            
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);

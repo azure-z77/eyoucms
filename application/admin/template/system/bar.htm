@@ -11,9 +11,9 @@
                 {/eq}
 
                 {eq name='$main_lang' value='$admin_lang'}
-                {eq name="$Think.const.CONTROLLER_NAME.'@web2'|is_check_access" value="1"}
-                <li><a href="{:url('System/web2')}" {if condition="'web2'==$Think.const.ACTION_NAME"}class="current"{/if}><span>核心设置</span></a></li>
-                {/eq}
+                    {eq name="$Think.const.CONTROLLER_NAME.'@web2'|is_check_access" value="1"}
+                    <li><a href="{:url('System/web2')}" {if condition="'web2'==$Think.const.ACTION_NAME"}class="current"{/if}><span>核心设置</span></a></li>
+                    {/eq}
                 {/eq}
 
                 {eq name="$Think.const.CONTROLLER_NAME.'@basic'|is_check_access" value="1"}
@@ -21,15 +21,21 @@
                 {/eq}
 
                 {eq name='$main_lang' value='$admin_lang'}
-                {eq name="$Think.const.CONTROLLER_NAME.'@water'|is_check_access" value="1"}
-                <li><a href="{:url('System/water')}" {if condition="in_array($Think.const.ACTION_NAME, ['water','thumb'])"}class="current"{/if}><span>图片水印</span></a></li>
-                {/eq}
+                    {eq name="$Think.const.CONTROLLER_NAME.'@water'|is_check_access" value="1"}
+                    <li><a href="{:url('System/water')}" {if condition="in_array($Think.const.ACTION_NAME, ['water','thumb'])"}class="current"{/if}><span>图片水印</span></a></li>
+                    {/eq}
                 {/eq}
 
                 {eq name='$main_lang' value='$admin_lang'}
-                {eq name="$Think.const.CONTROLLER_NAME.'@api_conf'|is_check_access" value="1"}
-                <li><a href="{:url('System/api_conf')}" {if condition="preg_match('/^api_conf/i', $Think.const.ACTION_NAME)"}class="current"{/if}><span>接口配置</span></a></li>
+                    {eq name="$Think.const.CONTROLLER_NAME.'@api_conf'|is_check_access" value="1"}
+                    <li><a href="{:url('System/api_conf')}" {if condition="preg_match('/^api_conf/i', $Think.const.ACTION_NAME)"}class="current"{/if}><span>接口配置</span></a></li>
+                    {/eq}
                 {/eq}
+
+                {eq name='$main_lang' value='$admin_lang'}
+                    {eq name="$Think.const.CONTROLLER_NAME.'@pay_api_index'|is_check_access" value="1"}
+                        <li><a href="{:url('PayApi/pay_api_index')}" {if condition="'pay_api_index'==$Think.const.ACTION_NAME"}class="current"{/if}><span>支付接口</span></a></li>
+                    {/eq}
                 {/eq}
             </ul>
         </div>

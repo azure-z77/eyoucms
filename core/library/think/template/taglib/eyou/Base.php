@@ -15,6 +15,7 @@ namespace think\template\taglib\eyou;
 
 use think\Config;
 use think\Cookie;
+use think\Request;
 
 /**
  * 基类
@@ -36,6 +37,8 @@ class Base
      */
     public $root_dir = '';
 
+    public $request = null;
+
     //构造函数
     function __construct()
     {
@@ -52,6 +55,10 @@ class Base
         /*--end*/
         // 子目录安装路径
         $this->root_dir = ROOT_DIR;
+            
+        if (null == $this->request) {
+            $this->request = Request::instance();
+        }
     }
 
     /**

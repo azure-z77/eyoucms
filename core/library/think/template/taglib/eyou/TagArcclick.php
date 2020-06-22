@@ -58,7 +58,7 @@ class TagArcclick extends Base
         /*end*/
 
         static $arcclick_js = null;
-        if ('buildarticle' == strtolower(request()->action()) || null === $arcclick_js) {
+        if (!empty($this->aid) || null === $arcclick_js) {
             $arcclick_js = <<<EOF
 <script type="text/javascript">
     function tag_arcclick(aid)

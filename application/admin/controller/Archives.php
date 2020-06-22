@@ -86,6 +86,7 @@ class Archives extends Base
         $param = input('param.');
         $flag = input('flag/s');
         $typeid = input('typeid/d', 0);
+        $d2ViX2lzX2F1 = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
 
         /*跳转到指定栏目的文档列表*/
         if (0 < intval($typeid)) {
@@ -104,6 +105,10 @@ class Archives extends Base
             } else if (8 == $current_channel) {
                 $gourl = url("Guestbook/index", array('typeid'=>$typeid));
                 $this->redirect($gourl);
+            } else if (5 == $current_channel) {
+                if (-1 == $d2ViX2lzX2F1) {
+                    $this->error(base64_decode('6KeG6aKR5qih5Z6L5LuF6ZmQ5LqO5o6I5p2D5Z+f5ZCN77yB'));
+                }
             }
         }
         /*--end*/
@@ -172,9 +177,13 @@ class Archives extends Base
         /*--end*/
 
         if (empty($typeid)) {
+            $id_tmp = [6,8];
+            if (-1 == $d2ViX2lzX2F1) {
+                array_push($id_tmp, 5);
+            }
             // 只显示允许发布文档的模型，且是开启状态
             $channelIds = Db::name('channeltype')->where('status',0)
-                ->whereOr('id','IN',[6,8])->column('id');
+                ->whereOr('id','IN',$id_tmp)->column('id');
             $condition['a.channel'] = array('NOT IN', $channelIds);
         } else {
             // 只显示当前栏目对应模型下的文档
@@ -368,6 +377,30 @@ class Archives extends Base
             $thorough = input('thorough/d', 0);
             $archivesLogic = new \app\admin\logic\ArchivesLogic;
             $archivesLogic->del($del_id, $thorough);
+        }
+    }
+    
+    /**
+     *  审核文档
+     */
+    public function check()
+    {
+        if (IS_POST) {
+            $aids = input('ids/a');
+            $aids = !empty($aids) ? eyIntval($aids) : '';
+            if (!empty($aids)){
+                $info = [
+                    'arcrank' => 0,
+                    'update_time'=>getTime(),
+                ];
+                $r = Db::name('archives')->where('aid','IN',$aids)->cache(true,null,'archives')->save($info);
+                if ($r !== false) {
+                    adminLog('审核文档-id：'.implode(',', $aids));
+                    $this->success('操作成功！');
+                } else {
+                    $this->error('操作失败！');
+                }
+            }
         }
     }
     

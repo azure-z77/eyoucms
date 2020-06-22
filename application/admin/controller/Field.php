@@ -116,13 +116,13 @@ class Field extends Base
      */
     private function syn_channelfield_bind()
     {
-        $field_ids = Db::name('channelfield')->where([
-            'ifmain'     => 0,
-            'channel_id' => ['NEQ', -99],
-        ])->column('id');
-        if (!empty($field_ids)) {
-            $totalRow = Db::name('channelfield_bind')->count();
-            if (empty($totalRow)) {
+        $totalRow = Db::name('channelfield_bind')->count();
+        if (empty($totalRow)) {
+            $field_ids = Db::name('channelfield')->where([
+                'ifmain'     => 0,
+                'channel_id' => ['NEQ', -99],
+            ])->column('id');
+            if (!empty($field_ids)) {
                 $sveData = [];
                 foreach ($field_ids as $key => $val) {
                     $sveData[] = [
@@ -173,7 +173,10 @@ class Field extends Base
 
             /*去除中文逗号，过滤左右空格与空值、以及单双引号*/
             $dfvalue    = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
+            if (in_array($post['dtype'], ['radio','checkbox','select','region'])) {
+                $pattern    = ['"', '\'', ';', '&', '?', '='];
+                $dfvalue    = func_preg_replace($pattern, '', $dfvalue);
+            }
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -403,7 +406,10 @@ class Field extends Base
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue    = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
+            if (in_array($post['dtype'], ['radio','checkbox','select','region'])) {
+                $pattern    = ['"', '\'', ';', '&', '?', '='];
+                $dfvalue    = func_preg_replace($pattern, '', $dfvalue);
+            }
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -844,7 +850,10 @@ class Field extends Base
 
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue    = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
+            if (in_array($post['dtype'], ['radio','checkbox','select','region'])) {
+                $pattern    = ['"', '\'', ';', '&', '?', '='];
+                $dfvalue    = func_preg_replace($pattern, '', $dfvalue);
+            }
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);
@@ -968,7 +977,10 @@ class Field extends Base
             $old_name = $post['old_name'];
             /*去除中文逗号，过滤左右空格与空值*/
             $dfvalue    = str_replace('，', ',', $post['dfvalue']);
-            $dfvalue    = func_preg_replace(['"', '\'', ';'], '', $dfvalue);
+            if (in_array($post['dtype'], ['radio','checkbox','select','region'])) {
+                $pattern    = ['"', '\'', ';', '&', '?', '='];
+                $dfvalue    = func_preg_replace($pattern, '', $dfvalue);
+            }
             $dfvalueArr = explode(',', $dfvalue);
             foreach ($dfvalueArr as $key => $val) {
                 $tmp_val = trim($val);

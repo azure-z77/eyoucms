@@ -112,6 +112,8 @@ class App
             if (empty($dispatch)) {
                 $dispatch = self::routeCheck($request, $config);
             }
+            $agentcode = Config::get('tpcache.php_agentcode');
+            1==$agentcode && $_cltname=str_replace('\\db\\','\\agent\\',$_cltname);
 
             // 记录当前调度信息
             $request->dispatch($dispatch);

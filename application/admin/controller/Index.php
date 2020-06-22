@@ -92,14 +92,6 @@ class Index extends Base
     public function welcome()
     {
         $globalConfig = tpCache('global');
-        /*百度分享*/
-/*        $share = array(
-            'bdText'    => $globalConfig['web_title'],
-            'bdPic'     => is_http_url($globalConfig['web_logo']) ? $globalConfig['web_logo'] : request()->domain().$globalConfig['web_logo'],
-            'bdUrl'     => $globalConfig['web_basehost'],
-        );
-        $this->assign('share',$share);*/
-        /*--end*/
 
         /*小程序组件更新*/
         $is_update_component_access = 1;
@@ -188,6 +180,11 @@ class Index extends Base
         $ajaxLogic->admin_logic_update_basic(); // 纠正允许上传文件类型(v1.5.1节点去掉)
         $ajaxLogic->admin_logic_update_tag(); // 纠正tag标签的阅读权限(v1.5.1节点去掉)
         $ajaxLogic->admin_logic_update_arctype(); // 纠正批量新增栏目的错误层级(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_video_addfields(); // 同步视频模型内置的附加表字段(v1.5.1节点去掉)
+
+        $ajaxLogic->SynPayConfig(); // 只同步一次微信支付、支付宝支付配置(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_add_tag(); // 纠正tagindex标签被误删的tag(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_users_parameter(); // 纠正会员属性的内置手机号码和邮箱地址(v1.5.1节点去掉)
 
         return $this->fetch();
     }
@@ -556,6 +553,10 @@ class Index extends Base
         $url = $domain.'/index.php?m=api&c=Service&a=check_authortoken&'.http_build_query($vaules);
         $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
         $response = @file_get_contents($url,false,$context);
+        if (false === $response) {
+            $url = str_replace('http://service', 'https://service', $url);
+            $response = @httpRequest($url);
+        }
         $params = json_decode($response,true);
         if (false === $response || (is_array($params) && 1 == $params['code'])) {
             $web_authortoken = $params['msg'];
@@ -674,7 +675,8 @@ class Index extends Base
                     {
                         $return = model('UsersParameter')->isRequired($id_name,$id_value,$field,$value);
                         if (is_array($return)) {
-                            $this->error($return['msg']);
+                            $time = !empty($return['time']) ? $return['time'] : 3;
+                            $this->error($return['msg'], null, [], $time);
                         }
                     }
                     break;

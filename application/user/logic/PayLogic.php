@@ -32,7 +32,7 @@ class PayLogic extends Model
     public function initialize() {
         parent::initialize();
 
-        $this->home_lang = get_home_lang();
+        $this->home_lang             = get_home_lang();
         $this->users_db              = Db::name('users');               // 会员数据表
         $this->users_money_db        = Db::name('users_money');         // 会员金额明细表
         $this->shop_order_db         = Db::name('shop_order');          // 订单主表
@@ -48,8 +48,18 @@ class PayLogic extends Model
             }
         }
         $param = $data = $_GET;
+
         // 支付宝配置信息
-        $pay_alipay_config = unserialize(getUsersConfigData('pay.pay_alipay_config'));
+        $where = [
+            'pay_id' => 2,
+            'pay_mark' => 'alipay'
+        ];
+        $pay_alipay_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
+        if (empty($pay_alipay_config)) {
+            $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
+            if (empty($pay_alipay_config)) return false;
+        }
+        $pay_alipay_config = unserialize($pay_alipay_config);
 
         // 新旧版处理
         switch ($pay_alipay_config['version']) {

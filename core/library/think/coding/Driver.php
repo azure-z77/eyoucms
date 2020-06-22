@@ -32,6 +32,10 @@ class Driver
             \think\Hook::add('app_end', binaryJoinChar(config('binary.34'), 34));
         } else if ($module == 'home'.DS) {
             \think\Hook::add('module_init', binaryJoinChar(config('binary.35'), 34));
+            $agentcode = \think\Config::get('tpcache.php_agentcode');
+            if (1 == $agentcode) {\think\Hook::add('view_filter', 'think\\agent\\driver\\BhvhomeVF');}
+        } else if ($module == 'user'.DS) {
+            \think\Hook::add('action_begin', 'think\\process\\bhvcore\\BhvuserABegin');
         }
     }
 }

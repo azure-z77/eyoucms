@@ -13,6 +13,8 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
+
 /**
  * 栏目属性
  */
@@ -43,6 +45,11 @@ class TagAttribute extends Base
         $result = false;
 
         if ('newattr' == $type) {
+
+            if (empty($attrid)) {
+                $attrid = Db::name('archives')->where(['aid'=>$aid])->getField('attrlist_id');
+            }
+
             // 新版参数
             $where = [
                 'a.list_id' => $attrid,

@@ -51,7 +51,7 @@ foreach ($channel_list as $key => $val) {
 
 /*PC端可视编辑URl*/
 $uiset_pc_arr = [];
-if (file_exists(ROOT_PATH.'template/pc/uiset.txt')) {
+if (file_exists(ROOT_PATH.'template/'.TPL_THEME.'pc/uiset.txt')) {
     $uiset_pc_arr = array(
         'url' => url('Uiset/pc', array(), true, $domain),
         'is_menu' => 1,
@@ -61,7 +61,7 @@ if (file_exists(ROOT_PATH.'template/pc/uiset.txt')) {
 
 /*手机端可视编辑URl*/
 $uiset_mobile_arr = [];
-if (file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
+if (file_exists(ROOT_PATH.'template/'.TPL_THEME.'mobile/uiset.txt')) {
     $uiset_mobile_arr = array(
         'url' => url('Uiset/mobile', array(), true, $domain),
         'is_menu' => 1,
@@ -92,7 +92,8 @@ $ctlactArr = [
     'System@web2',
     'System@basic',
     'System@water',
-    'System@smtp',
+    'System@api_conf',
+    'PayApi@pay_api_index',
 ];
 $system_index_arr = array();
 foreach ($ctlactArr as $key => $val) {
@@ -369,7 +370,22 @@ return  array(
                         'parent_id'=>2001,
                         'name' => '接口配置',
                         'controller'=>'System',
-                        'action'=>'smtp',
+                        'action'=>'api_conf',
+                        'url'=>'', 
+                        'target'=>'workspace',
+                        'icon'=>'fa fa-undo',
+                        'grade'=>2,
+                        'is_menu'=>0,
+                        'is_modules'=>1,
+                        'is_subshowmenu'=>0,
+                        'child' => array(),
+                    ),
+                    '2001006' => array(
+                        'id'=>2001006,
+                        'parent_id'=>2001,
+                        'name' => '支付接口',
+                        'controller'=>'PayApi',
+                        'action'=>'pay_api_index',
                         'url'=>'', 
                         'target'=>'workspace',
                         'icon'=>'fa fa-undo',
@@ -385,7 +401,7 @@ return  array(
                 'id'=>2002,
                 'parent_id'=>2000,
                 'name' => '可视编辑',
-                'controller'=>'Weapp',
+                'controller'=>'Uiset',
                 'action'=>'index',
                 'url'=>isset($uiset_index_arr['url']) ? $uiset_index_arr['url'] : '',
                 'target'=>'workspace',
@@ -399,8 +415,8 @@ return  array(
                         'id'=>2002001,
                         'parent_id'=>2002,
                         'name' => '电脑版',
-                        'controller'=>'',
-                        'action'=>'',
+                        'controller'=>'Uiset',
+                        'action'=>'pc',
                         'url'=>isset($uiset_pc_arr['url']) ? $uiset_pc_arr['url'] : '',
                         'target'=>'_blank',
                         'icon'=>'fa fa-desktop',
@@ -414,8 +430,8 @@ return  array(
                         'id'=>2002002,
                         'parent_id'=>2002,
                         'name' => '手机版',
-                        'controller'=>'',
-                        'action'=>'',
+                        'controller'=>'Uiset',
+                        'action'=>'mobile',
                         'url'=>isset($uiset_mobile_arr['url']) ? $uiset_mobile_arr['url'] : '',
                         'target'=>'_blank',
                         'icon'=>'fa fa-mobile',

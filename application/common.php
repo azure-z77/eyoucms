@@ -328,7 +328,10 @@ if (!function_exists('write_global_params'))
         /*CMS安装目录的网址*/
         $param['web_cmsurl'] = $web_mainsite;
         /*--end*/
-        $param['web_templets_dir'] = '/template'; // 前台模板根目录
+        
+        $web_tpl_theme = !empty($webConfigParams['web_tpl_theme']) ? $webConfigParams['web_tpl_theme']['value'] : ''; // 网站根网址
+        !empty($web_tpl_theme) && $web_tpl_theme = '/'.trim($web_tpl_theme, '/');
+        $param['web_templets_dir'] = '/template'.$web_tpl_theme; // 前台模板根目录
         $param['web_templeturl'] = $web_mainsite.$param['web_templets_dir']; // 前台模板根目录的网址
         $param['web_templets_pc'] = $web_mainsite.$param['web_templets_dir'].'/pc'; // 前台PC模板主题
         $param['web_templets_m'] = $web_mainsite.$param['web_templets_dir'].'/mobile'; // 前台手机模板主题
@@ -712,6 +715,8 @@ if (!function_exists('get_default_pic'))
             } else {
                 $pic_url = $domain . ROOT_DIR . '/public/static/common/images/not_adv.jpg';
             }
+        } else {
+            $pic_url = handle_subdir_pic($pic_url);
         }
 
         return $pic_url;
@@ -726,58 +731,67 @@ if (!function_exists('handle_subdir_pic'))
      */
     function handle_subdir_pic($str = '', $type = 'img', $domain = false)
     {
+        static $request = null;
+        if (null === $request) {
+            $request = \think\Request::instance();
+        }
+
         $root_dir = ROOT_DIR;
         switch ($type) {
             case 'img':
                 if (!is_http_url($str) && !empty($str)) {
-                    // if (!empty($root_dir)) { // 子目录之间切换
-                        $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $root_dir.'$2', $str);
-                    // } else { // 子目录与根目录切换
-                        // $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', $root_dir.'$2', $str);
-                    // }
+                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $root_dir.'$2', $str);
                 }else if (is_http_url($str) && !empty($str)) {
-                    // 图片路径处理
-                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/)#i', $root_dir.'$2', $str);
                     $StrData = parse_url($str);
                     $strlen  = strlen($root_dir);
-                    if (empty($StrData['scheme'])) {
-                        if ('/uploads/'==substr($StrData['path'],$strlen,9) || '/public/upload/'==substr($StrData['path'],$strlen,15)) {
-                            // 七牛云配置处理
-                            static $Qiniuyun = null;
-                            if (null == $Qiniuyun) {
-                                // 需要填写你的 Access Key 和 Secret Key
-                                $data     = M('weapp')->where('code','Qiniuyun')->field('data,status')->find();
-                                $Qiniuyun = json_decode($data['data'], true);
-                                $Qiniuyun['status'] = $data['status'];
+                    if (empty($StrData['scheme']) && $request->host(true) != $StrData['host']) {
+                        $StrData['path'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/)#i', '$2', $StrData['path']);
+                        if (preg_match('#^(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $StrData['path'])) {
+                            // 插件列表
+                            static $weappList = null;
+                            if (null == $weappList) {
+                                $weappList = \think\Db::name('weapp')->where([
+                                    'status'    => 1,
+                                ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+                                ->getAllWithIndex('code');
                             }
 
-                            // 是否开启图片加速
-                            if ('1' == $Qiniuyun['status']) {
-                                // 开启
-                                if ($Qiniuyun['domain'] == $StrData['host']) {
-                                    $tcp = !empty($Qiniuyun['tcp']) ? $Qiniuyun['tcp'] : '';
-                                    switch ($tcp) {
-                                        case '2':
-                                            $tcp = 'https://';
-                                            break;
+                            if (!empty($weappList['Qiniuyun']) && 1 == $weappList['Qiniuyun']['status']) {
+                                $qnyData = json_decode($weappList['Qiniuyun']['data'], true);
+                                $weappConfig = json_decode($weappList['Qiniuyun']['config'], true);
+                                if (!empty($weappConfig['version']) && 'v1.0.6' <= $weappConfig['version']) {
+                                    $qiniuyunModel = new \weapp\Qiniuyun\model\QiniuyunModel;
+                                    $str = $qiniuyunModel->handle_subdir_pic($qnyData, $StrData, $str);
+                                } else {
+                                    if ($qnyData['domain'] == $StrData['host']) {
+                                        $tcp = !empty($qnyData['tcp']) ? $qnyData['tcp'] : '';
+                                        switch ($tcp) {
+                                            case '2':
+                                                $tcp = 'https://';
+                                                break;
 
-                                        case '3':
-                                            $tcp = '//';
-                                            break;
-                                        
-                                        case '1':
-                                        default:
-                                            $tcp = 'http://';
-                                            break;
+                                            case '3':
+                                                $tcp = '//';
+                                                break;
+                                            
+                                            case '1':
+                                            default:
+                                                $tcp = 'http://';
+                                                break;
+                                        }
+                                        $str = $tcp.$qnyData['domain'].$StrData['path'];
+                                    }else{
+                                        // 若切换了存储空间或访问域名，与数据库中存储的图片路径域名不一致时，访问本地路径，保证图片正常
+                                        $str = $root_dir.$StrData['path'];
                                     }
-                                    $str = $tcp.$Qiniuyun['domain'].$StrData['path'];
-                                }else{
-                                    // 若切换了存储空间或访问域名，与数据库中存储的图片路径域名不一致时，访问本地路径，保证图片正常
-                                    $str = $StrData['path'];
                                 }
-                            }else{
+                            } else if (!empty($weappList['AliyunOss']) && 1 == $weappList['AliyunOss']['status']) {
+                                $ossData = json_decode($weappList['AliyunOss']['data'], true);
+                                $aliyunOssModel = new \weapp\AliyunOss\model\AliyunOssModel;
+                                $str = $aliyunOssModel->handle_subdir_pic($ossData, $StrData, $str);
+                            } else {
                                 // 关闭
-                                $str = $StrData['path'];
+                                $str = $root_dir.$StrData['path'];
                             }
                         }
                     }
@@ -785,11 +799,7 @@ if (!function_exists('handle_subdir_pic'))
                 break;
 
             case 'html':
-                // if (!empty($root_dir)) { // 子目录之间切换
-                    $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
-                // } else { // 子目录与根目录切换
-                    // $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
-                // }
+                $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
                 break;
 
             case 'soft':
@@ -813,7 +823,6 @@ if (!function_exists('handle_subdir_pic'))
             if (true === $domain) {
                 static $domain_new = null;
                 if (null === $domain_new) {
-                    $request = \think\Request::instance();
                     $domain_new = $request->domain();
                 }
                 $domain = $domain_new;
@@ -861,7 +870,10 @@ if (!function_exists('thumb_img'))
     {
         // 缩略图配置
         static $thumbConfig = null;
-        null === $thumbConfig && $thumbConfig = tpCache('thumb');
+        if (null === $thumbConfig) {
+            @ini_set('memory_limit', '-1'); // 内存不限制，防止图片大小过大，导致缩略图处理失败，网站打不开
+            $thumbConfig = tpCache('thumb');
+        }
         $thumbextra = config('global.thumb');
 
         if (!empty($width) || !empty($height) || !empty($thumb_mode)) { // 单独在模板里调用，不受缩略图全局开关影响
@@ -1069,7 +1081,7 @@ if (!function_exists('ui_read_bidden_inc')) {
             $page = current($pagearr);
             $map = array(
                 'page'   => $page,
-                'theme_style'   => THEME_STYLE,
+                'theme_style'   => THEME_STYLE_PATH,
             );
             $result = M('ui_config')->where($map)->cache(true,EYOUCMS_CACHE_TIME,"ui_config")->select();
             if ($result) {
@@ -1130,7 +1142,7 @@ if (!function_exists('ui_write_bidden_inc')) {
                     ->cache(true, EYOUCMS_CACHE_TIME, 'language')
                     ->getField('mark');
             }
-            $theme_style = THEME_STYLE;
+            $theme_style = THEME_STYLE_PATH;
             $md5key = md5($name.$page.$theme_style.$lang);
             $savedata = array(
                 'md5key'    => $md5key,
@@ -1197,7 +1209,7 @@ if (!function_exists('get_ui_inc_params')) {
     function get_ui_inc_params($page)
     {
         $e_page = $page;
-        $filename = RUNTIME_PATH.'ui/'.THEME_STYLE.'/'.$e_page.'.inc.php';
+        $filename = RUNTIME_PATH.'ui/'.THEME_STYLE_PATH.'/'.$e_page.'.inc.php';
         $inc = ui_read_bidden_inc($filename);
 
         return $inc;
@@ -1518,10 +1530,9 @@ if (!function_exists('switch_language'))
     /**
      * 多语言切换（默认中文）
      *
-     * @param string $lang   语言变量值
      * @return void
      */
-    function switch_language($lang = null) 
+    function switch_language() 
     {
         static $language_db = null;
         static $request = null;
@@ -1531,6 +1542,16 @@ if (!function_exists('switch_language'))
         if (null == $request) {
             $request = \think\Request::instance();
         }
+
+        /*验证语言标识是否合法*/
+        $var_lang = $request->param('lang/s');
+        $var_lang = trim($var_lang, '/');
+        if (!empty($var_lang)) {
+            if (!preg_match('/^([a-z]+)$/i', $var_lang)) {
+                abort(404,'页面不存在');
+            }
+        }
+        /*end*/
 
         $is_admin = false;
         if (!stristr($request->baseFile(), 'index.php')) {
@@ -1544,6 +1565,7 @@ if (!function_exists('switch_language'))
         /*单语言执行代码 - 排序不要乱改，影响很大*/
         $langRow = \think\Db::name('language')->field('mark,is_home_default')
             ->order('id asc')
+            ->cache(true, EYOUCMS_CACHE_TIME, 'language')
             ->select();
         if (1 >= count($langRow)) {
             $langRow = current($langRow);
@@ -1562,7 +1584,7 @@ if (!function_exists('switch_language'))
             if ('m' == $s_arr[0]) {
                 $s_arr[0] = $s_arr[1];
             }
-            $count = $language_db->where(['mark'=>$s_arr[0]])->count();
+            $count = $language_db->where(['mark'=>$s_arr[0]])->cache(true, EYOUCMS_CACHE_TIME, 'language')->count();
             if (!empty($count)) {
                 $current_lang = $s_arr[0];
             }
@@ -1589,7 +1611,7 @@ if (!function_exists('switch_language'))
         $lang = trim($lang, '/');
         if (!empty($lang)) {
             // 处理访问不存在的语言
-            $lang = $language_db->where('mark',$lang)->getField('mark');
+            $lang = $language_db->where('mark',$lang)->cache(true, EYOUCMS_CACHE_TIME, 'language')->getField('mark');
         }
         if (empty($lang)) {
             if ($is_admin) {
@@ -1994,9 +2016,9 @@ if (!function_exists('GetMobileSendData'))
         }
 
         if (in_array($type, [1])) {
-            $mobile = $SmsConfig['sms_test_mobile'];
+            $mobile = !empty($SmsConfig['sms_test_mobile']) ? $SmsConfig['sms_test_mobile'] : null;
         } else if (in_array($type, [2])) {
-            $mobile = $users['mobile'];
+            $mobile = !empty($users['mobile']) ? $users['mobile'] : null;
         } else {
             return false;
         }
@@ -2101,9 +2123,6 @@ if (!function_exists('img_style_wh'))
             
             // 是否开启图片大小自适应
             $basic_img_style_wh = tpCache('basic.basic_img_style_wh');
-            if (empty($basic_img_style_wh)) {
-                return $content;
-            }
 
             preg_match_all('/<img.*(\/)?>/iUs', $content, $imginfo);
             $imginfo = !empty($imginfo[0]) ? $imginfo[0] : [];
@@ -2113,31 +2132,26 @@ if (!function_exists('img_style_wh'))
                 $title = preg_replace('/("|\')/i', '', $title);
                 foreach ($imginfo as $key => $imgstr) {
                     $imgstrNew = $imgstr;
-                    
-                    /* 兼容已存在的多重追加样式，处理去重 */
-                    if (stristr($imgstrNew, $appendStyle.$appendStyle)) {
-                        $imgstrNew = preg_replace('/'.$appendStyle.$appendStyle.'/i', '', $imgstrNew);
-                    }
-                    if (stristr($imgstrNew, $appendStyle)) {
-                        $content = str_ireplace($imgstr, $imgstrNew, $content);
-                        $num++;
-                        continue;
-                    }
-                    /* end */
 
-                    // 追加style属性
-                    $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"](.*?)[\'|\"]/i', 'style="'.$appendStyle.'${3}"', $imgstrNew);
-                    if (!preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
-                        // 新增style属性
-                        $imgstrNew = str_ireplace('<img', "<img style=\"".$appendStyle."\" ", $imgstrNew);
+                    if (!empty($basic_img_style_wh)) {
+                        if (!stristr($imgstrNew, $appendStyle)) {
+                            // 追加style属性
+                            $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"]([^\'\"]*)[\'|\"]/i', 'style="'.$appendStyle.'${3}"', $imgstrNew);
+                            if (!preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
+                                // 新增style属性
+                                $imgstrNew = str_ireplace('<img', "<img style=\"".$appendStyle."\" ", $imgstrNew);
+                            }
+                        }
+                    } else {
+                        $imgstrNew = str_ireplace([$appendStyle, $appendStyle], ['', ''], $imgstrNew);
                     }
 
                     // 移除img中多余的title属性
-                    // $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', '', $imgstrNew);
+                    // $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([^\'\"]*)[\'|\"]/i', '', $imgstrNew);
 
                     // 追加alt属性
                     $altNew = $title."(图{$num})";
-                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'alt="'.$altNew.'"', $imgstrNew);
+                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\-\.]*)[\'|\"]/i', 'alt="'.$altNew.'"', $imgstrNew);
                     if (!preg_match('/<img(.*?)alt(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                         // 新增alt属性
                         $imgstrNew = str_ireplace('<img', "<img alt=\"{$altNew}\" ", $imgstrNew);
@@ -2145,10 +2159,10 @@ if (!function_exists('img_style_wh'))
 
                     // 追加title属性
                     $titleNew = $title."(图{$num})";
-                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\.]*?)[\'|\"]/i', 'title="'.$titleNew.'"', $imgstrNew);
+                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\-\.]*)[\'|\"]/i', 'title="'.$titleNew.'"', $imgstrNew);
                     if (!preg_match('/<img(.*?)title(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                         // 新增alt属性
-                        $imgstrNew = str_ireplace('<img', "<img alt=\"{$titleNew}\" ", $imgstrNew);
+                        $imgstrNew = str_ireplace('<img', "<img title=\"{$titleNew}\" ", $imgstrNew);
                     }
                     
                     // 新的img替换旧的img
@@ -2212,9 +2226,11 @@ if (!function_exists('SynchronizeQiniu'))
             $data     = M('weapp')->where('code','Qiniuyun')->field('data')->find();
             $Qiniuyun = json_decode($data['data'], true);
         }
+        /*支持子目录*/
+        $images = preg_replace('#^(/[/\w]+)?(/uploads/)#i', '$2', $images);
         // 配置为空则返回原图片路径
-        if (empty($Qiniuyun)) {
-            return $images;
+        if (empty($Qiniuyun) || empty($Qiniuyun['domain'])) {
+            return ROOT_DIR.$images;
         }
 
         //引入七牛云的相关文件
@@ -2227,16 +2243,14 @@ if (!function_exists('SynchronizeQiniu'))
         $secretKey = $Qiniuyun['secret_key'];
         $bucket    = $Qiniuyun['bucket'];
         $domain    = $Qiniuyun['domain'];
-        // 图片处理，去除图片途径中的第一个斜杠
-        $images    = ltrim($images, '/'); 
         // 构建鉴权对象
         $auth      = new Qiniu\Auth($accessKey, $secretKey);
         // 生成上传 Token
         $token     = $auth->uploadToken($bucket);
         // 要上传文件的本地路径
-        $filePath  = ROOT_PATH.$images;
+        $filePath  = realpath('.'.$images);
         // 上传到七牛后保存的文件名
-        $key       = $images;
+        $key       = ltrim($images, '/');
         // 初始化 UploadManager 对象并进行文件的上传。
         $uploadMgr = new Qiniu\Storage\UploadManager;
         // 调用 UploadManager 的 putFile 方法进行文件的上传。
@@ -2261,57 +2275,68 @@ if (!function_exists('SynchronizeQiniu'))
                         break;
                 }
             }
-            return $tcp.$domain.'/'.$images;
+            $images = $tcp.$domain.'/'.ltrim($images, '/');
         }
-        return $images;
+
+        return [
+            'state' => 'SUCCESS',
+            'url'   => $images,
+        ];
     }
 }
 
-// if (!function_exists('SynchronizeOSS')) 
-// {
-//     /**
-//      * 参数说明：
-//      * $images   本地图片地址
-//      * $OssCo OSS配置信息
-//      * 返回说明：
-//      * return false 没有配置齐全
-//      * return true  同步成功
-//      */
-//     function SynchronizeOSS($ossConfig = [], $images = null, $file = [])
-//     {
-//         static $ossConfig = null;
-//         // 若没有传入配信信息则读取数据库
-//         if (null == $ossConfig) $ossConfig = tpCache('oss');
-        
-//         // 配置为空则返回原图片路径
-//         if (empty($ossConfig)) {
-//             $result = [
-//                 'url' => ROOT_DIR . $images,
-//                 'state' => 'SUCCESS',
-//             ];
-//             return $result;
-//         }
+if (!function_exists('SynImageObjectBucket')) 
+{
+    /**
+     * 同步到第三方对象存储空间
+     * 参数说明：
+     * $images   本地图片地址
+     * $weappList 插件列表
+     */
+    function SynImageObjectBucket($images = '', $weappList = [])
+    {
+        $result = [];
 
-//         // 上传OSS
-//         $ossClient = new \app\common\logic\OssLogic;
-//         $url = $ossClient->uploadFile($file->getRealPath(), $images);
-//         $state = "SUCCESS";
-//         if (empty($url)) {
-//             $url = '';
-//             $state = "ERROR" . $ossClient->getError();
-//         }
+        /*支持子目录*/
+        $images = preg_replace('#^(/[/\w]+)?(/uploads/|/public/static/)#i', '$2', $images);
 
-//         // 删除图片源链接
-//         @unlink($file->getRealPath());
+        if (empty($weappList)) {
+            $weappList = \think\Db::name('weapp')->field('code,data,status,config')->where([
+                'status'    => 1,
+            ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+            ->getAllWithIndex('code');
+        }
 
-//         // 返回数据
-//         $result = [
-//             'url' => $url,
-//             'state' => $state,
-//         ];
-//         return $result;
-//     }
-// }
+        if (!empty($weappList['Qiniuyun']) && 1 == $weappList['Qiniuyun']['status']) {
+            // 同步图片到七牛云
+            $weappConfig = json_decode($weappList['Qiniuyun']['config'], true);
+            if (!empty($weappConfig['version']) && 'v1.0.6' <= $weappConfig['version']) {
+                $qnyData = json_decode($weappList['Qiniuyun']['data'], true);
+                $qiniuyunOssModel = new \weapp\Qiniuyun\model\QiniuyunModel;
+                $ResultQny = $qiniuyunOssModel->Synchronize($qnyData, $images);
+            } else {
+                $ResultQny = SynchronizeQiniu($images);
+            }
+            // 数据覆盖
+            if (!empty($ResultQny) && is_array($ResultQny)) {
+                $result['state'] = $ResultQny['state'];
+                $result['url'] = $ResultQny['url'];
+            }
+        } else if (!empty($weappList['AliyunOss']) && 1 == $weappList['AliyunOss']['status']) {
+            // 同步图片到OSS
+            $ossData = json_decode($weappList['AliyunOss']['data'], true);
+            $aliyunOssModel = new \weapp\AliyunOss\model\AliyunOssModel;
+            $ResultOss = $aliyunOssModel->Synchronize($ossData, $images);
+            // 数据覆盖
+            if (!empty($ResultOss) && is_array($ResultOss)) {
+                $result['state'] = $ResultOss['state'];
+                $result['url'] = $ResultOss['url'];
+            }
+        }
+
+        return is_array($result) ? $result : [];
+    }
+}
 
 if (!function_exists('getAllChild')) 
 {   
@@ -2449,16 +2474,16 @@ if (!function_exists('getAllArctypeCount'))
                 $pagetotal += $info[$k]['pagetotal'] = 1;
             }else{
                 $tpl = !empty($v['templist']) ? str_replace('.'.$view_suffix, '',$v['templist']) : 'lists_'. $v['nid'];
-                $template_html = "./template/pc/".$tpl.".htm";
+                $template_html = "./template/".TPL_THEME."pc/".$tpl.".htm";
                 $content = file_get_contents($template_html);
                 if($content){
-                    preg_match_all('/\{eyou:list(.*)pagesize=[\'\"](\d+)[\'\"](.*)\}/',$content,$rese);
-                    $pagesize =  !empty($rese[2][0]) ? $rese[2][0] : 10;
+                    preg_match_all('/\{eyou:list(.*)pagesize(\s*)=(\s*)[\'\"](\d+)[\'\"](.*)\}/i',$content,$rese);
+                    $pagesize =  !empty($rese[4][0]) ? intval($rese[4][0]) : 10;
                     if ($aid){
-                        preg_match_all('/\{eyou:list(.*)orderby=[\'\"](.*)[\'\"](.*)\}/',$content,$reseby);
-                        $orderby =  !empty($reseby[2][0]) ? $reseby[2][0] : "";
-                        preg_match_all('/\{eyou:list(.*)orderWay=[\'\"](.*)[\'\"](.*)\}/',$content,$reseway);
-                        $orderway =  !empty($reseway[2][0]) ? $reseway[2][0] : "desc";
+                        preg_match_all('/\{eyou:list(.*)orderby(\s*)=(\s*)[\'\"]([^\'\"]*)[\'\"](.*)\}/i',$content,$reseby);
+                        $orderby =  !empty($reseby[4][0]) ? $reseby[4][0] : "";
+                        preg_match_all('/\{eyou:list(.*)orderWay(\s*)=(\s*)[\'\"](desc|asc)[\'\"](.*)\}/i',$content,$reseway);
+                        $orderway =  !empty($reseway[4][0]) ? $reseway[4][0] : "desc";
                     }
                 }
                 $info[$k]['pagesize'] = $pagesize = !empty($pagesize)?$pagesize:10;

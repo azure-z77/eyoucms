@@ -34,12 +34,20 @@ $parse_url_param = [];
 if (file_exists(ROOT_PATH.'template/pc/uiset.txt') || file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
     $parse_url_param[] = 'uiset';
     $parse_url_param[] = 'v';
+} else {
+    $uisetArr = @glob('template/*/*/uiset.txt');
+    if (!empty($uisetArr)) {
+        $parse_url_param[] = 'uiset';
+        $parse_url_param[] = 'v';
+    }
 }
 $lang_switch_on = \think\Config::get('lang_switch_on');
 $lang_switch_on == true && $parse_url_param[] = 'lang';
 $parse_url_param[] = 'goto';
 
 return array(
+    // 小虎哥
+    'upgrade_dev'   => 0,
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','install','public','template','uploads','vendor','weapp'],
     // 禁用栏目的目录名称
@@ -295,6 +303,10 @@ return array(
         17 => array(
             'table' => 'admin',
             'field' => 'head_pic',
+        ),
+        18 => array(
+            'table' => 'media_file',
+            'field' => 'file_url',
         ),
         // 后续可持续添加数据表和字段，格式参照以上
     ),

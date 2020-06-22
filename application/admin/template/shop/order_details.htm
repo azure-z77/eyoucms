@@ -2,7 +2,7 @@
 <body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
 <style type="text/css">
     .system_table{ border:1px solid #dcdcdc; width:100%;}
-    .system_table td{ height:40px; line-height:40px; font-size:12px; color:#454545; border-bottom:1px solid #dcdcdc; border-right:1px solid #dcdcdc; width:35%; padding-left:3%;}
+    .system_table td{ height:40px; line-height:40px; font-size:12px; color:#454545; border-bottom:1px solid #dcdcdc; border-right:1px solid #dcdcdc; width:35%; padding-left:1%;}
     .system_table td.gray_bg{ background:#f7f7f7; width:15%;}
 </style>
 <div id="append_parent"></div>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <form class="form-horizontal" id="postForm" action="{:url('Shop/order_mark_status')}" method="post">
-            <input type="hidden" name="order_id" value="{$OrderData.order_id}">
+            <input type="hidden" name="order_id" id="order_id" value="{$OrderData.order_id}">
             <input type="hidden" name="order_code" value="{$OrderData.order_code}">
             <input type="hidden" name="users_id" value="{$OrderData.users_id}">
             <input type="hidden" name="consignee" value="{$OrderData.consignee}">
@@ -65,8 +65,77 @@
                             <td class="gray_bg">手机号码：</td>
                             <td>{$UsersData.mobile}</td>
                             <td class="gray_bg">应付金额：</td>
-                            <td>￥{$OrderData.order_amount}</td>
+                            <td>
+                                <input type="hidden" id="order_amount_old" value="{$OrderData.order_amount}">
+                                <span id="order_amount">￥{$OrderData.order_amount}</span>
+                                {gt name="$OrderData.shipping_fee" value="0"}(含运费:{$OrderData.shipping_fee}){/gt}
+                                
+                                {eq name="$OrderData.order_status" value="0"}
+                                    <a href="JavaScript:void(0);" style="color: red;" onclick="PromptChangePrice();">[改价]</a>
+                                {else/}
+                                    {gt name="$OrderData.order_total_amount" value="$OrderData.order_amount"}
+                                        <span style="color: red;" title="应付金额已被更改过">[已改价]</span>
+                                    {/gt}
+                                {/eq}
+                            </td>
                         </tr>
+                        <script type="text/javascript">
+                            // 弹出改价输入框
+                            function PromptChangePrice() {
+                                layer.prompt({
+                                    title: false, 
+                                    formType: 3,
+                                    id: 'BulkSetPrice',
+                                    btn: ['确定', '关闭'],
+                                    closeBtn: 0,
+                                    success: function(layero, index) {
+                                        $("#BulkSetPrice").find('input').attr('placeholder', '请输入应付金额');
+                                        $("#BulkSetPrice").find('input').attr('value', $('#order_amount_old').val());
+                                        $("#BulkSetPrice").find('input').attr('onkeyup', "this.value=this.value.replace(/[^\\d.]/g,'')");
+                                        $("#BulkSetPrice").find('input').attr('onpaste', "this.value=this.value.replace(/[^\\d.]/g,'')");
+                                        var msg = '<span style="color: red;">改价后让用户重新进入订单列表点击支付</span>';
+                                        $("#BulkSetPrice").append(msg);
+                                        // 修改订单金额后为保证支付金额准确有效<br/>请让用户刷新订单列表页后重新点击支付
+                                    }
+                                }, function(price, index) {
+                                    if (0 < price) {
+                                        layer.close(index);
+                                        OrderChangePrice(price);
+                                    } else {
+                                        layer.msg('应付金额不允许为0', {time: 1500});
+                                    }
+                                });
+                            }
+
+                            // 提交改价数据并追加一条订单操作记录
+                            function OrderChangePrice(Price) {
+                                if (0 >= Price) layer.msg('应付金额不允许为0', {time: 1500});
+                                layer_loading('正在处理');
+                                $.ajax({
+                                    type : 'post',
+                                    url  : "{:url('Shop/order_change_price')}",
+                                    data : {
+                                        order_id: $('#order_id').val(),
+                                        order_amount_old: $('#order_amount_old').val(),
+                                        order_amount: Price,
+                                        _ajax: 1
+                                    },
+                                    dataType : 'json',
+                                    success : function(res) {
+                                        layer.closeAll();
+                                        if (1 == res.code) {
+                                            layer.msg(res.msg, {time: 1500}, function() {
+                                                window.location.reload();
+                                            });
+                                        } else {
+                                            layer.alert(res.msg, {title: false, closeBtn: 0}, function() {
+                                                window.location.reload();
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        </script>
                         <tr>
                             <td class="gray_bg">支付方式：</td>
                             <td>
@@ -127,7 +196,7 @@
                             <td class="gray_bg">下单时间：</td>
                             <td>{$OrderData.add_time|MyDate='Y-m-d H:i:s',###}</td>
                             <td class="gray_bg">付款时间：</td>
-                            <td>{$OrderData.pay_time|MyDate='Y-m-d H:i:s',###}</td>
+                            <td>{neq name="$OrderData.pay_time" value="0"}{$OrderData.pay_time|MyDate='Y-m-d H:i:s',###}{/neq}</td>
                         </tr>
                         <tr>
                             <td class="gray_bg">付款方式：</td>
@@ -255,7 +324,7 @@
                                 <th abbr="article_title" axis="col3" class="">
                                     <div style="text-align: left; padding-left: 10px;" class="">商品名称</div>
                                 </th>
-                                <th abbr="article_time" axis="col6" class="w150">
+                                <th abbr="article_time" axis="col6" class="w300">
                                     <div class="tl">规格属性</div>
                                 </th>
                                 <th abbr="article_time" axis="col6" class="w80">
@@ -298,7 +367,7 @@
                                     </div>
                                 </td>
                                 <td class="sort">
-                                    <div class="tl w150">
+                                    <div class="tl w300">
                                         {$vo.data}
                                     </div>
                                 </td>
@@ -452,17 +521,17 @@
                                 </td>
                                 <td class="sort">
                                     <div class="tc w100">
-                                        {$admin_order_status_arr[$vo.order_status]|default=''}
-                                    </div>
-                                </td>
-                                <td class="sort">
-                                    <div class="tc w100">
                                         {$vo.pay_status}
                                     </div>
                                 </td>
                                 <td class="sort">
                                     <div class="tc w100">
                                         {$vo.express_status}
+                                    </div>
+                                </td>
+                                <td class="sort">
+                                    <div class="tc w100">
+                                        {$admin_order_status_arr[$vo.order_status]|default=''}
                                     </div>
                                 </td>
                                 <td class="sort">

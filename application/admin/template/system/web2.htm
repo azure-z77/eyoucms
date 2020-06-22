@@ -90,7 +90,7 @@
                     <label for="adminbasefile">后台路径</label>
                 </dt>
                 <dd class="opt">
-                    __SITE_URL____ROOT_DIR__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 80px;" />.php
+                    __SITE_URL____ROOT_DIR__/<input type="hidden" name="adminbasefile_old" value="{$adminbasefile|default='login'}"><input id="adminbasefile" name="adminbasefile" value="{$adminbasefile|default='login'}" type="text" data-site_url="__SITE_URL__" onKeyUp="this.value=this.value.replace(/[^0-9a-zA-Z_-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z_-]/g,''));" style="width: 120px;" />.php
                     <p class="notic">为了提高后台的安全性，请及时更改后台入口文件。</p>
                 </dd>
             </dl>
@@ -133,6 +133,23 @@
                     <p class="notic">默认3600秒等于1小时</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="web_tpl_theme">前台模板风格</label>
+                </dt>
+                <dd class="opt">
+                    <select name="web_tpl_theme">
+                        <option value="">默认风格</option>
+                        {volist name='$tpl_theme_list' id='vo'}
+                            {notin name="$vo" value="default,plugins,weapp,pc,mobile"}
+                            <option value="{$vo}" {eq name='$config.web_tpl_theme' value='$vo'}selected{/eq}>{$vo}</option>
+                            {/notin}
+                        {/volist}
+                    </select>
+                    &nbsp;<a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=9976','如何防止网站模板文件被仿盗？')" style="font-size: 12px;padding-left: 38px;position:absolute;top: 18px;">查看教程？</a>
+                    <p class="notic">如果是静态URL模式，每次切换请重新生成所有静态页面！</p>
+                </dd>
+            </dl>
 <!--             <dl class="row">
                 <dt class="tit">
                     <label for="site_url">启用绝对网址</label>
@@ -154,6 +171,7 @@
     </form>
 </div>
 <input type="hidden" id="show_web_adminlogo" value="{$config.web_adminlogo|default=''}">
+<input type="hidden" id="show_uiset" value="{$show_uiset|default=''}">
 <script type="text/javascript">
 
     $(document).ready(function(){
@@ -162,6 +180,26 @@
         if ($.trim(show_web_adminlogo) != '') {
             show_web_adminlogo += '?r='+Math.floor(Math.random()*100);
             $('#web_adminlogo', window.parent.document).attr('src', show_web_adminlogo);
+        }
+
+        // 可视化编辑入口
+        var show_uiset = $('#show_uiset').val();
+        if ('pc+mobile' == show_uiset) { // 显示PC和手机入口
+            $('#Uiset_index', window.parent.document).show();
+            $('#Uiset_pc', window.parent.document).show();
+            $('#Uiset_mobile', window.parent.document).show();
+        } else if ('pc' == show_uiset) { // 显示PC入口
+            $('#Uiset_index', window.parent.document).show();
+            $('#Uiset_pc', window.parent.document).show();
+            $('#Uiset_mobile', window.parent.document).hide();
+        } else if ('mobile' == show_uiset) { // 显示手机入口
+            $('#Uiset_index', window.parent.document).show();
+            $('#Uiset_pc', window.parent.document).hide();
+            $('#Uiset_mobile', window.parent.document).show();
+        } else { // 隐藏PC和手机入口
+            $('#Uiset_index', window.parent.document).hide();
+            $('#Uiset_pc', window.parent.document).hide();
+            $('#Uiset_mobile', window.parent.document).hide();
         }
 
         // 手机域名配置
@@ -181,6 +219,24 @@
                 $('#span_web_mobile_domain').html(web_mobile_domain);
             } else {
                 $('#p_web_mobile_domain').hide();
+            }
+        });
+
+        $('input[name="web_is_https"]').click(function(){
+            if (1 == $(this).val()) {
+                layer.confirm('确认空间已配置SSL证书，否则网站无法访问？', {
+                    title: false,
+                    closeBtn: false,
+                    btn: ['确定', '取消'] //按钮
+                }, function (index) {
+                    layer.close(index);
+                }, function (index) {
+                    $('label[for=web_is_https1]').removeClass('selected');
+                    $('#web_is_https1').attr('checked','');
+                    $('label[for=web_is_https0]').addClass('selected');
+                    $('#web_is_https0').attr('checked','checked');
+                    layer.close(index);
+                });
             }
         });
 

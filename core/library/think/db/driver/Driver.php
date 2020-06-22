@@ -113,20 +113,6 @@ class Driver
         $tmpPlugin = base64_decode($tmpPlugin);
 
         $web_basehost = $request->host(true);
-        if (false !== filter_var($web_basehost, FILTER_VALIDATE_IP)) {
-            /*多语言*/
-            if (is_language()) {
-                $langRow = \think\Db::name('language')->order('id asc')->select();
-                foreach ($langRow as $key => $val) {
-                    tpCache('php', [$tmpPlugin=>1], $val['mark']); // 是
-                }
-            } else { // 单语言
-                tpCache('php', [$tmpPlugin=>1]); // 是
-            }
-            /*--end*/
-            
-            return false;
-        }
 
         $keys = array_join_string(array('fnNlcnZpY2VfZXl+'));
         $keys = msubstr($keys, 1, strlen($keys) - 2);
@@ -138,6 +124,7 @@ class Driver
         /*--end*/
         $vaules = array(
             $arrKey => urldecode($web_basehost),
+            'ip'    => serverIP(),
         );
         $query_str = binaryJoinChar(config('binary.12'), 47);
         $query_str = msubstr($query_str, 1, strlen($query_str) - 2);

@@ -15,6 +15,7 @@ namespace think\template\taglib\eyou;
 
 use think\Config;
 use think\Db;
+use think\Cookie;
 
 /**
  * 订单明细
@@ -57,9 +58,13 @@ class TagSporder extends Base
             $result['OrderData']['LogisticsInquiry'] = $MobileExpressUrl = '';
             if (('2' == $result['OrderData']['order_status'] || '3' == $result['OrderData']['order_status']) && empty($result['OrderData']['prom_type'])) {
                 // 移动端查询物流链接
-                $result['OrderData']['MobileExpressUrl'] = "//m.kuaidi100.com/app/query/?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
+                $result['OrderData']['MobileExpressUrl'] = "//m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
 
-                $MobileExpressUrl = "//m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
+                if (isMobile()) {
+                    $MobileExpressUrl = "//m.kuaidi100.com/index_all.html?type=".$result['OrderData']['express_code']."&postid=".$result['OrderData']['express_order']."&callbackurl=".$ReturnUrl;
+                } else {
+                    $MobileExpressUrl = "https://www.kuaidi100.com/chaxun?com=".$result['OrderData']['express_code']."&nu=".$result['OrderData']['express_order'];
+                }
 
                 $result['OrderData']['LogisticsInquiry'] = " onclick=\"LogisticsInquiry('{$MobileExpressUrl}');\" ";
             }
@@ -77,7 +82,6 @@ class TagSporder extends Base
                 // 订单明细表
                 $result['DetailsData'] = Db::name("shop_order_details")->order('product_price desc, product_name desc')->where($Where)->select();
 
-                $controller_name = 'Product';
                 $array_new = get_archives_data($result['DetailsData'],'product_id');
                 $virtual_delivery_status = false;
                 // 产品处理
@@ -137,7 +141,7 @@ class TagSporder extends Base
                     $result['DetailsData'][$key]['new_data'] = $spec_value . $attr_value_new;
                     
                     // 产品内页地址
-                    $result['DetailsData'][$key]['arcurl']   = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$value['product_id']]));
+                    $result['DetailsData'][$key]['arcurl']   = urldecode(arcurl('home/Product/view', $array_new[$value['product_id']]));
 
                     // 图片处理
                     $result['DetailsData'][$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));
@@ -154,23 +158,39 @@ class TagSporder extends Base
                 }
                 if (empty($result['OrderData']['order_status'])) {
                     // 付款地址处理，对ID和订单号加密，拼装url路径
-                    $querydata = [
+                    // $querydata = [
+                    //     'order_id'   => $result['OrderData']['order_id'],
+                    //     'order_code' => $result['OrderData']['order_code'],
+                    // ];
+                    // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                    // $querystr = '';
+                    // foreach($querydata as $_qk => $_qv)
+                    // {
+                    //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                    // }
+                    // $querystr = str_replace('=', '', mchStrCode($querystr));
+                    // $auth_code = tpCache('system.system_auth_code');
+                    // $hash = md5("payment".$querystr.$auth_code);
+                    // /*end*/
+                    // $result['OrderData']['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+
+                    // 付款地址处理，对ID和订单号加密，拼装url路径
+                    $Paydata = [
                         'order_id'   => $result['OrderData']['order_id'],
                         'order_code' => $result['OrderData']['order_code'],
                     ];
 
-                    /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                    $querystr = '';
-                    foreach($querydata as $_qk => $_qv)
-                    {
-                        $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                    }
-                    $querystr = str_replace('=', '', mchStrCode($querystr));
-                    $auth_code = tpCache('system.system_auth_code');
-                    $hash = md5("payment".$querystr.$auth_code);
-                    /*end*/
-                    
-                    $result['OrderData']['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                    // 先 json_encode 后 md5 加密信息
+                    $Paystr = md5(json_encode($Paydata));
+
+                    // 清除之前的 cookie
+                    Cookie::delete($Paystr);
+
+                    // 存入 cookie
+                    cookie($Paystr, $Paydata);
+
+                    // 跳转链接
+                    $result['OrderData']['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
                 }
 
                 // 处理订单主表的地址数据
@@ -183,10 +203,10 @@ class TagSporder extends Base
                 $pay_method_arr = Config::get('global.pay_method_arr');
                 if (!empty($result['OrderData']['payment_method'])) {
                     $result['OrderData']['pay_name'] = '货到付款（ 快递代收 ）';
-                }else{
+                } else {
                     $pay_name = '未支付';
                     if (!empty($result['OrderData']['pay_name'])){
-                        $pay_name = $pay_method_arr[$result['OrderData']['pay_name']];
+                        $pay_name = !empty($pay_method_arr[$result['OrderData']['pay_name']]) ? $pay_method_arr[$result['OrderData']['pay_name']] : '第三方支付';
                     }
                     $result['OrderData']['pay_name'] = '在线支付（ '.$pay_name.' ）';
                 }

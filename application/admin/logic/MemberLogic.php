@@ -46,8 +46,8 @@ class MemberLogic extends Model
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVVwZ3JhZGUmYT1jaGVja1RoZW1lVmVyc2lvbg==';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
         $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->version.'&type=theme_users';
-        $this->planPath_pc = 'template/pc/';
-        $this->planPath_m = 'template/mobile/';
+        $this->planPath_pc = 'template/'.TPL_THEME.'pc/';
+        $this->planPath_m = 'template/'.TPL_THEME.'mobile/';
     }
 
     /**
@@ -343,7 +343,13 @@ class MemberLogic extends Model
         while (false !== $file = readdir($dir)) {
             if (($file != '.') && ($file != '..')) {
                 if (is_dir($src . '/' . $file)) {
-                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file, $folderName);
+                    $needle = '/template/'.TPL_THEME;
+                    $needle = rtrim($needle, '/');
+                    $dstfile = $dst . '/' . $file;
+                    if (!stristr($dstfile, $needle)) {
+                        $dstfile = str_replace('/template', $needle, $dstfile);
+                    }
+                    $this->recurse_copy($src . '/' . $file, $dstfile, $folderName);
                 }
                 else {
                     if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {

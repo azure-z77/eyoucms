@@ -1270,4 +1270,35 @@ class ShopProduct extends Base
             return $str;
         }
     }
+
+    /**
+     * 发布商品
+     */
+    public function release()
+    {
+        $typeid = input('param.typeid/d', 0);
+        if (0 < $typeid) {
+            $param = input('param.');
+            $row = Db::name('arctype')->field('current_channel')->find($typeid);
+            /*针对不支持发布文档的模型*/
+            if ($row['current_channel'] != 2) {
+                $this->error('该栏目不支持发布商品！', url('ShopProduct/release'));
+            }
+            /*-----end*/
+
+            $data = [
+                'typeid'    => $typeid,
+            ];
+            $jumpUrl = url("ShopProduct/add", $data, true, true);
+            header('Location: '.$jumpUrl);
+            exit;
+        }
+
+        /*允许发布文档列表的栏目*/
+        $select_html = allow_release_arctype(0, [2]);
+        $this->assign('select_html',$select_html);
+        /*--end*/
+
+        return $this->fetch();
+    }
 }

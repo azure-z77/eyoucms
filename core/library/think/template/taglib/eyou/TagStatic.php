@@ -72,16 +72,18 @@ class TagStatic extends Base
                         if (!file_exists(realpath(ltrim($filename, '/')))) {
                             continue;
                         }
-                        $http_url = $file = $request->domain().$filename;
+                        $file = $request->domain().$filename;
                     }
                 } else { // 不是本地文件禁止使用该方法
                     return $this->toHtml($file);
                 }
-                
+
+                $update_time = getTime();
+
             } else {
                 if (!preg_match('/^\//i',$file)) {
                     if (empty($code)) {
-                        $file = '/template/'.THEME_STYLE.'/'.$file;
+                        $file = '/template/'.THEME_STYLE_PATH.'/'.$file;
                     } else {
                         $file = '/template/plugins/'.$code.'/'.THEME_STYLE.'/'.$file;
                     }
@@ -97,12 +99,16 @@ class TagStatic extends Base
                 if (!file_exists(ltrim($file, '/'))) {
                     continue;
                 }
-                $http_url = $request->domain().$this->root_dir.$file; // 支持子目录
+
+                try{
+                    $fileStat = stat(ROOT_PATH . ltrim($file, '/'));
+                    $update_time = !empty($fileStat['mtime']) ? $fileStat['mtime'] : getTime();
+                } catch (\Exception $e) {
+                    $update_time = getTime();
+                }
             }
             // -------------end---------------
 
-            $headInf = @get_headers($http_url,1); 
-            $update_time = !empty($headInf['Last-Modified']) ? strtotime($headInf['Last-Modified']) : '';
             $parseStr .= $this->toHtml($file, $update_time);
         }
 
@@ -118,7 +124,9 @@ class TagStatic extends Base
     private function toHtml($file = '', $update_time = '')
     {
         $parseStr = '';
-        $file = $this->root_dir.$file; // 支持子目录
+        if (!is_http_url($file)) {
+            $file = $this->root_dir.$file; // 支持子目录
+        }
         $update_time_str = !empty($update_time) ? '?t='.$update_time : '';
         $type = strtolower(substr(strrchr($file, '.'), 1));
         switch ($type) {

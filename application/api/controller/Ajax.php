@@ -129,7 +129,7 @@ class Ajax extends Base
             $queryRow = Db::query($querysql);
             if (!empty($queryRow)) {
                 $tpl_content = '';
-                $filename = './template/'.THEME_STYLE.'/'.'system/arclist_'.$tagid.'.'.\think\Config::get('template.view_suffix');
+                $filename = './template/'.THEME_STYLE_PATH.'/'.'system/arclist_'.$tagid.'.'.\think\Config::get('template.view_suffix');
                 if (!file_exists($filename)) {
                     $data['code'] = -1;
                     $data['msg'] = "模板追加文件 arclist_{$tagid}.htm 不存在！";
@@ -443,6 +443,8 @@ class Ajax extends Base
                     $where = [
                         'mobile' => $mobile
                     ];
+                    $users_id = session('users_id');
+                    if (!empty($users_id)) $where['users_id'] = ['NEQ', $users_id];
                     $Result = Db::name('users')->where($where)->count();
                     /* END */
                     if (0 == $post['source']) {

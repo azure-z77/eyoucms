@@ -286,6 +286,7 @@ if (!function_exists('tpversion'))
             'install_time'=>$install_time, 
             'serial_number'=>$serial_number,
             'ip'    => GetHostByName($_SERVER['SERVER_NAME']),
+            'agentcode' => !empty($global_config['php_agentcode']) ? $global_config['php_agentcode'] : 0,
             'global_config' => base64_encode(json_encode($global_config)),
             'users_config' => base64_encode(json_encode($users_config)),
             'phpv'  => urlencode(phpversion()),
@@ -916,7 +917,7 @@ if (!function_exists('menu_select'))
 if (!function_exists('schemaTable')) 
 {
     /**
-     * 重新生成数据表缓存字段文件
+     * 重新生成单个数据表缓存字段文件
      */
     function schemaTable($name)
     {
@@ -928,6 +929,25 @@ if (!function_exists('schemaTable'))
         /*调用命令行的指令*/
         \think\Console::call('optimize:schema', ['--table', $table]);
         /*--end*/
+    }
+}
+
+if (!function_exists('schemaAllTable')) 
+{
+    /**
+     * 重新生成全部数据表缓存字段文件
+     */
+    function schemaAllTable()
+    {
+        $dbtables = \think\Db::query('SHOW TABLE STATUS');
+        $tableList = [];
+        foreach ($dbtables as $k => $v) {
+            if (preg_match('/^'.PREFIX.'/i', $v['Name'])) {
+                /*调用命令行的指令*/
+                \think\Console::call('optimize:schema', ['--table', $v['Name']]);
+                /*--end*/
+            }
+        }
     }
 }
 

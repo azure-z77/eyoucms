@@ -95,7 +95,7 @@ class TagScreening extends Base
             ->alias('a')
             ->join('__CHANNELFIELD_BIND__ b', 'b.field_id = a.id', 'LEFT')
             ->where($where)
-            ->order('a.sort_order asc')
+            ->order('a.sort_order asc, a.id asc')
             ->select();
 
         // Onclick点击事件方法名称加密，防止冲突
@@ -210,9 +210,9 @@ class TagScreening extends Base
                         if (empty($param_query['page'])) {
                             $param_query['page'] = 1;
                         }
-                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.http_build_query($param_query);
+                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.urlencode(http_build_query($param_query));
                     }else{
-                        $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                        $url = ROOT_DIR.'/index.php?'.urlencode(http_build_query($param_query));
                     }
                     $url = urldecode($url);
                     $url = $this->auto_hide_index($url, $seo_pseudo);
@@ -319,9 +319,9 @@ class TagScreening extends Base
                         if (empty($param_query['page'])) {
                             $param_query['page'] = 1;
                         }
-                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.http_build_query($param_query);
+                        $url = ROOT_DIR.'/index.php?m=home&c=Lists&a=index&tid='.$typeid.'&'.urlencode(http_build_query($param_query));
                     }else{
-                        $url = ROOT_DIR.'/index.php?'.http_build_query($param_query);
+                        $url = ROOT_DIR.'/index.php?'.urlencode(http_build_query($param_query));
                     }
                     $url = urldecode($url);
                     $url = $this->auto_hide_index($url, $seo_pseudo);

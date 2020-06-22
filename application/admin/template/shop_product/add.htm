@@ -152,6 +152,65 @@
                 {eq name="$shopConfig['shop_type']" value="1"}
                     <!-- 虚拟产品 -->
                     <input type="hidden" name="prom_type" value="1"/>
+                    <dl class="row" id="fahuoxingshi" >
+                        <dt class="tit">
+                            <label for="fahuo">发货形式</label>
+                        </dt>
+                        <dd class="opt">
+                            <label>
+                                <input type="radio" name="prom_type_vir" value="1" checked="checked" onclick="change_prom_type(2)"/>手动发货
+                            </label>
+                            &nbsp;
+                            <label>
+                                <input type="radio" name="prom_type_vir" value="2" onclick="change_prom_type(3)"/>网盘下载
+                            </label>
+                            &nbsp;
+                            <label>
+                                <input type="radio" name="prom_type_vir" value="3" onclick="change_prom_type(4)"/>文本内容
+                            </label>
+                        </dd>
+                    </dl>
+                    <div id="wangpanxiazai" class="none">
+                        <dl class="row">
+                            <dt class="tit">
+                                <label for="netdisk_url"><em>*</em>网盘地址</label>
+                            </dt>
+                            <dd class="opt">
+                                <input type="text" name="netdisk_url" value="" id="netdisk_url" class="input-txt" placeholder="http://">
+                                <span class="err"></span>
+                                <p class="notic">输入完整的URL网址（包含http或https）</p>
+                            </dd>
+                        </dl>
+                        <dl class="row">
+                            <dt class="tit">
+                                <label for="netdisk_pwd">提取码</label>
+                            </dt>
+                            <dd class="opt">
+                                <input type="text" name="netdisk_pwd" value="" id="netdisk_pwd" class="input-txt">
+                                <span class="err"></span>
+                                <p class="notic"></p>
+                            </dd>
+                        </dl>
+                        <dl class="row">
+                            <dt class="tit">
+                                <label for="unzip_pwd">解压密码</label>
+                            </dt>
+                            <dd class="opt">
+                                <input type="text" name="unzip_pwd" value="" id="unzip_pwd" class="input-txt">
+                                <span class="err"></span>
+                                <p class="notic"></p>
+                            </dd>
+                        </dl>
+                    </div>
+                    <dl class="row none" id="wenbenneirong">
+                        <dt class="tit">
+                            <label for="text_content"><em>*</em>文本内容</label>
+                        </dt>
+                        <dd class="opt">
+                            <textarea rows="5" cols="80" id="text_content" name="text_content" style="width: 375px;height:160px;"></textarea>
+                            <p class="notic"></p>
+                        </dd>
+                    </dl>
                 {/eq}
 
                 {eq name="$shopConfig['shop_type']" value="2"}
@@ -759,38 +818,6 @@
                         });
                     }
                 </script>
-                <!-- <dl class="row">
-                    <div class="tab-pane" id="tab_product_spec">
-                        <table class="table table-bordered" width="100%">
-                            <tr>
-                                <td>
-                                    <div id="explanation" class="explanation" style="color: rgb(44, 188, 163); background-color: rgb(237, 251, 248); width: 99%; height: 100%;">
-                                        <div id="checkZoom" class="title"><i class="fa fa-lightbulb-o"></i>
-                                            <h4 title="提示相关设置操作时应注意的要点">操作提示</h4>
-                                            <span title="收起提示" id="explanationZoom" style="display: block;"></span>
-                                        </div>
-                                        <ul>
-                                            <li>
-                                                {empty name='$typeid'}
-                                                请先在【常规选项】里选择产品主栏目，再点击【<a href="{:url('Product/attribute_index', array('typeid'=>$typeid))}">参数选项</a>】进行更多操作。
-                                                {else /}
-                                                如果想对产品参数进行新增、修改、删除等操作，请点击【<a href="{:url('Product/attribute_index', array('typeid'=>$typeid))}">参数选项</a>】进行更多操作。
-                                                {/empty}
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </dl>
-                <dl class="row" style="margin-top: 10px;" id="product_attr_table">
-                    {empty name='$canshu'}
-                    <div style="color: red;font-size: 12px;text-align: center;">提示：该主栏目还没有参数值，若有需要请点击【<a href="{:url('Product/attribute_index', array('typeid'=>$typeid))}">参数选项</a>】进行更多操作。</div>
-                    {else /}
-                    {$canshu}
-                    {/empty}
-                </dl> --> 
             </div>
             <!-- 产品参数 -->
             <!-- SEO设置 -->

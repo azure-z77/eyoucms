@@ -16,6 +16,7 @@ namespace app\user\controller;
 use think\Db;
 use think\Config;
 use think\Page;
+use think\Cookie;
 
 class Shop extends Base
 {
@@ -38,8 +39,6 @@ class Shop extends Base
         $this->shipping_template_db  = Db::name('shop_shipping_template'); // 运费模板表
 
         $this->shop_model = model('Shop');  // 商城模型
-	    // 商城微信配置信息
-        $this->pay_wechat_config = unserialize(getUsersConfigData('pay.pay_wechat_config'));
 
         // 订单中心是否开启
         $redirect_url = '';
@@ -112,11 +111,9 @@ class Shop extends Base
     }
 
     // 订单提交
-    public function shop_under_order($error = 'true')
+    public function shop_under_order($error = true)
     {
-        if (empty($error)) {
-            $this->error('您的购物车还没有商品！');
-        }
+        if (empty($error)) $this->error('您的购物车还没有商品！');
         // 获取当前页面URL，存入session，若操作添加地址后返回当前页面
         session($this->users_id.'_EyouShopOrderUrl', $this->request->url(true));
         // 数据由标签调取生成
@@ -240,18 +237,26 @@ class Shop extends Base
                 }
                 /* END */
 
-                /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                $querystr = '';
-                foreach($querydata as $_qk => $_qv)
-                {
-                    $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                }
-                $querystr = str_replace('=', '', mchStrCode($querystr));
-                $auth_code = tpCache('system.system_auth_code');
-                $hash = md5("payment".$querystr.$auth_code);
-                /*end*/
-                
-                $url = urldecode(url('user/Shop/shop_under_order', ['querystr'=>$querystr,'hash'=>$hash]));
+                // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                // $querystr = '';
+                // foreach($querydata as $_qk => $_qv)
+                // {
+                //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                // }
+                // $querystr = str_replace('=', '', mchStrCode($querystr));
+                // $auth_code = tpCache('system.system_auth_code');
+                // $hash = md5("payment".$querystr.$auth_code);
+                // /*end*/
+                // $url = urldecode(url('user/Shop/shop_under_order', ['querystr'=>$querystr,'hash'=>$hash]));
+
+                // 先 json_encode 后 md5 加密信息
+                $querystr = md5(json_encode($querydata));
+
+                // 存入 cookie
+                cookie($querystr, $querydata);
+
+                // 跳转链接
+                $url = urldecode(url('user/Shop/shop_under_order', ['querystr'=>$querystr]));
                 $this->success('立即购买！',$url);
             }else{
                 $this->error('该商品不存在或已下架！');
@@ -521,27 +526,24 @@ class Shop extends Base
         if (IS_POST) {
             // 提交的订单信息判断
             $post = input('post.');
-            if (empty($post)) {
-                $this->error('订单生成失败，商品数据有误！'); 
-            }
-            if (!empty($post['aid'])) {
-                $aid  = intval(mchStrCode($post['aid'],'DECODE'));
-            }
-            if (!empty($post['num'])) {
-                $num  = intval(mchStrCode($post['num'],'DECODE'));
-            }
-            if (!empty($post['type'])) {
-                $type  = intval(mchStrCode($post['type'],'DECODE'));
-            }
+            if (empty($post)) $this->error('订单生成失败，商品数据有误！'); 
+            $Md5Value = !empty($post['Md5Value']) ? $post['Md5Value'] : null;
+            
+            // if (!empty($post['aid'])) $aid  = intval(mchStrCode($post['aid'],'DECODE'));
+            // if (!empty($post['num'])) $num  = intval(mchStrCode($post['num'],'DECODE'));
+            // if (!empty($post['type'])) $type  = intval(mchStrCode($post['type'],'DECODE'));
+            
             // 产品ID是否存在
-            if (!empty($aid)) {
-                if (!empty($post['spec_value_id'][0])) {
-                    $spec_value_id  = mchStrCode($post['spec_value_id'][0],'DECODE');
-                }
+            if (!empty($Md5Value)) {
+                $querystr = cookie($Md5Value);
+                $aid = !empty($querystr['aid']) ? $querystr['aid'] : 0;
+                $num = !empty($querystr['product_num']) ? $querystr['product_num'] : 0;
+                $type = !empty($post['type']) ? $post['type'] : 0;
+                $spec_value_id = !empty($querystr['spec_value_id']) ? $querystr['spec_value_id'] : '';
 
+                // if (!empty($post['spec_value_id'][0])) $spec_value_id  = mchStrCode($post['spec_value_id'][0],'DECODE');
                 // 商品数量判断
                 if ($num <= 0) $this->error('订单生成失败，商品数量有误！');
-                
                 // 订单来源判断
                 if ($type != 1) $this->error('订单生成失败，提交来源有误！');
                 
@@ -580,12 +582,12 @@ class Shop extends Base
                     ->where($cart_where)
                     ->select();
             }
-            
+
             // 没有相应的产品
             if (empty($list)) $this->error('订单生成失败，没有相应的产品！');
             
             // 产品数据处理
-            $PromType = '1'; // 1表示为虚拟订单
+            $PromType = 1; // 1表示为虚拟订单
             $TotalAmount = $TotalNumber = '';
             $level_discount = $this->users['level_discount'];
             foreach ($list as $key => $value) {
@@ -616,9 +618,7 @@ class Shop extends Base
                     $list[$key]['stock_count'] = $value['spec_stock'];
                 }
                 // 若库存为空则返回提示
-                if (empty($value['stock_count'])) {
-                    $this->error('产品 《'.$value['title'].'》 库存不足！');
-                }
+                if (empty($value['stock_count'])) $this->error('产品 《'.$value['title'].'》 库存不足！');
 
                 // 金额、数量计算
                 if ($value['users_price'] >= 0 && !empty($value['product_num'])) {
@@ -627,9 +627,7 @@ class Shop extends Base
                     // 合计数量
                     $TotalNumber += $value['product_num'];
                     // 判断订单类型，目前逻辑：一个订单中，只要存在一个普通产品(实物产品，需要发货物流)，则为普通订单
-                    if (empty($value['prom_type'])) {
-                        $PromType = '0';// 0表示为普通订单
-                    }
+                    if (empty($value['prom_type'])) $PromType = 0;// 0表示为普通订单
                 }
             }
 
@@ -674,7 +672,7 @@ class Shop extends Base
                 if (!empty($shop_open_shipping)) {
                     // 通过省份获取运费模板中的运费价格
                     $template_money = $this->shipping_template_db->where('province_id', $AddressData['province'])->getField('template_money');
-                    if (!empty($template_money)) {
+                    if (0 >= $template_money) {
                         // 省份运费价格为0时，使用统一的运费价格，固定ID为100000
                         $template_money = $this->shipping_template_db->where('province_id', '100000')->getField('template_money');
                     }
@@ -712,16 +710,14 @@ class Shop extends Base
             ];
             
             // 存在收货地址则追加合并到主表数组
-            if (!empty($AddrData)) {
-                $OrderData = array_merge($OrderData, $AddrData);
-            }
+            if (!empty($AddrData)) $OrderData = array_merge($OrderData, $AddrData);
 
             if (isMobile() && isWeixin()) {
                 $OrderData['pay_name'] = 'wechat';// 如果在微信端中则默认为微信支付
                 $OrderData['wechat_pay_type'] = 'WeChatInternal';// 如果在微信端中则默认为微信端调起支付
             }
 
-            if ('1' == $post['payment_method']) {
+            if (1 == $post['payment_method']) {
                 // 追加添加到订单主表的数组
                 $OrderData['order_status'] = 1; // 标记已付款
                 $OrderData['pay_time']     = $time;
@@ -731,17 +727,11 @@ class Shop extends Base
             }
 
             // 数据验证
-            $rule = [
-                'payment_method' => 'require|token',
-            ];
-            $message = [
-                'payment_method.require' => '不可为空！',
-            ];
+            $rule = ['payment_method' => 'require|token'];
+            $message = ['payment_method.require' => '不可为空！'];
             $validate = new \think\Validate($rule, $message);
-            if(!$validate->check($post)){
-                $this->error('不可连续提交订单！');
-            }
-
+            if (!$validate->check($post)) $this->error('不可连续提交订单！');
+            
             $OrderId = $this->shop_order_db->add($OrderData);
             if (!empty($OrderId)) {
                 $cart_ids   = $UpSpecValue = [];
@@ -785,9 +775,7 @@ class Shop extends Base
                     ];
 
                     // 处理购物车ID
-                    if (empty($value['under_order_type'])) {
-                        array_push($cart_ids, $value['cart_id']);
-                    }
+                    if (empty($value['under_order_type'])) array_push($cart_ids, $value['cart_id']);
 
                     // 产品库存处理
                     $UpSpecValue[] = [
@@ -802,20 +790,29 @@ class Shop extends Base
 
                 if (!empty($OrderId) && !empty($DetailsId)) {
                     // 清理购物车中已下单的ID
-                    if (!empty($cart_ids)) {
-                        $this->shop_cart_db->where('cart_id','IN',$cart_ids)->delete();
-                    }
+                    if (!empty($cart_ids)) $this->shop_cart_db->where('cart_id', 'IN', $cart_ids)->delete();
 
                     // 产品库存、销量处理
                     $this->shop_model->ProductStockProcessing($UpSpecValue);
 
                     // 添加订单操作记录
-                    AddOrderAction($OrderId,$this->users_id);
+                    AddOrderAction($OrderId, $this->users_id);
 
-                    if ('0' == $post['payment_method']) {
+                    /*清除下单的Cookie数据*/
+                    if (!empty($Md5Value)) Cookie::delete($Md5Value);
+                    /* END */
+
+                    if (0 == $post['payment_method']) {
                         // 选择在线付款并且在手机微信端、小程序中则返回订单ID，订单号，订单交易类型
                         if (isMobile() && isWeixin()) {
-                            if (!empty($this->users['open_id'])) {
+                            $where = [
+                                'pay_id' => 1,
+                                'pay_mark' => 'wechat'
+                            ];
+                            $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+                            if (!empty($PayInfo)) $PayInfo = unserialize($PayInfo);
+
+                            if (!empty($this->users['open_id']) && !empty($PayInfo) && 0 == $PayInfo['is_open_wechat']) {
                                 $ReturnOrderData = [
                                     'unified_id'       => $OrderId,
                                     'unified_number'   => $OrderData['order_code'],
@@ -828,66 +825,84 @@ class Shop extends Base
                                     // 余额为0
                                     $ReturnOrderData['is_gourl'] = 0;
                                     $this->success('订单已生成！', null, $ReturnOrderData);
-                                }else{
+                                } else {
                                     // 余额不为0
                                     $url = url('user/Shop/shop_wechat_pay_select');
-                                    session($this->users_id.'_ReturnOrderData',$ReturnOrderData);
+                                    session($this->users_id.'_ReturnOrderData', $ReturnOrderData);
                                     $this->success('订单已生成！', $url, $ReturnOrderData);
                                 }
-                            }else{
+                            } else {
                                 // 如果会员没有openid则跳转到支付页面进行支付
                                 // 在线付款时，跳转至付款页
                                 // 对ID和订单号加密，拼装url路径
-                                $querydata = [
+                                $Paydata = [
                                     'order_id'   => $OrderId,
                                     'order_code' => $OrderData['order_code'],
                                 ];
 
-                                /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                                $querystr = '';
-                                foreach($querydata as $_qk => $_qv)
-                                {
-                                    $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                                }
-                                $querystr = str_replace('=', '', mchStrCode($querystr));
-                                $auth_code = tpCache('system.system_auth_code');
-                                $hash = md5("payment".$querystr.$auth_code);
-                                /*end*/
-                                
-                                $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                                // 先 json_encode 后 md5 加密信息
+                                $Paystr = md5(json_encode($Paydata));
 
-                                $ReturnOrderData = [
-                                    'is_gourl' => 1,
-                                ];
-                                $this->success('订单已生成！',$PaymentUrl,$ReturnOrderData);
+                                // 存入 cookie
+                                cookie($Paystr, $Paydata);
+
+                                // 跳转链接
+                                $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
+
+                                // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                                // $querystr = '';
+                                // foreach($querydata as $_qk => $_qv)
+                                // {
+                                //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                                // }
+                                // $querystr = str_replace('=', '', mchStrCode($querystr));
+                                // $auth_code = tpCache('system.system_auth_code');
+                                // $hash = md5("payment".$querystr.$auth_code);
+                                // /*end*/
+                                // $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                                $this->success('订单已生成！', $PaymentUrl, ['is_gourl' => 1]);
                             }
-                        }else{
+                        } else {
                             // 在线付款时，跳转至付款页
                             // 对ID和订单号加密，拼装url路径
-                            $querydata = [
+                            // $querydata = [
+                            //     'order_id'   => $OrderId,
+                            //     'order_code' => $OrderData['order_code'],
+                            // ];
+                            // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                            // $querystr = '';
+                            // foreach($querydata as $_qk => $_qv)
+                            // {
+                            //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                            // }
+                            // $querystr = str_replace('=', '', mchStrCode($querystr));
+                            // $auth_code = tpCache('system.system_auth_code');
+                            // $hash = md5("payment".$querystr.$auth_code);
+                            // /*end*/
+                            // $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                            
+                            $Paydata = [
                                 'order_id'   => $OrderId,
                                 'order_code' => $OrderData['order_code'],
                             ];
 
-                            /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                            $querystr = '';
-                            foreach($querydata as $_qk => $_qv)
-                            {
-                                $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                            }
-                            $querystr = str_replace('=', '', mchStrCode($querystr));
-                            $auth_code = tpCache('system.system_auth_code');
-                            $hash = md5("payment".$querystr.$auth_code);
-                            /*end*/
+                            // 先 json_encode 后 md5 加密信息
+                            $Paystr = md5(json_encode($Paydata));
+
+                            // 存入 cookie
+                            cookie($Paystr, $Paydata);
+
+                            // 跳转链接
+                            $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
                             
-                            $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                            $this->success('订单已生成！', $PaymentUrl);
                         }
-                    }else{
+                    } else {
                         // 无需跳转付款页，直接跳转订单列表页
                         $PaymentUrl = urldecode(url('user/Shop/shop_centre'));
                         
                         // 货到付款时，再次添加一条订单操作记录
-                        AddOrderAction($OrderId,$this->users_id,'0','1','0','1','货到付款！','会员选择货到付款，款项由快递代收！');
+                        AddOrderAction($OrderId, $this->users_id, 0, 1, 0, 1, '货到付款！', '会员选择货到付款，款项由快递代收！');
 
                         // 邮箱发送
                         $SmtpConfig = tpCache('smtp');
@@ -901,11 +916,10 @@ class Shop extends Base
                         $ReturnData['is_gourl'] = 1;
                         $this->success('订单已生成！', $PaymentUrl, $ReturnData);
                     }
-                    $this->success('订单已生成！',$PaymentUrl);
-                }else{
+                } else {
                     $this->error('订单生成失败，商品数据有误！');
                 }
-            }else{
+            } else {
                 $this->error('订单生成失败，商品数据有误！');
             }
         }
@@ -947,7 +961,11 @@ class Shop extends Base
                 $data_new['is_default']  = 0;// 设置为非默认地址
                 $data_new['update_time'] = getTime();
                 $this->shop_address_db->where($AddressWhere)->update($data_new);
-                $this->success('添加成功！',session($this->users_id.'_EyouShopOrderUrl'));exit;
+
+                $ResultD = [
+                    'url' => session($this->users_id.'_EyouShopOrderUrl')
+                ];
+                $this->success('添加成功！', session($this->users_id.'_EyouShopOrderUrl'), $ResultD);
             }
 
             // 根据地址ID查询相应的中文名字
@@ -1199,8 +1217,10 @@ class Shop extends Base
     {
         if (IS_AJAX_POST) {
             // 微信配置信息
-            $appid     = $this->pay_wechat_config['appid'];
-            $appsecret = $this->pay_wechat_config['appsecret'];
+            $WeChatLoginConfig = !empty($this->usersConfig['wechat_login_config']) ? unserialize($this->usersConfig['wechat_login_config']) : [];
+            $appid     = !empty($WeChatLoginConfig['appid']) ? $WeChatLoginConfig['appid'] : '';
+            $appsecret = !empty($WeChatLoginConfig['appsecret']) ? $WeChatLoginConfig['appsecret'] : '';
+            
             if (empty($appid)) {
                 $this->error('后台微信配置尚未配置AppId，不可以获取微信地址！');
             }else if (empty($appsecret)) {

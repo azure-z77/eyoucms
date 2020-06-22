@@ -21,6 +21,7 @@ class Uiset extends Controller
 {
     public $uipath = '';
     public $theme_style = '';
+    public $theme_style_path = '';
     public $v = '';
 
     /**
@@ -31,7 +32,8 @@ class Uiset extends Controller
         header("Cache-control: private");  // history.back返回后输入框值丢失问题
         parent::__construct();
         $this->theme_style = THEME_STYLE;
-        $this->uipath = RUNTIME_PATH.'ui/'.$this->theme_style.'/';
+        $this->theme_style_path = THEME_STYLE_PATH;
+        $this->uipath = RUNTIME_PATH.'ui/'.$this->theme_style_path.'/';
     }
     
     /*

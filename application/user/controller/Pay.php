@@ -18,6 +18,7 @@ use think\Db;
 use think\Config;
 use think\Page;
 use app\user\logic\PayLogic;
+use think\Cookie;
 
 class Pay extends Base
 {
@@ -68,7 +69,7 @@ class Pay extends Base
     public function pay_consumer_details()
     {
         // 订单超过 get_order_validity 设定的时间，则修改订单为已取消状态，无需返回数据
-        model('Pay')->UpdateOrderData($this->users_id);
+        // model('Pay')->UpdateOrderData($this->users_id);
 
         // 数据查询
         $condition['a.users_id'] = $this->users_id;
@@ -123,7 +124,45 @@ class Pay extends Base
             $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
 
             // 都为空则返回
-            if (empty($pay_wechat_config) && empty($pay_alipay_config)) $this->error('网站支付配置未完善，请联系管理员！');
+            $is_open_wechat = 0;
+            if (empty($pay_wechat_config) && empty($pay_alipay_config)) {
+                $where = [
+                    'status' => 1,
+                    'pay_info' => ['NEQ', '']
+                ];
+                $PayApiList = Db::name('pay_api_config')->where($where)->select();
+                $is_open_wechat = 1;
+                if (!empty($PayApiList)) {
+                    foreach ($PayApiList as $key => $value) {
+                        if (!empty($value['pay_info'])) {
+                            if ('wechat' == $value['pay_mark']) $is_open_wechat = 0;
+                            
+                            $ValuePayInfo = unserialize($value['pay_info']);
+                            if ('wechat' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_wechat']) {
+                                $is_open_wechat = 1;
+                                unset($PayApiList[$key]);
+                            } else if ('alipay' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_alipay']) {
+                                unset($PayApiList[$key]);
+                            } else if (0 == $value['system_built']) {
+                                if (1 == $ValuePayInfo['is_open_pay']) {
+                                    unset($PayApiList[$key]);
+                                } else {
+                                    foreach ($ValuePayInfo as $kk => $vv) {
+                                        if ('is_open_pay' != $kk && empty($vv)) {
+                                            unset($PayApiList[$key]); break;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            unset($PayApiList[$key]);
+                        }
+                    }
+                    if (empty($PayApiList)) $this->error('网站支付配置未完善，充值服务暂停使用');
+                } else {
+                    $this->error('网站支付配置未完善，充值服务暂停使用');
+                }
+            }
             
             // 判断传入的数据
             $money = input('post.money/f');
@@ -188,7 +227,8 @@ class Pay extends Base
 
                 // 添加状态
                 if (!empty($moneyid)) {
-                    if (isMobile() && isWeixin()) {
+
+                    if (isMobile() && isWeixin() && 0 == $is_open_wechat) {
                         $ReturnOrderData = [
                             'unified_id'       => $moneyid,
                             'unified_number'   => $order_number,
@@ -198,25 +238,39 @@ class Pay extends Base
                         $this->success('等待支付', null, $ReturnOrderData);
                     } else {
                         // 对ID和订单号加密，拼装url路径
-                        $querydata = [
+                        // $querydata = [
+                        //     'moneyid'      => $moneyid,
+                        //     'order_number' => $order_number,
+                        // ];
+                        // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                        // $querystr = '';
+                        // foreach($querydata as $_qk => $_qv)
+                        // {
+                        //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                        // }
+                        // $querystr = str_replace('=', '', mchStrCode($querystr));
+                        // $auth_code = tpCache('system.system_auth_code');
+                        // $hash = md5("payment".$querystr.$auth_code);
+                        // /*end*/
+                        // $url = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                        
+                        $Paydata = [
                             'moneyid'      => $moneyid,
                             'order_number' => $order_number,
                         ];
 
-                        /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                        $querystr = '';
-                        foreach($querydata as $_qk => $_qv)
-                        {
-                            $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                        }
-                        $querystr = str_replace('=', '', mchStrCode($querystr));
-                        $auth_code = tpCache('system.system_auth_code');
-                        $hash = md5("payment".$querystr.$auth_code);
-                        /*end*/
-                        
-                        $url = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
-                        $ReturnOrderData['is_gourl'] = 1;
-                        $this->success('等待支付', $url, $ReturnOrderData);
+                        // 先 json_encode 后 md5 加密信息
+                        $Paystr = md5(json_encode($Paydata));
+
+                        // 清除之前的 cookie
+                        Cookie::delete($Paystr);
+
+                        // 存入 cookie
+                        cookie($Paystr, $Paydata);
+
+                        // 跳转链接
+                        $url = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
+                        $this->success('等待支付', $url, ['is_gourl'=>1]);
                     }
                 }
                 $this->error('充值表单提交失败');
@@ -237,35 +291,43 @@ class Pay extends Base
     public function pay_recharge_detail()
     {
         // 解析数据
-        $querystr   = input('param.querystr/s');
-        $hash   = input('param.hash/s');
-        $auth_code = tpCache('system.system_auth_code');
-        if(empty($querystr) || empty($hash) || md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
-        parse_str(mchStrCode($querystr,'DECODE'),$querydata);
+        // $querystr   = input('param.querystr/s');
+        // $hash   = input('param.hash/s');
+        // $auth_code = tpCache('system.system_auth_code');
+        // if(empty($querystr) || empty($hash) || md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
+        // parse_str(mchStrCode($querystr,'DECODE'),$querydata);
 
-        // 获取微信配置信息
-        $pay_wechat_config = !empty($this->usersConfig['pay_wechat_config']) ? unserialize($this->usersConfig['pay_wechat_config']) : [];
-        // 获取支付宝配置信息
-        $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
+        // // 判断数据
+        // if (!empty($querydata['moneyid']) && !empty($querydata['order_number'])) {
+        //     // 充值信息
+        //     $moneyid = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
+        //     $order_number = !empty($querydata['order_number']) ? $querydata['order_number'] : '';
+        // } else if (!empty($querydata['order_id']) && !empty($querydata['order_code'])) {
+        //     // 订单信息
+        //     $order_id   = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
+        //     $order_code = !empty($querydata['order_code']) ? $querydata['order_code'] : '';
+        // } else {
+        //     $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
+        // }
 
-        // 判断数据
-        if (!empty($querydata['moneyid']) && !empty($querydata['order_number'])) {
+        // 接收数据读取解析
+        $Paystr = input('param.paystr/s');
+        $PayData = cookie($Paystr);
+
+        if (!empty($PayData['moneyid']) && !empty($PayData['order_number'])) {
             // 充值信息
-            $moneyid = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
-            $order_number = !empty($querydata['order_number']) ? $querydata['order_number'] : '';
-            // 都为空则返回
-            if (empty($pay_wechat_config) && empty($pay_alipay_config)) $this->error('网站支付配置未完善，请联系管理员！');
-        } else if (!empty($querydata['order_id']) && !empty($querydata['order_code'])) {
+            $moneyid = !empty($PayData['moneyid']) ? intval($PayData['moneyid']) : 0;
+            $order_number = !empty($PayData['order_number']) ? $PayData['order_number'] : '';
+        } else if (!empty($PayData['order_id']) && !empty($PayData['order_code'])) {
             // 订单信息
-            $order_id   = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
-            $order_code = !empty($querydata['order_code']) ? $querydata['order_code'] : '';
+            $order_id   = !empty($PayData['order_id']) ? intval($PayData['order_id']) : 0;
+            $order_code = !empty($PayData['order_code']) ? $PayData['order_code'] : '';
         } else {
-            $this->error('订单不存在！');
+            $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
         }
 
         // 处理数据
-        if (is_array($querydata) && (!empty($order_id) || !empty($moneyid)) && (!empty($order_number) || !empty($order_code))) {
-
+        if (is_array($PayData) && (!empty($order_id) || !empty($moneyid)) && (!empty($order_number) || !empty($order_code))) {
             $data = [];
             if (!empty($moneyid)) {
                 // 获取会员充值信息
@@ -275,8 +337,9 @@ class Pay extends Base
                     'users_id'     => $this->users_id,
                     'lang'         => $this->home_lang
                 ];
+
                 $data = $this->users_money_db->where($where)->find();
-                if (empty($data)) $this->error('订单不存在！');
+                if (empty($data)) $this->error('订单不存在或已变更', url('user/Pay/pay_consumer_details'));
 
                 // 组装数据返回
                 $data['transaction_type'] = 1; // 交易类型，1为充值
@@ -285,6 +348,7 @@ class Pay extends Base
                 $data['unified_number']   = $data['order_number'];
                 $data['cause']            = '余额充值';
                 $this->assign('data', $data);
+
             } else if (!empty($order_id)) {
                 // 获取支付订单
                 $where = [
@@ -294,11 +358,11 @@ class Pay extends Base
                     'lang'       => $this->home_lang
                 ];
                 $data = $this->shop_order_db->where($where)->find();
-                if (empty($data)) $this->error('订单不存在！');
+                if (empty($data)) $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
                 
                 // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
                 $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $data['order_id']]));
-                if (in_array($data['order_status'], [1,2,3])) {
+                if (in_array($data['order_status'], [1, 2, 3])) {
                     $this->error('订单已支付，即将跳转！', $url);
                 } elseif ($data['order_status'] == 4) {
                     $this->error('订单已过期，即将跳转！', $url);
@@ -315,95 +379,35 @@ class Pay extends Base
                 $this->assign('data', $data);
             }
 
-            // 充值信息存在时，传入订单号等信息获取支付宝支付链接
-            $alipay_url = '';
-            if (!empty($data)) {
-                if (!empty($pay_alipay_config)) {
-                    if ($this->php_version == 1) {
-                        // 低于5.5版本，仅可使用旧版支付宝支付
-                        $alipay_url = model('Pay')->getOldAliPayPayUrl($data, $pay_alipay_config);
-                    } else if ($this->php_version == 0){
-                        // 高于或等于5.5版本，可使用新版支付宝支付
-                        if (empty($pay_alipay_config['version'])) {
-                            // 新版
-                            $AliPayResult = [
-                                'unified_number'   => $data['unified_number'],
-                                'unified_amount'   => $data['unified_amount'],
-                                'transaction_type' => $data['transaction_type']
-                            ];
-                            $alipay_url = url('user/Pay/newAlipayPayUrl', $AliPayResult);
-                        } else if ($pay_alipay_config['version'] == 1){
-                            // 旧版
-                            $alipay_url = model('Pay')->getOldAliPayPayUrl($data, $pay_alipay_config);
-                        }
-                    }
-                }
-            }
-            $this->assign('alipay_url', $alipay_url);
-
-            // 终端判断
-            $isbrowser = $isweixin = 0;
-            if (isMobile() && isWeixin()) $isbrowser = 1;
-            $this->assign('isbrowser', $isbrowser);
-
-            // 手机端浏览器支付
-            if (isMobile() && !isWeixin()) {
-                if (empty($pay_wechat_config['is_open_wechat'])) {
-                    $isweixin = 1;
-                    // 移动端非微信H5页面支付
-                    $out_trade_no = $data['unified_number'];
-                    $total_fee    = $data['unified_amount'];
-                    $weixin_url   = model('Pay')->getMobilePay($out_trade_no,$total_fee);
-                    $this->assign('weixin_url', $weixin_url);
-                    if ('FAIL' == $weixin_url['return_code']) $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试');
-                }
-            }
-
-            $this->assign('isweixin',  $isweixin);
-
-            // 是否开启微信支付方式
-            $is_open_wechat = 1;
-            if (!empty($pay_wechat_config)) {
-                $is_open_wechat = !empty($pay_wechat_config['is_open_wechat']) ? $pay_wechat_config['is_open_wechat'] : 0;
-            }
-            $this->assign('is_open_wechat', $is_open_wechat);
-            if (1 == $is_open_wechat) {
-                // 若没有配置支付信息，则提示
-                $WechatMsg = '微信支付配置尚未配置完成。<br/>请前往会员中心-支付功能-微信支付配置<br/>填入收款的微信支付配置信息！';
-                $this->assign('WechatMsg', $WechatMsg);
-            }
-
-            // 是否开启支付宝支付方式
-            $is_open_alipay = 1;
-            if (!empty($pay_alipay_config)) {
-                $is_open_alipay = !empty($pay_alipay_config['is_open_alipay']) ? $pay_alipay_config['is_open_alipay'] : 0;
-            }
-            $this->assign('is_open_alipay', $is_open_alipay);
-            if (1 == $is_open_alipay) {
-                // 若没有配置支付信息，则提示
-                $AlipayMsg = '支付宝支付配置尚未配置完成。<br/>请前往会员中心-支付功能-支付宝支付配置<br/>填入收款的支付宝支付配置信息！';
-                $this->assign('AlipayMsg', $AlipayMsg);
-            }
-
             return $this->fetch('users/pay_recharge_detail');
         }
         $this->error('参数错误！');
     }
 
     // 支付宝订单查询
-    public function get_alipay_order()
+    public function get_alipay_order($Order = [], $Config = [])
     {
-        if (IS_AJAX_POST) {
-            $unified_id = input('post.unified_id/d');
-            $unified_number = input('post.unified_number/s');
-            $transaction_type = input('post.transaction_type/d');
+        if (IS_AJAX_POST || (!empty($Order) && !empty($Config))) {
+            $unified_id = input('post.unified_id/d') ? input('post.unified_id/d') : $Order['unified_id'];
+            $unified_number = input('post.unified_number/s') ? input('post.unified_number/s') : $Order['unified_number'];
+            $transaction_type = input('post.transaction_type/d') ? input('post.transaction_type/d') : $Order['transaction_type'];
 
             //判断openssl是否开启
             $openssl_funcs = get_extension_funcs('openssl');
             if(empty($openssl_funcs)) $this->error('尚未开启php的openssl扩展');
 
             // 获取支付宝配置信息
-            $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
+            if (!empty($Config)) {
+                $pay_alipay_config = $Config;
+            } else {
+                $where = [
+                    'pay_id' => 2,
+                    'pay_mark' => 'alipay'
+                ];
+                $pay_alipay_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
+                if (empty($pay_alipay_config)) return false;
+                $pay_alipay_config = unserialize($pay_alipay_config);
+            }
             if (empty($pay_alipay_config)) $this->error('尚未配置支付宝支付配置');
             
             // 订单号是否存在
@@ -414,12 +418,15 @@ class Pay extends Base
             $Result = $this->shop_order_db->where($where)->field('order_id, pay_name, order_status')->find();
             if (empty($Result)) $this->error('订单信息错误，请尝试刷新');
             // 获取支付宝配置信息
-            $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
             if (1 == $pay_alipay_config['version']) {
                 if (0 == $Result['order_status']) {
-                    $this->error('订单正在支付');
+                    if (!empty($Config)) {
+                        $this->success('订单正在支付');
+                    } else {
+                        $this->error('订单正在支付');
+                    }
                 } else {
-                    // 使用旧版支付宝则执行
+                    // 已支付完成则执行
                     $ResultUrl = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type, 'order_code'=>$unified_number]));
                     $ResultData = [
                         'email' => false,
@@ -467,9 +474,17 @@ class Pay extends Base
 
             // 判断结果
             if ('40004' == $result['code'] && 'Business Failed' === $result['msg']) {
-                $this->error('正在建立订单信息');
+                if (!empty($Config)) {
+                    $this->success('正在建立订单信息');
+                } else {
+                    $this->error('正在建立订单信息');
+                }
             } else if ('10000' == $result['code'] && 'WAIT_BUYER_PAY' === $result['trade_status']) {
-                $this->error('订单已建立，尚未支付');
+                if (!empty($Config)) {
+                    $this->success('订单已建立，尚未支付');
+                } else {
+                    $this->error('订单已建立，尚未支付');
+                }
             } else if ('10000' == $result['code'] && 'TRADE_SUCCESS' === $result['trade_status']) {
                 $ResultUrl = urldecode(url('user/Pay/pay_success', ['transaction_type'=>$transaction_type, 'order_code'=>$unified_number]));
                 $ResultData = [
@@ -584,7 +599,7 @@ class Pay extends Base
         if (!empty($users_id)) {
             $unified_number   = input('param.unified_number/s');
             $transaction_type = input('param.transaction_type/s');
-            if ('2' == $transaction_type) {
+            if (2 == $transaction_type) {
                 // 购买订单
                 $where  = array(
                     'users_id'   => $users_id,
@@ -593,7 +608,7 @@ class Pay extends Base
                 $data  = $this->shop_order_db->where($where)->find();
                 $out_trade_no = $data['order_code'];
                 $total_fee    = $data['order_amount'];
-            }else if ('1' == $transaction_type) {
+            } else if (1 == $transaction_type) {
                 // 充值订单
                 $where  = array(
                     'users_id'     => $users_id,
@@ -605,14 +620,14 @@ class Pay extends Base
             }
 
             // 调取微信支付链接
-            $payUrl = model('Pay')->payForQrcode($out_trade_no,$total_fee);// PC调用
+            $payUrl = model('Pay')->payForQrcode($out_trade_no, $total_fee);// PC调用
             // 生成二维码加载在页面上
             vendor('wechatpay.phpqrcode.phpqrcode');
             $qrcode = new \QRcode;
             $pngurl = $payUrl;
             $qrcode->png($pngurl);
             exit();
-        }else{
+        } else {
             $this->redirect('user/Users/login');
         }
     }
@@ -631,7 +646,13 @@ class Pay extends Base
                 $input->SetOut_trade_no($unified_number);
 
                 // 处理微信配置数据
-                $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+                $where = [
+                    'pay_id' => 1,
+                    'pay_mark' => 'wechat'
+                ];
+                $pay_wechat_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
+                if (empty($pay_wechat_config)) return false;
+
                 $pay_wechat_config = unserialize($pay_wechat_config);
                 $config_data['app_id'] = $pay_wechat_config['appid'];
                 $config_data['mch_id'] = $pay_wechat_config['mchid'];
@@ -853,7 +874,7 @@ class Pay extends Base
         if (IS_AJAX_POST) {
             $post = input('post.');
             $Data = $this->shop_order_db->field('order_amount,order_id,order_status')->find($post['unified_id']);
-            if (empty($Data)) $this->error('订单不存在！');
+            if (empty($Data)) $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
             
             //1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
             $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $Data['order_id']]));
@@ -947,6 +968,55 @@ class Pay extends Base
                 $unified_id       = $post['unified_id'];
                 // 订单号，用于查询
                 $unified_number   = $post['unified_number'];
+
+                /*判断微信支付是否开启*/
+                if ('WeChatInternal' == $pay_method_type) {
+                    $where = [
+                        'pay_id' => 1,
+                        'pay_mark' => 'wechat'
+                    ];
+                    $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+                    if (!empty($PayInfo)) $PayInfo = unserialize($PayInfo);
+                    if (empty($PayInfo) || 1 == $PayInfo['is_open_wechat']) {
+                        // $querydata = [
+                        //     'order_id'   => $unified_id,
+                        //     'order_code' => $unified_number
+                        // ];
+                        // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                        // $querystr = '';
+                        // foreach($querydata as $_qk => $_qv)
+                        // {
+                        //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                        // }
+                        // $querystr = str_replace('=', '', mchStrCode($querystr));
+                        // $auth_code = tpCache('system.system_auth_code');
+                        // $hash = md5("payment".$querystr.$auth_code);
+                        // /*end*/
+                        // $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+
+                        // 付款地址处理，对ID和订单号加密，拼装url路径
+                        $Paydata = [
+                            'order_id'   => $unified_id,
+                            'order_code' => $unified_number
+                        ];
+
+                        // 先 json_encode 后 md5 加密信息
+                        $Paystr = md5(json_encode($Paydata));
+
+                        // 清除之前的 cookie
+                        Cookie::delete($Paystr);
+
+                        // 存入 cookie
+                        cookie($Paystr, $Paydata);
+
+                        // 跳转链接
+                        $PaymentUrl = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
+
+                        $this->success('105：信息正确', $PaymentUrl, ['is_gourl'=>1]);
+                    }
+                }
+                /* END */
+
                 // 判断订单交易类型，选择查询条件
                 if (1 == $transaction_type) {
                     // 充值金额
@@ -1084,13 +1154,15 @@ class Pay extends Base
     // $table 查询的表，仅用于充值金额和购买订单表
     // $where 查询条件
     // $pay_method_type 当前提交的类型，用于判断
-    private function determine_pay_type($table,$where,$pay_method_type)
+    private function determine_pay_type($table, $where, $pay_method_type)
     {
         $new_wechat_pay_type = $table->where($where)->getField('wechat_pay_type');
+
         // 若为空，则表现未标记过支付类型
         if (empty($new_wechat_pay_type)) {
             return false;
         }
+
         // 是否数据库中的支付类型和传入的一致
         if ($new_wechat_pay_type != $pay_method_type) {
             // 判断返回提示信息
@@ -1111,7 +1183,7 @@ class Pay extends Base
                     return '错误提示：102，选择支付方式错误，请刷新后重试~~';
                     break;
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -1165,7 +1237,7 @@ class Pay extends Base
                 if (input('post.openid')) {
                     echo json_encode($data);
                 } else {
-                    $this->success($data);  
+                    $this->success($data);
                 }
             } else {
                 $this->error('微信支付信息错误，请刷新后重试~');
@@ -1217,7 +1289,13 @@ class Pay extends Base
             $input->SetOut_trade_no($unified_number);
             
             // 处理微信配置数据
-            $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+            $where = [
+                'pay_id' => 1,
+                'pay_mark' => 'wechat'
+            ];
+            $pay_wechat_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (empty($pay_wechat_config)) return false;
+
             $pay_wechat_config = unserialize($pay_wechat_config);
             $config_data['app_id'] = $app_id;
             $config_data['mch_id'] = $pay_wechat_config['mchid'];
@@ -1317,5 +1395,4 @@ class Pay extends Base
             }
         }
     }
-
 }

@@ -95,6 +95,19 @@ class TagField extends Base
             $parseStr = Db::name($tableContent)->where('aid',$aid)->getField($fieldname);
             if ('htmltext' == $dtype) {
                 $parseStr = htmlspecialchars_decode($parseStr);
+            } else if ('region' == $dtype) {
+                $city_list = get_city_list();
+                if (!empty($city_list[$parseStr])) {
+                    $parseStr = $city_list[$parseStr]['name'];
+                } else {
+                    $province_list = get_province_list();
+                    if (!empty($province_list[$parseStr])) {
+                        $parseStr = $province_list[$parseStr]['name'];
+                    } else {
+                        $area_list = get_area_list();
+                        $parseStr = !empty($area_list[$parseStr]) ? $area_list[$parseStr]['name'] : '';
+                    }
+                }
             }
         }
         /*--end*/

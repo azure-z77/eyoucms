@@ -121,7 +121,7 @@ class ArchivesLogic extends Model
      */
     public function getTemplateList($nid = 'article')
     {   
-        $planPath = 'template/pc';
+        $planPath = 'template/'.TPL_THEME.'pc';
         $dirRes   = opendir($planPath);
         $view_suffix = config('template.view_suffix');
 

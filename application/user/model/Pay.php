@@ -61,7 +61,7 @@ class Pay extends Model
 
             $updateOrder = Db::name('shop_order')->where($where)->update($UpdateData);
             if ($updateOrder) {
-                AddOrderAction($where['order_id'], '0', session('admin_id'), '2', '1', '1', '虚拟商品自动发货成功！', '发货成功');
+                AddOrderAction($where['order_id'], 0, session('admin_id'), 2, 1, 1, '虚拟商品自动发货成功！', '发货成功');
                 //自动确认收货
                 $confirmOrder = Db::name('shop_order')->where($where)->update([
                     'order_status' => 3,
@@ -69,7 +69,7 @@ class Pay extends Model
                     'update_time'  => getTime(),
                 ]);
                 if ($confirmOrder) {
-                    AddOrderAction($where['order_id'], '0', session('admin_id'), '3', '1', '1', '虚拟商品自动收货成功！', '确认订单已收货');
+                    AddOrderAction($where['order_id'], 0, session('admin_id'), 3, 1, 1, '虚拟商品自动收货成功！', '确认订单已收货');
                 }
             }
         }
@@ -101,9 +101,14 @@ class Pay extends Model
     public function getWechatPay($openid, $out_trade_no, $total_fee, $body="支付", $attach="微信端H5支付", $is_applets = 0)
     {
         // 获取微信配置信息
-        $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+        $where = [
+            'pay_id' => 1,
+            'pay_mark' => 'wechat'
+        ];
+        $pay_wechat_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
         if (empty($pay_wechat_config)) {
-            return false;
+            $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+            if (empty($pay_wechat_config)) return false;
         }
         $wechat = unserialize($pay_wechat_config);
         $this->key = $wechat['key'];
@@ -178,9 +183,14 @@ class Pay extends Model
     public function getMobilePay($out_trade_no,$total_fee,$body="支付",$attach="手机浏览器微信H5支付")
     {
         // 获取微信配置信息
-        $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+        $where = [
+            'pay_id' => 1,
+            'pay_mark' => 'wechat'
+        ];
+        $pay_wechat_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
         if (empty($pay_wechat_config)) {
-            return false;
+            $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+            if (empty($pay_wechat_config)) return false;
         }
         $wechat = unserialize($pay_wechat_config);
         $this->key = $wechat['key'];
@@ -237,9 +247,14 @@ class Pay extends Model
     public function payForQrcode($out_trade_no,$total_fee,$body="支付",$attach="微信扫码支付")
     {
         // 获取微信配置信息
-        $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+        $where = [
+            'pay_id' => 1,
+            'pay_mark' => 'wechat'
+        ];
+        $pay_wechat_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
         if (empty($pay_wechat_config)) {
-            return false;
+            $pay_wechat_config = getUsersConfigData('pay.pay_wechat_config');
+            if (empty($pay_wechat_config)) return false;
         }
         $wechat = unserialize($pay_wechat_config);
         $this->key = $wechat['key'];
@@ -367,11 +382,17 @@ class Pay extends Model
         vendor('alipay.pagepay.service.AlipayTradeService');
         vendor('alipay.pagepay.buildermodel.AlipayTradePagePayContentBuilder');
         // 获取支付宝配置信息
-        $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
+        $where = [
+            'pay_id' => 2,
+            'pay_mark' => 'alipay'
+        ];
+        $pay_alipay_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
         if (empty($pay_alipay_config)) {
-            return false;
+            $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
+            if (empty($pay_alipay_config)) return false;
         }
         $alipay = unserialize($pay_alipay_config);
+        
         $type = $data['transaction_type'];
         // 参数拼装
         $config['app_id'] = $alipay['app_id'];
@@ -418,7 +439,16 @@ class Pay extends Model
     {
         // 重要参数，支付宝配置信息
         if (empty($alipay)) {
-            return false;
+            $where = [
+                'pay_id' => 2,
+                'pay_mark' => 'alipay'
+            ];
+            $alipay = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (empty($alipay)) {
+                $alipay = getUsersConfigData('pay.pay_alipay_config');
+                if (empty($alipay)) return false;
+            }
+            $alipay = unserialize($alipay);
         }
 
         // 参数设置

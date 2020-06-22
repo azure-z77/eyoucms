@@ -87,7 +87,7 @@
                 <p class="notic">关闭则自动隐藏支付入口。</p>
                 <span id="guide_pay_open" style="{if condition='!isset($userConfig.pay_open) || empty($userConfig.pay_open)'} display: none;{/if}">
                     &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/money_index')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[充值列表]</a>
-                    &nbsp;<a href="javascript:void(0);" data-href="{:url('Member/pay_set')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[接口配置]</a>
+                    &nbsp;<a href="javascript:void(0);" data-href="{:url('System/api_conf')}" data-leftmenu="Member_users_index" onclick="gourl2(this);">[接口配置]</a>
                 </span>
             </dd>
         </dl>
@@ -212,13 +212,13 @@
                     return false;
                 }
                 // --end
-				if ($.inArray(name, ['shop_open','pay_open']))
+				if (-1 < $.inArray(name, ['shop_open','pay_open']))
 				{
 					if(false == check_shop_open())
 					{
 						return false;
 					}
-				} else if ($.inArray(name, ['users_open_release','level_member_upgrade']))
+				} else if (-1 < $.inArray(name, ['users_open_release','level_member_upgrade']))
 				{
 					if(false == check_users_open_release())
 					{
@@ -380,7 +380,9 @@
                 if(res.code == 1){
                     parent.layer.msg(res.msg, {icon: 1, time: 1000});
                 }else{
-                    parent.layer.alert(res.msg, {icon: 2, title:false}, function(){
+                    var icon = 2;
+                    if (res.data.icon) {icon = res.data.icon;}
+                    parent.layer.alert(res.msg, {icon: icon, title:false}, function(){
                         parent.layer.closeAll();
                         window.location.reload();
                     });

@@ -10,9 +10,9 @@
                 {/eq}
                 
                 {eq name="$Think.const.CONTROLLER_NAME.'@plugin'|is_check_access" value="1"}
-                {eq name="$weapp_plugin_open" value="1"}
-                <li><a href="{:url('Weapp/plugin')}" class="tab {eq name="$Request.action" value="plugin"}current{/eq}"><span>云插件库</span></a></li>
-                {/eq}
+                    {eq name="$weapp_plugin_open" value="1"}
+                    <li><a href="{:url('Weapp/plugin')}" class="tab {eq name="$Request.action" value="plugin"}current{/eq}"><span>云插件库</span></a></li>
+                    {/eq}
                 {/eq}
 
                 {eq name="$Request.action" value="mybuy"}

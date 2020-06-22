@@ -28,10 +28,10 @@ class Uiset extends Base
         $this->theme_style = 'pc';
 
         /*模板列表*/
-        if (file_exists(ROOT_PATH.'template/pc/uiset.txt')) {
+        if (file_exists(ROOT_PATH.'template/'.TPL_THEME.'pc/uiset.txt')) {
             array_push($this->templateArr, 'pc');
         }
-        if (file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
+        if (file_exists(ROOT_PATH.'template/'.TPL_THEME.'mobile/uiset.txt')) {
             array_push($this->templateArr, 'mobile');
         }
         /*--end*/
@@ -107,6 +107,8 @@ class Uiset extends Base
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
                     $condition['a.page|a.type|a.name'] = array('eq', "%{$param[$key]}%");
+                } else if ($key == 'theme_style') {
+                    $condition['a.'.$key] = array('eq', TPL_THEME.$param[$key]);
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }

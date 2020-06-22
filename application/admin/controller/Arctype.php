@@ -424,7 +424,8 @@ class Arctype extends Base
         $this->assign('hasChildren',$hasChildren);
 
         /* 模型 */
-        $channeltype_list = model('Channeltype')->getAll('id,title,nid,ctl_name', [], 'id');
+        $map = "status = 1 OR id = '".$info['current_channel']."'";
+        $channeltype_list = model('Channeltype')->getAll('id,title,nid,ctl_name', $map, 'id');
         // 模型对应模板文件不存在报错
         if (!isset($channeltype_list[$info['current_channel']])) {
             $row = model('Channeltype')->getInfo($info['current_channel']);
@@ -703,7 +704,7 @@ class Arctype extends Base
 
     public function ajax_getTemplateList($opt = 'add', $templist = '', $tempview = '')
     {   
-        $planPath = 'template/pc';
+        $planPath = 'template/'.TPL_THEME.'pc';
         $dirRes   = opendir($planPath);
         $view_suffix = config('template.view_suffix');
 
@@ -831,7 +832,7 @@ class Arctype extends Base
             }
 
             $content = !empty($content) ? $content : '';
-            $tpldirpath = !empty($post['tpldir']) ? '/template/'.trim($post['tpldir']) : '/template/pc';
+            $tpldirpath = !empty($post['tpldir']) ? '/template/'.TPL_THEME.trim($post['tpldir']) : '/template/'.TPL_THEME.'pc';
             if (file_exists(ROOT_PATH.ltrim($tpldirpath, '/').'/'.$filename)) {
                 $this->error('文件名称已经存在，请重新命名！', null, ['focus'=>'filename']);
             }
@@ -851,18 +852,20 @@ class Arctype extends Base
         }
         $type = input('param.type/s');
         $nid = input('param.nid/s');
-        $tpldirList = glob('template/*');
+        $tpldirList = glob('template/'.TPL_THEME.'*');
+        $tpl_theme = str_replace('/', '\\/', TPL_THEME);
         foreach ($tpldirList as $key => $val) {
-            if (!preg_match('/template\/(pc|mobile)$/i', $val)) {
+            if (!preg_match('/template\/'.$tpl_theme.'(pc|mobile)$/i', $val)) {
                 unset($tpldirList[$key]);
             } else {
-                $tpldirList[$key] = preg_replace('/^(.*)template\/(pc|mobile)$/i', '$2', $val);
+                $tpldirList[$key] = preg_replace('/^(.*)template\/'.$tpl_theme.'(pc|mobile)$/i', '$2', $val);
             }
         }
         !empty($tpldirList) && arsort($tpldirList);
         $this->assign('tpldirList', $tpldirList);
         $this->assign('type', $type);
         $this->assign('nid', $nid);
+        $this->assign('tpl_theme', TPL_THEME);
         return $this->fetch();
     }
 

@@ -27,10 +27,26 @@ config('tpcache', $globalTpCache);
 $goto = input('param.goto/s');
 $goto = trim($goto, '/');
 
+// 模板风格
+$web_tpl_theme = !empty($globalTpCache['web_tpl_theme']) ? $globalTpCache['web_tpl_theme'] : config('ey_config.web_tpl_theme');
+if (empty($web_tpl_theme)) {
+    if (file_exists(ROOT_PATH.'template/default')) {
+        $web_tpl_theme = 'default';
+    } else {
+        $web_tpl_theme = '';
+    }
+} else {
+    if ('default' == $web_tpl_theme && !file_exists(ROOT_PATH.'template/default')) {
+        $web_tpl_theme = '';
+    }
+}
+config('ey_config.web_tpl_theme', $web_tpl_theme);
+!empty($web_tpl_theme) && $web_tpl_theme .= '/';
+
 /*辨识响应式模板，还是PC与移动的分离模板*/
 $num = 0;
 $response_type = 0; // 默认是响应式
-$tpldirList = ['template/pc','template/mobile'];
+$tpldirList = ["template/{$web_tpl_theme}pc","template/{$web_tpl_theme}mobile"];
 foreach ($tpldirList as $key => $val) {
     if (is_dir($val)) {
         $num++;
@@ -124,6 +140,7 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
                 $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 搜索伪静态
+                $lang_rewrite_str.'sindex$' => array('home/Search/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
                 $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 列表页
                 $lang_rewrite_str.'<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
@@ -156,6 +173,7 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
                 $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 搜索伪静态
+                $lang_rewrite_str.'sindex$' => array('home/Search/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
                 $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
                 // 留言模型
                 $lang_rewrite_str.'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),

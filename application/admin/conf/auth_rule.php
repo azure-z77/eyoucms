@@ -93,7 +93,7 @@ return [
         'name'  => '接口配置',
         'is_modules'    => 1,
         'sort_order'    => 100,
-        'auths' => 'System@smtp,System@smtp_tpl,System@smtp_tpl_edit',
+        'auths' => 'System@api_conf,Member@wechat_set,Member@alipay_set,System@smtp,System@smtp_tpl,System@smtp_tpl_edit,System@sms,System@sms_tpl,System@microsite',
     ],
     [
         'id' => 10,
@@ -102,7 +102,7 @@ return [
         'name'  => '管理员',
         'is_modules'    => 1,
         'sort_order'    => 100,
-        'auths' => 'Admin@admin_edit,Admin@admin_pwd',
+        'auths' => 'Admin@admin_pwd',
     ],
     [
         'id' => 19,
@@ -247,5 +247,14 @@ return [
         'is_modules'    => 1,
         'sort_order'    => 100,
         'auths' => 'Links@*',
+    ],
+    [
+        'id' => 26,
+        'menu_id' => 2001,
+        'menu_id2' => 2001006,
+        'name'  => '支付接口',
+        'is_modules'    => 1,
+        'sort_order'    => 100,
+        'auths' => 'PayApi@*',
     ],
 ];

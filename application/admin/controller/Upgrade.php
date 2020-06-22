@@ -179,6 +179,10 @@ class Upgrade extends Controller {
             $url = $service_url . '&version=' . getCmsVersion();
             $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
             $response = @file_get_contents($url,false,$context);
+            if (false === $response) {
+                $url = str_replace('http://service', 'https://service', $url);
+                $response = @httpRequest($url);
+            }
             $params = json_decode($response,true);
             if (false == $params) {
                 $this->error('连接升级服务器超时，请刷新重试，或者联系技术支持！', null, ['code'=>2]);

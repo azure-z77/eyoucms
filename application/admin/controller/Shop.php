@@ -44,6 +44,10 @@ class Shop extends Base {
         $this->assign('userConfig',$this->UsersConfigData);
 
         $this->ProductSpecLogic = new ProductSpecLogic;
+
+        // 过期订单预处理
+        $this->ShopLogic = new ShopLogic;
+        $this->ShopLogic->OverdueOrderHandle();
     }
 
     public function home()
@@ -97,23 +101,39 @@ class Shop extends Base {
         // 初始化数组和条件
         $list  = array();
         $Where = [
-            'lang'   => $this->admin_lang,
+            'a.lang'   => $this->admin_lang,
         ];
         // 订单号查询
         $order_code = input('order_code/s');
-        if (!empty($order_code)) $Where['order_code'] = array('LIKE', "%{$order_code}%");
+        if (!empty($order_code)) $Where['a.order_code'] = array('LIKE', "%{$order_code}%");
         // 订单状态查询
         $order_status = input('order_status/s');
-        if (!empty($order_status)) $Where['order_status'] = 10 == $order_status ? 0 : $order_status;
+        if (!empty($order_status)) $Where['a.order_status'] = 10 == $order_status ? 0 : $order_status;
         // 查询满足要求的总记录数
-        $count = $this->shop_order_db->where($Where)->count('order_id');
+        $count = $this->shop_order_db->alias('a')->where($Where)->count('order_id');
         // 实例化分页类 传入总记录数和每页显示的记录数
         $pageObj = new Page($count, config('paginate.list_rows'));
         // 订单主表数据查询
         $list = $this->shop_order_db->where($Where)
-            ->order('order_id desc')
+            ->field('a.*, b.username')
+            ->alias('a')
+            ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
+            ->order('a.order_id desc')
             ->limit($pageObj->firstRow.','.$pageObj->listRows)
             ->select();
+        $OrderReminderID = [];
+        foreach ($list as $key => $value) {
+            if (1 == $value['order_status']) array_push($OrderReminderID, $value['order_id']);
+        }
+        if (!empty($OrderReminderID)) {
+            $field = 'order_id, count(action_id) as action_count';
+            $group = 'order_id';
+            $LogWhere = [
+                'action_desc' => '提醒成功！',
+                'order_id' => ['IN', $OrderReminderID]
+            ];
+            $LogData = $this->shop_order_log_db->field($field)->group($group)->where($LogWhere)->getAllWithIndex('order_id');
+        }
         // 分页显示输出
         $pageStr = $pageObj->show();
         // 获取订单状态
@@ -138,6 +158,7 @@ class Shop extends Base {
         // 数据加载
         $this->assign('pageObj', $pageObj);
         $this->assign('list', $list);
+        $this->assign('LogData', $LogData);
         $this->assign('pageStr', $pageStr);
         $this->assign('admin_order_status_arr',$admin_order_status_arr);
         $this->assign('pay_method_arr',$pay_method_arr);
@@ -168,11 +189,13 @@ class Shop extends Base {
             $Action = $this->shop_order_log_db->where('order_id',$order_id)->order('action_id desc')->select();
             // 操作记录数据处理
             foreach ($Action as $key => $value) {
-                if ('0' == $value['action_user']) {
+                $Action[$key]['action_desc'] = str_replace("！", "", $value['action_desc']);
+
+                if (0 == $value['action_user']) {
                     // 若action_user为0，表示会员操作，根据订单号中的ID获取会员名。
                     $username = $this->users_db->field('username')->where('users_id',$value['users_id'])->find();
                     $Action[$key]['username'] = '会 &nbsp; 员: '.$username['username'];
-                }else{
+                } else {
                     // 若action_user不为0，表示管理员操作，根据ID获取管理员名。
                     $user_name = Db::name('admin')->field('user_name')->where('admin_id',$value['action_user'])->find();
                     $Action[$key]['username'] = '管理员: '.$user_name['user_name'];
@@ -180,13 +203,13 @@ class Shop extends Base {
 
                 // 操作时，订单发货状态
                 $Action[$key]['express_status'] = '未发货';
-                if ('1' == $value['express_status']) {
+                if (1 == $value['express_status']) {
                     $Action[$key]['express_status'] = '已发货';
                 }
 
                 // 操作时，订单付款状态
                 $Action[$key]['pay_status'] = '未支付';
-                if ('1' == $value['pay_status']) {
+                if (1 == $value['pay_status']) {
                     $Action[$key]['pay_status'] = '已支付';
                 }
             }
@@ -636,6 +659,7 @@ class Shop extends Base {
     // 检测并第一次从官方同步订单中心的前台模板
     public function ajax_syn_theme_shop()
     {
+        $icon = 2;
         $msg = '下载订单中心模板包异常，请第一时间联系技术支持，排查问题！';
         $shopLogic = new ShopLogic;
         $data = $shopLogic->syn_theme_shop();
@@ -645,11 +669,12 @@ class Shop extends Base {
             } else {
                 if (is_array($data)) {
                     $msg = $data['msg'];
+                    $icon = !empty($data['icon']) ? $data['icon'] : $icon;
                 }
             }
         }
         getUsersConfigData('shop', ['shop_open' => 0]);
-        $this->error($msg);
+        $this->error($msg, null, ['icon'=>$icon]);
     }
 
     // ------------------------------------------------------------------------------------------------------
@@ -1154,6 +1179,38 @@ class Shop extends Base {
         } else {
             // tpCache('smtp', [input('post.field') => 1]);
             $this->success('配置完成');
+        }
+    }
+
+    // 未付款订单改价
+    public function order_change_price()
+    {
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+            if (empty($post['order_id']) || empty($post['order_amount'])) $this->error('操作错误，刷新重试');
+            // 更新条件
+            $where = [
+                'order_id' => $post['order_id'],
+                'order_status' => 0
+            ];
+            // 更新数据
+            $Code = date('Ymd') . getTime() . rand(10, 100);
+            $update = [
+                'order_code' => $Code,
+                'update_time' => getTime(),
+                'order_amount' => $post['order_amount']
+            ];
+            // 更新操作
+            $ResultID = $this->shop_order_db->where($where)->update($update);
+            // 更新后续操作
+            if (!empty($ResultID)) {
+                // 添加订单的操作记录
+                $action_note = '应付金额改为：' . $post['order_amount'] . '，原价：' . $post['order_amount_old'];
+                AddOrderAction($post['order_id'], 0, session('admin_id'), 0, 0, 0, '商家改价！', $action_note);
+                $this->success('改价完成');
+            } else {
+                $this->error('改价失败，刷新重试');
+            }
         }
     }
 }

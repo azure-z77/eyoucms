@@ -30,13 +30,18 @@
                     <label for="dtype"><em>*</em>属性类型</label>
                 </dt>
                 <dd class="opt">
-                    <select name="dtype" id="dtype">
-                    {volist name='$field' id='vo'}
-                        <option value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}" {eq name="$info.dtype" value="$vo.name"}selected{/eq}>
-                            {$vo.title}
-                        </option>
-                    {/volist}
-                    </select>
+                    {in name="$info.dtype" value="mobile,email"}
+                        {$info.title}
+                        <input type="hidden" name="dtype" value="{$info.dtype}">
+                    {else /}
+                        <select name="dtype" id="dtype">
+                        {volist name='$field' id='vo'}
+                            <option value="{$vo.name}" data-ifoption="{$vo.ifoption|default=0}" {eq name="$info.dtype" value="$vo.name"}selected{/eq}>
+                                {$vo.title}
+                            </option>
+                        {/volist}
+                        </select>
+                    {/in}
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>

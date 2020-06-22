@@ -161,7 +161,7 @@ class Channeltype extends Model
      */
     public function setChanneltypeStatus()
     {
-        $planPath = 'template/pc';
+        $planPath = 'template/'.TPL_THEME.'pc';
         $planPath = realpath($planPath);
         if (!file_exists($planPath)) {
             return true;

@@ -31,9 +31,22 @@ class Level extends Base
         // 会员等级管理表
         $this->users_type_manage_db  = Db::name('users_type_manage');
         // 商城微信配置信息
-        $this->pay_wechat_config = unserialize(getUsersConfigData('pay.pay_wechat_config'));
+        $this->pay_wechat_config = '';
+        $where = [
+            'pay_id' => 1,
+            'pay_mark' => 'wechat'
+        ];
+        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+        if (!empty($PayInfo)) $this->pay_wechat_config = unserialize($PayInfo);
+
         // 商城支付宝配置信息
-        $this->pay_alipay_config = unserialize(getUsersConfigData('pay.pay_alipay_config'));
+        $this->pay_alipay_config = '';
+        $where = [
+            'pay_id' => 2,
+            'pay_mark' => 'alipay'
+        ];
+        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+        if (!empty($PayInfo)) $this->pay_alipay_config = unserialize($PayInfo);
 
         // 判断PHP版本信息
         if (version_compare(PHP_VERSION,'5.5.0','<')) {
@@ -64,7 +77,6 @@ class Level extends Base
                     'update_time' => getTime(),
                 ]);
             $this->error($msg, $redirect_url);
-            exit;
         }
         // --end
     }
@@ -92,6 +104,16 @@ class Level extends Base
         $is_open_wechat = 1;
         if (!empty($this->pay_wechat_config)) {
             $is_open_wechat = !empty($this->pay_wechat_config['is_open_wechat']) ? $this->pay_wechat_config['is_open_wechat'] : 0;
+        } else {
+            $where = [
+                'pay_id' => 1,
+                'pay_mark' => 'wechat'
+            ];
+            $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (!empty($PayInfo)) {
+                $wechat = unserialize($PayInfo);
+                $is_open_wechat = !empty($wechat['is_open_wechat']) ? $wechat['is_open_wechat'] : 0;
+            }
         }
         $this->assign('is_open_wechat', $is_open_wechat);
 
@@ -99,6 +121,16 @@ class Level extends Base
         $is_open_alipay = 1;
         if (!empty($this->pay_alipay_config)) {
             $is_open_alipay = !empty($this->pay_alipay_config['is_open_alipay']) ? $this->pay_alipay_config['is_open_alipay'] : 0;
+        } else {
+            $where = [
+                'pay_id' => 2,
+                'pay_mark' => 'alipay'
+            ];
+            $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (!empty($PayInfo)) {
+                $alipay = unserialize($PayInfo);
+                $is_open_alipay = !empty($alipay['is_open_wechat']) ? $alipay['is_open_wechat'] : 0;
+            }
         }
         $this->assign('is_open_alipay', $is_open_alipay);
 
@@ -149,7 +181,7 @@ class Level extends Base
                 case '2':
                     // 是否配置微信支付信息
                     if (empty($this->pay_wechat_config)) {
-                        $WechatMsg = '微信支付配置尚未配置完成。<br/>请前往会员中心-支付功能-微信支付配置<br/>填入收款的微信支付配置信息！';
+                        $WechatMsg = '微信支付配置尚未配置完成。<br/>请前往基本信息-支付接口-微信支付<br/>填入收款的微信支付配置信息！';
                         $this->error($WechatMsg);
                     }else{
                         $this->WeChatPayment($UsersTypeData, $post['order_number']);
@@ -160,7 +192,7 @@ class Level extends Base
                 case '3':
                     // 是否配置支付宝支付信息
                     if (empty($this->pay_alipay_config)) {
-                        $AlipayMsg = '支付宝支付配置尚未配置完成。<br/>请前往会员中心-支付功能-支付宝支付配置<br/>填入收款的支付宝支付配置信息！';
+                        $AlipayMsg = '支付宝支付配置尚未配置完成。<br/>请前往基本信息-支付接口-支付宝支付<br/>填入收款的支付宝支付配置信息！';
                         $this->error($AlipayMsg);
                     }else{
                         $this->AliPayPayment($UsersTypeData, $post['order_number']);
@@ -280,15 +312,15 @@ class Level extends Base
             // 手机浏览器端支付
             $out_trade_no = $MoneyData['order_number'];
             if (empty($out_trade_no)) {
-                $this->error('支付异常，请刷新后重试~');exit;
+                $this->error('支付异常，请刷新后重试~');
             }
             $total_fee    = $MoneyData['money'];
             if (empty($total_fee)) {
-                $this->error('支付异常，请刷新后重试~');exit;
+                $this->error('支付异常，请刷新后重试~');
             }
             $url          = model('Pay')->getMobilePay($out_trade_no,$total_fee);
             if ('FAIL' == $url['return_code']) {
-                $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试~');exit;
+                $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试~');
             }
         } else if (isMobile() && isWeixin()) {
             // 手机微信端支付
@@ -409,7 +441,7 @@ class Level extends Base
         $AddMoneyData = [
             'users_id'     => $this->users_id,
             // 订单生成规则
-            'order_number' => date('Ymd').$time.rand(10,100),
+            'order_number' => date('Ymd') . $time . rand(10,100),
             // 金额
             'money'        => $UsersTypeData['price'],
             // 购买的产品等级ID(level_id)
@@ -546,6 +578,7 @@ class Level extends Base
     private function GetMoneyData($field = '*', $order_number = null)
     {
         $data = [];
+
         // 查询条件
         $where = [
             'users_id'   => $this->users_id,
@@ -554,19 +587,19 @@ class Level extends Base
             'lang'       => $this->home_lang,
         ];
 
-        if (!empty($order_number)) {
-            $where['order_number'] = $order_number;
-        }
+        // 若存在则执行
+        if (!empty($order_number)) $where['order_number'] = $order_number;
 
+        // 查询数据
         if ('*' == $field) {
             // 查询所有字段
             $data = $this->users_money_db->where($where)->find();
-        }else{
+        } else {
             $info = explode(',', $field);
             if (1 < count($info)) {
                 // 查询指定的多个字段
                 $data = $this->users_money_db->where($where)->field($field)->find();
-            }else{
+            } else {
                 // 查询指定的单个字段
                 $data = $this->users_money_db->where($where)->getField($field);
             }

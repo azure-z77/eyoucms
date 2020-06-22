@@ -110,15 +110,25 @@ class Eyou extends Taglib
         'sppageorder'  => ['attr' => 'listitem,listsize', 'close' => 0],
         // 订单管理页搜索标签
         'spsearch' => ['attr' => 'empty,id,mod,key'],
+        // 商城支付API列表
+        'sppayapilist'  => ['attr' => 'id,key,mod,empty'],
 
         // 筛选搜索
         'screening' => ['attr' => 'empty,id,mod,key,currentstyle,addfields,addfieldids,alltxt,typeid'],
         // 会员列表
         'memberlist' => ['attr' => 'row,titlelen,limit,empty,mod,id,key,orderby,orderway,js'],
+        // 会员信息
+        'memberinfos' => ['attr' => 'mid,users_id,empty,id,addfields'],
         //自定义url
         'diyurl'   => ['attr' => 'type', 'close' => 0],
         // 相关文档
         'likearticle'    => ['attr' => 'channelid,limit,row,titlelen,infolen,mytypeid,typeid,byabs,empty,mod,name,id,key,thumb'],
+        // 视频播放
+        'videoplay'  => ['attr' => 'aid,empty,id,autoplay'],
+        // 视频列表
+        'videolist'  => ['attr' => 'aid,empty,id,mod,key,autoplay'],
+        // 获取网站搜索的热门关键字
+        'hotwords'        => ['attr' => 'subday,num,id,key,mod,maxlength,empty'],
     ];
 
     /**
@@ -734,6 +744,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$aid = $'.$id.'["aid"];';
+        $parseStr .= '$users_id = $'.$id.'["users_id"];';
         $parseStr .= '$' . $id . '["title"] = text_msubstr($' . $id . '["title"], 0, '.$titlelen.', false);';
         $parseStr .= '$' . $id . '["seo_description"] = text_msubstr($' . $id . '["seo_description"], 0, '.$infolen.', true);';
 
@@ -742,6 +753,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
+        $parseStr .= '<?php $users_id = 0; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
@@ -823,6 +835,7 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$aid = $'.$id.'["aid"];';
+        $parseStr .= '$users_id = $'.$id.'["users_id"];';
         $parseStr .= '$' . $id . '["title"] = text_msubstr($' . $id . '["title"], 0, '.$titlelen.', false);';
         $parseStr .= '$' . $id . '["seo_description"] = text_msubstr($' . $id . '["seo_description"], 0, '.$infolen.', true);';
 
@@ -831,6 +844,7 @@ class Eyou extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php ++$e; ?>';
         $parseStr .= '<?php $aid = 0; ?>';
+        $parseStr .= '<?php $users_id = 0; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
 
@@ -1126,10 +1140,12 @@ class Eyou extends Taglib
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
         $parseStr .= 'else: ';
         $parseStr .= '$'.$id.' = $__LIST__;';
+        $parseStr .= '$users_id = $'.$id.'["users_id"];';
         $parseStr .= '?>';
         $parseStr .= $content;
         $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php unset($users_id); ?>';
         $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
         /*--end*/
 
@@ -1570,10 +1586,11 @@ class Eyou extends Taglib
      */
     public function tagField($tag)
     {
+        $aid_tmp  = isset($tag['aid']) ? $tag['aid'] : '0';
+        $aid  = $this->varOrvalue($aid_tmp);
+
         $name  = isset($tag['name']) ? $tag['name'] : '';
         $addfields    = isset($tag['addfields']) ? $tag['addfields'] : '';
-        $aid  = isset($tag['aid']) ? $tag['aid'] : '';
-        $aid  = $this->varOrvalue($aid);
 
         $parseStr = '';
 
@@ -1613,9 +1630,16 @@ class Eyou extends Taglib
 
             $parseStr .= '<?php ';
 
+            // 声明变量
+            if (!empty($aid_tmp)) {
+                $parseStr .= ' $aid = '.$aid.';';
+            } else {
+                $parseStr .= ' if(!isset($aid) || empty($aid)) : $aid = '.$aid.'; endif;';
+            }
+
             // 查询数据库获取的数据集
             $parseStr .= ' $tagField = new \think\template\taglib\eyou\TagField;';
-            $parseStr .= ' $__VALUE__ = $tagField->getField("'.$addfieldsArr[0].'", '.$aid.');';
+            $parseStr .= ' $__VALUE__ = $tagField->getField("'.$addfieldsArr[0].'", $aid);';
 
             // 字段指定的函数
             if (!empty($addfieldsArr[1])) {
@@ -1639,6 +1663,7 @@ class Eyou extends Taglib
 
             $parseStr .= ' echo $__VALUE__;';
             $parseStr .= ' ?>';
+            $parseStr .= '<?php unset($aid); ?>';
         }
 
         if (!empty($parseStr)) {
@@ -2397,6 +2422,106 @@ class Eyou extends Taglib
     }
 
     /**
+     * videoplay标签解析 指定播放视频
+     * 格式：
+     * {eyou:videoplay aid='' empty=''}
+     *  <a href="{$field:arcurl}">{$field:title}</a>
+     * {/eyou:videoplay}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagVideoplay($tag, $content)
+    {
+        $aid    = !empty($tag['aid']) ? $tag['aid'] : '';
+        $aid    = $this->varOrvalue($aid);
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $autoplay    = !empty($tag['autoplay']) ? $tag['autoplay'] : 'off';
+
+        $parseStr = '<?php ';
+
+        /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
+        $parseStr .= ' if(empty($aid)) : $aid_tmp = '.$aid.'; endif; ';
+        $parseStr .= ' $taid = 0; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; elseif(!empty($aid)) : $taid = $aid; endif;';
+        /*--end*/
+
+        $parseStr .= ' $tagVideoplay = new \think\template\taglib\eyou\TagVideoplay;';
+        $parseStr .= ' $_result = $tagVideoplay->getVideoplay($taid, "'.$autoplay.'");';
+        $parseStr .= ' ?>';
+
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= '$'.$id.' = $__LIST__;';
+        $parseStr .= '?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * videolist 视频列表标签解析
+     * {eyou:videolist type='default'}
+     * url地址:{$field.file_url} 名称:{$field.file_title}  时长:{$field.file_time}
+     * {/eyou:videolist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagVideolist($tag, $content)
+    {
+        $aid    = !empty($tag['aid']) ? $tag['aid'] : '';
+        $aid    = $this->varOrvalue($aid);
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $autoplay    = !empty($tag['autoplay']) ? $tag['autoplay'] : '';
+
+        $parseStr = '<?php ';
+
+        /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
+        $parseStr .= ' if(empty($aid)) : $aid_tmp = '.$aid.'; endif; ';
+        $parseStr .= ' $taid = 0; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; elseif(!empty($aid)) : $taid = $aid; endif;';
+        /*--end*/
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagVideolist = new \think\template\taglib\eyou\TagVideolist;';
+        $parseStr .= ' $_result = $tagVideolist->getVideolist($taid, "'.$autoplay.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach;';
+        $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
      * attribute 栏目属性标签解析 TAG调用
      * {eyou:attribute type='default'}
      * {$field.itemname_2}:{$field.attr_2}
@@ -3034,6 +3159,49 @@ class Eyou extends Taglib
     }
 
     /**
+     * sppayapilist 支付API列表
+     * {eyou:sppayapilist id='field'}
+     * {$field.pay_name}
+     * {/eyou:sppayapilist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagSppayapilist($tag, $content)
+    {
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagSppayapilist = new \think\template\taglib\eyou\TagSppayapilist;';
+        $parseStr .= ' $_result = $tagSppayapilist->getSppayapilist();';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach;';
+        $parseStr .= 'endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
      * screening 筛选搜索标签解析 TAG调用
      * {eyou:screening id='field'}
      * {$field.searchurl}
@@ -3209,6 +3377,64 @@ class Eyou extends Taglib
     }
 
     /**
+     * memberinfos标签解析 指定播放视频
+     * 格式：
+     * {eyou:memberinfos mid=''}
+     *  {$field:nickname}
+     * {/eyou:memberinfos}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagMemberinfos($tag, $content)
+    {
+        if (!empty($tag['users_id'])) {
+            $tag['mid'] = $tag['users_id'];
+        }
+        $users_id    = !empty($tag['mid']) ? $tag['mid'] : '';
+        $users_id    = $this->varOrvalue($users_id);
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $addfields     = isset($tag['addfields']) ? $tag['addfields'] : '';
+        $addfields  = $this->varOrvalue($addfields);
+
+        $parseStr = '<?php ';
+
+        /*aid的优先级别从高到低：标签属性值 -> 外层标签list/arclist属性值*/
+        $parseStr .= ' if(empty($aid)) : $aid_tmp = 0; endif; ';
+        $parseStr .= ' $taid = 0; ';
+        $parseStr .= ' if(!empty($aid_tmp)) : $taid = $aid_tmp; elseif(!empty($aid)) : $taid = $aid; endif;';
+
+        $parseStr .= ' if(empty($users_id)) : $users_id_tmp = '.$users_id.'; endif; ';
+        $parseStr .= ' $tusers_id = 0; ';
+        $parseStr .= ' if(!empty($users_id_tmp)) : $tusers_id = $users_id_tmp; elseif(!empty($users_id)) : $tusers_id = $users_id; endif;';
+        /*--end*/
+
+        $parseStr .= ' $tagMemberinfos = new \think\template\taglib\eyou\TagMemberinfos;';
+        $parseStr .= ' $_result = $tagMemberinfos->getMemberinfos($taid, $tusers_id, '.$addfields.');';
+        $parseStr .= ' ?>';
+
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= '$'.$id.' = $__LIST__;';
+        $parseStr .= '?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php unset($users_id); ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
      * diyurl 标签解析
      * 内置URL
      * 格式： {eyou:diyurl type='tags' /}
@@ -3314,6 +3540,57 @@ class Eyou extends Taglib
         $parseStr .= '<?php $aid = 0; ?>';
         $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
         $parseStr .= '<?php $' . $id . ' = []; ?>'; // 清除变量值，只限于在标签内部使用
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * hotwords 获取网站搜索的热门关键字
+     * {eyou:hotwords num='6' subday='365' maxlength='20'}
+     *  <li><a href='{$field.url}'>{$field.word}</a> </li> 
+     * {/eyou:hotwords}
+     * @access public
+     * @param array $hotwords 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagHotwords($tag, $content)
+    {
+        $num    = !empty($tag['num']) && is_numeric($tag['num']) ? $tag['num'] : '6';
+        $subday    = !empty($tag['subday']) && is_numeric($tag['subday']) ? $tag['subday'] : '365';
+        $maxlength    = !empty($tag['maxlength']) && is_numeric($tag['maxlength']) ? $tag['maxlength'] : '20';
+        $id     = isset($tag['id']) ? $tag['id'] : 'field';
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+
+        $parseStr = '<?php ';
+
+        // 查询数据库获取的数据集
+        $parseStr .= ' $tagHotwords = new \think\template\taglib\eyou\TagHotwords;';
+        $parseStr .= ' $_result = $tagHotwords->getHotwords("'.$num.'", "'.$subday.'", "'.$maxlength.'");';
+        $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        // 设置了输出数组长度
+        if ('null' != $num) {
+            $parseStr .= '$__LIST__ = is_array($_result) ? array_slice($_result,0, '.$num.', true) : $_result->slice(0, '.$num.', true); ';
+        } else {
+            $parseStr .= ' $__LIST__ = $_result;';
+        }
+
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$' . $id . '["word"] = text_msubstr($' . $id . '["word"], 0, '.$maxlength.', false);';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
         if (!empty($parseStr)) {
             return $parseStr;
         }

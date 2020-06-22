@@ -367,7 +367,35 @@ class TagList extends Base
                 }
 
                 /*附加表*/
-                if (!empty($addfields) && !empty($aidArr)) {
+                if (5 == $channeltype) {
+                    $addtableName = $channeltype_table.'_content';
+                    $addfields .= ',courseware,courseware_free,total_duration,total_video';
+                    $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
+                    $addfields = trim($addfields, ',');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $addfields_arr = array_unique($addfields_arr);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    /*自定义字段的数据格式处理*/
+                    $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
+                    /*--end*/
+                    foreach ($list as $key => $val) {
+                        $valExt = !empty($resultExt[$val['aid']]) ? $resultExt[$val['aid']] : array();
+                        $val = array_merge($valExt, $val);
+                        $val['total_duration'] = gmSecondFormat($val['total_duration'], ':');
+                        $list[$key] = $val;
+                    }
+                } else if (!empty($addfields) && !empty($aidArr)) {
                     $addtableName = $channeltype_table.'_content';
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');
@@ -700,7 +728,7 @@ class TagList extends Base
                 // 根据需求新增条件
             ];
             // 所有应用于搜索的自定义字段
-            $channelfield = Db::name('channelfield')->where($where)->field('channel_id,id,name,dtype')->select();
+            $channelfield = Db::name('channelfield')->where($where)->field('channel_id,id,name,dtype,dfvalue')->select();
             // 查询当前栏目所属模型
             $channel_id = Db::name('arctype')->where('id',$param_new['tid'])->getField('current_channel');
             // 所有模型类别
@@ -709,7 +737,7 @@ class TagList extends Base
 
             // 查询获取aid初始sql语句
             $wheres = [];
-            $where_multiple = "";
+            $where_multiple = [];
             foreach ($channelfield as $key => $value) {
                 // 值不为空则执行
                 $fieldname = $value['name'];
@@ -725,29 +753,25 @@ class TagList extends Base
                                 // 多选字段类型
                                 if ('checkbox' == $value['dtype']) {
                                     $val_arr[0] = addslashes($val_arr[0]);
-                                    $where_multiple = Db::raw("FIND_IN_SET('".$val_arr[0]."',{$fieldname})");
+                                    $dfvalue_tmp = explode(',', $value['dfvalue']);
+                                    if (in_array($val_arr[0], $dfvalue_tmp)) {
+                                        array_push($where_multiple, "FIND_IN_SET('".$val_arr[0]."',{$fieldname})");
+                                    }
                                 } else {
                                     $wheres[$fieldname] = $val_arr[0];
-                                }
-                            }else{
-                                // 多选
-                                $where_or_arr = array();
-                                foreach ($val_arr as $k2 => $v2) {
-                                    // $v2 = func_preg_replace(['"','\'',';'], '', $v2);
-                                    $v2 = addslashes($v2);
-                                    array_push($where_or_arr, "'{$v2}' IN ({$fieldname})");
-                                }
-                                if (!empty($where_or_arr)) {
-                                    $where_multiple = implode(" OR ", $where_or_arr);
                                 }
                             }
                         }
                     }
                 }
             }
+
+            $where_multiple_str = "";
+            !empty($where_multiple) && $where_multiple_str = implode(' AND ', $where_multiple);
+
             $aid_result = Db::name($channel_table.'_content')->field('aid')
                 ->where($wheres)
-                ->where($where_multiple)
+                ->where($where_multiple_str)
                 ->select();
             if (!empty($aid_result)) {
                 array_push($condition, "a.aid IN (".implode(',', get_arr_column($aid_result, "aid")).")");

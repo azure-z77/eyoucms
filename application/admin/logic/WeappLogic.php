@@ -86,15 +86,17 @@ class WeappLogic extends Model
         }
         if (!empty($addData)) {
             model('weapp')->saveAll($addData);
+            \think\Cache::clear('weapp');
         }
         if (!empty($updateData)) {
             model('weapp')->saveAll($updateData);
+            \think\Cache::clear('weapp');
             // \think\Cache::clear('hook');
         }
         //数据库有 本地没有
         foreach($row as $k => $v){
             if (!in_array($v['code'], $new_arr) && $v['is_buy'] < 1) {//is_buy  0->本地安装,1-线上购买
-                M('weapp')->where($v)->delete();
+                M('weapp')->where($v)->cache(true, null, 'weapp')->delete();
             }
         }
     }
@@ -259,7 +261,7 @@ class WeappLogic extends Model
         }
 
         $curent_version = getWeappVersion($code);
-        $upgrade_url = $this->service_url.'&code='.$code.'&v='.$curent_version;
+        $upgrade_url = $this->service_url.'&code='.$code.'&dev=1&v='.$curent_version;
         $serviceVersionList = file_get_contents($upgrade_url);
         $serviceVersionList = json_decode($serviceVersionList,true);
         if (empty($serviceVersionList)) {
@@ -389,7 +391,8 @@ class WeappLogic extends Model
         $copy_data = $this->recurse_copy($this->data_path.'backup'.DS.$folderName.DS.'www', rtrim($this->root_path, DS), $folderName);
 
         // 清空缓存
-        delFile(rtrim(RUNTIME_PATH, '/'));
+        delFile(RUNTIME_PATH.'cache');
+        delFile(RUNTIME_PATH.'temp');
         tpCache('global');
 
         /*删除下载的升级包*/

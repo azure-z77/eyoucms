@@ -158,6 +158,24 @@
                     </dl>
                 {/eq}
             {/eq}
+
+            {in name="$field.nid" value="media,download"}
+            <dl class="row">
+                <dt class="tit">
+                    <label>七牛云存储</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="qiniuyun_open1" class="cb-enable {if condition='isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1'}selected{/if}">开启</label>
+                        <label for="qiniuyun_open0" class="cb-disable {if condition='empty($field.data.qiniuyun_open)'}selected{/if}">关闭</label>
+                        <input id="qiniuyun_open1" name="data[qiniuyun_open]" value="1" type="radio" {if condition="isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1"} checked="checked"{/if} onclick="qiniuyun_open(this);">
+                        <input id="qiniuyun_open0" name="data[qiniuyun_open]" value="0" type="radio" {if condition="empty($field.data.qiniuyun_open)"} checked="checked"{/if} onclick="qiniuyun_open(this);">
+                    </div>
+                    <p class="notic">开启前，请先安装插件【七牛云图片加速】</p>
+                </dd>
+            </dl>
+            {/in}
+
             <div class="bot">
                 <input type="hidden" name="id" value="{$field.id}">
                 <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
@@ -166,6 +184,81 @@
     </form>
 </div>
 <script type="text/javascript">
+
+    function qiniuyun_open(obj)
+    {
+        if ($(obj).val() == 1) {
+            $.ajax({
+                type: 'GET',
+                url: "{:url('Channeltype/ajax_qiniuyun_open')}",
+                data: {_ajax:1},
+                dataType: "JSON",
+                success: function(res1){
+                    if (1 == res1.code){
+
+                    }else{
+                        $('label[for=qiniuyun_open1]').removeClass('selected');
+                        $('#qiniuyun_open1').attr('checked','');
+                        $('label[for=qiniuyun_open0]').addClass('selected');
+                        $('#qiniuyun_open0').attr('checked','checked');
+
+                        if (res1.data.code == -1) {
+                            showErrorMsg(res1.msg);
+                        } else if (res1.data.code == -2) {
+                            layer.alert(res1.msg, {icon: 5, title: false, btn:['启用']}, function(index){
+                                layer.close(index);
+                                layer_loading('正在启用');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "{:url('Index/changeTableVal')}",
+                                    data: {table:'weapp', id_name:'id', id_value:res1.data.id, field:'status', value:1, _ajax:1},
+                                    dataType: "JSON",
+                                    success: function (res) {
+                                        layer.closeAll();
+                                        if (res.code == 1) {
+                                            // $('label[for=qiniuyun_open1]').addClass('selected');
+                                            // $('#qiniuyun_open1').attr('checked','checked');
+                                            // $('label[for=qiniuyun_open0]').removeClass('selected');
+                                            // $('#qiniuyun_open0').attr('checked','');
+                                        } else {
+                                            showErrorMsg(res.msg);
+                                        }
+                                    }
+                                })
+                            });
+                        } else if (res1.data.code == -3) {
+                            layer.confirm(res1.msg, {
+                                icon: 5,
+                                title: false,
+                                btn: ['立即配置']
+                            }, function () {
+                                layer.closeAll();
+                                //iframe窗
+                                layer.open({
+                                    type: 2,
+                                    title: false,
+                                    fixed: true, //不固定
+                                    shadeClose: false,
+                                    shade: 0.3,
+                                    maxmin: false, //开启最大化最小化按钮
+                                    area: ['80%', '80%'],
+                                    content: "{:weapp_url('Qiniuyun/Qiniuyun/index')}"
+                                });
+                            }, function (index) {
+                                layer.closeAll();
+                            });
+                        } else {
+                            showErrorMsg(res1.msg);
+                        }
+                    }
+                },
+                error: function(e){
+                    showErrorMsg(e);
+                }
+            });
+        }
+    }
+
     // 判断输入框是否为空
     function checkForm(){
         {neq name="$field.ifsystem" value="1"}

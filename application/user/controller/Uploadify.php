@@ -66,32 +66,35 @@ class Uploadify extends Base {
      */
     public function delupload()
     {
-        if (IS_POST) {
-            $action = input('post.action/s','del');                
-            $filename= input('post.filename/s');
+        if (IS_AJAX_POST) {
+            $action = input('param.action/s','del');                
+            $filename= input('param.filename/s');
             $filename= empty($filename) ? input('url') : $filename;
             $filename= str_replace('../','',$filename);
             $filename= trim($filename,'.');
-            $filename= trim($filename,'/');
-            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists($filename)){
+            $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $filename);
+            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){
                 $fileArr = explode('/', $filename);
-                if ($fileArr[2] != $this->users_id) {
+                if ($fileArr[3] != $this->users_id) {
                     return false;
                 }
                 $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
                 $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-                $size = getimagesize($filename);
+                $size = getimagesize('.'.$filename);
                 $fileInfo = explode('/',$size['mime']);
                 if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
                     exit;
                 }
-                if(@unlink($filename)){
+                if(@unlink('.'.$filename)){
                     echo 1;
                 }else{
                     echo 0;
                 }  
                 exit;
             }
+
+            echo 1;
+            exit;
         }
     }
 
@@ -174,15 +177,12 @@ class Uploadify extends Base {
                 $fieldName = $CONFIG2['imageFieldName'];
                 $result = $this->imageUp();
 
-                /*编辑器七牛云同步*/
+                /*同步到第三方对象存储空间*/
                 $result = json_decode($result, true);
-                $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
-                if (!empty($data) && 1 == $data['status']) {
-                    // 同步图片到七牛云
-                    $result['url'] = SynchronizeQiniu($result['url']);
-                }
+                $bucket_data = SynImageObjectBucket($result['url']);
+                $result = array_merge($result, $bucket_data);
                 $result = json_encode($result);
-                /* END */
+                /*end*/
 
                 break;
             /* 上传涂鸦 */
@@ -236,19 +236,20 @@ class Uploadify extends Base {
                 $list = array();
                 isset($_POST[$fieldName]) ? $source = $_POST[$fieldName] : $source = $_GET[$fieldName];
                 
-                /*编辑器七牛云同步*/
-                $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
+                /*编辑器七牛云/OSS等同步*/
+                $weappList = Db::name('weapp')->where([
+                    'status'    => 1,
+                ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+                ->getAllWithIndex('code');
                 /* END */
                 
                 foreach($source as $imgUrl){
                     $info = json_decode($this->saveRemote($config,$imgUrl),true);
 
-                    /*编辑器七牛云同步*/
-                    if (!empty($data) && 1 == $data['status']) {
-                        // 同步图片到七牛云
-                        $info['url'] = SynchronizeQiniu($info['url']);
-                    }
-                    /* END */
+                    /*同步到第三方对象存储空间*/
+                    $bucket_data = SynImageObjectBucket($info['url'], $weappList);
+                    $info = array_merge($info, $bucket_data);
+                    /*end*/
 
                     array_push($list, array(
                         "state" => $info["state"],
@@ -431,7 +432,7 @@ class Uploadify extends Base {
 
         /*验证图片一句话木马*/
         $imgstr = @file_get_contents($file->getInfo('tmp_name'));
-        if (false !== $imgstr && preg_match('#<([^?]*)\?php#i', $imgstr)) {
+        if (false !== $imgstr && (preg_match('#__HALT_COMPILER()#i', $imgstr) || preg_match('#<([^?]*)\?php#i', $imgstr))) {
             $result = '禁止上传木马图片！';
         }
         /*--end*/

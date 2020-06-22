@@ -138,6 +138,9 @@ class Taglist extends Model
             $rs = $tid = Db::name('tagindex')->insertGetId([
                     'tag'       => $tag,
                     'typeid'    => $typeid,
+                    'seo_title' => '',
+                    'seo_keywords' => '',
+                    'seo_description' => '',
                     'total'     => 1,
                     'weekup'    => $addtime,
                     'monthup'   => $addtime,
@@ -183,13 +186,13 @@ class Taglist extends Model
      */
     private function UpdateOneTag($aid, $typeid, $tags='', $arcrank = 0)
     {
-        if(!empty($tags))
+        $lang = get_admin_lang();
+        $oldtag = $this->GetTags($aid);
+        $oldtags = explode(',', $oldtag);
+        $tags = str_replace('，', ',', $tags);
+        $new_tags = explode(',', $tags);
+        if(!empty($tags) || !empty($oldtags))
         {
-            $lang = get_admin_lang();
-            $oldtag = $this->GetTags($aid);
-            $oldtags = explode(',', $oldtag);
-            $tags = str_replace('，', ',', $tags);
-            $new_tags = explode(',', $tags);
             foreach($new_tags as $tag)
             {
                 $tag = trim($tag);
@@ -266,20 +269,21 @@ class Taglist extends Model
         if (!empty($aids)) {
             $tags = Db::name('taglist')->where(['aid'=>['IN', $aids]])->column('tag');
             if (!empty($tags)) {
-                M('taglist')->where(array('aid'=>array('IN', $aids)))->delete();
-                $row2 = Db::name('taglist')->field('tag')->where(array('aid'=>array('IN', $aids)))->group('tag')->getAllWithIndex('tag');
+                Db::name('taglist')->where(['aid'=>['IN', $aids]])->delete();
+                $tagsgroup = Db::name('taglist')->field('tag')->where(['tag'=>['IN', $tags]])->group('tag')->getAllWithIndex('tag');
                 // 更新标签的文档总数
                 foreach ($tags as $key => $tag) {
-                    if (empty($row2[$tag])) {
+                    if (empty($tagsgroup[$tag])) {
                         Db::name('tagindex')->where(['tag'=>$tag])->delete();
                     } else {
+                        $total = Db::name('taglist')->where(['tag'=>$tag])->count();
                         Db::name('tagindex')->where([
                                 'tag'=>$tag,
                                 'total'=>['gt', 0],
                                 'lang'=>get_admin_lang()
                             ])
                             ->update([
-                                'total' => Db::raw('total - 1'),
+                                'total' => $total,
                                 'add_time'  => getTime(),
                             ]);
                     }

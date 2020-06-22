@@ -73,6 +73,31 @@ class Guestbook extends Base
             $condition['a.add_time'] = array('elt', $end);
         }
 
+        if (empty($typeid)) {
+            /*权限控制 by 小虎哥*/
+            $admin_info = session('admin_info');
+            if (0 < intval($admin_info['role_id'])) {
+                $auth_role_info = $admin_info['auth_role_info'];
+                if(! empty($auth_role_info)){
+                    $is_notaccess = false;
+                    $permission_arctype = !empty($auth_role_info['permission']['arctype']) ? $auth_role_info['permission']['arctype'] : [];
+                    if(! empty($permission_arctype)){
+                        $typeids_tmp = Db::name('arctype')->where(['current_channel'=>8,'lang'=>$this->admin_lang])->cache(true, EYOUCMS_CACHE_TIME, 'arctype')->column('id');
+                        $typeids_tmp = !empty($typeids_tmp) ? $typeids_tmp : [];
+                        $typeids_tmp2 = array_intersect($typeids_tmp, $auth_role_info['permission']['arctype']);
+                        if (!empty($typeids_tmp2)) {
+                            $condition['a.typeid'] = ['IN', $typeids_tmp2];
+                            $is_notaccess = true;
+                        }
+                    }
+                    if (false === $is_notaccess) {
+                        $this->error('您没有操作权限，请联系超级管理员分配权限');
+                    }
+                }
+            }
+            /*--end*/
+        }
+
         // 多语言
         $condition['a.lang'] = array('eq', $this->admin_lang);
 

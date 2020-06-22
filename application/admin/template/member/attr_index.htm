@@ -33,17 +33,17 @@
                         <th class="sign w20" axis="col0">
                             <div class="tc"></div>
                         </th>
+                        <th abbr="article_title" axis="col3" class="w40">
+                            <div class="tc">ID</div>
+                        </th>
                         <th abbr="ac_id" axis="col4">
                             <div class="">标题</div>
                         </th>
                         <th abbr="article_time" axis="col4" class="w150">
                             <div class="tc">类型</div>
                         </th>
-                        <th abbr="ac_id" axis="col4" class="w60">
-                            <div class="tc">禁用</div>
-                        </th>
-                        <th abbr="ac_id" axis="col4" class="w60">
-                            <div class="tc">必填</div>
+                        <th abbr="ac_id" axis="col4" class="w80">
+                            <div class="tc">注册表单</div>
                         </th>
                         <th axis="col1" class="w120">
                             <div class="tc">操作</div>
@@ -73,6 +73,9 @@
                                 <div class="w20 tc">
                                 </div>
                             </td>
+                            <td class="sort">
+                                <div class="w40 tc">{$vo.para_id}</div>
+                            </td>
                             <td style="width: 100%">
                                 <div style="">
                                     {eq name="'Member@attr_edit'|is_check_access" value="1"}
@@ -88,34 +91,25 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="w60 tc">
-                                    {if condition='$vo.is_hidden == 1'}
-                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_hidden',this);"{/eq}><i class="fa fa-check-circle"></i>是</span>
+                                <div class="w80 tc">
+                                    {if condition='$vo.is_reg == 1'}
+                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_reg',this);"{/eq}><i class="fa fa-check-circle"></i>是</span>
                                     {else /}
-                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_hidden',this);"{/eq}><i class="fa fa-ban"></i>否</span>
-                                    {/if}
-                                </div>
-                            </td>
-                            <td>
-                                <div class="w60 tc">
-                                    {if condition='$vo.is_required eq 1'}
-                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_required',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
-                                    {else /}
-                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_required',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('users_parameter','para_id','{$vo.para_id}','is_reg',this);"{/eq}><i class="fa fa-ban"></i>否</span>
                                     {/if}
                                 </div>
                             </td>
                             <td class="">
                                 <div class="w120 tc">
+                                    {eq name="'Member@attr_edit'|is_check_access" value="1"}
+                                        <a href="{:url('Member/attr_edit',array('id'=>$vo['para_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    {/eq}
                                     {eq name="$vo.is_system" value="0"}
-                                        {eq name="'Member@attr_edit'|is_check_access" value="1"}
-                                            <a href="{:url('Member/attr_edit',array('id'=>$vo['para_id']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
-                                        {/eq}
                                         {eq name="'Member@attr_del'|is_check_access" value="1"}
                                             <a class="btn red"  href="javascript:void(0);" data-url="{:url('Member/attr_del')}" data-title="{$vo.title}" data-id="{$vo.para_id}" onClick="usersdel(this);"><i class="fa fa-trash-o"></i>删除</a>
                                         {/eq}
                                     {else/}
-                                        ——
+                                        ———
                                     {/eq}
                                 </div>
                             </td>

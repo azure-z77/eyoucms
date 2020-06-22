@@ -58,7 +58,14 @@ class TagTag extends Base
             
             if (!empty($typeid)) {
                 $typeid = $this->getTypeids($typeid, $type);
-                $condition['a.typeid'] = array('in', $typeid);
+                $tid_list = Db::name('taglist')
+                    ->where([
+                        'typeid'    => ['IN', $typeid],
+                        'lang'      => $this->home_lang,
+                    ])
+                    ->group('tid')
+                    ->column('tid');
+                $condition['a.id'] = array('in', $tid_list);
             }
             if($sort == 'rand') $orderby = 'rand() ';
             else if($sort == 'week') $orderby=' a.weekcc DESC ';
@@ -83,6 +90,7 @@ class TagTag extends Base
 
         foreach ($result as $key => $val) {
             $val['link'] = url('home/Tags/lists', array('tagid'=>$val['tagid']));
+            $val['target'] = ' target="_blank" ';
             $result[$key] = $val;
         }
 

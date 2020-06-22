@@ -358,6 +358,9 @@ class FieldLogic extends Model
             $new_arr[] = $fieldname;
             // 对比字段记录 表字段有 字段新增记录没有
             if (empty($channelfieldArr[$fieldname])) {
+                $ifcontrol = 0;
+                $is_release = 0;
+                $ifeditable = 1;
                 $dtype = $this->toDtype($val['Type']);
                 $dfvalue = $this->toDefault($val['Type'], $val['Default']);
                 if (in_array($fieldname, array('content'))) {
@@ -367,6 +370,16 @@ class FieldLogic extends Model
                 }
                 $maxlength = preg_replace('/^([^\(]+)\(([^\)]+)\)(.*)/i', '$2', $val['Type']);
                 $maxlength = intval($maxlength);
+
+                /*视频模型附加表内置的系统字段*/
+                if (5 == $channel_id && in_array($fieldname, ['total_video','total_duration','courseware_free','courseware'])) {
+                    $ifsystem = 1;
+                    $ifcontrol = 1;
+                    $is_release = 1;
+                    $ifeditable = 0;
+                }
+                /*end*/
+
                 $addData[] = array(
                     'name'  => $fieldname,
                     'channel_id'  => $channel_id,
@@ -375,10 +388,11 @@ class FieldLogic extends Model
                     'define'    => $val['Type'],
                     'maxlength' => $maxlength,
                     'dfvalue'   => $dfvalue,
-                    'ifeditable'    => 1,
+                    'is_release'    => $is_release,
+                    'ifeditable'    => $ifeditable,
                     'ifsystem'  => $ifsystem,
                     'ifmain'    => 0,
-                    'ifcontrol' => 0,
+                    'ifcontrol' => $ifcontrol,
                     'add_time'  => getTime(),
                     'update_time'  => getTime(),
                 );
@@ -402,8 +416,6 @@ class FieldLogic extends Model
         /*--end*/
 
         \think\Cache::clear('channelfield');
-
-        // cache($cacheKey, 1, null, 'channelfield');
     }
 
     /**

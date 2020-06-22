@@ -365,6 +365,7 @@
             {/case}
 
             {case value="imgs"}
+                <script type="text/javascript" src="__STATIC__/admin/js/jquery-ui/jquery-ui.min.js"></script>
                 <!-- 多张图 start -->
                 <div class="row" id="dl_{$vo.fieldArr}_{$vo.name|default=''}">
                     <div class="col-xs-2">
@@ -378,7 +379,7 @@
                             <table class="table table-bordered">
                                 <tbody>
                                 <tr>
-                                    <td class="sort-list-{$vo.fieldArr}_{$vo.name|default=''}">
+                                    <td class="sort-list">
                                        {volist name="$vo[$vo['name'].'_eyou_imgupload_list']" id="v2" key="k2"}
                                         <div class="fieldext_upload" style="display:inline-block;">
                                             <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2}">
@@ -432,24 +433,24 @@
                     {
                         // 删除数据库记录
                         $.ajax({
-                            type:'GET',
-                            url:"{:url('Field/del_channelimgs', ['_ajax'=>1])}",
-                            data:{filename:path,channel:"{$channeltype|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
+                            type:'POST',
+                            url:"{:url('user/UsersRelease/del_channelimgs', ['_ajax'=>1])}",
+                            data:{filename:path,channel:"{$channel_id|default='0'}",fieldname:"{$vo.name}",aid:"{$aid|default='0'}"},
                             success:function(){
                                 $(obj).parent().remove(); // 删除完服务器的, 再删除 html上的图片
                                 $.ajax({
-                                    type:'GET',
-                                    url:"{:url('Uploadify/delupload', ['_ajax'=>1])}",
+                                    type:'POST',
+                                    url:"{:url('user/Uploadify/delupload', ['_ajax'=>1])}",
                                     data:{action:"del", filename:path},
                                     success:function(){}
                                 });
                             }
-                        });    
+                        });     
                     }
 
                     /** 以下 产品相册的拖动排序相关 js*/
 
-                    $( ".sort-list-{$vo.fieldArr}_{$vo.name|default=''}" ).sortable({
+                    $( ".sort-list" ).sortable({
                         start: function( event, ui) {
                         
                         }
@@ -457,7 +458,7 @@
 
                         }
                     });
-                    $( ".sort-list-{$vo.fieldArr}_{$vo.name|default=''}" ).disableSelection();
+                    $( ".sort-list" ).disableSelection();
                 </script>
                 <!-- 多张图 end -->
             {/case}
@@ -553,7 +554,7 @@
                         removeFormatAttributes: 'class,style,lang,width,height,align,hspace,valign',//允许的最大字符数 'fullscreen',
                         pasteplain:false, //是否默认为纯文本粘贴。false为不使用纯文本粘贴，true为使用纯文本粘贴
                         autoHeightEnabled: false,
-                        toolbars: [["forecolor", "backcolor", "removeformat", "|", "simpleupload", "unlink"]],
+                        toolbars: [['fullscreen', 'forecolor', 'backcolor', 'removeformat', '|', 'simpleupload', 'unlink', '|', 'paragraph', 'fontfamily', 'fontsize']],
                         // xss 过滤是否开启,inserthtml等操作
                         xssFilterRules: true,
                         //input xss过滤

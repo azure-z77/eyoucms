@@ -50,7 +50,8 @@ class Shop extends Model
         $OrderIds = Db::name('shop_order')->field('order_id')->where($where)->select();
 
         // 订单过期，更新规格数量
-        model('ProductSpecValue')->SaveProducSpecValueStock($OrderIds, $users_id);
+        $productSpecValueModel = new \app\user\model\ProductSpecValue;
+        $productSpecValueModel->SaveProducSpecValueStock($OrderIds, $users_id);
 
         //批量修改订单状态 
         Db::name('shop_order')->where($where)->update($data);

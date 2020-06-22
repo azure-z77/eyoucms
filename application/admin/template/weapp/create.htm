@@ -134,7 +134,7 @@
     {
         var flag = false;
         var code = $.trim($('input[name=code]').val());
-        var reg = /(^[a-zA-Z0-9]{1,}$)/;
+        var reg = /(^[A-Z]([a-zA-Z0-9]*)$)/;
         if (!reg.test(code)) {
             showErrorMsg('插件标识格式不正确！');
             $('input[name=code]').focus();
@@ -153,7 +153,6 @@
             dataType: 'JSON',
             data: {code: code},
             success: function(res){
-                console.log(res)
                 if(res.code == 1){
                     flag = true;
                 } else {

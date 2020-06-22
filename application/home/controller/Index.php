@@ -21,6 +21,7 @@ class Index extends Base
         parent::_initialize();
         $this->alipay_return();
         $this->Express100();
+        $this->ey_agent();
     }
 
     public function index()
@@ -47,7 +48,7 @@ class Index extends Base
 
         $seo_pseudo = config('ey_config.seo_pseudo');
         if (file_exists($filename) && 2 == $seo_pseudo && !isset($_GET['clear'])) {
-            if ((isMobile() && !file_exists('./template/mobile')) || !isMobile()) {
+            if ((isMobile() && !file_exists('./template/'.TPL_THEME.'mobile')) || !isMobile()) {
                 header('HTTP/1.1 301 Moved Permanently');
                 header('Location:index.html');
                 exit;
@@ -69,7 +70,7 @@ class Index extends Base
 
         /*多语言内置模板文件名*/
         if (!empty($this->home_lang)) {
-            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
             if (file_exists($viewfilepath)) {
                 $viewfile .= "_{$this->home_lang}";
             }
@@ -109,6 +110,17 @@ class Index extends Base
                 $this->redirect(url('api/Rewrite/close_parent_layer'));
                 exit;
             }
+        }
+    }
+
+    /**
+     * 无效链接跳转404
+     */
+    private function ey_agent()
+    {
+        $ey_agent = input('param.ey_agent/d', 0);
+        if (!IS_AJAX && !empty($ey_agent) && 'home' == MODULE_NAME) {
+            abort(404, '页面不存在');
         }
     }
 }

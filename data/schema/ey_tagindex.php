@@ -27,6 +27,33 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'seo_title' => 
+  array (
+    'name' => 'seo_title',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'seo_keywords' => 
+  array (
+    'name' => 'seo_keywords',
+    'type' => 'varchar(200)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'seo_description' => 
+  array (
+    'name' => 'seo_description',
+    'type' => 'text',
+    'notnull' => false,
+    'default' => NULL,
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'count' => 
   array (
     'name' => 'count',

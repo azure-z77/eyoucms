@@ -243,6 +243,9 @@ class SmtpmailLogic extends Model
                         case 'alipay':
                             $PayMethod = '支付宝';
                             break;
+                        default:
+                            $PayMethod = '第三方支付';
+                            break;
                     }
                 }
 

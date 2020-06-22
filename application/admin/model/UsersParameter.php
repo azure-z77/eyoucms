@@ -58,6 +58,18 @@ class UsersParameter extends Model
                     
                 }
             }
+        } else if ($value == 1 && $field == 'is_reg') {
+            $where = [
+                $id_name => $id_value,
+                'lang'   => $this->admin_lang,
+            ];
+            $paraData = M('users_parameter')->where($where)->field('is_hidden')->find();
+            if (1 == $paraData['is_hidden']) {
+                $return = [
+                    'msg'   => '该属性已被禁用！',
+                    'time'  => 2,
+                ];
+            }
         }
 
         return $return;

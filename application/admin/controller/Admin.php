@@ -364,15 +364,12 @@ class Admin extends Base {
                 $this->error("超级管理员才能操作！");
             }
 
-            if (empty($data['password']) || empty($data['password2'])) {
+            if (empty($data['password'])) {
                 $this->error("密码不能为空！");
-            }else if ($data['password'] != $data['password2']) {
-                $this->error("两次密码输入不一致！");
             }
 
             $data['user_name'] = trim($data['user_name']);
             $data['password'] = func_encrypt($data['password']);
-            $data['password2'] = func_encrypt($data['password2']);
             $data['role_id'] = intval($data['role_id']);
             $data['parent_id'] = session('admin_info.admin_id');
             $data['add_time'] = getTime();
@@ -485,12 +482,6 @@ class Admin extends Base {
             }
 
             $password = $data['password'];
-            if (!empty($password) || !empty($data['password2'])) {
-                if ($password != $data['password2']) {
-                    $this->error("两次密码输入不一致！");
-                }
-            }
-
             $user_name = $data['user_name'];
             if(empty($password)){
                 unset($data['password']);
@@ -524,12 +515,23 @@ class Admin extends Base {
                 if ($id == session('admin_info.admin_id')) {
                     $admin_info = session('admin_info');
                     $admin_info = array_merge($admin_info, $data);
-                    foreach (['user_name','true_name','password','password2'] as $key => $val) {
+                    foreach (['user_name','true_name','password'] as $key => $val) {
                         unset($admin_info[$val]);
                     }
                     session('admin_info', $admin_info);
                 }
                 /*--end*/
+
+                /*同步头像到会员表对应的会员*/
+                $syn_users_id = Db::name('admin')->where(['admin_id'=>$data['admin_id']])->getField('syn_users_id');
+                if (!empty($syn_users_id)) {
+                    Db::name('users')->where(['users_id'=>$syn_users_id])->update([
+                        'head_pic'  => $data['head_pic'],
+                        'update_time'   => getTime(),
+                    ]);
+                }
+                /*end*/
+
                 adminLog('编辑管理员：'.$user_name);
                 $this->success("操作成功",url('Admin/index'));
             } else {

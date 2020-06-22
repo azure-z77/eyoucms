@@ -57,7 +57,7 @@ class Field extends Model
      * @param array $archivesInfo 主表数据
      * @author 小虎哥 by 2018-7-25
      */
-    public function getChannelFieldList($channel_id, $ifmain = false, $aid = '', $archivesInfo = [])
+    public function getChannelFieldList($channel_id, $ifmain = false, $aid = '', $archivesInfo = [], $where = [])
     {
         $hideField = array('id','aid','add_time','update_time'); // 不显示在发布表单的字段
         $channel_id = intval($channel_id);
@@ -70,6 +70,7 @@ class Field extends Model
         if (false !== $ifmain) {
             $map['ifmain'] = $ifmain;
         }
+        $map = array_merge($map, $where);
         $row = model('Channelfield')->getListByWhere($map, '*');
 
         /*编辑时显示的数据*/

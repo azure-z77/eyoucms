@@ -161,12 +161,15 @@ class WeappController
     {
         /*---------*/
         if ('admin' == MODULE_NAME) {
+            $is_assignValue = false;
             $assignValue = session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4','MzRlMGM0NTY1MTRi']));
             if ($assignValue === null) {
+                $is_assignValue = true;
                 $assignValue = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
             }
             $assignValue = !empty($assignValue) ? $assignValue : 0;
             $assignName = $this->arrJoinStr(['aXNfZXlvdV9hdXRo','b3J0b2tlbg==']);
+            true === $is_assignValue && session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4','MzRlMGM0NTY1MTRi']), $assignValue);
             $this->assign($assignName, $assignValue);
         }
         /*--end*/
@@ -443,11 +446,11 @@ class WeappController
             $config = $this->getConfig();
             $code = !empty($config['code']) ? $config['code'] : $this->weapp_module_name;
         }
-        if(isset($_weapp[$code])){
+        if(!empty($_weapp[$code])){
             return $_weapp[$code];
         }
         $values =   array();
-        $config  =   M('Weapp')->where('code',$code)->getField('config');
+        $config  =   M('Weapp')->where(['code'=>$code])->getField('config');
         if(!empty($config)){
             $values   =   json_decode($config, true);
         }

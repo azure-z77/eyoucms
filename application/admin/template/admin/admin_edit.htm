@@ -31,15 +31,15 @@
             </dl>
             <dl class="row">
                 <dt class="tit">
-                    <label for="password">登录密码</label>
+                    <label for="password">用户密码</label>
                 </dt>
                 <dd class="opt">
-                    <input type="password" name="password" value="" id="password" autocomplete="off" class="input-txt">
-                    <p class="notic">推荐密码至少是以大写字母、小写字母、数字等组合！</p>
+                    <input type="text" name="password" value="" id="password" autocomplete="off" class="input-txt" placeholder="不修改留空">
+                    <p class="notic">推荐密码至少是以0-9a-zA-Z.@_-!等符号组合！</p>
                     <p id="password_tips"></p>
                 </dd>
             </dl>
-            <dl class="row">
+<!--             <dl class="row">
                 <dt class="tit">
                     <label for="password">确认密码</label>
                 </dt>
@@ -48,7 +48,7 @@
                     <p class="notic"></p>
                     <p id="password2_tips"></p>
                 </dd>
-            </dl>
+            </dl> -->
             <dl class="row">
                 <dt class="tit">
                     <label for="pen_name">笔名</label>
@@ -73,6 +73,15 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" name="mobile" value="{$info.mobile}" id="mobile" class="input-txt">
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="email">Email邮箱</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="email" value="{$info.email}" id="email" class="input-txt">
                     <p class="notic"></p>
                 </dd>
             </dl>
@@ -461,7 +470,7 @@
             }
         });
     });
-
+/*
     $('#password2').keyup(function(){
         var password = $('#password').val();
         var password2 = $('#password2').val();
@@ -474,9 +483,10 @@
             }
         }
     });
-
+*/
     // 判断输入框是否为空
     function adsubmit(){
+/*        
         var password = $('#password').val();
         var password2 = $('#password2').val();
         if (password != '' || password2 != '') {
@@ -486,7 +496,7 @@
                 return false;
             }
         }
-
+*/
         layer_loading('正在处理');
         $('#postForm').submit();
     }

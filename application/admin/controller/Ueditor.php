@@ -65,15 +65,12 @@ class Ueditor extends Base
                 $fieldName = $CONFIG2['imageFieldName'];
                 $result = $this->upFile($fieldName);
 
-                /*编辑器七牛云同步*/
+                /*同步到第三方对象存储空间*/
                 $result = json_decode($result, true);
-                $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
-                if (!empty($data) && 1 == $data['status']) {
-                    // 同步图片到七牛云
-                    $result['url'] = SynchronizeQiniu($result['url']);
-                }
+                $bucket_data = SynImageObjectBucket($result['url']);
+                $result = array_merge($result, $bucket_data);
                 $result = json_encode($result);
-                /* END */
+                /*end*/
 
                 break;
             /* 上传涂鸦 */
@@ -127,19 +124,20 @@ class Ueditor extends Base
                 $list = array();
                 isset($_POST[$fieldName]) ? $source = $_POST[$fieldName] : $source = $_GET[$fieldName];
                 
-                /*编辑器七牛云同步*/
-                $data = Db::name('weapp')->where('code','Qiniuyun')->field('status')->find();
+                /*编辑器七牛云/OSS等同步*/
+                $weappList = Db::name('weapp')->where([
+                    'status'    => 1,
+                ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+                ->getAllWithIndex('code');
                 /* END */
                 
                 foreach($source as $imgUrl){
                     $info = json_decode($this->saveRemote($config,$imgUrl),true);
 
-                    /*编辑器七牛云同步*/
-                    if (!empty($data) && 1 == $data['status']) {
-                        // 同步图片到七牛云
-                        $info['url'] = SynchronizeQiniu($info['url']);
-                    }
-                    /* END */
+                    /*同步到第三方对象存储空间*/
+                    $bucket_data = SynImageObjectBucket($info['url'], $weappList);
+                    $info = array_merge($info, $bucket_data);
+                    /*end*/
 
                     array_push($list, array(
                         "state" => $info["state"],
@@ -553,7 +551,7 @@ class Ueditor extends Base
 
         /*验证图片一句话木马*/
         $imgstr = @file_get_contents($file->getInfo('tmp_name'));
-        if (false !== $imgstr && preg_match('#<([^?]*)\?php#i', $imgstr)) {
+        if (false !== $imgstr && (preg_match('#__HALT_COMPILER()#i', $imgstr) || preg_match('#<([^?]*)\?php#i', $imgstr))) {
             $result = '禁止上传木马图片！';
         }
         /*--end*/
@@ -585,31 +583,17 @@ class Ueditor extends Base
             if(true && $this->savePath != 'adminlogo/') print_water($return_url);
         }
 
-        // $ossConfig = tpCache('oss');
-        // if (!empty($ossConfig['oss_switch'])) {
-        //     //商品图片可选择存放在oss
-        //     $images = $savePath . session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-
-        //     // 同步OSS
-        //     $ResultOss = SynchronizeOSS($ossConfig, $images, $file);
-
-        //     // 数据覆盖
-        //     $state = $ResultOss['state'];
-        //     $return_data['url'] = $ResultOss['url'];
-        // }
-
-        // 是否开启七牛云插件
-        $data = Db::name('weapp')->where('code', 'Qiniuyun')->field('status')->find();
-        if (!empty($data) && 1 == $data['status']) {
-            // 同步图片到七牛云
-            $return_data['url'] = SynchronizeQiniu($return_data['url']);
-        }
-
         // 返回数据
         $return_data['title']    = $title;
         $return_data['original'] = $title;
         $return_data['state']    = $state;
         $return_data['path']     = $path;
+
+        /*同步到第三方对象存储空间*/
+        $bucket_data = SynImageObjectBucket($return_url);
+        $return_data = array_merge($return_data, $bucket_data);
+        /*end*/
+
         respose($return_data,'json');
     }
     
@@ -824,14 +808,11 @@ class Ueditor extends Base
     public function upVideo()
     {
         $file     = request()->file('file');
-        $tmp_name = $file->getInfo('tmp_name');
-        // 引入getid3SDK
-
         if (empty($file)) {
             if (!@ini_get('file_uploads')) {
                 return json_encode(['state' => '请检查空间是否开启文件上传功能！']);
             } else {
-                return json_encode(['state' => 'ERROR，请上传文件']);
+                return json_encode(['state' => 'ERROR，空间限制上传大小！']);
             }
         }
         $error = $file->getError();
@@ -839,76 +820,60 @@ class Ueditor extends Base
             return json_encode(['state' => $error]);
         }
 
-//        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         $fileExt                 = tpCache('basic.media_type');
-        /*拓展名验证start*/
-        $fileExtArr = explode('|',$fileExt);
-        //拓展名
-        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-        if (!in_array($ext,$fileExtArr)){
-            return json_encode(['state' =>  '上传文件后缀名必须为' . $fileExt]);
+        if (empty($fileExt)) {
+            return json_encode(['state' => 'ERROR，请设置上传多媒体文件类型！']);
+        } else {
+            $fileExt = str_replace('|', ',', $fileExt);
         }
-//        $result  = $this->validate(
-//            ['file' => $file],
-//            ['file' => 'fileSize:' . $image_upload_limit_size . '|fileExt:' . $fileExt],
-//            ['file.fileSize' => '上传文件过大', 'file.fileExt' => '上传文件后缀名必须为' . $fileExt]
-//        );
-//        if (true !== $result || empty($file)) {
-//            $state = "ERROR" . $result;
-//            return json_encode(['state' => $state]);
-//        }
+        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $result  = $this->validate(
+            ['file' => $file],
+            ['file' => 'fileSize:' . $image_upload_limit_size . '|fileExt:' . $fileExt],
+            ['file.fileSize' => '上传视频过大', 'file.fileExt' => '上传视频后缀名必须为' . $fileExt]
+        );
+        if (true !== $result || empty($file)) {
+            $state = "ERROR" . $result;
+            return json_encode(['state' => $state]);
+        }
+
         //获取视频时长start
         vendor('getid3.getid3');
         // 实例化
         $getID3       = new \getID3();  //实例化类
+        $tmp_name = $file->getInfo('tmp_name');
         $ThisFileInfo = $getID3->analyze($tmp_name); //分析文件，$path为音频文件的地址
         $fileduration = intval($ThisFileInfo['playtime_seconds']); //这个获得的便是音频文件的时长
         //获取视频时长end
 
         // 移动到框架应用根目录/public/uploads/ 目录下
-        if (!file_exists('media')){
-            mkdir('media');
-        }
-        $savePath = "media/" . date('Ymd/');
+        $this->savePath = $this->savePath.date('Ymd/');
         // 使用自定义的文件保存规则
         $info = $file->rule(function ($file) {
-            // return  md5(mt_rand());
             return session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
-        })->move(UPLOAD_PATH . $savePath);
+        })->move(UPLOAD_PATH . $this->savePath);
 
-        // $ossConfig = tpCache('oss');
-        // if ($ossConfig['oss_switch']) {
-        //     //可选择存放在oss
-        //     $savePath   = $this->savePath . date('Ymd/');
-        //     $object     = UPLOAD_PATH . $savePath . session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-        //     $ossClient  = new \app\common\logic\OssLogic;
-        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-        //     if (!$return_url) {
-        //         $data = array('state' => 'ERROR' . $ossClient->getError());
-        //     } else {
-        //         $data = array(
-        //             'state'    => 'SUCCESS',
-        //             'url'      => $return_url,
-        //             'time'     => $fileduration,
-        //             'title'    => $file->getInfo('name'),
-        //             'original' => $file->getInfo('name'),
-        //             'type'     => $file->getInfo('type'),
-        //             'size'     => $file->getInfo('size'),
-        //         );
-        //     }
-        //     @unlink($file->getRealPath());
-        //     return json_encode($data);
-        // }
-        
         if ($info) {
+            // 定义文件名
+            $fileName    = $file->getInfo('name');
+            // 提取出文件名，不包括扩展名
+            $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+            // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+            $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+
+            $file_path = UPLOAD_PATH.$this->savePath.$info->getSaveName();
+
+            $file_size = $info->getSize();
+
             $data = array(
                 'state'    => 'SUCCESS',
-                'url'      => '/' . UPLOAD_PATH . $savePath . $info->getSaveName(),
+                'url'      => '/' . $file_path,
                 'time'     => $fileduration,
-                'title'    => '',//$info->getSaveName(),
+                'title'    => $newfileName,
                 'original' => $info->getSaveName(),
                 'type'     => '.' . $info->getExtension(),
-                'size'     => $info->getSize(),
+                'size'     => $file_size,
+                'mime'     => $file->getInfo('type'),
             );
 
             $data['url'] = ROOT_DIR . $data['url']; // 支持子目录

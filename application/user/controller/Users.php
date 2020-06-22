@@ -157,7 +157,7 @@ class Users extends Base
         $get_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $appid . '&secret=' . $secret . '&code=' . $code . '&grant_type=authorization_code';
         $data          = httpRequest($get_token_url);
         $WeChatData    = json_decode($data, true);
-        if (!empty($WeChatData['errcode']) && !empty($WeChatData['errmsg'])) {
+        if (empty($WeChatData) || (!empty($WeChatData['errcode']) && !empty($WeChatData['errmsg']))) {
             $this->error('AppSecret错误或已过期', $this->root_dir.'/');
         }
         
@@ -602,7 +602,7 @@ class Users extends Base
         }
 
         // 会员属性资料信息
-        $users_para = model('Users')->getDataPara();
+        $users_para = model('Users')->getDataPara('reg');
         $this->assign('users_para', $users_para);
 
         $html = $this->fetch('users_reg');
@@ -717,6 +717,7 @@ EOF;
             $usersData['update_time'] = getTime();
             $return                   = $this->users_db->where('users_id', $this->users_id)->update($usersData);
             if ($return) {
+                \think\Cache::clear('users_list');
                 $this->success('操作成功');
             }
             $this->error('操作失败');
@@ -1068,6 +1069,14 @@ EOF;
                     ])->update($usersData);
                 }
                 if ($return) {
+                    /*同步头像到管理员表对应的管理员*/
+                    if (!empty($this->users['admin_id'])) {
+                        Db::name('admin')->where(['admin_id'=>$this->users['admin_id']])->update([
+                            'head_pic'  => $head_pic_url,
+                            'update_time'   => getTime(),
+                        ]);
+                    }
+                    /*end*/
                     $this->success('操作成功！');
                 } else {
                     $this->error('操作失败！');
@@ -1176,7 +1185,7 @@ EOF;
                                 'update_time' => $time,
                             ];
                             $this->users_db->update($UsersData);
-
+                            \think\Cache::clear('users_list');
                             $this->success('操作成功！');
                         } else {
                             $this->error('未知错误，邮箱地址修改失败，请重新获取验证码！');
@@ -1286,7 +1295,7 @@ EOF;
                                 'update_time' => $time
                             ];
                             $this->users_db->update($UsersData);
-
+                            \think\Cache::clear('users_list');
                             $this->success('操作成功！');
                         } else {
                             $this->error('未知错误，手机号码修改失败，请重新获取验证码！');

@@ -103,7 +103,7 @@ class Lists extends Base
 
         /*多语言内置模板文件名*/
         if (!empty($this->home_lang)) {
-            $viewfilepath = TEMPLATE_PATH . $this->theme_style . DS . $viewfile . "_{$this->home_lang}." . $this->view_suffix;
+            $viewfilepath = TEMPLATE_PATH . $this->theme_style_path . DS . $viewfile . "_{$this->home_lang}." . $this->view_suffix;
             if (file_exists($viewfilepath)) {
                 $viewfile .= "_{$this->home_lang}";
             }
@@ -117,7 +117,7 @@ class Lists extends Base
         // /*--end*/
 
         // /*每个栏目内置模板文件名*/
-        // $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}.".$this->view_suffix;
+        // $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$filename."_{$result['id']}.".$this->view_suffix;
         // if (file_exists($viewfilepath)) {
         //     $viewfile = $filename."_{$result['id']}";
         // }
@@ -125,12 +125,12 @@ class Lists extends Base
 
         // /*多语言内置模板文件名*/
         // if (!empty($this->home_lang)) {
-        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$this->home_lang}.".$this->view_suffix;
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$filename."_{$this->home_lang}.".$this->view_suffix;
         //     if (file_exists($viewfilepath)) {
         //         $viewfile = $filename."_{$this->home_lang}";
         //     }
         //     /*每个栏目内置模板文件名*/
-        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$filename."_{$result['id']}_{$this->home_lang}.".$this->view_suffix;
+        //     $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$filename."_{$result['id']}_{$this->home_lang}.".$this->view_suffix;
         //     if (file_exists($viewfilepath)) {
         //         $viewfile = $filename."_{$result['id']}_{$this->home_lang}";
         //     }
@@ -255,6 +255,7 @@ class Lists extends Base
                     'current_channel' => 6,
                     'is_hidden'       => 0,
                     'status'          => 1,
+                    'is_del'          => 0,
                 );
                 $row = M('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
                 if (empty($row)) { // 不存在并返回当前栏目信息
@@ -316,18 +317,21 @@ class Lists extends Base
                         'attr_id'   => $attr_id,
                         'lang'      => $this->home_lang,
                     ])->find();
-                    if ($ga_data['required'] == 1 && empty($value)) {
-                        $this->error($ga_data['attr_name'] . '不能为空！');
-                    }
-                    if ($ga_data['validate_type'] == 1) {
-                        $pattern  = "/^1\d{10}$/";
-                        if (!preg_match($pattern, $value)) {
-                            $this->error($ga_data['attr_name'] . '格式不正确！');
-                        }
-                    } elseif ($ga_data['validate_type'] == 2) {
-                        $pattern  = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
-                        if (preg_match($pattern, $value) == false) {
-                            $this->error($ga_data['attr_name'] . '格式不正确！');
+                    if ($ga_data['required'] == 1) {
+                        if (empty($value)) {
+                            $this->error($ga_data['attr_name'] . '不能为空！');
+                        } else {
+                            if ($ga_data['validate_type'] == 6) {
+                                $pattern  = "/^1\d{10}$/";
+                                if (!preg_match($pattern, $value)) {
+                                    $this->error($ga_data['attr_name'] . '格式不正确！');
+                                }
+                            } elseif ($ga_data['validate_type'] == 7) {
+                                $pattern  = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+                                if (preg_match($pattern, $value) == false) {
+                                    $this->error($ga_data['attr_name'] . '格式不正确！');
+                                }
+                            }
                         }
                     }
                 }

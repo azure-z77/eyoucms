@@ -29,7 +29,41 @@ class Search extends Base
      */
     public function index()
     {
-        return $this->lists();
+        $result = [];
+
+        $result = $param = input('param.');
+
+        /*获取当前页面URL*/
+        $result['pageurl'] = request()->url(true);
+        /*--end*/
+        $eyou = array(
+            'field' => $result,
+        );
+        $this->eyou = array_merge($this->eyou, $eyou);
+        $this->assign('eyou', $this->eyou);
+
+        $viewfile = 'index_search';
+
+        /*多语言内置模板文件名*/
+        if (!empty($this->home_lang)) {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile.".".$this->view_suffix;
+            if (!file_exists($viewfilepath)) {
+                $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
+                if (file_exists($viewfilepath)) {
+                    $viewfile .= "_{$this->home_lang}";
+                } else {
+                    return $this->lists();
+                }
+            }
+        } else {
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile.".".$this->view_suffix;
+            if (!file_exists($viewfilepath)) {
+                return $this->lists();
+            }
+        }
+        /*--end*/
+
+        return $this->fetch(":{$viewfile}");
     }
 
     /**
@@ -44,6 +78,7 @@ class Search extends Base
         $page = $this->request->param('page');
         if(!empty($word) && 2 > $page)
         {
+            $word = addslashes($word);
             $nowTime = getTime();
             $row = $this->searchword_db->field('id')->where(['word'=>$word, 'lang'=>$this->home_lang])->find();
             if(empty($row))
@@ -77,7 +112,7 @@ class Search extends Base
 
         /*多语言内置模板文件名*/
         if (!empty($this->home_lang)) {
-            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
             if (file_exists($viewfilepath)) {
                 $viewfile .= "_{$this->home_lang}";
             }

@@ -99,6 +99,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'data' => 
+  array (
+    'name' => 'data',
+    'type' => 'text',
+    'notnull' => false,
+    'default' => NULL,
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'is_del' => 
   array (
     'name' => 'is_del',

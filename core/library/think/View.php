@@ -232,7 +232,6 @@ class View
                 $str = binaryJoinChar(config('binary.3'), 71);
                 if (preg_match("#{$str}#i", $content) !== 1) {
                     $msg = binaryJoinChar(config('binary.4'), 84);
-                    var_dump($msg);
                     exception($msg);
                 }
             }

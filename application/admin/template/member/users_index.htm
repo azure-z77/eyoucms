@@ -46,6 +46,9 @@
                         <th abbr="ac_id" axis="col4" class="w60">
                             <div class="tc">是否激活</div>
                         </th>
+                        <!-- <th abbr="ac_id" axis="col4" class="w150">
+                            <div class="tc">注册日期</div>
+                        </th> -->
                         <th axis="col1" class="w120">
                             <div class="tc">操作</div>
                         </th>
@@ -98,6 +101,11 @@
                                     {/eq}
                                 </div>
                             </td>
+                            <!-- <td>
+                                <div class="w150 tc">
+                                    {$vo.reg_time|MyDate='Y-m-d H:i:s',###}
+                                </div>
+                            </td> -->
                             <td class="">
                                 <div class="w120 tc">
                                     {eq name="'Member@users_edit'|is_check_access" value="1"}

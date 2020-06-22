@@ -114,6 +114,10 @@ class TagGlobal extends Base
                                 }
                             }
                         }
+                        
+                        if (stristr($request->host(true), '.yiyocms.com')) {
+                            $value = preg_replace('/^(http:|https:)/i', '', $value);
+                        }
                     }
                     break;
                 

@@ -434,6 +434,18 @@ class Member extends Base {
                 $UsersListData['update_time'] = getTime(); 
                 $this->users_db->where($users_where)->update($UsersListData);
 
+                /*同步头像到管理员表对应的管理员*/
+                $syn_admin_id = $this->users_db->where(['users_id'=>$post['users_id']])->getField('admin_id');
+                if (!empty($syn_admin_id)) {
+                    Db::name('admin')->where(['admin_id'=>$syn_admin_id])->update([
+                        'head_pic'  => $post['head_pic'],
+                        'update_time'   => getTime(),
+                    ]);
+                }
+                /*end*/
+
+                \think\Cache::clear('users_list');
+
                 adminLog('编辑会员：'.$userinfo['username']);
                 $this->success('操作成功', url('Member/users_index'));
             }else{
@@ -520,6 +532,7 @@ class Member extends Base {
                 $this->shop_order_details_db->where($Where)->delete();
                 /*结束*/
 
+                \think\Cache::clear('users_list');
                 adminLog('删除会员：'.implode(',', $username_list));
                 $this->success('删除成功');
             }else{
@@ -923,6 +936,7 @@ class Member extends Base {
                         'para_id'  => ['IN', $para_id],
                         'lang'      => $this->admin_lang,
                     ])->delete();
+                \think\Cache::clear('users_list');
                 adminLog('删除会员属性：'.implode(',', $title_list));
                 $this->success('删除成功');
             }else{

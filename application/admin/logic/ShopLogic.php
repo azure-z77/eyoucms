@@ -45,9 +45,25 @@ class ShopLogic extends Model
         // api_Service_checkVersion
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVVwZ3JhZGUmYT1jaGVja1RoZW1lVmVyc2lvbg==';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
-        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->version.'&type=theme_shop';
-        $this->planPath_pc = 'template/pc/';
-        $this->planPath_m = 'template/mobile/';
+        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->version.'&type=theme_shop&cms_version='.getVersion().'&ip='.serverIP();
+        $this->planPath_pc = 'template/'.TPL_THEME.'pc/';
+        $this->planPath_m = 'template/'.TPL_THEME.'mobile/';
+    }
+
+    // 过期订单预处理
+    public function OverdueOrderHandle()
+    {
+        $ShopOrder = Db::name('shop_order')->where('order_status', 4)->column('order_id');
+        if (!empty($ShopOrder)) {
+            // 删除条件
+            $where['order_id'] = ['IN', $ShopOrder];
+            // 删除订单主表
+            Db::name('shop_order')->where($where)->delete();
+            // 删除订单副表
+            Db::name('shop_order_details')->where($where)->delete();
+            // 删除订单操作记录表
+            Db::name('shop_order_log')->where($where)->delete();
+        }
     }
 
     /**
@@ -218,6 +234,9 @@ class ShopLogic extends Model
             } else {
                 return ['code' => 0, 'msg' => "没找到升级信息"];
             }
+        } else if (isset($serviceVersionList['code']) && empty($serviceVersionList['code'])) {
+            $icon = !empty($serviceVersionList['icon']) ? $serviceVersionList['icon'] : 2;
+            return ['code' => 0, 'msg' => $serviceVersionList['msg'], 'icon'=>$icon];
         }
         
         clearstatcache(); // 清除文件夹权限缓存
@@ -343,7 +362,13 @@ class ShopLogic extends Model
         while (false !== $file = readdir($dir)) {
             if (($file != '.') && ($file != '..')) {
                 if (is_dir($src . '/' . $file)) {
-                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file, $folderName);
+                    $needle = '/template/'.TPL_THEME;
+                    $needle = rtrim($needle, '/');
+                    $dstfile = $dst . '/' . $file;
+                    if (!stristr($dstfile, $needle)) {
+                        $dstfile = str_replace('/template', $needle, $dstfile);
+                    }
+                    $this->recurse_copy($src . '/' . $file, $dstfile, $folderName);
                 }
                 else {
                     if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {

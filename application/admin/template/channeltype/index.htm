@@ -221,18 +221,24 @@
                                             window.location.reload();
                                         });
                                     }else{
-                                        layer.alert(res.msg, {icon: 2, title:false});
+                                        layer.alert(res.msg, {icon: 5, title:false, closeBtn:false});
                                     }
                                 }
                             })
                         });
                     }
                 } else {
-                    layer.alert(res.msg, {icon: 2, title:false});
+                    var icon = 5;
+                    try {
+                        if (res.data.icon) {
+                            icon = res.data.icon;
+                        }
+                    }catch(err){}
+                    layer.alert(res.msg, {icon: icon, title:false, closeBtn:false});
                 }
             },
             error:function(){
-                layer.alert(ey_unknown_error, {icon: 2, title:false});
+                layer.alert(ey_unknown_error, {icon: 5, title:false, closeBtn:false});
             }
         });
     }

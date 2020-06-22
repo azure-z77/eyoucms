@@ -106,6 +106,7 @@ $(function(){
             "fileVal":"file",
             "auto":true,
             "formData":{},
+            "duplicate": true, // 允许上传重复文件
             // "accept": {
             //     "title": 'Images',
             //     "extensions": '{$info.type}',
@@ -116,7 +117,7 @@ $(function(){
             "compress": {
                 "width": 3800,
                 "height": 3800,
-                "quality": 90,
+                "quality": 100,
                 "allowMagnify": false,
                 "crop": false,
                 "preserveHeaders": true

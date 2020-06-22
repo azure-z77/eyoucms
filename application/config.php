@@ -388,6 +388,10 @@ return array(
         'home_Download_index'   => ['filename'=>'channel', 'cache'=>7200],
         'home_Download_lists'   => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
         'home_Download_view'    => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
+        // [普通伪静态]视频
+        'home_Media_index'    => ['filename'=>'channel', 'cache'=>7200],
+        'home_Media_lists'    => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
+        'home_Media_view'     => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
         // [普通伪静态]单页
         'home_Single_index'     => ['filename'=>'channel', 'cache'=>7200],
         'home_Single_lists'     => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
@@ -395,6 +399,9 @@ return array(
         'home_Lists_index'      => ['filename'=>'lists', 'p'=>array('tid','page'), 'cache'=>7200],
         // [超短伪静态]内容页
         'home_View_index'       => ['filename'=>'view', 'p'=>array('dirname','aid'), 'cache'=>7200],
+        // [标签页伪静态]列表页
+        'home_Tags_index'       => ['filename'=>'tags', 'cache'=>7200],
+        'home_Tags_lists'       => ['filename'=>'tags', 'p'=>array('tagid','page'), 'cache'=>7200],
     ],
 
     // +----------------------------------------------------------------------

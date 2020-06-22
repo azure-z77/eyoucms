@@ -167,6 +167,8 @@ class UsersRelease extends Base
         // 获取加载到页面的数据
         $assign_data = $this->GetAssignData($channel_id);
 
+        $assign_data['channel_id'] = $channel_id;
+
         // 加载数据
         $this->assign($assign_data);
         return $this->fetch('users/article_add');
@@ -210,7 +212,7 @@ class UsersRelease extends Base
         // 模型ID
         $channel_id = 1; // input('get.channel_id');
         // 文章ID
-        $aid  = input('get.aid');
+        $aid  = input('param.aid/d');
         $info = model('UsersRelease')->getInfo($aid, null, false);
 
         // 获取加载到页面的数据
@@ -218,6 +220,9 @@ class UsersRelease extends Base
 
         // 拼装文章数据
         $assign_data['ArchivesData'] = $info;
+
+        $assign_data['channel_id'] = $channel_id;
+        $assign_data['aid'] = $aid;
 
         // 加载数据
         $this->assign($assign_data);
@@ -442,5 +447,37 @@ class UsersRelease extends Base
 
         $HtmlCode .= '</select>';
         return $HtmlCode;
+    }
+
+    /**
+     * 模型字段 - 删除多图字段的图集
+     */
+    public function del_channelimgs()
+    {
+        if (IS_AJAX_POST) {
+            $aid     = input('aid/d', '0');
+            $channel = input('channel/d', ''); // 模型ID
+            if (!empty($aid) && !empty($channel)) {
+                $path      = input('filename', ''); // 图片路径
+                $fieldname = input('fieldname/s', ''); // 多图字段
+
+                /*模型附加表*/
+                $table    = M('channeltype')->where('id', $channel)->getField('table');
+                $tableExt = $table . '_content';
+                /*--end*/
+
+                /*除去多图字段值中的图片*/
+                $info     = M($tableExt)->field("{$fieldname}")->where("aid", $aid)->find();
+                $valueArr = explode(',', $info[$fieldname]);
+                foreach ($valueArr as $key => $val) {
+                    if ($path == $val) {
+                        unset($valueArr[$key]);
+                    }
+                }
+                $value = implode(',', $valueArr);
+                M($tableExt)->where('aid', $aid)->update(array($fieldname => $value, 'update_time' => getTime()));
+                /*--end*/
+            }
+        }
     }
 }

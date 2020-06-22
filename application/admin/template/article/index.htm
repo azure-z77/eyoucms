@@ -138,7 +138,7 @@
                              <td class="sort">
                                 <div class="w60 tc">
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <input type="text" onchange="changeTableVal('archives','aid','{$vo.aid}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
+                                    <input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" onchange="changeTableVal('archives','aid','{$vo.aid}','sort_order',this);"  size="4"  value="{$vo.sort_order}" />
                                     {else /}
                                     {$vo.sort_order}
                                     {/eq}
@@ -168,6 +168,9 @@
                     {/eq}
                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                     <a href="javascript:void(0);" onclick="batch_del(this, 'ids');" data-url="{:url('Article/del')}" data-deltype="pseudo"><i class="fa fa-close"></i>删除文档</a>
+                    {/eq}
+                    {eq name="'Archives@check'|is_check_access" value="1"}
+                    <a href="javascript:void(0);" onclick="batch_check(this, 'ids');" data-url="{:url('Archives/check')}"><i class="fa fa-check-square-o"></i>审核文档</a>
                     {/eq}
 <!--                     <hr class="layui-bg-gray">
                     <a href="javascript:;" >添加属性</a>
@@ -240,7 +243,55 @@
             content: url
         });
     }
+    /**
+     * 批量审核
+     */
+    function batch_check(obj, name) {
 
+        var url = $(obj).attr('data-url');
+
+        var a = [];
+        $('input[name^='+name+']').each(function(i,o){
+            if($(o).is(':checked')){
+                a.push($(o).val());
+            }
+        })
+        if(a.length == 0){
+            layer.alert('请至少选择一项', {icon: 2, title:false});
+            return;
+        }
+
+        // title = '批量审核';
+        // btn = ['确定', '取消']; //按钮
+        // // 删除按钮
+        // layer.confirm(title, {
+        //     title: false,
+        //     btn: btn //按钮
+        // }, function () {
+        layer_loading('正在处理');
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: {ids:a, _ajax:1},
+            dataType: 'json',
+            success: function (data) {
+                layer.closeAll();
+                if(data.code == 1){
+                    layer.msg(data.msg, {icon: 1});
+                    window.location.reload();
+                }else{
+                    layer.alert(data.msg, {icon: 2, title:false});
+                }
+            },
+            error:function(){
+                layer.closeAll();
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            }
+        });
+        // }, function (index) {
+        //     layer.closeAll(index);
+        // });
+    }
     /**
      * 获取修改之前的内容
      */

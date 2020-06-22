@@ -960,21 +960,29 @@ if (!function_exists('static_version')) {
                     if (!file_exists(realpath(ltrim($filename, '/')))) {
                         return false;
                     }
-                    $http_url = $file = $request->domain() . $filename;
+                    $file = $request->domain() . $filename;
                 }
             }
+
+            $update_time = getTime();
 
         } else {
             if (!file_exists(realpath(ltrim($file, '/')))) {
                 return false;
             }
-            $http_url = $request->domain() . $file;
+
+            try{
+                $fileStat = stat(ROOT_PATH . ltrim($file, '/'));
+                $update_time = !empty($fileStat['mtime']) ? $fileStat['mtime'] : getTime();
+            } catch (\Exception $e) {
+                $update_time = getTime();
+            }
         }
         // -------------end---------------
 
         $parseStr        = '';
-        $headInf         = @get_headers($http_url, 1);
-        $update_time_str = !empty($headInf['Last-Modified']) ? '?t=' . strtotime($headInf['Last-Modified']) : '';
+        $file = ROOT_DIR.$file; // 支持子目录
+        $update_time_str = !empty($update_time) ? '?t='.$update_time : '';
         $type            = strtolower(substr(strrchr($file, '.'), 1));
         switch ($type) {
             case 'js':
@@ -1343,7 +1351,7 @@ if (!function_exists('func_common')) {
         /*验证图片一句话木马*/
         $imgstr = @file_get_contents($_FILES[$fileElementId]['tmp_name']);
 
-        if (false !== $imgstr && preg_match('#<([^?]*)\?php#i', $imgstr)) {
+        if (false !== $imgstr && (preg_match('#__HALT_COMPILER()#i', $imgstr) || preg_match('#<([^?]*)\?php#i', $imgstr))) {
             return ['errcode'=>1,'errmsg'=>'禁止上传木马图片！'];
         }
         /*--end*/
@@ -1946,6 +1954,7 @@ if (!function_exists('strip_sql')) {
             "/\bphar\b/i",
             "/\@(\s*)\beval\b/i",
             "/\beval\b/i",
+            "/\bonerror\b/i",
         );
         $replace_arr = array(
             'ｕｎｉｏｎ',
@@ -1975,6 +1984,7 @@ if (!function_exists('strip_sql')) {
             'ｐｈａｒ',
             '＠ｅｖａｌ',
             'ｅｖａｌ',
+            'ｏｎｅｒｒｏｒ',
         );
 
         return is_array($string) ? array_map('strip_sql', $string) : preg_replace($pattern_arr, $replace_arr, $string);
@@ -2088,20 +2098,21 @@ if (!function_exists('view_logic')) {
                 {
                     if (true === $allAttrInfo_bool) {
                         $allAttrInfo                  = [];
-                        $allAttrInfo['video_file'] = model('VideoFile')->getVideoFile($aid);
+                        $allAttrInfo['video_file'] = model('MediaFile')->getVideoFile($aid);
                     }
                     $result['file_list'] = !empty($allAttrInfo['video_file']) ? $allAttrInfo['video_file'] : [];
                     //自定义视频字段
                     $channel_field = model('Channelfield')->getListByWhere(['channel_id'=>5,'dtype'=>'media']);
                     if (!empty($channel_field)) {
+                        $request = request();
                         foreach ($channel_field as $key => $val) {
                             if (!empty($result[$key])) {
                                 $result[$key] = json_decode($result[$key], true);
                                 foreach ($result[$key] as $k => $v) {
-                                    if (!empty($v['url'])) {
-                                        $v['url'] = handle_subdir_pic($v['url'], 'media');
-                                        if (!is_http_url($v['url'])){
-                                            $v['url'] = \think\Request::instance()->domain() .$v['url'];
+                                    if (!empty($v['file_url'])) {
+                                        $v['file_url'] = handle_subdir_pic($v['file_url'], 'media');
+                                        if (!is_http_url($v['file_url'])){
+                                            $v['file_url'] = $request->domain() .$v['file_url'];
                                         }
                                     }
                                     $result[$key][$k] = $v;
@@ -2109,6 +2120,7 @@ if (!function_exists('view_logic')) {
                             }
                         }
                     }
+                    isset($result['total_duration']) && $result['total_duration'] = gmSecondFormat($result['total_duration'], ':');
                     /*--end*/
                     break;
                 }
@@ -2356,7 +2368,7 @@ if (!function_exists('VerifyLatestTemplate')) {
     function VerifyLatestTemplate($Url = null, $String = [])
     {
         // 查询的模板路径
-        $Url = !empty($Url) ? $Url : './template/' . THEME_STYLE . '/view_product.htm';
+        $Url = !empty($Url) ? $Url : './template/' . THEME_STYLE_PATH . '/view_product.htm';
 
         // 查询是否存在的字符串
         $String = !empty($String) ? $String : ['ReturnData', 'spec_name', 'spec_value', 'SpecClass', 'SpecData'];
@@ -2472,6 +2484,12 @@ if (!function_exists('remote_to_local')) {
             return $body;
         }
 
+        // 插件列表
+        $weappList = \think\Db::name('weapp')->where([
+            'status'    => 1,
+        ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+        ->getAllWithIndex('code');
+
         foreach ($img_array as $key => $value) {
             $imgUrl = trim($value);
             // 本站图片
@@ -2561,9 +2579,18 @@ if (!function_exists('remote_to_local')) {
                         $replace = array($fileurl, $fileurl);
                         $body = str_replace($search, $replace, $body);*/
 
-            $body = str_replace($imgUrl, $fileurl, $body);
             // 添加水印
-            print_water($fileurl);
+            try {
+                print_water($fileurl);
+                /*同步到第三方对象存储空间*/
+                $bucket_data = SynImageObjectBucket($fileurl, $weappList);
+                if (!empty($bucket_data['url']) && is_string($bucket_data['url'])) {
+                    $fileurl = $bucket_data['url'];
+                }
+                /*end*/
+            } catch (\Exception $e) {}
+
+            $body = str_replace($imgUrl, $fileurl, $body);
         }
         return $body;
     }
@@ -2749,11 +2776,16 @@ if (!function_exists('html_httpimgurl')) {
      * @param string $content 内容
      * @return    string
      */
-    function html_httpimgurl($content = '')
+    function html_httpimgurl($content = '', $timeVersion = false)
     {
         if (!empty($content)) {
+            $t = '';
+            if (true === $timeVersion) {
+                $t = '?t='.getTime();
+            }
+            
             $pregRule = "/<img(.*?)src(\s*)=(\s*)[\'|\"]\/(.*?(?:[\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.ico]))[\'|\"](.*?)[\/]?(\s*)>/i";
-            $content  = preg_replace($pregRule, '<img ${1} src="' . request()->domain() . '/${4}" ${5} />', $content);
+            $content  = preg_replace($pregRule, '<img ${1} src="' . request()->domain() . '/${4}'.$t.'" ${5} />', $content);
         }
 
         return $content;
@@ -2848,5 +2880,37 @@ if (!function_exists('get_filename')) {
         $value_arr = explode('/',$value);
         $str = end($value_arr);
         return $str;
+    }
+}
+
+if (!function_exists('gmSecondFormat')) {
+    /**
+     * 将秒数转为时间格式
+     * @param intval $seconds  秒数
+     * @param string $separator 分隔符
+     * @return mixed
+     */
+    function gmSecondFormat($seconds = 0, $separator = '')
+    {
+        $timeStr = '';
+        if (empty($seconds)) {
+            if (empty($separator)) {
+                $timeStr = "00小时00分钟00秒";
+            } else {
+                $timeStr = "00{$separator}00{$separator}00";
+            }
+        } else {
+            $hours = intval($seconds/3600);
+            if ($hours < 10) {
+                $hours = '0'.$hours;
+            }
+            if (empty($separator)) {
+                $timeStr = $hours."小时".gmdate('i分钟s秒', $seconds);
+            } else {
+                $timeStr = $hours.$separator.gmdate("i{$separator}s", $seconds);
+            }
+        }
+        
+        return $timeStr;
     }
 }

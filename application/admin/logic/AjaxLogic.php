@@ -201,15 +201,16 @@ class AjaxLogic extends Model
     {
         if (!empty($type)) {
             if ('users' == $type) {
-                if (file_exists(ROOT_PATH.'template/pc/users') || file_exists(ROOT_PATH.'template/mobile/users')) {
-                    /*升级之前，备份涉及的源文件*/
+                if (file_exists(ROOT_PATH.'template/'.TPL_THEME.'pc/users') || file_exists(ROOT_PATH.'template/'.TPL_THEME.'mobile/users')) {
                     $upgrade = getDirFile(DATA_PATH.'backup'.DS.'tpl');
                     if (!empty($upgrade) && is_array($upgrade)) {
                         delFile(DATA_PATH.'backup'.DS.'template_www');
+                        // 升级之前，备份涉及的源文件
                         foreach ($upgrade as $key => $val) {
-                            $source_file = ROOT_PATH.$val;
+                            $val_tmp = str_replace("template/", "template/".TPL_THEME, $val);
+                            $source_file = ROOT_PATH.$val_tmp;
                             if (file_exists($source_file)) {
-                                $destination_file = DATA_PATH.'backup'.DS.'template_www'.DS.$val;
+                                $destination_file = DATA_PATH.'backup'.DS.'template_www'.DS.$val_tmp;
                                 tp_mkdir(dirname($destination_file));
                                 @copy($source_file, $destination_file);
                             }
@@ -236,8 +237,8 @@ class AjaxLogic extends Model
     //自定义函数递归的复制带有多级子目录的目录
     private function recurse_copy($src, $dst)
     {
-        $planPath_pc = 'template/pc/';
-        $planPath_m = 'template/mobile/';
+        $planPath_pc = "template/".TPL_THEME."pc/";
+        $planPath_m = "template/".TPL_THEME."mobile/";
         $dir = opendir($src);
 
         /*pc和mobile目录存在的情况下，才拷贝会员模板到相应的pc或mobile里*/
@@ -253,7 +254,13 @@ class AjaxLogic extends Model
         while (false !== $file = readdir($dir)) {
             if (($file != '.') && ($file != '..')) {
                 if (is_dir($src . '/' . $file)) {
-                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                    $needle = '/template/'.TPL_THEME;
+                    $needle = rtrim($needle, '/');
+                    $dstfile = $dst . '/' . $file;
+                    if (!stristr($dstfile, $needle)) {
+                        $dstfile = str_replace('/template', $needle, $dstfile);
+                    }
+                    $this->recurse_copy($src . '/' . $file, $dstfile);
                 }
                 else {
                     if (file_exists($src . DIRECTORY_SEPARATOR . $file)) {
@@ -325,6 +332,48 @@ class AjaxLogic extends Model
                 tpCache('syn', ['syn_wechat_login_config'=>1]);
             }
         }
+    }
+
+    // 只同步一次微信支付、支付宝支付配置(v1.5.1节点去掉)
+    public function SynPayConfig()
+    {
+        /*同步微信支付*/
+        $syn_wechat_pay_config = tpCache('syn.syn_wechat_pay_config', [], 'cn');
+        if (empty($syn_wechat_pay_config)) {
+            $ResultData = getUsersConfigData('pay.pay_wechat_config');
+            $value = !empty($ResultData) ? unserialize($ResultData) : [];
+            if (!empty($value['appid']) && !empty($value['mchid']) && !empty($value['key'])) {
+                $SynData['pay_info'] = serialize($value);
+                $SynData['update_time'] = getTime();
+                $where = [
+                    'pay_id' => 1,
+                    'pay_mark' => 'wechat',
+                    'system_built' => 1
+                ];
+                $ResultID = Db::name('pay_api_config')->where($where)->update($SynData);
+                if (!empty($ResultID)) tpCache('syn', ['syn_wechat_pay_config' => 1], 'cn');
+            }
+        }
+        /* END */
+
+        /*同步支付宝支付*/
+        $syn_alipay_pay_config = tpCache('syn.syn_alipay_pay_config', [], 'cn');
+        if (empty($syn_alipay_pay_config)) {
+            $ResultData = getUsersConfigData('pay.pay_alipay_config');
+            $value = !empty($ResultData) ? unserialize($ResultData) : [];
+            if ( (!empty($value['app_id']) && !empty($value['merchant_private_key']) && !empty($value['alipay_public_key'])) || (!empty($value['account']) && !empty($value['code']) && !empty($value['id'])) ) {
+                $SynData['pay_info'] = serialize($value);
+                $SynData['update_time'] = getTime();
+                $where = [
+                    'pay_id' => 2,
+                    'pay_mark' => 'alipay',
+                    'system_built' => 1
+                ];
+                $ResultID = Db::name('pay_api_config')->where($where)->update($SynData);
+                if (!empty($ResultID)) tpCache('syn', ['syn_alipay_pay_config' => 1], 'cn');
+            }
+        }
+        /* END */
     }
 
     // 删除多余Minipro的文件(v1.5.1节点去掉)
@@ -589,6 +638,123 @@ class AjaxLogic extends Model
                 }
             }catch(\Exception $e){}
             tpCache('syn', ['syn_admin_logic_update_tag'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 同步视频模型内置的附加表字段
+     */
+    public function admin_logic_video_addfields()
+    {
+        $syn_admin_logic_video_addfields = tpCache('syn.syn_admin_logic_video_addfields', [], 'cn');
+        if (empty($syn_admin_logic_video_addfields)) {
+            try{
+                $totalRow = Db::name('channelfield_bind')->count();
+                if (!empty($totalRow)) {
+                    $channel_id = 5;
+                    $fieldLogic = new \app\admin\logic\FieldLogic;
+                    $fieldLogic->synChannelTableColumns($channel_id);
+
+                    $addData = [];
+                    $result = Db::name('channelfield')->field('id')->where(['channel_id'=>$channel_id,'ifmain'=>0])->select();
+                    foreach ($result as $key => $val) {
+                        $addData[] = [
+                            'typeid'      => 0,
+                            'field_id'    => $val['id'],
+                            'add_time'    => getTime(),
+                            'update_time' => getTime(),
+                        ];
+                    }
+                    !empty($addData) && model('ChannelfieldBind')->saveAll($addData);
+                }
+            }catch(\Exception $e){}
+            tpCache('syn', ['syn_admin_logic_video_addfields'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 纠正tagindex标签被误删的tag
+     */
+    public function admin_logic_add_tag()
+    {
+        $syn_admin_logic_add_tag = tpCache('syn.syn_admin_logic_add_tag', [], 'cn');
+        if (empty($syn_admin_logic_add_tag)) {
+            try{
+                /*多语言*/
+                if (is_language()) {
+                    $langRow = Db::name('language')->field('mark')->order('id asc')->select();
+                    foreach ($langRow as $key => $val) {
+                        $taglistgroup = Db::name('taglist')->field('tag,tid as id,typeid,count(tid) as total')->where(['lang'=>$val['mark']])->group('tag')->getAllWithIndex('tag');
+                        $tagindexgroup = Db::name('tagindex')->field('tag,id,typeid,count(id) as total')->where(['lang'=>$val['mark']])->group('tag')->getAllWithIndex('tag');
+                        if (empty($taglistgroup)) {
+                            Db::name('tagindex')->where([
+                                'lang'=>$val['mark'],
+                            ])->delete();
+                        } else {
+                            empty($tagindexgroup) && $tagindexgroup = [];
+                            $result = array_diff_key($taglistgroup, $tagindexgroup);
+                            if (!empty($result)) {
+                                $saveData = [];
+                                foreach ($result as $_k => $_v) {
+                                    $_v['seo_description'] = '';
+                                    $_v['lang'] = $val['mark'];
+                                    $_v['weekup'] = getTime();
+                                    $_v['monthup'] = getTime();
+                                    $_v['add_time'] = getTime();
+                                    $saveData[] = $_v;
+                                }
+                                model('Tagindex')->insertAll($saveData);
+                            }
+                        }
+                    }
+                } else { // 单语言
+                    $taglistgroup = Db::name('taglist')->field('tag,tid as id,typeid,count(tid) as total')->group('tag')->getAllWithIndex('tag');
+                    $tagindexgroup = Db::name('tagindex')->field('tag,id,typeid,count(id) as total')->group('tag')->getAllWithIndex('tag');
+                    if (empty($taglistgroup)) {
+                        Db::name('tagindex')->where([
+                            'id'  => ['egt', 1],
+                        ])->delete();
+                    } else {
+                        empty($tagindexgroup) && $tagindexgroup = [];
+                        $result = array_diff_key($taglistgroup, $tagindexgroup);
+                        if (!empty($result)) {
+                            $saveData = [];
+                            foreach ($result as $_k => $_v) {
+                                $_v['seo_description'] = '';
+                                $_v['lang'] = get_main_lang();
+                                $_v['weekup'] = getTime();
+                                $_v['monthup'] = getTime();
+                                $_v['add_time'] = getTime();
+                                $saveData[] = $_v;
+                            }
+                            model('Tagindex')->insertAll($saveData);
+                        }
+                    }
+                }
+                /*--end*/
+            }catch(\Exception $e){}
+            tpCache('syn', ['syn_admin_logic_add_tag'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 纠正会员属性的内置手机号码和邮箱地址
+     */
+    public function admin_logic_users_parameter()
+    {
+        $syn_admin_logic_users_parameter = tpCache('syn.syn_admin_logic_users_parameter', [], 'cn');
+        if (empty($syn_admin_logic_users_parameter)) {
+            try{
+                Db::name('users_parameter')->where(['name'=>'mobile_1'])->update([
+                    'dtype' => 'mobile',
+                    'update_time'   => getTime(),
+                ]);
+                Db::name('users_parameter')->where(['name'=>'email_2'])->update([
+                    'dtype' => 'email',
+                    'update_time'   => getTime(),
+                ]);
+            }catch(\Exception $e){}
+            tpCache('syn', ['syn_admin_logic_users_parameter'=>1], 'cn');
         }
     }
 }

@@ -13,6 +13,8 @@
 
 namespace app\home\controller;
 
+use think\Db;
+
 class View extends Base
 {
     // 模型标识
@@ -53,7 +55,7 @@ class View extends Base
         /*--end*/
 
         $aid = intval($aid);
-        $archivesInfo = M('archives')->field('a.typeid, a.channel, b.nid, b.ctl_name')
+        $archivesInfo = Db::name('archives')->field('a.typeid, a.channel, b.nid, b.ctl_name')
             ->alias('a')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
             ->where([
@@ -164,7 +166,7 @@ class View extends Base
 
         /*多语言内置模板文件名*/
         if (!empty($this->home_lang)) {
-            $viewfilepath = TEMPLATE_PATH.$this->theme_style.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
+            $viewfilepath = TEMPLATE_PATH.$this->theme_style_path.DS.$viewfile."_{$this->home_lang}.".$this->view_suffix;
             if (file_exists($viewfilepath)) {
                 $viewfile .= "_{$this->home_lang}";
             }
@@ -202,7 +204,7 @@ class View extends Base
             'a.file_id'   => $file_id,
             'a.uhash' => $uhash,
         );
-        $result = M('download_file')
+        $result = Db::name('download_file')
             ->alias('a')
             ->field('a.*,b.arc_level_id')
             ->join('__ARCHIVES__ b', 'a.aid = b.aid', 'LEFT')
@@ -225,14 +227,14 @@ class View extends Base
             }else{
                 /*判断会员是否可下载该文件--2019-06-21 陈风任添加*/
                 // 查询会员信息
-                $users = M('users')
+                $users = Db::name('users')
                     ->alias('a')
                     ->field('a.users_id,b.level_value,b.level_name')
                     ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
                     ->where(['a.users_id'=>$UsersData['users_id']])
                     ->find();
                 // 查询下载所需等级值
-                $file_level = M('archives')
+                $file_level = Db::name('archives')
                     ->alias('a')
                     ->field('b.level_value,b.level_name')
                     ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
@@ -296,7 +298,7 @@ class View extends Base
         $map = array(
             'file_id'   => $file_id,
         );
-        $result = M('download_file')->field('file_url,file_mime,uhash')->where($map)->find();
+        $result = Db::name('download_file')->field('file_url,file_mime,uhash')->where($map)->find();
         if (!empty($result['uhash']) && $uhash != $result['uhash']) {
             $this->error('下载地址出错！');
         }
@@ -313,7 +315,7 @@ class View extends Base
             $users_id = session('users_id');
             $users_id = intval($users_id);
 
-            $counts = M('download_log')->where([
+            $counts = Db::name('download_log')->where([
                     'file_id'   => $file_id,
                     'aid'       => $aid,
                     'users_id'  => $users_id,
@@ -326,10 +328,141 @@ class View extends Base
                     'ip'        => clientIP(),
                     'add_time'  => getTime(),
                 ];
-                $r = M('download_log')->insertGetId($saveData);
+                $r = Db::name('download_log')->insertGetId($saveData);
                 if ($r !== false) {
-                    M('download_file')->where(['file_id'=>$file_id])->setInc('downcount');
-                    M('archives')->where(['aid'=>$aid])->setInc('downcount');
+                    Db::name('download_file')->where(['file_id'=>$file_id])->setInc('downcount');
+                    Db::name('archives')->where(['aid'=>$aid])->setInc('downcount');
+                }
+            }
+        } catch (\Exception $e) {}
+    }
+
+    /**
+     * 获取播放视频路径
+     */
+    public function pay_video_url()
+    {
+        $file_id = input('param.id/d', 0);
+        $uhash = input('param.uhash/s', '');
+
+        if (empty($file_id) || empty($uhash)) {
+            $this->error('视频播放链接出错！');
+            exit;
+        }
+
+        // 查询信息
+        $map = array(
+            'a.file_id'   => $file_id,
+            'a.uhash' => $uhash,
+        );
+        $result = Db::name('media_file')
+            ->alias('a')
+            ->field('a.*,b.arc_level_id')
+            ->join('__ARCHIVES__ b', 'a.aid = b.aid', 'LEFT')
+            ->where($map)
+            ->find();
+
+        if (preg_match('#^(/[\w]+)?(/uploads/media/)#i', $result['file_url'])) {
+            $file_url = preg_replace('#^(/[\w]+)?(/uploads/media/)#i', '$2', $result['file_url']);
+        } else {
+            $file_url = preg_replace('#^('.$this->root_dir.')?(/)#i', '$2', $result['file_url']);
+        }
+        
+        if (empty($result) || (!is_http_url($result['file_url']) && !file_exists('.'.$file_url))) {
+            $this->error('视频文件不存在！');
+            exit;
+        }
+
+        // 判断会员信息
+        if (0 < intval($result['arc_level_id'])) {
+            $UsersData = session('users');
+            if (empty($UsersData['users_id'])) {
+                $this->error('请先登录！');
+                exit;
+            }else{
+                /*判断会员是否可播放该视频--2019-06-21 小虎哥*/
+                // 查询会员信息
+                $users = Db::name('users')
+                    ->alias('a')
+                    ->field('a.users_id,b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                    ->where(['a.users_id'=>$UsersData['users_id']])
+                    ->find();
+                // 查询播放所需等级值
+                $file_level = Db::name('archives')
+                    ->alias('a')
+                    ->field('b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                    ->where(['a.aid'=>$result['aid']])
+                    ->find();
+                if ($users['level_value'] < $file_level['level_value']) {
+                    $msg = '视频为【'.$file_level['level_name'].'】可播放，您当前为【'.$users['level_name'].'】，请先升级！';
+                    $this->error($msg);
+                    exit;
+                }
+                /*--end*/
+            }
+        }
+
+        // 外部视频链接
+        if (is_http_url($result['file_url'])) {
+
+            // 记录播放次数
+            $this->video_log($result['file_id'], $result['aid']);
+
+            if (IS_AJAX) {
+                $this->success('准备播放中……', $result['file_url']);
+            } else {
+                $this->redirect($result['file_url']);
+                exit;
+            }
+        } 
+        // 本站链接
+        else
+        {
+            if (md5_file('.'.$file_url) != $result['md5file']) {
+                $this->error('视频文件已损坏！');
+            }
+
+            // 记录播放次数
+            $this->video_log($result['file_id'], $result['aid']);
+
+            $url = $this->request->domain().$this->root_dir.$file_url;
+            if (IS_AJAX) {
+                $this->success('准备播放中……', $url);
+            } else {
+                $this->redirect($url);
+                exit;
+            }
+        }
+    }
+
+    /**
+     * 记录播放次数（重复播放不做记录，游客可重复记录）
+     */
+    private function video_log($file_id = 0, $aid = 0)
+    {
+        try {
+            $users_id = session('users_id');
+            $users_id = intval($users_id);
+
+            $counts = Db::name('media_log')->where([
+                    'file_id'   => $file_id,
+                    'aid'       => $aid,
+                    'users_id'  => $users_id,
+                ])->count();
+            if (empty($users_id) || empty($counts)) {
+                $saveData = [
+                    'users_id'  => $users_id,
+                    'aid'       => $aid,
+                    'file_id'   => $file_id,
+                    'ip'        => clientIP(),
+                    'add_time'  => getTime(),
+                ];
+                $r = Db::name('media_log')->insertGetId($saveData);
+                if ($r !== false) {
+                    Db::name('media_file')->where(['file_id'=>$file_id])->setInc('playcount');
+                    Db::name('archives')->where(['aid'=>$aid])->setInc('downcount');
                 }
             }
         } catch (\Exception $e) {}

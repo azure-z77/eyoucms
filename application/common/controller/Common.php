@@ -19,6 +19,7 @@ class Common extends Controller {
 
     public $session_id;
     public $theme_style = '';
+    public $theme_style_path = '';
     public $view_suffix = 'html';
     public $eyou = array();
 
@@ -74,7 +75,8 @@ class Common extends Controller {
 
         $this->global_assign(); // 获取网站全局变量值
         $this->view_suffix = config('template.view_suffix'); // 模板后缀htm
-        $this->theme_style = THEME_STYLE; // 模板目录
+        $this->theme_style = THEME_STYLE; // 模板标识
+        $this->theme_style_path = THEME_STYLE_PATH; // 模板目录
         //全局变量
         $this->eyou['global'] = $global;
         // 多语言变量

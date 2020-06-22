@@ -37,6 +37,17 @@ class Channeltype extends Base
         $this->channeltype_system_id = $this->channeltype_db->where([
                 'ifsystem'  => 1,
             ])->column('id');
+
+        // 看查询条件就知道了
+        $d2ViX2lzX2F1 = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
+        if (-1 == $d2ViX2lzX2F1) {
+            $this->channeltype_db->where(['id'=>5])
+                ->cache(true,null,"channeltype")
+                ->update([
+                    'status'    => 0,
+                    'update_time'   => getTime(),
+                ]);
+        }
     }
 
     public function index()
@@ -87,17 +98,19 @@ class Channeltype extends Base
                 }
 
                 $post['nid'] = trim($post['nid']);
+                $post['nid']    = strtolower($post['nid']);
                 if (empty($post['nid'])) {
                     $this->error('模型标识不能为空！');
                 } else {
                     if (!preg_match('/^([a-z]+)([a-z0-9]*)$/i', $post['nid'])) {
                         $this->error('模型标识必须以小写字母开头！');
+                    } else if (preg_match('/^ey([a-z0-9]*)$/i', $post['nid'])) {
+                        $this->error('模型标识禁止以ey开头！');
                     } else if (in_array($post['nid'], $this->channeltype_system_nid)) {
                         $this->error('系统禁用当前模型标识，请更改！');
                     }
                 }
 
-                $post['nid']    = strtolower($post['nid']);
                 $nid = $post['nid'];
                 $post['ctl_name'] = ucwords($nid);
                 $post['table']    = $nid;
@@ -112,6 +125,7 @@ class Channeltype extends Base
                 $nowData = array(
                     'ntitle'        => $post['title'],
                     'nid'           => $nid,
+                    'data'          => '',
                     'add_time'      => getTime(),
                     'update_time'   => getTime(),
                 );
@@ -196,9 +210,23 @@ class Channeltype extends Base
                         $this->error('模型名称不能为空！');
                     }
 
+                    $post['nid'] = trim($post['nid']);
+                    $post['nid']    = strtolower($post['nid']);
+                    if (empty($post['nid'])) {
+                        $this->error('模型标识不能为空！');
+                    } else {
+                        if (!preg_match('/^([a-z]+)([a-z0-9]*)$/i', $post['nid'])) {
+                            $this->error('模型标识必须以小写字母开头！');
+                        } else if (preg_match('/^ey([a-z0-9]*)$/i', $post['nid'])) {
+                            $this->error('模型标识禁止以ey开头！');
+                        } else if (in_array($post['nid'], $this->channeltype_system_nid)) {
+                            $this->error('系统禁用当前模型标识，请更改！');
+                        }
+                    }
+
                     $map = array(
                         'id'    => ['NEQ', $post['id']],
-                        'nid' => strtolower($post['nid']),
+                        'nid' => $post['nid'],
                     );
                     if($this->channeltype_db->where($map)->count('id') > 0){
                         $this->error('该模型标识已存在，请检查', url('Channeltype/index'));
@@ -206,6 +234,7 @@ class Channeltype extends Base
                 }
 
                 $nowData = array(
+                    'data'      => json_encode($post['data']),
                     'update_time'       => getTime(),
                 );
                 unset($post['nid']);
@@ -257,6 +286,7 @@ class Channeltype extends Base
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
+        $info['data'] = json_decode($info['data'], true);
         $assign_data['field'] = $info;
 
         /*留言模型*/
@@ -395,6 +425,7 @@ class Channeltype extends Base
             $dst = $file;
             $dst = str_replace('CustomModel', $post['ctl_name'], $dst);
             $dst = str_replace('custommodel', $post['nid'], $dst);
+            $dst = str_replace('template/pc/', 'template/'.TPL_THEME.'pc/', $dst);
             /*记录相关文件*/
             if (!stristr($dst, 'custom_model_path')) {
                 array_push($fileArr, $dst);
@@ -435,6 +466,14 @@ EOF;
                 $puts = @file_put_contents($dst, $fileContent);
                 if (!$puts) {
                     $this->error('创建自定义模型生成相关文件失败，请检查站点目录权限！');
+                } else {
+                    // 判断是否存在手机端目录，同时生成一份
+                    $tplplan = "template/".TPL_THEME."mobile";
+                    $planPath = realpath($tplplan);
+                    if (file_exists($planPath)) {
+                        $dst_m = str_replace('template/'.TPL_THEME.'pc/', 'template/'.TPL_THEME.'mobile/', $dst);
+                        @file_put_contents($dst_m, $fileContent);
+                    }
                 }
             }
         }
@@ -481,13 +520,14 @@ EOF;
             $id = input('id/d');
             $status = input('status/d', 0);
             if(!empty($id)){
+                if(5 == $id){action('Media/check_use');}
                 $row = Db::name('channeltype')->where([
                         'id'    => $id,
                     ])->find();
 
                 $nofileArr = [];
                 /*检测模板是否存在*/
-                $tplplan = 'template/pc';
+                $tplplan = 'template/'.TPL_THEME.'pc';
                 $planPath = realpath($tplplan);
                 if (!file_exists($planPath)) {
                     $this->success('操作成功', null, ['confirm'=>0]);
@@ -577,12 +617,12 @@ EOF;
                         $view_suffix = config('template.view_suffix');
                         $themeStyleArr = ['pc','mobile'];
                         foreach ($themeStyleArr as $k1 => $theme) {
-                            $tplplan = "template/{$theme}";
+                            $tplplan = "template/".TPL_THEME."{$theme}";
                             $planPath = realpath($tplplan);
                             if (file_exists($planPath)) {
                                 foreach ($tpltype as $k2 => $val) {
-                                    $source = realpath("data/model/template/{$theme}/{$val}_custommodel.{$view_suffix}");
-                                    $dest = ROOT_PATH."template/{$theme}/{$val}_{$row['nid']}.{$view_suffix}";
+                                    $source = realpath("data/model/template/".TPL_THEME."{$theme}/{$val}_custommodel.{$view_suffix}");
+                                    $dest = ROOT_PATH."template/".TPL_THEME."{$theme}/{$val}_{$row['nid']}.{$view_suffix}";
                                     if (!file_exists($dest)) {
                                         $content = file_get_contents($source);
                                         if ('lists' == $val) {
@@ -632,13 +672,14 @@ EOF;
                                             }
                                             else if ('guestbook' == $row['nid'])
                                             {
+                                                $tpl_theme = str_replace('/', '>', TPL_THEME);
                                                 $replace = <<<EOF
 <article class="content">
                     <h1>{\$eyou.field.title}</h1>
                     <div class="post">
                         <div class="md_block">
                             <div style=" color: #ff0000">
-                                制作易优留言表单，主要有三个步骤：<br>1，后台>开启留言模型，建立栏目并选择留言模型。<br>2，打开根目录>template>pc>lists_guestbook.htm模板文件，按照易优表单标签制作，<a href="http://www.eyoucms.com/doc/label/arc/502.html" target="_blank">点击这里查看教程</a><br>3，还有疑问可以加易优交流群（群号：<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=917f9a4cfe50fd94600c55eb75d9c6014a1842089b0479bc616fb79a1d85ae0b">704301718</a>）
+                                制作易优留言表单，主要有三个步骤：<br>1，后台>开启留言模型，建立栏目并选择留言模型。<br>2，打开根目录>template>{$tpl_theme}pc>lists_guestbook.htm模板文件，按照易优表单标签制作，<a href="http://www.eyoucms.com/doc/label/arc/502.html" target="_blank">点击这里查看教程</a><br>3，还有疑问可以加易优交流群（群号：<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=917f9a4cfe50fd94600c55eb75d9c6014a1842089b0479bc616fb79a1d85ae0b">704301718</a>）
                             </div>
                         </div>           
                     </div>
@@ -757,6 +798,38 @@ EOF;
                         </div>
 EOF;
                                                 $content = str_replace('<!-- #download# -->', $replace, $content);
+                                            } else if ('media' == $row['nid']) {
+                                                $replace = <<<EOF
+<div class="md_block">
+                            <p>
+                                {eyou:videoplay aid='\$eyou.field.aid' autoplay='on' id='video'}
+                                    <video src="{\$video.file_url}" {\$video.id} width="600" height="400"></video>
+                                    {\$video.hidden}
+                                {/eyou:videoplay}
+
+                                <br/>
+
+                                {eyou:videolist aid='\$eyou.field.aid' id='video'}
+                                    <a href="javascript:void(0);" {\$video.onclick}>{\$video.file_title} - {\$video.file_time}</a><br/>
+                                    {\$video.hidden}
+                                {/eyou:videolist}
+
+                                <hr/>
+
+                                课件：<a href="{\$eyou.field.courseware}" target="_blank">{\$eyou.field.courseware}</a><br/>
+                                
+                                <hr/>
+
+                                {eyou:memberinfos mid='\$eyou.field.users_id' id="users"}
+                                    会员头像：<img src="{\$users.head_pic|get_head_pic=###}" width='50' height='50' /><br/>
+                                    会员昵称：{\$users.nickname}<br/>
+                                {/eyou:memberinfos}
+
+                                <br/>
+                            </p>
+                        </div>
+EOF;
+                                                $content = str_replace('<!-- #media# -->', $replace, $content);
                                             }
                                         }
                                         @file_put_contents($dest, $content);
@@ -776,5 +849,26 @@ EOF;
             }
         }
         $this->error('非法访问');
+    }
+
+    /**
+     * 七牛云开关检测
+     */
+    public function ajax_qiniuyun_open()
+    {
+        if (IS_AJAX) {
+            $weappInfo     = Db::name('weapp')->where('code','Qiniuyun')->field('id,status,data')->find();
+            if (empty($weappInfo)) {
+                $this->error('请先安装配置【七牛云图片加速】插件!', null, ['code'=>-1]);
+            } else if (1 != $weappInfo['status']) {
+                $this->error('请先启用【七牛云图片加速】插件!', null, ['code'=>-2,'id'=>$weappInfo['id']]);
+            } else {
+                $Qiniuyun = json_decode($weappInfo['data'], true);
+                if (empty($Qiniuyun)) {
+                    $this->error('请先配置【七牛云图片加速】插件!', null, ['code'=>-3]);
+                }
+            }
+            $this->success('检测通过!');
+        }
     }
 }

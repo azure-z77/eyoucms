@@ -101,6 +101,7 @@ class TagArcview extends Base
         $row = M($addtableName)->field($addfields)->where('aid',$aid)->find();
         if (is_array($row)) {
             $result = array_merge($result, $row);
+            isset($result['total_duration']) && $result['total_duration'] = gmSecondFormat($result['total_duration'], ':');
         } else {
             $saveData = [
                 'aid'           => $aid,

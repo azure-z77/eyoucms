@@ -321,7 +321,34 @@ class TagArclist extends Base
                 }
 
                 /*附加表*/
-                if (!empty($addfields) && !empty($aidArr)) {
+                if (5 == $channeltype) {
+                    $addtableName = $channeltype_table.'_content';
+                    $addfields .= ',courseware,courseware_free,total_duration,total_video';
+                    $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
+                    $addfields = trim($addfields, ',');
+                    /*过滤不相关的字段*/
+                    $addfields_arr = explode(',', $addfields);
+                    $addfields_arr = array_unique($addfields_arr);
+                    $extFields = Db::name($addtableName)->getTableFields();
+                    $addfields_arr = array_intersect($addfields_arr, $extFields);
+                    if (!empty($addfields_arr) && is_array($addfields_arr)) {
+                        $addfields = implode(',', $addfields_arr);
+                    } else {
+                        $addfields = '';
+                    }
+                    /*end*/
+                    !empty($addfields) && $addfields = ','.$addfields;
+                    $resultExt = M($addtableName)->field("aid {$addfields}")->where('aid','in',$aidArr)->getAllWithIndex('aid');
+                    /*自定义字段的数据格式处理*/
+                    $resultExt = $this->fieldLogic->getChannelFieldList($resultExt, $channeltype, true);
+                    /*--end*/
+                    foreach ($result as $key => $val) {
+                        $valExt = !empty($resultExt[$val['aid']]) ? $resultExt[$val['aid']] : array();
+                        $val = array_merge($valExt, $val);
+                        isset($val['total_duration']) && $val['total_duration'] = gmSecondFormat($val['total_duration'], ':');
+                        $result[$key] = $val;
+                    }
+                } else if (!empty($addfields) && !empty($aidArr)) {
                     $addtableName = $channeltype_table.'_content';
                     $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
                     $addfields = trim($addfields, ',');

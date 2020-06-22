@@ -121,7 +121,14 @@
                 </dt>
                 <dd class="opt">
                     <div class="layui-upload">
+                        {empty name="qiniu_open" }
                         <button type="button" class="layui-btn layui-btn-normal" id="buttonList">选择多文件</button>
+                        {else/}
+                        <button type="button" class="layui-btn layui-btn-normal" style="position: relative;z-index: 1;">
+                            七牛云上传
+                            <input type="file" name="file" id="qiniuFile" multiple="multiple" onchange="qiniu_upload(this);" style="position: absolute;top: 0;right: 0;opacity: 0;width: 110px;height: 30px;"/>
+                        </button>
+                        {/empty}
                         <label><input type="checkbox" value="1" {eq name='$is_remote_file' value='1'}checked{/eq} onclick="ClickRemoteFile(this);">远程地址</label>
                         <a href="javascript:void(0);" data-url="{:url('Download/template_set')}" onclick="TemplateSet(this);" {neq name='$is_remote_file' value='1'} style="display: none;" {/neq} id='TemplateSet'>[参数设置]</a>
                         <div class="layui-upload-list">
@@ -357,10 +364,125 @@
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
     // var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft','nowfilename'=>-1))}";
     var server_url   = "{:url('Ueditor/DownloadUploadFile',array('savepath'=>'soft'))}";
+    var admin_id = "{$Think.session.admin_id|default='1'}";
 </script>
 <script src="__SKIN__/js/getting-started.js"></script>
 
 <script type="text/javascript">
+    function qiniu_upload() {
+        var arr = [];
+        for(var i = 0 ;i<document.getElementById("qiniuFile").files.length;i++){
+            //file对象为用户选择的某一个文件
+            file=document.getElementById("qiniuFile").files[i];
+
+            //此时取出这个文件进行处理，这里只是显示文件名
+            var timestamp = new Date().getTime()+'-0';
+            arr[i] = timestamp;
+            $("#demoList").append(
+                '<tr id="upload-'+ timestamp +'">'+
+                '<td>'+ file.name +'</td>'+
+                '<td>'+ (file.size/1014).toFixed(1) +' KB</td>'+
+                '<td>等待上传</td>'+
+                '<td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete" onclick="DeleteFile(this);">移除</button>'+
+                '</td>'+
+                '</tr>'
+            );
+        }
+        var date = new Date();
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        m = m < 10 ? '0' + m : m;
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+
+        //获取token
+        $.ajax({
+            type: 'POST',
+            url: "{:url('Download/qiniu_upload')}",
+            data: {_ajax:1},
+            dataType: "JSON",
+            success: function(res1){
+                if (1 == res1.code){
+                    var token  = res1.data.token;
+                    for(var i = 0 ;i<document.getElementById("qiniuFile").files.length;i++) {
+                        file = document.getElementById("qiniuFile").files[i];
+
+                        var fileName = file.name;
+                        var formData = new FormData();
+                        formData.append('token', token);
+                        //文件路径
+                        formData.append('file', file);
+                        //获取文件拓展名
+                        var fileExt = fileName.substr(fileName.lastIndexOf('.')).toLowerCase();
+                        //三位随机数
+                        var num = round_num();
+                        //七牛云存储文件名
+                        var name = admin_id+'-'+ new Date().getTime()+num+ fileExt;
+                        fileName = res1.data.filePath + y + m + d + "/"+ name;
+                        formData.append('key', fileName);
+                        new Promise(function() {
+                            var tr = $("#upload-" + arr[i]);
+                            var file_mime = file.type;
+                            var file_name = file.name;
+                            var file_size = file.size;
+                            var file_ext = fileExt;
+                            $.ajax({
+                                url: res1.data.uphost,
+                                type: 'POST',
+                                dataType: 'JSON',
+                                data: formData,
+                                timeout: 1200000,
+                                // async: false,
+                                cache: false,  //默认是true，但是一般不做缓存
+                                processData: false, //用于对data参数进行序列化处理，这里必须false；如果是true，就会将FormData转换为String类型
+                                contentType: false,  //一些文件上传http协议的关系，自行百度，如果上传的有文件，那么只能设置为false
+                                xhr: function () { //获取ajaxSettings中的xhr对象，为它的upload属性绑定progress事件的处理函数
+                                    myXhr = $.ajaxSettings.xhr();
+                                    if (myXhr.upload) { //检查upload属性是否存在
+                                        //绑定progress事件的回调函数
+                                        // myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+                                        myXhr.upload.addEventListener('progress', function (e) {
+                                            var curr = e.loaded;
+                                            var total = e.total;
+                                            process = parseInt(curr / total * 100);
+                                            tr.children("td").eq(2).text('上传中...' + process + "%");
+                                        });
+                                    }
+
+                                    return myXhr; //xhr对象返回给jQuery使用
+                                },
+                                success: function (res2) {
+                                    var video_url = res1.data.domain + "/" + res2.key;
+                                    var html = '';
+                                    html += '<input type="hidden" name="fileupload[file_url][]" value="'+ video_url +'">';
+                                    html += '<input type="hidden" name="fileupload[file_mime][]" value="'+file_mime+'">';
+                                    html += '<input type="hidden" name="fileupload[file_name][]" value="'+ file_name +'">';
+                                    html += '<input type="hidden" name="fileupload[file_ext][]" value="'+ file_ext +'">';
+                                    html += '<input type="hidden" name="fileupload[file_size][]" value="'+file_size+'">';
+
+                                    var tds = tr.children();
+                                    tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                                    tds.eq(3).html('<span class="layui-btn layui-btn-xs layui-btn-danger" onclick="DeleteFile(this);">移除</span>'+html);
+
+                                },
+                                error: function (e) {
+                                    showErrorMsg('请求上传失败！');
+                                    return false;
+                                }
+                            });
+                        })
+                    }
+                }else{
+                    showErrorMsg(res1.msg);
+                }
+            },
+            error: function(e){
+                showErrorMsg(e);
+            }
+        });
+
+    }
+
     // 远程/本地上传文件切换
     function ClickRemoteFile(obj)
     {   
@@ -668,6 +790,14 @@
         $("#img_a").attr('href', fileurl_tmp);
         $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
         $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
+    }
+    function round_num() {
+        var num = '';
+        for(var i=0;i<3;i++)
+        {
+            num+=Math.floor(Math.random()*10);
+        }
+        return num;
     }
 </script>
 

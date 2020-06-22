@@ -69,7 +69,7 @@ class Base extends Common {
         }
 
         // 订单超过 get_shop_order_validity 设定的时间，则修改订单为已取消状态，无需返回数据
-        model('Shop')->UpdateShopOrderData($this->users_id);
+        // model('Shop')->UpdateShopOrderData($this->users_id);
 
         // 会员功能是否开启
         $logut_redirect_url = '';

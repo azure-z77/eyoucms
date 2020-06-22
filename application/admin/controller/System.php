@@ -225,6 +225,11 @@ class System extends Base
             empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
             $param['web_login_expiretime'] = $web_login_expiretime;
             /*--end*/
+            
+            /*前台模板风格*/
+            $web_tpl_theme = $param['web_tpl_theme'];
+            $web_tpl_theme_old = tpCache('web.web_tpl_theme');
+            /*--end*/
 
             /*多语言*/
             if (is_language()) {
@@ -254,6 +259,10 @@ class System extends Base
                 }
             }
             /*--end*/
+
+            if ($web_tpl_theme != $web_tpl_theme_old) {
+                delFile(rtrim(RUNTIME_PATH, '/'), true);
+            }
 
             /*更改之后，需要刷新后台的参数*/
             if (false && $web_weapp_switch_old != $web_weapp_switch) {
@@ -293,6 +302,26 @@ class System extends Base
             $is_localhost = 1;
         }
         $this->assign('is_localhost',$is_localhost);
+
+        /*模板风格列表*/
+        $tpl_theme_list = glob('./template/*', GLOB_ONLYDIR);
+        foreach ($tpl_theme_list as $key => &$val) {
+            $val = str_replace('\\', '/', $val);
+            $val = preg_replace('/^(.*)\/([^\/]*)$/i', '${2}', $val);
+        }
+        $this->assign('tpl_theme_list', $tpl_theme_list);
+
+        $show_uiset = '';
+        $web_tpl_theme = !empty($config['web_tpl_theme']) ? $config['web_tpl_theme'].DS : '';
+        if (file_exists(ROOT_PATH.'template'.DS.$web_tpl_theme.'pc'.DS.'uiset.txt') && file_exists(ROOT_PATH.'template'.DS.$web_tpl_theme.'mobile'.DS.'uiset.txt')) {
+            $show_uiset = 'pc+mobile';
+        } else if (file_exists(ROOT_PATH.'template'.DS.$web_tpl_theme.'pc'.DS.'uiset.txt')) {
+            $show_uiset = 'pc';
+        } else if (file_exists(ROOT_PATH.'template'.DS.$web_tpl_theme.'mobile'.DS.'uiset.txt')) {
+            $show_uiset = 'mobile';
+        }
+        $this->assign('show_uiset', $show_uiset);
+        /*end*/
 
         $this->assign('config',$config);//当前配置项
         return $this->fetch();
@@ -695,6 +724,19 @@ class System extends Base
         if (IS_POST) {
             $post = input('post.');
             if (!empty($post)) {
+                // 过滤左右多余空格
+                foreach ($post as $key => $val) {
+                    if (is_array($val)) {
+                        foreach ($val as $_k => $_v) {
+                            if (is_string($_v)) {
+                                $post[$key][$_k] = trim($_v);
+                            }
+                        }
+                    } else if (is_string($_v)) {
+                        $post[$key] = trim($val);
+                    }
+                }
+
                 if (1 == $post['shop']['shop_micro']) {
                     if (empty($post['login']['appid']) || empty($post['login']['appsecret'])) {
                         $post['shop']['shop_micro'] = 0;
@@ -817,20 +859,10 @@ class System extends Base
             // 清除其他临时文件
             $this->clearOtherCache();
 
-            /*兼容每个用户的自定义字段，重新生成数据表字段缓存文件*/
-            $systemTables = ['arctype'];
-            $data = Db::name('channeltype')
-                ->where('nid','NEQ','guestbook')
-                ->column('table');
-            $tables = array_merge($systemTables, $data);
-            foreach ($tables as $key => $table) {
-                if ('arctype' != $table) {
-                    $table = $table.'_content';
-                }
-                try {
-                    schemaTable($table);
-                } catch (\Exception $e) {}
-            }
+            /*重新生成全部数据表字段缓存文件*/
+            try {
+                schemaAllTable();
+            } catch (\Exception $e) {}
             /*--end*/
 
             /*清除旧升级备份包，保留最后一个备份文件*/
@@ -850,8 +882,6 @@ class System extends Base
                 }
             }
             /*--end*/
-
-            // cache('admin_ModuleInitBehavior_isset_checkInlet', 1); // 配合ModuleInitBehavior.php行为的checkInlet方法，进行自动隐藏index.php
 
             $request = Request::instance();
             $gourl = $request->baseFile();
@@ -1216,9 +1246,10 @@ $msg_code = <<<EOF
 {/eyou:user}
 EOF;
 
+$tpl_theme = TPL_THEME;
 $msg = <<<EOF
 <strong>前台会员登录注册标签调用</strong><br>
-比如需要在PC通用头部加入会员入口，复制下方代码在/template/pc/header.htm模板文件里找到合适位置粘贴
+比如需要在PC通用头部加入会员入口，复制下方代码在/template/{$tpl_theme}pc/header.htm模板文件里找到合适位置粘贴
 <br/><br/>
 <div style="color:red">
 {$msg_code}
@@ -1229,9 +1260,10 @@ EOF;
 
                 case 'web_language_switch': // 多语言入口标签
                     {
+$tpl_theme = TPL_THEME;
 $msg = <<<EOF
 <strong>前台多语言切换入口标签调用</strong><br>
-比如需要在PC通用头部加入多语言切换，复制下方代码在/template/pc/header.htm模板文件里找到合适位置粘贴
+比如需要在PC通用头部加入多语言切换，复制下方代码在/template/{$tpl_theme}pc/header.htm模板文件里找到合适位置粘贴
 <br/><br/>
 <div style="color:red">
 {eyou:language type='default'}<br/>
@@ -1315,13 +1347,12 @@ $msg_code = <<<EOF
 &lt;!--购物车组件end--&gt;
 EOF;
 
-// $msg_code = "<pre>".htmlspecialchars($msg_code)."</pre>";
-
+$tpl_theme = TPL_THEME;
 $msg = <<<EOF
 <div style="color:red"> 
 请手工调用最新版的购买行为入口标签，代码验证通过便可启用
 <br/>
-复制下方代码在/template/pc/view_product.htm模板文件里找到合适位置粘贴
+复制下方代码在/template/{$tpl_theme}pc/view_product.htm模板文件里找到合适位置粘贴
 </div>
 <br/>
 <div id='ShopOpenCode'>

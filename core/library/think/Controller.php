@@ -62,6 +62,11 @@ class Controller
     public $version = null;
 
     /**
+     * 模板风格
+     */
+    public $tpl_theme = null;
+
+    /**
      * 是否访问手机版
      */
     public $is_mobile = 0;
@@ -102,9 +107,30 @@ class Controller
             ($this->request->isAjax() && $this->request->method() == 'POST') ? define('IS_AJAX_POST',true) : define('IS_AJAX_POST',false);  // 
         }
 
+        // 模板目录切换
+        null === $this->tpl_theme && $this->tpl_theme = config('ey_config.web_tpl_theme');
+        if (empty($this->tpl_theme)) {
+            if (file_exists(ROOT_PATH.'template/default')) {
+                $this->tpl_theme = 'default/';
+            } else {
+                $this->tpl_theme = '';
+            }
+        } else {
+            if ('default' == $this->tpl_theme && !file_exists(ROOT_PATH.'template/default')) {
+                $this->tpl_theme = '';
+            } else if ('default' != $this->tpl_theme && !file_exists(ROOT_PATH.'template/'.$this->tpl_theme)) {
+                if (in_array($this->request->module(), ['home','user'])) {
+                    $this->error("模板目录【{$this->tpl_theme}】不存在！");
+                }
+            } else {
+                $this->tpl_theme .= '/';
+            }
+        }
+        !defined('TPL_THEME') && define('TPL_THEME', $this->tpl_theme); // 模板目录
+
         $param = input('param.');
         if (isset($param['uiset']) && !session('?admin_id')) {
-            if (!file_exists(ROOT_PATH.'template/pc/uiset.txt') && !file_exists(ROOT_PATH.'template/mobile/uiset.txt')) {
+            if (!file_exists(ROOT_PATH.'template/'.TPL_THEME.'pc/uiset.txt') && !file_exists(ROOT_PATH.'template/'.TPL_THEME.'mobile/uiset.txt')) {
                 abort(404,'页面不存在');
             }
         }
@@ -122,13 +148,17 @@ class Controller
         if ($v == 'mobile') {
             $this->is_mobile = 1;
         }
-        if($this->is_mobile == 1 && file_exists(ROOT_PATH.'template/mobile')) {
-            !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端模板
+
+        if($this->is_mobile == 1 && file_exists(ROOT_PATH.'template/'.$this->tpl_theme.'mobile')) {
+            !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端标识
+            !defined('THEME_STYLE_PATH') && define('THEME_STYLE_PATH', $this->tpl_theme.THEME_STYLE); // 手机端模板根目录
         } else {
-            !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端模板
+            !defined('THEME_STYLE') && define('THEME_STYLE', 'pc'); // pc端标识
+            !defined('THEME_STYLE_PATH') && define('THEME_STYLE_PATH', $this->tpl_theme.THEME_STYLE); // PC端模板根目录
         }
+
         if (in_array($this->request->module(), ['home','user'])) {
-            Config::set('template.view_path', './template/'.THEME_STYLE.'/');
+            Config::set('template.view_path', './template/'.THEME_STYLE_PATH.'/');
         } else if (in_array($this->request->module(), array('admin'))) {
             if ('weapp' == strtolower($this->request->controller()) && 'execute' == strtolower($this->request->action())) {
                 Config::set('template.view_path', '.'.ROOT_DIR.'/'.WEAPP_DIR_NAME.'/'.$this->request->param('sm').'/template/');
@@ -197,12 +227,15 @@ class Controller
 
         /*---------*/
         if ('admin' == MODULE_NAME) {
+            $is_assignValue = false;
             $assignValue = session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4MzRl','MGM0NTY1MTRi']));
             if ($assignValue === null) {
+                $is_assignValue = true;
                 $assignValue = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
             }
             $assignValue = !empty($assignValue) ? $assignValue : 0;
             $assignName = $this->arrJoinStr(['aXNfZXlvdV','9hdXRob3J0b2tlbg==']);
+            true === $is_assignValue && session($this->arrJoinStr(['ZGRjYjY3MDM3YmI4MzRl','MGM0NTY1MTRi']), $assignValue);
             $this->assign($assignName, $assignValue);
         }
         /*--end*/

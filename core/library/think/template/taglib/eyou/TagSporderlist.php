@@ -15,6 +15,7 @@ namespace think\template\taglib\eyou;
 
 use think\Config;
 use think\Db;
+use think\Cookie;
 
 /**
  * 订单列表
@@ -142,23 +143,39 @@ class TagSporderlist extends Base
 
                 if (empty($value['order_status'])) {
                     // 付款地址处理，对ID和订单号加密，拼装url路径
-                    $querydata = [
+                    // $querydata = [
+                    //     'order_id'   => $value['order_id'],
+                    //     'order_code' => $value['order_code']
+                    // ];
+                    // /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
+                    // $querystr = '';
+                    // foreach($querydata as $_qk => $_qv)
+                    // {
+                    //     $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
+                    // }
+                    // $querystr = str_replace('=', '', mchStrCode($querystr));
+                    // $auth_code = tpCache('system.system_auth_code');
+                    // $hash = md5("payment".$querystr.$auth_code);
+                    // /*end*/
+                    // $result['list'][$key]['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+
+                    // 付款地址处理，对ID和订单号加密，拼装url路径
+                    $Paydata = [
                         'order_id'   => $value['order_id'],
-                        'order_code' => $value['order_code'],
+                        'order_code' => $value['order_code']
                     ];
 
-                    /*修复1.4.2漏洞 -- 加密防止利用序列化注入SQL*/
-                    $querystr = '';
-                    foreach($querydata as $_qk => $_qv)
-                    {
-                        $querystr .= $querystr ? "&$_qk=$_qv" : "$_qk=$_qv";
-                    }
-                    $querystr = str_replace('=', '', mchStrCode($querystr));
-                    $auth_code = tpCache('system.system_auth_code');
-                    $hash = md5("payment".$querystr.$auth_code);
-                    /*end*/
-                    
-                    $result['list'][$key]['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail', ['querystr'=>$querystr,'hash'=>$hash]));
+                    // 先 json_encode 后 md5 加密信息
+                    $Paystr = md5(json_encode($Paydata));
+
+                    // 清除之前的 cookie
+                    Cookie::delete($Paystr);
+
+                    // 存入 cookie
+                    cookie($Paystr, $Paydata);
+
+                    // 跳转链接
+                    $result['list'][$key]['PaymentUrl'] = urldecode(url('user/Pay/pay_recharge_detail',['paystr'=>$Paystr]));
                 }
 
                 // 获取订单状态
@@ -168,11 +185,11 @@ class TagSporderlist extends Base
                 // 获取订单支付方式名称
                 $pay_method_arr = Config::get('global.pay_method_arr');
                 if (!empty($value['payment_method']) && !empty($value['pay_name'])) {
-                    $result['list'][$key]['pay_name'] = $pay_method_arr[$value['pay_name']];
-                }else{
+                    $result['list'][$key]['pay_name'] = !empty($pay_method_arr[$value['pay_name']]) ? $pay_method_arr[$value['pay_name']] : '第三方支付';
+                } else {
                     if (!empty($value['pay_name'])) {
-                        $result['list'][$key]['pay_name'] = $pay_method_arr[$value['pay_name']];
-                    }else{
+                        $result['list'][$key]['pay_name'] = !empty($pay_method_arr[$value['pay_name']]) ? $pay_method_arr[$value['pay_name']] : '第三方支付';
+                    } else {
                         $result['list'][$key]['pay_name'] = '在线支付';
                     }
                 }
@@ -190,7 +207,11 @@ class TagSporderlist extends Base
                 $result['list'][$key]['LogisticsInquiry'] = $MobileExpressUrl = '';
                 if (('2' == $value['order_status'] || '3' == $value['order_status']) && empty($value['prom_type'])) {
                     // 物流查询接口
-                    $ExpressUrl = "https://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order']."&callbackurl=".$ReturnUrl;
+                    if (isMobile()) {
+                        $ExpressUrl = "https://m.kuaidi100.com/index_all.html?type=".$value['express_code']."&postid=".$value['express_order']."&callbackurl=".$ReturnUrl;
+                    } else {
+                        $ExpressUrl = "https://www.kuaidi100.com/chaxun?com=".$value['express_code']."&nu=".$value['express_order'];
+                    }
                     // 微信端、小程序使用跳转方式进行物流查询
                     $result['list'][$key]['MobileExpressUrl'] = $ExpressUrl;
                     // PC端，手机浏览器使用弹框方式进行物流查询
@@ -206,11 +227,11 @@ class TagSporderlist extends Base
                 // 更新订单
                 $UpData = [
                     'order_status' => 4,
-                    'update_time'  => getTime(),
+                    'update_time'  => getTime()
                 ];
                 Db::name('shop_order')->where('order_id', 'IN', $OrderIds)->update($UpData);
                 // 追加订单操作记录
-                AddOrderAction($OrderIds_, $this->users_id, '0', '4', '0', '0', '订单过期！', '规格更新后部分产品规格不存在，订单过期！');
+                AddOrderAction($OrderIds_, $this->users_id, 0, 4, 0, 0, '订单过期！', '规格更新后部分产品规格不存在，订单过期！');
             }
 
             // 传入JS参数

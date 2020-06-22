@@ -150,7 +150,7 @@ class Archives extends Model
      * @param intval $typeid 栏目ID
      * @return array
      */
-    private function readContentFirst($typeid)
+    public function readContentFirst($typeid)
     {
         $result = false;
         while (true)
@@ -163,6 +163,7 @@ class Archives extends Model
                     'current_channel' => 6,
                     'is_hidden'       => 0,
                     'status'          => 1,
+                    'is_del'          => 0,
                 );
                 $row = Db::name('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
                 if (empty($row)) { // 不存在并返回当前栏目信息

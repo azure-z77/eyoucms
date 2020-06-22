@@ -255,13 +255,14 @@ class Users extends Model
      * @param   用于添加，不携带数据
      * @author  陈风任 by 2019-2-20
      */
-    public function getDataPara()
+    public function getDataPara($source = '')
     {
         // 字段及内容数据处理
         $where = array(
             'lang'       => $this->home_lang,
             'is_hidden'  => 0,
         );
+        'reg' == $source && $where['is_reg'] = 1;
 
         $row = M('users_parameter')->field('*')
             ->where($where)

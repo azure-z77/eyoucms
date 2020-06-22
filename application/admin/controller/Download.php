@@ -177,7 +177,13 @@ class Download extends Base
         if (IS_POST) {
             $post = input('post.');
             $content = input('post.addonFieldExt.content', '', null);
-
+            if (!empty($post['fileupload'])){
+                foreach ($post['fileupload']['file_url'] as $k => $v){
+                    if (is_http_url($v)){
+                        $post['fileupload']['uhash'][$k] = md5($v);
+                    }
+                }
+            }
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
             if (!empty($seo_keywords)) {
@@ -236,7 +242,7 @@ class Download extends Base
                     'htmlfilename' => $post['htmlfilename'],
                 ])->count();
                 if (!empty($filenameCount)) {
-                    $this->error("自定义文件名已存在,请重新设置!");
+                    $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
 
@@ -287,6 +293,16 @@ class Download extends Base
 
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);
+
+        //七牛云开关信息
+        $assign_data['qiniu_open'] = 0;
+        $qiniu_data = Db::name('channeltype')->where('id',4)->getField('data');
+        if (!empty($qiniu_data)){
+            $qiniu_data = json_decode($qiniu_data, true);
+            if ($qiniu_data['qiniuyun_open'] == 1){
+                $assign_data['qiniu_open'] = 1;
+            }
+        }
 
         /*允许发布文档列表的栏目*/
         $arctype_html = allow_release_arctype($typeid, array($this->channeltype));
@@ -352,7 +368,13 @@ class Download extends Base
             $post = input('post.');
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
-
+            if (!empty($post['fileupload'])){
+                foreach ($post['fileupload']['file_url'] as $k => $v){
+                    if (is_http_url($v)){
+                        $post['fileupload']['uhash'][$k] = md5($v);
+                    }
+                }
+            }
             // 根据标题自动提取相关的关键字
             $seo_keywords = $post['seo_keywords'];
             if (!empty($seo_keywords)) {
@@ -412,7 +434,7 @@ class Download extends Base
                     'htmlfilename' => $post['htmlfilename'],
                 ])->count();
                 if (!empty($filenameCount)) {
-                    $this->error("自定义文件名已存在,请重新设置!");
+                    $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
 
@@ -481,6 +503,15 @@ class Download extends Base
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);
 
+        //七牛云开关信息
+        $assign_data['qiniu_open'] = 0;
+        $qiniu_data = Db::name('channeltype')->where('id',4)->getField('data');
+        if (!empty($qiniu_data)){
+            $qiniu_data = json_decode($qiniu_data, true);
+            if ($qiniu_data['qiniuyun_open'] == 1){
+                $assign_data['qiniu_open'] = 1;
+            }
+        }
         $info['channel'] = $arctypeInfo['current_channel'];
         if (is_http_url($info['litpic'])) {
             $info['is_remote'] = 1;
@@ -610,5 +641,61 @@ class Download extends Base
             $list = Db::name('download_attr_field')->where('field_use',1)->select();
             $this->success("查询成功！", null, $list);
         }
+    }
+
+    /**
+     * 获取七牛云token
+     */
+    public function qiniu_upload()
+    {
+        if (IS_AJAX_POST) {
+            $weappInfo     = Db::name('weapp')->where('code','Qiniuyun')->field('id,status,data')->find();
+            if (empty($weappInfo)) {
+                $this->error('请先安装配置【七牛云图片加速】插件!', null, ['code'=>-1]);
+            } else if (1 != $weappInfo['status']) {
+                $this->error('请先启用【七牛云图片加速】插件!', null, ['code'=>-2,'id'=>$weappInfo['id']]);
+            } else {
+                $Qiniuyun = json_decode($weappInfo['data'], true);
+                if (empty($Qiniuyun)) {
+                    $this->error('请先配置【七牛云图片加速】插件!', null, ['code'=>-3]);
+                } else if (empty($Qiniuyun['domain'])) {
+                    $this->error('请先配置【七牛云图片加速】插件中的域名!', null, ['code'=>-3]);
+                }
+            }
+
+            //引入七牛云的相关文件
+            weapp_vendor('Qiniu.src.Qiniu.Auth', 'Qiniuyun');
+            weapp_vendor('Qiniu.src.Qiniu.Storage.UploadManager', 'Qiniuyun');
+            require_once ROOT_PATH.'weapp/Qiniuyun/vendor/Qiniu/autoload.php';
+
+            // 配置信息
+            $accessKey = $Qiniuyun['access_key'];
+            $secretKey = $Qiniuyun['secret_key'];
+            $bucket    = $Qiniuyun['bucket'];
+            $domain    = '//'.$Qiniuyun['domain'];
+
+            // 区域对应的上传URl
+            $config = new \Qiniu\Config(null);
+            $uphost  = $config->getUpHost($accessKey, $bucket);
+            $uphost = str_replace('http://', '//', $uphost);
+
+            // 生成上传Token
+            $auth = new \Qiniu\Auth($accessKey, $secretKey);
+            $token = $auth->uploadToken($bucket);
+            if ($token) {
+                $filePath = UPLOAD_PATH.'soft/';
+//                $filePath = UPLOAD_PATH.'soft/' . date('Ymd/') . session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
+                $data = [
+                    'token'  => $token,
+                    'domain'  => $domain,
+                    'uphost'  => $uphost,
+                    'filePath'  => $filePath,
+                ];
+                $this->success('获取token成功!', null, $data);
+            } else {
+                $this->error('获取token失败!');
+            }
+        }
+
     }
 }

@@ -209,8 +209,10 @@ class Weapp extends Base
             // URL参数
             $vaules        = array(
                 'domain' => request()->host(true),
+                'ip'    => serverIP(),
                 'code'   => $codeStr,
                 'v'      => $versionStr,
+                // 'dev'   => 1,
             );
             $tmp_str       = 'L2luZGV4LnBocD9tPWFwaSZjPVdlYXBwJmE9Y2hlY2tCYXRjaFZlcnNpb24m';
             $service_url   = base64_decode(config('service_ey')) . base64_decode($tmp_str);
@@ -455,6 +457,7 @@ class Weapp extends Base
                 cache('hooks', null);
                 cache("hookexec_" . $row['code'], null);
                 \think\Cache::clear('hooks');
+                \think\Cache::clear('weapp');
                 /*插件安装的后置操作（可无）*/
                 $this->afterInstall($weapp);
                 /*--end*/
@@ -521,6 +524,7 @@ class Weapp extends Base
                 cache('hooks', null);
                 cache("hookexec_" . $row['code'], null);
                 \think\Cache::clear('hooks');
+                \think\Cache::clear('weapp');
                 /*插件卸载的后置操作（可无）*/
                 $this->afterUninstall($weapp);
                 /*--end*/
@@ -563,6 +567,7 @@ class Weapp extends Base
                 cache("hookexec_" . $row['code'], null);
                 cache('hooks', null);
                 \think\Cache::clear('hooks');
+                \think\Cache::clear('weapp');
                 $this->success('操作成功！', url('Weapp/index'));
                 exit;
             }
@@ -594,6 +599,7 @@ class Weapp extends Base
                 cache("hookexec_" . $row['code'], null);
                 cache('hooks', null);
                 \think\Cache::clear('hooks');
+                \think\Cache::clear('weapp');
                 $this->success('操作成功！', url('Weapp/index'));
                 exit;
             }
@@ -981,7 +987,7 @@ class Weapp extends Base
                 $post[$key] = str_replace("'", "\'", $val);
             }
 
-            $code = trim($post['code']);
+            $code = $post['code'] = trim($post['code']);
             if (!preg_match('/^[A-Z]([a-zA-Z0-9]*)$/', $code)) {
                 $this->error('插件标识格式不正确！');
             }
@@ -1043,6 +1049,30 @@ class Weapp extends Base
             $puts = @file_put_contents(WEAPP_DIR_NAME . DS . $code . DS . 'config.php', $strConfig); //配置文件的地址
             if (!$puts) {
                 $this->error('替换插件信息失败，请设置目录权限为 755！');
+            }
+            /*--end*/
+
+            /*推送插件标识到服务器，确保唯一性*/
+            $service_ey = base64_decode(config('service_ey'));
+            $url        = "{$service_ey}/index.php?m=api&c=Weapp&a=push_add_authorization";
+            $config = $post;
+            $configData = include WEAPP_DIR_NAME . DS . $code . DS . 'config.php';
+            !empty($configData) && $config = array_merge($config, $configData);
+            $post_data = [
+                'code'  => $code,
+                'config'    => json_encode($config),
+                'name'  => $config['name'],
+                'description'  => $config['description'],
+            ];
+            $post_data = mchStrCode(json_encode($post_data), 'ENCODE', 'hln');
+            $postData = [
+                'post_data' => $post_data,
+                'version'   => getCmsVersion(),
+            ];
+            $response   = httpRequest2($url, "POST", $postData);
+            $params = json_decode($response, true);
+            if (empty($params['code'])) {
+                $msg = !empty($params['msg']) ? $params['msg'] : '同步插件信息到服务器失败！';
             }
             /*--end*/
 
@@ -1225,9 +1255,10 @@ class Weapp extends Base
      */
     public function ajax_check_code($code)
     {
+        $version = getCmsVersion();
         $service_ey = base64_decode(config('service_ey'));
-        $url        = "{$service_ey}/index.php?m=api&c=Weapp&a=checkIsCode&code={$code}";
-        $response   = httpRequest($url, "GET");
+        $url        = "{$service_ey}/index.php?m=api&c=Weapp&a=checkIsCode&code={$code}&version={$version}";
+        $response   = httpRequest2($url, "GET");
         if (1 == intval($response)) {
             $this->success('插件标识可使用！', url('Weapp/create'));
         } else if (-1 == intval($response)) {
@@ -1315,6 +1346,9 @@ class Weapp extends Base
             return ['code' => 0, 'msg' => '该插件包不存在']; // 文件存在直接退出
         }
         $file = httpRequest($fileUrl);
+        if (preg_match('#__HALT_COMPILER()#i', $file)) {
+            return ['code' => 0, 'msg' => '下载包损坏，请联系官方客服！'];
+        }
         curl_close ($ch);
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
@@ -1370,6 +1404,12 @@ class Weapp extends Base
 
     public function downloadInstall($url)
     {
+        $parse_data = parse_url($url);
+        // if (empty($parse_data['host']) || GetUrlToDomain($parse_data['host']) != 'eyoucms.com') {
+        if (empty($parse_data['host'])) {
+            $this->error('该云插件下载链接出错！', url('Weapp/plugin'));
+        }
+        
         /*远程下载文件start*/
         $savePath   = UPLOAD_PATH . 'tmp' . DS;//保存路径
         $folderName = session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
@@ -1485,6 +1525,7 @@ class Weapp extends Base
                 if ($result['is_buy'] == 1){
                     $r = Db::name('weapp')->where('id',$id)->update(['is_buy'=>2]);
                     if ($r) {
+                        \think\Cache::clear('weapp');
                         $res = ['code'=>1,'msg'=>'删除成功'];
                         respose($res);
                     } else {
