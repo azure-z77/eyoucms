@@ -1,19 +1,19 @@
 {eyou:eq name='$data.transaction_type' value='2'}
     <li class="text-xs-center pay-order-zhifubao" data-toggle="modal" data-target="#pay-order-modal">
-        <a class="block cover pay-online" href="JavaScript:void(0);" id="BalancePayment" onclick="BalancePayment();">
+        <a class="block cover pay-online" href="JavaScript:void(0);" id="PayBalancePayment" onclick="PayBalancePayment();">
             <img src="{eyou:global name='web_templets_pc' /}/users/skin/images/pay_yiyou.png" class="img-fluid inline-block">
         </a>
         拥有余额：￥{$users.users_money}
     </li>
     <script type="text/javascript">
         // 余额支付，仅用于购买商品时支付
-        function BalancePayment() {
+        function PayBalancePayment() {
             var unified_id     = '{$data.unified_id}';
             var unified_number = '{$data.unified_number}';
             if (!unified_number || !unified_id) layer.msg('订单号异常，请刷新重试', {time: 2000});
 
             // 禁止再次点击余额支付
-            $('#BalancePayment').prop("disabled", true).css("pointer-events", "none");
+            $('#PayBalancePayment').prop("disabled", true).css("pointer-events", "none");
 
             // 发送请求
             layer_loading('订单处理中');
@@ -36,19 +36,20 @@
                             window.location.href = res.url;
                         });
                     } else {
-                        IsRecharge(res.msg, res.url);
+                        PayIsRecharge(res.msg, res.url);
                     }
                 }
             });
         }
 
         // 是否要去充值
-        function IsRecharge(msg ,url) {
+        function PayIsRecharge(msg ,url) {
             layer.confirm(msg, {
                 title: false,
+                closeBtn: 0,
                 btn: ['去充值','其他方式支付'],
                 cancel: function(index, layero){ 
-                    $('#BalancePayment').prop("disabled", false).css("pointer-events", "");
+                    $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
                 }
             }, function() {
                 // 去充值
@@ -56,22 +57,23 @@
                 
                 layer.confirm('充值成功？ 是否立即支付？', {
                     title: false,
+                    closeBtn: 0,
                     btn: ['立即支付','其他方式支付'],
                     cancel: function(index, layero){ 
-                        $('#BalancePayment').prop("disabled", false).css("pointer-events", "");
+                        $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
                     }
                 }, function() {
                     // 立即支付
-                    BalancePayment();
+                    PayBalancePayment();
 
                 }, function(index) {
                     // 选择其他方式支付时，恢复禁用的余额支付按钮
-                    $('#BalancePayment').prop("disabled", false).css("pointer-events", "");
+                    $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
                     layer.closeAll(index);
                 });
             }, function(index) {
                 // 选择其他方式支付时，恢复禁用的余额支付按钮
-                $('#BalancePayment').prop("disabled", false).css("pointer-events", "");
+                $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
                 layer.closeAll(index);
             });
         }

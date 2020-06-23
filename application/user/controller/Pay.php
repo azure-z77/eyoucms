@@ -118,10 +118,12 @@ class Pay extends Base
     {
         if (IS_AJAX_POST) {
             // 获取微信配置信息
-            $pay_wechat_config = !empty($this->usersConfig['pay_wechat_config']) ? unserialize($this->usersConfig['pay_wechat_config']) : [];
+            // $pay_wechat_config = !empty($this->usersConfig['pay_wechat_config']) ? unserialize($this->usersConfig['pay_wechat_config']) : [];
+            $pay_wechat_config = [];
             
             // 获取支付宝配置信息
-            $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
+            // $pay_alipay_config = !empty($this->usersConfig['pay_alipay_config']) ? unserialize($this->usersConfig['pay_alipay_config']) : [];
+            $pay_alipay_config = [];
 
             // 都为空则返回
             $is_open_wechat = 0;
@@ -137,21 +139,52 @@ class Pay extends Base
                         if (!empty($value['pay_info'])) {
                             if ('wechat' == $value['pay_mark']) $is_open_wechat = 0;
                             
-                            $ValuePayInfo = unserialize($value['pay_info']);
-                            if ('wechat' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_wechat']) {
-                                $is_open_wechat = 1;
-                                unset($PayApiList[$key]);
-                            } else if ('alipay' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_alipay']) {
-                                unset($PayApiList[$key]);
-                            } else if (0 == $value['system_built']) {
-                                if (1 == $ValuePayInfo['is_open_pay']) {
-                                    unset($PayApiList[$key]);
+                            $PayInfo = unserialize($value['pay_info']);
+                            if ('wechat' == $value['pay_mark']) {
+                                if (0 == $PayInfo['is_open_wechat']) {
+                                    if (empty($PayInfo['appid']) || empty($PayInfo['mchid']) || empty($PayInfo['key'])) {
+                                        $is_open_wechat = 1;
+                                        unset($PayApiList[$key]);
+                                    }
                                 } else {
-                                    foreach ($ValuePayInfo as $kk => $vv) {
+                                    $is_open_wechat = 1;
+                                    unset($PayApiList[$key]);
+                                }
+                            } else if ('alipay' == $value['pay_mark']) {
+                                if (0 == $PayInfo['is_open_alipay']) {
+                                    if (version_compare(PHP_VERSION,'5.5.0','<')) {
+                                        // 旧版支付宝
+                                        if (empty($PayInfo['account']) || empty($PayInfo['code']) || empty($PayInfo['id'])) {
+                                            unset($PayApiList[$key]);
+                                        }
+                                    } else {
+                                        if (1 == $PayInfo['version']) {
+                                            // 旧版支付宝
+                                            if (empty($PayInfo['account']) || empty($PayInfo['code']) || empty($PayInfo['id'])) {
+                                                unset($PayApiList[$key]);
+                                            }
+                                        } else {
+                                            // 新版支付宝
+                                            if (empty($PayInfo['app_id']) || empty($PayInfo['merchant_private_key']) || empty($PayInfo['alipay_public_key'])) {
+                                                unset($PayApiList[$key]);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    unset($PayApiList[$key]);
+                                }
+                            } else if (0 == $value['system_built']) {
+                                if (0 == $PayInfo['is_open_pay']) {
+                                    foreach ($PayInfo as $kk => $vv) {
                                         if ('is_open_pay' != $kk && empty($vv)) {
                                             unset($PayApiList[$key]); break;
                                         }
                                     }
+                                } else {
+                                    unset($PayApiList[$key]);
+                                }
+                                if (!empty($PayApiList[$key])) {
+                                    $PayApiList[$key]['pay_img'] = get_default_pic('/weapp/'.$value['pay_mark'].'/pay.png');
                                 }
                             }
                         } else {

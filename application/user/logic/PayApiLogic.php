@@ -256,6 +256,7 @@ class PayApiLogic extends Model
     {
         $alipay_url = null;
         if (!empty($Order) && !empty($PayInfo)) {
+            $Order['transaction_type'] = $Post['transaction_type'];
             if (version_compare(PHP_VERSION,'5.5.0','<')) {
                 // 低于5.5版本，仅可使用旧版支付宝支付
                 $alipay_url = model('PayApi')->getOldAliPayPayUrl($Order, $PayInfo);
@@ -266,12 +267,12 @@ class PayApiLogic extends Model
                     $AliPayResult = [
                         'unified_number'   => $Order['unified_number'],
                         'unified_amount'   => $Order['unified_amount'],
-                        'transaction_type' => $Post['transaction_type']
+                        'transaction_type' => $Order['transaction_type']
                     ];
                     $alipay_url = url('user/Pay/newAlipayPayUrl', $AliPayResult);
                 } else if ($PayInfo['version'] == 1){
                     // 旧版
-                    $alipay_url = model('PayApi')->getOldAliPayPayUrl($data, $PayInfo);
+                    $alipay_url = model('PayApi')->getOldAliPayPayUrl($Order, $PayInfo);
                 }
             }
         }
@@ -314,36 +315,40 @@ class PayApiLogic extends Model
     // 支付宝支付订单处理
     public function AliPayPayProcessing($Post = [], $Order = [], $PayInfo = [], $Config = [])
     {
-        vendor('alipay.pagepay.service.AlipayTradeService');
-        vendor('alipay.pagepay.buildermodel.AlipayTradeQueryContentBuilder');
+        if (!empty($PayInfo) && 0 == $PayInfo['version']) {
+            vendor('alipay.pagepay.service.AlipayTradeService');
+            vendor('alipay.pagepay.buildermodel.AlipayTradeQueryContentBuilder');
 
-        // 实例化加载订单号
-        $RequestBuilder = new \AlipayTradeQueryContentBuilder;
-        $OutTradeNo     = trim($Order['unified_number']);
-        $RequestBuilder->setOutTradeNo($OutTradeNo);
+            // 实例化加载订单号
+            $RequestBuilder = new \AlipayTradeQueryContentBuilder;
+            $OutTradeNo     = trim($Order['unified_number']);
+            $RequestBuilder->setOutTradeNo($OutTradeNo);
 
-        // 拼装配置
-        $ApiConfig['app_id']     = $PayInfo['app_id'];
-        $ApiConfig['merchant_private_key'] = $PayInfo['merchant_private_key'];
-        $ApiConfig['charset']    = 'UTF-8';
-        $ApiConfig['sign_type']  = 'RSA2';
-        $ApiConfig['gatewayUrl'] = 'https://openapi.alipay.com/gateway.do';
-        $ApiConfig['alipay_public_key'] = $PayInfo['alipay_public_key'];
+            // 拼装配置
+            $ApiConfig['app_id']     = $PayInfo['app_id'];
+            $ApiConfig['merchant_private_key'] = $PayInfo['merchant_private_key'];
+            $ApiConfig['charset']    = 'UTF-8';
+            $ApiConfig['sign_type']  = 'RSA2';
+            $ApiConfig['gatewayUrl'] = 'https://openapi.alipay.com/gateway.do';
+            $ApiConfig['alipay_public_key'] = $PayInfo['alipay_public_key'];
 
-        // 实例化支付宝配置
-        $AlipayTradeService = new \AlipayTradeService($ApiConfig);
-        $AliPayOrder = $AlipayTradeService->Query($RequestBuilder);
-        
-        // 解析数据
-        $AliPayOrder = json_decode(json_encode($AliPayOrder), true);
+            // 实例化支付宝配置
+            $AlipayTradeService = new \AlipayTradeService($ApiConfig);
+            $AliPayOrder = $AlipayTradeService->Query($RequestBuilder);
+            
+            // 解析数据
+            $AliPayOrder = json_decode(json_encode($AliPayOrder), true);
 
-        if ('40004' == $AliPayOrder['code'] && 'Business Failed' === $AliPayOrder['msg']) {
-            $this->success('正在建立订单信息');
-        } else if ('10000' == $AliPayOrder['code'] && 'WAIT_BUYER_PAY' === $AliPayOrder['trade_status']) {
-            $this->success('订单已建立，尚未支付');
-        } else if ('10000' == $AliPayOrder['code'] && 'TRADE_SUCCESS' === $AliPayOrder['trade_status']) {
-            // 已经支付，处理订单
-            $this->OrderProcessing($Post, $Order, $AliPayOrder, $Config);
+            if ('40004' == $AliPayOrder['code'] && 'Business Failed' === $AliPayOrder['msg']) {
+                $this->success('正在建立订单信息');
+            } else if ('10000' == $AliPayOrder['code'] && 'WAIT_BUYER_PAY' === $AliPayOrder['trade_status']) {
+                $this->success('订单已建立，尚未支付');
+            } else if ('10000' == $AliPayOrder['code'] && 'TRADE_SUCCESS' === $AliPayOrder['trade_status']) {
+                // 已经支付，处理订单
+                $this->OrderProcessing($Post, $Order, $AliPayOrder, $Config);
+            }
+        } else {
+            $this->success('订单支付中');
         }
     }
 
@@ -691,7 +696,7 @@ class PayApiLogic extends Model
             if (!empty($ReturnID)) {
                 // 支付宝处理返回信息
                 $MoneyData = $this->GetMoneyData('*', $Post['order_number']);
-                return $AddMoneyData;
+                return $MoneyData;
             }
         }
     }

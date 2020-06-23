@@ -39,12 +39,12 @@ class PayApi extends Base {
      */
     public function pay_api_index()
     {
-        $list = $this->pay_api_config_db->where('status', 1)->select();
+        $list = $this->pay_api_config_db->where('status', 1)->order('pay_id asc')->select();
         foreach ($list as $key => $val) {
             if (1 == $val['system_built']) {
-                $val['litpic'] = $this->root_dir."/public/static/admin/images/{$val['pay_mark']}.png";
+                $val['litpic'] = $this->root_dir . "/public/static/admin/images/{$val['pay_mark']}.png";
             } else {
-                $val['litpic'] = $this->root_dir."/weapp/{$val['pay_mark']}/logo.png";
+                $val['litpic'] = $this->root_dir . "/weapp/{$val['pay_mark']}/logo.png";
             }
             $list[$key] = $val;
         }

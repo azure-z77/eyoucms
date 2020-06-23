@@ -119,17 +119,55 @@ class TagGuestbookform extends Base
 
                 //是否必填（js判断）
                 if (!empty($val['required'])){
-                    $check_js .= "
-                        if(x[i].name == '".'attr_'.$val['attr_id']."' && x[i].value.length == 0){
-                            alert('".$val['attr_name']."不能为空！');
-                            return false;
-                        }
-                    ";
+                    
+                    if ($val['attr_input_type'] == 4) { // 多选框
+                        $check_js .= "
+                            if(x[i].name == 'attr_".$val['attr_id']."[]'){
+                                var names = document.getElementsByName('attr_".$val['attr_id']."[]');    
+                                var flag = false ; //标记判断是否选中一个               
+                                for(var j=0; j<names.length; j++){
+                                    if(names[j].checked){
+                                        flag = true ;
+                                        break ;
+                                     }
+                                 }
+                                 if(!flag){
+                                    alert('".$val['attr_name']."至少选择一项！');
+                                    return false;
+                                 }
+                            }
+                        ";
+                    } else if ($val['attr_input_type'] == 3) { // 单选框
+                        $check_js .= "
+                            if(x[i].name == 'attr_".$val['attr_id']."'){
+                                var names = document.getElementsByName('attr_".$val['attr_id']."');    
+                                var flag = false ; //标记判断是否选中一个               
+                                for(var j=0; j<names.length; j++){
+                                    if(names[j].checked){
+                                        flag = true ;
+                                        break ;
+                                     }
+                                 }
+                                 if(!flag){
+                                    alert('请选择".$val['attr_name']."！');
+                                    return false;
+                                 }
+                            }
+                        ";
+                    } else {
+                        $check_js .= "
+                            if(x[i].name == 'attr_".$val['attr_id']."' && x[i].value.length == 0){
+                                alert('".$val['attr_name']."不能为空！');
+                                return false;
+                            }
+                        ";
+                    }
                 }
+
                 //是否正则限制（js判断）
                 if (!empty($val['validate_type']) && !empty($validate_type_list[$val['validate_type']]['value'])){
                     $check_js .= " 
-                    if(x[i].name == '".'attr_'.$val['attr_id']."' && !(".$validate_type_list[$val['validate_type']]['value'].".test( x[i].value))){
+                    if(x[i].name == 'attr_".$val['attr_id']."' && !(".$validate_type_list[$val['validate_type']]['value'].".test( x[i].value))){
                         alert('".$val['attr_name']."格式不正确！');
                         return false;
                     }

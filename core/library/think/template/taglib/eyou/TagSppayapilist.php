@@ -72,7 +72,7 @@ class TagSppayapilist extends Base
 
         if (!empty($PayData['moneyid']) && !empty($PayData['order_number'])) {
             // 充值信息
-            $moneyid = !empty($PayData['moneyid']) ? intval($PayData['moneyid']) : 0;
+            $money_id = !empty($PayData['moneyid']) ? intval($PayData['moneyid']) : 0;
             $money_code = !empty($PayData['order_number']) ? $PayData['order_number'] : '';
         } else if (!empty($PayData['order_id']) && !empty($PayData['order_code'])) {
             // 订单信息
@@ -85,6 +85,7 @@ class TagSppayapilist extends Base
         $JsonData['unified_number']   = '';
         $JsonData['transaction_type'] = 3; // 交易类型，3为会员升级
 
+        $Result = [];
         if (is_array($PayData) && (!empty($order_id) || !empty($money_id)) && (!empty($money_code) || !empty($order_code))) {
             $Result = [];
             if (!empty($money_id)) {
@@ -142,21 +143,49 @@ class TagSppayapilist extends Base
         if (!empty($PayApiList)) {
             foreach ($PayApiList as $key => $value) {
                 $PayApiList[$key]['pay_img'] = '';
+                $PayApiList[$key]['hidden'] = '';
                 if (!empty($value['pay_info'])) {
-                    $ValuePayInfo = unserialize($value['pay_info']);
-                    if ('wechat' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_wechat']) {
-                        unset($PayApiList[$key]);
-                    } else if ('alipay' == $value['pay_mark'] && 1 == $ValuePayInfo['is_open_alipay']) {
-                        unset($PayApiList[$key]);
-                    } else if (0 == $value['system_built']) {
-                        if (1 == $ValuePayInfo['is_open_pay']) {
-                            unset($PayApiList[$key]);
+                    $PayInfo = unserialize($value['pay_info']);
+                    if ('wechat' == $value['pay_mark']) {
+                        if (0 == $PayInfo['is_open_wechat']) {
+                            if (empty($PayInfo['appid']) || empty($PayInfo['mchid']) || empty($PayInfo['key'])) {
+                                unset($PayApiList[$key]);
+                            }
                         } else {
-                            foreach ($ValuePayInfo as $kk => $vv) {
+                            unset($PayApiList[$key]);
+                        }
+                    } else if ('alipay' == $value['pay_mark']) {
+                        if (0 == $PayInfo['is_open_alipay']) {
+                            if (version_compare(PHP_VERSION,'5.5.0','<')) {
+                                // 旧版支付宝
+                                if (empty($PayInfo['account']) || empty($PayInfo['code']) || empty($PayInfo['id'])) {
+                                    unset($PayApiList[$key]);
+                                }
+                            } else {
+                                if (1 == $PayInfo['version']) {
+                                    // 旧版支付宝
+                                    if (empty($PayInfo['account']) || empty($PayInfo['code']) || empty($PayInfo['id'])) {
+                                        unset($PayApiList[$key]);
+                                    }
+                                } else {
+                                    // 新版支付宝
+                                    if (empty($PayInfo['app_id']) || empty($PayInfo['merchant_private_key']) || empty($PayInfo['alipay_public_key'])) {
+                                        unset($PayApiList[$key]);
+                                    }
+                                }
+                            }
+                        } else {
+                            unset($PayApiList[$key]);
+                        }
+                    } else if (0 == $value['system_built']) {
+                        if (0 == $PayInfo['is_open_pay']) {
+                            foreach ($PayInfo as $kk => $vv) {
                                 if ('is_open_pay' != $kk && empty($vv)) {
                                     unset($PayApiList[$key]); break;
                                 }
                             }
+                        } else {
+                            unset($PayApiList[$key]);
                         }
                         if (!empty($PayApiList[$key])) {
                             $PayApiList[$key]['pay_img'] = get_default_pic('/weapp/'.$value['pay_mark'].'/pay.png');
@@ -177,14 +206,19 @@ class TagSppayapilist extends Base
         $version   = getCmsVersion();
         // 循环中第一个数据带上JS代码加载
         if (!empty($PayApiList)) {
-            $PayApiList[$key]['hidden'] = <<<EOF
+            foreach ($PayApiList as $key => $value) {
+                if (!empty($value)) {
+                    $PayApiList[$key]['hidden'] = <<<EOF
 <script type="text/javascript">
     var eyou_data_json_1590627847 = {$JsonData};
 </script>
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_sppayapilist.js?v={$version}"></script>
 EOF;
+                break;
+                }
+            }
         }
-        
+
         return $PayApiList;
     }
 }
