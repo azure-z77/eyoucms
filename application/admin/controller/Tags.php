@@ -46,7 +46,65 @@ class Tags extends Base
         $this->assign('pager',$pager);// 赋值分页对象
         return $this->fetch();
     }
-    
+ 
+    public function tag_list()
+    {
+        /*纠正tags标签的文档数*/
+        $this->correct();
+        /*end*/
+
+        // 多语言
+        $condition['lang'] = array('eq', $this->admin_lang);
+
+        $tagsM =  M('tagindex');
+
+        $count = $tagsM->where($condition)->count('id');
+        $Page = $pager = new Page($count, 100);
+        $show = $Page->show();
+
+        $order = 'total desc, id desc, monthcc desc, weekcc desc';
+        $list = $tagsM->where($condition)->order($order)->limit($Page->firstRow . ',' . $Page->listRows)->select();
+        
+        $this->assign('page',$show);
+        $this->assign('list',$list);
+        $this->assign('pager',$pager);
+
+        return $this->fetch();
+    }
+
+    /**
+     * 编辑
+     */    
+    public function edit()
+    {
+        if (IS_POST) {
+            $post = input('post.');
+            if (empty($post['id'])) $this->error('操作异常');
+            $updata = [
+                'add_time' => time(),
+                'seo_title' => !empty($post['tag_seo_title']) ? $post['tag_seo_title'] : '',
+                'seo_keywords' => !empty($post['tag_seo_keywords']) ? $post['tag_seo_keywords'] : '',
+                'seo_description' => !empty($post['tag_seo_description']) ? $post['tag_seo_description'] : ''
+            ];
+            $ResultID = Db::name('tagindex')->where('id', $post['id'])->update($updata);
+            if (!empty($ResultID)) {
+                $this->success('操作成功');
+            } else {
+                $this->error('操作异常');
+            }
+        }
+
+        $id = input('id/d');
+        if (empty($id)) $this->error('操作异常');
+
+        $Result = Db::name('tagindex')->where('id', $id)->find();
+        if (empty($Result)) $this->error('操作异常');
+        $this->assign('tag', $Result);
+
+        $this->assign('backurl', url('Tags/index'));
+        return $this->fetch();
+    }
+
     /**
      * 删除
      */

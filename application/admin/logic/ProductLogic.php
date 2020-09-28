@@ -30,6 +30,8 @@ class ProductLogic extends Model
     public function getAttrInput($aid, $typeid)
     {
         header("Content-type: text/html; charset=utf-8");
+        $aid = intval($aid);
+        $typeid = intval($typeid);
         $productAttribute = model('ProductAttribute');
         $attributeList = $productAttribute->where(['typeid'=>$typeid, 'is_del'=>0])->order('sort_order asc, attr_id asc')->select();
         $str = '';
@@ -109,6 +111,9 @@ EOF;
     public function getShopAttrInput($aid, $typeid, $list_id)
     {
         header("Content-type: text/html; charset=utf-8");
+        $aid = intval($aid);
+        $typeid = intval($typeid);
+        $list_id = intval($list_id);
         $where = [
             'is_del' => 0
         ];
@@ -193,11 +198,15 @@ EOF;
      */
     public function getProductAttrVal($product_attr_id = 0 ,$aid = 0, $attr_id = 0)
     {
+        $product_attr_id = intval($product_attr_id);
+        $aid = intval($aid);
+        $attr_id = intval($attr_id);
+
         $productAttr = M('ProductAttr');        
         if($product_attr_id > 0)
-            return $productAttr->where("product_attr_id = $product_attr_id")->select(); 
+            return $productAttr->where(['product_attr_id'=>$product_attr_id])->select(); 
         if($aid > 0 && $attr_id > 0)
-            return $productAttr->where("aid = $aid and attr_id = $attr_id")->select();        
+            return $productAttr->where(['aid'=>$aid,'attr_id'=>$attr_id])->select();        
     }
 
     /**
@@ -209,14 +218,18 @@ EOF;
      */
     public function getShopProductAttrVal($product_attr_id = 0 ,$aid = 0, $attr_id = 0)
     {
+        $product_attr_id = intval($product_attr_id);
+        $aid = intval($aid);
+        $attr_id = intval($attr_id);
+
         $ShopProductAttr = M('ShopProductAttr');
         
         if($product_attr_id > 0) {
-            return $ShopProductAttr->where("product_attr_id = $product_attr_id")->select();
+            return $ShopProductAttr->where(['product_attr_id'=>$product_attr_id])->select();
         }
 
         if($aid > 0 && $attr_id > 0) {
-            return $ShopProductAttr->where("aid = $aid and attr_id = $attr_id")->select();
+            return $ShopProductAttr->where(['aid'=>$aid,'attr_id'=>$attr_id])->select();
         }
     }
 
@@ -227,6 +240,9 @@ EOF;
      */
     public function saveProductAttr($aid, $typeid)
     {  
+        $aid = intval($aid);
+        $typeid = intval($typeid);
+
         $productAttr = M('ProductAttr');
                 
         // 属性类型被更改了 就先删除以前的属性类型 或者没有属性 则删除        
@@ -290,6 +306,9 @@ EOF;
      */
     public function saveShopProductAttr($aid, $typeid)
     {  
+        $aid = intval($aid);
+        $typeid = intval($typeid);
+        
         $ShopProductAttr = Db::name('ShopProductAttr');
         // 属性类型被更改了 就先删除以前的属性类型 或者没有属性 则删除
         if($typeid == 0) {

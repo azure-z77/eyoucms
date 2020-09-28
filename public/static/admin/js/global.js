@@ -32,7 +32,143 @@ $(function(){
             }
         });
     }
+
+    /*TAG标签选中与取消处理*/
+    $('.TagIndex1591690114').click(function() {
+        if ($(this).html() && $(this).data('id')) {
+            /*读取原有数据*/
+            var id  = $(this).data('id');
+            var tag = $(this).html();
+            var tagOldSelectID  = $('#TagOldSelectID').val();
+            var tagOldSelectTag = $('#TagOldSelectTag').val();
+            /*END*/
+            if (tagOldSelectID) {
+                /*处理原有数据*/
+                var tagOldSelectNew = tagOldSelectID.split(',');
+                var index = $.inArray(String(id), tagOldSelectNew);
+                if (index == -1) {
+                    /*追加新数据*/
+                    tagOldSelectID  += ',' + id;
+                    tagOldSelectTag += ',' + tag;
+                    /*END*/
+                } else {
+                    /*删除原有数据*/
+                    tagOldSelectNew.splice(index, 1);
+                    tagOldSelectID  = tagOldSelectNew.join(',');
+                    tagOldSelectTag = tagOldSelectTag.split(',');
+                    tagOldSelectTag.splice(index, 1);
+                    tagOldSelectTag = tagOldSelectTag.join(',');
+                    /*END*/
+                }
+                /*END*/
+            } else {
+                /*追加新数据*/
+                tagOldSelectID  = id;
+                tagOldSelectTag = tag;
+                /*END*/
+            }
+            $('#TagOldSelectID, #NewTagOldSelectID').val(tagOldSelectID);
+            $('#TagOldSelectTag, #NewTagOldSelectTag, #tags').val(tagOldSelectTag);
+        }
+    });
+    /*END*/
 });
+ 
+/*TAG标签代码*/
+/*打开ATG快捷选择列表*/
+function TagListSelect1591784354(obj) {
+    var url = eyou_basefile + "?m="+module_name+"&c=Tags&a=tag_list&lang=" + __lang__;
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: 'TAG标签选择',
+        fixed: true, //不固定
+        shadeClose: false,
+        shade: 0.3,
+        maxmin: false, //开启最大化最小化按钮
+        area: ['80%', '80%'],
+        content: url,
+        cancel: function () {
+            $('#TagOldSelectID').val($('#NewTagOldSelectID').val());
+            $('#TagOldSelectTag').val($('#NewTagOldSelectTag').val());
+        }
+    });
+}
+
+/*通过TAGID删除对应数据*/
+function UseTagIDDel1591784354(obj) {
+    // 获取已选中的tag标签ID
+    var tagOldSelectID = $('#TagOldSelectID').val();
+    // 获取已选中的tag标签Tag
+    var tagOldSelectTag = $('#TagOldSelectTag').val();
+    // 获取当前点击的tag标签ID
+    var id = $(obj).attr('data-id');
+    if (tagOldSelectID) {
+        // 将字符串转成数组，判断tag标签ID是否已存在
+        var tagOldSelectID = tagOldSelectID.split(',');
+        // 将字符串转成数组，判断tag标签ID是否已存在
+        var tagOldSelectTag = tagOldSelectTag.split(',');
+        // 是否存在，存在则返回下标
+        var index = $.inArray(String(id), tagOldSelectID);
+        // 若存在则执行
+        if (index != -1) {
+            // 删除指定tag的ID
+            tagOldSelectID.splice(index, 1);
+            // 将数组转成字符串
+            tagOldSelectID = tagOldSelectID.join(',');
+            // 赋值给已选中的tag标签ID隐藏域
+            $('#TagOldSelectID, #NewTagOldSelectID').val(tagOldSelectID);
+
+            // 删除指定tag的名称
+            tagOldSelectTag.splice(index, 1);
+            // 将数组转成字符串
+            tagOldSelectTag = tagOldSelectTag.join(',');
+            // 赋值给已选中的tag标签名称隐藏域
+            $('#tags').show().val(tagOldSelectTag).hide();
+            $('#TagOldSelectTag, #NewTagOldSelectTag').val(tagOldSelectTag);
+        }
+    }
+    // 删除自身
+    $(obj).parent().remove();
+}
+/*END*/
+
+/*通过TAG名称删除对应数据*/
+function UseTagNameDel1591784354(obj) {
+    // 获取已选中的tag标签ID
+    var tagOldSelectID = $('#TagOldSelectID').val();
+    // 获取已选中的tag标签Tag
+    var tagOldSelectTag = $('#TagOldSelectTag').val();
+    // 获取当前点击的tag标签Tag
+    var Tag = $(obj).val();
+    if (tagOldSelectID && tagOldSelectTag) {
+        // 将字符串转成数组，判断tag标签ID是否已存在
+        var tagOldSelectID = tagOldSelectID.split(',');
+        // 将字符串转成数组，判断tag标签ID是否已存在
+        var tagOldSelectTag = tagOldSelectTag.split(',');
+        // 是否存在，存在则返回下标
+        var index = $.inArray(String(Tag), tagOldSelectTag);
+        // 若存在则执行
+        if (index != -1) {
+            // 删除指定tag的ID
+            tagOldSelectID.splice(index, 1);
+            // 将数组转成字符串
+            tagOldSelectID = tagOldSelectID.join(',');
+            // 赋值给已选中的tag标签ID隐藏域
+            $('#TagOldSelectID, #NewTagOldSelectID').val(tagOldSelectID);
+            // 删除指定tag的名称
+            tagOldSelectTag.splice(index, 1);
+            // 将数组转成字符串
+            tagOldSelectTag = tagOldSelectTag.join(',');
+            // 赋值给已选中的tag标签名称隐藏域
+            $('#tags').show().val(tagOldSelectTag).hide();
+            $('#TagOldSelectTag, #NewTagOldSelectTag').val(tagOldSelectTag);
+        }
+    }
+    // 删除自身
+    $(obj).parent().remove();
+}
+/*END*/
 
 /**
  * 批量复制
@@ -406,6 +542,47 @@ function delfun_pseudo(obj) {
 }
 
 /**
+ * 批量属性操作
+ */
+function batch_attr(obj, name, title)
+{
+    var a = [];
+    var k = 0;
+    var aids = '';
+    $('input[name^='+name+']').each(function(i,o){
+        if($(o).is(':checked')){
+            a.push($(o).val());
+            if (k > 0) {
+                aids += ',';
+            }
+            aids += $(o).val();
+            k++;
+        }
+    })
+    if(a.length == 0){
+        layer.alert('请至少选择一项', {icon: 2, title:false});
+        return;
+    }
+
+    var url = $(obj).attr('data-url');
+    //iframe窗
+    layer.open({
+        type: 2,
+        title: title,
+        fixed: true, //不固定
+        shadeClose: false,
+        shade: 0.3,
+        maxmin: false, //开启最大化最小化按钮
+        area: ['390px', '200px'],
+        content: url,
+        success: function(layero, index){
+            var body = layer.getChildFrame('body', index);
+            body.find('input[name=aids]').val(aids);
+        }
+    });
+}
+
+/**
  * 全选
  */
 function selectAll(name,obj){
@@ -559,7 +736,15 @@ function GetUploadify(num,elementid,path,callback,url)
         layer.close(layer_GetUploadify);
     }
     if (num > 0) {
+
+        var is_water = 1;
+
         if (!url) {
+            url = GetUploadify_url;
+        }
+
+        if ('water' == url) {
+            is_water = 0;
             url = GetUploadify_url;
         }
         
@@ -576,7 +761,7 @@ function GetUploadify(num,elementid,path,callback,url)
             height = '66%';
         }
 
-        var upurl = url+'num='+num+'&input='+elementid+'&path='+path+'&func='+callback;
+        var upurl = url+'num='+num+'&input='+elementid+'&path='+path+'&func='+callback+'&is_water='+is_water;
         layer_GetUploadify = layer.open({
             type: 2,
             title: '上传图片',

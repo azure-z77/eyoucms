@@ -1277,7 +1277,6 @@ class Weapp extends Base
         $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=plugin';
         $post_data = [
             'page'      => input('param.p/d', 1),
-            'per_page' => config('paginate.list_rows'),
             'is_pay'    => $is_pay,
             'keywords'  => $keywords,
             'query_str' => input('param.'),
@@ -1342,10 +1341,10 @@ class Weapp extends Base
 
         $saveDir .= $fileName; // 保存目录
         tp_mkdir(dirname($saveDir));
-        if(!file_get_contents($fileUrl, 0, null, 0, 1)){
+        $file = httpRequest($fileUrl);
+        if(empty($file)){
             return ['code' => 0, 'msg' => '该插件包不存在']; // 文件存在直接退出
         }
-        $file = httpRequest($fileUrl);
         if (preg_match('#__HALT_COMPILER()#i', $file)) {
             return ['code' => 0, 'msg' => '下载包损坏，请联系官方客服！'];
         }
@@ -1405,8 +1404,7 @@ class Weapp extends Base
     public function downloadInstall($url)
     {
         $parse_data = parse_url($url);
-        // if (empty($parse_data['host']) || GetUrlToDomain($parse_data['host']) != 'eyoucms.com') {
-        if (empty($parse_data['host'])) {
+        if (empty($parse_data['host']) || GetUrlToDomain($parse_data['host']) != 'eyoucms.com') {
             $this->error('该云插件下载链接出错！', url('Weapp/plugin'));
         }
         

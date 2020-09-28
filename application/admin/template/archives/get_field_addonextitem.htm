@@ -1,0 +1,35 @@
+<span id="FieldAddonextitem"></span>
+<script type="text/javascript">
+    $(function() {
+        var aidNew = {$aid|default='0'};
+        var typeidNew = {$typeid|default='0'};
+        if (!typeidNew) typeidNew = {$field.typeid|default='0'};
+        var channeltypeNew = {$channeltype|default='0'};
+        var ControllerName = '{$Think.const.CONTROLLER_NAME}';
+        GetAddonextitem(typeidNew, channeltypeNew, aidNew, false, ControllerName);
+    });
+    
+    function GetAddonextitem(typeidNew, channeltypeNew, aidNew, is_destroy, ControllerName) {
+        ControllerName = ControllerName ? ControllerName : '';
+        // layer_loading('正在加载');
+        $.ajax({
+            url: "{:url('Archives/ajax_get_addonextitem')}",
+            data: {typeid: typeidNew, channeltype: channeltypeNew, aid: aidNew, controller_name: ControllerName, _ajax:1},
+            type:'get',
+            success:function(res) {
+                // layer.closeAll();
+                if (res.code == 0) {
+                    layer.alert(res.msg, {icon: 2, title:false});
+                } else {
+                    var ArticleContent = $('#ArticleContent').val();
+                    if (is_destroy && ArticleContent) UE.getEditor(ArticleContent).destroy();
+                    $('#FieldAddonextitem').empty().html(res);
+                }
+            },
+            error: function(e){
+                // layer.closeAll();
+                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            }
+        });
+    }
+</script>

@@ -160,7 +160,8 @@ class Lists extends Base
                 $arctype_info = model('Arctype')->getInfo($tid);
                 if ($arctype_info) {
                     // 读取当前栏目的内容，否则读取每一级第一个子栏目的内容，直到有内容或者最后一级栏目为止。
-                    $result_new = $this->readContentFirst($tid);
+                    $archivesModel = new \app\home\model\Archives();
+                    $result_new = $archivesModel->readContentFirst($tid);
                     // 阅读权限
                     if ($result_new['arcrank'] == -1) {
                         $this->success('待审核稿件，你没有权限阅读！');
@@ -239,39 +240,6 @@ class Lists extends Base
     }
 
     /**
-     * 读取指定栏目ID下有内容的栏目信息，只读取每一级的第一个栏目
-     * @param intval $typeid 栏目ID
-     * @return array
-     */
-    private function readContentFirst($typeid)
-    {
-        $result = false;
-        while (true)
-        {
-            $result = model('Single')->getInfoByTypeid($typeid);
-            if (empty($result['content']) && preg_match('/^lists_single(_(.*))?\.htm$/i', $result['templist'])) {
-                $map = array(
-                    'parent_id'       => $result['typeid'],
-                    'current_channel' => 6,
-                    'is_hidden'       => 0,
-                    'status'          => 1,
-                    'is_del'          => 0,
-                );
-                $row = M('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
-                if (empty($row)) { // 不存在并返回当前栏目信息
-                    break;
-                } elseif (6 == $row['current_channel']) { // 存在且是单页模型，则进行继续往下查找，直到有内容为止
-                    $typeid = $row['id'];
-                }
-            } else {
-                break;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * 留言提交
      */
     public function gbook_submit()
@@ -279,7 +247,9 @@ class Lists extends Base
         $typeid = input('post.typeid/d');
 
         if (IS_POST && !empty($typeid)) {
+            $gourl = input('post.gourl/s');
             $post = input('post.');
+            unset($post['gourl']);
 
             $token = '__token__';
             foreach ($post as $key => $val) {
@@ -418,7 +388,7 @@ class Lists extends Base
                         'update_time' => getTime(),
                     ]);
                 }
-                $this->success('操作成功！', null, $dataStr, 5);
+                $this->success('操作成功！', $gourl, $dataStr, 5);
             }
         }
 

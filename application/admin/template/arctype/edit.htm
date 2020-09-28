@@ -434,7 +434,7 @@
         var dirname = $('input[name="dirname"]').val();
         var patrn = /^\d+$/;
         if (patrn.test(dirname) == true) {
-            showErrorMsg('栏目英文名不能为纯数字！');
+            showErrorMsg('目录名称不能为纯数字！');
             $('input[name=dirname]').focus();
             return false;
         }

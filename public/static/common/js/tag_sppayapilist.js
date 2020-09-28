@@ -151,7 +151,7 @@ function jsApiCall(data) {
         function(res) {
             if (res.err_msg == "get_brand_wcpay_request:ok") {  
                 layer.msg('微信支付完成！', {time: 1000}, function() {
-                    pay_deal_with();
+                    OrderPayPolling();
                 });
             } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
                 layer.alert('用户取消支付！', {icon:0});

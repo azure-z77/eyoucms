@@ -92,7 +92,7 @@ class PayApiLogic extends Model
                 'order_number' => $post['unified_number']
             ];
             $OrderData = $this->users_money_db->where($where)->find();
-            if (empty($OrderData)) $this->error('订单不存在！');
+            if (empty($OrderData)) $this->error('订单不存在或已变更');
 
             // 判断订单状态，1未付款，2已付款，3已完成，4订单取消
             $url = urldecode(url('user/Pay/pay_consumer_details'));
@@ -140,7 +140,7 @@ class PayApiLogic extends Model
                 'order_code' => $post['unified_number']
             ];
             $OrderData = $this->shop_order_db->where($where)->find();
-            if (empty($OrderData)) $this->error('订单不存在！');
+            if (empty($OrderData)) $this->error('订单不存在或已变更');
             
             // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
             $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $OrderData['order_id']]));
@@ -188,7 +188,7 @@ class PayApiLogic extends Model
                 'order_number' => $post['unified_number']
             ];
             $OrderData = $this->users_money_db->where($where)->find();
-            if (empty($OrderData)) $this->error('订单不存在！');
+            if (empty($OrderData)) $this->error('订单不存在或已变更');
 
             // 判断订单状态，1未付款，2已付款，3已完成，4订单取消
             $url = urldecode(url('user/Level/level_centre'));
@@ -199,6 +199,47 @@ class PayApiLogic extends Model
             }
             $OrderData['unified_amount'] = $OrderData['money'];
             $OrderData['unified_number'] = $post['unified_number'];
+        } else if (8 == $post['transaction_type']) {
+            // 获取商品订单
+            $where = [
+                'users_id'   => $this->users_id,
+                'lang'       => $this->home_lang,
+                'order_id'   => $post['unified_id'],
+                'order_code' => $post['unified_number']
+            ];
+            $OrderData = Db::name('media_order')->where($where)->find();
+            if (empty($OrderData)) $this->error('订单不存在或已变更', url('user/Media/index'));
+            
+            $url = url('user/Media/index');
+            if (in_array($OrderData['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url, true);
+            $OrderData['unified_amount'] = $OrderData['order_amount'];
+            $OrderData['unified_number'] = $post['unified_number'];
+
+            // 更新订单支付方式
+            if (!empty($is_up_order)) {
+                $update = [
+                    'pay_name' => $post['pay_mark'],
+                    'update_time' => getTime()
+                ];
+                if ('wechat' == $post['pay_mark']) {
+                    if (!isMobile()) {
+                        // PC端
+                        $wechat_pay_type = 'WeChatScanCode';
+                    } else if (isMobile() && !isWeixin()) {
+                        // 手机端浏览器
+                        $wechat_pay_type = 'WeChatH5';
+                    } else if (isMobile() && isWeixin()) {
+                        // 手机端微信
+                        $wechat_pay_type = 'WeChatInternal';
+                    }
+                    if (!empty($OrderData['wechat_pay_type'])) {
+                        $ReturnData = $this->determine_pay_type($OrderData['wechat_pay_type'], $wechat_pay_type);
+                        if (!empty($ReturnData)) $this->error($ReturnData);
+                    }
+                    $update['wechat_pay_type'] = $wechat_pay_type;
+                }
+                Db::name('media_order')->where($where)->update($update);
+            }
         }
 
         return $OrderData;
@@ -221,7 +262,9 @@ class PayApiLogic extends Model
                 $out_trade_no = $Order['unified_number'];
                 $total_fee    = $Order['unified_amount'];
                 $weixin_url   = model('PayApi')->getMobilePay($out_trade_no, $total_fee, $PayInfo);
-                if ('FAIL' == $weixin_url['return_code']) $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试');
+                if (!empty($weixin_url['return_code']) && 'FAIL' == $weixin_url['return_code']) {
+                    $this->error('商户微信支付H5支付尚未配置完成，请在配置开通成功后支付');
+                }
                 $this->success('订单支付中', $weixin_url);
             
             } else if (isMobile() && isWeixin()) {
@@ -494,6 +537,34 @@ class PayApiLogic extends Model
                     }
                 } else {
                     $this->success('付款成功，数据错误，升级失败，请联系管理员', $url, $Result);
+                }
+            }
+        } else if (8 == $Post['transaction_type']) {
+            // 付款成功后，订单并未修改状态时，修改订单状态并返回
+            if (empty($Order['order_status'])) {
+                // 订单更新条件
+                $OrderWhere = [
+                    'order_id'  => $Order['order_id'],
+                    'users_id'  => $this->users_id,
+                    'lang'      => $this->home_lang
+                ];
+
+                // 订单更新数据，更新为已付款
+                $OrderData = [
+                    'order_status' => 1,
+                    'pay_details'  => serialize($PayDetails),
+                    'pay_time'     => getTime(),
+                    'update_time'  => getTime()
+                ];
+
+                // 订单更新
+                $ResultID = Db::name('media_order')->where($OrderWhere)->update($OrderData);
+
+                // 订单更新后续操作
+                if (!empty($ResultID)) {
+                    // 订单操作完成，返回跳转
+                    $ViewUrl = cookie($this->users_id . '_' . $Order['product_id'] . '_EyouMediaViewUrl');
+                    $this->success('支付成功，处理订单完成', $ViewUrl, true);
                 }
             }
         }

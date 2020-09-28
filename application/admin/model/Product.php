@@ -49,9 +49,6 @@ class Product extends Model
 
         // 处理产品 属性
         $productLogic = new ProductLogic();
-
-        // 处理产品 属性
-        $productLogic = new ProductLogic();
         if (empty($new)) {
             // 旧参数处理
             $productLogic->saveProductAttr($aid, $post['typeid']);
@@ -87,7 +84,8 @@ class Product extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            $result['tags'] = $tags['tag_arr'];
+            $result['tag_id'] = $tags['tid_arr'];
         }
 
         return $result;
@@ -127,8 +125,9 @@ class Product extends Model
             ->select();
         if (!empty($result)) {
             foreach ($result as $key => $val) {
-                if (!is_http_url($val['image_url'])) {
-                    @unlink(ROOT_PATH.trim($val['image_url'], '/'));
+                $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
+                if (!is_http_url($image_url) && file_exists('.'.$image_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $image_url)) {
+                    @unlink(realpath('.'.$image_url));
                 }
             }
             M('product_img')->where(

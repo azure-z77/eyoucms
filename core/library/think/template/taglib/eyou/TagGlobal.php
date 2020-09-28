@@ -120,15 +120,23 @@ class TagGlobal extends Base
                         }
                     }
                     break;
+
+                case 'web_root_dir':
+                    $value = $this->root_dir;
+                    break;
                 
                 case 'web_recordnum':
                     if (!empty($value)) {
-                        $value = '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">'.$value.'</a>';
+                        $value = '<a href="http://beian.miit.gov.cn/" rel="nofollow" target="_blank">'.$value.'</a>';
                     }
                     break;
 
                 case 'web_templets_pc':
                 case 'web_templets_m':
+                    $globalData = $globalArr['data'];
+                    if (empty($globalData['web_tpl_theme']) && file_exists('./template/default')) {
+                        $value = str_replace('/template/', '/template/default/', $value);
+                    }
                     $value = $this->root_dir.$value;
                     break;
 

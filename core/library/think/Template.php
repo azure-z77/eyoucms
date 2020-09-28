@@ -537,6 +537,9 @@ class Template
                     } else if (stristr($file, '.'.$this->config['view_suffix']) && (stristr($file, '/') || stristr($file, '\\'))) {
                         // 支持绝对路径的模板引入写法： {eyou:include file="/template/pc/header.htm" /}
                         $file  = '.'.$file;
+                        if (preg_match('/\/template\/(pc|mobile)\/\//i', $file)) {
+                            $file = str_replace('./template/', './template/'.TPL_THEME, $file);
+                        }
                     }
                     unset($array['file']);
                     // 分析模板文件名并读取内容
@@ -578,7 +581,11 @@ class Template
                     if (preg_match('/^([^\\/]+)\.'.$this->config['view_suffix'].'$/i', $file) === 1) {
                         $file = str_replace('.'.$this->config['view_suffix'], '', $file);
                     } else if (stristr($file, '.'.$this->config['view_suffix']) && (stristr($file, '/') || stristr($file, '\\'))) {
+                        // 支持绝对路径的模板引入写法： {include file="/template/pc/header.htm" /}
                         $file  = '.'.$file;
+                        if (preg_match('/\/template\/(pc|mobile)\/\//i', $file)) {
+                            $file = str_replace('./template/', './template/'.TPL_THEME, $file);
+                        }
                     }
                     /*--end*/
                     unset($array['file']);

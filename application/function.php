@@ -1340,6 +1340,7 @@ if (!function_exists('func_common')) {
             $validate['ext'] = explode('|', $validate_ext);
         }
         /*--end*/
+
         /*上传文件验证*/
         if (!empty($validate)) {
             $is_validate = $file->check($validate);
@@ -1348,10 +1349,9 @@ if (!function_exists('func_common')) {
             }
         }
         /*--end*/
-        /*验证图片一句话木马*/
-        $imgstr = @file_get_contents($_FILES[$fileElementId]['tmp_name']);
 
-        if (false !== $imgstr && (preg_match('#__HALT_COMPILER()#i', $imgstr) || preg_match('#<([^?]*)\?php#i', $imgstr))) {
+        /*验证图片一句话木马*/
+        if (false === check_illegal($_FILES[$fileElementId]['tmp_name'])) {
             return ['errcode'=>1,'errmsg'=>'禁止上传木马图片！'];
         }
         /*--end*/
@@ -1381,28 +1381,11 @@ if (!function_exists('func_common')) {
         })->move(UPLOAD_PATH . $savePath);
         if ($info) {
             $return_url = '/' . UPLOAD_PATH . $savePath . $info->getSaveName();
-        }
 
-        // $ossConfig = tpCache('oss');
-        // if ($ossConfig['oss_switch']) {
-        //     $users_id = 1;
-        //     if (session('?users_id')) {
-        //         $users_id = session('users_id');
-        //     } else if (session('?admin_id')) {
-        //         $users_id = session('admin_id');
-        //     }
-        //     $filename   = $users_id . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
-        //     $object     = UPLOAD_PATH . $savePath . $filename . '.' . $file_ext;
-        //     $ossClient  = new \app\common\logic\OssLogic;
-        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-        //     if (!$return_url) {
-        //         $state      = "ERROR" . $ossClient->getError();
-        //         $return_url = '';
-        //     } else {
-        //         $state = "SUCCESS";
-        //     }
-        //     @unlink($file->getRealPath());
-        // }
+            // 重新制作一张图片，抹去任何可能有危害的数据
+            // $image       = \think\Image::open('.'.$return_url);
+            // $image->save('.'.$return_url, null, 100);
+        }
 
         if ($return_url) {
             return ['errcode' => 0, 'errmsg' => '上传成功', 'img_url' => $return_url];
@@ -2098,7 +2081,7 @@ if (!function_exists('view_logic')) {
                 {
                     if (true === $allAttrInfo_bool) {
                         $allAttrInfo                  = [];
-                        $allAttrInfo['video_file'] = model('MediaFile')->getVideoFile($aid);
+                        $allAttrInfo['video_file'] = model('MediaFile')->getMediaFile($aid);
                     }
                     $result['file_list'] = !empty($allAttrInfo['video_file']) ? $allAttrInfo['video_file'] : [];
                     //自定义视频字段
@@ -2524,6 +2507,8 @@ if (!function_exists('remote_to_local')) {
                     $fileType = ".ico";
                 } else if ($fileType == 'image/bmp') {
                     $fileType = ".bmp";
+                } else if ($heads['Content-Type'] == 'image/svg+xml') {
+                    $fileType = ".svg";
                 } else {
                     $fileType = '.jpg';
                 }
@@ -2532,7 +2517,7 @@ if (!function_exists('remote_to_local')) {
             //格式验证(扩展名验证和Content-Type验证)，链接contentType是否正确
             $is_weixin_img = false;
             if (preg_match("/^http(s?):\/\/mmbiz.qpic.cn\/(.*)/", $imgUrl) != 1) {
-                $allowFiles = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp"];
+                $allowFiles = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".svg"];
                 if (!in_array($fileType, $allowFiles) || (isset($heads['Content-Type']) && !stristr($heads['Content-Type'], "image/"))) {
                     continue;
                 }
@@ -2912,5 +2897,53 @@ if (!function_exists('gmSecondFormat')) {
         }
         
         return $timeStr;
+    }
+}
+
+if (!function_exists('checkAuthRule')) {
+    /**
+     * 验证代理贴牌的功能权限
+     * @return mixed
+     */
+    function checkAuthRule($id)
+    {
+        $admin_id = session('admin_id');
+        $info = \think\Db::name('admin')->where('admin_id',$admin_id)->field('parent_id,role_id')->find();
+        if (!empty($info) && empty($info['parent_id']) && $info['role_id'] == -1){
+            //创始人拥有无上权限
+            return true;
+        }
+
+        $php_auth_function = tpCache('php.php_auth_function');
+        $auth_function = !empty($php_auth_function) ? explode(',', $php_auth_function) : [];
+        if (!empty($auth_function) && !in_array($id, $auth_function)){
+            return false;
+        }else{
+            return true;
+        }
+    }
+}
+
+if (!function_exists('check_illegal')) {
+    /**
+     * 检测上传图片是否包含有非法代码
+     * @return mixed
+     */
+    function check_illegal($image)
+    {
+        try {
+            if (file_exists($image)) {
+                $resource = fopen($image, 'rb');
+                $fileSize = filesize($image);
+                fseek($resource, 0);
+                $hexCode = fread($resource, $fileSize);
+                fclose($resource);
+                if (preg_match('#__HALT_COMPILER()#i', $hexCode) || preg_match('#/script>#i', $hexCode) || preg_match('#<([^?]*)\?php#i', $hexCode) || preg_match('#<\?\=#i', $hexCode)) {
+                    return false;
+                }
+            }
+        } catch (\Exception $e) {}
+
+        return true;
     }
 }

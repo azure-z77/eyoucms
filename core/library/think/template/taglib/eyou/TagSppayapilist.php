@@ -46,26 +46,6 @@ class TagSppayapilist extends Base
      */
     public function getSppayapilist()
     {
-        // 获取解析数据
-        // $querystr  = input('param.querystr/s');
-        // $hash      = input('param.hash/s');
-        // $auth_code = tpCache('system.system_auth_code');
-        // if(!empty($querystr) && md5("payment" . $querystr . $auth_code) == $hash) {
-        //     // 数据解析
-        //     parse_str(mchStrCode($querystr, 'DECODE'), $querydata);
-        //     // 判断支付类型
-        //     if (!empty($querydata['moneyid']) && !empty($querydata['order_number'])) {
-        //         // 充值信息
-        //         $money_id   = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
-        //         $money_code = !empty($querydata['order_number']) ? strval($querydata['order_number']) : '';
-        //         // 都为空则返回
-        //     } else if (!empty($querydata['order_id']) && !empty($querydata['order_code'])) {
-        //         // 订单信息
-        //         $order_id   = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
-        //         $order_code = !empty($querydata['order_code']) ? strval($querydata['order_code']) : '';
-        //     }
-        // }
-
         // 接收数据读取解析
         $Paystr = input('param.paystr/s');
         $PayData = cookie($Paystr);
@@ -97,7 +77,7 @@ class TagSppayapilist extends Base
                     'lang'         => $this->home_lang
                 ];
                 $Result = Db::name('users_money')->where($where)->find();
-                if (empty($Result)) $this->error('订单不存在！');
+                if (empty($Result)) $this->error('订单不存在或已变更', url('user/Pay/pay_consumer_details'));
 
                 // 组装数据返回
                 $JsonData['transaction_type'] = 1; // 交易类型，1为充值
@@ -106,31 +86,55 @@ class TagSppayapilist extends Base
                 $JsonData['unified_number']   = $Result['order_number'];
 
             } else if (!empty($order_id)) {
-                // 获取支付订单
-                $where = [
-                    'order_id'   => $order_id,
-                    'order_code' => $order_code,
-                    'users_id'   => $this->users_id,
-                    'lang'       => $this->home_lang
-                ];
-                $Result = Db::name('shop_order')->where($where)->find();
-                if (empty($Result)) $this->error('订单不存在！');
-                
-                // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
-                $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $Result['order_id']]));
-                if (in_array($Result['order_status'], [1, 2, 3])) {
-                    $this->error('订单已支付，即将跳转', $url);
-                } elseif ($Result['order_status'] == 4) {
-                    $this->error('订单已过期，即将跳转', $url);
-                } elseif ($Result['order_status'] == -1) {
-                    $this->error('订单已关闭，即将跳转', $url);
-                }
+                if (!empty($PayData['type']) && 8 == $PayData['type']) {
+                    // 获取支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $Result = Db::name('media_order')->where($where)->find();
+                    if (empty($Result)) $this->error('订单不存在或已变更', url('user/Media/index'));
+                    
+                    $url = url('user/Media/index');
+                    if (in_array($Result['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url);
 
-                // 组装数据返回
-                $JsonData['transaction_type'] = 2; // 交易类型，2为购买
-                $JsonData['unified_id']       = $Result['order_id'];
-                $JsonData['unified_amount']   = $Result['order_amount'];
-                $JsonData['unified_number']   = $Result['order_code'];
+                    // 组装数据返回
+                    $JsonData['transaction_type'] = 8; // 交易类型，8为购买视频
+                    $JsonData['unified_id']       = $Result['order_id'];
+                    $JsonData['unified_amount']   = $Result['order_amount'];
+                    $JsonData['unified_number']   = $Result['order_code'];
+
+                } else {
+                    // 获取支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $Result = Db::name('shop_order')->where($where)->find();
+                    if (empty($Result)) $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
+                    
+                    // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
+                    $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $Result['order_id']]));
+                    if (in_array($Result['order_status'], [1, 2, 3])) {
+                        $this->error('订单已支付，即将跳转', $url);
+                    } elseif ($Result['order_status'] == 4) {
+                        $this->error('订单已过期，即将跳转', $url);
+                    } elseif ($Result['order_status'] == -1) {
+                        $this->error('订单已关闭，即将跳转', $url);
+                    }
+
+                    // 组装数据返回
+                    $JsonData['transaction_type'] = 2; // 交易类型，2为购买
+                    $JsonData['unified_id']       = $Result['order_id'];
+                    $JsonData['unified_amount']   = $Result['order_amount'];
+                    $JsonData['unified_number']   = $Result['order_code'];
+                    
+                }
+                
             }
         }
 
@@ -217,6 +221,13 @@ EOF;
                 break;
                 }
             }
+        } else {
+            $PayApiList[0]['hidden'] = <<<EOF
+<script type="text/javascript">
+    var eyou_data_json_1590627847 = {$JsonData};
+</script>
+<script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_sppayapilist.js?v={$version}"></script>
+EOF;
         }
 
         return $PayApiList;

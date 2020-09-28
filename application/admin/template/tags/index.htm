@@ -4,6 +4,12 @@
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width: 400px;">
     <div class="flexigrid">
+        <div class="ftitle">
+            <div id="TagsDiv" class="sDiv2" style="display: none;"></div>
+            <span id="TagsSpan" class="sDiv2" style="display: none;">
+                <input type="button" class="btn" style="background-color: #0d25d2; color: white;" value="完成" onclick="CarryOutSelect();">
+            </span>
+        </div>
         <div class="mDiv">
             <div class="ftitle">
                 <h3>TAG标签列表</h3>
@@ -18,10 +24,10 @@
                         <input type="submit" class="btn" value="搜索">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Tags/index')}';">
+                        <input type="button" class="btn" value="重置" onclick="window.location.href='{:url('Tags/index')}';">
                     </div>
                     <div class="sDiv2">
-                        <input type="button" class="btn" value="一键清空" onClick="clearall();">
+                        <input type="button" class="btn" value="一键清空" onclick="clearall();">
                     </div>
                 </div>
             </form>
@@ -46,7 +52,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">新增时间</div>
                         </th>
-                        <th axis="col1" class="w120">
+                        <th axis="col1" class="w180">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -66,13 +72,13 @@
                         </tr>
                     {else/}
                         {foreach name="list" item="vo" key="k" }
-                        <tr>
+                        <tr class="tagTr" data-id="{$vo.id}" data-tag="{$vo.tag}">
                             <td class="sign">
                                 <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
                             </td>
                             <td style="width: 100%">
                                 <div style="">
-                                    {$vo.tag}
+                                    <a href="{$vo['id']|get_tagurl=###}" target="_blank">{$vo.tag}</a>
                                 </div>
                             </td>
                             <td class="">
@@ -91,9 +97,12 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="w120 tc">
+                                <div class="w180 tc">
                                     {eq name="'Tags@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0)" data-url="{:url('Tags/del')}" data-id="{$vo.id}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Tags/del')}" data-id="{$vo.id}" onclick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    {/eq}
+                                    {eq name="'Tags@edit'|is_check_access" value="1"}
+                                        <a class="btn red" href="javascript:void(0);" data-url="{:url('Tags/edit', ['id'=>$vo.id])}" onclick="SeoEdit(this);"><i class="fa fa-trash-o"></i>SEO</a>
                                     {/eq}
                                 </div>
                             </td>
@@ -127,7 +136,7 @@
     </div>
 </div>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function() {
         // 表格行点击选中切换
         $('#flexigrid > table>tbody >tr').click(function(){
             $(this).toggleClass('trSelected');
@@ -138,10 +147,25 @@
             location.href = location.href;
         });
     });
+ 
+    // 编辑TAG标签的SEO优化
+    function SeoEdit(obj) {
+        var url = $(obj).data('url');
+        //iframe窗
+        layer.open({
+            type: 2,
+            title: 'TAG标签 - 编辑',
+            fixed: true,
+            shadeClose: false,
+            shade: 0.3,
+            maxmin: true,
+            area: ['700px', '450px'],
+            content: url
+        });
+    }
 
-    function clearall()
-    {
-        // 删除按钮
+    // 一键清空
+    function clearall() {
         layer.confirm('此操作不可恢复，确认一键清空？', {
             title: false,
             btn: ['确定', '取消'] //按钮
@@ -150,17 +174,17 @@
             $.ajax({
                 type: "POST",
                 url: "{:url('Tags/clearall')}",
-                data: {_ajax:1},
+                data: {_ajax: 1},
                 dataType: 'json',
                 success: function (res) {
                     layer.closeAll();
-                    if(res.code == 1){
+                    if(res.code == 1) {
                         window.location.reload();
-                    }else{
+                    } else {
                         layer.alert(res.msg, {icon: 2, title:false});
                     }
                 },
-                error:function(){
+                error:function() {
                     layer.closeAll();
                     layer.alert(ey_unknown_error, {icon: 2, title:false});
                 }

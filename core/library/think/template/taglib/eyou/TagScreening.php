@@ -197,6 +197,7 @@ class TagScreening extends Base
                     }else{
                         unset($param_query[$name]);
                     }
+                    unset($param_query['s']);
                     /* 筛选标识始终追加在最后 */
                     unset($param_query[$url_screen_var]);
                     $param_query[$url_screen_var] = 1;
@@ -305,6 +306,7 @@ class TagScreening extends Base
                         // 等于多选类型，则拼装上-号，用于搜索时分割，可匹配数据
                         $param_query[$name] = $vv.'|';
                     }
+                    unset($param_query['s']);
                     /* 筛选标识始终追加在最后 */
                     unset($param_query[$url_screen_var]);
                     $param_query[$url_screen_var] = 1;

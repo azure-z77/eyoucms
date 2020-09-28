@@ -31,6 +31,7 @@ class FilemanagerLogic extends Model
     public $delOpArr = array(); // 删除权限
     public $moveOpArr = array(); // 移动权限
     public $editExt = array(); // 允许新增/编辑扩展名文件
+    public $disableFuns = array(); // 允许新增/编辑扩展名文件
 
     /**
      * 析构函数
@@ -51,6 +52,8 @@ class FilemanagerLogic extends Model
         $this->moveOpArr = array('gif','jpg','svg','flash','zip','exe','mp3','wmv','rm','txt','htm','js','css','other');
         // 允许新增/编辑扩展名文件
         $this->editExt = array('htm','js','css','txt');
+        // 过滤php危险函数
+        $this->disableFuns = ['phpinfo','eval','passthru','shell_exec','system','proc_open','popen','curl_exec','curl_multi_exec','parse_ini_file','show_source','file_put_contents'];
     }
 
     /**
@@ -66,6 +69,7 @@ class FilemanagerLogic extends Model
     {
         $fileinfo = pathinfo($filename);
         $ext = strtolower($fileinfo['extension']);
+        $filename = trim($fileinfo['filename'], '.').'.'.$fileinfo['extension'];
 
         /*不允许越过指定最大级目录的文件编辑*/
         $tmp_max_dir = preg_replace("#\/#i", "\/", $this->maxDir);
@@ -80,15 +84,16 @@ class FilemanagerLogic extends Model
         }
         /*--end*/
 
-        $filename = str_replace("..", "", $filename);
         $file = $this->baseDir."$activepath/$filename";
         if (!is_writable(dirname($file))) {
             return "请把模板文件目录设置为可写入权限！";
         }
-        if ('css' != $ext) {
+        if ('htm' == $ext) {
             $content = htmlspecialchars_decode($content, ENT_QUOTES);
-            $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
-            // $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
+            foreach ($this->disableFuns as $key => $val) {
+                $val_new = msubstr($val, 0, 1).'-'.msubstr($val, 1);
+                $content = preg_replace("/(@)?".$val."(\s*)\(/i", "{$val_new}(", $content);
+            }
         }
         $fp = fopen($file, "w");
         fputs($fp, $content);

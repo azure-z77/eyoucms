@@ -290,7 +290,9 @@ class TagList extends Base
                             $query_get = $get_arr;
                         }*/
                         /*--end*/
-                        $query_get = array();
+                        $query_get = array(
+                            'typeid_tmp'   => $this->tid,
+                        );
                     }
                 } elseif ($seo_pseudo == 2) {
                     $query_get = $get_arr;
@@ -587,6 +589,11 @@ class TagList extends Base
          */
         $list = array();
         $query_get = input('get.');
+        unset($query_get['s']);
+        if (strtolower(request()->controller()) == 'tags') {
+            $query_get['tagid'] = $tagid;
+        }
+
         $paginate_type = config('paginate.type');
         if (isMobile()) {
             $paginate_type = 'mobile';

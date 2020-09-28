@@ -69,6 +69,5 @@ class Single extends Model
         // 清除缓存
         \think\Cache::clear("arctype");
         extra_cache('admin_all_menu', NULL);
-        \think\Cache::clear('admin_archives_release');
     }
 }

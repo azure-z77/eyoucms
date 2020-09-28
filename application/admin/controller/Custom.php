@@ -202,6 +202,16 @@ class Custom extends Base
         if (IS_POST) {
             $post = input('post.');
 
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             /*获取第一个html类型的内容，作为文档的内容来截取SEO描述*/        
             $contentField = Db::name('channelfield')->where([
                     'channel_id'    => $this->channeltype,
@@ -379,6 +389,16 @@ class Custom extends Base
             $post = input('post.');
             $typeid = input('post.typeid/d', 0);
 
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             /*获取第一个html类型的内容，作为文档的内容来截取SEO描述*/        
             $contentField = Db::name('channelfield')->where([
                     'channel_id'    => $this->channeltype,
@@ -512,6 +532,7 @@ class Custom extends Base
         }
         /*--end*/
         $typeid = $info['typeid'];
+        $assign_data['typeid'] = $typeid;
 
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);

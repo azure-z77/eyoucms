@@ -55,13 +55,65 @@ class TagVideoplay extends Base
         if (empty($row)) {
             return false;
         } else {
+            // 获取文档数据
+            $archives  = Db::name('archives')->where(['aid' => $aid])->field('users_price, arc_level_id')->find();
+            $UsersData = session('users');
+            $UsersID   = $UsersData['users_id'];
+
+            $MediaOrder = [];
+            if (!empty($UsersID)) {
+                $where = [
+                    'order_status' => 1,
+                    'users_id' => $UsersID
+                ];
+                $field = 'order_id, users_id, product_id';
+                $MediaOrder = Db::name('media_order')->field($field)->where($where)->getAllWithIndex('product_id');
+            }
+
+            if (0 < intval($archives['arc_level_id']) && !empty($UsersData)) {
+                // 查询会员信息
+                $users = Db::name('users')
+                    ->alias('a')
+                    ->field('a.users_id,b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
+                    ->where(['a.users_id'=>$UsersID])
+                    ->find();
+                // 查询播放所需等级值
+                $file_level = Db::name('archives')
+                    ->alias('a')
+                    ->field('b.level_value,b.level_name')
+                    ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                    ->where(['a.aid'=>$aid])
+                    ->find();
+            }
+
+            // 处理视频数据
             $result = [];
             foreach ($row as $key => $val) {
                 if (!empty($val['file_url'])) {
                     if (!is_http_url($val['file_url'])) {
                         $val['file_url'] = handle_subdir_pic($val['file_url'], 'media', true);
                     }
-                    $result           = $val;
+
+                    /*if (empty($val['gratis']) && 0 == $val['gratis']) {
+                        if (empty($MediaOrder[$aid])) {
+                            if (0 < $archives['users_price']) {
+                                $val['file_url'] = '';
+                            }
+
+                            if (0 < intval($archives['arc_level_id'])) {
+                                if (empty($UsersID)) {
+                                    $val['file_url'] = '';
+                                } else {
+                                    if ($users['level_value'] < $file_level['level_value']) {
+                                        $val['file_url'] = '';
+                                    }
+                                }
+                            }
+                        }
+                    }*/
+                    
+                    $result = $val;
                     break;
                 }
             }
@@ -74,6 +126,7 @@ class TagVideoplay extends Base
                 } else {
                     $autoplay_str = '';
                 }
+
                 $result['hidden'] = <<<EOF
 <script type="text/javascript">
     if ('video' == document.getElementById('{$from_id}').tagName.toLowerCase()) {

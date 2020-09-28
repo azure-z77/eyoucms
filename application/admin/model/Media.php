@@ -70,6 +70,7 @@ class Media extends Model
                     'uhash'   => $uhash,
                     'md5file'   => $md5file,
                     'is_remote'   => $is_remote,
+                    'gratis'    => !empty($v['gratis']) ? $v['gratis'] : 0,
                     'add_time'    => getTime(),
                     'update_time' => getTime(),
                 ];
@@ -110,7 +111,8 @@ class Media extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            $result['tags'] = $tags['tag_arr'];
+            $result['tag_id'] = $tags['tid_arr'];
         }
 
         return $result;
@@ -127,7 +129,36 @@ class Media extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('media_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
+        M('media_content')->where(
+                array(
+                    'aid'=>array('IN', $aidArr)
+                )
+            )
+            ->delete();
+        // 同时删除软件
+        $result = M('media_file')->field('file_url')
+            ->where(
+                array(
+                    'aid'=>array('IN', $aidArr)
+                )
+            )
+            ->select();
+        if (!empty($result)) {
+            foreach ($result as $key => $val) {
+                $file_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['file_url']);
+                if (!is_http_url($file_url) && file_exists('.'.$file_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $file_url)) {
+                    @unlink(realpath('.'.$file_url));
+                }
+            }
+            $r = M('media_file')->where(
+                array(
+                    'aid'=>array('IN', $aidArr)
+                )
+            )->delete();
+            if ($r !== false) {
+                M('media_log')->where(array('aid'=>array('IN', $aidArr)))->delete();
+            }
+        }
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

@@ -77,6 +77,7 @@ class Base extends Controller {
         /* 增、改的跳转提示页，只限制于发布文档的模型和自定义模型 */
         $channeltype_list = config('global.channeltype_list');
         $controller_name = $this->request->controller();
+        $this->assign('controller_name', $controller_name);
         if (isset($channeltype_list[strtolower($controller_name)]) || 'Custom' == $controller_name) {
             if (in_array($this->request->action(), ['add','edit'])) {
                 \think\Config::set('dispatch_success_tmpl', 'public/dispatch_jump');

@@ -115,7 +115,7 @@
                                         <div id="upgrade_filelist" style="display:none;"></div> 
                                         <div id="upgrade_intro" style="display:none;"></div> 
                                         <div id="upgrade_notice" style="display:none;"></div> 
-                                        <a href="javascript:void(0);" id="a_upgrade" data-version="" data-max_version="" data-iframe="workspace" title="" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}">正在版本检测中……</a>
+                                        <a href="javascript:void(0);" id="a_upgrade" data-version="" data-max_version="" data-iframe="workspace" title="" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}">{eq name="upgrade" value="true"}正在版本检测中……{else/}已是最新版{/eq}</a>
                                     </td>
                                     <td class="gray_bg">当前版本：</td>
                                     <td>{$sys_info.curent_version|default='v1.0'}</td>
@@ -196,7 +196,9 @@
 </div>
 <script type="text/javascript">
     $(function () {
+        {eq name="upgrade" value="true"}
         check_upgrade_version();
+        {/eq}
         $.get("{:url('Ajax/welcome_handle', ['_ajax'=>1])}"); // 进入欢迎页面需要异步处理的业务
         check_language_tips();
 
@@ -230,7 +232,7 @@
                                     .show();
                             }catch(e){}
                             /*--end*/
-                            
+
                             $('#upgrade_filelist').html(res.data.msg.upgrade);
                             $('#upgrade_intro').html(res.data.msg.intro);
                             $('#upgrade_notice').html(res.data.msg.notice);

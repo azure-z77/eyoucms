@@ -49,7 +49,7 @@ class UsersRelease extends Base
 
         // 当前访问的方法名
         $Method = request()->action();
-        $list   = request()->get('list');
+        $list   = input('param.list/d');
         // 如果访问的方式是release_centre，并且没有list标识，则默认重定向至文章发布页
         // 如果$ChannelData['is_release']为空则表示模型未开启投稿
         if ('release_centre' == $Method && !empty($ChannelData['is_release']) && (empty($list) || !isset($list))) {
@@ -142,7 +142,7 @@ class UsersRelease extends Base
             // 存储数据
             $newData = array(
                 'typeid'      => empty($post['typeid']) ? 0 : $post['typeid'],
-                'channel'     => 1,
+//                'channel'     => 1,
                 'lang'        => $this->home_lang,
                 'sort_order'  => 100,
                 'add_time'    => getTime(),
@@ -163,10 +163,8 @@ class UsersRelease extends Base
 
         // 模型ID
         $channel_id = 1; //input('get.channel_id');
-
         // 获取加载到页面的数据
         $assign_data = $this->GetAssignData($channel_id);
-
         $assign_data['channel_id'] = $channel_id;
 
         // 加载数据
@@ -188,7 +186,7 @@ class UsersRelease extends Base
             // 更新数据
             $newData = array(
                 'typeid'      => empty($post['typeid']) ? 0 : $post['typeid'],
-                'channel'     => 1,
+//                'channel'     => 1,
                 'update_time' => getTime(),
             );
             $data = array_merge($post, $newData);
@@ -210,23 +208,58 @@ class UsersRelease extends Base
         }
 
         // 模型ID
-        $channel_id = 1; // input('get.channel_id');
+//        $channel_id = 1; // input('get.channel_id');
         // 文章ID
         $aid  = input('param.aid/d');
+        $channel_id = Db::name('archives')->where('aid',$aid)->getField('channel');
         $info = model('UsersRelease')->getInfo($aid, null, false);
 
         // 获取加载到页面的数据
         $assign_data = $this->GetAssignData($channel_id, $aid, $info);
+        $assign_data['imgupload_list'] = [];
+        // 图集相册
+        if ($channel_id == 3){
+            $imgupload_list = model('UsersRelease')->getImgUpload($aid);
+            foreach ($imgupload_list as $key => $val) {
+                $imgupload_list[$key]['image_url'] = handle_subdir_pic($val['image_url']); // 支持子目录
+            }
+            $assign_data['imgupload_list'] = $imgupload_list;
+        }
 
         // 拼装文章数据
         $assign_data['ArchivesData'] = $info;
-
         $assign_data['channel_id'] = $channel_id;
         $assign_data['aid'] = $aid;
 
         // 加载数据
         $this->assign($assign_data);
         return $this->fetch('users/article_edit');
+    }
+
+    public function get_addonextitem()
+    {
+        $typeid = input('post.typeid/d');
+        if (!empty($typeid)) {
+            // 模型ID
+//            $channel_id = 1; //input('get.channel_id');
+            $channel_id = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+
+            // 获取加载到页面的数据
+            $aid = input('post.aid', 0);
+            $info['typeid'] = $typeid;
+            $assign_data = $this->GetAssignData($channel_id, $aid, $info, true);
+
+            $assign_data['channel_id'] = $channel_id;
+
+            $this->assign($assign_data);
+            $filename = 'users_release_field';
+            if (isMobile()) {
+                $filename .= '_m';
+            }
+            return $this->fetch('./public/static/template/users/'.$filename.'.htm');
+        } else {
+            return '';
+        }
     }
 
     // 会员投稿--文章删除
@@ -252,32 +285,34 @@ class UsersRelease extends Base
     }
 
     // 处理加载到页面的数据
-    private function GetAssignData($channel_id = null, $aid = null, $info = array())
+    private function GetAssignData($channel_id = null, $aid = null, $info = array(), $is_if = false)
     {
         /* 自定义字段 */
-        if (!empty($aid) && !empty($info)) {
-            $addonFieldExtList = model('UsersRelease')->GetUsersReleaseData($channel_id, $info['typeid'] ,$aid , 'edit');
-        }else{
+        if (!empty($aid) && !empty($info) && !empty($channel_id)) {
+            $addonFieldExtList = model('UsersRelease')->GetUsersReleaseData($channel_id, $info['typeid'], $aid, 'edit');
+        } else if (!empty($channel_id) && !empty($info)){
+            $addonFieldExtList = model('UsersRelease')->GetUsersReleaseData($channel_id, $info['typeid']);
+        } else {
             $addonFieldExtList = model('UsersRelease')->GetUsersReleaseData($channel_id);
         }
         $assign_data['addonFieldExtList'] = $addonFieldExtList;
         /* END */
 
-        /*允许发布文档列表的栏目*/
-        $typeid = 0;
-        if (!empty($info['typeid'])) {
-            $typeid = $info['typeid'];
-        }
-        $arctype_html = $this->allow_release_arctype($typeid, $channel_id);
-        $assign_data['arctype_html'] = $arctype_html;
-        /* END */
+        if (empty($is_if)) {
+            /*允许发布文档列表的栏目*/
+            $typeid = 0;
+            if (!empty($info['typeid'])) $typeid = $info['typeid'];
+            $arctype_html = $this->allow_release_arctype($typeid, $channel_id);
+            $assign_data['arctype_html'] = $arctype_html;
+            /* END */
 
-        /*封装表单验证隐藏域*/
-        static $request = null;
-        if (null == $request) { $request = Request::instance(); }  
-        $token = $request->token();
-        $assign_data['TokenValue'] = " <input type='hidden' name='__token__' value='{$token}'/> ";
-        /* END */
+            /*封装表单验证隐藏域*/
+            static $request = null;
+            if (null == $request) { $request = Request::instance(); }  
+            $token = $request->token();
+            $assign_data['TokenValue'] = " <input type='hidden' name='__token__' value='{$token}'/> ";
+            /* END */
+        }
 
         return $assign_data;
     }
@@ -379,8 +414,9 @@ class UsersRelease extends Base
         $where['is_del'] = 0; // 回收站功能
         $where['status'] = 1; 
         $where['is_release'] = 1; // 查询应用于投稿的栏目
-        $where['current_channel'] = $channel_id;
-        $field = 'id, parent_id, typename, is_release';
+//        $where['current_channel'] = $channel_id;
+        $where['current_channel'] = ['in',[1,3]];
+        $field = 'id, parent_id, typename, is_release,current_channel';
 
         // 查询所有可投稿的栏目
         $ArcTypeData = Db::name('arctype')->field($field)->where($where)->select();
@@ -398,10 +434,13 @@ class UsersRelease extends Base
         }
         // 合并顶级栏目
         $PidData = array_merge($PidData, $PidDataNew);
-        
         // 下拉框拼装
         $HtmlCode = '<select name="typeid" id="typeid">';
         $HtmlCode .= '<option value="0">请选择栏目</option>';
+
+        $default_selected = 0;
+        $allow_release_channel = config('global.allow_release_channel');
+
         foreach ($PidData as $yik => $yiv) {
             /*是否禁用*/
             $style0 = 0 == $yiv['is_release'] ? 'disabled="true"' : '';
@@ -411,16 +450,25 @@ class UsersRelease extends Base
             /* END */
             if (0 == $yiv['parent_id']) {
                 /*一级下拉框*/
-                $HtmlCode .= '<option value="'.$yiv['id'].'" '.$style0.' '.$style1.'>'.$yiv['typename'].'</option>';
+                $HtmlCode .= '<option value="'.$yiv['id'].'" data-channel="'.$yiv['current_channel'].'" '.$style0.' '.$style1;
+                if (empty($default_selected) && in_array($yiv['current_channel'], $allow_release_channel)) {
+                    $HtmlCode .= ' selected="true" ';
+                    $default_selected = 1;
+                }
+                $HtmlCode .= '>'.$yiv['typename'].'</option>';
                 /* END */
                 $type = 0;
             }else{
                 /*二级下拉框*/
-                $HtmlCode .= '<option value="'.$yiv['id'].'" '.$style0.' '.$style1.'>&nbsp; &nbsp;'.$yiv['typename'].'</option>';
+                $HtmlCode .= '<option value="'.$yiv['id'].'" data-channel="'.$yiv['current_channel'].'"'.$style0.' '.$style1;
+                if (empty($default_selected) && in_array($yiv['current_channel'], $allow_release_channel)) {
+                    $HtmlCode .= ' selected="true" ';
+                    $default_selected = 1;
+                }
+                $HtmlCode .= '>&nbsp; &nbsp;'.$yiv['typename'].'</option>';
                 /* END */
                 $type = 1;
             }
-
             foreach ($ArcTypeData as $erk => $erv) {
                 if ($erv['parent_id'] == $yiv['id']) {
                     if (0 == $type) {
@@ -431,14 +479,24 @@ class UsersRelease extends Base
                         $style1 = $typeid == $erv['id'] ? 'selected' : '';
                         /* END */
                         /*二级下拉框*/
-                        $HtmlCode .= '<option value="'.$erv['id'].'" '.$style0.' '.$style1.'>&nbsp; &nbsp;'.$erv['typename'].'</option>';
+                        $HtmlCode .= '<option value="'.$erv['id'].'" data-channel="'.$erv['current_channel'].'"'.$style0.' '.$style1;
+                        if (empty($default_selected) && in_array($erv['current_channel'], $allow_release_channel)) {
+                            $HtmlCode .= ' selected="true" ';
+                            $default_selected = 1;
+                        }
+                        $HtmlCode .= '>&nbsp; &nbsp;'.$erv['typename'].'</option>';
                         /* END */
                     }else{
                         /*是否选中*/
                         $style0 = $typeid == $erv['id'] ? 'selected' : '';
                         /* END */
                         /*三级下拉框*/
-                        $HtmlCode .= '<option value="'.$erv['id'].'" '.$style0.'>&nbsp; &nbsp; &nbsp; &nbsp;'.$erv['typename'].'</option>';
+                        $HtmlCode .= '<option value="'.$erv['id'].'" data-channel="'.$erv['current_channel'].'"'.$style0;
+                        if (empty($default_selected) && in_array($erv['current_channel'], $allow_release_channel)) {
+                            $HtmlCode .= ' selected="true" ';
+                            $default_selected = 1;
+                        }
+                        $HtmlCode .= '>&nbsp; &nbsp; &nbsp; &nbsp;'.$erv['typename'].'</option>';
                         /* END */
                     }
                 }

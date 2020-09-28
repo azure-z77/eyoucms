@@ -323,26 +323,6 @@ class Pay extends Base
     // 充值详情
     public function pay_recharge_detail()
     {
-        // 解析数据
-        // $querystr   = input('param.querystr/s');
-        // $hash   = input('param.hash/s');
-        // $auth_code = tpCache('system.system_auth_code');
-        // if(empty($querystr) || empty($hash) || md5("payment".$querystr.$auth_code) != $hash) $this->error('无效订单！');
-        // parse_str(mchStrCode($querystr,'DECODE'),$querydata);
-
-        // // 判断数据
-        // if (!empty($querydata['moneyid']) && !empty($querydata['order_number'])) {
-        //     // 充值信息
-        //     $moneyid = !empty($querydata['moneyid']) ? intval($querydata['moneyid']) : 0;
-        //     $order_number = !empty($querydata['order_number']) ? $querydata['order_number'] : '';
-        // } else if (!empty($querydata['order_id']) && !empty($querydata['order_code'])) {
-        //     // 订单信息
-        //     $order_id   = !empty($querydata['order_id']) ? intval($querydata['order_id']) : 0;
-        //     $order_code = !empty($querydata['order_code']) ? $querydata['order_code'] : '';
-        // } else {
-        //     $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
-        // }
-
         // 接收数据读取解析
         $Paystr = input('param.paystr/s');
         $PayData = cookie($Paystr);
@@ -383,33 +363,58 @@ class Pay extends Base
                 $this->assign('data', $data);
 
             } else if (!empty($order_id)) {
-                // 获取支付订单
-                $where = [
-                    'order_id'   => $order_id,
-                    'order_code' => $order_code,
-                    'users_id'   => $this->users_id,
-                    'lang'       => $this->home_lang
-                ];
-                $data = $this->shop_order_db->where($where)->find();
-                if (empty($data)) $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
-                
-                // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
-                $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $data['order_id']]));
-                if (in_array($data['order_status'], [1, 2, 3])) {
-                    $this->error('订单已支付，即将跳转！', $url);
-                } elseif ($data['order_status'] == 4) {
-                    $this->error('订单已过期，即将跳转！', $url);
-                } elseif ($data['order_status'] == -1) {
-                    $this->error('订单已关闭，即将跳转！', $url);
-                }
+                if (!empty($PayData['type']) && 8 == $PayData['type']) {
+                    // 获取支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $data = Db::name('media_order')->where($where)->find();
+                    if (empty($data)) $this->error('订单不存在或已变更', url('user/Media/index'));
+                    
+                    $url = url('user/Media/index');
+                    if (in_array($data['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url);
 
-                // 组装数据返回
-                $data['transaction_type'] = 2; // 交易类型，2为购买
-                $data['unified_id']       = $data['order_id'];
-                $data['unified_amount']   = $data['order_amount'];
-                $data['unified_number']   = $data['order_code'];
-                $data['cause']            = '购买商品';
-                $this->assign('data', $data);
+                    // 组装数据返回
+                    $data['transaction_type'] = 8; // 交易类型，8为购买视频
+                    $data['unified_id']       = $data['order_id'];
+                    $data['unified_amount']   = $data['order_amount'];
+                    $data['unified_number']   = $data['order_code'];
+                    $data['cause']            = '购买视频';
+                    $this->assign('data', $data);
+
+                } else {
+                    // 获取支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $data = $this->shop_order_db->where($where)->find();
+                    if (empty($data)) $this->error('订单不存在或已变更', url('user/Shop/shop_centre'));
+                    
+                    // 判断订单状态，1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
+                    $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $data['order_id']]));
+                    if (in_array($data['order_status'], [1, 2, 3])) {
+                        $this->error('订单已支付，即将跳转！', $url);
+                    } elseif ($data['order_status'] == 4) {
+                        $this->error('订单已过期，即将跳转！', $url);
+                    } elseif ($data['order_status'] == -1) {
+                        $this->error('订单已关闭，即将跳转！', $url);
+                    }
+
+                    // 组装数据返回
+                    $data['transaction_type'] = 2; // 交易类型，2为购买
+                    $data['unified_id']       = $data['order_id'];
+                    $data['unified_amount']   = $data['order_amount'];
+                    $data['unified_number']   = $data['order_code'];
+                    $data['cause']            = '购买商品';
+                    $this->assign('data', $data);
+
+                }
             }
 
             return $this->fetch('users/pay_recharge_detail');

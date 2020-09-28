@@ -720,7 +720,7 @@
             <!-- 产品价格属性 -->
         {/if}
 
-            {include file="field/addonextitem" /}
+            {include file="archives/get_field_addonextitem" /}
         </div>
         <!-- 常规信息 -->
         <!-- 产品参数 -->
@@ -766,11 +766,18 @@
                 <dt class="tit">
                     <label>TAG标签</label>
                 </dt>
-                <dd class="opt">          
+                <dd class="opt opt1591870121">
                     <input type="text" value="{$field.tags}" name="tags" id="tags" class="input-txt">
-                    &nbsp;<a href="javascript:void(0);" onclick="tags_list(this);" class="ncap-btn ncap-btn-green">管理</a>
+                    <script type="text/javascript">
+                        $(function() { $('#tags').tagsInput({width: '450px', height: 'auto'}); });
+                    </script>
+                    <a href="javascript:void(0);" onclick="TagListSelect1591784354(this);" class="ncap-btn ncap-btn-green">快速选择</a>
                     <span class="err"></span>
-                    <p class="notic">多个标签用英文逗号（,）分开，单个标签小于12字节</p>
+                    <p class="notic">输入标签结束后可用回车或空格分开</p>
+                    <input type="hidden" id="TagOldSelectID" value="{$field.tag_id}">
+                    <input type="hidden" id="NewTagOldSelectID" value="{$field.tag_id}">
+                    <input type="hidden" id="TagOldSelectTag" value="{$field.tags}">
+                    <input type="hidden" name="tags_new" id="NewTagOldSelectTag" value="{$field.tags}">
                 </dd>
             </dl>
             <dl class="row">
@@ -930,6 +937,8 @@
             } else if ({$channeltype} == current_channel) {
                 layer.closeAll();
             }
+            var aid = $("input[name=aid]").val();
+            GetAddonextitem($(this).val(), {$channeltype}, aid, true);
         });
     });
 
@@ -987,18 +996,17 @@
 
     function tags_list(obj)
     {
+        layer.closeAll();
         var url = "{:url('Tags/index')}";
         //iframe窗
-        layer.open({
+        var iframes = layer.open({
             type: 2,
             title: 'TAG标签管理',
             fixed: true, //不固定
             shadeClose: false,
-            shade: 0.3,
-            maxmin: true, //开启最大化最小化按钮
-            area: ['80%', '80%'],
             content: url
         });
+        layer.full(iframes);
     }
 
     function system_thumb()

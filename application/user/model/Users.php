@@ -38,7 +38,7 @@ class Users extends Model
     // 传入参数：
     // $post_users ：会员属性信息数组
     // return error：错误提示
-    public function isEmpty($post_users = [])
+    public function isEmpty($post_users = [], $type = '')
     {
         $error = '';
         // 会员属性
@@ -47,6 +47,9 @@ class Users extends Model
             'is_hidden'   => 0, // 是否隐藏属性，0为否
             'is_required' => 1, // 是否必填属性，1为是
         );
+        if ('reg' == $type) {
+            $where['is_reg'] = 1; // 是否为注册表单
+        }
         $para_data = M('users_parameter')->where($where)->field('title,name')->select();
         // 处理提交的属性中必填项是否为空
         foreach ($para_data as $key => $value) {
@@ -67,7 +70,7 @@ class Users extends Model
     // $post_users:会员属性信息数组
     // $users_id:会员ID，注册时不需要传入，修改时需要传入。
     // return error
-    public function isRequired($post_users = [],$users_id='')
+    public function isRequired($post_users = [],$users_id='', $type = '')
     {
         if (empty($post_users)) {
             return false;
@@ -79,6 +82,9 @@ class Users extends Model
             'is_system'=> 1,
             'lang'     => $this->home_lang,
         ];
+        if ('reg' == $type) {
+            $where_1['is_reg'] = 1; // 是否为注册表单
+        }
         $users_parameter = M('users_parameter')->where($where_1)->field('para_id,title,name')->getAllWithIndex('name');
 
         $email = '';
@@ -226,7 +232,7 @@ class Users extends Model
                 'lang'     => $this->home_lang,
             ];
             $listData = M('users_list')->where($listwhere)->field('users_id,info')->find();
-            $Data['email'] = $listData['info'];
+            $Data['email'] = !empty($listData['info']) ? $listData['info'] : '';
         }
 
         if ('mobile' == $field || '*' == $field) {
@@ -243,7 +249,7 @@ class Users extends Model
                 'lang'     => $this->home_lang,
             ];
             $listData_1 = M('users_list')->where($listwhere_1)->field('users_id,info')->find();
-            $Data['mobile'] = $listData_1['info'];
+            $Data['mobile'] = !empty($listData_1['info']) ? $listData_1['info'] : '';
         }
 
         return $Data;

@@ -110,84 +110,134 @@ class PayApi extends Base {
         }
     }
 
-    // 购物余额支付(仅购物时使用)
+    // 购物余额支付(购物+购买视频时使用)
     public function balance_payment()
     {
         if (IS_AJAX_POST) {
             $post = input('post.');
             if (empty($post['unified_id'])) $this->error('订单异常，刷新重试');
-            $Data = Db::name('shop_order')->field('order_amount, order_id, order_status')->find($post['unified_id']);
-            if (empty($Data)) $this->error('订单异常，刷新重试');
-            
-            //1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
-            $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $Data['order_id']]));
-            if (in_array($Data['order_status'], [1, 2, 3])) {
-                $this->success('订单已支付！即将跳转', $url);
-            } else if ($Data['order_status'] == 4) {
-                $this->success('订单已过期！即将跳转', $url);
-            } else if ($Data['order_status'] == -1) {
-                $this->success('订单已关闭！即将跳转', $url);
-            }
 
-            // 订单数据更新处理
-            if ($this->users['users_money'] >= $Data['order_amount']) {
-                $Where = [
-                    'users_id' => $this->users_id,
-                    'lang'     => $this->home_lang
-                ];
-                $post['payment_amount'] = $Data['order_amount'];
-                $post['payment_type']   = '余额支付';
-                $OrderData = [
-                    'order_status' => 1,
-                    'pay_name'     => 'balance',// 余额支付
-                    'wechat_pay_type' => '',    // 余额支付则清空微信标志
-                    'pay_details'  => serialize($post),
-                    'pay_time'     => getTime(),
-                    'update_time'  => getTime(),
-                ];
-                $OrderWhere = [
-                    'order_id'   => $post['unified_id'],
-                    'order_code' => $post['unified_number'],
-                ];
-                $OrderWhere = array_merge($Where, $OrderWhere);
-                $return = Db::name('shop_order')->where($OrderWhere)->update($OrderData);
+            if (!empty($post['transaction_type']) && 8 == $post['transaction_type']) {
+                // 视频购买
+                $Data = Db::name('media_order')->find($post['unified_id']);
+                if (empty($Data)) $this->error('订单异常，刷新重试');
 
-                if (!empty($return)) {
-                    $DetailsWhere = [
-                        'order_id'   => $post['unified_id'],
+                $ViewUrl = cookie($this->users_id . '_' . $Data['product_id'] . '_EyouMediaViewUrl');
+                if (in_array($Data['order_status'], [1])) $this->success('订单已支付！即将跳转', $ViewUrl);
+
+                if ($this->users['users_money'] >= $Data['order_amount']) {
+                    // 订单更新条件
+                    $OrderWhere = [
+                        'order_id'  => $Data['order_id'],
+                        'users_id'  => $this->users_id,
+                        'lang'      => $this->home_lang
                     ];
-                    $DetailsWhere = array_merge($Where, $DetailsWhere);
-                    $DetailsData['update_time'] = getTime();
-                    Db::name('shop_order_details')->where($DetailsWhere)->update($DetailsData);
 
-                    $UsersData = [
-                        'users_money' => $this->users['users_money'] - $Data['order_amount'],
-                        'update_time' => getTime(),
+                    // 订单更新数据，更新为已付款
+                    $post['payment_type'] = '余额支付';
+                    $post['payment_amount'] = $Data['order_amount'];
+                    $OrderData = [
+                        'order_status' => 1,
+                        'pay_details'  => serialize($post),
+                        'pay_time'     => getTime(),
+                        'update_time'  => getTime()
                     ];
-                    $users_id = Db::name('users')->where($Where)->update($UsersData);
-                    if (!empty($users_id)) {
-                        // 添加订单操作记录
-                        AddOrderAction($post['unified_id'], $this->users_id, 0, 1, 0, 1, '支付成功！','会员使用余额完成支付！');
+                    $ResultID = Db::name('media_order')->where($OrderWhere)->update($OrderData);
 
-                        // 虚拟自动发货
-                        model('Pay')->afterVirtualProductPay($DetailsWhere);
-
-                        // 邮箱发送
-                        $Result['email'] = GetEamilSendData(tpCache('smtp'), $this->users, $OrderWhere, 1, 'balance');
-
-                        // 手机发送
-                        $Result['mobile'] = GetMobileSendData(tpCache('sms'), $this->users, $OrderWhere, 1, 'balance');
+                    // 订单更新后续操作
+                    if (!empty($ResultID)) {
+                        $Where = [
+                            'users_id' => $this->users_id,
+                            'lang'     => $this->home_lang
+                        ];
+                        $UsersData = [
+                            'users_money' => $this->users['users_money'] - $Data['order_amount'],
+                            'update_time' => getTime()
+                        ];
+                        $users_id = Db::name('users')->where($Where)->update($UsersData);
 
                         // 订单操作完成，返回跳转
-                        $url = url('user/Shop/shop_order_details', ['order_id' => $post['unified_id']]);
-                        $this->success('支付成功，处理订单完成', $url, $Result);
+                        $this->success('支付成功，处理订单完成', $ViewUrl);
                     }
                 } else {
-                    $this->error('订单支付异常，请刷新后再进行支付！');
+                    $url = urldecode(url('user/Pay/pay_account_recharge'));
+                    $this->error('余额不足，请先充值！', $url);
                 }
             } else {
-                $url = urldecode(url('user/Pay/pay_account_recharge'));
-                $this->error('余额不足，若要使用余额支付，请去充值！',$url);
+                // 商城商品购买
+                $Data = Db::name('shop_order')->field('order_amount, order_id, order_status')->find($post['unified_id']);
+                if (empty($Data)) $this->error('订单异常，刷新重试');
+                
+                //1已付款(待发货)，2已发货(待收货)，3已完成(确认收货)，-1订单取消(已关闭)，4订单过期
+                $url = urldecode(url('user/Shop/shop_order_details', ['order_id' => $Data['order_id']]));
+                if (in_array($Data['order_status'], [1, 2, 3])) {
+                    $this->success('订单已支付！即将跳转', $url);
+                } else if ($Data['order_status'] == 4) {
+                    $this->success('订单已过期！即将跳转', $url);
+                } else if ($Data['order_status'] == -1) {
+                    $this->success('订单已关闭！即将跳转', $url);
+                }
+
+                // 订单数据更新处理
+                if ($this->users['users_money'] >= $Data['order_amount']) {
+                    $Where = [
+                        'users_id' => $this->users_id,
+                        'lang'     => $this->home_lang
+                    ];
+                    $post['payment_amount'] = $Data['order_amount'];
+                    $post['payment_type']   = '余额支付';
+                    $OrderData = [
+                        'order_status' => 1,
+                        'pay_name'     => 'balance',// 余额支付
+                        'wechat_pay_type' => '',    // 余额支付则清空微信标志
+                        'pay_details'  => serialize($post),
+                        'pay_time'     => getTime(),
+                        'update_time'  => getTime(),
+                    ];
+                    $OrderWhere = [
+                        'order_id'   => $post['unified_id'],
+                        'order_code' => $post['unified_number'],
+                    ];
+                    $OrderWhere = array_merge($Where, $OrderWhere);
+                    $return = Db::name('shop_order')->where($OrderWhere)->update($OrderData);
+
+                    if (!empty($return)) {
+                        $DetailsWhere = [
+                            'order_id'   => $post['unified_id'],
+                        ];
+                        $DetailsWhere = array_merge($Where, $DetailsWhere);
+                        $DetailsData['update_time'] = getTime();
+                        Db::name('shop_order_details')->where($DetailsWhere)->update($DetailsData);
+
+                        $UsersData = [
+                            'users_money' => $this->users['users_money'] - $Data['order_amount'],
+                            'update_time' => getTime(),
+                        ];
+                        $users_id = Db::name('users')->where($Where)->update($UsersData);
+                        if (!empty($users_id)) {
+                            // 添加订单操作记录
+                            AddOrderAction($post['unified_id'], $this->users_id, 0, 1, 0, 1, '支付成功！','会员使用余额完成支付！');
+
+                            // 虚拟自动发货
+                            model('Pay')->afterVirtualProductPay($DetailsWhere);
+
+                            // 邮箱发送
+                            $Result['email'] = GetEamilSendData(tpCache('smtp'), $this->users, $OrderWhere, 1, 'balance');
+
+                            // 手机发送
+                            $Result['mobile'] = GetMobileSendData(tpCache('sms'), $this->users, $OrderWhere, 1, 'balance');
+
+                            // 订单操作完成，返回跳转
+                            $url = url('user/Shop/shop_order_details', ['order_id' => $post['unified_id']]);
+                            $this->success('支付成功，处理订单完成', $url, $Result);
+                        }
+                    } else {
+                        $this->error('订单支付异常，请刷新后再进行支付！');
+                    }
+                } else {
+                    $url = urldecode(url('user/Pay/pay_account_recharge'));
+                    $this->error('余额不足，若要使用余额支付，请去充值！',$url);
+                }
             }
         }
     }
@@ -225,6 +275,15 @@ class PayApi extends Base {
                 $data  = Db::name('users_money')->where($where)->find();
                 $out_trade_no = $data['order_number'];
                 $total_fee    = $data['money'];
+            } else if (8 == $transaction_type) {
+                // 购买订单
+                $where  = array(
+                    'users_id'   => $this->users_id,
+                    'order_code' => $unified_number
+                );
+                $data  = Db::name('media_order')->where($where)->find();
+                $out_trade_no = $data['order_code'];
+                $total_fee    = $data['order_amount'];
             }
 
             // 调取微信支付链接

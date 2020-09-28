@@ -310,7 +310,7 @@ class Request
             $domain_postfix_cn_array = ["com", "net", "org", "gov", "edu", "nm", "cn", "co"];
             $array_domain = explode(".", $host);
             $array_num = count($array_domain) - 1;
-            if (in_array($array_domain[$array_num], ['cn','tw','hk','nz'])) {
+            if (in_array($array_domain[$array_num], ['cn','tw','hk','nz','au'])) {
                 if (in_array($array_domain[$array_num - 1], $domain_postfix_cn_array)) {
                     $root = $array_domain[$array_num - 2] . "." . $array_domain[$array_num - 1] . "." . $array_domain[$array_num];
                 } else {

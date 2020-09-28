@@ -261,7 +261,8 @@ class WeappLogic extends Model
         }
 
         $curent_version = getWeappVersion($code);
-        $upgrade_url = $this->service_url.'&code='.$code.'&dev=1&v='.$curent_version;
+        $upgrade_dev = config('global.upgrade_dev');
+        $upgrade_url = $this->service_url.'&code='.$code.'&dev='.$upgrade_dev.'&v='.$curent_version;
         $serviceVersionList = file_get_contents($upgrade_url);
         $serviceVersionList = json_decode($serviceVersionList,true);
         if (empty($serviceVersionList)) {

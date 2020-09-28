@@ -732,6 +732,31 @@ if (!function_exists('get_arcurl'))
     }
 }
 
+if (!function_exists('get_tagurl')) 
+{
+    /**
+     * 获取标签链接
+     *
+     * @param array $tagid 标签ID
+     */
+    function get_tagurl($tagid = '')
+    {
+        static $seo_pseudo = null;
+        static $seo_dynamic_format = null;
+        if (null === $seo_pseudo || null === $seo_dynamic_format) {
+            $seoConfig = tpCache('seo');
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+        }
+    
+        $tagurl = tagurl("home/Tags/lists", ['tagid'=>$tagid], true, true, $seo_pseudo, $seo_dynamic_format);
+        // 自动隐藏index.php入口文件
+        $tagurl = auto_hide_index($tagurl);
+
+        return $tagurl;
+    }
+}
+
 if (!function_exists('get_total_arc')) 
 {
     /**

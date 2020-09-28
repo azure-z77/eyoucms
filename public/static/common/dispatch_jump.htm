@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
     <title>跳转提示</title>
     <style type="text/css">
         *{ padding: 0; margin: 0; }
@@ -14,6 +15,7 @@
         .status-ico{margin: 20px auto;width: 73px;height: 76px;display: block;background: url(__STATIC__/admin/images/ico_right_wrong.png) no-repeat}
         .status-ico-ok{background-position: 0 0}
         .status-ico-error{background-position: -97px 0}
+		@media (max-width: 767px) {.system-message{width: 90%;box-shadow:none!important;}}
     </style>
     <script type="text/javascript" src="__PUBLIC__/static/common/js/jquery.tools.min.js"></script>
     <script type="text/javascript">

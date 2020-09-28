@@ -14,7 +14,7 @@
 $cacheKey = "extra_global_channeltype";
 $channeltype_row = \think\Cache::get($cacheKey);
 if (empty($channeltype_row)) {
-    $channeltype_row = \think\Db::name('channeltype')->field('id,nid,ctl_name,ntitle,ifsystem,table')
+    $channeltype_row = \think\Db::name('channeltype')->field('id,nid,ctl_name,ntitle,ifsystem,table,status')
         ->order('id asc')
         ->getAllWithIndex('id');
     \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
@@ -46,7 +46,7 @@ $lang_switch_on == true && $parse_url_param[] = 'lang';
 $parse_url_param[] = 'goto';
 
 return array(
-    // 小虎哥
+    // 小虎哥 
     'upgrade_dev'   => 0,
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','install','public','template','uploads','vendor','weapp'],

@@ -39,15 +39,15 @@ class Channeltype extends Base
             ])->column('id');
 
         // 看查询条件就知道了
-        $d2ViX2lzX2F1 = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
-        if (-1 == $d2ViX2lzX2F1) {
-            $this->channeltype_db->where(['id'=>5])
-                ->cache(true,null,"channeltype")
-                ->update([
-                    'status'    => 0,
-                    'update_time'   => getTime(),
-                ]);
-        }
+        // $d2ViX2lzX2F1 = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
+        // if (-1 == $d2ViX2lzX2F1) {
+        //     $this->channeltype_db->where(['id'=>5])
+        //         ->cache(true,null,"channeltype")
+        //         ->update([
+        //             'status'    => 0,
+        //             'update_time'   => getTime(),
+        //         ]);
+        // }
     }
 
     public function index()
@@ -520,7 +520,7 @@ EOF;
             $id = input('id/d');
             $status = input('status/d', 0);
             if(!empty($id)){
-                if(5 == $id){action('Media/check_use');}
+                // if(5 == $id){action('Media/check_use');}
                 $row = Db::name('channeltype')->where([
                         'id'    => $id,
                     ])->find();
@@ -566,7 +566,16 @@ EOF;
                             'status'    => $status,
                             'update_time'   => getTime(),
                         ]);
-                    if($r){
+                    if($r !== false){
+                        /*同时开启与禁止会员中心的【我的下载】*/
+                        Db::name('users_menu')->where([
+                                'mca'   => 'user/Download/index',
+                                'lang'  => get_main_lang(),
+                            ])->update([
+                                'status'    => intval($status),
+                                'update_time' => getTime(),
+                            ]);
+                        /*end*/
                         delFile(CACHE_PATH, true);
                         adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
                         $this->success('操作成功', null, ['confirm'=>0]);

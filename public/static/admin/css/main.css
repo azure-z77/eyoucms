@@ -445,7 +445,7 @@ padding: 0; *zoom:1/*IE7*/;
 .flexigrid .mDiv .ftitle h3 { font-size: 14px; color: #333; margin-right: 6px; display: inline-block;
     text-indent: 8px;
     border-left: 3px solid #88B7E0;}
-
+.flexigrid .ftitle{margin-bottom: 10px;}
 .anchor-icon{
     display:inline-block;
     width: 22px;
@@ -654,6 +654,9 @@ i.fa-external-link { color: #999 !important; font-size: 9px !important; margin-l
 .flexigrid .bDiv .pic-thumb-tip { color: #777; }
 .flexigrid .bDiv .pic-thumb-tip i { font-size: 14px; }
 .flexigrid .bDiv .pic-thumb-tip:hover { color: #333; }
+
+.flexigrid .bDiv .tagBox{width: 98%; margin: 0 auto;background-color: #fff;padding:10px;}
+.flexigrid .bDiv .tagBox a{margin: 4px 0;}
 /*数据表格查询为空*/
 .no-data,
 .flexigrid .bDiv .no-data { font-size: 14px; color: #999; width: 100% !important; height: 24px; border: 0 none !important; text-align: center; padding: 100px 0; }

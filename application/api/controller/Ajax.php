@@ -215,6 +215,7 @@ class Ajax extends Base
                             $users['html'] = $nickname;
                         }
                         $users['ey_is_login'] = 1;
+                        setcookie('users_id', $users_id, null);
                         $this->success('请求成功', null, $users);
                     }
                 }
@@ -652,5 +653,110 @@ class Ajax extends Base
         }
 
         $this->error($msg);
+    }
+
+    // 视频权限播放逻辑
+    public function video_logic()
+    {
+        $post = input('post.');
+        if (IS_AJAX_POST && !empty($post['aid'])) {
+
+            // 查询文档信息 
+            $field = 'a.aid, a.typeid, a.channel, a.users_price, a.users_free, b.level_id, b.level_name, b.level_value';
+            $where = [
+                'a.aid' => $post['aid'],
+                'a.is_del' => 0
+            ];
+            $archivesInfo = Db::name('archives')
+                ->alias('a')
+                ->field($field)
+                ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                ->where($where)
+                ->find();
+
+            if (5 == $archivesInfo['channel']) {
+                // 获取用户最新信息
+                $UsersData = GetUsersLatestData();
+                $UsersID = $UsersData['users_id'];
+
+                // 初始化数据
+                $result['BuyOnclick'] = 'MediaOrderBuy_1592878548();';
+                $result['BuyName']    = '立即购买';
+                $result['MsgOnclick'] = 'MediaOrderBuy_1592878548();';
+                $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
+                $result['MsgName']    = '立即购买';
+                $result['VideoButton'] = '购买观看';
+                $result['DelVideoUrl'] = 1;
+
+                /*是否需要付费*/
+                if (!empty($archivesInfo['users_price']) && 0 < $archivesInfo['users_price']) {
+                    $Paid = 0; // 未付费
+                    if (!empty($UsersID)) {
+                        $where = [
+                            'users_id' => $UsersID,
+                            'product_id' => $post['aid'],
+                            'order_status' => 1
+                        ];
+                        // 存在数据则已付费
+                        $Paid = Db::name('media_order')->where($where)->count();
+                    }
+
+                    // 未付费则执行
+                    if (!empty($Paid)) {
+                        $result['BuyOnclick'] = '';
+                        $result['BuyName']    = '已付费';
+                        $result['MsgOnclick'] = '';
+                        $result['MsgTitle']   = '';
+                        $result['MsgName']    = '';
+                        $result['VideoButton'] = '开始播放';
+                        $result['DelVideoUrl'] = 0;
+                    }
+                } else {
+                    $result['BuyOnclick'] = '';
+                    $result['BuyName']    = '免费观看';
+                    $result['MsgOnclick'] = '';
+                    $result['MsgTitle']   = '';
+                    $result['MsgName']    = '';
+                    $result['VideoButton'] = '开始播放';
+                    $result['DelVideoUrl'] = 0;
+                }
+                /*END*/
+
+                /*是否会员免费*/
+                if (1 == $archivesInfo['users_free'] && !empty($UsersData['level_value'])) {
+                    $where = [
+                        'is_system' => 1,
+                        'lang' => $this->home_lang
+                    ];
+                    $UsersLevel = DB::name('users_level')->where($where)->getField('level_value');
+                    if (!empty($UsersLevel) && $UsersData['level_value'] > $UsersLevel) {
+                        $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
+                        $result['VideoButton'] = '开始播放';
+                        $result['DelVideoUrl'] = 0;
+                    }
+                } else if (!empty($archivesInfo['level_value']) && !empty($UsersData['level_value'])) {
+                    if ($UsersData['level_value'] >= $archivesInfo['level_value']) {
+                        $result['BuyOnclick'] = $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
+                        $result['BuyName']    = '会员免费';
+                        $result['VideoButton'] = '开始播放';
+                        $result['DelVideoUrl'] = 0;
+                    } else if (!empty($archivesInfo['level_value']) && 0 >= $archivesInfo['users_price']) {
+                        $result['BuyOnclick'] = 'LevelCentre_1592878548();';
+                        $result['BuyName']    = '升级会员';
+                        $result['MsgOnclick'] = 'LevelCentre_1592878548();';
+                        $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
+                        $result['MsgName']    = '升级会员';
+                        $result['VideoButton'] = '升级观看';
+                        $result['DelVideoUrl'] = 1;
+                    }
+                }
+                /*END*/
+
+                $this->success('查询成功', null, $result);
+            } else {
+                $this->error('非视频模型的文档！');
+            }
+        }
+        abort(404);
     }
 }

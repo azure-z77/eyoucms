@@ -71,7 +71,8 @@ class Archives extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            $result['tags'] = $tags['tag_arr'];
+            $result['tag_id'] = $tags['tid_arr'];
         }
 
         return $result;
@@ -167,5 +168,34 @@ class Archives extends Model
         /*--end*/
 
         return true;
+    }
+
+    /**
+     * 获取单条记录
+     * @author 陈风任 by 2020-06-08
+     */
+    public function UnifiedGetInfo($aid, $field = '', $isshowbody = true)
+    {
+        $result = array();
+        $field = !empty($field) ? $field : '*';
+        $result = Db::name('archives')->field($field)
+            ->where([
+                'aid'   => $aid,
+                'lang'  => get_admin_lang(),
+            ])
+            ->find();
+        if ($isshowbody) {
+            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
+        }
+
+        // 产品TAG标签
+        if (!empty($result)) {
+            $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
+            $tags = model('Taglist')->getListByAid($aid, $typeid);
+            $result['tags'] = $tags;
+        }
+
+        return $result;
     }
 }

@@ -114,6 +114,9 @@ class Tags extends Base
         $field_data = array(
             'tag'   => $tag,
             'tagid'   => $tagid,
+            'seo_title'   => !empty($tagindexInfo['seo_title']) ? $tagindexInfo['seo_title'] : $tagindexInfo['tag'],
+            'seo_keywords'   => !empty($tagindexInfo['seo_keywords']) ? $tagindexInfo['seo_keywords'] : $tagindexInfo['seo_keywords'],
+            'seo_description'   => !empty($tagindexInfo['seo_description']) ? $tagindexInfo['seo_description'] : $tagindexInfo['seo_description'],
         );
         $eyou = array(
             'field'  => $field_data,

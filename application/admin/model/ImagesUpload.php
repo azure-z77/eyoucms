@@ -82,7 +82,7 @@ class ImagesUpload extends Model
                 $filesize = 0;
                 $img_info = array();
                 if (is_http_url($val)) {
-                    $imgurl = $val;
+                    $imgurl = handle_subdir_pic($val);
                 } else {
                     $imgurl = ROOT_PATH.ltrim($val, '/');
                     $filesize = @filesize('.'.$val);

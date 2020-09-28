@@ -106,6 +106,23 @@
                         <p class="notic">{$vo.remark|default=''}</p>
                     </dd>
                 </dl>
+                <script type="text/javascript">
+                    $(function(){
+                        //自定义radio样式
+                        $(".cb-enable").on('click', function(){
+                            var parent = $(this).parents('.onoff');
+                            $('.cb-disable',parent).removeClass('selected');
+                            $(this).addClass('selected');
+                            $('.checkbox',parent).attr('checked', true);
+                        });
+                        $(".cb-disable").on('click', function(){
+                            var parent = $(this).parents('.onoff');
+                            $('.cb-enable',parent).removeClass('selected');
+                            $(this).addClass('selected');
+                            $('.checkbox',parent).attr('checked', false);
+                        });
+                    });
+                </script>
                 <!-- 开关 end -->
             {/case}
 

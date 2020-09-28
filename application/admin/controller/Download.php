@@ -176,6 +176,17 @@ class Download extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             $content = input('post.addonFieldExt.content', '', null);
             if (!empty($post['fileupload'])){
                 foreach ($post['fileupload']['file_url'] as $k => $v){
@@ -366,6 +377,17 @@ class Download extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
             if (!empty($post['fileupload'])){
@@ -499,6 +521,7 @@ class Download extends Base
         }
         /*--end*/
         $typeid = $info['typeid'];
+        $assign_data['typeid'] = $typeid;
 
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);

@@ -50,6 +50,10 @@ class Member extends Base {
         // 是否开启支付功能设置
         $this->userConfig = getUsersConfigData('all');
         $this->assign('userConfig',$this->userConfig);
+
+        // 模型是否开启
+        $channeltype_row = \think\Cache::get('extra_global_channeltype');
+        $this->assign('channeltype_row',$channeltype_row);
     }
 
     // 会员列表
@@ -580,6 +584,17 @@ class Member extends Base {
             ->getAllWithIndex('level');
         $this->assign('levelgroup',$levelgroup);
 
+        /*是否安装启用下载次数限制插件*/
+        $isShowDownCount = 0;
+        if (is_dir('./weapp/Downloads/')) {
+            $DownloadsRow = model('Weapp')->getWeappList('Downloads');
+            if (!empty($DownloadsRow['status']) && 1 == $DownloadsRow['status']) {
+                $isShowDownCount = 1;
+            }
+        }
+        $this->assign('isShowDownCount', $isShowDownCount);
+        /*end*/
+
         return $this->fetch();
     }
 
@@ -604,9 +619,9 @@ class Member extends Base {
                 $level_id    = $post['level_id'][$key];
                 $level_name  = trim($value);
                 $level_value = intval(trim($post['level_value'][$key]));
-                $discount    = $post['discount'][$key];
+                $discount    = !empty($post['discount'][$key]) ? $post['discount'][$key] : 100;
+                $down_count    = !empty($post['down_count'][$key]) ? intval($post['down_count'][$key]) : 100;
 
-                if (empty($discount)) $discount = 100;
                 if (empty($level_name)) $this->error('级别名称不可为空！');
                 if (empty($level_value)) $this->error('会员等级值不可为空！');
 
@@ -615,6 +630,7 @@ class Member extends Base {
                     'level_name'  => $level_name,
                     'level_value' => $level_value,
                     'discount'    => $discount,
+                    'down_count'    => $down_count,
                     'update_time' => getTime(),
                 ];
 
@@ -638,54 +654,54 @@ class Member extends Base {
     }
 
     // 级别 - 编辑
-    public function level_edit()
-    {
-        if (IS_POST) {
-            $post = input('post.');
-            $post['level_name'] = trim($post['level_name']);
-            $post['level_value'] = intval(trim($post['level_value']));
+    // public function level_edit()
+    // {
+    //     if (IS_POST) {
+    //         $post = input('post.');
+    //         $post['level_name'] = trim($post['level_name']);
+    //         $post['level_value'] = intval(trim($post['level_value']));
 
-            $levelRow = $this->users_level_db->field('level_name,level_value')
-                ->where([
-                    'level_id'      => ['NEQ', $post['level_id']],
-                    'lang'      => $this->admin_lang,
-                ])
-                ->select();
-            foreach ($levelRow as $key => $val) {
-                if ($val['level_name'] == $post['level_name']) {
-                    $this->error('级别名称已存在！');
-                } else if (intval($val['level_value']) == $post['level_value']) {
-                    $this->error('会员等级值不能重复！');
-                }
-            }
+    //         $levelRow = $this->users_level_db->field('level_name,level_value')
+    //             ->where([
+    //                 'level_id'      => ['NEQ', $post['level_id']],
+    //                 'lang'      => $this->admin_lang,
+    //             ])
+    //             ->select();
+    //         foreach ($levelRow as $key => $val) {
+    //             if ($val['level_name'] == $post['level_name']) {
+    //                 $this->error('级别名称已存在！');
+    //             } else if (intval($val['level_value']) == $post['level_value']) {
+    //                 $this->error('会员等级值不能重复！');
+    //             }
+    //         }
 
-            $newData = [
-                'level_value'   => intval($post['level_value']),
-                'update_time'  => getTime(),
-            ];
-            $data = array_merge($post, $newData);
-            $r = $this->users_level_db->where([
-                    'level_id'  => $post['level_id'],
-                    'lang'      => $this->admin_lang,
-                ])->update($data);
-            if ($r) {
-                adminLog('编辑会员级别：'.$data['level_name']);
-                $this->success('操作成功', url('Member/level_index'));
-            } else {
-                $this->error('操作失败');
-            }
-        }
+    //         $newData = [
+    //             'level_value'   => intval($post['level_value']),
+    //             'update_time'  => getTime(),
+    //         ];
+    //         $data = array_merge($post, $newData);
+    //         $r = $this->users_level_db->where([
+    //                 'level_id'  => $post['level_id'],
+    //                 'lang'      => $this->admin_lang,
+    //             ])->update($data);
+    //         if ($r) {
+    //             adminLog('编辑会员级别：'.$data['level_name']);
+    //             $this->success('操作成功', url('Member/level_index'));
+    //         } else {
+    //             $this->error('操作失败');
+    //         }
+    //     }
 
-        $id = input('get.id/d');
+    //     $id = input('get.id/d');
 
-        $info = $this->users_level_db->where([
-                'level_id'  => $id,
-                'lang'  => $this->admin_lang,
-            ])->find();
-        $this->assign('info',$info);
+    //     $info = $this->users_level_db->where([
+    //             'level_id'  => $id,
+    //             'lang'  => $this->admin_lang,
+    //         ])->find();
+    //     $this->assign('info',$info);
 
-        return $this->fetch();
-    }
+    //     return $this->fetch();
+    // }
 
     // 级别 - 删除
     public function level_del()
@@ -1611,4 +1627,90 @@ class Member extends Base {
 
         return $this->fetch();
     }
+
+    // --------------------------视频订单------------------------------ //
+
+    // 视频订单列表页
+    public function media_index()
+    {   
+        // 定义数组
+        $list = [];
+        $condition = [
+            'a.lang' => $this->admin_lang, // 多语言
+        ];
+
+        // 应用搜索条件
+        $order_code = input('order_code/s');
+        if (!empty($order_code)) $condition['a.order_code'] = ['LIKE', "%{$order_code}%"];
+
+        // 分页
+        $count = Db::name('media_order')->alias('a')->where($condition)->count();
+        $Page = new Page($count, config('paginate.list_rows'));
+        $show = $Page->show();
+        $this->assign('page', $show);
+        $this->assign('pager', $Page);
+
+        // 数据查询
+        $list = Db::name('media_order')->where($condition)
+            ->field('a.*, b.username')
+            ->alias('a')
+            ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
+            ->order('a.order_id desc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
+        $this->assign('list', $list);
+
+        return $this->fetch();
+    }
+
+    // 视频订单详情页
+    public function media_order_details()
+    {
+        $order_id = input('param.order_id');
+        if (!empty($order_id)) {
+            // 查询订单信息
+            $OrderData = Db::name('media_order')->field('*, product_id as aid')->find($order_id);
+            // 查询会员数据
+            $UsersData = $this->users_db->find($OrderData['users_id']);
+            // 用于点击视频文档跳转到前台
+            $array_new = get_archives_data([$OrderData], 'product_id');
+            // 内页地址
+            $OrderData['arcurl'] = get_arcurl($array_new[$OrderData['product_id']]);
+            // 支持子目录
+            $OrderData['product_litpic'] = get_default_pic($OrderData['product_litpic']);
+            // 加载数据
+            $this->assign('OrderData', $OrderData);
+            $this->assign('UsersData', $UsersData);
+            return $this->fetch();
+        } else {
+            $this->error('非法访问！');
+        }
+    }
+
+    // 视频订单批量删除
+    public function media_order_del()
+    {
+        $order_id = input('del_id/a');
+        $order_id = eyIntval($order_id);
+        if (IS_AJAX_POST && !empty($order_id)) {
+            // 条件数组
+            $Where = [
+                'order_id'  => ['IN', $order_id],
+                'lang'      => $this->admin_lang
+            ];
+            $result = Db::name('media_order')->field('order_code')->where($Where)->select();
+            $order_code_list = get_arr_column($result, 'order_code');
+            // 删除订单列表数据
+            $return = Db::name('media_order')->where($Where)->delete();
+            if ($return) {
+                adminLog('删除订单：'.implode(',', $order_code_list));
+                $this->success('删除成功');
+            } else {
+                $this->error('删除失败');
+            }
+        }
+        $this->error('参数有误');
+    }
+
+    // --------------------------视频订单------------------------------ //
 }

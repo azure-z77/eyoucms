@@ -447,7 +447,7 @@ class Users extends Base
 
             // 处理提交的会员属性中必填项是否为空
             // 必须传入提交的会员属性数组
-            $EmptyData = model('Users')->isEmpty($ParaData);
+            $EmptyData = model('Users')->isEmpty($ParaData, 'reg');
             if (!empty($EmptyData)) {
                 $this->error($EmptyData, null, ['status' => 1]);
             }
@@ -456,7 +456,7 @@ class Users extends Base
             // IsRequired方法传入的参数有2个
             // 第一个必须传入提交的会员属性数组
             // 第二个users_id，注册时不需要传入，修改时需要传入。
-            $RequiredData = model('Users')->isRequired($ParaData);
+            $RequiredData = model('Users')->isRequired($ParaData, 'reg');
             if (!empty($RequiredData) && !is_array($RequiredData)) {
                 $this->error($RequiredData, null, ['status' => 1]);
             }

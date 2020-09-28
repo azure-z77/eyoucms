@@ -18,6 +18,7 @@
             <input name="keyword" id="keyword" type="text" placeholder="输入地址搜索,可以移动标注点更改位置确定保存" class="layui-input" autocomplete="off" size="25" value="{$keyword}" />
         </div>
         <input type="hidden" id="location" value="{$lng},{$lat}">
+        <input type="hidden" id="alladdress" value="">
         <button class="layui-btn layui-btn-normal" id="search">搜索</button>
         <button class="layui-btn layui-btn-danger" id="sure">确定</button>
     </div>
@@ -31,6 +32,8 @@
     // 百度地图API功能
     var lng = "{$lng}",lat = "{$lat}",keyword = "{$keyword}";
     var map = new BMap.Map("map",{enableMapClick:false});
+    // 创建地址解析器实例
+    var myGeo = new BMap.Geocoder();
 
     if(lng*1 && lat*1)
     {
@@ -40,20 +43,19 @@
         map.addOverlay(marker);             // 将标注添加到地图中
         marker.enableDragging();           // 可拖拽
         marker.addEventListener('dragend',getMarkerPoint);
+        getMarkerPoint(point);
     }else{
         //new BMap.Point(110.211023,20.007536);
         // map.centerAndZoom(keyword,14);
-        // 创建地址解析器实例
-        var myGeo = new BMap.Geocoder();
         // 将地址解析结果显示在地图上,并调整地图视野
         myGeo.getPoint(keyword, function(point){
             if (point) {
-                document.getElementById("location").value = point.lng+','+point.lat;
                 map.centerAndZoom(point, 15);
                 var marker = new BMap.Marker(point);
                 map.addOverlay(marker);
                 marker.enableDragging();           // 可拖拽
                 marker.addEventListener('dragend',getMarkerPoint);
+                getMarkerPoint(point);
             }
         }, "海口市");
     }
@@ -66,8 +68,20 @@
     };
     function getMarkerPoint(e)
     {
-        var event = e.target,lng = event.getPosition().lng,lat = event.getPosition().lat;
-        document.getElementById("location").value = lng+','+lat;
+        //通过点击百度地图，可以获取到对应的point, 由point的lng、lat属性就可以获取对应的经度纬度  
+        var pot = '';
+        if (!e.point) {
+            pot = e;
+        } else {
+            pot = e.point;
+        }
+        myGeo.getLocation(pot, function(rs){
+            //addressComponents对象可以获取到详细的地址信息
+            var addComp = rs.addressComponents;
+            var alladdress = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            document.getElementById("alladdress").value = alladdress; //详细地址
+            document.getElementById("location").value = pot.lng + ',' + pot.lat; // 经度 纬度
+        });
     }
 </script>
 <script>
@@ -91,13 +105,13 @@
                 if(res.code == 1)
                 {
                     map.clearOverlays();
-                    $("#location").val(res.data.lng+','+res.data.lat);
                     var point = new BMap.Point(res.data.lng,res.data.lat);
                     map.centerAndZoom(point, 15);
                     var marker = new BMap.Marker(point);// 创建标注
                     map.addOverlay(marker);
                     marker.enableDragging();
                     marker.addEventListener('dragend',getMarkerPoint);
+                    getMarkerPoint(point);
                 }
             });
         });
@@ -105,8 +119,9 @@
             var index = parent.layer.getFrameIndex(window.name);
             var location = $("#location").val();
             var callback = "{$func}";
+            var alladdress = $("#alladdress").val();
             if (callback != "undefined") {
-                eval('window.parent.'+callback+'(location)');
+                eval('window.parent.'+callback+'(location, alladdress)');
             }
             parent.layer.close(index);
         });

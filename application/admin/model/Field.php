@@ -441,8 +441,12 @@ class Field extends Model
                         break;
                     }
                     
-                    // case 'htmltext':
-                    // {
+                    case 'htmltext':
+                    {
+                        $preg = "/&lt;script[\s\S]*?script&gt;/i";
+                        $val = preg_replace($preg, "", $val);
+                        $val = trim($val);
+
                     //     /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/
                     //     $title = '';
                     //     if (!empty($data['title'])) {
@@ -454,7 +458,7 @@ class Field extends Model
                     //     $val = htmlspecialchars(img_style_wh($content, $title));
                     //     /*--end*/
                     //     break;
-                    // }
+                    }
                     
                     default:
                     {

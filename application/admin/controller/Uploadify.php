@@ -38,13 +38,14 @@ class Uploadify extends Base
         $func = input('func');
         $path = input('path','allimg');
         $num  = input('num/d', '1');
+        $is_water  = input('is_water/d', 1);
         $default_size = intval(tpCache('basic.file_size') * 1024 * 1024); // 单位为b
         $size = input('size/d'); // 单位为kb
         $size = empty($size) ? $default_size : $size*1024;
         $info = array(
             'num'      => $num,
             'title'    => '',          
-            'upload'   => url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images')),
+            'upload'   => url('Ueditor/imageUp',array('savepath'=>$path,'pictitle'=>'banner','dir'=>'images','is_water'=>$is_water)),
             'fileList' => url('Uploadify/fileList',array('path'=>$path)),
             'size'     => $size,
             'type'     => $this->image_type,

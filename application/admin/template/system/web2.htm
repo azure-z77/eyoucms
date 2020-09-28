@@ -19,6 +19,7 @@
                     <p class="">开发模式：方便修改模板，及时预览前台效果，没缓存，一改便生效。<br/>运营模式：提高前台响应速度，利于收录；改模板及后台发布内容需执行【<a href="{:U('System/clear_cache')}">更新缓存</a>】后才能在前台展示。</p>
                 </dd>
             </dl>
+            {eq name="upgrade" value="true"}
             <dl class="row">
                 <dt class="tit">
                     <label for="site_url">升级弹窗提醒</label>
@@ -33,6 +34,7 @@
                     <p class="notic">开启之后，第一时间收到系统更新提醒</p>
                 </dd>
             </dl>
+            {/eq}
             <dl class="row">
                 <dt class="tit">
                     <label for="web_mobile_domain_open">手机站域名</label>

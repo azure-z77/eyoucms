@@ -699,8 +699,12 @@ if (!function_exists('get_default_pic'))
      * @param string $pic_url 图片路径
      * @param string|boolean $domain 完整路径的域名
      */
-    function get_default_pic($pic_url = '', $domain = false)
+    function get_default_pic($pic_url = '', $domain = false, $tcp = '')
     {
+        if (is_http_url($pic_url)) {
+            $pic_url = handle_subdir_pic($pic_url);
+        }
+
         if (!is_http_url($pic_url)) {
             if (true === $domain) {
                 $domain = request()->domain();
@@ -715,8 +719,10 @@ if (!function_exists('get_default_pic'))
             } else {
                 $pic_url = $domain . ROOT_DIR . '/public/static/common/images/not_adv.jpg';
             }
-        } else {
-            $pic_url = handle_subdir_pic($pic_url);
+        }
+
+        if (!empty($tcp) && preg_match('/^\/\/.*$/', $pic_url)) {
+            $pic_url = $tcp . ':' . $pic_url;
         }
 
         return $pic_url;
@@ -1364,7 +1370,7 @@ if (!function_exists('allow_release_arctype'))
                     }
                 }
 
-                cache($cacheKey, $select_html, null, 'admin_archives_release');
+                cache($cacheKey, $select_html, null, 'arctype');
                 
             }
         }
@@ -2132,11 +2138,12 @@ if (!function_exists('img_style_wh'))
                 $title = preg_replace('/("|\')/i', '', $title);
                 foreach ($imginfo as $key => $imgstr) {
                     $imgstrNew = $imgstr;
+                    $imgname  = preg_replace("/<img(.*?)src(\s*)=(\s*)[\'|\"](.*?)([^\/\'\"]*)[\'|\"](.*?)[\/]?(\s*)>/i", '${5}', $imgstrNew);
 
                     if (!empty($basic_img_style_wh)) {
                         if (!stristr($imgstrNew, $appendStyle)) {
                             // 追加style属性
-                            $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"]([^\'\"]*)[\'|\"]/i', 'style="'.$appendStyle.'${3}"', $imgstrNew);
+                            $imgstrNew = preg_replace('/style(\s*)=(\s*)[\'|\"]([^\'\"]*)?[\'|\"]/i', 'style="'.$appendStyle.'${3}"', $imgstrNew);
                             if (!preg_match('/<img(.*?)style(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                                 // 新增style属性
                                 $imgstrNew = str_ireplace('<img', "<img style=\"".$appendStyle."\" ", $imgstrNew);
@@ -2151,7 +2158,7 @@ if (!function_exists('img_style_wh'))
 
                     // 追加alt属性
                     $altNew = $title."(图{$num})";
-                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]([\w\-\.]*)[\'|\"]/i', 'alt="'.$altNew.'"', $imgstrNew);
+                    $imgstrNew = preg_replace('/alt(\s*)=(\s*)[\'|\"]('.$imgname.')?[\'|\"]/i', 'alt="'.$altNew.'"', $imgstrNew);
                     if (!preg_match('/<img(.*?)alt(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
                         // 新增alt属性
                         $imgstrNew = str_ireplace('<img', "<img alt=\"{$altNew}\" ", $imgstrNew);
@@ -2159,9 +2166,9 @@ if (!function_exists('img_style_wh'))
 
                     // 追加title属性
                     $titleNew = $title."(图{$num})";
-                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]([\w\-\.]*)[\'|\"]/i', 'title="'.$titleNew.'"', $imgstrNew);
+                    $imgstrNew = preg_replace('/title(\s*)=(\s*)[\'|\"]('.$imgname.')?[\'|\"]/i', 'title="'.$titleNew.'"', $imgstrNew);
                     if (!preg_match('/<img(.*?)title(\s*)=(\s*)[\'|\"](.*?)[\'|\"](.*?)[\/]?(\s*)>/i', $imgstrNew)) {
-                        // 新增alt属性
+                        // 新增title属性
                         $imgstrNew = str_ireplace('<img', "<img title=\"{$titleNew}\" ", $imgstrNew);
                     }
                     
@@ -2850,7 +2857,7 @@ if (!function_exists('GetUsersLatestData'))
         $users_id = empty($users_id) ? session('users_id') : $users_id;
         if(!empty($users_id)) {
             /*读取的字段*/
-            $field = 'a.*, b.*, b.discount as level_discount';
+            $field = 'a.*, b.*, b.discount as level_discount, b.level_value';
             /* END */
 
             /*查询数据*/
@@ -2951,5 +2958,40 @@ if (!function_exists('GetTotalArc'))
             
             return intval($count);
         }
+    }
+}
+
+if (!function_exists('GetTagIndexRanking')) 
+{
+    /**
+     * 统计栏目文章数
+     */
+    function GetTagIndexRanking($limit = 5, $field = 'id, tag')
+    {
+        $order = 'weekcc desc, monthcc desc';
+        $limit = '0, ' . $limit;
+        $list = \think\Db::name('tagindex')->field($field)->order($order)->limit($limit)->select();
+
+        return $list;
+    }
+}
+
+if (!function_exists('weapptaglib')) 
+{
+    /**
+     * 通用 - 插件模板标签
+     */
+    function weapptaglib($weapp_code = '', $act = '', $vars = [])
+    {
+        $list = '';
+        if (empty($weapp_code) || empty($act)) {
+            return '';
+        }
+        
+        $class = '\weapp\\'.$weapp_code.'\controller\\'.$weapp_code;
+        $ctl = new $class();
+        $list = $ctl->$act($vars);
+
+        return $list;
     }
 }

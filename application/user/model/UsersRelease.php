@@ -43,9 +43,94 @@ class UsersRelease extends Model
         $post['aid']   = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
         $this->dealChannelPostData($post['channel'], $post, $addonFieldExt);
+        //图集模型
+        if ($post['channel'] == 3){
+            $this->saveimg($aid,$post);
+        }
 
         // --处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags'], $post['arcrank'], $opt);
+    }
+
+    /**
+     * 删除单条图集的所有图片
+     * @author 小虎哥 by 2018-4-3
+     */
+    public function delImgUpload($aid = array())
+    {
+        if (!is_array($aid)) {
+            $aid = array($aid);
+        }
+        $result = Db::name('ImagesUpload')->where(array('aid'=>array('IN', $aid)))->delete();
+
+        return $result;
+    }
+
+
+
+    /**
+     * 保存图集图片
+     * @author 小虎哥 by 2018-4-3
+     */
+    public function saveimg($aid, $post = array())
+    {
+        $imgupload = isset($post['imgupload']) ? $post['imgupload'] : array();
+        $imgintro = isset($post['imgintro']) ? $post['imgintro'] : array();
+        if (!empty($imgupload) && count($imgupload) > 1) {
+            array_pop($imgupload); // 弹出最后一个
+
+            // 删除产品图片
+            $this->delImgUpload($aid);
+
+            // 添加图片
+            $data = array();
+            $sort_order = 0;
+            foreach($imgupload as $key => $val)
+            {
+                if($val == null || empty($val))  continue;
+
+                $filesize = 0;
+                $img_info = array();
+                if (is_http_url($val)) {
+                    $imgurl = handle_subdir_pic($val);
+                } else {
+                    $imgurl = ROOT_PATH.ltrim($val, '/');
+                    $filesize = @filesize('.'.$val);
+                }
+                $img_info = @getimagesize($imgurl);
+                $width = isset($img_info[0]) ? $img_info[0] : 0;
+                $height = isset($img_info[1]) ? $img_info[1] : 0;
+                $type = isset($img_info[2]) ? $img_info[2] : 0;
+                $attr = isset($img_info[3]) ? $img_info[3] : '';
+                $mime = isset($img_info['mime']) ? $img_info['mime'] : '';
+                $title = !empty($post['title']) ? $post['title'] : '';
+                $intro = !empty($imgintro[$key]) ? $imgintro[$key] : '';
+                ++$sort_order;
+                $data[] = array(
+                    'aid' => $aid,
+                    'title' => $title,
+                    'image_url'   => $val,
+                    'intro'   => $intro,
+                    'width' => $width,
+                    'height' => $height,
+                    'filesize'  => $filesize,
+                    'mime'  => $mime,
+                    'sort_order'    => $sort_order,
+                    'add_time' => getTime(),
+                );
+            }
+            if (!empty($data)) {
+                Db::name('ImagesUpload')->insertAll($data);
+
+                // 没有封面图时，取第一张图作为封面图
+                $litpic = isset($post['litpic']) ? $post['litpic'] : '';
+                if (empty($litpic)) {
+                    $litpic = $data[0]['image_url'];
+                    Db::name('archives')->where(array('aid'=>$aid))->update(array('litpic'=>$litpic, 'update_time'=>getTime()));
+                }
+            }
+            delFile(UPLOAD_PATH."images/thumb/$aid"); // 删除缩略图
+        }
     }
 
     /**
@@ -70,8 +155,27 @@ class UsersRelease extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            if (!empty($tags)){
+                $result['tags'] = $tags['tag_arr'];
+            }else{
+                $result['tags'] = '';
+            }
+
         }
+
+        return $result;
+    }
+
+    /**
+     * 获取单条图集的所有图片
+     * @author 小虎哥 by 2018-4-3
+     */
+    public function getImgUpload($aid, $field = '*')
+    {
+        $result = Db::name('ImagesUpload')->field($field)
+            ->where('aid', $aid)
+            ->order('sort_order asc')
+            ->select();
 
         return $result;
     }
@@ -136,7 +240,14 @@ class UsersRelease extends Model
                         $val = $money1.'.'.$money2;
                         break;
                     }
-                    
+
+                    case 'htmltext':
+                    {
+                        $preg = "/&lt;script[\s\S]*?script&gt;/i";
+                        $val = preg_replace($preg,"",$val);
+                        $val = trim($val);
+                    }
+
                     default:
                     {
                         $val = trim($val);
@@ -170,11 +281,17 @@ class UsersRelease extends Model
      */
     public function GetUsersReleaseData($channel_id = null, $typeid = null, $aid = null, $method = 'add')
     {
+//        $typeid = 0;distinct
         // 不显示在发布表单的字段
         $hideField = array('id','aid','add_time','update_time');
+
+        // 查询指定的自定义字段
+        $id = Db::name('channelfield_bind')->where('typeid', 'in',[0,$typeid])->column('field_id');
+
         // 模型ID
         $channel_id = intval($channel_id);
         $map = array(
+            'id'            => ['IN', $id],
             'channel_id'    => array('eq', $channel_id),
             'name'          => array('notin', $hideField),
             'ifmain'        => 0,
@@ -182,6 +299,13 @@ class UsersRelease extends Model
             'is_release'    => 1,
         );
         $row = model('Channelfield')->getListByWhere($map, '*');
+//        $map2 = array(
+//            'name' => 'content',
+//            'channel_id' => $channel_id
+//        );
+//        $row2 = model('Channelfield')->getListByWhere($map2, '*');
+//
+//        $row = array_merge($row, $row2);
 
         /*编辑时显示的数据*/
         $addonRow = array();
@@ -379,7 +503,7 @@ class UsersRelease extends Model
                         /*--end*/
                         break;
                     }
-                    
+
                     default:
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];

@@ -49,7 +49,7 @@ class UsersRelease extends Base {
                 ];
                 if (0 == $typeids[0]) {
                     $where = [
-                        'current_channel' => 1,
+                        'current_channel' => ['in',[1,3]],
                         'lang' => $this->admin_lang,
                     ];
                 }
@@ -60,7 +60,7 @@ class UsersRelease extends Base {
                 if (!empty($where) && !empty($update)) {
                     /*将全部设置为不可投稿*/
                     Db::name('arctype')->where([
-                        'current_channel' => 1,
+                        'current_channel' => ['in',[1,3]],
                         'lang' => $this->admin_lang,
                     ])->update([
                         'is_release' => 0,
@@ -84,12 +84,12 @@ class UsersRelease extends Base {
 
         /*允许发布文档列表的栏目*/
         $arctype = Db::name('arctype')->where([
-            'current_channel' => 1,
+            'current_channel' => ['in',[1,3]],
             'is_release' => 1,
             'lang' => $this->admin_lang,
         ])->field('id')->select();
         $arctype = get_arr_column($arctype,'id');
-        $select_html = allow_release_arctype($arctype, [1]);
+        $select_html = allow_release_arctype($arctype, [1,3]);
         $this->assign('select_html',$select_html);
         /*--end*/
         return $this->fetch('conf');

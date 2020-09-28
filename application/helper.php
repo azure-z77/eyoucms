@@ -359,8 +359,6 @@ if (!function_exists('typeurl')) {
             $eyouUrl = url('home/Lists/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
-        // $eyouUrl = auto_hide_index($eyouUrl);
-
         return $eyouUrl;
     }
 }
@@ -378,7 +376,6 @@ if (!function_exists('arcurl')) {
      */
     function arcurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '', $seo_pseudo_format = null)
     {
-        // \think\Url::root('/');
         $eyouUrl = '';
         static $uiset = null;
         null === $uiset && $uiset = input('param.uiset/s', 'off');
@@ -499,7 +496,40 @@ if (!function_exists('arcurl')) {
             $eyouUrl = url('home/View/index', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
         }
 
-        // $eyouUrl = auto_hide_index($eyouUrl);
+        return $eyouUrl;
+    }
+}
+
+if (!function_exists('tagurl')) {
+    /**
+     * Tag标签Url生成
+     * @param string        $url 路由地址
+     * @param string|array  $param 变量
+     * @param bool|string   $suffix 生成的URL后缀
+     * @param bool|string   $domain 域名
+     * @param string          $seo_pseudo URL模式
+     * @param string          $seo_pseudo_format URL格式
+     * @return string
+     */
+    function tagurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '', $seo_pseudo_format = null)
+    {
+        $eyouUrl = '';
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+        
+        if (is_array($param)) {
+            $vars = array(
+                'tagid'   => $param['tagid'],
+            );
+            $vars = http_build_query($vars);
+        } else {
+            $vars = $param;
+        }
+        $eyouUrl = url('home/Tags/lists', $vars, $suffix, $domain, $seo_pseudo, $seo_pseudo_format);
 
         return $eyouUrl;
     }

@@ -165,7 +165,7 @@ class Archives extends Model
                     'status'          => 1,
                     'is_del'          => 0,
                 );
-                $row = Db::name('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
+                $row = \think\Db::name('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
                 if (empty($row)) { // 不存在并返回当前栏目信息
                     break;
                 } elseif (6 == $row['current_channel']) { // 存在且是单页模型，则进行继续往下查找，直到有内容为止

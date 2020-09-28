@@ -258,6 +258,20 @@ class Controller
         $web_mobile_domain_open = config('tpcache.web_mobile_domain_open'); // 是否开启手机域名访问
         if (empty($web_mobile_domain_open) || in_array($request->module(), ['admin']) || $request->isAjax()) {
             $data['is_mobile'] = isMobile() ? 1 : 0;
+
+            /*【待测试】未开启手机端，访问URL带有goto=m标识的，进行301跳转*/
+            // $goto = input('param.goto/s');
+            // if (!empty($goto) && in_array($request->module(), ['home'])) {
+            //     $url = $request->url();
+            //     $search = ['?goto='.$goto.'&', '?goto='.$goto, '&goto='.$goto.'&', '&goto='.$goto];
+            //     $replace = ['?', '', '&', ''];
+            //     $url = str_replace($search, $replace, $url);
+            //     header('HTTP/1.1 301 Moved Permanently');
+            //     header('Location: '.$url);
+            //     exit;
+            // }
+            /*end*/
+
             return $data;
         }
 

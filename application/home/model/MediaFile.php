@@ -32,7 +32,7 @@ class MediaFile extends Model
      * 获取指定下载文章的所有文件
      * @author 小虎哥 by 2018-4-3
      */
-    public function getVideoFile($aid, $field = '*')
+    public function getMediaFile($aid, $field = '*')
     {
         $request = request();
         $result = Db::name('media_file')->field($field)

@@ -45,6 +45,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'down_count' => 
+  array (
+    'name' => 'down_count',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'discount' => 
   array (
     'name' => 'discount',

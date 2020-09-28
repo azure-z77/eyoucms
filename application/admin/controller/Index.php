@@ -35,6 +35,18 @@ class Index extends Base
         $this->assign('web_language_switch', $web_language_switch);
         /*--end*/
 
+        /*代理贴牌功能限制-s*/
+        $function_switch = $upgrade = true;
+        if (function_exists('checkAuthRule')) {
+            // 功能开关
+            $function_switch = checkAuthRule(2004008);
+            // 系统更新
+            $upgrade = checkAuthRule('upgrade');
+        }
+        $this->assign('function_switch', $function_switch);
+        $this->assign('upgrade', $upgrade);
+        /*代理贴牌功能限制-e*/
+
         /*小程序开关*/
         $web_diyminipro_switch = tpCache('web.web_diyminipro_switch');
         if (!is_dir('./weapp/Diyminipro/') || $this->admin_lang != $this->main_lang) {
@@ -162,6 +174,15 @@ class Index extends Base
         $contentTotal = $this->contentTotalList();
         $this->assign('contentTotal',$contentTotal);
 
+        /*代理贴牌功能限制-s*/
+        $upgrade = true;
+        if (function_exists('checkAuthRule')) {
+            //系统更新
+            $upgrade = checkAuthRule('upgrade');
+        }
+        $this->assign('upgrade', $upgrade);
+        /*代理贴牌功能限制-e*/
+
         // 服务器信息
         $this->assign('sys_info',$this->get_sys_info());
         // 升级弹窗
@@ -185,6 +206,7 @@ class Index extends Base
         $ajaxLogic->SynPayConfig(); // 只同步一次微信支付、支付宝支付配置(v1.5.1节点去掉)
         $ajaxLogic->admin_logic_add_tag(); // 纠正tagindex标签被误删的tag(v1.5.1节点去掉)
         $ajaxLogic->admin_logic_users_parameter(); // 纠正会员属性的内置手机号码和邮箱地址(v1.5.1节点去掉)
+        $ajaxLogic->admin_logic_users_download(); // 根据下载模型自动开启会员中心的【我的下载】(v1.5.1节点去掉)
 
         return $this->fetch();
     }
@@ -988,6 +1010,15 @@ class Index extends Base
             $this->success('操作成功', null, $data);
         }
 
+        /*代理贴牌功能限制-s*/
+        $weapp_switch = true;
+        if (function_exists('checkAuthRule')) {
+            //插件应用
+            $weapp_switch = checkAuthRule(2005);
+        }
+        $this->assign('weapp_switch', $weapp_switch);
+        /*代理贴牌功能限制-e*/
+        
         $globalConfig = tpCache('global');
         $this->assign('globalConfig', $globalConfig);
 

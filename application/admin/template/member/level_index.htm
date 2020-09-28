@@ -1,5 +1,5 @@
 {include file="public/layout" /}
-<body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit;">
+<body class="bodystyle" style="overflow-y: scroll; cursor: default; -moz-user-select: inherit; height: calc( 100% - 40px );">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width: auto;">
@@ -47,6 +47,11 @@
                         <th abbr="article_time" axis="col4" class="w160">
                             <div class="tc">会员等级值</div>
                         </th>
+                        {eq name='$isShowDownCount' value='1'}
+                        <th abbr="article_time" axis="col4" class="w100">
+                            <div class="tc">下载次数(天)</div>
+                        </th>
+                        {/eq}
                         <th abbr="article_time" axis="col4" class="w160">
                             <div class="tc">折扣率(%)</div>
                         </th>
@@ -62,7 +67,7 @@
             <form id="PostForm">
                 <div id="flexigrid" cellpadding="0" cellspacing="0" border="0">
                     <table style="width: 100%">
-                        <tbody>
+                        <tbody id="Template">
                         {empty name="list"}
                             <tr>
                                 <td class="no-data" align="center" axis="col0" colspan="50">
@@ -79,8 +84,8 @@
                                 </td>
                                 <td style="width: 100%">
                                     <div style="">
-                                        {eq name="'Member@level_edit'|is_check_access" value="1"}
-                                            <input type="text" name="level_name[]" value="{$vo.level_name}" >
+                                        {eq name="'Member@level_add'|is_check_access" value="1"}
+                                            <input type="text" name="level_name[]" value="{$vo.level_name}" class="w180">
                                         {else /}
                                             {$vo.level_name}
                                         {/eq}
@@ -88,17 +93,28 @@
                                 </td>
                                 <td>
                                     <div class="w160 tc">
-                                        {eq name="'Member@level_edit'|is_check_access" value="1"}
-                                            <input type="text" name="level_value[]" value="{$vo.level_value}" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" class="tc w60">
+                                        {eq name="'Member@level_add'|is_check_access" value="1"}
+                                            <input type="text" name="level_value[]" value="{$vo.level_value}" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" class="tc w80">
                                         {else /}
                                             {$vo.level_value}
                                         {/eq}
                                     </div>
                                 </td>
+                                {eq name='$isShowDownCount' value='1'}
+                                <td>
+                                    <div class="w100 tc">
+                                        {eq name="'Member@level_add'|is_check_access" value="1"}
+                                            <input type="text" name="down_count[]" value="{$vo.down_count}" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" class="tc w80">
+                                        {else /}
+                                            {$vo.down_count}
+                                        {/eq}
+                                    </div>
+                                </td>
+                                {/eq}
                                 <td>
                                     <div class="w160 tc">
-                                        {eq name="'Member@level_edit'|is_check_access" value="1"}
-                                            <input type="text" name="discount[]" value="{$vo.discount}" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" class="tc w60">
+                                        {eq name="'Member@level_add'|is_check_access" value="1"}
+                                            <input type="text" name="discount[]" value="{$vo.discount}" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" class="tc w80">
                                         {else /}
                                             {$vo.discount}
                                         {/eq}
@@ -126,7 +142,6 @@
                         {/empty}
                         </tbody>
                     </table>
-                    <div id='Template'></div>
                 </div>
             </form>
             <div class="iDiv" style="display: none;"></div>
@@ -170,48 +185,57 @@
         });
     });
 
+    // tr数,取唯一标识
+    var tr_id = $('#Template .tr').length;
+
     function AddLevelType(){
-        // tr数,取唯一标识
-        var SerialNum = $('.tr').length;
+        var isShowDownCount = {$isShowDownCount};
         var AddHtml = [];
         AddHtml += 
-        [
-            '<tr class="tr" id="tr_'+SerialNum+'">'+
+            '<tr class="tr" id="tr_'+tr_id+'">'+
                 '<td class="sign">'+
                     '<div class="w20 tc"><input type="hidden" name="level_id[]"></div>'+
                 '</td>'+
 
                 '<td style="width: 100%">'+
                     '<div style="">'+
-                        '<input type="text" name="level_name[]" >'+
+                        '<input type="text" name="level_name[]" class="w180">'+
                     '</div>'+
                 '</td>'+
 
                 '<td>'+
                     '<div class="w160 tc">'+
-                        '<input type="text" name="level_value[]" onkeyup="this.value=this.value.replace(/[^0-9]/g,\'\')" class="tc w60">'+
+                        '<input type="text" name="level_value[]" onkeyup="this.value=this.value.replace(/[^0-9]/g,\'\')" class="tc w80">'+
                     '</div>'+
-                '</td>'+
-
+                '</td>';
+        if (isShowDownCount == 1) {
+            AddHtml += 
+                '<td>'+
+                    '<div class="w100 tc">'+
+                        '<input type="text" name="down_count[]" class="tc w80" value="100">'+
+                    '</div>'+
+                '</td>';
+        }
+        AddHtml += 
                 '<td>'+
                     '<div class="w160 tc">'+
-                        '<input type="text" name="discount[]" class="tc w60" value="100">'+
+                        '<input type="text" name="discount[]" class="tc w80" value="100">'+
                     '</div>'+
                 '</td>'+
 
                 '<td class="">'+
                     '<div class="w150 tc">'+
-                        '<a class="btn red" href="javascript:void(0);" data-id="tr_'+SerialNum+'" onclick="DelHtml(this)"><i class="fa fa-trash-o"></i>删除</a>'+
+                        '<a class="btn red" href="javascript:void(0);" data-trid="tr_'+tr_id+'" onclick="DelHtml(this)"><i class="fa fa-trash-o"></i>删除</a>'+
                     '</div>'+
                 '</td>'+
-            '</tr>'
-        ];
+            '</tr>';
         $('#Template').append(AddHtml);
+        tr_id += 1;
     }
 
     // 删除未保存的级别
     function DelHtml(obj){
-        $('#'+$(obj).attr('data-id')).remove();
+        $('#'+$(obj).attr('data-trid')).remove();
     }
 
     // 提交

@@ -1175,7 +1175,7 @@ class Shop extends Base {
     public function FindSmptConfig() {
         $Smtp = tpCache('smtp');
         if (empty($Smtp['smtp_server']) || empty($Smtp['smtp_port']) || empty($Smtp['smtp_user']) || empty($Smtp['smtp_pwd']) || empty($Smtp['smtp_from_eamil'])) {
-            $this->error('邮箱配置尚未配置完成，前往配置？', url('System/smtp'));
+            $this->error('邮箱配置尚未配置完成，前往配置？', url('System/api_conf'));
         } else {
             // tpCache('smtp', [input('post.field') => 1]);
             $this->success('配置完成');

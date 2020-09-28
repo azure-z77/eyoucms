@@ -212,6 +212,17 @@ class ShopProduct extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
@@ -354,7 +365,7 @@ class ShopProduct extends Base
         /*自定义字段*/
         $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
         $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
+                'typeid'    => ['IN', [0, $typeid]],
             ])->column('field_id');
         if (!empty($channelfieldBindRow)) {
             foreach ($addonFieldExtList as $key => $val) {
@@ -417,6 +428,7 @@ class ShopProduct extends Base
         // URL模式
         $tpcache = config('tpcache');
         $assign_data['seo_pseudo'] = !empty($tpcache['seo_pseudo']) ? $tpcache['seo_pseudo'] : 1;
+
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -429,6 +441,16 @@ class ShopProduct extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
 
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
@@ -587,6 +609,7 @@ class ShopProduct extends Base
         }
         /*--end*/
         $typeid = $info['typeid'];
+        $assign_data['typeid'] = $typeid;
 
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);
@@ -701,7 +724,7 @@ class ShopProduct extends Base
             $assign_data['canshu'] = $this->ajax_get_shop_attr_input($typeid, $id, $info['attrlist_id']);
         }
         /*--end*/
-
+        
         $this->assign($assign_data);
         return $this->fetch();
     }
@@ -1242,6 +1265,9 @@ class ShopProduct extends Base
      */
     public function ajax_get_shop_attr_input($typeid = '', $aid = '', $list_id = '')
     {
+        $typeid = intval($typeid);
+        $aid = intval($aid);
+        $list_id = intval($list_id);
         $productLogic = new ProductLogic();
         $str = $productLogic->getShopAttrInput($aid, $typeid, $list_id);
         if (empty($str)) {
@@ -1259,6 +1285,9 @@ class ShopProduct extends Base
      */
     public function ajax_get_attr_input($typeid = '', $aid = '', $list_id = '')
     {
+        $typeid = intval($typeid);
+        $aid = intval($aid);
+        $list_id = intval($list_id);
         $productLogic = new ProductLogic();
         $str = $productLogic->getAttrInput($aid, $typeid, $list_id);
         if (empty($str)) {

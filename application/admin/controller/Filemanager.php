@@ -194,10 +194,12 @@ class Filemanager extends Base
                 $fp = fopen($file, "r");
                 $content = fread($fp, $filesize);
                 fclose($fp);
-                if ('css' != $path_parts['extension']) {
+                if ('htm' == $path_parts['extension']) {
                     $content = htmlspecialchars($content, ENT_QUOTES);
-                    $content = preg_replace("/(@)?eval(\s*)\(/i", 'intval(', $content);
-                    // $content = preg_replace("/\?\bphp\b/i", "？ｍｕｍａ", $content);
+                    foreach ($this->filemanagerLogic->disableFuns as $key => $val) {
+                        $val_new = msubstr($val, 0, 1).'-'.msubstr($val, 1);
+                        $content = preg_replace("/(@)?".$val."(\s*)\(/i", "{$val_new}(", $content);
+                    }
                 }
             }
         }

@@ -699,7 +699,6 @@ class Arctype extends Model
 
                 // \think\Cache::clear("arctype");
                 // extra_cache('admin_all_menu', NULL);
-                // \think\Cache::clear('admin_archives_release');
             }
         }
         return $insertId;
@@ -995,7 +994,6 @@ class Arctype extends Model
 
                 // \think\Cache::clear("arctype");
                 // extra_cache('admin_all_menu', NULL);
-                // \think\Cache::clear('admin_archives_release');
             }
         }
         return $bool;

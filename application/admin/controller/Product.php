@@ -195,6 +195,17 @@ class Product extends Base
     {
         if (IS_POST) {
             $post = input('post.');
+
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             $content = input('post.addonFieldExt.content', '', null);
 
             // 根据标题自动提取相关的关键字
@@ -408,6 +419,16 @@ class Product extends Base
         if (IS_POST) {
             $post = input('post.');
 
+            /* 处理TAG标签 */
+            if (!empty($post['tags_new'])) {
+                $post['tags'] = !empty($post['tags']) ? $post['tags'] . ',' . $post['tags_new'] : $post['tags_new'];
+                unset($post['tags_new']);
+            }
+            $post['tags'] = explode(',', $post['tags']);
+            $post['tags'] = array_unique($post['tags']);
+            $post['tags'] = implode(',', $post['tags']);
+            /* END */
+
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
 
@@ -567,6 +588,7 @@ class Product extends Base
         }
         /*--end*/
         $typeid = $info['typeid'];
+        $assign_data['typeid'] = $typeid;
 
         // 栏目信息
         $arctypeInfo = Db::name('arctype')->find($typeid);

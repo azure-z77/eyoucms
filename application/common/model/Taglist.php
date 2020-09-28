@@ -43,16 +43,18 @@ class Taglist extends Model
      * 获取单篇文章的标签
      * @author wengxianhu by 2017-7-26
      */
-    public function getListByAid($aid = '', $typeid = 0, $field = 'tag')
+    public function getListByAid($aid = '', $typeid = 0, $field = 'tid, tag')
     {
-        $str = '';
+        $str = [];
         $result = Db::name('Taglist')->field($field)
             ->where(array('aid'=>$aid, 'typeid'=>$typeid))
             ->order('aid asc')
             ->select();
         if ($result) {
             $tag_arr = get_arr_column($result, 'tag');
-            $str = implode(',', $tag_arr);
+            $str['tag_arr'] = implode(',', $tag_arr);
+            $id_arr = get_arr_column($result, 'tid');
+            $str['tid_arr'] = implode(',', $id_arr);
         }
 
         return $str;
@@ -93,6 +95,8 @@ class Taglist extends Model
         if ($opt == 'add') {
             $tag = str_replace('，', ',', $tag);
             $tags = explode(',', $tag);
+            $tags = array_unique($tags);
+
             foreach($tags as $tag)
             {
                 $tag = trim($tag);

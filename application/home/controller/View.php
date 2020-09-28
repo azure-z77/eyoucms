@@ -55,9 +55,11 @@ class View extends Base
         /*--end*/
 
         $aid = intval($aid);
-        $archivesInfo = Db::name('archives')->field('a.typeid, a.channel, b.nid, b.ctl_name')
+        $field = 'a.typeid, a.channel, a.users_price, a.users_free, b.nid, b.ctl_name, c.level_id, c.level_name, c.level_value';
+        $archivesInfo = Db::name('archives')->field($field)
             ->alias('a')
             ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
+            ->join('__USERS_LEVEL__ c', 'a.arc_level_id = c.level_id', 'LEFT')
             ->where([
                 'a.aid'     => $aid,
                 'a.is_del'      => 0,
@@ -150,11 +152,85 @@ class View extends Base
         /*自定义字段的数据格式处理*/
         $result = $this->fieldLogic->getChannelFieldList($result, $this->channel);
         /*--end*/
-        
+
+        // if (5 == $this->channel) {
+        //     // 获取用户最新信息
+        //     $UsersData = GetUsersLatestData();
+        //     $UsersID = $UsersData['users_id'];
+
+        //     // 初始化数据
+        //     $result['BuyOnclick'] = ' onclick="MediaOrderBuy_1592878548();" ';
+        //     $result['BuyName']    = '立即购买';
+        //     $result['MsgOnclick'] = ' onclick="MediaOrderBuy_1592878548();" ';
+        //     $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
+        //     $result['MsgName']    = '立即购买';
+        //     $result['VideoButton'] = '购买观看';
+
+        //     /*是否需要付费*/
+        //     if (!empty($archivesInfo['users_price']) && 0 < $archivesInfo['users_price']) {
+        //         $Paid = 0; // 未付费
+        //         if (!empty($UsersID)) {
+        //             $where = [
+        //                 'users_id' => $UsersID,
+        //                 'product_id' => $aid,
+        //                 'order_status' => 1
+        //             ];
+        //             // 存在数据则已付费
+        //             $Paid = Db::name('media_order')->where($where)->count();
+        //         }
+
+        //         // 未付费则执行
+        //         if (!empty($Paid)) {
+        //             $result['BuyOnclick'] = '';
+        //             $result['BuyName']    = '已付费';
+        //             $result['MsgOnclick'] = '';
+        //             $result['MsgTitle']   = '';
+        //             $result['MsgName']    = '';
+        //             $result['VideoButton'] = '开始播放';
+        //         }
+        //     } else {
+        //         $result['BuyOnclick'] = '';
+        //         $result['BuyName']    = '免费观看';
+        //         $result['MsgOnclick'] = '';
+        //         $result['MsgTitle']   = '';
+        //         $result['MsgName']    = '';
+        //         $result['VideoButton'] = '开始播放';
+        //     }
+        //     /*END*/
+
+        //     /*是否会员免费*/
+        //     if (1 == $archivesInfo['users_free'] && !empty($UsersData['level_value'])) {
+        //         $where = [
+        //             'is_system' => 1,
+        //             'lang' => $this->home_lang
+        //         ];
+        //         $UsersLevel = DB::name('users_level')->where($where)->getField('level_value');
+        //         if (!empty($UsersLevel) && $UsersData['level_value'] > $UsersLevel) {
+        //             $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
+        //             $result['VideoButton'] = '开始播放';
+        //         }
+        //     } else if (!empty($archivesInfo['level_value']) && !empty($UsersData['level_value'])) {
+        //         if ($UsersData['level_value'] >= $archivesInfo['level_value']) {
+        //             $result['BuyOnclick'] = $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
+        //             $result['BuyName']    = '会员免费';
+        //             $result['VideoButton'] = '开始播放';
+        //         } else if (!empty($archivesInfo['level_value']) && 0 >= $archivesInfo['users_price']) {
+        //             $result['BuyOnclick'] = ' onclick="LevelCentre_1592878548();" ';
+        //             $result['BuyName']    = '升级会员';
+        //             $result['MsgOnclick'] = ' onclick="LevelCentre_1592878548();" ';
+        //             $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
+        //             $result['MsgName']    = '升级会员';
+        //             $result['VideoButton'] = '升级观看';
+        //         }
+        //     }
+        //     /*END*/
+        // }
+
         $eyou = array(
             'type'  => $arctypeInfo,
             'field' => $result,
         );
+
         $this->eyou = array_merge($this->eyou, $eyou);
         $this->assign('eyou', $this->eyou);
 
@@ -217,6 +293,9 @@ class View extends Base
             $this->error('下载文件不存在！');
             exit;
         }
+
+        // 下载次数限制
+        $this->down_num_access($result['aid']);
 
         // 判断会员信息
         if (0 < intval($result['arc_level_id'])) {
@@ -307,6 +386,45 @@ class View extends Base
     }
 
     /**
+     * 会员每天下载次数的限制
+     */
+    private function down_num_access($aid)
+    {
+        /*是否安装启用下载次数限制插件*/
+        if (is_dir('./weapp/Downloads/')) {
+            $DownloadsRow = model('Weapp')->getWeappList('Downloads');
+            if (1 != $DownloadsRow['status']) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+        /*end*/
+
+        $users = session('users');
+        if (empty($users['users_id'])) {
+            $this->error('请登录后下载！');
+        }
+
+        $level_info = Db::name('users_level')->field('level_name,down_count')->where(['level_id'=>$users['level']])->find();
+        if (empty($level_info)) {
+            $this->error('当前会员等级不存在！');
+        }
+        
+        $begin_mtime = strtotime(date('Y-m-d 00:00:00'));
+        $end_mtime   = strtotime(date('Y-m-d 23:59:59'));
+        $downNum         = Db::name('download_log')->where([
+                'users_id'  => $users['users_id'],
+                'add_time'  => ['between', [$begin_mtime, $end_mtime]],
+                'aid'       => ['NEQ', $aid],
+            ])->group('aid')->count('aid');
+        if (intval($level_info['down_count']) <= intval($downNum)) {
+            $msg = "{$level_info['level_name']}每天最多下载{$level_info['down_count']}个！";
+            $this->error($msg);
+        }
+    }
+
+    /**
      * 记录下载次数（重复下载不做记录，游客可重复记录）
      */
     private function download_log($file_id = 0, $aid = 0)
@@ -345,19 +463,16 @@ class View extends Base
         $file_id = input('param.id/d', 0);
         $uhash = input('param.uhash/s', '');
 
-        if (empty($file_id) || empty($uhash)) {
-            $this->error('视频播放链接出错！');
-            exit;
-        }
+        if (empty($file_id) || empty($uhash)) $this->error('视频播放链接出错！');
 
         // 查询信息
         $map = array(
-            'a.file_id'   => $file_id,
-            'a.uhash' => $uhash,
+            'a.file_id' => $file_id,
+            'a.uhash' => $uhash
         );
         $result = Db::name('media_file')
             ->alias('a')
-            ->field('a.*,b.arc_level_id')
+            ->field('a.*, b.arc_level_id, b.users_price')
             ->join('__ARCHIVES__ b', 'a.aid = b.aid', 'LEFT')
             ->where($map)
             ->find();
@@ -370,37 +485,65 @@ class View extends Base
         
         if (empty($result) || (!is_http_url($result['file_url']) && !file_exists('.'.$file_url))) {
             $this->error('视频文件不存在！');
-            exit;
         }
 
-        // 判断会员信息
-        if (0 < intval($result['arc_level_id'])) {
-            $UsersData = session('users');
-            if (empty($UsersData['users_id'])) {
-                $this->error('请先登录！');
-                exit;
-            }else{
-                /*判断会员是否可播放该视频--2019-06-21 小虎哥*/
-                // 查询会员信息
-                $users = Db::name('users')
-                    ->alias('a')
-                    ->field('a.users_id,b.level_value,b.level_name')
-                    ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
-                    ->where(['a.users_id'=>$UsersData['users_id']])
-                    ->find();
-                // 查询播放所需等级值
-                $file_level = Db::name('archives')
-                    ->alias('a')
-                    ->field('b.level_value,b.level_name')
-                    ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
-                    ->where(['a.aid'=>$result['aid']])
-                    ->find();
-                if ($users['level_value'] < $file_level['level_value']) {
-                    $msg = '视频为【'.$file_level['level_name'].'】可播放，您当前为【'.$users['level_name'].'】，请先升级！';
-                    $this->error($msg);
-                    exit;
+        $UsersData = GetUsersLatestData();
+        $UsersID = $UsersData['users_id'];
+        if (empty($result['gratis']) && 0 == $result['gratis']) {
+            if (!empty($result['users_price']) && 0 < $result['users_price']) {
+                // 未登录则提示
+                if (empty($UsersID)) $this->error('请先登录！', url('user/Users/login'));
+                
+                $Paid = 0; // 未付费
+                $where = [
+                    'users_id' => $UsersID,
+                    'product_id' => input('aid/d') ? input('aid/d') : 0,
+                    'order_status' => 1
+                ];
+                // 存在数据则已付费
+                $Paid = Db::name('media_order')->where($where)->count();
+
+                // 未付费则执行
+                if (empty($Paid)) {
+                    // 如果设置了不限会员则表示必须付费观看
+                    if (0 == intval($result['arc_level_id'])) $this->error('未付费，视频需要付费才能播放');
+
+                    // 查询播放所需等级值
+                    $archives = Db::name('archives')
+                        ->alias('a')
+                        ->field('a.users_free, b.level_value, b.level_name')
+                        ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                        ->where(['a.aid' => $result['aid']])
+                        ->find();
+
+                    if (0 == $archives['users_free'] && $UsersData['level_value'] < $archives['level_value']) {
+                        // 不免费并且会员等级值低于文档需求等级值
+                        $this->error('未付费，视频需要付费才能播放');
+                    } else if (1 == $archives['users_free']) {
+                        // 会员免费观看，判断会员是否大于初始会员
+                        $where = [
+                            'is_system' => 1,
+                            'lang' => $this->home_lang
+                        ];
+                        $InitialValue = DB::name('users_level')->where($where)->getField('level_value');
+                        if ($UsersData['level_value'] <= $InitialValue) $this->error('未付费，视频需要付费才能播放');
+                    }
                 }
-                /*--end*/
+            } else {
+                if (0 < intval($result['arc_level_id'])) {
+                    if (!empty($UsersID)) {
+                        // 查询播放所需等级值
+                        $archives = Db::name('archives')
+                            ->alias('a')
+                            ->field('b.level_value, b.level_name')
+                            ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                            ->where(['a.aid' => $result['aid']])
+                            ->find();
+                        if ($UsersData['level_value'] < $archives['level_value']) $this->error('未付费，请付费观看视频');
+                    } else {
+                        $this->error('请先登录！', url('user/Users/login'));
+                    }
+                }
             }
         }
 

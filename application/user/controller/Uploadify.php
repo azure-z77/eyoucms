@@ -17,7 +17,7 @@ class Uploadify extends Base {
 
     private $image_type = '';
     private $sub_name = '';
-    private $fileExt = 'jpg,png,gif,jpeg,bmp,ico';
+    private $fileExt = 'jpg,png,gif,jpeg,bmp,ico,webp';
     private $savePath = 'allimg/';
     private $upload_path = '';
     
@@ -34,7 +34,7 @@ class Uploadify extends Base {
         
         $this->sub_name = date('Ymd/');
         $this->image_type = tpCache('basic.image_type');
-        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : 'jpg,gif,png,bmp,jpeg,ico';
+        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->fileExt;
         $this->upload_path = UPLOAD_PATH.'user/'.$this->users_id.'/';
     }
 
@@ -431,8 +431,7 @@ class Uploadify extends Base {
         }
 
         /*验证图片一句话木马*/
-        $imgstr = @file_get_contents($file->getInfo('tmp_name'));
-        if (false !== $imgstr && (preg_match('#__HALT_COMPILER()#i', $imgstr) || preg_match('#<([^?]*)\?php#i', $imgstr))) {
+        if (false === check_illegal($file->getInfo('tmp_name'))) {
             $result = '禁止上传木马图片！';
         }
         /*--end*/
@@ -457,35 +456,21 @@ class Uploadify extends Base {
                 $state = "ERROR" . $file->getError();
             }
             $return_url = '/'.$savePath.$info->getSaveName();
-
-            // $ossConfig = tpCache('oss');
-            // if ($ossConfig['oss_switch']) {
-            //     //商品图片可选择存放在oss
-            //     // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-            //     $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-            //     $ossClient = new \app\common\logic\OssLogic;
-            //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-            //     if (!$return_url) {
-            //         $state = "ERROR" . $ossClient->getError();
-            //         $return_url = '';
-            //     } else {
-            //         $state = "SUCCESS";
-            //     }
-            //     @unlink($file->getRealPath());
-            // }
-
             $return_data['url'] = ROOT_DIR.$return_url; // 支持子目录
+
+            // 重新制作一张图片，抹去任何可能有危害的数据
+            // $image       = \think\Image::open('.'.$return_url);
+            // $image->save('.'.$return_url, null, 100);
         }
         
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
-            if(true || $this->savePath=='news/'){ // 添加水印
+            if(true){ // 添加水印
                 $imgresource = ".".$return_url;
                 $image = \think\Image::open($imgresource);
                 $water = tpCache('water');
                 $return_data['mark_type'] = $water['mark_type'];
                 if($water['is_mark']==1 && $image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
                     if($water['mark_type'] == 'text'){
-                        //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
                         $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
                         if (file_exists($ttf)) {
                             $size = $water['mark_txt_size'] ? $water['mark_txt_size'] : 30;
@@ -502,7 +487,6 @@ class Uploadify extends Base {
                         /*支持子目录*/
                         $water['mark_img'] = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $water['mark_img']); // 支持子目录
                         /*--end*/
-                        //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                         $waterPath = "." . $water['mark_img'];
                         if (eyPreventShell($waterPath) && file_exists($waterPath)) {
                             $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;

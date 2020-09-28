@@ -86,7 +86,6 @@ class Archives extends Base
         $param = input('param.');
         $flag = input('flag/s');
         $typeid = input('typeid/d', 0);
-        $d2ViX2lzX2F1 = tpCache('web.'.$this->arrJoinStr(['d2ViX2lzX2F1','dGhvcnRva2Vu']));
 
         /*跳转到指定栏目的文档列表*/
         if (0 < intval($typeid)) {
@@ -105,10 +104,6 @@ class Archives extends Base
             } else if (8 == $current_channel) {
                 $gourl = url("Guestbook/index", array('typeid'=>$typeid));
                 $this->redirect($gourl);
-            } else if (5 == $current_channel) {
-                if (-1 == $d2ViX2lzX2F1) {
-                    $this->error(base64_decode('6KeG6aKR5qih5Z6L5LuF6ZmQ5LqO5o6I5p2D5Z+f5ZCN77yB'));
-                }
             }
         }
         /*--end*/
@@ -178,9 +173,6 @@ class Archives extends Base
 
         if (empty($typeid)) {
             $id_tmp = [6,8];
-            if (-1 == $d2ViX2lzX2F1) {
-                array_push($id_tmp, 5);
-            }
             // 只显示允许发布文档的模型，且是开启状态
             $channelIds = Db::name('channeltype')->where('status',0)
                 ->whereOr('id','IN',$id_tmp)->column('id');
@@ -625,6 +617,44 @@ class Archives extends Base
     }
 
     /**
+     * 批量属性操作
+     */
+    public function batch_attr()
+    {
+        if (IS_AJAX_POST) {
+            $opt = input('post.opt/s');
+            $aids = input('post.aids/s');
+            $attrType = input('post.attrType/s');
+
+            if (empty($opt)) {
+                $this->error('操作失败！');
+            } else if (empty($attrType)) {
+                $this->error('请勾选属性！');
+            } else if (empty($aids)) {
+                $this->error('文档ID不能为空！');
+            }
+
+            $value = ($opt == 'add') ? 1 : 0;
+            $aids = str_replace('，', ',', $aids);
+            $r = Db::name('archives')->where([
+                    'aid'   => ['IN', explode(',', $aids)],
+                    'lang'  => $this->admin_lang,
+                ])->update([
+                    $attrType => $value,
+                    'update_time'   => getTime(),
+                ]);
+            if($r !== false){
+                adminLog('批量处理属性-id：'.$aids);
+                $this->success('操作成功');
+            }else{
+                $this->error('操作失败');
+            }
+        }
+
+        return $this->fetch();
+    }
+
+    /**
      *  远程图片本地化
      *
      * @access    public
@@ -654,5 +684,42 @@ class Archives extends Base
             $this->success('清除成功！', null, ['body'=>$body]);
         }
         $this->error('清除失败！');
+    }
+
+    public function ajax_get_addonextitem()
+    {
+        $aid = input('param.aid/d', 0);
+        $typeid = input('param.typeid/d', 0);
+        $channeltype = input('param.channeltype/d', 0);
+
+        if (!empty($typeid) && !empty($channeltype)) {
+            // 存在aid则执行，查询文档数据
+            $info = !empty($aid) ? model('Archives')->UnifiedGetInfo($aid, null, false) : [];
+            // 查询对应的自定义字段
+            $addonFieldExtList = model('Field')->getChannelFieldList($channeltype, 0, $aid, $info);
+            // 查询绑定的自定义字段
+            $channelfieldBindRow = Db::name('channelfield_bind')->where([
+                    'typeid'    => ['IN', [0, $typeid]],
+                ])->column('field_id');
+            // 匹配显示的自定义字段
+            if (!empty($channelfieldBindRow)) {
+                foreach ($addonFieldExtList as $key => $val) {
+                    if (!in_array($val['id'], $channelfieldBindRow)) {
+                        unset($addonFieldExtList[$key]);
+                    }
+                }
+            }
+            $assign_data['addonFieldExtList'] = $addonFieldExtList;
+            // 加载模板
+            $this->assign($assign_data);
+            // 渲染模板
+            
+            $controller_name = input('param.controller_name/s');
+            if (!empty($controller_name) && 'Custom' == $controller_name) {
+                return $this->fetch('field/modelfield');
+            } else {
+                return $this->fetch('field/addonextitem');
+            }
+        }
     }
 }

@@ -68,10 +68,12 @@
                 <span class="hidden-xs">网站首页</span>
               </a>
               {eq name="'Index@switch_map'|is_check_access" value="1"}
-              <a class="btn btn-default dropdown-toggle" href="javascript:void(0);" onclick="switch_map();">
-                <i class="fa fa-toggle-on"></i>
-                <span class="hidden-xs">功能开关</span>
-              </a>
+                {eq name="function_switch" value="true"}
+                <a class="btn btn-default dropdown-toggle" href="javascript:void(0);" onclick="switch_map();">
+                  <i class="fa fa-toggle-on"></i>
+                  <span class="hidden-xs">功能开关</span>
+                </a>
+                {/eq}
               {/eq}
               {notempty name="$is_eyou_authortoken"}
               <!-- 商业授权 -->   
@@ -116,7 +118,8 @@
               {/eq}
               <!-- 小程序 end --> 
 
-              <!-- 服务器升级 -->   
+              <!-- 服务器升级 -->
+              {eq name="upgrade" value="true"}
               <div id="upgrade_filelist" style="display:none;"></div> 
               <div id="upgrade_intro" style="display:none;"></div> 
               <div id="upgrade_notice" style="display:none;"></div> 
@@ -124,6 +127,8 @@
                 <i class="fa fa-info-circle"></i>
                 <span class="hidden-xs">系统更新</span>
               </a>
+              {/eq}
+
               <!-- 服务器升级 end -->
             </div>
             

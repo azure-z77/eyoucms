@@ -27,20 +27,6 @@ class MediaFile extends Model
         // 需要调用`Model`的`initialize`方法
         parent::initialize();
     }
-    
-    /**
-     * 获取指定下载文章的所有文件
-     * @author 小虎哥 by 2018-4-3
-     */
-    public function getVideoFile($aid, $field = '*')
-    {
-        $result = Db::name('media_file')->field($field)
-            ->where('aid', $aid)
-            ->order('file_id asc')
-            ->select();
-
-        return $result;
-    }
 
     /**
      * 删除单条视频文章的所有视频
@@ -63,6 +49,20 @@ class MediaFile extends Model
             }
         }
         \think\Cache::clear('media_file');
+
+        return $result;
+    }
+    
+    /**
+     * 获取指定下载文章的所有文件
+     * @author 小虎哥 by 2018-4-3
+     */
+    public function getMediaFile($aid, $field = '*')
+    {
+        $result = Db::name('media_file')->field($field)
+            ->where('aid', $aid)
+            ->order('file_id asc')
+            ->select();
 
         return $result;
     }

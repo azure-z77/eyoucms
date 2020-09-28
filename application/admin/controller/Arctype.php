@@ -723,6 +723,15 @@ class Arctype extends Base
         /*多语言全部标识*/
         $markArr = Db::name('language_mark')->column('mark');
         /*--end*/
+        
+        $is_language = false;
+        $web_language_switch = tpCache('web.web_language_switch');
+        if (!empty($web_language_switch)) {
+            $languageCount = Db::name('language')->where(['status'=>1])->count('id');
+            if (1 < $languageCount) {
+                $is_language = true;
+            }
+        }
 
         $templateList = array();
         $channelList = model('Channeltype')->getAll();
@@ -745,7 +754,7 @@ class Arctype extends Base
                 $langtpl = preg_replace('/\.'.$view_suffix.'$/i', "_{$this->admin_lang}.{$view_suffix}", $v2);
                 if (file_exists(realpath($planPath.DS.$langtpl))) {
                     continue;
-                } else if (preg_match('/^(.*)_([a-zA-z]{2,2})\.'.$view_suffix.'$/i',$v2,$matches2)) {
+                } else if (true == $is_language && preg_match('/^(.*)_([a-zA-z]{2,2})\.'.$view_suffix.'$/i',$v2,$matches2)) {
                     if (in_array($matches2[2], $markArr) && $matches2[2] != $this->admin_lang) {
                         continue;
                     }

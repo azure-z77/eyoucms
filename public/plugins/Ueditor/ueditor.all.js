@@ -29553,10 +29553,11 @@ UE.registerUI('autosave', function(editor) {
             if(uid){
                 editor.trigger('hidemessage',uid);
             }
-            uid = editor.trigger('showmessage',{
+            // 关闭远程图片本地化的提示 by 小虎哥
+            /*uid = editor.trigger('showmessage',{
                 content : editor.getLang('autosave.success'),
                 timeout : 2000
-            });
+            });*/
 
         },2000)
     })

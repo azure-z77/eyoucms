@@ -322,9 +322,16 @@ $(function() {
                 alert("请不要选择重复文件！");
                 return false;
             } else if (type === "F_EXCEED_SIZE") {
-                var maxSize = opts.fileSingleSizeLimit / 1024 / 1024;
-                alert("文件大小不可超过" + maxSize + "M 哦！换个小点的文件吧！");
+                /*上传大小提示 by 小虎哥*/
+                var maxSize = opts.fileSingleSizeLimit;
+                var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+                for(var i = 0; maxSize >= 1024 && i < 5; i++) {
+                    maxSize = maxSize / 1024;
+                };
+                maxSizeStr = Math.round(maxSize, 2) + units[i];
+                alert("文件大小不可超过" + maxSizeStr + " 哦！换个小点的文件吧！");
                 return false;
+                /*end*/
             }
         });
 
@@ -733,9 +740,9 @@ $(function() {
 
                     title : '图片',
                  
-                    extensions : 'gif,jpg,jpeg,bmp,png,ico',
+                    extensions : 'gif,jpg,jpeg,bmp,png,ico,webp',
                  
-                    mimeTypes : 'image/gif,image/jpg,image/jpeg,image/png,image/bmp,image/x-icon'
+                    mimeTypes : 'image/gif,image/jpg,image/jpeg,image/png,image/bmp,image/x-icon,image/webp'
 
                 }
             

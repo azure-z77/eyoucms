@@ -439,13 +439,13 @@ class Buildhtml extends Base
         }
         $info = array_values($info);//重组数组
         /***********2020 05 19 新增 e*************/
-        if ($batch && $data['allpagetotal'] > $data['achievepage'] && isset($info[$fid])) {
-            $row                 = $info[$fid];
-            $msg                 .= $msg_temp = $this->createChannel($row, $globalConfig, $has_children_Row);
-            $data['pagetotal']   = $row['pagetotal'];
-            $data['achievepage'] += $row['pagetotal'];
+        if ($batch && $data['allpagetotal'] > $data['achievepage']) {
+            $row                 = !empty($info[$fid]) ? $info[$fid] : [];
+            !empty($row) && $msg .= $msg_temp = $this->createChannel($row, $globalConfig, $has_children_Row);
+            $data['pagetotal']   = !empty($row['pagetotal']) ? $row['pagetotal'] : 1;
+            $data['achievepage'] += !empty($row['pagetotal']) ? $row['pagetotal'] : 1;
             $data['fid']         = $fid + 1;
-            $data['typeid']      = $row['typeid'];
+            $data['typeid']      = !empty($row['typeid']) ? $row['typeid'] : 0;
         } else if (!$batch) {
             foreach ($info as $key => $row) {
                 $msg                 .= $msg_temp = $this->createChannel($row, $globalConfig, $has_children_Row, $aid);
@@ -644,38 +644,6 @@ class Buildhtml extends Base
         $this->success("静态页面生成完成");
     }
 
-    /**
-     * 读取指定栏目ID下有内容的栏目信息，只读取每一级的第一个栏目
-     * @param intval $typeid 栏目ID
-     * @return array
-     */
-    private function readContentFirst($typeid)
-    {
-        $result = false;
-        while (true) {
-            $result = model('Single')->getInfoByTypeid($typeid);
-            if (empty($result['content']) && 'lists_single.htm' == strtolower($result['templist'])) {
-                $map = array(
-                    'parent_id'       => $result['typeid'],
-                    'current_channel' => 6,
-                    'is_hidden'       => 0,
-                    'status'          => 1,
-                    'is_del'          => 0,
-                );
-                $row = M('arctype')->where($map)->field('*')->order('sort_order asc')->find(); // 查找下一级的单页模型栏目
-                if (empty($row)) { // 不存在并返回当前栏目信息
-                    break;
-                } elseif (6 == $row['current_channel']) { // 存在且是单页模型，则进行继续往下查找，直到有内容为止
-                    $typeid = $row['id'];
-                }
-            } else {
-                break;
-            }
-        }
-
-        return $result;
-    }
-
     /*
      * 拓展页面相关信息
      */
@@ -693,7 +661,8 @@ class Buildhtml extends Base
                     $arctype_info = model('Arctype')->parentAndTopInfo($tid, $result);
                     if ($arctype_info) {
                         // 读取当前栏目的内容，否则读取每一级第一个子栏目的内容，直到有内容或者最后一级栏目为止。
-                        $result_new = $this->readContentFirst($tid);
+                        $archivesModel = new \app\home\model\Archives();
+                        $result_new = $archivesModel->readContentFirst($tid);
                         // 阅读权限 或 外部链接跳转
                         if ($result_new['arcrank'] == -1 || $result_new['is_part'] == 1) {
                             return false;

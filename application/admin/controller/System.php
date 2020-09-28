@@ -323,6 +323,15 @@ class System extends Base
         $this->assign('show_uiset', $show_uiset);
         /*end*/
 
+        /*代理贴牌功能限制-s*/
+        $upgrade = true;
+        if (function_exists('checkAuthRule')) {
+            //系统升级
+            $upgrade = checkAuthRule('upgrade');
+        }
+        $this->assign('upgrade', $upgrade);
+        /*代理贴牌功能限制-e*/
+        
         $this->assign('config',$config);//当前配置项
         return $this->fetch();
     }

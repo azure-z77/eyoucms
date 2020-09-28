@@ -164,9 +164,22 @@ if ($main_lang == $admin_lang) {
 /*插件应用URl*/
 $weapp_index_arr = array();
 if (1 == tpCache('web.web_weapp_switch') && file_exists(ROOT_PATH.'weapp')) {
-    $weapp_index_arr = array(
-        'is_menu' => 1,
-    );
+    //功能限制
+    $auth_function = true;
+    if (function_exists('checkAuthRule')) {
+        $auth_function = checkAuthRule(2005);
+    }
+    //2005 菜单id
+    if ($auth_function){
+        $weapp_index_arr = array(
+            'is_menu' => 1,
+        );
+    }else{
+        $weapp_index_arr = array(
+            'is_menu' => 0,
+        );
+    }
+
 }
 /*--end*/
 

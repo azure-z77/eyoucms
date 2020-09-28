@@ -79,7 +79,8 @@ class Download extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            $result['tags'] = $tags['tag_arr'];
+            $result['tag_id'] = $tags['tid_arr'];
         }
 
         return $result;
@@ -181,8 +182,9 @@ class Download extends Model
             ->select();
         if (!empty($result)) {
             foreach ($result as $key => $val) {
-                if (!is_http_url($val['file_url'])) {
-                    @unlink(ROOT_PATH.trim($val['file_url'], '/'));
+                $file_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['file_url']);
+                if (!is_http_url($file_url) && file_exists('.'.$file_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $file_url)) {
+                    @unlink(realpath('.'.$file_url));
                 }
             }
             $r = M('download_file')->where(

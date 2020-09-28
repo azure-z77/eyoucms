@@ -103,6 +103,11 @@ if (!function_exists('set_typeseotitle'))
                     $seo_title = $typename.'_'.$web_name;
                     break;
             }
+        } else {
+            $page = I('param.page/d', 1);
+            if ($page > 1) {
+                $seo_title .= "_第{$page}页";
+            }
         }
 
         return $seo_title;

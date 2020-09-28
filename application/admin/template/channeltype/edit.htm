@@ -125,7 +125,8 @@
             </script>
             {/in}
 
-            {eq name='$field.nid' value='article'}
+            {in name="$field.nid" value="article,images"}
+
                 {eq name='$IsOpenRelease' value='1'}
                     <dl class="row">
                         <dt class="tit">
@@ -141,7 +142,6 @@
                             <p class="notic">开启则在会员投稿中有发布入口</p>
                         </dd>
                     </dl>
-
                     <dl class="row">
                         <dt class="tit">
                             <label>开启投稿缩略图</label>
@@ -157,7 +157,7 @@
                         </dd>
                     </dl>
                 {/eq}
-            {/eq}
+            {/in}
 
             {in name="$field.nid" value="media,download"}
             <dl class="row">

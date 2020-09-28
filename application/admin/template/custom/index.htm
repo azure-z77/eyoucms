@@ -161,6 +161,11 @@
             <div class="nav-dropup">
                 <button class="layui-btn layui-btn-primary dropdown-bt">批量操作<i class="layui-icon layui-icon-up"></i></button>
                 <div class="dropdown-menus" style="display:none;">
+                    {eq name="'Archives@batch_attr'|is_check_access" value="1"}
+                    <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量新增属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'add'])}"><i class="fa fa-plus"></i>新增属性</a>
+                    <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量删除属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'del'])}"><i class="fa fa-close"></i>删除属性</a>
+                    <hr class="layui-bg-gray">
+                    {/eq}
                     {eq name="'Archives@batch_copy'|is_check_access" value="1"}
                     <a href="javascript:void(0);" onclick="func_batch_copy(this, 'ids');" data-url="{:url('Archives/batch_copy', array('typeid'=>$Request.param.typeid))}"><i class="fa fa-copy"></i>复制文档</a>
                     {/eq}

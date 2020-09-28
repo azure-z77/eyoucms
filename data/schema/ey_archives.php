@@ -198,6 +198,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'users_free' => 
+  array (
+    'name' => 'users_free',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'old_price' => 
   array (
     'name' => 'old_price',

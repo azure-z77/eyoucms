@@ -68,7 +68,8 @@ class Custom extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            $result['tags'] = $tags;
+            $result['tags'] = $tags['tag_arr'];
+            $result['tag_id'] = $tags['tid_arr'];
         }
 
         return $result;

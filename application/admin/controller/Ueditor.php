@@ -580,7 +580,8 @@ class Ueditor extends Base
 
         // 添加水印
         if($state == 'SUCCESS' && pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico'){
-            if(true && $this->savePath != 'adminlogo/') print_water($return_url);
+            $is_water = input('param.is_water/d');
+            if($this->savePath != 'adminlogo/' && $is_water == 1) print_water($return_url);
         }
 
         // 返回数据

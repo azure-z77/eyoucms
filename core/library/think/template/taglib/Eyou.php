@@ -129,6 +129,8 @@ class Eyou extends Taglib
         'videolist'  => ['attr' => 'aid,empty,id,mod,key,autoplay'],
         // 获取网站搜索的热门关键字
         'hotwords'        => ['attr' => 'subday,num,id,key,mod,maxlength,empty'],
+        // 插件标签通用
+        'weapptaglib'     => ['attr' => 'name,id,offset,length,key,mod,limit,row'],
     ];
 
     /**
@@ -3584,6 +3586,70 @@ class Eyou extends Taglib
         $parseStr .= 'else: ';
         $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$' . $id . '["word"] = text_msubstr($' . $id . '["word"], 0, '.$maxlength.', false);';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * weapptaglib标签解析 循环输出数据集
+     * 格式：
+     * {eyou:weapptaglib name="userList" id="user" empty=""}
+     * {user.username}
+     * {user.email}
+     * {/eyou:weapptaglib}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagWeapptaglib($tag, $content)
+    {
+        $name   = !empty($tag['name']) ? ":weapptaglib".$tag['name'] : $tag['name'];
+        $id  = isset($tag['id']) ? $tag['id'] : 'field';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+        $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
+        $length = !empty($tag['length']) && is_numeric($tag['length']) ? intval($tag['length']) : 'null';
+        if (!empty($tag['row'])) {
+            $length = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 'null';
+        }
+        if (!empty($tag['limit'])) {
+            $limitArr = explode(',', $tag['limit']);
+            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
+            $length = !empty($limitArr[1]) ? intval($limitArr[1]) : 'null';
+        }
+        // 允许使用函数设定数据集 <weapptaglib name=":fun('arg')" id="vo">{$vo.name}</volist>
+        $parseStr = '<?php ';
+        $flag     = substr($name, 0, 1);
+        if (':' == $flag) {
+            $name = $this->autoBuildVar($name);
+            $parseStr .= '$_result=' . $name . ';';
+            $name = '$_result';
+        } else {
+            $name = $this->autoBuildVar($name);
+        }
+
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        // 设置了输出数组长度
+        if (0 != $offset || 'null' != $length) {
+            $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
+        } else {
+            $parseStr .= ' $__LIST__ = ' . $name . ';';
+        }
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
         $parseStr .= '$' . $key . '= intval($key) + 1;?>';
         $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
         $parseStr .= $content;

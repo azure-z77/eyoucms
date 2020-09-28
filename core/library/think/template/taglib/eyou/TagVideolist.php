@@ -64,12 +64,12 @@ class TagVideolist extends Base
                     
                     $row[$key]['file_time']  = gmSecondFormat(intval($val['file_time']), ':');
                     if (!empty($val['file_time'])) {
-                        $row[$key]['onclick'] = " onclick=\"changeVideoUrl1586341922('{$row[$key]['file_id']}', '{$row[$key]['uhash']}')\" ";
+                        $row[$key]['onclick'] = " onclick=\"changeVideoUrl1586341922('{$row[$key]['file_id']}', '{$row[$key]['aid']}', '{$row[$key]['uhash']}')\" ";
                         $row[$key]['hidden'] = '';
                         if ($key == count($row) - 1) {
                             $row[$key]['hidden'] = <<<EOF
 <script type="text/javascript">
-    function changeVideoUrl1586341922(id, uhash) {
+    function changeVideoUrl1586341922(id, aid, uhash) {
         //步骤一:创建异步对象
         var ajax = new XMLHttpRequest();
         //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
@@ -79,7 +79,7 @@ class TagVideolist extends Base
         // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
         ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         //步骤三:发送请求+数据
-        ajax.send('_ajax=1&id='+id+'&uhash='+uhash);
+        ajax.send('_ajax=1&id='+id+'&aid='+aid+'&uhash='+uhash);
         //步骤四:注册事件 onreadystatechange 状态改变就会调用
         ajax.onreadystatechange = function () {
             //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
@@ -89,21 +89,30 @@ class TagVideolist extends Base
                 if (res.code == 1) {
                     let obj = document.getElementById('video_play_20200520_{$aid}');
                     if (obj) {
+                        if (document.getElementById("VideoDiv13579")) {
+                            document.getElementById("VideoDiv13579").setAttribute("style", "display: none");
+                        }
                         obj.src = res.url;
                         if ('video' == obj.tagName.toLowerCase()) {
                             obj.controls = 'controls';
                             var autoplay = "{$autoplay}";
                             if ('on' == autoplay) {
-                                document.getElementById('video_play_20200520_{$aid}').autoplay = 'autoplay';
+                                document.getElementById('video_play_20200520_{$aid}').play();
                             } else if ('off' == autoplay) {
                                 document.getElementById('video_play_20200520_{$aid}').autoplay = false;
+                            } else {
+                                document.getElementById('video_play_20200520_{$aid}').play();
                             }
                         }
                     } else {
                         alert('请查看模板里videoplay视频播放标签是否完整！');
                     }
                 } else {
-                    alert(res.msg);
+                    if (document.getElementById("VideoDiv13579")) {
+                        document.getElementById("VideoDiv13579").setAttribute("style", "display: block");
+                        document.getElementById('video_play_20200520_{$aid}').pause();
+                    }
+                    // alert(res.msg);
                 }
           　}
         }

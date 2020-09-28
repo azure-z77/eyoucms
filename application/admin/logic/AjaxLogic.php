@@ -757,4 +757,28 @@ class AjaxLogic extends Model
             tpCache('syn', ['syn_admin_logic_users_parameter'=>1], 'cn');
         }
     }
+
+    /**
+     * 根据下载模型自动开启会员中心的【我的下载】
+     */
+    public function admin_logic_users_download()
+    {
+        $syn_admin_logic_users_download = tpCache('syn.syn_admin_logic_users_download', [], 'cn');
+        if (empty($syn_admin_logic_users_download)) {
+            try{
+                $status = Db::name('channeltype')->where([
+                        'nid'   => 'download',
+                        'is_del'    => 0,
+                    ])->getField('status');
+                Db::name('users_menu')->where([
+                        'mca'   => 'user/Download/index',
+                        'lang'  => get_main_lang(),
+                    ])->update([
+                        'status'    => intval($status),
+                        'update_time' => getTime(),
+                    ]);
+            }catch(\Exception $e){}
+            tpCache('syn', ['syn_admin_logic_users_download'=>1], 'cn');
+        }
+    }
 }

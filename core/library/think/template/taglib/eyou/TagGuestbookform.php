@@ -195,6 +195,9 @@ EOF;
 <script type="text/javascript">
     function {$submit}(elements)
     {
+        if (document.getElementById('gourl_{$token_id}')) {
+            document.getElementById('gourl_{$token_id}').value = window.location.href;
+        }
         {$check_js}
         {$beforeSubmit}
         elements.submit();
@@ -230,7 +233,7 @@ EOF;
     {$funname}();
 </script>
 EOF;
-            $hidden = '<input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
+            $hidden = '<input type="hidden" name="gourl" id="gourl_'.$token_id.'" value="'.request()->domain().$this->root_dir.'" /><input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
             $action = $this->root_dir."/index.php?m=home&c=Lists&a=gbook_submit&lang={$this->home_lang}";
