@@ -1,0 +1,15 @@
+    {php}
+        $users_open_release = getUsersConfigData('users.users_open_release');
+        $web_users_switch = tpCache('web.web_users_switch');
+    {/php}
+    <div class="sDiv2">  
+        <select name="flag" class="select" style="margin:0px 5px;">
+            <option value="">--属性--</option>
+            {volist name="archives_flags" id="vo"}
+                <option value="{$vo.flag_fieldname}" {eq name="$Request.param.flag" value="$vo.flag_fieldname"}selected{/eq}>{$vo.flag_name}</option>
+            {/volist}
+            {if condition='$users_open_release == 1 AND $web_users_switch == 1'}
+            <option value="is_release" {eq name="$Request.param.flag" value="is_release"}selected{/eq}>投稿</option>
+            {/if}
+        </select>
+    </div>

@@ -1,0 +1,56 @@
+<!-- 
+    {eq name="'Member@money_index'|is_check_access" value="1"}
+    <div class=" addartbtn fl">
+        <input type="button" class="btn {if condition="!in_array($Request.action, ['money_index'])"}current{else/}selected{/if}" value="余额充值" onclick="window.location.href='{:url("Member/money_index")}';">
+    </div>
+    {/eq}
+
+	{eq name="'Level@index'|is_check_access" value="1"}
+		{if condition="1 == $userConfig.level_member_upgrade"}
+			<div class=" addartbtn fl"><span class="sprt col-padding-1">|</span></div>
+			{eq name="'Level@upgrade_index'|is_check_access" value="1"}
+			<div class=" addartbtn fl">
+				<input type="button" class="btn {if condition="!in_array($Request.action, ['upgrade_index'])"}current{else/}selected{/if}" value="会员升级" onclick="window.location.href='{:url("Level/upgrade_index")}';">
+			</div>
+			{/eq}
+		{/if}
+	{/eq}
+
+	{eq name="'Member@media_index'|is_check_access" value="1"}
+		{if condition="!empty($channeltype_row[5]['status'])"}
+			<div class=" addartbtn fl"><span class="sprt col-padding-1">|</span></div>
+			{eq name="'Member@media_index'|is_check_access" value="1"}
+			<div class=" addartbtn fl">
+				<input type="button" class="btn {if condition="!in_array($Request.action, ['media_index'])"}current{else/}selected{/if}" value="视频订单" onclick="window.location.href='{:url("Member/media_index")}';">
+			</div>
+			{/eq}
+		{/if}
+	{/eq} -->
+	
+	<div class="member-nav-group">
+		{eq name="'Member@money_index'|is_check_access" value="1"}
+			<label class="member-nav-item">
+				<input type="button" class="btn {if condition="!in_array($Request.action, ['money_index'])"}current{else/}selected{/if}" value="余额充值" onclick="window.location.href='{:url("Member/money_index")}';">
+			</label>
+		{/eq}
+			 
+		{eq name="'Level@index'|is_check_access" value="1"} 
+			{if condition="1 == $userConfig.level_member_upgrade"}
+				{eq name="'Level@upgrade_index'|is_check_access" value="1"}
+					<label class="member-nav-item">
+						<input type="button" class="btn {if condition="!in_array($Request.action, ['upgrade_index'])"}current{else/}selected{/if}" value="会员升级" onclick="window.location.href='{:url("Level/upgrade_index")}';">
+					</label>
+				{/eq}
+			{/if}	
+		{/eq}
+			
+		{eq name="'Member@media_index'|is_check_access" value="1"}
+			{if condition="!empty($channeltype_row[5]['status'])"}
+				{eq name="'Member@media_index'|is_check_access" value="1"}
+					<label class="member-nav-item">
+						<input type="button" class="btn {if condition="!in_array($Request.action, ['media_index'])"}current{else/}selected{/if}" value="视频订单" onclick="window.location.href='{:url("Member/media_index")}';">
+					</label>
+				{/eq}	
+			{/if}	
+		{/eq}
+	</div>
