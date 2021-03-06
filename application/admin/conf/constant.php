@@ -1,3 +1,0 @@
-<?php
-define('INSTALL_DATE',1591957335);
-define('SERIALNUMBER','20200612062215m8Jkby');
