@@ -13,6 +13,9 @@
 			<form class="navbar-form form-inline" action="{:url('Level/upgrade_index')}" method="get" onsubmit="layer_loading('正在处理');">
 				{$searchform.hidden|default=''}
 				<div class="sDiv">
+                    <div class="fl">
+                        <!-- #weapp_ExportOrder_btn# -->
+                    </div>
 					<div class="sDiv2">
 						<input type="text" name="add_time_begin" id="add_time_begin" value="{$Request.param.add_time_begin}" class="qsbox" autocomplete="off" placeholder="起始日期">
 					</div>

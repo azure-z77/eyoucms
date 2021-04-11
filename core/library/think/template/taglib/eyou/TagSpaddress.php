@@ -34,27 +34,22 @@ class TagSpaddress extends Base
     {
         if ($type == 'add') {
             $UlHtmlId = 'UlHtml';
-            // 封装删除收货地址JS
-            $AddressData[0]['ShopAddAddr'] = " onclick=\"ShopAddAddress(this);\" ";
+            // 封装添加收货地址JS
             $AddressData[0]['UlHtmlId']    = " id=\"{$UlHtmlId}\" ";
+            $AddressData[0]['ShopAddAddr'] = " onclick=\"ShopAddAddress(this);\" ";
+
             // 传入JS参数
-            $shop_get_wechat_addr_url = '';
-            if (isMobile() && isWeixin()) {
-                // 用于获取微信收货地址
-                $shop_get_wechat_addr_url  = url('user/Shop/shop_get_wechat_addr');
-            }
             $data['UlHtmlId']  = $UlHtmlId;
-            $data['shop_get_wechat_addr_url'] = $shop_get_wechat_addr_url;
+            $data['shop_get_wechat_addr_url'] = isMobile() && isWeixin() ? url('user/Shop/shop_get_wechat_addr') : '';
             $data['shop_add_address']  = url('user/Shop/shop_add_address');
             $data['shop_edit_address'] = url('user/Shop/shop_edit_address');
             $data['shop_del_address']  = url('user/Shop/shop_del_address');
             $data['shop_set_default']  = url('user/Shop/shop_set_default_address');
+            $data['addr_width']  = '350px';
+            $data['addr_height'] = '480px';
             if (isWeixin() || isMobile()) {
                 $data['addr_width']  = '100%';
                 $data['addr_height'] = '100%';
-            }else{
-                $data['addr_width']  = '350px';
-                $data['addr_height'] = '480px';
             }
             $data_json = json_encode($data);
             $version   = getCmsVersion();
@@ -66,7 +61,7 @@ class TagSpaddress extends Base
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_spaddress.js?v={$version}"></script>
 EOF;
             return $AddressData;
-            exit;    
+            exit;
         }
 
         // 查询条件
@@ -74,11 +69,8 @@ EOF;
             'users_id' => session('users_id'),
             'lang'     => $this->home_lang,
         ];
-
-        $AddressData = Db::name("shop_address")->where($AddressWhere)->order('is_default desc')->select();
-        if (empty($AddressData)) {
-            return false;
-        }
+        $AddressData = Db::name("shop_address")->where($AddressWhere)->order('is_default desc, addr_id asc')->select();
+        if (empty($AddressData)) return false;
 
         // 根据地址ID查询相应的中文名字
         foreach ($AddressData as $key => $value) {
@@ -137,7 +129,7 @@ EOF;
 
         if (!empty($AddressData)) {
             return $AddressData;
-        }else{
+        } else {
             return false;
         }
     }

@@ -387,6 +387,13 @@ class Pay extends Base
                 $this->assign('data', $data);
 
             } else if (!empty($order_id)) {
+                /*余额开关*/
+                $pay_balance_open = getUsersConfigData('pay.pay_balance_open');
+                if (!is_numeric($pay_balance_open) && empty($pay_balance_open)) {
+                    $pay_balance_open = 1;
+                }
+                /*end*/
+
                 if (!empty($PayData['type']) && 8 == $PayData['type']) {
                     // 获取支付订单
                     $where = [
@@ -407,6 +414,7 @@ class Pay extends Base
                     $data['unified_amount']   = $data['order_amount'];
                     $data['unified_number']   = $data['order_code'];
                     $data['cause']            = '购买视频';
+                    $data['pay_balance_open'] = $pay_balance_open;
                     $this->assign('data', $data);
 
                 } else {
@@ -436,6 +444,7 @@ class Pay extends Base
                     $data['unified_amount']   = $data['order_amount'];
                     $data['unified_number']   = $data['order_code'];
                     $data['cause']            = '购买商品';
+                    $data['pay_balance_open'] = $pay_balance_open;
                     $this->assign('data', $data);
 
                 }
@@ -682,7 +691,7 @@ class Pay extends Base
             }
 
             // 调取微信支付链接
-            $payUrl = model('Pay')->payForQrcode($out_trade_no, $total_fee);// PC调用
+            $payUrl = model('PayApi')->payForQrcode($out_trade_no, $total_fee, $transaction_type);
             // 生成二维码加载在页面上
             vendor('wechatpay.phpqrcode.phpqrcode');
             $qrcode = new \QRcode;
@@ -729,7 +738,7 @@ class Pay extends Base
                 // 返回结果
                 $result = $wxpayapi->orderQuery($config, $input);
                 // 业务处理
-                if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
+                if (isset($result['return_code']) && $result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
                     if ($result['trade_state'] == 'SUCCESS' && !empty($result['transaction_id'])) {
                         if (2 == $transaction_type) { // 产品购买订单
                             if (empty($order_data['order_status'])) {
@@ -880,7 +889,7 @@ class Pay extends Base
         $data['unified_amount']   = input('param.unified_amount/f');
         $data['transaction_type'] = input('param.transaction_type/d');
         // 调用新版支付宝支付方法
-        model('Pay')->getNewAliPayPayUrl($data);
+        model('PayApi')->getNewAliPayPayUrl($data);
     }
 
     // 支付宝回调接口，处理订单数据
@@ -1254,15 +1263,9 @@ class Pay extends Base
 
             // 判断是否小程序接入，存在openid则表示小程序接入
             if (input('post.openid')) {
-                $body = "小程序支付";
-                if (1 == config('global.opencodetype')) {
-                    $web_name = tpCache('web.web_name');
-                    $web_name = !empty($web_name) ? "[{$web_name}]" : "";
-                    $body = $web_name.$body;
-                }
-                $data = model('Pay')->getWechatPay($open_id, $out_trade_no, $total_fee, $body, '小程序支付', 1); 
+                $data = model('PayApi')->getWechatPay($open_id, $out_trade_no, $total_fee, [], 1, $transaction_type); 
             } else {
-                $data = model('Pay')->getWechatPay($open_id, $out_trade_no, $total_fee);    
+                $data = model('PayApi')->getWechatPay($open_id, $out_trade_no, $total_fee, [], 0, $transaction_type);
             }
             
             // 这个data返回的是调用需要时，所需要给微信提供的公众号参数，并非提示信息
@@ -1340,7 +1343,7 @@ class Pay extends Base
 
             // 返回结果
             $result = $wxpayapi->orderQuery($config, $input);
-            if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
+            if (isset($result['return_code']) && $result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
                 if ($result['trade_state'] == 'SUCCESS' && !empty($result['transaction_id'])) {
                     if (1 == $transaction_type) {
                         // 充值处理

@@ -174,6 +174,7 @@ class Controller
         $this->assign('main_lang', $this->main_lang);
         $this->assign('version', $this->version);
         $this->assign('is_mobile', $this->is_mobile);
+        $this->assign('tpl_theme', $this->tpl_theme);
         /*--end*/
         
         $param = $this->request->param();
@@ -210,7 +211,10 @@ class Controller
      */
     protected function _initialize()
     {
-        $request = request();
+        static $request = null;
+        if (null === $request) {
+            $request = request();
+        }
         $searchformhidden = '';
         /*纯动态URL模式下，必须要传参的分组、控制器、操作名*/
         if (1 == config('ey_config.seo_pseudo') && 1 == config('ey_config.seo_dynamic_format')) {

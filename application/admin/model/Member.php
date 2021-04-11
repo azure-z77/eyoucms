@@ -336,7 +336,14 @@ class Member extends Model
                         /*--end*/
                         break;
                     }
-                    
+                    case 'file':
+                    {
+                        $ext = tpCache('basic.file_type');
+                        $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
+                        $val['filesize'] = upload_max_filesize();
+                        break;
+                    }
+
                     default:
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];

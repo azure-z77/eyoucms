@@ -14,6 +14,7 @@
 namespace app\admin\controller;
 use think\Db;
 use think\Session;
+use think\Config;
 use app\admin\logic\AjaxLogic;
 
 /**
@@ -68,7 +69,12 @@ class Ajax extends Base {
     {
         \think\Session::pause(); // 暂停session，防止session阻塞机制
         $upgradeLogic = new \app\admin\logic\UpgradeLogic;
-        $upgradeMsg = $upgradeLogic->checkVersion(); // 升级包消息
+        $security_patch = tpSetting('upgrade.upgrade_security_patch');
+        if (!empty($security_patch) && 1 == $security_patch) {
+            $upgradeMsg = $upgradeLogic->checkSecurityVersion(); // 安全补丁包消息
+        } else {
+            $upgradeMsg = $upgradeLogic->checkVersion(); // 升级包消息
+        }
         $this->success('检测成功', null, $upgradeMsg);  
     }
 
@@ -104,5 +110,15 @@ class Ajax extends Base {
         }
 
         $this->error('更新sitemap失败！');
+    }
+
+    // 开启\关闭余额支付
+    public function BalancePayOpen()
+    {
+        if (IS_AJAX_POST) {
+            $open_value = input('post.open_value/d');
+            getUsersConfigData('pay', ['pay_balance_open' => $open_value]);
+            $this->success('操作成功');
+        }
     }
 }

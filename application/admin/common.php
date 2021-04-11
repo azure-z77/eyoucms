@@ -65,7 +65,7 @@ if (!function_exists('getAdminInfo'))
                 ->find();
             if (!empty($admin_info)) {
                 // 头像
-                empty($admin_info['head_pic']) && $admin_info['head_pic'] = get_head_pic($admin_info['head_pic']);
+                empty($admin_info['head_pic']) && $admin_info['head_pic'] = get_head_pic($admin_info['head_pic'], true);
                 
                 // 权限组
                 $admin_info['role_id'] = !empty($admin_info['role_id']) ? $admin_info['role_id'] : -1;
@@ -92,7 +92,7 @@ if (!function_exists('get_conf'))
      * 获取conf配置文件
      */
     function get_conf($name = 'global')
-    {            
+    {
         $arr = include APP_PATH.MODULE_NAME.'/conf/'.$name.'.php';
         return $arr;
     }
@@ -682,6 +682,16 @@ if (!function_exists('get_typeurl'))
      */
     function get_typeurl($arctype_info = array(), $admin = true)
     {
+        /*问答模型*/
+        if ($arctype_info['current_channel'] == 51) { 
+            $typeurl = get_askurl("home/Ask/index");
+            // 自动隐藏index.php入口文件
+            $typeurl = auto_hide_index($typeurl);
+
+            return $typeurl;
+        }
+        /*end*/
+
         static $domain = null;
         null === $domain && $domain = request()->domain();
 
@@ -764,15 +774,15 @@ if (!function_exists('get_arcurl'))
             if (2 == $seo_pseudo) {
                 static $lang = null;
                 null === $lang && $lang = input('param.lang/s', 'cn');
-                $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&admin_id=".session('admin_id')."&t=".getTime();
+                $arcurl = ROOT_DIR."/index.php?m=home&c=View&a=index&aid={$arcview_info['aid']}&lang={$lang}&admin_id=".session('admin_id');
             } else {
                 $arcurl = arcurl("home/{$ctl_name}/view", $arcview_info, true, $domain, $seo_pseudo, $seo_dynamic_format);
                 // 自动隐藏index.php入口文件
                 $arcurl = auto_hide_index($arcurl);
                 if (stristr($arcurl, '?')) {
-                    $arcurl .= '&admin_id='.session('admin_id')."&t=".getTime();
+                    $arcurl .= '&admin_id='.session('admin_id');
                 } else {
-                    $arcurl .= '?admin_id='.session('admin_id')."&t=".getTime();
+                    $arcurl .= '?admin_id='.session('admin_id');
                 }
             }
         } else {
@@ -782,6 +792,35 @@ if (!function_exists('get_arcurl'))
         }
 
         return $arcurl;
+    }
+}
+
+if (!function_exists('get_askurl')) 
+{
+    /**
+     * 获取问答链接
+     *
+     * @param array $arctype_info 栏目信息
+     * @param boolean $admin 后台访问链接，还是前台链接
+     */
+    function get_askurl($url = '', $ask_info = array(), $admin = true)
+    {
+        static $domain = null;
+        null === $domain && $domain = request()->domain();
+
+        static $seo_pseudo = null;
+        static $seo_dynamic_format = null;
+        if (null === $seo_pseudo || null === $seo_dynamic_format) {
+            $seoConfig = tpCache('seo');
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+        }
+
+        $askurl = askurl($url, $ask_info, true, $domain, $seo_pseudo, $seo_dynamic_format);
+        // 自动隐藏index.php入口文件
+        $askurl = auto_hide_index($askurl);
+
+        return $askurl;
     }
 }
 
@@ -807,6 +846,31 @@ if (!function_exists('get_tagurl'))
         $tagurl = auto_hide_index($tagurl);
 
         return $tagurl;
+    }
+}
+
+if (!function_exists('get_homeurl')) 
+{
+    /**
+     * 获取前台链接
+     *
+     * @param array $tagid 标签ID
+     */
+    function get_homeurl($mca = '', $vars = [])
+    {
+        static $seo_pseudo = null;
+        static $seo_dynamic_format = null;
+        if (null === $seo_pseudo || null === $seo_dynamic_format) {
+            $seoConfig = tpCache('seo');
+            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+            $seo_dynamic_format = !empty($seoConfig['seo_dynamic_format']) ? $seoConfig['seo_dynamic_format'] : config('ey_config.seo_dynamic_format');
+        }
+    
+        $url = url($mca, $vars, true, true, $seo_pseudo, $seo_dynamic_format);
+        // 自动隐藏index.php入口文件
+        $url = auto_hide_index($url);
+
+        return $url;
     }
 }
 

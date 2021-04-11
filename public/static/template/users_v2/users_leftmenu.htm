@@ -8,7 +8,8 @@
     </li>
     {/eyou:usermenu}
 </ul>
-{if isset($usersConfig['shop_open']) && $usersConfig['shop_open'] == 1}
+
+{if isset($usersConfig['shop_open']) && $usersConfig['shop_open'] == 1 && $php_servicemeal > 1}
 <ul>
     <li>
         <div class="title">商城中心</div>
@@ -19,11 +20,17 @@
     <li {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Shop' && $Think.const.ACTION_NAME == 'shop_address_list'} class="active" {/if}>
         <a href="{eyou:url link='user/Shop/shop_address_list' /}">收货地址</a>
     </li>
-    <li {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Shop' && $Think.const.ACTION_NAME == 'shop_centre'} class="active" {/if}>
+    <li {if $Think.const.MODULE_NAME == 'user' && ($Think.const.CONTROLLER_NAME == 'Shop' && in_array($Think.const.ACTION_NAME, ['shop_centre', 'shop_order_details', 'after_service', 'after_service_details', 'after_service_apply']) || ($Think.const.CONTROLLER_NAME == 'ShopComment' && in_array($Think.const.ACTION_NAME, ['product'])))} class="active" {/if}>
         <a href="{eyou:url link='user/Shop/shop_centre' /}">我的订单</a>
     </li>
+    {egt name='$php_servicemeal' value='2'}
+    <li {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'ShopComment' && in_array($Think.const.ACTION_NAME, ['index'])} class="active" {/if}>
+        <a href="{eyou:url link='user/ShopComment/index'/}"> 我的评价</a>
+    </li>
+    {/egt}
 </ul>
 {/if}
+
 {if isset($usersConfig['users_open_release']) && $usersConfig['users_open_release'] == 1}
 <ul>
     <li>

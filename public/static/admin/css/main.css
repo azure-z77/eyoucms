@@ -28,6 +28,7 @@ i.fa { font-size: 14px; vertical-align: baseline; margin-right: 4px; }/*字体�
 .nobs, .nobs:hover { box-shadow: none!important; }
 .none {display: none;}
 .blocki{ display:inline-block !important; }
+.curpoin{ cursor: pointer !important; }
 i,em{ font-style: normal; }
 /*body样式 2019-06-13 浩 */
 .bodystyle{height: 93%; background-color: #F4F4F4; padding: 20px;overflow:auto;}
@@ -58,6 +59,7 @@ article, aside, dialog, footer, header, section, footer, nav, figure, menu { dis
 .w190 { width: 190px !important; }
 .w200 { width: 200px !important; }
 .w210 { width: 210px !important; }
+.w220 { width: 220px !important; }
 .w230 { width: 230px; }
 .w240 { width: 240px; }
 .w250 { width: 250px !important; }
@@ -134,7 +136,7 @@ article, aside, dialog, footer, header, section, footer, nav, figure, menu { dis
 .pb50 { padding-bottom: 50px; }
 .pb100 { padding-bottom: 100px; }
 .pl5 { padding-left: 5px!important; }
-.pl10 { padding-left: 10px; }
+.pl10 { padding-left: 10px!important; }
 .pl15 { padding-left: 15px!important; }
 .pl20 { padding-left: 20px; }
 .pl30 { padding-left: 30px; }
@@ -1120,6 +1122,11 @@ margin: 0 auto!important; padding: 0; zoom: 1; }
 .pagination li a:hover span,
 .pagination li a:active span { color: #333; background-color: #E8E8E8; border-color: #D0D0D0 #D0D0D0 #AEAEAE #D0D0D0; cursor: pointer; }
 .pagination li span.currentpage { color: #FFF; font-weight: bold; background-color: #41BEDD; border-color: #3AABC6 #3AABC6 #318EA6 #3AABC6; border-radius: 0; }
+.pagination>.disabled>a, 
+.pagination>.disabled>a:focus, 
+.pagination>.disabled>a:hover {
+	cursor:not-allowed!important;
+}
 .paixv a { text-decoration: none; color: #000 }
 .paixv a:hover { color: #06F }
 .hDiv::-webkit-scrollbar{display:none;}
@@ -1473,18 +1480,20 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
 .ui-sortable-placeholder{ display: inline-block; }
 .tab-pane .images_upload {
     float: left;
-    width: 19%;
-    margin-right: 1%;
-    margin-top: 15px;
+    width: 16%;
+    margin-right: 2%;
+    margin-bottom: 15px;
     display: inline-block;
 }
 
 .tab-pane .images_upload .ic{
+    width: 100%;
     border: 1px solid #ddd;
     padding: 5px;
     position: relative;
     float: left;
     background: #fff;
+    height:auto;
 }
 .tab-pane .images_upload .cover-bg{ background: #000; opacity: 0.5; width:100%; height: 100%; position: absolute; z-index: 2 }
 .tab-pane .images_upload .icaction{position: absolute; top:50%; margin-top: -15px; text-align: center; width:100%; z-index: 111}
@@ -1506,7 +1515,7 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     width:100%; 
     box-sizing: 
     border-box;
-    margin-top: 5px;
+    margin-top: 7px;
     font-size: 13px;
     height: 50px;
     float: left;
@@ -1515,6 +1524,10 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     -webkit-appearance: none;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.065) inset;
     transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1) 0s;
+}
+
+.tab-pane .images_upload:last-child{
+    display: none;
 }
 .tab-pane .table-bordered{ width:100%; }
 .tab-pane a.upimg,.tab-pane div.upimg{ 
@@ -1526,11 +1539,34 @@ img.cboximg{height: 11px; width: 13px; padding-right: 2px;}
     display: block;
 }
 
+.tab-pane .load_input{
+   display: none;
+}
+
+.tab-pane .upimg .delect{
+   position: absolute;
+   top: 0;
+   right: 0;
+   z-index: 2;
+   width: 0px;
+   height: 0px;
+   border-top: 30px solid rgba(0,0,0,0.5);
+   border-left: 30px solid transparent;
+}
+.tab-pane .upimg .delect::after {
+    position: relative;
+    content: "×";
+    font-size: 20px;
+    color: white;
+    top: -33px;
+    right: 15px;
+}
+
 .tab-pane .operation a{
     text-align: center;
     color: #666;
     outline: none;
-    width: 33.3333%;
+    width: 34%;
     float: left;
     font-size: 14px;
 
@@ -1560,14 +1596,22 @@ a.imgupload{
 a.imgupload i{font-size: 1.0rem;}
 a.imgupload:hover{ background-image: linear-gradient(160deg, #3bb4f2 20%,#008cff 80%);}
 
+
+.img-upload{border:1px solid #ddd;width:136px;height:133px;position: relative;display: inline-block;float: left;}
+.img-upload .y-line{position: absolute;width:50%;height:1px;background-color:#ccc;left: 25%;top:49%;z-index: 5;}
+.img-upload .x-line{position: absolute;width:1px;height:50%;background-color:#ccc;left: 49%;top:25%;z-index: 5;}
+
+.b-img-upload{float: left;width: 16%;margin-right: 2%;display: inline-block;min-height: 150px;}
+
  @media (max-width:1680px) {
 .tab-pane .images_upload{width: 24%;}
 .tab-pane .operation a{ font-size: 12px; }
 .tab-pane .operation a label{cursor: pointer;}
 }
-div.tab-pane.pics a.upimg{ height: auto; padding: 8px; padding-bottom:0px; }
+div.tab-pane.pics a.upimg{ height: auto; padding: 0px;}
 div.tab-pane.pics .images_upload{ width:auto;position: relative; }
-div.tab-pane.pics .delect{ text-align: center; display: block; background: #fafafa;position: absolute;bottom: -3px;left: 0;color: #fff;  background-color:rgba(0,0,0,0.5);z-index: 2;width: 100%; }
+div.tab-pane.pics .delect{ position: absolute;top:0;right: 0;z-index: 2;width: 0px;height: 0px;border-top:30px solid rgba(0,0,0,0.5);border-left:30px solid transparent; }
+div.tab-pane.pics .delect::after {position: relative;content: "\d7";font-size: 20px;color: white;top: -33px;right: 15px;}
 
 .template_div{margin: 5px 0px;}
 
@@ -1662,7 +1706,9 @@ div.bot2 {
 .admin_user_dropup .admin_user_dropup_con{display: none; position: absolute;right: 0;top: 41px;min-width: 100%;line-height: 36px;padding: 0 0 5px;box-shadow: 0 2px 4px rgba(0,0,0,.12);background-color: #fff;z-index: 100;white-space: nowrap; }
 .admin_user_dropup .admin_user_dropup_con a{padding: 0 14px;display: block;width: 70px;text-align: center;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; color:#353535}
 .admin_user_dropup .admin_user_dropup_con a:hover {background-color: #FAFAFA;}
-
+.admin_user_dropup .admin_user_dropup_bt{position: relative;}
+.admin_user_dropup .info-num{position: absolute;top: -4px;right:10px;z-index: 9;background-color: red;color: #fff;border-radius: 50px;font-size: 12px;padding: 0 2px; height:16px;line-height: 16px; min-width: 12px;text-align: center;}
+.admin_user_dropup .admin_user_dropup_con li{position: relative;}
 /*商城中心中间菜单*/
 .sidebar-second {
     position: fixed;
@@ -2010,9 +2056,20 @@ div.bot2 {
     color: #333;
     font-size: 16px;
     line-height: 24px;
-	overflow:hidden; 
-	text-overflow:ellipsis; 
-	white-space:nowrap;
+    height: 24px;
+}
+.plug-item-content .plug-item-top .plug-text .plug-text-title .title-l{
+    display: inline-block;
+    width: calc(100% - 175px);
+    overflow:hidden;
+    text-overflow:ellipsis; 
+    white-space:nowrap;
+}
+.plug-item-content .plug-item-top .plug-text .plug-text-title .title-r{
+    width: 175px;
+    float: right;
+    font-size: 12px;
+
 }
 .plug-item-content .plug-item-top .plug-text .plug-text-title a{
 	color: #333;
@@ -2294,13 +2351,14 @@ div.bot2 {
 		align-items: center;
 		padding: 0 16px;
 		background-color: #f9f9f9;
-		line-height: 40px;
+		line-height: 60px;
 		text-decoration: none;
 		color: #333;
 		transition: all 250ms linear;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		font-size: 15px;
 	}
 	.on-off_panel .on-off_list li a span{
 		display: inline-block;
@@ -2342,11 +2400,16 @@ div.bot2 {
 		text-align: center;
 		padding: 16px;
 	}
+    .on-off_panel .on-off_list.b-icon .more_li i{
+        font-size: 20px;
+        margin-right: 10px;
+    }
 	
 	/*广告图片列表*/
 	.adpic{ }
-	.adpic li { width:68px; max-height: 58px; margin:0 auto; vertical-align: middle; overflow: hidden;}
-	.adpic li img{ width:100%; height: auto;}
+	.adpic li {position: relative; width:68px;max-height: 68px; margin:0 auto; vertical-align: middle; overflow: hidden;background-color: #f4f4f4;}
+	.adpic li img{ width:100%; min-height: auto;}
+    .adpic li span{position: absolute;bottom: 4px;right: 4px;color: #fff; background: rgba(0,0,0,0.5);height:16px;line-height: 16px;padding: 0 4px;border-radius: 4px;}
 	
 /*主题色选择样式*/
 
@@ -2561,3 +2624,11 @@ div.bot2 {
     background-color:#fdef9f;
     color: #000;
 }
+/* 评价星星 */
+.z_comment-star {display: inline-block; width: 78px;height: 14px;background: url(../images/star.png) no-repeat}
+.z_star0 {background-position: -80px 0}
+.z_star1 {background-position: -64px 0}
+.z_star2 {background-position: -48px 0}
+.z_star3 {background-position: -32px 0}
+.z_star4 {background-position: -16px 0}
+.z_star5 {background-position: 0 0}

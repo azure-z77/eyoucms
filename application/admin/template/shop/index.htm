@@ -19,6 +19,9 @@
             <form class="navbar-form form-inline" id="postForm" action="{:url('Shop/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
+                    <div class="fl">
+                        <!-- #weapp_ExportOrder_btn# -->
+                    </div>
                     <div class="sDiv2">
                         <input type="text" name="add_time_begin" id="add_time_begin" autocomplete="off" value="{$Request.param.add_time_begin}" class="qsbox" placeholder="起始日期">
                     </div>
@@ -224,8 +227,8 @@
 										<i></i>
                                         <a href="JavaScript:void(0);" class="btn blue" title="买家提醒商家发货次数">
                                             提醒
-                                            {notempty name="$LogData[$vo.order_id][action_count]"}
-                                                <em class="num">{$LogData[$vo.order_id][action_count]}</em>
+                                            {notempty name="$LogData[$vo.order_id]['action_count']"}
+                                                <em class="num">{$LogData[$vo.order_id]['action_count']}</em>
                                             {/notempty}
                                         </a>
                                     {/eq}

@@ -15,10 +15,10 @@
             <ul class="tab-base nc-row">
                 <li><a href="javascript:void(0);" data-index='1' class="tab {eq name='$tab' value='1'}current{/eq}"><span>常规选项</span></a></li>
                 <li><a href="javascript:void(0);" data-index='2' class="tab {eq name='$tab' value='2'}current{/eq}"><span>高级选项</span></a></li>
-                {if condition="2 == $field['current_channel']"}
-                    <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '参数列表', '100%', '100%');"><span>参数列表</span></a></li>
+                {if condition="2 == $field['current_channel'] && 0 < $is_old_product_attr"}
+                    <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '产品参数列表', '100%', '100%');"><span>参数列表</span></a></li>
                 {elseif condition="8 == $field['current_channel']"}
-                    <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '属性列表', '100%', '100%');"><span>属性列表</span></a></li>
+                    <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '留言属性列表', '100%', '100%');"><span>属性列表</span></a></li>
                 {/if}
             </ul>
         </div>
@@ -35,7 +35,7 @@
                     <p class="notic">保持唯一性，不可重复</p>
                 </dd>
             </dl>
-            <dl class="row">
+            <dl class="row {if 51 == $field['current_channel']} none {/if} " id="dl_dirname">
                 <dt class="tit">
                     <label for="dirname">目录名称</label>
                 </dt>
@@ -69,16 +69,16 @@
                     <label for="parent_id">所属栏目</label>
                 </dt>
                 <dd class="opt">
-                    {gt name="$hasChildren" value="0"}
+                    {empty name="$is_edit_parent_id"}
                     {$select_html}
                     <input type="hidden" name="parent_id" id="parent_id" value="{$field.parent_id|default=''}" />
+                    <p class="notic">当前栏目（包括回收站里的栏目）已达到最大层级，不能进行移动</p>
                     {else /}
                     <select class="small form-control" id="parent_id" name="parent_id" onchange="set_grade(this);">
                         {$select_html}
                     </select>
-                    {/gt}
-                    <span class="err"></span>
-                    <p class="notic">如果选择上级栏目，那么新增的栏目则为被选择上级栏目的子栏目</p>
+                    <p class="notic">如果选择其他栏目，当前栏目以及子栏目会随着一起迁移</p>
+                    {/empty}
                 </dd>
             </dl>
             <input type="hidden" name="channeltype" id="channeltype" value="{$field.channeltype|default=''}" />
@@ -87,19 +87,10 @@
                     <label for="dirpath">文件保存目录</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" value="{$field.dirpath|default=$predirpath}" name="dirpath" id="dirpath" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9a-zA-Z\/-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z\/-]/g,''));">&nbsp;<a href="javascript:void(0);" onclick="get_dirpinyin(this);" id="getpinyin" class="ncap-btn ncap-btn-green">获取拼音</a>
+                    <input type="text" value="{$predirpath}" name="dirpath" id="dirpath" class="input-txt" onkeyup="this.value=this.value.replace(/[^0-9a-zA-Z\/-]/g,'');" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^0-9a-zA-Z\/-]/g,''));">&nbsp;<a href="javascript:void(0);" onclick="get_dirpinyin(this);" id="getpinyin" class="ncap-btn ncap-btn-green">获取拼音</a>
                     <p class="notic">生成的文章HTML页面会存放在该目录下</p>
                 </dd>
             </dl>
-<!--             <dl class="row">
-                <dt class="tit">
-                    <label for="sort_order">排序</label>
-                </dt>
-                <dd class="opt">
-                    <input type="text" value="{$field.sort_order|default='100'}" name="sort_order" id="sort_order" class="input-txt">
-                    <p class="notic">越小越靠前</p>
-                </dd>
-            </dl> -->
             <dl class="row">
                 <dt class="tit">
                     <label>隐藏栏目</label>
@@ -129,7 +120,7 @@
         <!-- 常规选项 -->
         <!-- 高级选项 -->        
         <div class="ncap-form-default tab_div_2" {neq name='$tab' value='2'}style="display:none;"{/neq}>
-            <dl class="row {if condition="!empty($field['weapp_code'])"}none{/if}">
+            <dl class="row {if condition="!empty($field['weapp_code']) || 51 == $field['current_channel']"}none{/if}" id="type_attr">
                 <dt class="tit">
                     <label>栏目属性</label>
                 </dt>
@@ -168,6 +159,7 @@
                     <label for="templist">模板管理</label>
                 </dt>
                 <dd class="opt">
+                    <!-- <a href="{:url('Filemanager/index', ['activepath'=>'/template/'.$tpl_theme.'pc/ask', 'goback'=>1])}" class="ncap-btn ncap-btn-green">点击在线编辑</a> -->
                     <a href="{:url('Filemanager/index', ['activepath'=>'/template/plugins/ask/pc', 'goback'=>1])}" class="ncap-btn ncap-btn-green">点击在线编辑</a>
                 </dd>
             </dl>
@@ -255,7 +247,7 @@
                     <p class="notic"></p>
                 </dd>
             </dl>
-            <dl class="row">
+            <dl class="row {eq name="$field['current_channel']" value="51"}none{/eq}" >
                 <dt class="tit">继承选项</dt>
                 <dd class="opt">
                     <label class="label"><input class="check" type="checkbox" name="inherit_status" value="1">&nbsp;同时更改下级栏目的模板风格</label>
@@ -311,7 +303,13 @@
         var channel = parseInt($(obj).val());
         var js_allow_channel_arr = {$js_allow_channel_arr};
         $('#notic_current_channel').html('');
-
+        if (51 == channel){
+            $("#type_attr").hide();
+            $('#dl_dirname').hide();
+        }else{
+            $("#type_attr").show();
+            $('#dl_dirname').show();
+        }
         // 重新定义模板变量，专用于新建模板功能
         $.ajax({
             url: "{:url('Arctype/ajax_getTemplateList', ['_ajax'=>1])}",
@@ -339,6 +337,8 @@
                 $('#dl_templist').find('label[for=templist]').html('<em>*</em>单页模板');
             } else if (channel == 8) {
                 $('#dl_templist').find('label[for=templist]').html('<em>*</em>留言模板');
+            }else if (51 == channel) {
+                $('#dl_templist').hide();
             }
             $('#dl_tempview').hide();
         } else {
@@ -436,7 +436,9 @@
             $('input[name=dirname]').focus();
             return false;
         }
-        if($('#templist').val() == ''){
+
+        var channel = parseInt($('#current_channel').find('option:selected').val());
+        if($('#templist').val() == '' && 51 != channel){
             $('.tab-base').find('.tab').each(function(){
                 $(this).removeClass('current');
             });
@@ -448,7 +450,6 @@
             return false;
         }
 
-        var channel = parseInt($('#current_channel').val());
         var js_allow_channel_arr = {$js_allow_channel_arr};
         if($('#tempview').val() == '' && $.inArray(channel, js_allow_channel_arr) != -1){
             $('.tab-base').find('.tab').each(function(){

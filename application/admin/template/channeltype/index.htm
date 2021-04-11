@@ -75,9 +75,13 @@
                             <td class="" style="width: 100%;">
                                 <div class="tl text-l10">
                                     {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                    <a href="javascript:void(0);" data-href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" onclick="openFullframe(this, '模型编辑', '100%', '100%');">{$vo.title}</a>
+                                        {eq name="$vo.nid" value="ask"}
+                                            <a href="javascript:void(0);" data-href="{:url('Ask/index')}" onclick="openFullframe(this, '问答模型', '100%', '100%');">{$vo.title}</a>
+                                        {else /}
+                                            <a href="javascript:void(0);" data-href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" onclick="openFullframe(this, '模型编辑', '100%', '100%');">{$vo.title}</a>
+                                        {/eq}
                                     {else /}
-                                    {$vo.title}
+                                        {$vo.title}
                                     {/eq}
                                 </div>
                             </td>
@@ -102,23 +106,29 @@
                             </td>
                             <td class="operation">
                                 <div class="tc w160">
-                                    {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                        <a href="javascript:void(0);" data-href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue" onclick="openFullframe(this, '模型编辑', '100%', '100%');">编辑</a>
-                                    {/eq}
+                                    {eq name="$vo.nid" value="ask"}
+                                        <a href="javascript:void(0);" data-href="{:url('Ask/index')}" onclick="openFullframe(this, '问答模型', '100%', '100%');" class="btn blue">管理</a>
+                                        <i></i>
+                                        <a class="btn grey" href="javascript:void(0);">内容字段</a>
+                                    {else /}
+                                        {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                            <a href="javascript:void(0);" data-href="{:url('Channeltype/edit',array('id'=>$vo['id']))}" class="btn blue" onclick="openFullframe(this, '模型编辑', '100%', '100%');">编辑</a>
+                                        {/eq}
 
-                                    {eq name="'Channeltype@edit'|is_check_access" value="1"}
-                                        {eq name="$vo.nid" value="guestbook"}
-										<i></i>
-                                        <a href="javascript:void(0);" data-href="{:url('Field/attribute_index')}" class="btn blue" onclick="openFullframe(this, '{$vo.title} - 内容属性', '100%', '100%');">内容属性</a>
-                                        {else /}
-										<i></i>
-                                        <a href="javascript:void(0);" data-href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue" onclick="openFullframe(this, '{$vo.title} - 内容字段', '100%', '100%');">内容字段</a>
+                                        {eq name="'Channeltype@edit'|is_check_access" value="1"}
+                                            {eq name="$vo.nid" value="guestbook"}
+                                            <i></i>
+                                            <a href="{:url('Field/attribute_index')}" class="btn blue">内容属性</a>
+                                            {else /}
+                                            <i></i>
+                                            <a href="{:url('Field/channel_index',array('channel_id'=>$vo['id']))}" class="btn blue">内容字段</a>
+                                            {/eq}
                                         {/eq}
                                     {/eq}
 
                                     {empty name="$vo.ifsystem"}
                                         {eq name="'Channeltype@del'|is_check_access" value="1"}
-										<i></i>
+                                        <i></i>
                                         <a class="btn red"  href="javascript:void(0);" data-url="{:url('Channeltype/del')}" data-id="{$vo.id}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
                                         {/eq}
                                     {else /}
@@ -174,14 +184,17 @@
                 url : $(obj).attr('data-url'),
                 data : {del_id:$(obj).attr('data-id'), _ajax:1},
                 dataType : 'json',
-                success : function(data){
+                success : function(res){
                     layer.closeAll();
-                    if(data.code == 1){
-                        layer.msg(data.msg, {icon: 1});
+                    if(res.code == 1){
+                        layer.msg(res.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 2, title:false});  //alert(data);
+                        showErrorAlert(res.msg);
                     }
+                },
+                error:function(e){
+                    showErrorAlert(e.responseText);
                 }
             })
         }, function(index){
@@ -192,10 +205,11 @@
 
     function handleShow(obj){
         var title = $(obj).attr('data-title');
+        var channel_id = $(obj).attr('data-id');
         $.ajax({
             type : 'post',
             url : "{:url('Channeltype/ajax_show')}",
-            data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'), _ajax:1},
+            data : {id:channel_id,status:$(obj).attr('data-status'), _ajax:1},
             dataType : 'json',
             success : function(res){
                 if (res.code == 1) {
@@ -209,24 +223,54 @@
                             btn: ['启用','取消'] //按钮
                         }, function(index){
                             layer.close(index);
-                            layer_loading('正在处理');
                             // 确定
-                            $.ajax({
-                                type : 'post',
-                                url : "{:url('Channeltype/ajax_check_tpl')}",
-                                data : {id:$(obj).attr('data-id'),status:$(obj).attr('data-status'),tpltype:res.data.tpltype, _ajax:1},
-                                dataType : 'json',
-                                success : function(res){
-                                    layer.closeAll();
-                                    if(res.code == 1){
-                                        layer.msg(res.msg, {icon: 1, time: 500}, function(){
-                                            window.location.reload();
-                                        });
-                                    }else{
-                                        layer.alert(res.msg, {icon: 5, title:false, closeBtn:false});
+                            if (51 == channel_id) {
+                                layer_loading('正在下载');
+                                $.ajax({
+                                    type : 'post',
+                                    url : "{:url('Channeltype/ajax_syn_theme_ask', ['_ajax'=>1])}",
+                                    data : {id:channel_id,status:$(obj).attr('data-status'),_ajax:1},
+                                    dataType : 'json',
+                                    success : function(res){
+                                        layer.closeAll();
+                                        if(res.code == 1){
+                                            layer.msg(res.msg, {icon: 1, time: 500}, function(){
+                                                window.location.reload();
+                                            });
+                                        }else{
+                                            var icon = 5;
+                                            if (res.data.icon) {icon = res.data.icon;}
+                                            layer.alert(res.msg, {icon: icon, title:false, closeBtn:false}, function(){
+                                                window.location.reload();
+                                            });
+                                        }
+                                    },
+                                    error:function(e){
+                                        showErrorAlert(e.responseText);
                                     }
-                                }
-                            })
+                                })
+                            } else {
+                                layer_loading('正在处理');
+                                $.ajax({
+                                    type : 'post',
+                                    url : "{:url('Channeltype/ajax_check_tpl')}",
+                                    data : {id:channel_id,status:$(obj).attr('data-status'),tpltype:res.data.tpltype, _ajax:1},
+                                    dataType : 'json',
+                                    success : function(res){
+                                        layer.closeAll();
+                                        if(res.code == 1){
+                                            layer.msg(res.msg, {icon: 1, time: 500}, function(){
+                                                window.location.reload();
+                                            });
+                                        }else{
+                                            showErrorAlert(res.msg);
+                                        }
+                                    },
+                                    error:function(e){
+                                        showErrorAlert(e.responseText);
+                                    }
+                                })
+                            }
                         });
                     }
                 } else {
@@ -236,11 +280,11 @@
                             icon = res.data.icon;
                         }
                     }catch(err){}
-                    layer.alert(res.msg, {icon: icon, title:false, closeBtn:false});
+                    showErrorAlert(res.msg, icon);
                 }
             },
-            error:function(){
-                layer.alert(ey_unknown_error, {icon: 5, title:false, closeBtn:false});
+            error:function(e){
+                showErrorAlert(e.responseText);
             }
         });
     }

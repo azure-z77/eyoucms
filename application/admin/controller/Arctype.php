@@ -50,7 +50,7 @@ class Arctype extends Base
         }
         /*--end*/
 
-        // 补充栏目新增的栏目顶级ID字段的值(v1.5.1节点去掉)
+        // 纠正栏目的topid字段值(v1.6.1节点去掉)
         $actionName = ACTION_NAME;
         if (in_array($actionName, ['add','edit'])) {
             $ajaxLogic = new \app\admin\logic\AjaxLogic;
@@ -64,6 +64,15 @@ class Arctype extends Base
         // 目录列表
         $where['is_del'] = '0'; // 回收站功能
         $arctype_list = $this->arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
+        foreach ($arctype_list as $key => $val) {
+            if ($val['current_channel'] == 51 && 2 > $this->php_servicemeal && empty($val['has_children'])) {
+                unset($arctype_list[$key]);
+                continue;
+            } else if ($val['current_channel'] == 5 && 1.5 > $this->php_servicemeal) {
+                unset($arctype_list[$key]);
+                continue;
+            }
+        }
         $this->assign('arctype_list', $arctype_list);
 
         /*多语言模式下，栏目ID显示主体语言的ID和属性title名称*/
@@ -127,6 +136,13 @@ class Arctype extends Base
         if (IS_POST) {
             $post = input('post.');
             if ($post) {
+                // 问答模型只能存在一个
+                if (51 == $post['current_channel']){
+                    $ask_info = Db::name('arctype')->where(['current_channel' => $post['current_channel'], 'is_del' => 0])->order('id desc')->find();
+                    if (!empty($ask_info)){
+                        $this->error('问答模型只能创建一个栏目!');
+                    }
+                }
                 /*目录名称*/
                 $post['dirname'] = func_preg_replace([' ','　'], '', $post['dirname']);
                 $dirname = $this->arctypeLogic->get_dirname($post['typename'], $post['dirname']);
@@ -190,9 +206,14 @@ class Arctype extends Base
                 );
                 $data = array_merge($post, $newData, $addonField);
                 $insertId = model('Arctype')->addData($data);
-                if($insertId){
+                if(false !== $insertId){
                     $_POST['id'] = $insertId;
-
+                    
+                    // 删除多余的问答栏目
+                    if (51 == $post['current_channel']){
+                        Db::name('arctype')->where(['current_channel' => $post['current_channel'], 'id' => ['NEQ', $insertId]])->delete();
+                    }
+                    
                     /*同步栏目ID到多语言的模板栏目变量里*/
                     $this->arctypeLogic->syn_add_language_attribute($insertId);
                     /*--end*/
@@ -247,6 +268,7 @@ class Arctype extends Base
         /*发布文档的模型ID，用于是否显示文档模板列表*/
         $js_allow_channel_arr = '[';
         foreach ($this->allowReleaseChannel as $key => $val) {
+            if (51 == $val) continue; // 问答模型
             if ($key > 0) {
                 $js_allow_channel_arr .= ',';
             }
@@ -280,6 +302,13 @@ class Arctype extends Base
         if (IS_POST) {
             $post = input('post.');
             if (!empty($post['id'])) {
+                //问答模型只能存在一个
+                if (51 == $post['current_channel']){
+                    $ask_info = Db::name('arctype')->where(['current_channel'=>$post['current_channel'], 'id'=>['NEQ', $post['id']], 'is_del'=>0])->find();
+                    if (!empty($ask_info)){
+                        $this->error('问答模型只能存在一个栏目，请删除!');
+                    }
+                }
 
                 /*自己的上级不能是自己*/
                 if (intval($post['id']) == intval($post['parent_id'])) {
@@ -301,6 +330,9 @@ class Arctype extends Base
                 }
                 /*--end*/
                 $dirpath  = rtrim($post['dirpath'], '/');
+                /* ------临时代码，当能支持静态页面生成，再去掉 */
+                $dirpath = $dirpath . '/' . $dirname;
+                /* -----------end----------- */
                 $typelink = !empty($post['is_part']) ? $post['typelink'] : '';
                 /*封面图的本地/远程图片处理*/
                 $is_remote = !empty($post['is_remote']) ? $post['is_remote'] : 0;
@@ -350,34 +382,12 @@ class Arctype extends Base
                 );
                 $data = array_merge($post, $newData, $addonField);
                 $r = model('Arctype')->updateData($data);
-                if($r){
-
-                    //查出该栏目所有子级，包括自己
-                    $hasChildrenRow = model('Arctype')->getHasChildren($post['id'], true);
-
-                    /*当前栏目以及所有子孙栏目的静态HTML保存路径的变动、模板继承*/
-                    $subSaveData = [];
-                    foreach ($hasChildrenRow as $key => $val) {
-                        $dirpathArr = explode('/', trim($val['dirpath'], '/'));
-                        $dirpathArr[$grade] = $dirname;
-                        $dirpath = '/'.implode('/', $dirpathArr);
-                        $subSaveData_tmp = [
-                            'id'            => $val['id'],
-                            'dirpath'       => $dirpath,
-                            'update_time'   => getTime(),
-                        ];
-                        /*父级模板继承*/
-                        if (!empty($post['inherit_status']) && $post['inherit_status'] == 1) {
-                            $subSaveData_tmp['templist'] = $post['templist'];
-                            $subSaveData_tmp['tempview'] = $post['tempview'];
-                        }
-                        /*end*/
-                        $subSaveData[] = $subSaveData_tmp;
+                if(false !== $r){
+                    
+                    // 删除多余的问答栏目
+                    if (51 == $post['current_channel']){
+                        Db::name('arctype')->where(['current_channel' => $post['current_channel'], 'id' => ['NEQ', $post['id']]])->delete();
                     }
-                    if (!empty($subSaveData)) {
-                        model('Arctype')->saveAll($subSaveData);
-                    }
-                    /*end*/
 
                     adminLog('编辑栏目：'.$data['typename']);
 
@@ -412,31 +422,32 @@ class Arctype extends Base
         $this->assign('field',$info);
 
         // 获得上级目录路径
-        if (!empty($info['dirpath'])) {
-            $predirpath = preg_replace('/\/([^\/]*)$/i', '', $info['dirpath']);
+        if (!empty($info['parent_id'])) {
+            $predirpath = Db::name('arctype')->where(['id'=>$info['parent_id']])->value('dirpath');
         } else {
             $predirpath = ''; // 生成静态页面代码
         }
         $this->assign('predirpath',$predirpath);
 
         // 是否有子栏目
-        $hasChildren = model('Arctype')->hasChildren($id);
-        if ($hasChildren > 0) {
+        $is_edit_parent_id = 1; // 是否可编辑所属栏目
+        $arctype_max_level = intval(config('global.arctype_max_level'));
+        $hierarchy = model('Arctype')->getHierarchy($id);
+        if ($hierarchy >= $arctype_max_level) {
+            $is_edit_parent_id = 0; // 不可编辑，因为可能会导致超过所限制的最大层级
             $select_html = M('arctype')->where('id', $info['parent_id'])->getField('typename');
             $select_html = !empty($select_html) ? $select_html : '顶级栏目';
         } else {
             // 所属栏目
-            // $channeltype = $info['channeltype'];
-            $select_html       = '<option value="0" data-grade="-1" data-dirpath="' . tpCache('seo.seo_html_arcdir') . '">顶级栏目</option>';
+            $select_html       = '<option value="0" data-grade="-1" data-dirpath="">顶级栏目</option>';
             $selected          = $info['parent_id'];
-            $arctype_max_level = intval(config('global.arctype_max_level'));
             $arctypeWhere      = ['is_del' => 0];
-            $options           = $this->arctypeLogic->arctype_list(0, $selected, false, $arctype_max_level - 1, $arctypeWhere);
+            $options           = $this->arctypeLogic->arctype_list(0, $selected, false, $arctype_max_level - $hierarchy, $arctypeWhere);
             foreach ($options AS $var)
             {
                 $select_html .= '<option value="' . $var['id'] . '" data-grade="' . $var['grade'] . '" data-dirpath="'.$var['dirpath'].'"';
-                $select_html .= ($selected == $var['id']) ? "selected='ture'" : '';
-                $select_html .= ($id == $var['id']) ? "disabled='ture' style='background-color:#f5f5f5;' " : '';
+                $select_html .= ($selected == $var['id']) ? "selected='true'" : '';
+                $select_html .= ($id == $var['id'] || ($hierarchy + $var['grade'] > $arctype_max_level - 1)) ? "disabled='true' style='background-color:#f5f5f5;' " : '';
                 $select_html .= '>';
                 if ($var['level'] > 0)
                 {
@@ -446,7 +457,7 @@ class Arctype extends Base
             }
         }
         $this->assign('select_html',$select_html);
-        $this->assign('hasChildren',$hasChildren);
+        $this->assign('is_edit_parent_id',$is_edit_parent_id);
 
         /* 模型 */
         $map = "status = 1 OR id = '".$info['current_channel']."'";
@@ -466,6 +477,7 @@ class Arctype extends Base
         /*发布文档的模型ID，用于是否显示文档模板列表*/
         $js_allow_channel_arr = '[';
         foreach ($this->allowReleaseChannel as $key => $val) {
+            if (51 == $val) continue; // 问答模型
             if ($key > 0) {
                 $js_allow_channel_arr .= ',';
             }
@@ -492,8 +504,8 @@ class Arctype extends Base
         $assign_data['nid'] = 'arctype';
         /*--end*/
 
-        /*当前栏目是否绑定产品参数*/
-        $assign_data['product_attribute_list'] = model('ProductAttribute')->getListByTypeid($id);
+        /*是否有旧参数存在，只要有旧参数，就可以启用旧参数功能*/
+        $assign_data['is_old_product_attr'] = Db::name("product_attr")->where('product_attr_id', 'gt', 0)->count();
         /*end*/
 
         $this->assign($assign_data);
@@ -838,30 +850,34 @@ class Arctype extends Base
                 }
             }
             $nofileArr = [];
-            if ('add' == $opt) {
-                if (empty($lists)) {
-                    $lists = '<option value="">无</option>';
-                    $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
-                }
-                
-                if (empty($view)) {
-                    $view = '<option value="">无</option>';
-                    if (!in_array($v1['nid'], ['single','guestbook'])) {
-                        $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
-                    }
-                }
-            } else {
-                if (empty($lists)) {
-                    $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
-                }
-                $lists = '<option value="">请选择模板…</option>'.$lists;
+            if (in_array($v1['nid'], ['ask'])) { // 问答模型
 
-                if (empty($view)) {
-                    if (!in_array($v1['nid'], ['single','guestbook'])) {
-                        $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
+            } else { // 其他模型
+                if ('add' == $opt) {
+                    if (empty($lists)) {
+                        $lists = '<option value="">无</option>';
+                        $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
                     }
+                    
+                    if (empty($view)) {
+                        $view = '<option value="">无</option>';
+                        if (!in_array($v1['nid'], ['single','guestbook'])) {
+                            $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
+                        }
+                    }
+                } else {
+                    if (empty($lists)) {
+                        $nofileArr[] = "lists_{$v1['nid']}.{$view_suffix}";
+                    }
+                    $lists = '<option value="">请选择模板…</option>'.$lists;
+
+                    if (empty($view)) {
+                        if (!in_array($v1['nid'], ['single','guestbook'])) {
+                            $nofileArr[] = "view_{$v1['nid']}.{$view_suffix}";
+                        }
+                    }
+                    $view = '<option value="">请选择模板…</option>'.$view;
                 }
-                $view = '<option value="">请选择模板…</option>'.$view;
             }
 
             $msg = '';
@@ -986,6 +1002,7 @@ class Arctype extends Base
         /* 模型 */
         $map = array(
             'status'    => 1,
+            'id'        => ['neq', 51], // 排除问答模型
         );
         $channeltype_list = model('Channeltype')->getAll('id,title,nid', $map, 'id');
         $this->assign('channeltype_list', $channeltype_list);
@@ -1003,7 +1020,7 @@ class Arctype extends Base
         /*--end*/
 
         // 所属栏目
-        $select_html = '<option value="0" data-grade="-1" data-dirpath="'.tpCache('seo.seo_html_arcdir').'">顶级栏目</option>';
+        $select_html = '<option value="0" data-grade="-1" data-dirpath="">顶级栏目</option>';
         $selected = 0;
         $arctype_max_level = intval(config('global.arctype_max_level'));
         $arctypeWhere = ['is_del'=>0];
@@ -1023,9 +1040,6 @@ class Arctype extends Base
         $templateList = $this->ajax_getTemplateList('add');
         $this->assign('templateList', $templateList);
         /*--end*/
-
-        $dirpath = tpCache('seo.seo_html_arcdir');
-        $this->assign('dirpath', $dirpath);
 
         return $this->fetch();
     }
@@ -1100,8 +1114,19 @@ class Arctype extends Base
      */
     private function batch_add_subtype($post = [])
     {
-        // 获取顶级模型ID
-        $channeltype = Db::name('arctype')->where('id', $post['parent_id'])->getField('channeltype');
+        // 获取所属栏目信息
+        $arctypeInfo = Db::name('arctype')->field('id,channeltype,topid,parent_id,grade')->where('id', $post['parent_id'])->find();
+
+        $topid = 0;
+        if (!empty($arctypeInfo['topid'])) {
+            $topid = $arctypeInfo['topid'];
+        } else {
+            if ($arctypeInfo['grade'] == 0) {
+                $topid = $arctypeInfo['id'];
+            } else if ($arctypeInfo['grade'] == 1) {
+                $topid = $arctypeInfo['parent_id'];
+            }
+        }
 
         $saveData = [];
         $dirnameArr = [];
@@ -1117,9 +1142,10 @@ class Arctype extends Base
 
             $data = [
                 'typename'  => $typename,
-                'channeltype'   => $channeltype,
+                'channeltype'   => $arctypeInfo['channeltype'],
                 'current_channel'   => $post['current_channel'],
                 'parent_id' => intval($post['parent_id']),
+                'topid'     => $topid,
                 'dirname'   => $dirname,
                 'dirpath'   => $dirpath,
                 'grade' => intval($post['grade']),

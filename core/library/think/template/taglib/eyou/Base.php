@@ -13,6 +13,7 @@
 
 namespace think\template\taglib\eyou;
 
+use think\Db;
 use think\Config;
 use think\Cookie;
 use think\Request;
@@ -39,6 +40,16 @@ class Base
 
     public $request = null;
 
+    /**
+     * 当前栏目ID
+     */
+    public $tid = 0;
+
+    /**
+     * 当前文档aid
+     */
+    public $aid = 0;
+
     //构造函数
     function __construct()
     {
@@ -59,23 +70,15 @@ class Base
         if (null == $this->request) {
             $this->request = Request::instance();
         }
-    }
 
-    /**
-     * 在typeid传值为目录名称的情况下，获取栏目ID
-     */
-    public function getTrueTypeid($typeid = '')
-    {
+        $this->tid = input("param.tid/s", '');
         /*tid为目录名称的情况下*/
-        if (!empty($typeid) && strval($typeid) != strval(intval($typeid))) {
-            $typeid = M('Arctype')->where([
-                    'dirname'   => $typeid,
-                    'lang'  => $this->home_lang,
-                ])->cache(true,EYOUCMS_CACHE_TIME,"arctype")
-                ->getField('id');
-        }
+        $this->tid = getTrueTypeid($this->tid);
         /*--end*/
 
-        return $typeid;
+        $this->aid = input("param.aid/s", '');
+        /*在aid传值为自定义文件名的情况下*/
+        $this->aid = getTrueAid($this->aid);
+        /*--end*/
     }
 }

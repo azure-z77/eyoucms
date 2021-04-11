@@ -36,6 +36,7 @@ class Search extends Base
         /*获取当前页面URL*/
         $result['pageurl'] = request()->url(true);
         /*--end*/
+        !isset($result['keywords']) && $result['keywords'] = '';
         $eyou = array(
             'field' => $result,
         );
@@ -100,6 +101,7 @@ class Search extends Base
         /*--end*/
 
         $result = $param;
+        !isset($result['keywords']) && $result['keywords'] = '';
         $eyou = array(
             'field' => $result,
         );

@@ -127,11 +127,13 @@ class Eyou extends Taglib
         // 视频播放
         'videoplay'  => ['attr' => 'aid,empty,id,autoplay'],
         // 视频列表
-        'videolist'  => ['attr' => 'aid,empty,id,mod,key,autoplay'],
+        'videolist'  => ['attr' => 'aid,empty,id,mod,key,autoplay,player'],
         // 获取网站搜索的热门关键字
         'hotwords'        => ['attr' => 'subday,num,id,key,mod,maxlength,empty'],
         // 插件标签通用
         'weapptaglib'     => ['attr' => 'name,id,offset,length,key,mod,limit,row'],
+        // 问答模型问题列表标签通用
+        'asklist'     => ['attr' => 'id,key,mod,titlelen,limit,row,orderby,orderway'],
         // 专题节点标签
         'specnode'    => ['attr' => 'aid,code,title,isauto,aidlist,keyword,typeid,row,limit,infolen,titlelen,name,empty,mod,id,key,thumb'],
         'pagespecnode'   => ['attr' => 'listitem,listsize', 'close' => 0],
@@ -139,6 +141,12 @@ class Eyou extends Taglib
         'collect'   => ['attr' => 'aid,collect,cancel,id'],
         // 站内通知标签
         'notice'   => ['attr' => 'id'],
+
+        // 商品评价 -- 调用商品整体内容
+        'comment' => ['attr' => 'id, aid'],
+        // 商品评价 -- 仅循环评价内容
+        'commentlist' => ['attr' => 'name, id, offset, length, key, mod, limit, row', 'alias' => 'iterate'],
+
     ];
 
     /**
@@ -2542,6 +2550,7 @@ class Eyou extends Taglib
         $empty  = isset($tag['empty']) ? $tag['empty'] : '';
         $empty  = htmlspecialchars($empty);
         $autoplay    = !empty($tag['autoplay']) ? $tag['autoplay'] : '';
+        $player     = isset($tag['player']) ? $tag['player'] : 'default'; // default 默认播放在文档页(比如：demo)，list 文档页以目录结构展示(比如：易小优)，play 在独立播放页展示(比如：易小优)
 
         $parseStr = '<?php ';
 
@@ -2553,7 +2562,7 @@ class Eyou extends Taglib
 
         // 查询数据库获取的数据集
         $parseStr .= ' $tagVideolist = new \think\template\taglib\eyou\TagVideolist;';
-        $parseStr .= ' $_result = $tagVideolist->getVideolist($taid, "'.$autoplay.'");';
+        $parseStr .= ' $_result = $tagVideolist->getVideolist($taid, "'.$autoplay.'", "'.$player.'");';
         $parseStr .= ' if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
         $parseStr .= ' $__LIST__ = $_result;';
         $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
@@ -3912,4 +3921,168 @@ class Eyou extends Taglib
         return;
     }
 
+    /**
+     * asklist 标签解析 问答模型问题列表标签通用
+     * 格式：
+     * {eyou:asklist id="user" empty=""}
+     * {user.username}
+     * {user.email}
+     * {/eyou:asklist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagAsklist($tag, $content)
+    {
+        $id  = isset($tag['id']) ? $tag['id'] : 'field';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $empty  = htmlspecialchars($empty);
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+        $titlelen = !empty($tag['titlelen']) && is_numeric($tag['titlelen']) ? intval($tag['titlelen']) : 100;
+        $orderby    = isset($tag['orderby']) ? $tag['orderby'] : '';
+        $orderway = isset($tag['orderway']) ? $tag['orderway'] : 'desc';
+        $limit = !empty($tag['limit']) ? trim($tag['limit']) : 20;
+        if (empty($tag['limit'])) {
+            $limit = !empty($tag['row']) ? intval($tag['row']) : $limit;
+        }
+        // 允许使用函数设定数据集
+        $parseStr = '<?php ';
+
+        $parseStr .= ' $tagAsklist = new \think\template\taglib\eyou\TagAsklist;';
+        $parseStr .= ' $_result = $tagAsklist->getAsklist('.$limit.',"'.$orderby.'","'.$orderway.'");';
+        $parseStr .= ' $'.$id.' = $__LIST__;';
+        $parseStr .= ' ?>';
+
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode("' . $empty . '");';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$' . $id . '["ask_title"] = text_msubstr($' . $id . '["ask_title"], 0, '.$titlelen.', false);';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= '<?php $mod = ($' . $key . ' % ' . $mod . ' ); ?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php ++$e; ?>';
+
+        /*隐藏域*/
+        $parseStr .= '<?php echo (count($__LIST__) == $e && isset($'.$id.'["ey_hidden"]))?$'.$id.'["ey_hidden"]:""; ?>';
+        /*end*/
+        
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode("' . $empty . '");endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * comment
+     * 调用商品评价
+     * 格式： {eyou:comment aid='' /}{/eyou:comment}
+     * @access public
+     * @param array $tag 标签属性
+     * @return string
+     */
+    public function tagComment($tag,$content)
+    {
+        $aid = !empty($tag['aid']) ? $tag['aid'] : 0;
+        $aid = $this->varOrvalue($aid);
+        $id = isset($tag['id']) ? $tag['id'] : 'field';
+
+        $parseStr = '<?php ';
+        $parseStr .= ' $aid = '.$aid.';';
+        $parseStr .= ' $tagComment = new \think\template\taglib\eyou\TagComment;';
+        $parseStr .= ' $_result = $tagComment->getComment($aid);';
+        $parseStr .= ' ?>';
+
+        $parseStr .= '<?php if(is_array($_result) || $_result instanceof \think\Collection || $_result instanceof \think\Paginator): ';
+        $parseStr .= ' $__LIST__ = $_result;';
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo "";';
+        $parseStr .= 'else: ';
+        $parseStr .= '$'.$id.' = $__LIST__;';
+        $parseStr .= '?>';
+        $parseStr .= $content;
+        $parseStr .= '<?php endif; else: echo "";endif; ?>';
+        $parseStr .= '<?php unset($aid); ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
+
+    /**
+     * commentlist标签解析 循环输出数据集，用于商品评价
+     * 格式：
+     * {eyou:commentlist name="comment_data" id="field"}
+     * {user.nickname}
+     * {user.level_name}
+     * {/eyou:commentlist}
+     * @access public
+     * @param array $tag 标签属性
+     * @param string $content 标签内容
+     * @return string|void
+     */
+    public function tagCommentlist($tag, $content)
+    {
+        $name   = $tag['name'];
+        $id  = isset($tag['id']) ? $tag['id'] : 'field';
+        $empty  = isset($tag['empty']) ? $tag['empty'] : 'false';
+        $empty  = htmlspecialchars($empty);
+        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod    = !empty($tag['mod']) && is_numeric($tag['mod']) ? $tag['mod'] : '2';
+        $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
+        $length = !empty($tag['length']) && is_numeric($tag['length']) ? intval($tag['length']) : 'null';
+        if (!empty($tag['row'])) {
+            $length = !empty($tag['row']) && is_numeric($tag['row']) ? intval($tag['row']) : 'null';
+        }
+        if (!empty($tag['limit'])) {
+            $limitArr = explode(',', $tag['limit']);
+            $offset = !empty($limitArr[0]) ? intval($limitArr[0]) : 0;
+            $length = !empty($limitArr[1]) ? intval($limitArr[1]) : 'null';
+        }
+        // 允许使用函数设定数据集 <volist name=":fun('arg')" id="vo">{$vo.name}</volist>
+        $parseStr = '<?php ';
+        $flag     = substr($name, 0, 1);
+        if (':' == $flag) {
+            $name = $this->autoBuildVar($name);
+            $parseStr .= '$_result=' . $name . ';';
+            $name = '$_result';
+        } else {
+            $name = $this->autoBuildVar($name);
+        }
+
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): $' . $key . ' = 0; $e = 1;';
+        // 设置了输出数组长度
+        if (0 != $offset || 'null' != $length) {
+            $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
+        } else {
+            $parseStr .= ' $__LIST__ = ' . $name . ';';
+        }
+        $parseStr .= 'if( count($__LIST__)==0 ) : echo htmlspecialchars_decode('.$empty.');';
+        $parseStr .= 'else: ';
+        $parseStr .= 'foreach($__LIST__ as $key=>$' . $id . '): ';
+        $parseStr .= '$mod = ($e % ' . $mod . ' );';
+        $parseStr .= '$' . $key . '= intval($key) + 1;?>';
+        $parseStr .= $content;
+
+        /*用于下载模型的ajax下载文件*/
+/*        $parseStr .= '<?php echo isset($'.$id.'["ey_1563185380"])?$'.$id.'["ey_1563185380"]:""; ?>';*/
+/*        $parseStr .= '<?php echo (1 == $e && isset($'.$id.'["ey_1563185376"]))?$'.$id.'["ey_1563185376"]:""; ?>';*/
+        /*end*/
+
+        $parseStr .= '<?php ++$e; ?>';
+        $parseStr .= '<?php endforeach; endif; else: echo htmlspecialchars_decode('.$empty.');endif; ?>';
+        $parseStr .= '<?php $'.$id.' = []; ?>'; // 清除变量值，只限于在标签内部使用
+
+        if (!empty($parseStr)) {
+            return $parseStr;
+        }
+        return;
+    }
 }

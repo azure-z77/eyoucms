@@ -56,7 +56,7 @@ class Base extends Common {
                     // 注册时上传图片不验证登录行为
                 } else {
                     if (IS_AJAX) {
-                        $this->error('请先登录！');
+                        $this->error('请先登录！', null, ['url'=>url('user/Users/login')]);
                     } else {
                         if (isWeixin()) {
                             //微信端

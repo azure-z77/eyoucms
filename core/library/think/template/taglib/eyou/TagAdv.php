@@ -13,7 +13,6 @@
 
 namespace think\template\taglib\eyou;
 
-
 /**
  * 广告
  */
@@ -130,8 +129,13 @@ class TagAdv extends Base
                 return false;
             }
         }
+        
         foreach ($result as $key => $val) {
-            $val['litpic'] = handle_subdir_pic(get_default_pic($val['litpic'])); // 默认无图封面
+            if (1 == $val['media_type']) {
+                $val['litpic'] = handle_subdir_pic(get_default_pic($val['litpic'])); // 默认无图封面
+            } else if (2 == $val['media_type']) {
+                $val['litpic'] = handle_subdir_pic($val['litpic'], 'media');
+            }
             $val['target'] = ($val['target'] == 1) ? 'target="_blank"' : 'target="_self"';
             $val['intro'] = htmlspecialchars_decode($val['intro']);
             /*支持子目录*/

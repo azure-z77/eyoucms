@@ -7,7 +7,7 @@
 #picker {
     /*margin:0;*/
     /*padding:0;*/
-    border:solid 1px #ccc;
+    border:solid 1px {$info.theme_color|default='#ff6565'};
     width:70px;
     height:20px;
     border-right:40px solid green;
@@ -116,11 +116,11 @@
                     </dt>
                     <dd class="opt" style="line-height: 30px;">
                         <label>
-                            <input type="radio" name="users[users_retrieve_password]" value="1" onclick="email(2, this);" {if condition="$info.users_retrieve_password == 1"}checked="checked"{/if}/>邮件验证
+                            <input type="radio" name="users[users_retrieve_password]" value="1" onclick="email(2, this);" {if condition="isset($info.users_retrieve_password) && $info.users_retrieve_password == 1"}checked="checked"{/if}/>邮件验证
                         </label>
                         &nbsp;&nbsp;&nbsp;
                         <label>
-                            <input type="radio" name="users[users_retrieve_password]" value="2" onclick="mobile(2, this);" {if condition="$info.users_retrieve_password == 2"}checked="checked"{/if}/>手机验证
+                            <input type="radio" name="users[users_retrieve_password]" value="2" onclick="mobile(2, this);" {if condition="isset($info.users_retrieve_password) && $info.users_retrieve_password == 2"}checked="checked"{/if}/>手机验证
                         </label>
                         <span class="notic2 hui">会员找回密码时的验证方法</span>
                     </dd>

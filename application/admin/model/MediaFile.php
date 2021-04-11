@@ -77,10 +77,23 @@ class MediaFile extends Model
             if ('add' == $opt) {
                 Db::name('media_file')->insertAll($video_files);
             } else if ('edit' == $opt) {
+                $file_ids = [];
+                $insert = [];
+                foreach ($video_files as $k =>$v){
+                    if (!empty($v['file_id'])){
+                        $file_ids[] = $v['file_id'];
+                    }else{
+                        $insert[] = $v;
+                    }
+                }
+
                 $file_url_list = Db::name('media_file')->where('aid',$aid)->column('file_url');
-                Db::name('media_file')->where('aid',$aid)->delete();
-                $r = Db::name('media_file')->insertAll($video_files);
-                if ($r !== false) {
+                Db::name('media_file')->where('aid',$aid)->where('file_id','not in',$file_ids)->delete();
+                //更新
+                $update = self::saveAll($video_files);
+                //插入
+                $insert = Db::name('media_file')->insertAll($insert);
+                if (!empty($update) || !empty($insert)) {
                     \think\Cache::clear('media_file');
                     foreach ($video_files as $k => $v) {
                         $index_key = array_search($v['file_url'], $file_url_list);

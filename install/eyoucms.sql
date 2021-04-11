@@ -4,11 +4,11 @@
 -- Server         : 127.0.0.1_3306
 -- Server Version : 5.7.26
 -- Host           : 127.0.0.1:3306
--- Database       : eyoucms
+-- Database       : dd20
 -- 
 -- Part : #1
--- Version : #v1.5.1
--- Date : 2021-02-24 15:48:07
+-- Version : #v1.5.2
+-- Date : 2021-03-23 17:02:46
 -- -----------------------------------------
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -63,6 +63,7 @@ DROP TABLE IF EXISTS `ey_ad_position`;
 CREATE TABLE `ey_ad_position` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(60) NOT NULL DEFAULT '' COMMENT '广告位置名称',
+  `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '广告展示类型，1图片类型，2媒体类型，3HTML代码',
   `width` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位宽度',
   `height` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '广告位高度',
   `intro` text NOT NULL COMMENT '广告描述',
@@ -78,8 +79,8 @@ CREATE TABLE `ey_ad_position` (
 -- -----------------------------
 -- Records of `ey_ad_position`
 -- -----------------------------
-INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '0', '0', '1524209276', '1564477760');
-INSERT INTO `ey_ad_position` VALUES ('3', '手机端首页头部幻灯', '0', '0', '', '1', 'cn', '1', '0', '1563764323', '1563764739');
+INSERT INTO `ey_ad_position` VALUES ('1', '首页-大幻灯片', '1', '1920', '550', '广告图片的宽高度随着浏览器大小而改变', '1', 'cn', '0', '0', '1524209276', '1564477760');
+INSERT INTO `ey_ad_position` VALUES ('3', '手机端首页头部幻灯', '1', '0', '0', '', '1', 'cn', '1', '0', '1563764323', '1563764739');
 
 -- -----------------------------
 -- Table structure for `ey_admin`
@@ -112,7 +113,7 @@ CREATE TABLE `ey_admin` (
 -- -----------------------------
 -- Records of `ey_admin`
 -- -----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '18e6a423f5a873ab50c1c55c59c69517', '', '1614152869', '127.0.0.1', '2', 'bsip959abanej3hptfjg630g4d', '0', '-1', 'cn', '1', '1', '1614152864', '1614152869');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '18e6a423f5a873ab50c1c55c59c69517', '', '1616490069', '127.0.0.1', '2', 'bhphderc94oh4b2020tgsrr2a9', '0', '-1', 'cn', '1', '1', '1616490060', '1616490069');
 
 -- -----------------------------
 -- Table structure for `ey_admin_log`
@@ -127,13 +128,20 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(11) DEFAULT '0' COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=567 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
+) ENGINE=MyISAM AUTO_INCREMENT=574 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- -----------------------------
 -- Records of `ey_admin_log`
 -- -----------------------------
 INSERT INTO `ey_admin_log` VALUES ('565', '-1', '访问后台', '127.0.0.1', '/login.php', '1614152865');
 INSERT INTO `ey_admin_log` VALUES ('566', '1', '后台登录', '127.0.0.1', '/login.php', '1614152869');
+INSERT INTO `ey_admin_log` VALUES ('567', '-1', '访问后台', '127.0.0.1', '/login.php', '1616460836');
+INSERT INTO `ey_admin_log` VALUES ('568', '1', '后台登录', '127.0.0.1', '/login.php', '1616460840');
+INSERT INTO `ey_admin_log` VALUES ('569', '-1', '访问后台', '127.0.0.1', '/login.php', '1616490061');
+INSERT INTO `ey_admin_log` VALUES ('570', '1', '后台登录', '127.0.0.1', '/login.php', '1616490069');
+INSERT INTO `ey_admin_log` VALUES ('571', '1', '删除栏目：联系我们', '127.0.0.1', '/login.php', '1616490092');
+INSERT INTO `ey_admin_log` VALUES ('572', '1', '删除产品参数：用户界面,操作系统,键盘类型, 产品型号,屏幕大小,整机净重,产品型号,支持蓝牙,商品名称,商品毛重,商品产地,多卡支持,机身内存', '127.0.0.1', '/login.php', '1616490096');
+INSERT INTO `ey_admin_log` VALUES ('573', '1', '删除Tags标签：TAG标签,对的,替换稿件,杨靖宇,宅男,女神', '127.0.0.1', '/login.php', '1616490154');
 
 -- -----------------------------
 -- Table structure for `ey_archives`
@@ -163,7 +171,7 @@ CREATE TABLE `ey_archives` (
   `seo_title` varchar(200) DEFAULT '' COMMENT 'SEO标题',
   `seo_keywords` varchar(200) DEFAULT '' COMMENT 'SEO关键词',
   `seo_description` text COMMENT 'SEO描述',
-  `attrlist_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '参数列表ID',
+  `attrlist_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '参数列表ID',
   `users_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '会员价',
   `users_free` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否会员免费，默认0不免费，1为免费',
   `old_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '产品旧价',
@@ -182,7 +190,7 @@ CREATE TABLE `ey_archives` (
   `del_method` tinyint(1) DEFAULT '0' COMMENT '伪删除状态，1为主动删除，2为跟随上级栏目被动删除',
   `joinaid` int(10) DEFAULT '0' COMMENT '关联文档ID',
   `downcount` int(10) DEFAULT '0' COMMENT '下载次数',
-  `htmlfilename` varchar(50) DEFAULT '' COMMENT '自定义文件名',
+  `htmlfilename` varchar(250) DEFAULT '' COMMENT '自定义文件名',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`),
@@ -224,7 +232,6 @@ INSERT INTO `ey_archives` VALUES ('84', '9', '1', '0', '荣誉证书一', '/abc/
 INSERT INTO `ey_archives` VALUES ('85', '9', '1', '0', '荣誉证书二', '/abc/uploads/allimg/20190722/9bcc063da2a8b6cfa394f8ce55264c86.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '215', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '99999', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1563761561', '1610615688');
 INSERT INTO `ey_archives` VALUES ('86', '9', '1', '0', '荣誉证书三', '/abc/uploads/allimg/20190722/72c23e63ccabc9e3f42b16dfab17cf4e.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '245', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '99999', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1563761575', '1610615683');
 INSERT INTO `ey_archives` VALUES ('87', '9', '1', '0', '荣誉证书四', '/abc/uploads/allimg/20190722/a519a45ce1f695da6bb656fb6f4ddcb5.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '182', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '99999', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1563761589', '1610615678');
-INSERT INTO `ey_archives` VALUES ('88', '54', '6', '0', '联系我们', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '99999', '1', '0', '', '1', '100', 'cn', '0', '0', '0', '1', '2', '0', '0', '', '1563761946', '1609929617');
 INSERT INTO `ey_archives` VALUES ('89', '20', '2', '0', 'Apple iPhone 8 Plus (A1899) 64GB 深空灰色 移动联通4G手机', '/abc/uploads/allimg/20190731/582042862ba0d06c9408a9a1e669a067.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '233', '0', '', '0', '', '', '主体品牌Apple型号iPhone 8 Plus入网型号A1899上市年份2017年上市月份以官网信息为准基本信息机身颜色深空灰色机身长度（mm）158.4机身宽度（mm）78.1机身厚度（mm）7.5机身重量（g）202输入方式触控运营商标志或内容', '1', '1599.00', '0', '0.00', '0', '99999', '1', '0', 'view_product.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1564539099', '1610615667');
 INSERT INTO `ey_archives` VALUES ('90', '24', '2', '0', '小米8屏幕指纹版 6GB+128GB 黑色 全网通4G 双卡双待 全面屏拍照智能游戏手机', '/abc/uploads/allimg/20190731/c4539460b957fea39a9db19e61eb0afe.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '132', '0', '', '0', '', '', '主体品牌小米（MI）型号小米8屏幕指纹版入网型号以官网信息为准上市年份2018年上市月份9月基本信息机身颜色黑色机身长度（mm）154.9机身宽度（mm）74.8机身厚度（mm）7.6机身重量（g）177运营商标志或内容无机身材质分类玻璃后盖操作系统', '1', '1709.00', '0', '0.00', '0', '2997', '1', '0', 'view_product.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1564539940', '1610615660');
 INSERT INTO `ey_archives` VALUES ('91', '5', '4', '0', '计算机软件系统故障及维护', '/abc/uploads/allimg/20190731/0c8845e11a94b0f765ab24259c5b06b9.gif', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '276', '0', '', '0', '', '', 'WindowsXP操作系统原理使用系统维护工具系统启动故障的修复病毒防治的一般方法循辱魂币禾赫促陛醛放忆蛔睡钱佯回改波坏敏寄锈掳长提每臣传遥抄个似计算机软件系统故障及维护计算机软件系统故障及维护13.1.1WindowsXP的架构特点WindowsX', '0', '0.00', '0', '0.00', '0', '99999', '1', '0', 'view_download.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '', '1564565735', '1610615652');
@@ -437,7 +444,6 @@ INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '3', '耳机', 'erji', '/
 INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '3', '音箱', 'yinxiang', '/chanpinzhanshi/peijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612678', '1610334638');
 INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '3', '充电宝', 'chongdianbao', '/chanpinzhanshi/peijian/chongdianbao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612691', '1610334638');
 INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '0', '0', '联系我们', 'lianxiwomen986', '/lianxiwomen986', 'Online Message', '0', '', '/uploads/allimg/20210106/1-2101061T032D7.jpg', 'lists_guestbook.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526634493', '1610347982');
-INSERT INTO `ey_arctype` VALUES ('54', '1', '6', '0', '0', '联系我们', 'lianxiwomen', '/lianxiwomen', 'Contact Us', '0', '', '', 'lists_single.htm', '', '', '', '', '7', '0', '0', '1', '1', '1', '1', '0', '', 'cn', '1563761937', '1609929617');
 INSERT INTO `ey_arctype` VALUES ('64', '3', '3', '4', '4', '系统方案', 'xitong', '/kehuanli/xitong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '0', '', 'cn', '1565083870', '1609929522');
 INSERT INTO `ey_arctype` VALUES ('66', '3', '3', '4', '4', '应用方案', 'yingyong', '/kehuanli/yingyong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '0', '', 'cn', '1565083875', '1609929522');
 
@@ -485,6 +491,124 @@ INSERT INTO `ey_article_content` VALUES ('41', '84', '', '1610615703', '16106157
 INSERT INTO `ey_article_content` VALUES ('42', '85', '', '1610615688', '1610615688');
 INSERT INTO `ey_article_content` VALUES ('43', '86', '', '1610615683', '1610615683');
 INSERT INTO `ey_article_content` VALUES ('44', '87', '', '1610615678', '1610615678');
+
+-- -----------------------------
+-- Table structure for `ey_ask`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_ask`;
+CREATE TABLE `ey_ask` (
+  `ask_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `type_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '问题栏目ID',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '会员ID',
+  `ask_title` varchar(80) NOT NULL DEFAULT '' COMMENT '问题标题',
+  `is_recom` tinyint(1) NOT NULL DEFAULT '0' COMMENT '问题是否推荐',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '问题状态：0未解决，1已解决，2已关闭',
+  `click` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '浏览点击量',
+  `replies` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '问题回复量',
+  `content` text NOT NULL COMMENT '问题内容',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '问题网址',
+  `users_ip` varchar(50) NOT NULL DEFAULT '' COMMENT '问题发布时IP地址',
+  `is_review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '问题是否审核，1是，0否',
+  `follow` tinyint(1) NOT NULL DEFAULT '0' COMMENT '关注问题则表示有回复时发送邮件通知到问题发布人',
+  `solve_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '解决时间(这个问题存在最佳答案则表示已解决)',
+  `bestanswer_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最佳答案',
+  `sort_order` int(10) NOT NULL DEFAULT '100' COMMENT '排序号',
+  `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  `money` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '悬赏金额',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '1-删除',
+  PRIMARY KEY (`ask_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='问题表';
+
+
+-- -----------------------------
+-- Table structure for `ey_ask_answer`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_ask_answer`;
+CREATE TABLE `ey_ask_answer` (
+  `answer_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `ask_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '问题ID',
+  `is_bestanswer` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否最佳答案，0否，1是',
+  `is_review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '问题是否审核，1是，0否',
+  `type_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '问题栏目ID',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `username` varchar(50) NOT NULL DEFAULT '' COMMENT '用户名',
+  `click_like` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '点赞量',
+  `users_ip` varchar(30) NOT NULL DEFAULT '' COMMENT '用户IP地址',
+  `content` text NOT NULL COMMENT '内容',
+  `ifcheck` tinyint(1) NOT NULL DEFAULT '1',
+  `answer_pid` int(10) NOT NULL DEFAULT '0' COMMENT '子答案的父答案',
+  `at_users_id` int(10) NOT NULL DEFAULT '0' COMMENT '被@的用户ID',
+  `at_answer_id` int(10) NOT NULL DEFAULT '0' COMMENT '@答案ID',
+  `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  `is_del` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1-删除',
+  PRIMARY KEY (`answer_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='答案表';
+
+
+-- -----------------------------
+-- Table structure for `ey_ask_answer_like`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_ask_answer_like`;
+CREATE TABLE `ey_ask_answer_like` (
+  `like_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `ask_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '问题ID',
+  `answer_id` int(10) NOT NULL DEFAULT '0' COMMENT '答案ID',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `click_like` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '点赞',
+  `users_ip` varchar(30) NOT NULL DEFAULT '' COMMENT '用户IP地址',
+  `add_time` int(10) unsigned NOT NULL DEFAULT '0',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`like_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='答案点赞表';
+
+
+-- -----------------------------
+-- Table structure for `ey_ask_score_level`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_ask_score_level`;
+CREATE TABLE `ey_ask_score_level` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(55) DEFAULT '',
+  `min` mediumint(8) DEFAULT '0',
+  `max` mediumint(8) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='积分等级表';
+
+-- -----------------------------
+-- Records of `ey_ask_score_level`
+-- -----------------------------
+INSERT INTO `ey_ask_score_level` VALUES ('1', '青铜', '0', '1000');
+INSERT INTO `ey_ask_score_level` VALUES ('2', '白银', '1001', '5000');
+INSERT INTO `ey_ask_score_level` VALUES ('3', '黄金', '5001', '20000');
+INSERT INTO `ey_ask_score_level` VALUES ('4', '王者', '20001', '0');
+
+-- -----------------------------
+-- Table structure for `ey_ask_type`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_ask_type`;
+CREATE TABLE `ey_ask_type` (
+  `type_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '栏目自增',
+  `type_name` varchar(100) NOT NULL DEFAULT '' COMMENT '栏目名称',
+  `parent_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '上级ID',
+  `seo_title` varchar(200) DEFAULT '' COMMENT 'SEO标题',
+  `seo_keywords` varchar(200) DEFAULT '' COMMENT 'seo关键字',
+  `seo_description` text COMMENT 'seo描述',
+  `sort_order` int(10) unsigned NOT NULL DEFAULT '100' COMMENT '排序号',
+  `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`type_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='问题栏目分类表';
+
+-- -----------------------------
+-- Records of `ey_ask_type`
+-- -----------------------------
+INSERT INTO `ey_ask_type` VALUES ('1', '问题求助', '0', '', '', '', '100', '1565770890', '1611910466');
+INSERT INTO `ey_ask_type` VALUES ('2', '功能建议', '0', '', '', '', '100', '1565770890', '1611910466');
+INSERT INTO `ey_ask_type` VALUES ('3', 'BUG反馈', '1', '', '', '', '100', '1565771021', '1611910466');
+INSERT INTO `ey_ask_type` VALUES ('4', '其他问题', '1', '', '', '', '100', '1565771021', '1611910466');
+INSERT INTO `ey_ask_type` VALUES ('5', '业务咨询', '0', '', '', '', '100', '1611910466', '1611910466');
 
 -- -----------------------------
 -- Table structure for `ey_auth_role`
@@ -857,8 +981,8 @@ INSERT INTO `ey_channelfield` VALUES ('308', 'htmlfilename', '2', '自定义文�
 INSERT INTO `ey_channelfield` VALUES ('309', 'htmlfilename', '3', '自定义文件名', 'text', 'varchar(50)', '50', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('310', 'htmlfilename', '4', '自定义文件名', 'text', 'varchar(50)', '50', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('311', 'htmlfilename', '6', '自定义文件名', 'text', 'varchar(50)', '50', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
-INSERT INTO `ey_channelfield` VALUES ('312', 'attrlist_id', '0', '参数列表ID', 'int', 'int(11)', '250', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091930', '1533091930');
-INSERT INTO `ey_channelfield` VALUES ('313', 'sales_num', '0', '销售量', 'int', 'int(10)', '250', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091930', '1533091930');
+INSERT INTO `ey_channelfield` VALUES ('312', 'attrlist_id', '0', '参数列表ID', 'int', 'int(10) unsigned', '10', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091930', '1533091930');
+INSERT INTO `ey_channelfield` VALUES ('313', 'sales_num', '0', '销售量', 'int', 'int(10) unsigned', '10', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1533091930', '1533091930');
 INSERT INTO `ey_channelfield` VALUES ('314', 'update_time', '5', '更新时间', 'datetime', 'int(11)', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('315', 'add_time', '5', '新增时间', 'datetime', 'int(11)', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('316', 'htmlfilename', '5', '自定义文件名', 'text', 'varchar(50)', '50', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
@@ -879,7 +1003,7 @@ INSERT INTO `ey_channelfield` VALUES ('330', 'stock_count', '5', '商品库存�
 INSERT INTO `ey_channelfield` VALUES ('331', 'sales_num', '5', '销售量', 'int', 'int(10) unsigned', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('332', 'old_price', '5', '产品旧价', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('333', 'users_price', '5', '会员价', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
-INSERT INTO `ey_channelfield` VALUES ('334', 'attrlist_id', '5', '参数列表ID', 'datetime', 'int(11) unsigned', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
+INSERT INTO `ey_channelfield` VALUES ('334', 'attrlist_id', '5', '参数列表ID', 'int', 'int(10) unsigned', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('335', 'seo_description', '5', 'SEO描述', 'multitext', 'text', '0', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('336', 'seo_keywords', '5', 'SEO关键词', 'text', 'varchar(200)', '200', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
 INSERT INTO `ey_channelfield` VALUES ('337', 'seo_title', '5', 'SEO标题', 'text', 'varchar(200)', '200', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1591957363', '1591957363');
@@ -927,7 +1051,7 @@ INSERT INTO `ey_channelfield` VALUES ('378', 'sales_num', '7', '销售量', 'int
 INSERT INTO `ey_channelfield` VALUES ('379', 'old_price', '7', '产品旧价', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
 INSERT INTO `ey_channelfield` VALUES ('380', 'users_free', '7', '是否会员免费，默认0不免费，1为免费', 'switch', 'tinyint(1) unsigned', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
 INSERT INTO `ey_channelfield` VALUES ('381', 'users_price', '7', '会员价', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
-INSERT INTO `ey_channelfield` VALUES ('382', 'attrlist_id', '7', '参数列表ID', 'datetime', 'int(11) unsigned', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
+INSERT INTO `ey_channelfield` VALUES ('382', 'attrlist_id', '7', '参数列表ID', 'int', 'int(10) unsigned', '10', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
 INSERT INTO `ey_channelfield` VALUES ('383', 'seo_description', '7', 'SEO描述', 'multitext', 'text', '0', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
 INSERT INTO `ey_channelfield` VALUES ('384', 'seo_keywords', '7', 'SEO关键词', 'text', 'varchar(200)', '200', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
 INSERT INTO `ey_channelfield` VALUES ('385', 'seo_title', '7', 'SEO标题', 'text', 'varchar(200)', '200', '', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1602320145', '1602320145');
@@ -1101,6 +1225,7 @@ INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'i
 INSERT INTO `ey_channeltype` VALUES ('9', 'recruit', '招聘模型', '人才招聘', 'recruit', 'Recruit', '1', '0', '1', '0', '1', '', '0', '50', '1563526560', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('5', 'media', '视频模型', '视频', 'media', 'Media', '0', '1', '1', '0', '1', '', '0', '5', '1509197711', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('7', 'special', '专题模型', '专题', 'special', 'Special', '0', '1', '1', '0', '1', '', '0', '7', '1509197711', '1564532747');
+INSERT INTO `ey_channeltype` VALUES ('51', 'ask', '问答模型', '问答', 'ask', 'Ask', '0', '1', '1', '0', '1', '', '0', '9', '1509197711', '1564532747');
 
 -- -----------------------------
 -- Table structure for `ey_common_pic`
@@ -1146,7 +1271,7 @@ CREATE TABLE `ey_config` (
   `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=318 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=322 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- -----------------------------
 -- Records of `ey_config`
@@ -1175,7 +1300,7 @@ INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', 'cn', '0', '
 INSERT INTO `ey_config` VALUES ('28', 'web_name', '某某网络科技有限公司', 'web', '', 'cn', '0', '1565096132');
 INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/abf/uploads/allimg/20210114/1-2101140933194M.png', 'web', '', 'cn', '0', '1610696352');
 INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.31', 'web', '', 'cn', '0', '1591263789');
+INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.20', 'web', '', 'cn', '0', '1591263789');
 INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2021 EYOUCMS. 易优CMS 版权所有', 'web', '', 'cn', '0', '1610589933');
@@ -1206,7 +1331,7 @@ INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', '
 INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'cbQ1AmriPQ7LHyth9xeHH6Lj', 'php', '', 'cn', '0', '1571040555');
 INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1614152875');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '-1', 'web', '', 'cn', '0', '1616490075');
 INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '1614152866');
 INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '1610588047');
@@ -1214,7 +1339,7 @@ INSERT INTO `ey_config` VALUES ('84', 'web_htmlcache_expires_in', '0', 'web', ''
 INSERT INTO `ey_config` VALUES ('85', 'web_show_popup_upgrade', '-1', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('86', 'web_weapp_switch', '1', 'web', '', 'cn', '0', '1563498417');
 INSERT INTO `ey_config` VALUES ('88', 'seo_dynamic_format', '1', 'seo', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'cn', '0', '1610587683');
+INSERT INTO `ey_config` VALUES ('89', 'system_sql_mode', 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 'system', '', 'cn', '0', '1616490061');
 INSERT INTO `ey_config` VALUES ('90', 'system_home_default_lang', 'cn', 'system', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('91', 'system_langnum', '1', 'system', '', 'cn', '0', '1610357910');
 INSERT INTO `ey_config` VALUES ('170', 'web_exception', '0', 'web', '', 'cn', '0', '1546477337');
@@ -1223,7 +1348,7 @@ INSERT INTO `ey_config` VALUES ('174', 'web_is_https', '0', 'web', '', 'cn', '0'
 INSERT INTO `ey_config` VALUES ('176', 'smtp_syn_weapp', '1', 'smtp', '', 'cn', '0', '1553566547');
 INSERT INTO `ey_config` VALUES ('178', 'php_eyou_blacklist', '', 'php', '', 'cn', '0', '1553654429');
 INSERT INTO `ey_config` VALUES ('190', 'system_auth_code', 'JwAhf0gPmHIJIZbiPlca', 'system', '', 'cn', '0', '1557733856');
-INSERT INTO `ey_config` VALUES ('192', 'system_upgrade_filelist', 'YXBwbGljYXRpb24vY29tbW9uL2xvZ2ljL0Z1bmN0aW9uTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL2NvbW1vbi9tb2RlbC9MYW5ndWFnZS5waHA8YnI+YXBwbGljYXRpb24vcm91dGUucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29udHJvbGxlci9Vc2Vyc1JlbGVhc2UucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29udHJvbGxlci9Eb3dubG9hZC5waHA8YnI+YXBwbGljYXRpb24vdXNlci9jb250cm9sbGVyL1VzZXJzTm90aWNlLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2xvZ2ljL1NtdHBtYWlsTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvdGFncy5waHA8YnI+YXBwbGljYXRpb24vdXNlci9tb2RlbC9Vc2Vyc1JlbGVhc2UucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29uZmlnLnBocDxicj5hcHBsaWNhdGlvbi9hcGkvdGVtcGxhdGUvdXBsb2FkaWZ5L3VwbG9hZF9wcm9kdWN0Lmh0bTxicj5hcHBsaWNhdGlvbi9hcGkvdGVtcGxhdGUvdXBsb2FkaWZ5L3VwbG9hZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9NZWRpYS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9FbmNvZGVzLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1VzZXJzTm90aWNlLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1VzZXJzU2NvcmUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2xvZ2ljL1Byb2R1Y3RMb2dpYy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbW9kZWwvR3Vlc3Rib29rQXR0cmlidXRlLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb25maWcucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY3R5cGUvc2luZ2xlX2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY3R5cGUvYmF0Y2hfYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wYXlfYXBpL3dlY2hhdF90ZW1wbGF0ZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZmllbGQvYWRkb25pdGVtLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9maWVsZC9tb2RlbGZpZWxkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9maWVsZC9hdHRyaWJ1dGVfYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9pbmRleC9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvaW5kZXgvYWpheF9jb250ZW50X3RvdGFsLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9pbmRleC9hamF4X3F1aWNrbWVudS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3BlY2lhbC9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL290aGVyL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL290aGVyL2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9zaGlwcGluZ190ZW1wbGF0ZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3Avc3BlY190ZW1wbGF0ZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvdG9vbHMvYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9sYW5ndWFnZS9jdXN0b212YXJfYXJjdHlwZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGFuZ3VhZ2Uvb2ZmaWNpYWxfcGFja19pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGFuZ3VhZ2UvYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9sYW5ndWFnZS9wYWNrX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zZW8vc2l0ZW1hcC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2VvL3Jld3JpdGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3BfcHJvZHVjdC9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9zbXRwX3RwbF9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zeXN0ZW0vY2xlYXJfY2FjaGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9yZWdpb24uaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FydGljbGUvYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmNoaXZlcy9tb3ZlLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmNoaXZlcy9iYXRjaF9jb3B5Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wcm9kdWN0L2F0dHJpYnV0ZV9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcHJvZHVjdC9hdHRyaWJ1dGVfZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcHJvZHVjdC9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Byb2R1Y3QvYXR0cmlidXRlX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZW5jb2Rlcy90aGVtZV9jb25mLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvbGV2ZWxfZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVtYmVyL21vbmV5X2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL21lbWJlci9sZXZlbF9hZGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL21lbWJlci9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL21lbWJlci91c2Vyc19hZGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3dlYXBwL3NldHRpbmcuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3dlYXBwL3BhY2suaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3dlYXBwL2NyZWF0ZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvdXBsb2FkaWZ5L3VwbG9hZF9wcm9kdWN0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91cGxvYWRpZnkvdXBsb2FkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91cGxvYWRpZnkvdXBsb2FkX2Z1bGwuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3VwbG9hZGlmeS91cGxvYWRfZnJhbWUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3VzZXJzX3JlbGVhc2UvYWpheF91c2Vyc19sZXZlbF9ib3V0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wdWJsaWMvbGF5b3V0Lmh0bTxicj5hcHBsaWNhdGlvbi9leHRyYS9nbG9iYWwucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvYmVoYXZpb3IvVmlld0ZpbHRlckJlaGF2aW9yLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvUm91dGUucGhwPGJyPnZlbmRvci90ZW5jZW50c21zL1Ntc011bHRpU2VuZGVyLnBocDxicj52ZW5kb3IvdGVuY2VudHNtcy9Wb2ljZUZpbGVVcGxvYWRlci5waHA8YnI+dmVuZG9yL3RlbmNlbnRzbXMvU21zU3RhdHVzUHVsbGVyLnBocDxicj52ZW5kb3IvdGVuY2VudHNtcy9UdHNWb2ljZVNlbmRlci5waHA8YnI+dmVuZG9yL3RlbmNlbnRzbXMvRmlsZVZvaWNlU2VuZGVyLnBocDxicj52ZW5kb3IvdGVuY2VudHNtcy9TbXNNb2JpbGVTdGF0dXNQdWxsZXIucGhwPGJyPnZlbmRvci90ZW5jZW50c21zL1Ntc1NpbmdsZVNlbmRlci5waHA8YnI+dmVuZG9yL3RlbmNlbnRzbXMvU21zVm9pY2VWZXJpZnlDb2RlU2VuZGVyLnBocDxicj52ZW5kb3IvdGVuY2VudHNtcy9pbmRleC5waHA8YnI+dmVuZG9yL3RlbmNlbnRzbXMvU21zVm9pY2VQcm9tcHRTZW5kZXIucGhwPGJyPnZlbmRvci90ZW5jZW50c21zL1Ntc1NlbmRlclV0aWwucGhwPGJyPmRhdGEvY29uZi92ZXJzaW9uLnR4dDxicj5kYXRhL3dlYXBwL1NhbXBsZS93ZWFwcC9TYW1wbGUvY29udHJvbGxlci9TYW1wbGUucGhwPGJyPmRhdGEvd2VhcHAvU2FtcGxlL3dlYXBwL1NhbXBsZS90ZW1wbGF0ZS9pbmRleC5odG08YnI+ZGF0YS93ZWFwcC9TYW1wbGUvd2VhcHAvU2FtcGxlL3RlbXBsYXRlL2Jhci5odG08YnI+ZGF0YS93ZWFwcC9TYW1wbGUvd2VhcHAvU2FtcGxlL3RlbXBsYXRlL3NraW4vanMvZ2xvYmFsLmpzPGJyPnB1YmxpYy9wbHVnaW5zL3dlYnVwbG9hZGVyL3dlYnVwbG9hZGVyLmpzPGJyPnB1YmxpYy9wbHVnaW5zL3p0cmVlL2Nzcy9pZnJhbWUuY3NzPGJyPnB1YmxpYy9wbHVnaW5zL3p0cmVlL2Nzcy96VHJlZVN0eWxlL3pUcmVlU3R5bGUuY3NzPGJyPnB1YmxpYy9wbHVnaW5zL3RhZ3NfaW5wdXQvY3NzL2pxdWVyeS50YWdzaW5wdXQuY3NzPGJyPnB1YmxpYy9wbHVnaW5zL3RhZ3NfaW5wdXQvanMvanF1ZXJ5LnRhZ3NpbnB1dC5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfY29sbGVjdGlvbl9saXN0LmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL2Zvb3RwcmludC5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfc3BwYXlhcGlsaXN0X3YyLmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL3RhZ191c2VyaW5mby5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9pbWFnZXMvbm90X2Fkdi5qcGc8YnI+cHVibGljL3N0YXRpYy9jb21tb24vaW1hZ2VzL25vdF91cGxvYWRfcGljLnBuZzxicj5wdWJsaWMvc3RhdGljL2FkbWluL2xvZ2luL2xvZ2luLWxvZ28ucG5nPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vbG9naW4vbG9naW4tbG9nb19leS5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9sb2dpbmJnL2xvZ2luLWJnLTIucG5nPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vbG9naW5iZy9sb2dpbi1iZy0xLnBuZzxicj5wdWJsaWMvc3RhdGljL2FkbWluL2ltYWdlcy9sb2dpbi1sb2dvLnBuZzxicj5wdWJsaWMvc3RhdGljL2FkbWluL2ltYWdlcy9sb2dpbi1iZy5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvbG9naW4tbG9nb19leS5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvc29ydC5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvZW1wdHktY29sb3IucG5nPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vaW1hZ2VzL2xvZ2luLWJnLWVtcHR5LnBuZzxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX3JlZ19maWVsZF9tb2JpbGUuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfY2VudHJlX2ZpZWxkX2V4dGVuZF9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX2xvZ2luYXBpLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX3dlbGNvbWVfZmllbGRfZXh0ZW5kLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX3JlZ19maWVsZF9tb2JpbGVfbS5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19yZWdfZmllbGRfZXh0ZW5kLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3BheV9yZWNoYXJnZV90eXBlX20uaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfbGVmdG1lbnUuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfbGVmdG1lbnVfbS5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19jZW50cmVfZmllbGRfbW9iaWxlX20uaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfcmVnX2ZpZWxkX2V4dGVuZF9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX3JlbGVhc2VfZmllbGQuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfY2VudHJlX2ZpZWxkX21vYmlsZS5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19sb2dpbmFwaV9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX2NlbnRyZV9maWVsZF9leHRlbmQuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfcmVsZWFzZV9maWVsZF9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3BheV9yZWNoYXJnZV90eXBlLmh0bQ==', 'system', '', 'cn', '0', '1610334639');
+INSERT INTO `ey_config` VALUES ('192', 'system_upgrade_filelist', 'YXBwbGljYXRpb24vY29tbW9uL2xvZ2ljL1Ntc0xvZ2ljLnBocDxicj5hcHBsaWNhdGlvbi9jb21tb24vbG9naWMvRnVuY3Rpb25Mb2dpYy5waHA8YnI+YXBwbGljYXRpb24vY29tbW9uL2xvZ2ljL1Nob3BDb21tb25Mb2dpYy5waHA8YnI+YXBwbGljYXRpb24vY29tbW9uL21vZGVsL1dlYXBwLnBocDxicj5hcHBsaWNhdGlvbi9jb21tb24vbW9kZWwvQXNrU2NvcmVMZXZlbC5waHA8YnI+YXBwbGljYXRpb24vY29tbW9uL21vZGVsL0FyY3R5cGUucGhwPGJyPmFwcGxpY2F0aW9uL2NvbW1vbi9tb2RlbC9SZWdpb24ucGhwPGJyPmFwcGxpY2F0aW9uL2NvbW1vbi9tb2RlbC9Bc2tUeXBlLnBocDxicj5hcHBsaWNhdGlvbi9jb21tb24vbW9kZWwvVGFnbGlzdC5waHA8YnI+YXBwbGljYXRpb24vY29tbW9uL21vZGVsL0xhbmd1YWdlLnBocDxicj5hcHBsaWNhdGlvbi9jb21tb24vdXRpbC9GaWxlLmNsYXNzLnBocDxicj5hcHBsaWNhdGlvbi9yb3V0ZS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9jb250cm9sbGVyL1BheUFwaS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9jb250cm9sbGVyL1BheS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9jb250cm9sbGVyL01lZGlhLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2NvbnRyb2xsZXIvTGV2ZWwucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29udHJvbGxlci9CYXNlLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2NvbnRyb2xsZXIvU2hvcENvbW1lbnQucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29udHJvbGxlci9TaG9wLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2NvbnRyb2xsZXIvQXNrLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2NvbnRyb2xsZXIvVXNlcnNOb3RpY2UucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvY29udHJvbGxlci9Vc2Vycy5waHA8YnI+YXBwbGljYXRpb24vdXNlci9jb250cm9sbGVyL1VwbG9hZGlmeS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9sb2dpYy9GdW5jdGlvbkxvZ2ljLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2xvZ2ljL1BheUxvZ2ljLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2xvZ2ljL1BheUFwaUxvZ2ljLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL2xvZ2ljL1NtdHBtYWlsTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvbW9kZWwvUGF5QXBpLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL21vZGVsL1BheS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9tb2RlbC9Vc2Vyc1JlbGVhc2UucGhwPGJyPmFwcGxpY2F0aW9uL3VzZXIvbW9kZWwvUHJvZHVjdFNwZWNWYWx1ZS5waHA8YnI+YXBwbGljYXRpb24vdXNlci9tb2RlbC9TaG9wLnBocDxicj5hcHBsaWNhdGlvbi91c2VyL21vZGVsL1VzZXJzLnBocDxicj5hcHBsaWNhdGlvbi9jb21tb24ucGhwPGJyPmFwcGxpY2F0aW9uL2Z1bmN0aW9uLnBocDxicj5hcHBsaWNhdGlvbi9oZWxwZXIucGhwPGJyPmFwcGxpY2F0aW9uL2FwaS9jb250cm9sbGVyL1Vpc2V0LnBocDxicj5hcHBsaWNhdGlvbi9hcGkvY29udHJvbGxlci9PdGhlci5waHA8YnI+YXBwbGljYXRpb24vYXBpL2NvbnRyb2xsZXIvQWpheC5waHA8YnI+YXBwbGljYXRpb24vYXBpL3RlbXBsYXRlL290aGVyL290aGVyX3Nob3cuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbW1vbi5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vYmVoYXZpb3IvTW9kdWxlSW5pdEJlaGF2aW9yLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9iZWhhdmlvci9BcHBFbmRCZWhhdmlvci5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vYmVoYXZpb3IvVmlld0ZpbHRlckJlaGF2aW9yLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0ZpZWxkLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0ltYWdlcy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9GaWxlbWFuYWdlci5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9XZWFwcC5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9TdGF0aXN0aWNzLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0FkbWluLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0FyY3R5cGUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvTWVkaWEucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQXJjaGl2ZXMucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQXJ0aWNsZS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9VZWRpdG9yLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1NoYXJwLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0xldmVsLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1RhZ3MucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQ291cG9uLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1Byb2R1Y3QucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvUmVnaW9uLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0Jhc2UucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvRW5jb2Rlcy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9TcGVjaWFsLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0d1ZXN0Ym9vay5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9Eb3dubG9hZC5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9TZW8ucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQWRQb3NpdGlvbi5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9JbmRleC5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9BdXRoUm9sZS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9SZWN5Y2xlQmluLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL0NoYW5uZWx0eXBlLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL01lbWJlci5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9TeXN0ZW0ucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvU2hvcFNlcnZpY2UucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvU2hvcFByb2R1Y3QucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvU2hvcENvbW1lbnQucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQ3VzdG9tLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1Rvb2xzLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1Nob3AucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQXNrLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL05vdGlmeS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9Vc2Vyc05vdGljZS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9VcGxvYWRpZnkucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvQWpheC5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29udHJvbGxlci9MaW5rc0dyb3VwLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9jb250cm9sbGVyL1VzZXJzU2NvcmUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbnRyb2xsZXIvTGFuZ3VhZ2UucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2xvZ2ljL0FqYXhMb2dpYy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbG9naWMvRmlsZW1hbmFnZXJMb2dpYy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbG9naWMvVXBncmFkZUxvZ2ljLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9sb2dpYy9Bc2tMb2dpYy5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbG9naWMvRGl5RXh0ZW5kTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2xvZ2ljL1Byb2R1Y3RTcGVjTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2xvZ2ljL0ZpZWxkTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL2NvbmYvbWVudS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vY29uZi9hdXRoX3J1bGUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL21vZGVsL0ZpZWxkLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9tb2RlbC9NZWRpYS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbW9kZWwvUHJvZHVjdC5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbW9kZWwvUmVnaW9uLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9tb2RlbC9NZW1iZXIucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL21vZGVsL1Byb2R1Y3RTcGVjVmFsdWUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL21vZGVsL1Byb2R1Y3RTcGVjRGF0YS5waHA8YnI+YXBwbGljYXRpb24vYWRtaW4vbW9kZWwvTWVkaWFGaWxlLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi9tb2RlbC9TaGFycEFjdGl2ZVRpbWUucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL21vZGVsL1Nob3BPcmRlclNlcnZpY2UucGhwPGJyPmFwcGxpY2F0aW9uL2FkbWluL21vZGVsL1Nob3BQcm9kdWN0QXR0cmlidXRlLnBocDxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9maWxlbWFuYWdlci9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9jb21tZW50L2NvbW1lbnRfZGV0YWlscy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9jb21tZW50L2NvbW1lbnRfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2Fzay9hc2tfbGlzdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXNrL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hc2svYW5zd2VyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hc2svY29uZi5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXNrL2Fza190eXBlX3Nlby5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXNrL2xldmVsX3NldC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXNrL2Jhci5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXNrL3Njb3JlX2xldmVsLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmN0eXBlL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY3R5cGUvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmN0eXBlL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmN0eXBlL3NpbmdsZV9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmN0eXBlL2JhdGNoX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcGF5X2FwaS9hbGlwYXlfdGVtcGxhdGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3BheV9hcGkvd2VjaGF0X3RlbXBsYXRlLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9maWVsZC9hdHRyaWJ1dGVfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ZpZWxkL2NoYW5uZWxfYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9maWVsZC9hZGRvbml0ZW0uaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ZpZWxkL21vZGVsZmllbGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ZpZWxkL2FyY3R5cGVfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ZpZWxkL2FkZG9uZXh0aXRlbS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZmllbGQvY2hhbm5lbF9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXV0aF9yb2xlL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2F1dGhfcm9sZS9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbm90aWZ5L25vdGlmeV90cGwuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2luZGV4L2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9pbmRleC9zd2l0Y2hfbWFwLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9pbmRleC93ZWxjb21lLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zcGVjaWFsL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3NwZWNpYWwvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zcGVjaWFsL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zcGVjaWFsL2FqYXhfbm9kZV9hcmNoaXZlc19saXN0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91aXNldC91aV9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZ3Vlc3Rib29rL2F0dHJpYnV0ZV9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZ3Vlc3Rib29rL2F0dHJpYnV0ZV9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9ndWVzdGJvb2svaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2d1ZXN0Ym9vay9kZXRhaWxzLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9ndWVzdGJvb2svYXR0cmlidXRlX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVkaWEvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVkaWEvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZWRpYS9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGlua3MvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGlua3MvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9saW5rcy9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvb3RoZXIvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3AvbWFya2V0X2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wL3NoaXBwaW5nX3RlbXBsYXRlLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wL2xlZnQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3AvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3Avb3JkZXJfZXhwcmVzcy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9zaG9wX2Jhci5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9vcmRlcl9kZXRhaWxzX25ldy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9zcGVjX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wL2NvbmYuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3Avb3JkZXJfc2VuZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcC9vcmRlcl9kZXRhaWxzLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wL3NwZWNfdGVtcGxhdGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Rvb2xzL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9sYW5ndWFnZS9jdXN0b212YXJfYXJjdHlwZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGFuZ3VhZ2Uvb2ZmaWNpYWxfcGFja19pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGFuZ3VhZ2UvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2xhbmd1YWdlL3BhY2tfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3JlY3ljbGVfYmluL2FyY2hpdmVzX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9yZWN5Y2xlX2Jpbi9jdXN0b212YXJfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3JlY3ljbGVfYmluL2dib29rYXR0cl9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcmVjeWNsZV9iaW4vYXJjdHlwZV9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcmVjeWNsZV9iaW4vcHJvYXR0cl9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvYWN0aXZlX3RpbWVfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3NoYXJwL2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3NoYXJwL2FjdGl2ZV90aW1lX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvYWN0aXZlX3RpbWVfZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvZ29vZHNfbGlzdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hhcnAvYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaGFycC9hY3RpdmVfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3NoYXJwL2FjdGl2ZV9hZGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3NoYXJwL2FqYXhfYXJjaGl2ZXNfbGlzdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2VvL3NpdGVtYXAuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nlby9zaXRlLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zZW8vYXJ0aWNsZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2VvL3Nlby5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2VvL2NoYW5uZWwuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3RhZ3MvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3RhZ3MvYmF0Y2hfYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wX3Byb2R1Y3QvYXR0cmlidXRlX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wX3Byb2R1Y3QvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9wcm9kdWN0L2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9wcm9kdWN0L2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wX3Byb2R1Y3QvdGFnc19idG4uaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Nob3BfcHJvZHVjdC9hdHRybGlzdF9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9wcm9kdWN0L2F0dHJsaXN0X2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9wcm9kdWN0L2F0dHJsaXN0X2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FkX3Bvc2l0aW9uL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FkX3Bvc2l0aW9uL2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYWRfcG9zaXRpb24vaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2N1c3RvbS9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jdXN0b20vYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jdXN0b20vaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3VzZXJzX3Njb3JlL2NvbmYuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FkbWluL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hZG1pbi9sb2dpbi5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYWRtaW4vYWRtaW5fZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbGlua3NfZ3JvdXAvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9iYXNpYy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3lzdGVtL2N1c3RvbXZhcl9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3lzdGVtL3Ntc190cGwuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9ub3RpZnkuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9zbXRwLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zeXN0ZW0vd2ViMi5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3lzdGVtL3Ntcy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3lzdGVtL3NtdHBfdHBsLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zeXN0ZW0vYXBpX2NvbmYuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9yZWdpb24uaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9wYXlfYXBpX2xpc3QuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3N5c3RlbS9taWNyb3NpdGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FydGljbGUvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXJ0aWNsZS9hZGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FydGljbGUvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2xldmVsL3VwZ3JhZGVfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY2hpdmVzL3JlbGVhc2VfaWZyYW1lLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9hcmNoaXZlcy90YWdzX2J0bi5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvYXJjaGl2ZXMvaW5kZXhfYXJjaGl2ZXMuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY2hpdmVzL2luZGV4X2FyY3R5cGUuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2FyY2hpdmVzL2dldF9maWVsZF9hZGRvbmV4dGl0ZW0uaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Byb2R1Y3QvYXR0cmlidXRlX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wcm9kdWN0L2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3Byb2R1Y3QvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wcm9kdWN0L2F0dHJpYnV0ZV9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wcm9kdWN0L2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9wcm9kdWN0L29sZF9wcm9kdWN0X2F0dHJfZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcHJvZHVjdC9vbGRfcHJvZHVjdF9hdHRyX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvcHJvZHVjdC9hdHRyaWJ1dGVfYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jaGFubmVsdHlwZS9lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jaGFubmVsdHlwZS9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc3RhdGlzdGljcy9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZW5jb2Rlcy90aGVtZV9jb25mLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvbW9uZXlfaW5kZXhfbmV3Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvdXNlcnNfY29uZmlnLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvbWVkaWFfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL21lbWJlci91c2Vyc19maWVsZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVtYmVyL3VzZXJzX2Jhci5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVtYmVyL3VzZXJzX2JhdGNoX2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvbWVtYmVyL3VzZXJzX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvYmFyLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9tZW1iZXIvbW9uZXlfaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL21lbWJlci91c2Vyc19lZGl0Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS93ZWFwcC9teWJ1eS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvd2VhcHAvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3dlYXBwL3BsdWdpbi5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZG93bmxvYWQvZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvZG93bmxvYWQvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9kb3dubG9hZC9pbmRleC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvdXNlcnNfcmVsZWFzZS9jb25mLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91c2Vyc19ub3RpY2UvYWRtaW5fbm90aWNlX2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91c2Vyc19ub3RpY2UvYWRkLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS91c2Vyc19ub3RpY2UvaW5kZXguaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3VzZXJzX25vdGljZS9hZG1pbl9ub3RpY2VfZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvdXNlcnNfbm90aWNlL2Jhci5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvY291cG9uL3NlbGVjdF9hcmN0eXBlLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jb3Vwb24vZWRpdC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvY291cG9uL2FkZC5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvY291cG9uL2luZGV4Lmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9jb3Vwb24vc2VsZWN0X3Byb2R1Y3QuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2NvdXBvbi9iYXIuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3B1YmxpYy90aGVtZV9jc3MuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL3B1YmxpYy9kaXNwYXRjaF9qdW1wLmh0bTxicj5hcHBsaWNhdGlvbi9hZG1pbi90ZW1wbGF0ZS9zaG9wX3NlcnZpY2UvYWZ0ZXJfc2VydmljZS5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvc2hvcF9zZXJ2aWNlL2FmdGVyX3NlcnZpY2VfZGV0YWlscy5odG08YnI+YXBwbGljYXRpb24vYWRtaW4vdGVtcGxhdGUvaW1hZ2VzL2VkaXQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ltYWdlcy9hZGQuaHRtPGJyPmFwcGxpY2F0aW9uL2FkbWluL3RlbXBsYXRlL2ltYWdlcy9pbmRleC5odG08YnI+YXBwbGljYXRpb24vZXh0cmEvZXJyb3JfY29kZS5waHA8YnI+YXBwbGljYXRpb24vZXh0cmEvZ2xvYmFsLnBocDxicj5hcHBsaWNhdGlvbi9ob21lL2NvbW1vbi5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9iZWhhdmlvci9WaWV3RmlsdGVyQmVoYXZpb3IucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvY29udHJvbGxlci9MaXN0cy5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9jb250cm9sbGVyL01lZGlhLnBocDxicj5hcHBsaWNhdGlvbi9ob21lL2NvbnRyb2xsZXIvVmlldy5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9jb250cm9sbGVyL1RhZ3MucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvY29udHJvbGxlci9TZWFyY2gucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvY29udHJvbGxlci9JbmRleC5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9jb250cm9sbGVyL0Fzay5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9jb250cm9sbGVyL0J1aWxkaHRtbC5waHA8YnI+YXBwbGljYXRpb24vaG9tZS9jb250cm9sbGVyL0FqYXgucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvbG9naWMvQXNrTG9naWMucGhwPGJyPmFwcGxpY2F0aW9uL2hvbWUvbW9kZWwvRG93bmxvYWRGaWxlLnBocDxicj5hcHBsaWNhdGlvbi9ob21lL21vZGVsL0Fzay5waHA8YnI+YXBwbGljYXRpb24vY29uZmlnLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvUGFnZS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL0ZpbGUucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay9WYWxpZGF0ZS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL2V4Y2VwdGlvbi9IYW5kbGUucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay9kYi9kcml2ZXIvRHJpdmVyLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvYWdlbnQvZHJpdmVyL0JodmhvbWVWRi5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL2FnZW50L2RyaXZlci9Ecml2ZXIucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay9BamF4UGFnZS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL1VybC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3Byb2Nlc3MvYmh2Y29yZS9CaHZhZG1pbkFCZWdpbi5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3Byb2Nlc3MvYmh2Y29yZS9CaHZ1c2VyQUJlZ2luLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvcHJvY2Vzcy9iaHZjb3JlL0JodmhvbWVNSW5pdC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL1RlbXBsYXRlLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvQ29udHJvbGxlci5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL0FwcC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1ByZW5leHQucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdBcmN2aWV3LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnQ29sbGVjdG51bS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1RhZy5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0xpa2VhcnRpY2xlLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnU3BwdXJjaGFzZS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0NvbW1lbnQucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdTcGNhcnQucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdTcHN1Ym1pdG9yZGVyLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnQXR0cmlidXRlLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnQXR0ci5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0Fkdi5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1Nwb3JkZXIucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdDb2xsZWN0LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnU3BzZWFyY2gucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9CYXNlLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnR2xvYmFsLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnTm90aWNlLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnTGlzdC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1Nwb3JkZXJsaXN0LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnUG9zaXRpb24ucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdBc2tsaXN0LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnQ2hhbm5lbC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1NjcmVlbmluZy5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0FyY2NsaWNrLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnTWVtYmVyaW5mb3MucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdWaWRlb2xpc3QucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdBcmNsaXN0LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnU3BwYXlhcGlsaXN0LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnQ2hhbm5lbGFydGxpc3QucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdTcGVjbm9kZS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0ZpZWxkLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnR3Vlc3Rib29rZm9ybS5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ0Rvd25jb3VudC5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1NwYWRkcmVzcy5waHA8YnI+Y29yZS9saWJyYXJ5L3RoaW5rL3RlbXBsYXRlL3RhZ2xpYi9leW91L1RhZ1R5cGUucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvZXlvdS9UYWdVc2VyLnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnVmlkZW9wbGF5LnBocDxicj5jb3JlL2xpYnJhcnkvdGhpbmsvdGVtcGxhdGUvdGFnbGliL2V5b3UvVGFnRGl5ZmllbGQucGhwPGJyPmNvcmUvbGlicmFyeS90aGluay90ZW1wbGF0ZS90YWdsaWIvRXlvdS5waHA8YnI+Y29yZS9oZWxwZXIucGhwPGJyPnZlbmRvci90b3B0aGluay90aGluay1pbWFnZS9zcmMvSW1hZ2UucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3Nob3Bfb3JkZXJfY29tbWVudC5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfYXJjaGl2ZXMucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3VzZXJzX25vdGljZV90cGwucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3Nob3Bfb3JkZXIucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3NoYXJwX2dvb2RzLnBocDxicj5kYXRhL3NjaGVtYS9leV9hc2tfc2NvcmVfbGV2ZWwucGhwPGJyPmRhdGEvc2NoZW1hL2V5X2Fzay5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfc2hhcnBfYWN0aXZlX2dvb2RzLnBocDxicj5kYXRhL3NjaGVtYS9leV9zaG9wX2NvdXBvbi5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfcHJvZHVjdF9zcGVjX3ByZXNldC5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfc2hvcF9vcmRlcl9kZXRhaWxzLnBocDxicj5kYXRhL3NjaGVtYS9leV9wcm9kdWN0X3NwZWNfdmFsdWUucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3VzZXJzX25vdGljZV90cGxfY29udGVudC5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfc2hhcnBfYWN0aXZlLnBocDxicj5kYXRhL3NjaGVtYS9leV9zaG9wX29yZGVyX3NlcnZpY2VfbG9nLnBocDxicj5kYXRhL3NjaGVtYS9leV9hc2tfdHlwZS5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfbWVkaWFfcGxheV9yZWNvcmQucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3Nob3Bfb3JkZXJfc2VydmljZS5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfc2hhcnBfc2V0dGluZy5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfc2hhcnBfYWN0aXZlX3RpbWUucGhwPGJyPmRhdGEvc2NoZW1hL2V5X2Fza19hbnN3ZXJfbGlrZS5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfYXNrX2Fuc3dlci5waHA8YnI+ZGF0YS9zY2hlbWEvZXlfYWRfcG9zaXRpb24ucGhwPGJyPmRhdGEvc2NoZW1hL2V5X3Nob3BfY291cG9uX3VzZS5waHA8YnI+ZGF0YS9jb25mL3ZlcnNpb24udHh0PGJyPmRhdGEvY29uZi92ZXJzaW9uX3NlY3VyaXR5LnR4dDxicj5wdWJsaWMvcGx1Z2lucy9sYXllci12My4xLjAvdGhlbWUvZGVmYXVsdC9sYXllci5jc3M8YnI+cHVibGljL3BsdWdpbnMvVWVkaXRvci9waHAvY29uZmlnLmpzb248YnI+cHVibGljL3BsdWdpbnMvVWVkaXRvci91ZWRpdG9yLmFsbC5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfc3BjYXJ0LmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL3RhZ19jb2xsZWN0aW9uX2xpc3QuanM8YnI+cHVibGljL3N0YXRpYy9jb21tb24vanMvdGFnX2NvbW1lbnQuanM8YnI+cHVibGljL3N0YXRpYy9jb21tb24vanMvdmlld19hcmNyYW5rLmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL3RhZ192aWRlb2xpc3QuanM8YnI+cHVibGljL3N0YXRpYy9jb21tb24vanMvdGFnX3NwcGF5YXBpbGlzdC5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfc3BwdXJjaGFzZS5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfZ2xvYmFsLmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL3Nob3BfYWRkX2FkZHJfdjIuanM8YnI+cHVibGljL3N0YXRpYy9jb21tb24vanMvdGFnX3NwYWRkcmVzcy5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfc3BwYXlhcGlsaXN0X3YyLmpzPGJyPnB1YmxpYy9zdGF0aWMvY29tbW9uL2pzL3RhZ191c2VyaW5mby5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9qcy90YWdfc3BzdWJtaXRvcmRlcl92Mi5qczxicj5wdWJsaWMvc3RhdGljL2NvbW1vbi9pbWFnZXMvc3Rhci5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9jc3MvbWFpbi5jc3M8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9qcy9nbG9iYWwuanM8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9qcy91c2Vyc191cGdyYWRlLmpzPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vanMvdXBncmFkZS5qczxicj5wdWJsaWMvc3RhdGljL2FkbWluL2ltYWdlcy9zbXMucG5nPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vaW1hZ2VzL2FkX3R5cGVfaHRtbC5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvc3Rhci5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvYWRfdHlwZV9tZWRpYS5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvYmFsYW5jZS5wbmc8YnI+cHVibGljL3N0YXRpYy9hZG1pbi9pbWFnZXMvZW1haWwucG5nPGJyPnB1YmxpYy9zdGF0aWMvYWRtaW4vaW1hZ2VzL25vdGlmeS5wbmc8YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vycy9wYXlfcmVjaGFyZ2VfdHlwZV9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzL3BheV9yZWNoYXJnZV90eXBlLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX2NlbnRyZV9maWVsZF9leHRlbmRfbS5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19yZWdfZmllbGRfZXh0ZW5kLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3BheV9yZWNoYXJnZV90eXBlX20uaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfbGVmdG1lbnUuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfY2VudHJlX2ZpZWxkX21vYmlsZV9tLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX3JlZ19maWVsZF9leHRlbmRfbS5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19yZWxlYXNlX2ZpZWxkLmh0bTxicj5wdWJsaWMvc3RhdGljL3RlbXBsYXRlL3VzZXJzX3YyL3VzZXJzX2NlbnRyZV9maWVsZF9tb2JpbGUuaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvdXNlcnNfY2VudHJlX2ZpZWxkX2V4dGVuZC5odG08YnI+cHVibGljL3N0YXRpYy90ZW1wbGF0ZS91c2Vyc192Mi91c2Vyc19yZWxlYXNlX2ZpZWxkX20uaHRtPGJyPnB1YmxpYy9zdGF0aWMvdGVtcGxhdGUvdXNlcnNfdjIvcGF5X3JlY2hhcmdlX3R5cGUuaHRt', 'system', '', 'cn', '0', '1616460841');
 INSERT INTO `ey_config` VALUES ('247', 'syn_admin_logic_video_addfields', '5', 'syn', '', 'cn', '0', '1614152870');
 INSERT INTO `ey_config` VALUES ('248', 'syn_admin_logic_add_tag', '1', 'syn', '', 'cn', '0', '1591957363');
 INSERT INTO `ey_config` VALUES ('249', 'syn_admin_logic_users_parameter', '1', 'syn', '', 'cn', '0', '1591957363');
@@ -1231,7 +1356,7 @@ INSERT INTO `ey_config` VALUES ('227', 'seo_html_arcdir', '', 'seo', '', 'cn', '
 INSERT INTO `ey_config` VALUES ('228', 'seo_html_listname', '2', 'seo', '', 'cn', '0', '1567578996');
 INSERT INTO `ey_config` VALUES ('229', 'seo_html_pagename', '2', 'seo', '', 'cn', '0', '1567578996');
 INSERT INTO `ey_config` VALUES ('230', 'seo_force_inlet', '1', 'seo', '', 'cn', '0', '1567578996');
-INSERT INTO `ey_config` VALUES ('193', 'system_version', 'v1.5.1', 'system', '', 'cn', '0', '1610334644');
+INSERT INTO `ey_config` VALUES ('193', 'system_version', 'v1.5.2', 'system', '', 'cn', '0', '1616460894');
 INSERT INTO `ey_config` VALUES ('195', 'web_users_switch', '1', 'web', '', 'cn', '0', '1563498413');
 INSERT INTO `ey_config` VALUES ('199', 'system_correctarctypedirpath', '1', 'system', '', 'cn', '0', '1563503940');
 INSERT INTO `ey_config` VALUES ('203', 'web_attr_13', '/abf/uploads/allimg/20210115/1-210115153Z9511.png', 'web', '', 'cn', '0', '1610696352');
@@ -1240,7 +1365,7 @@ INSERT INTO `ey_config` VALUES ('235', 'system_robots_edit', '1', 'system', '', 
 INSERT INTO `ey_config` VALUES ('237', 'syn_gb_attribute_showlist', '1', 'syn', '', 'cn', '0', '1576764161');
 INSERT INTO `ey_config` VALUES ('238', 'system_smtp_tpl_5', '1', 'system', '', 'cn', '0', '1587364685');
 INSERT INTO `ey_config` VALUES ('240', 'syn_admin_logic_sms_template', '1', 'syn', '', 'cn', '0', '1591262356');
-INSERT INTO `ey_config` VALUES ('241', 'php_weapp_plugin_open', '1', 'php', '', 'cn', '0', '1614152875');
+INSERT INTO `ey_config` VALUES ('241', 'php_weapp_plugin_open', '1', 'php', '', 'cn', '0', '1616490075');
 INSERT INTO `ey_config` VALUES ('243', 'syn_admin_logic_unlink', '1', 'syn', '', 'cn', '0', '1591262356');
 INSERT INTO `ey_config` VALUES ('244', 'syn_admin_logic_update_basic', '1', 'syn', '', 'cn', '0', '1591262356');
 INSERT INTO `ey_config` VALUES ('245', 'syn_admin_logic_update_tag', '1', 'syn', '', 'cn', '0', '1591262356');
@@ -1268,8 +1393,8 @@ INSERT INTO `ey_config` VALUES ('302', 'web_loginlogo', '/public/static/admin/im
 INSERT INTO `ey_config` VALUES ('303', 'web_loginbgimg', '/public/static/admin/images/login-bg.jpg', 'web', '', 'cn', '0', '1610352403');
 INSERT INTO `ey_config` VALUES ('304', 'syn_admin_logic_1608884981', '1', 'syn', '', 'cn', '0', '1610352406');
 INSERT INTO `ey_config` VALUES ('305', 'web_users_tpl_theme', '', 'web', '', 'cn', '0', '1610352449');
-INSERT INTO `ey_config` VALUES ('272', 'php_serviceinfo', 'dc9cAAUIU1RSCQBSUQ0CBFQEVQgIUgUBBgJXUABMRgJcBQESDxpBSEBOVQMRSWoRCEFWUV5sXkABXEQMBko', 'php', '', 'cn', '0', '1614152875');
-INSERT INTO `ey_config` VALUES ('273', 'php_servicemeal', '1', 'php', '', 'cn', '0', '1610334637');
+INSERT INTO `ey_config` VALUES ('272', 'php_serviceinfo', '6c17VQgAVQFUVVJWVFUHBARVDlBXWgIDAgVUBVRNFgVZAlBHAhJHHUYSBwcUQzlCWxFfCF9nX0ZRXEQNVxoWB0MSXQpKVgxdAQgRAUYJRG5CXFoHBmRFAwYBVmsTA1ZfDjpAUl4FVG0RUQdWBm8TClFTXD1EDFUHB24TAwMHVTpDUQdRAGwQB1ddWjoRBVEGBDhNVwQAB2pBBgNRUGpBAFBWBEcUEgREEA0NFAlAAQMVXho9RABSUwFuEwJUD1I6Q14FA1xsEAUBBlc6EQpQBwc4TVQEDAZqQQYDBgdqQVAFXg05TQZSBVc5F1NTVwBuQlEMUVVkRVBSAlcVShRVE0IOWhdVQwIDRl9AOhELBFcCOE1UAwFWakEKVlECakFSUwUAOU0JUwRUORdSAQJVbkJQXVBQZEUBBgZeaxMAB14OOkBTDwRWbRFQVQICbxMHA1RcPUReVgYFEEoVB0NADlkUWBZfAUsERl9AOhELBFcCOE1UAwFWakEKVlECakFSUwUAOU0JUwRUORdSAQJVbkJQXVBQZEUBBgZeaxMAB14OOkBTDwRWbRFQVQICbxMHA1RcPUReVgYFEBs', 'php', '', 'cn', '0', '1616490075');
+INSERT INTO `ey_config` VALUES ('273', 'php_servicemeal', '0', 'php', '', 'cn', '0', '1616460897');
 INSERT INTO `ey_config` VALUES ('274', 'php_servicecode', '', 'php', '', 'cn', '0', '1610614819');
 INSERT INTO `ey_config` VALUES ('278', 'syn_admin_logic_check_oneself', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('279', 'syn_admin_logic_links_group', '1', 'syn', '', 'cn', '0', '1610334638');
@@ -1277,7 +1402,7 @@ INSERT INTO `ey_config` VALUES ('280', 'sms_type', '1', 'sms', '', 'cn', '0', '1
 INSERT INTO `ey_config` VALUES ('282', 'syn_admin_logic_1608189503', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('306', 'download_select_servername', 'a:6:{i:0;s:12:\"立即下载\";i:1;s:15:\"本地服务器\";i:2;s:15:\"远程服务器\";i:3;s:12:\"百度网盘\";i:4;s:15:\"七牛云存储\";i:5;s:12:\"腾讯网盘\";}', 'download', '', 'cn', '0', '1610439420');
 INSERT INTO `ey_config` VALUES ('285', 'syn_admin_logic_1608191377', '1', 'syn', '', 'cn', '0', '1610334638');
-INSERT INTO `ey_config` VALUES ('286', 'system_paginate_pagesize', '20', 'system', '', 'cn', '0', '1610334638');
+INSERT INTO `ey_config` VALUES ('286', 'system_paginate_pagesize', '100', 'system', '', 'cn', '0', '1616490137');
 INSERT INTO `ey_config` VALUES ('287', 'web_theme_color', '#3398cc', 'web', '', 'cn', '0', '1610357887');
 INSERT INTO `ey_config` VALUES ('288', 'web_assist_color', '#2189be', 'web', '', 'cn', '0', '1610357887');
 INSERT INTO `ey_config` VALUES ('294', 'syn_admin_logic_1609039608', '1', 'syn', '', 'cn', '0', '1610334638');
@@ -1294,6 +1419,10 @@ INSERT INTO `ey_config` VALUES ('314', 'max_filesize', '100', 'basic', '', 'cn',
 INSERT INTO `ey_config` VALUES ('315', 'max_sizeunit', 'MB', 'basic', '', 'cn', '0', '1614152874');
 INSERT INTO `ey_config` VALUES ('316', 'other_arcclick', '500|1000', 'other', '', 'cn', '0', '1614152874');
 INSERT INTO `ey_config` VALUES ('317', 'other_arcdownload', '100|500', 'other', '', 'cn', '0', '1614152874');
+INSERT INTO `ey_config` VALUES ('318', 'syn_admin_logic_balance_pay', '1', 'syn', '', 'cn', '0', '1616460912');
+INSERT INTO `ey_config` VALUES ('319', 'syn_admin_logic_1610086648', '1', 'syn', '', 'cn', '0', '1616460912');
+INSERT INTO `ey_config` VALUES ('320', 'syn_admin_logic_1614829120', '1', 'syn', '', 'cn', '0', '1616460912');
+INSERT INTO `ey_config` VALUES ('321', 'syn_admin_logic_1616123192', '1', 'syn', '', 'cn', '0', '1616460912');
 
 -- -----------------------------
 -- Table structure for `ey_config_attribute`
@@ -2147,6 +2276,22 @@ CREATE TABLE `ey_media_order` (
 
 
 -- -----------------------------
+-- Table structure for `ey_media_play_record`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_media_play_record`;
+CREATE TABLE `ey_media_play_record` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `users_id` int(10) DEFAULT '0' COMMENT '用户id',
+  `aid` int(10) DEFAULT '0' COMMENT '课程id',
+  `file_id` int(10) DEFAULT '0' COMMENT '文件id',
+  `play_time` int(10) DEFAULT '0' COMMENT '播放时间',
+  `add_time` int(10) DEFAULT '0' COMMENT '添加时间',
+  `update_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='视频播放时长表';
+
+
+-- -----------------------------
 -- Table structure for `ey_pay_api_config`
 -- -----------------------------
 DROP TABLE IF EXISTS `ey_pay_api_config`;
@@ -2167,8 +2312,8 @@ CREATE TABLE `ey_pay_api_config` (
 -- -----------------------------
 -- Records of `ey_pay_api_config`
 -- -----------------------------
-INSERT INTO `ey_pay_api_config` VALUES ('1', '微信支付', 'wechat', '', 'a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}', '1', '1', 'cn', '1590111253', '1590661409');
-INSERT INTO `ey_pay_api_config` VALUES ('2', '支付宝支付', 'alipay', '', 'a:2:{i:0;s:1:\"1\";i:1;s:1:\"2\";}', '1', '1', 'cn', '1590111253', '1590662059');
+INSERT INTO `ey_pay_api_config` VALUES ('1', '微信支付', 'wechat', 'a:4:{s:14:\"is_open_wechat\";s:1:\"1\";s:5:\"appid\";s:0:\"\";s:5:\"mchid\";s:0:\"\";s:3:\"key\";s:0:\"\";}', 'a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}', '1', '1', 'cn', '1590111253', '1616490076');
+INSERT INTO `ey_pay_api_config` VALUES ('2', '支付宝支付', 'alipay', 'a:8:{s:14:\"is_open_alipay\";s:1:\"1\";s:7:\"version\";s:1:\"0\";s:6:\"app_id\";s:0:\"\";s:20:\"merchant_private_key\";s:0:\"\";s:17:\"alipay_public_key\";s:0:\"\";s:7:\"account\";s:0:\"\";s:4:\"code\";s:0:\"\";s:2:\"id\";s:0:\"\";}', 'a:2:{i:0;s:1:\"1\";i:1;s:1:\"2\";}', '1', '1', 'cn', '1590111253', '1616490080');
 
 -- -----------------------------
 -- Table structure for `ey_product_attr`
@@ -2190,18 +2335,6 @@ CREATE TABLE `ey_product_attr` (
 -- -----------------------------
 -- Records of `ey_product_attr`
 -- -----------------------------
-INSERT INTO `ey_product_attr` VALUES ('5', '28', '5', '13.3', '0', '1526613498', '1526613498');
-INSERT INTO `ey_product_attr` VALUES ('6', '28', '6', '3KG', '0', '1526613498', '1526613498');
-INSERT INTO `ey_product_attr` VALUES ('7', '29', '7', 'AKG&amp;HUAWEI', '0', '1526613820', '1526613820');
-INSERT INTO `ey_product_attr` VALUES ('8', '29', '8', '支持', '0', '1526613820', '1526613820');
-INSERT INTO `ey_product_attr` VALUES ('17', '37', '2', '苹果', '', '1527507984', '1527507984');
-INSERT INTO `ey_product_attr` VALUES ('18', '37', '1', '牛逼', '', '1527507984', '1527507984');
-INSERT INTO `ey_product_attr` VALUES ('19', '37', '3', '触摸', '', '1527507984', '1527507984');
-INSERT INTO `ey_product_attr` VALUES ('20', '37', '4', '234234', '', '1527507984', '1527507984');
-INSERT INTO `ey_product_attr` VALUES ('21', '27', '2', 'EMUI 4.1 + Android 6.0', '', '1531726843', '1531726843');
-INSERT INTO `ey_product_attr` VALUES ('22', '27', '1', 'EMUI 4.1', '', '1531726843', '1531726843');
-INSERT INTO `ey_product_attr` VALUES ('23', '27', '3', '虚拟键盘', '', '1531726843', '1531726843');
-INSERT INTO `ey_product_attr` VALUES ('24', '27', '4', 'EDI-AL10', '', '1531726843', '1531726843');
 INSERT INTO `ey_product_attr` VALUES ('25', '53', '17', 'AKG&amp;HUAWEI', '', '1545268991', '1545268991');
 INSERT INTO `ey_product_attr` VALUES ('26', '53', '18', 'Support', '', '1545268991', '1545268991');
 INSERT INTO `ey_product_attr` VALUES ('27', '54', '15', '13.3', '', '1545270139', '1545270139');
@@ -2214,23 +2347,6 @@ INSERT INTO `ey_product_attr` VALUES ('33', '56', '12', 'iOS 9.0', '', '15452706
 INSERT INTO `ey_product_attr` VALUES ('34', '56', '11', '4.7 inch display screen', '', '1545270634', '1545270634');
 INSERT INTO `ey_product_attr` VALUES ('35', '56', '13', 'Virtual keyboard', '', '1545270634', '1545270634');
 INSERT INTO `ey_product_attr` VALUES ('36', '56', '14', '6S', '', '1545270634', '1545270634');
-INSERT INTO `ey_product_attr` VALUES ('37', '89', '19', 'AppleiPhone 8 Plus', '', '1564539669', '1564539669');
-INSERT INTO `ey_product_attr` VALUES ('38', '89', '21', '480.00g', '', '1564539669', '1564539669');
-INSERT INTO `ey_product_attr` VALUES ('39', '89', '23', '中国大陆', '', '1564539669', '1564539669');
-INSERT INTO `ey_product_attr` VALUES ('40', '89', '25', '单卡单待', '', '1564539669', '1564539669');
-INSERT INTO `ey_product_attr` VALUES ('41', '89', '27', '64GB', '', '1564539669', '1564539669');
-INSERT INTO `ey_product_attr` VALUES ('42', '90', '2', 'Android', '', '1564540381', '1564540381');
-INSERT INTO `ey_product_attr` VALUES ('43', '90', '1', '小米UI', '', '1564540381', '1564540381');
-INSERT INTO `ey_product_attr` VALUES ('44', '90', '3', '触摸', '', '1564540381', '1564540381');
-INSERT INTO `ey_product_attr` VALUES ('45', '90', '4', '小米8屏幕指纹版', '', '1564540381', '1564540381');
-INSERT INTO `ey_product_attr` VALUES ('46', '98', '5', '12.2英寸', '', '1565228818', '1565228818');
-INSERT INTO `ey_product_attr` VALUES ('49', '98', '6', '1250g', '', '1565228896', '1565228896');
-INSERT INTO `ey_product_attr` VALUES ('50', '99', '5', '12.2英寸', '', '1565229045', '1565229045');
-INSERT INTO `ey_product_attr` VALUES ('51', '99', '6', '1250g', '', '1565229045', '1565229045');
-INSERT INTO `ey_product_attr` VALUES ('52', '100', '5', '14英寸', '', '1565229252', '1565229252');
-INSERT INTO `ey_product_attr` VALUES ('53', '100', '6', '1.5kg', '', '1565229252', '1565229252');
-INSERT INTO `ey_product_attr` VALUES ('54', '101', '7', 'X1', '', '1565229709', '1565229709');
-INSERT INTO `ey_product_attr` VALUES ('55', '101', '8', '支持', '', '1565229709', '1565229709');
 
 -- -----------------------------
 -- Table structure for `ey_product_attribute`
@@ -2252,22 +2368,6 @@ CREATE TABLE `ey_product_attribute` (
   KEY `cat_id` (`typeid`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COMMENT='产品表单属性表';
 
--- -----------------------------
--- Records of `ey_product_attribute`
--- -----------------------------
-INSERT INTO `ey_product_attribute` VALUES ('1', '用户界面', '24', '0', '0', '', '100', 'cn', '1', '1526612774', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('2', '操作系统', '24', '0', '0', '', '10', 'cn', '1', '1526612785', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('3', '键盘类型', '24', '0', '0', '', '100', 'cn', '1', '1526613004', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('4', ' 产品型号', '24', '0', '0', '', '100', 'cn', '1', '1526613011', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('5', '屏幕大小', '26', '0', '0', '', '100', 'cn', '1', '1526613252', '1591263192');
-INSERT INTO `ey_product_attribute` VALUES ('6', '整机净重', '26', '0', '0', '', '100', 'cn', '1', '1526613259', '1591263192');
-INSERT INTO `ey_product_attribute` VALUES ('7', '产品型号', '27', '0', '0', '', '100', 'cn', '1', '1526613668', '1591263204');
-INSERT INTO `ey_product_attribute` VALUES ('8', '支持蓝牙', '27', '0', '0', '', '100', 'cn', '1', '1526613732', '1591263204');
-INSERT INTO `ey_product_attribute` VALUES ('19', '商品名称', '20', '0', '0', '', '100', 'cn', '1', '1564539436', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('21', '商品毛重', '20', '0', '0', '', '100', 'cn', '1', '1564539503', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('23', '商品产地', '20', '0', '0', '', '100', 'cn', '1', '1564539517', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('25', '多卡支持', '20', '0', '0', '', '100', 'cn', '1', '1564539530', '1591263182');
-INSERT INTO `ey_product_attribute` VALUES ('27', '机身内存', '20', '0', '1', '64GB\r\n128GB\r\n256GB', '100', 'cn', '1', '1564539541', '1591263182');
 
 -- -----------------------------
 -- Table structure for `ey_product_content`
@@ -2431,6 +2531,7 @@ CREATE TABLE `ey_product_spec_preset` (
   `preset_mark_id` int(10) DEFAULT '0' COMMENT '预设参数标记ID',
   `preset_name` varchar(100) DEFAULT '' COMMENT '规格名称',
   `preset_value` varchar(100) DEFAULT '' COMMENT '规格值',
+  `spec_sync` tinyint(1) unsigned DEFAULT '0' COMMENT '是否同步到已发布的商品规格：0否，1是。',
   `sort_order` int(10) DEFAULT '100' COMMENT '排序号',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
@@ -2441,9 +2542,9 @@ CREATE TABLE `ey_product_spec_preset` (
 -- -----------------------------
 -- Records of `ey_product_spec_preset`
 -- -----------------------------
-INSERT INTO `ey_product_spec_preset` VALUES ('1', '1', '产品颜色', '红', '100', 'cn', '1565752372', '1565752623');
-INSERT INTO `ey_product_spec_preset` VALUES ('2', '1', '产品颜色', '蓝', '100', 'cn', '1565752372', '1565752623');
-INSERT INTO `ey_product_spec_preset` VALUES ('3', '1', '产品颜色', '黄', '100', 'cn', '1565752372', '1565752623');
+INSERT INTO `ey_product_spec_preset` VALUES ('1', '1', '产品颜色', '红', '0', '100', 'cn', '1565752372', '1565752623');
+INSERT INTO `ey_product_spec_preset` VALUES ('2', '1', '产品颜色', '蓝', '0', '100', 'cn', '1565752372', '1565752623');
+INSERT INTO `ey_product_spec_preset` VALUES ('3', '1', '产品颜色', '黄', '0', '100', 'cn', '1565752372', '1565752623');
 
 -- -----------------------------
 -- Table structure for `ey_product_spec_value`
@@ -2456,6 +2557,10 @@ CREATE TABLE `ey_product_spec_value` (
   `spec_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '规格价格',
   `spec_stock` int(10) NOT NULL DEFAULT '0' COMMENT '规格库存',
   `spec_sales_num` int(10) NOT NULL DEFAULT '0' COMMENT '销售量',
+  `seckill_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '秒杀价格',
+  `seckill_stock` int(10) NOT NULL DEFAULT '0' COMMENT '秒杀库存(独立库存，与spec_stock库存不同步)',
+  `seckill_sales_num` int(10) NOT NULL DEFAULT '0' COMMENT '秒杀销售量',
+  `is_seckill` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-普通 1-秒杀',
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
@@ -2465,39 +2570,39 @@ CREATE TABLE `ey_product_spec_value` (
 -- -----------------------------
 -- Records of `ey_product_spec_value`
 -- -----------------------------
-INSERT INTO `ey_product_spec_value` VALUES ('120', '27', '3', '1999.00', '996', '3', 'cn', '1610615791', '1610615791');
-INSERT INTO `ey_product_spec_value` VALUES ('119', '27', '2', '1959.00', '997', '2', 'cn', '1610615791', '1610615791');
-INSERT INTO `ey_product_spec_value` VALUES ('118', '27', '1', '1909.00', '998', '1', 'cn', '1610615791', '1610615791');
-INSERT INTO `ey_product_spec_value` VALUES ('111', '37', '3', '3200.00', '999', '0', 'cn', '1610615751', '1610615751');
-INSERT INTO `ey_product_spec_value` VALUES ('110', '37', '2', '3169.00', '999', '0', 'cn', '1610615751', '1610615751');
-INSERT INTO `ey_product_spec_value` VALUES ('109', '37', '1', '3109.00', '999', '0', 'cn', '1610615751', '1610615751');
-INSERT INTO `ey_product_spec_value` VALUES ('108', '90', '3', '1799.00', '999', '0', 'cn', '1610615660', '1610615660');
-INSERT INTO `ey_product_spec_value` VALUES ('107', '90', '2', '1759.00', '999', '0', 'cn', '1610615660', '1610615660');
-INSERT INTO `ey_product_spec_value` VALUES ('106', '90', '1', '1709.00', '999', '0', 'cn', '1610615660', '1610615660');
-INSERT INTO `ey_product_spec_value` VALUES ('93', '102', '3', '339.00', '999', '0', 'cn', '1610615586', '1610615586');
-INSERT INTO `ey_product_spec_value` VALUES ('92', '102', '2', '329.00', '999', '0', 'cn', '1610615586', '1610615586');
-INSERT INTO `ey_product_spec_value` VALUES ('91', '102', '1', '319.00', '999', '0', 'cn', '1610615586', '1610615586');
-INSERT INTO `ey_product_spec_value` VALUES ('90', '103', '3', '599.00', '999', '0', 'cn', '1610615580', '1610615580');
-INSERT INTO `ey_product_spec_value` VALUES ('89', '103', '2', '569.00', '999', '0', 'cn', '1610615580', '1610615580');
-INSERT INTO `ey_product_spec_value` VALUES ('88', '103', '1', '539.00', '999', '0', 'cn', '1610615580', '1610615580');
-INSERT INTO `ey_product_spec_value` VALUES ('96', '101', '3', '99.00', '999', '0', 'cn', '1610615602', '1610615602');
-INSERT INTO `ey_product_spec_value` VALUES ('95', '101', '2', '99.00', '999', '0', 'cn', '1610615602', '1610615602');
-INSERT INTO `ey_product_spec_value` VALUES ('94', '101', '1', '99.00', '999', '0', 'cn', '1610615602', '1610615602');
-INSERT INTO `ey_product_spec_value` VALUES ('114', '29', '3', '198.00', '999', '0', 'cn', '1610615773', '1610615773');
-INSERT INTO `ey_product_spec_value` VALUES ('113', '29', '2', '198.00', '999', '0', 'cn', '1610615773', '1610615773');
-INSERT INTO `ey_product_spec_value` VALUES ('112', '29', '1', '198.00', '999', '0', 'cn', '1610615773', '1610615773');
-INSERT INTO `ey_product_spec_value` VALUES ('117', '28', '3', '4600.00', '999', '0', 'cn', '1610615782', '1610615782');
-INSERT INTO `ey_product_spec_value` VALUES ('116', '28', '2', '4560.00', '999', '0', 'cn', '1610615782', '1610615782');
-INSERT INTO `ey_product_spec_value` VALUES ('115', '28', '1', '4530.00', '999', '0', 'cn', '1610615782', '1610615782');
-INSERT INTO `ey_product_spec_value` VALUES ('105', '98', '3', '6999.00', '999', '0', 'cn', '1610615629', '1610615629');
-INSERT INTO `ey_product_spec_value` VALUES ('104', '98', '2', '6969.00', '999', '0', 'cn', '1610615629', '1610615629');
-INSERT INTO `ey_product_spec_value` VALUES ('103', '98', '1', '6939.00', '999', '0', 'cn', '1610615629', '1610615629');
-INSERT INTO `ey_product_spec_value` VALUES ('102', '99', '3', '5269.00', '999', '0', 'cn', '1610615619', '1610615619');
-INSERT INTO `ey_product_spec_value` VALUES ('101', '99', '2', '5299.00', '999', '0', 'cn', '1610615619', '1610615619');
-INSERT INTO `ey_product_spec_value` VALUES ('100', '99', '1', '5239.00', '999', '0', 'cn', '1610615619', '1610615619');
-INSERT INTO `ey_product_spec_value` VALUES ('99', '100', '3', '5499.00', '999', '0', 'cn', '1610615609', '1610615609');
-INSERT INTO `ey_product_spec_value` VALUES ('98', '100', '2', '5499.00', '999', '0', 'cn', '1610615609', '1610615609');
-INSERT INTO `ey_product_spec_value` VALUES ('97', '100', '1', '5499.00', '999', '0', 'cn', '1610615609', '1610615609');
+INSERT INTO `ey_product_spec_value` VALUES ('120', '27', '3', '1999.00', '996', '3', '0.00', '0', '0', '0', 'cn', '1610615791', '1610615791');
+INSERT INTO `ey_product_spec_value` VALUES ('119', '27', '2', '1959.00', '997', '2', '0.00', '0', '0', '0', 'cn', '1610615791', '1610615791');
+INSERT INTO `ey_product_spec_value` VALUES ('118', '27', '1', '1909.00', '998', '1', '0.00', '0', '0', '0', 'cn', '1610615791', '1610615791');
+INSERT INTO `ey_product_spec_value` VALUES ('111', '37', '3', '3200.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615751', '1610615751');
+INSERT INTO `ey_product_spec_value` VALUES ('110', '37', '2', '3169.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615751', '1610615751');
+INSERT INTO `ey_product_spec_value` VALUES ('109', '37', '1', '3109.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615751', '1610615751');
+INSERT INTO `ey_product_spec_value` VALUES ('108', '90', '3', '1799.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615660', '1610615660');
+INSERT INTO `ey_product_spec_value` VALUES ('107', '90', '2', '1759.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615660', '1610615660');
+INSERT INTO `ey_product_spec_value` VALUES ('106', '90', '1', '1709.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615660', '1610615660');
+INSERT INTO `ey_product_spec_value` VALUES ('93', '102', '3', '339.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615586', '1610615586');
+INSERT INTO `ey_product_spec_value` VALUES ('92', '102', '2', '329.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615586', '1610615586');
+INSERT INTO `ey_product_spec_value` VALUES ('91', '102', '1', '319.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615586', '1610615586');
+INSERT INTO `ey_product_spec_value` VALUES ('90', '103', '3', '599.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615580', '1610615580');
+INSERT INTO `ey_product_spec_value` VALUES ('89', '103', '2', '569.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615580', '1610615580');
+INSERT INTO `ey_product_spec_value` VALUES ('88', '103', '1', '539.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615580', '1610615580');
+INSERT INTO `ey_product_spec_value` VALUES ('96', '101', '3', '99.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615602', '1610615602');
+INSERT INTO `ey_product_spec_value` VALUES ('95', '101', '2', '99.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615602', '1610615602');
+INSERT INTO `ey_product_spec_value` VALUES ('94', '101', '1', '99.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615602', '1610615602');
+INSERT INTO `ey_product_spec_value` VALUES ('114', '29', '3', '198.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615773', '1610615773');
+INSERT INTO `ey_product_spec_value` VALUES ('113', '29', '2', '198.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615773', '1610615773');
+INSERT INTO `ey_product_spec_value` VALUES ('112', '29', '1', '198.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615773', '1610615773');
+INSERT INTO `ey_product_spec_value` VALUES ('117', '28', '3', '4600.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615782', '1610615782');
+INSERT INTO `ey_product_spec_value` VALUES ('116', '28', '2', '4560.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615782', '1610615782');
+INSERT INTO `ey_product_spec_value` VALUES ('115', '28', '1', '4530.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615782', '1610615782');
+INSERT INTO `ey_product_spec_value` VALUES ('105', '98', '3', '6999.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615629', '1610615629');
+INSERT INTO `ey_product_spec_value` VALUES ('104', '98', '2', '6969.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615629', '1610615629');
+INSERT INTO `ey_product_spec_value` VALUES ('103', '98', '1', '6939.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615629', '1610615629');
+INSERT INTO `ey_product_spec_value` VALUES ('102', '99', '3', '5269.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615619', '1610615619');
+INSERT INTO `ey_product_spec_value` VALUES ('101', '99', '2', '5299.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615619', '1610615619');
+INSERT INTO `ey_product_spec_value` VALUES ('100', '99', '1', '5239.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615619', '1610615619');
+INSERT INTO `ey_product_spec_value` VALUES ('99', '100', '3', '5499.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615609', '1610615609');
+INSERT INTO `ey_product_spec_value` VALUES ('98', '100', '2', '5499.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615609', '1610615609');
+INSERT INTO `ey_product_spec_value` VALUES ('97', '100', '1', '5499.00', '999', '0', '0.00', '0', '0', '0', 'cn', '1610615609', '1610615609');
 
 -- -----------------------------
 -- Table structure for `ey_quickentry`
@@ -2524,14 +2629,14 @@ CREATE TABLE `ey_quickentry` (
 -- -----------------------------
 -- Records of `ey_quickentry`
 -- -----------------------------
-INSERT INTO `ey_quickentry` VALUES ('1', '产品', '产品列表', '1', 'Product', 'index', 'channel=2', '1', '0', '1', '3', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('2', '下载', '下载列表', '1', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('3', '文章', '文章列表', '1', 'Article', 'index', 'channel=1', '1', '0', '1', '6', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('4', '图集', '图集列表', '1', 'Images', 'index', 'channel=3', '1', '0', '1', '7', '1569232484', '1614152869');
+INSERT INTO `ey_quickentry` VALUES ('1', '产品', '产品列表', '1', 'Product', 'index', 'channel=2', '1', '0', '1', '3', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('2', '下载', '下载列表', '1', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('3', '文章', '文章列表', '1', 'Article', 'index', 'channel=1', '1', '0', '1', '6', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('4', '图集', '图集列表', '1', 'Images', 'index', 'channel=3', '1', '0', '1', '7', '1569232484', '1616490070');
 INSERT INTO `ey_quickentry` VALUES ('5', '内容管理', '内容列表', '1', 'Archives', 'index', '', '0', '0', '1', '13', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('7', '回收站', '回收站', '1', 'RecycleBin', 'archives_index', '', '0', '1', '1', '4', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('8', '栏目管理', '栏目管理', '1', 'Arctype', 'index', '', '0', '0', '1', '5', '1569232484', '1571893529');
-INSERT INTO `ey_quickentry` VALUES ('9', '留言', '留言列表', '1', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '6', '1569232484', '1614152869');
+INSERT INTO `ey_quickentry` VALUES ('9', '留言', '留言列表', '1', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '6', '1569232484', '1616490070');
 INSERT INTO `ey_quickentry` VALUES ('10', '网站信息', '网站信息', '1', 'System', 'web', '', '0', '0', '1', '7', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('11', '水印配置', '水印配置', '1', 'System', 'water', '', '0', '1', '1', '8', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('12', '缩略图配置', '缩略图配置', '1', 'System', 'thumb', '', '0', '1', '1', '9', '1569232484', '1571893529');
@@ -2545,22 +2650,22 @@ INSERT INTO `ey_quickentry` VALUES ('19', '友情链接', '友情链接', '1', '
 INSERT INTO `ey_quickentry` VALUES ('20', 'Tags管理', 'Tags管理', '1', 'Tags', 'index', '', '0', '1', '1', '14', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('21', '管理员管理', '管理员管理', '1', 'Admin', 'index', '', '0', '0', '1', '15', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('22', '接口配置', '接口配置', '1', 'System', 'api_conf', '', '0', '1', '1', '16', '1569232484', '1571893529');
-INSERT INTO `ey_quickentry` VALUES ('23', '文章', '文章列表', '2', 'Article', 'index', 'channel=1', '1', '1', '1', '1', '1569310798', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('24', '产品', '产品列表', '2', 'Product', 'index', 'channel=2', '1', '0', '1', '2', '1569310798', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('25', '下载', '下载列表', '2', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569310798', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('26', '图集', '图集列表', '2', 'Images', 'index', 'channel=3', '1', '0', '1', '3', '1569310798', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('27', '留言', '留言列表', '2', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '5', '1569310798', '1614152869');
+INSERT INTO `ey_quickentry` VALUES ('23', '文章', '文章列表', '2', 'Article', 'index', 'channel=1', '1', '1', '1', '1', '1569310798', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('24', '产品', '产品列表', '2', 'Product', 'index', 'channel=2', '1', '0', '1', '2', '1569310798', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('25', '下载', '下载列表', '2', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569310798', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('26', '图集', '图集列表', '2', 'Images', 'index', 'channel=3', '1', '0', '1', '3', '1569310798', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('27', '留言', '留言列表', '2', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '5', '1569310798', '1616490070');
 INSERT INTO `ey_quickentry` VALUES ('28', '广告', '广告管理', '2', 'AdPosition', 'index', '', '0', '1', '1', '8', '1569232484', '1571898872');
 INSERT INTO `ey_quickentry` VALUES ('29', '友情链接', '友情链接', '2', 'Links', 'index', '', '0', '1', '1', '9', '1569232484', '1571898872');
 INSERT INTO `ey_quickentry` VALUES ('30', 'Tags标签', 'Tags管理', '2', 'Tags', 'index', '', '0', '1', '1', '10', '1569232484', '1571898872');
-INSERT INTO `ey_quickentry` VALUES ('31', '会员', '会员管理', '2', 'Member', 'users_index', '', '0', '0', '1', '7', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('32', '插件应用', '插件应用', '1', 'Weapp', 'index', '', '0', '0', '1', '17', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('33', '会员中心', '会员中心', '1', 'Member', 'users_index', '', '0', '0', '1', '18', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('34', '商城中心', '商城中心', '1', 'Shop', 'index', '', '0', '0', '1', '19', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('35', '订单', '订单管理', '2', 'Shop', 'index', '', '0', '0', '1', '6', '1569232484', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('36', '人才招聘', '人才招聘列表', '1', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233851', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('37', '人才招聘', '人才招聘列表', '2', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233853', '1614152869');
-INSERT INTO `ey_quickentry` VALUES ('39', '专题', '专题列表', '2', 'Special', 'index', 'channel=7', '1', '0', '0', '7', '1600078966', '1614152869');
+INSERT INTO `ey_quickentry` VALUES ('31', '会员', '会员管理', '2', 'Member', 'users_index', '', '0', '0', '1', '7', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('32', '插件应用', '插件应用', '1', 'Weapp', 'index', '', '0', '0', '1', '17', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('33', '会员中心', '会员中心', '1', 'Member', 'users_index', '', '0', '0', '1', '18', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('34', '商城中心', '商城中心', '1', 'Shop', 'index', '', '0', '0', '1', '19', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('35', '订单', '订单管理', '2', 'Shop', 'index', '', '0', '0', '1', '6', '1569232484', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('36', '人才招聘', '人才招聘列表', '1', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233851', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('37', '人才招聘', '人才招聘列表', '2', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233853', '1616490070');
+INSERT INTO `ey_quickentry` VALUES ('39', '专题', '专题列表', '2', 'Special', 'index', 'channel=7', '1', '0', '0', '7', '1600078966', '1616490070');
 
 -- -----------------------------
 -- Table structure for `ey_recruit_content`
@@ -2606,13 +2711,13 @@ CREATE TABLE `ey_region` (
   KEY `parent_id` (`parent_id`) USING BTREE,
   KEY `level` (`level`) USING BTREE,
   KEY `initial` (`initial`)
-) ENGINE=MyISAM AUTO_INCREMENT=47931 DEFAULT CHARSET=utf8 COMMENT='区域表';
+) ENGINE=MyISAM AUTO_INCREMENT=47964 DEFAULT CHARSET=utf8 COMMENT='区域表';
 
 -- -----------------------------
 -- Records of `ey_region`
 -- -----------------------------
 INSERT INTO `ey_region` VALUES ('1', '北京市', '1', '0', 'B');
-INSERT INTO `ey_region` VALUES ('2', '市辖区', '2', '1', 'S');
+INSERT INTO `ey_region` VALUES ('2', '北京市', '2', '1', 'B');
 INSERT INTO `ey_region` VALUES ('3', '东城区', '3', '2', 'D');
 INSERT INTO `ey_region` VALUES ('14', '西城区', '3', '2', 'X');
 INSERT INTO `ey_region` VALUES ('22', '崇文区', '3', '2', 'C');
@@ -2629,11 +2734,10 @@ INSERT INTO `ey_region` VALUES ('227', '昌平区', '3', '2', 'C');
 INSERT INTO `ey_region` VALUES ('245', '大兴区', '3', '2', 'D');
 INSERT INTO `ey_region` VALUES ('264', '怀柔区', '3', '2', 'H');
 INSERT INTO `ey_region` VALUES ('281', '平谷区', '3', '2', 'P');
-INSERT INTO `ey_region` VALUES ('300', '县', '2', '1', 'X');
-INSERT INTO `ey_region` VALUES ('301', '密云县', '3', '300', 'M');
-INSERT INTO `ey_region` VALUES ('322', '延庆县', '3', '300', 'Y');
+INSERT INTO `ey_region` VALUES ('301', '密云区', '3', '2', 'M');
+INSERT INTO `ey_region` VALUES ('322', '延庆区', '3', '2', 'Y');
 INSERT INTO `ey_region` VALUES ('338', '天津市', '1', '0', 'T');
-INSERT INTO `ey_region` VALUES ('339', '市辖区', '2', '338', 'S');
+INSERT INTO `ey_region` VALUES ('339', '天津市', '2', '338', 'T');
 INSERT INTO `ey_region` VALUES ('340', '和平区', '3', '339', 'H');
 INSERT INTO `ey_region` VALUES ('347', '河东区', '3', '339', 'H');
 INSERT INTO `ey_region` VALUES ('361', '河西区', '3', '339', 'H');
@@ -2649,10 +2753,9 @@ INSERT INTO `ey_region` VALUES ('473', '津南区', '3', '339', 'J');
 INSERT INTO `ey_region` VALUES ('488', '北辰区', '3', '339', 'B');
 INSERT INTO `ey_region` VALUES ('504', '武清区', '3', '339', 'W');
 INSERT INTO `ey_region` VALUES ('538', '宝坻区', '3', '339', 'B');
-INSERT INTO `ey_region` VALUES ('569', '市辖县', '2', '338', 'S');
-INSERT INTO `ey_region` VALUES ('570', '宁河县', '3', '569', 'N');
-INSERT INTO `ey_region` VALUES ('586', '静海县', '3', '569', 'J');
-INSERT INTO `ey_region` VALUES ('608', '蓟县', '3', '569', 'J');
+INSERT INTO `ey_region` VALUES ('570', '宁河区', '3', '339', 'N');
+INSERT INTO `ey_region` VALUES ('586', '静海区', '3', '339', 'J');
+INSERT INTO `ey_region` VALUES ('608', '蓟州区', '3', '339', 'J');
 INSERT INTO `ey_region` VALUES ('636', '河北省', '1', '0', 'H');
 INSERT INTO `ey_region` VALUES ('637', '石家庄市', '2', '636', 'S');
 INSERT INTO `ey_region` VALUES ('638', '市辖区', '3', '637', 'S');
@@ -3478,7 +3581,7 @@ INSERT INTO `ey_region` VALUES ('10515', '呼玛县', '3', '10483', 'H');
 INSERT INTO `ey_region` VALUES ('10525', '塔河县', '3', '10483', 'T');
 INSERT INTO `ey_region` VALUES ('10534', '漠河县', '3', '10483', 'M');
 INSERT INTO `ey_region` VALUES ('10543', '上海市', '1', '0', 'S');
-INSERT INTO `ey_region` VALUES ('10544', '市辖区', '2', '10543', 'S');
+INSERT INTO `ey_region` VALUES ('10544', '上海市', '2', '10543', 'S');
 INSERT INTO `ey_region` VALUES ('10545', '黄浦区', '3', '10544', 'H');
 INSERT INTO `ey_region` VALUES ('10555', '卢湾区', '3', '10544', 'L');
 INSERT INTO `ey_region` VALUES ('10560', '徐汇区', '3', '10544', 'X');
@@ -3497,8 +3600,7 @@ INSERT INTO `ey_region` VALUES ('10715', '松江区', '3', '10544', 'S');
 INSERT INTO `ey_region` VALUES ('10735', '青浦区', '3', '10544', 'Q');
 INSERT INTO `ey_region` VALUES ('10747', '南汇区', '3', '10544', 'N');
 INSERT INTO `ey_region` VALUES ('10765', '奉贤区', '3', '10544', 'F');
-INSERT INTO `ey_region` VALUES ('10779', '县', '2', '10543', 'X');
-INSERT INTO `ey_region` VALUES ('10780', '崇明县', '3', '10779', 'C');
+INSERT INTO `ey_region` VALUES ('10780', '崇明区', '3', '10544', 'C');
 INSERT INTO `ey_region` VALUES ('10808', '江苏省', '1', '0', 'J');
 INSERT INTO `ey_region` VALUES ('10809', '南京市', '2', '10808', 'N');
 INSERT INTO `ey_region` VALUES ('10810', '市辖区', '3', '10809', 'S');
@@ -5363,7 +5465,7 @@ INSERT INTO `ey_region` VALUES ('47499', '香港岛', '2', '47494', 'X');
 INSERT INTO `ey_region` VALUES ('31927', '中沙群岛的岛礁及其海域', '3', '31924', 'Z');
 INSERT INTO `ey_region` VALUES ('47498', '九龙', '2', '47494', 'J');
 INSERT INTO `ey_region` VALUES ('31929', '重庆市', '1', '0', 'Z');
-INSERT INTO `ey_region` VALUES ('31930', '市辖区', '2', '31929', 'S');
+INSERT INTO `ey_region` VALUES ('31930', '重庆市', '2', '31929', 'C');
 INSERT INTO `ey_region` VALUES ('31931', '万州区', '3', '31930', 'W');
 INSERT INTO `ey_region` VALUES ('31984', '涪陵区', '3', '31930', 'F');
 INSERT INTO `ey_region` VALUES ('32031', '渝中区', '3', '31930', 'Y');
@@ -6842,6 +6944,39 @@ INSERT INTO `ey_region` VALUES ('47927', '芳苑乡', '3', '47550', 'F');
 INSERT INTO `ey_region` VALUES ('47928', '二水乡', '3', '47550', 'E');
 INSERT INTO `ey_region` VALUES ('47929', '莲池区', '3', '1772', 'L');
 INSERT INTO `ey_region` VALUES ('47930', '竞秀区', '3', '1772', 'J');
+INSERT INTO `ey_region` VALUES ('47931', '常平镇', '3', '29855', 'C');
+INSERT INTO `ey_region` VALUES ('47932', '茶山镇', '3', '29855', 'C');
+INSERT INTO `ey_region` VALUES ('47933', '大朗镇', '3', '29855', 'D');
+INSERT INTO `ey_region` VALUES ('47934', '大岭山镇', '3', '29855', 'D');
+INSERT INTO `ey_region` VALUES ('47935', '道滘镇', '3', '29855', 'D');
+INSERT INTO `ey_region` VALUES ('47936', '东城街道', '3', '29855', 'D');
+INSERT INTO `ey_region` VALUES ('47937', '东坑镇', '3', '29855', 'D');
+INSERT INTO `ey_region` VALUES ('47938', '凤岗镇', '3', '29855', 'F');
+INSERT INTO `ey_region` VALUES ('47939', '高埗镇', '3', '29855', 'G');
+INSERT INTO `ey_region` VALUES ('47940', '莞城街道', '3', '29855', 'G');
+INSERT INTO `ey_region` VALUES ('47941', '横沥镇', '3', '29855', 'H');
+INSERT INTO `ey_region` VALUES ('47942', '洪梅镇', '3', '29855', 'H');
+INSERT INTO `ey_region` VALUES ('47943', '厚街镇', '3', '29855', 'H');
+INSERT INTO `ey_region` VALUES ('47944', '黄江镇', '3', '29855', 'H');
+INSERT INTO `ey_region` VALUES ('47945', '虎门镇', '3', '29855', 'H');
+INSERT INTO `ey_region` VALUES ('47946', '寮步镇', '3', '29855', 'L');
+INSERT INTO `ey_region` VALUES ('47947', '麻涌镇', '3', '29855', 'M');
+INSERT INTO `ey_region` VALUES ('47948', '南城街道', '3', '29855', 'N');
+INSERT INTO `ey_region` VALUES ('47949', '桥头镇', '3', '29855', 'Q');
+INSERT INTO `ey_region` VALUES ('47950', '清溪镇', '3', '29855', 'Q');
+INSERT INTO `ey_region` VALUES ('47951', '企石镇', '3', '29855', 'Q');
+INSERT INTO `ey_region` VALUES ('47952', '沙田镇', '3', '29855', 'S');
+INSERT INTO `ey_region` VALUES ('47953', '石碣镇', '3', '29855', 'S');
+INSERT INTO `ey_region` VALUES ('47954', '石龙镇', '3', '29855', 'S');
+INSERT INTO `ey_region` VALUES ('47955', '石排镇', '3', '29855', 'S');
+INSERT INTO `ey_region` VALUES ('47956', '松山湖管委会', '3', '29855', 'S');
+INSERT INTO `ey_region` VALUES ('47957', '塘厦镇', '3', '29855', 'T');
+INSERT INTO `ey_region` VALUES ('47958', '望牛墩镇', '3', '29855', 'W');
+INSERT INTO `ey_region` VALUES ('47959', '万江街道', '3', '29855', 'W');
+INSERT INTO `ey_region` VALUES ('47960', '谢岗镇', '3', '29855', 'X');
+INSERT INTO `ey_region` VALUES ('47961', '长安镇', '3', '29855', 'Z');
+INSERT INTO `ey_region` VALUES ('47962', '樟木头镇', '3', '29855', 'Z');
+INSERT INTO `ey_region` VALUES ('47963', '中堂镇', '3', '29855', 'Z');
 
 -- -----------------------------
 -- Table structure for `ey_search_word`
@@ -6880,6 +7015,91 @@ CREATE TABLE `ey_setting` (
   PRIMARY KEY (`id`),
   KEY `inc_type` (`inc_type`,`lang`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='系统非全局配置表';
+
+
+-- -----------------------------
+-- Table structure for `ey_sharp_active`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_sharp_active`;
+CREATE TABLE `ey_sharp_active` (
+  `active_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '活动会场ID',
+  `active_date` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '活动日期',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '活动状态(0禁用 1启用)',
+  `is_del` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否删除',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`active_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场表';
+
+
+-- -----------------------------
+-- Table structure for `ey_sharp_active_goods`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_sharp_active_goods`;
+CREATE TABLE `ey_sharp_active_goods` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `active_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '活动会场ID',
+  `active_time_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '活动场次ID',
+  `aid` int(11) NOT NULL DEFAULT '0' COMMENT '文档id',
+  `sharp_goods_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '秒杀商品ID',
+  `sales_actual` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '实际销量',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场与商品关联表';
+
+
+-- -----------------------------
+-- Table structure for `ey_sharp_active_time`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_sharp_active_time`;
+CREATE TABLE `ey_sharp_active_time` (
+  `active_time_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '场次ID',
+  `active_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '活动会场ID',
+  `active_time` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '场次时间(0点-23点)',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '活动状态(0禁用 1启用)',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`active_time_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场场次表';
+
+
+-- -----------------------------
+-- Table structure for `ey_sharp_goods`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_sharp_goods`;
+CREATE TABLE `ey_sharp_goods` (
+  `sharp_goods_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '秒杀商品ID',
+  `aid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '商品ID->aid',
+  `limit` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '限购数量',
+  `seckill_stock` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '秒杀商品库存总量',
+  `seckill_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '秒杀价格',
+  `sales` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '累积销量',
+  `sort_order` int(11) unsigned NOT NULL DEFAULT '100' COMMENT '商品排序(数字越小越靠前)',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '商品状态(0下架 1上架)',
+  `is_del` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否删除',
+  `is_sku` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1-多规格商品',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`sharp_goods_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-商品表';
+
+
+-- -----------------------------
+-- Table structure for `ey_sharp_setting`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_sharp_setting`;
+CREATE TABLE `ey_sharp_setting` (
+  `key` varchar(30) NOT NULL DEFAULT '' COMMENT '设置项标示',
+  `describe` varchar(255) NOT NULL DEFAULT '' COMMENT '设置项描述',
+  `values` mediumtext NOT NULL COMMENT '设置内容(json格式)',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  UNIQUE KEY `unique_key` (`key`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀设置表';
 
 
 -- -----------------------------
@@ -6923,6 +7143,67 @@ CREATE TABLE `ey_shop_cart` (
   PRIMARY KEY (`cart_id`),
   KEY `users_id` (`users_id`,`product_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='购物车表';
+
+
+-- -----------------------------
+-- Table structure for `ey_shop_coupon`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_shop_coupon`;
+CREATE TABLE `ey_shop_coupon` (
+  `coupon_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `coupon_code` varchar(100) NOT NULL DEFAULT '' COMMENT '优惠券编号',
+  `coupon_name` varchar(100) NOT NULL DEFAULT '' COMMENT '优惠券名称',
+  `coupon_color` varchar(25) NOT NULL DEFAULT '' COMMENT '优惠券颜色',
+  `coupon_form` tinyint(1) NOT NULL DEFAULT '1' COMMENT '优惠券类型 1-满减券',
+  `coupon_type` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '可使用商品(1全站通用，2指定商品，3指定商品分类)',
+  `product_id` varchar(255) NOT NULL DEFAULT '' COMMENT '指定商品ID，在coupon_type=2时使用',
+  `arctype_id` varchar(255) NOT NULL DEFAULT '' COMMENT '指定商品分类ID，在coupon_type=3时使用',
+  `coupon_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '优惠券金额，例如10',
+  `conditions_use` varchar(10) NOT NULL DEFAULT '' COMMENT '优惠券使用条件，例如300',
+  `coupon_stock` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券库存，例如100',
+  `redeem_points` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '兑换优惠券所需积分，为0则表示免费兑换',
+  `redeem_authority` varchar(10) NOT NULL DEFAULT '' COMMENT '兑换权限，存入多个会员等级组ID',
+  `valid_days` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '有效天数，例如30',
+  `start_date` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券开放领取时间',
+  `end_date` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券结束领取时间',
+  `sort_order` int(11) unsigned NOT NULL DEFAULT '100' COMMENT '规格排序号',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '优惠券状态(0=关闭，1=开启)',
+  `use_type` int(1) NOT NULL DEFAULT '1' COMMENT '使用期限 \r\n1-固定日期\r\n 2-领取后当天开始N(valid_days)天内有效\r\n 2-领取后次日开始N(valid_days)天内有效',
+  `use_start_time` int(11) NOT NULL COMMENT '使用期限开始时间',
+  `use_end_time` int(11) NOT NULL COMMENT '使用期限结束时间',
+  `is_del` tinyint(1) DEFAULT '0' COMMENT '0-未删除 1-已删除',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`coupon_id`),
+  KEY `product_id` (`product_id`) USING BTREE,
+  KEY `arctype_id` (`arctype_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='优惠券主表';
+
+
+-- -----------------------------
+-- Table structure for `ey_shop_coupon_use`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_shop_coupon_use`;
+CREATE TABLE `ey_shop_coupon_use` (
+  `use_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `users_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '会员ID',
+  `coupon_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券ID',
+  `coupon_code` varchar(100) NOT NULL DEFAULT '' COMMENT '优惠券编号',
+  `get_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '领取时的IP地址',
+  `get_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券领取时的时间',
+  `use_status` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT '优惠券使用状态(0未使用，1已使用，2已过期，3已冻结)',
+  `use_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券使用时的时间',
+  `start_time` int(10) NOT NULL DEFAULT '0' COMMENT '优惠券有效开始时间',
+  `end_time` int(10) NOT NULL DEFAULT '0' COMMENT '优惠券有效结束时间',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`use_id`),
+  KEY `coupon_id` (`coupon_id`) USING BTREE,
+  KEY `coupon_code` (`coupon_code`) USING BTREE,
+  KEY `users_id` (`users_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='优惠券-领取记录表';
 
 
 -- -----------------------------
@@ -7572,16 +7853,51 @@ CREATE TABLE `ey_shop_order` (
   `prom_type` tinyint(1) unsigned DEFAULT '0' COMMENT '订单类型：0普通订单，1虚拟订单',
   `virtual_delivery` text COMMENT '虚拟订单时，卖家发货给买家的回复',
   `admin_note` text COMMENT '管理员操作备注',
+  `is_comment` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已评论，0为否，1为是，默认0',
   `user_note` text COMMENT '会员备注',
   `group` varchar(50) DEFAULT '' COMMENT '订单分组',
   `order_md5` varchar(50) DEFAULT '' COMMENT '订单标识串，删除未付款的重复订单',
+  `order_source` tinyint(3) DEFAULT '10' COMMENT '10-普通订单 20-秒杀订单',
+  `order_source_id` int(10) DEFAULT '0' COMMENT '来源id(秒杀订单:active_time_id)',
   `lang` varchar(30) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned DEFAULT '0' COMMENT '下单时间',
   `update_time` int(11) unsigned DEFAULT '0' COMMENT '更新时间',
+  `coupon_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '优惠券数据表ID',
+  `use_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '会员的优惠券数据表ID',
+  `coupon_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '使用的优惠券金额',
   PRIMARY KEY (`order_id`),
   UNIQUE KEY `order_code` (`order_code`),
   KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单主表';
+
+
+-- -----------------------------
+-- Table structure for `ey_shop_order_comment`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_shop_order_comment`;
+CREATE TABLE `ey_shop_order_comment` (
+  `comment_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '会员ID',
+  `order_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单ID',
+  `order_code` varchar(50) NOT NULL DEFAULT '' COMMENT '订单编号',
+  `details_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单明细表ID',
+  `product_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '商品ID',
+  `total_score` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '总评分，1：好评，2中评，3差评',
+  `content` varchar(1000) NOT NULL DEFAULT '' COMMENT '评论内容',
+  `upload_img` varchar(3000) NOT NULL DEFAULT '' COMMENT '晒单图片',
+  `admin_reply` varchar(1000) NOT NULL DEFAULT '' COMMENT '管理员回复',
+  `ip_address` varchar(15) NOT NULL DEFAULT '' COMMENT 'IP地址',
+  `is_show` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '是否显示：0否，1是',
+  `is_anonymous` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否匿名评价：0否，1是',
+  `lang` varchar(30) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '添加时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`comment_id`),
+  KEY `users_id` (`users_id`),
+  KEY `order_id` (`order_id`),
+  KEY `details_id` (`details_id`),
+  KEY `product_id` (`product_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='商品评价表';
 
 
 -- -----------------------------
@@ -7590,15 +7906,17 @@ CREATE TABLE `ey_shop_order` (
 DROP TABLE IF EXISTS `ey_shop_order_details`;
 CREATE TABLE `ey_shop_order_details` (
   `details_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `order_id` int(10) DEFAULT '0' COMMENT '订单ID',
+  `order_id` int(10) NOT NULL DEFAULT '0' COMMENT '订单ID',
   `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '会员id',
   `product_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '产品id',
-  `product_name` varchar(100) DEFAULT '' COMMENT '产品名称',
-  `num` int(10) DEFAULT '0' COMMENT '单个产品数量',
+  `product_name` varchar(100) NOT NULL DEFAULT '' COMMENT '产品名称',
+  `num` int(10) NOT NULL DEFAULT '0' COMMENT '单个产品数量',
   `data` text COMMENT '序列化额外数据',
   `product_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '产品单价',
-  `prom_type` tinyint(1) unsigned DEFAULT '0' COMMENT '产品类型：0普通产品，1虚拟产品',
-  `litpic` varchar(500) DEFAULT '' COMMENT '封面图片',
+  `prom_type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '产品类型：0普通产品，1虚拟产品',
+  `litpic` varchar(500) NOT NULL DEFAULT '' COMMENT '封面图片',
+  `apply_service` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否申请退换货服务：0 未申请、1已申请',
+  `is_comment` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已评论，0为否，1为是，默认0',
   `lang` varchar(30) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '下单时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
@@ -7627,6 +7945,68 @@ CREATE TABLE `ey_shop_order_log` (
   PRIMARY KEY (`action_id`),
   KEY `order_id` (`order_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单操作记录表';
+
+
+-- -----------------------------
+-- Table structure for `ey_shop_order_service`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_shop_order_service`;
+CREATE TABLE `ey_shop_order_service` (
+  `service_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `service_type` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '类型：1换货，2退货，3维修',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '会员id',
+  `order_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单ID',
+  `order_code` varchar(20) NOT NULL DEFAULT '' COMMENT '订单编号',
+  `details_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单明细表ID',
+  `product_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '产品ID',
+  `product_name` varchar(200) NOT NULL DEFAULT '' COMMENT '产品名称',
+  `product_spec` varchar(200) NOT NULL DEFAULT '' COMMENT '产品规格',
+  `product_num` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '产品数量',
+  `product_img` varchar(500) NOT NULL DEFAULT '' COMMENT '产品图片',
+  `content` varchar(500) NOT NULL DEFAULT '' COMMENT '退换货描述',
+  `upload_img` varchar(3000) NOT NULL DEFAULT '' COMMENT '上传的图片',
+  `address` varchar(500) NOT NULL DEFAULT '' COMMENT '退货的收货地址',
+  `consignee` varchar(30) NOT NULL DEFAULT '' COMMENT '收货人',
+  `mobile` varchar(20) NOT NULL DEFAULT '' COMMENT '手机',
+  `refund_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '退还金额',
+  `refund_balance` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '退还余额',
+  `refund_code` varchar(40) NOT NULL DEFAULT '' COMMENT '退款单号',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态：1审核中 2审核通过 3审核不通过 4已发货 5已收货 6换货完成 7退款完成 8服务取消',
+  `users_delivery` varchar(500) NOT NULL DEFAULT '' COMMENT '会员发货信息',
+  `admin_delivery` varchar(500) NOT NULL DEFAULT '' COMMENT '管理员发货信息',
+  `admin_note` varchar(1000) NOT NULL DEFAULT '' COMMENT '管理员操作备注',
+  `lang` varchar(30) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '申请时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`service_id`),
+  KEY `users_id` (`users_id`) USING BTREE,
+  KEY `order_id` (`order_id`) USING BTREE,
+  KEY `order_code` (`order_code`) USING BTREE,
+  KEY `product_id` (`product_id`) USING BTREE,
+  KEY `details_id` (`details_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单退换货服务表';
+
+
+-- -----------------------------
+-- Table structure for `ey_shop_order_service_log`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_shop_order_service_log`;
+CREATE TABLE `ey_shop_order_service_log` (
+  `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `service_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '服务表ID',
+  `order_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单ID',
+  `users_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '会员ID',
+  `admin_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '管理员ID',
+  `log_note` varchar(500) NOT NULL DEFAULT '' COMMENT '记录备注',
+  `lang` varchar(30) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '操作时间',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '操作时间',
+  PRIMARY KEY (`log_id`),
+  KEY `service_id` (`service_id`) USING BTREE,
+  KEY `order_id` (`order_id`) USING BTREE,
+  KEY `users_id` (`users_id`) USING BTREE,
+  KEY `admin_id` (`admin_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单退换货服务记录表';
 
 
 -- -----------------------------
@@ -7858,7 +8238,7 @@ CREATE TABLE `ey_sms_template` (
   `add_time` int(11) NOT NULL COMMENT '添加时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`tpl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COMMENT='手机短信发送模板';
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COMMENT='手机短信发送模板';
 
 -- -----------------------------
 -- Records of `ey_sms_template`
@@ -7866,19 +8246,23 @@ CREATE TABLE `ey_sms_template` (
 INSERT INTO `ey_sms_template` VALUES ('1', '1', '账号注册', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '0', '1', 'cn', '1591262356', '1591262356');
 INSERT INTO `ey_sms_template` VALUES ('2', '1', '手机绑定', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '1', '1', 'cn', '1591262356', '1591262356');
 INSERT INTO `ey_sms_template` VALUES ('3', '1', '找回密码', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '4', '1', 'cn', '1591262356', '1591262356');
-INSERT INTO `ey_sms_template` VALUES ('4', '1', '订单通知', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '5', '1', 'cn', '1591262356', '1591262356');
+INSERT INTO `ey_sms_template` VALUES ('4', '1', '订单付款', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '5', '1', 'cn', '1591262356', '1616460912');
 INSERT INTO `ey_sms_template` VALUES ('5', '1', '账号注册', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '0', '1', 'en', '1591262356', '1591262356');
 INSERT INTO `ey_sms_template` VALUES ('6', '1', '手机绑定', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '1', '1', 'en', '1591262356', '1591262356');
 INSERT INTO `ey_sms_template` VALUES ('7', '1', '找回密码', '', '', '验证码为 ${content} ，请在30分钟内输入验证。', '4', '1', 'en', '1591262356', '1591262356');
-INSERT INTO `ey_sms_template` VALUES ('8', '1', '订单通知', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '5', '1', 'en', '1591262356', '1591262356');
+INSERT INTO `ey_sms_template` VALUES ('8', '1', '订单付款', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '5', '1', 'en', '1591262356', '1616460912');
 INSERT INTO `ey_sms_template` VALUES ('9', '2', '账号注册', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '0', '1', 'cn', '1610334638', '1610334638');
 INSERT INTO `ey_sms_template` VALUES ('10', '2', '手机绑定', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '1', '1', 'cn', '1610334638', '1610334638');
 INSERT INTO `ey_sms_template` VALUES ('11', '2', '找回密码', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '4', '1', 'cn', '1610334638', '1610334638');
-INSERT INTO `ey_sms_template` VALUES ('12', '2', '订单通知', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '5', '1', 'cn', '1610334638', '1610334638');
+INSERT INTO `ey_sms_template` VALUES ('12', '2', '订单付款', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '5', '1', 'cn', '1610334638', '1616460912');
 INSERT INTO `ey_sms_template` VALUES ('13', '2', '账号注册', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '0', '1', 'en', '1610334638', '1610334638');
 INSERT INTO `ey_sms_template` VALUES ('14', '2', '手机绑定', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '1', '1', 'en', '1610334638', '1610334638');
 INSERT INTO `ey_sms_template` VALUES ('15', '2', '找回密码', '', '', '验证码为 {1} ，请在30分钟内输入验证。', '4', '1', 'en', '1610334638', '1610334638');
-INSERT INTO `ey_sms_template` VALUES ('16', '2', '订单通知', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '5', '1', 'en', '1610334638', '1610334638');
+INSERT INTO `ey_sms_template` VALUES ('16', '2', '订单付款', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '5', '1', 'en', '1610334638', '1616460912');
+INSERT INTO `ey_sms_template` VALUES ('17', '1', '订单发货', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '6', '1', 'cn', '1591262356', '1616460912');
+INSERT INTO `ey_sms_template` VALUES ('18', '1', '订单发货', '', '', '您有新的消息：您有新的${content}订单，请注意查收！', '6', '1', 'en', '1591262356', '1616460912');
+INSERT INTO `ey_sms_template` VALUES ('19', '2', '订单发货', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '6', '1', 'cn', '1610334638', '1616460912');
+INSERT INTO `ey_sms_template` VALUES ('20', '2', '订单发货', '', '', '您有新的消息：您有新的{1}订单，请注意查收！', '6', '1', 'en', '1610334638', '1616460912');
 
 -- -----------------------------
 -- Table structure for `ey_smtp_record`
@@ -7913,7 +8297,7 @@ CREATE TABLE `ey_smtp_tpl` (
   `add_time` int(11) DEFAULT '0' COMMENT '添加时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`tpl_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='邮件模板表';
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COMMENT='邮件模板表';
 
 -- -----------------------------
 -- Records of `ey_smtp_tpl`
@@ -7922,7 +8306,8 @@ INSERT INTO `ey_smtp_tpl` VALUES ('1', '留言表单', '您有新的留言消息
 INSERT INTO `ey_smtp_tpl` VALUES ('2', '会员注册', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '2', '1', 'cn', '1544763495', '1552667056');
 INSERT INTO `ey_smtp_tpl` VALUES ('3', '绑定邮箱', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '3', '1', 'cn', '1544763495', '1552667400');
 INSERT INTO `ey_smtp_tpl` VALUES ('4', '找回密码', '验证码已发送至您的邮箱，请登录邮箱查看验证码！', '${content}', '4', '1', 'cn', '1544763495', '1552663577');
-INSERT INTO `ey_smtp_tpl` VALUES ('9', '订单提醒', '您有新的订单消息，请查收！', '${content}', '5', '1', 'cn', '1587364685', '0');
+INSERT INTO `ey_smtp_tpl` VALUES ('9', '订单付款', '您有新的待发货订单消息，请到商城订单查看！', '${content}', '5', '1', 'cn', '1587364685', '1616460912');
+INSERT INTO `ey_smtp_tpl` VALUES ('11', '订单发货', '您有新的待收货订单消息，请到会员订单查看！', '${content}', '6', '1', 'cn', '1616460912', '1616460912');
 
 -- -----------------------------
 -- Table structure for `ey_special_content`
@@ -7994,33 +8379,27 @@ CREATE TABLE `ey_tagindex` (
 -- -----------------------------
 -- Records of `ey_tagindex`
 -- -----------------------------
-INSERT INTO `ey_tagindex` VALUES ('24', 'TAG标签', '10', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526544706', '0');
-INSERT INTO `ey_tagindex` VALUES ('25', '对的', '10', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526544706', '0');
-INSERT INTO `ey_tagindex` VALUES ('26', '替换稿件', '10', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526544706', '0');
-INSERT INTO `ey_tagindex` VALUES ('27', '杨靖宇', '10', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526544706', '0');
-INSERT INTO `ey_tagindex` VALUES ('28', '网站', '12', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526608291', '0');
-INSERT INTO `ey_tagindex` VALUES ('29', '建设', '12', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526608291', '0');
-INSERT INTO `ey_tagindex` VALUES ('30', '五大核心', '12', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526608291', '0');
-INSERT INTO `ey_tagindex` VALUES ('31', '要素', '12', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526608291', '0');
-INSERT INTO `ey_tagindex` VALUES ('32', '华为', '24', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526613161', '0');
-INSERT INTO `ey_tagindex` VALUES ('33', 'HUAWEI', '24', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526613161', '0');
-INSERT INTO `ey_tagindex` VALUES ('34', 'NOTE 8', '24', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526613161', '0');
-INSERT INTO `ey_tagindex` VALUES ('35', '宅男', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526614158', '0');
-INSERT INTO `ey_tagindex` VALUES ('36', '女神', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1526614158', '0');
+INSERT INTO `ey_tagindex` VALUES ('28', '网站', '12', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1547462640', '0');
+INSERT INTO `ey_tagindex` VALUES ('29', '建设', '12', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1547462640', '0');
+INSERT INTO `ey_tagindex` VALUES ('30', '五大核心', '12', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1547462640', '0');
+INSERT INTO `ey_tagindex` VALUES ('31', '要素', '12', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1547462640', '0');
+INSERT INTO `ey_tagindex` VALUES ('32', '华为', '24', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1571038749', '0');
+INSERT INTO `ey_tagindex` VALUES ('33', 'HUAWEI', '24', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1571038749', '0');
+INSERT INTO `ey_tagindex` VALUES ('34', 'NOTE 8', '24', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1571038749', '0');
 INSERT INTO `ey_tagindex` VALUES ('37', '一号', '5', '', '', '', '3', '1', '2', '2', '1563785452', '1563785452', '0', 'cn', '1526614158', '0');
-INSERT INTO `ey_tagindex` VALUES ('38', '社交', '12', '', '', '', '10', '1', '2', '2', '1610348155', '1610348155', '0', 'cn', '1563520599', '0');
-INSERT INTO `ey_tagindex` VALUES ('39', '媒体', '12', '', '', '', '9', '1', '7', '7', '1610348163', '1610348163', '0', 'cn', '1563520599', '0');
-INSERT INTO `ey_tagindex` VALUES ('40', '营销', '12', '', '', '', '1', '1', '0', '0', '1609990101', '1609990101', '0', 'cn', '1563762346', '0');
-INSERT INTO `ey_tagindex` VALUES ('41', '商业', '12', '', '', '', '3', '1', '0', '0', '1610348720', '1610348720', '0', 'cn', '1563762346', '0');
-INSERT INTO `ey_tagindex` VALUES ('42', '工程', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565462', '0');
-INSERT INTO `ey_tagindex` VALUES ('43', '机械', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565462', '0');
-INSERT INTO `ey_tagindex` VALUES ('44', '推土', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565462', '0');
-INSERT INTO `ey_tagindex` VALUES ('45', '挖掘', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565462', '0');
-INSERT INTO `ey_tagindex` VALUES ('46', '网站模板', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565462', '0');
-INSERT INTO `ey_tagindex` VALUES ('47', 'WindowsXP', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565908', '0');
-INSERT INTO `ey_tagindex` VALUES ('48', '操作系统', '5', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1564565908', '0');
-INSERT INTO `ey_tagindex` VALUES ('49', '网络优化', '64', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1565161106', '0');
-INSERT INTO `ey_tagindex` VALUES ('50', '推广服务', '64', '', '', '', '0', '0', '0', '0', '0', '0', '0', 'cn', '1565161106', '0');
+INSERT INTO `ey_tagindex` VALUES ('38', '社交', '12', '', '', '', '10', '1', '2', '2', '1616490155', '1610348155', '0', 'cn', '1563520600', '0');
+INSERT INTO `ey_tagindex` VALUES ('39', '媒体', '12', '', '', '', '9', '1', '7', '7', '1616490155', '1610348163', '0', 'cn', '1563520600', '0');
+INSERT INTO `ey_tagindex` VALUES ('40', '营销', '12', '', '', '', '1', '1', '0', '0', '1616490155', '1609990101', '0', 'cn', '1564545045', '0');
+INSERT INTO `ey_tagindex` VALUES ('41', '商业', '12', '', '', '', '3', '1', '0', '0', '1616490155', '1610348720', '0', 'cn', '1564545045', '0');
+INSERT INTO `ey_tagindex` VALUES ('42', '工程', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564565463', '0');
+INSERT INTO `ey_tagindex` VALUES ('43', '机械', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564565463', '0');
+INSERT INTO `ey_tagindex` VALUES ('44', '推土', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564565463', '0');
+INSERT INTO `ey_tagindex` VALUES ('45', '挖掘', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564565463', '0');
+INSERT INTO `ey_tagindex` VALUES ('46', '网站模板', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564565463', '0');
+INSERT INTO `ey_tagindex` VALUES ('47', 'WindowsXP', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564623458', '0');
+INSERT INTO `ey_tagindex` VALUES ('48', '操作系统', '5', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1564623458', '0');
+INSERT INTO `ey_tagindex` VALUES ('49', '网络优化', '64', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1565234125', '0');
+INSERT INTO `ey_tagindex` VALUES ('50', '推广服务', '64', '', '', '', '0', '1', '0', '0', '1616490155', '0', '0', 'cn', '1565234125', '0');
 
 -- -----------------------------
 -- Table structure for `ey_taglist`
@@ -8130,7 +8509,7 @@ CREATE TABLE `ey_users` (
 -- -----------------------------
 -- Records of `ey_users`
 -- -----------------------------
-INSERT INTO `ey_users` VALUES ('1', 'admin', '18e6a423f5a873ab50c1c55c59c69517', 'admin', '0', '13644444444', '0', '123@11.com', '', '0.00', '0.00', '3', '0', '1564475243', '1614152869', '127.0.0.1', '4', '', '0', '0', '0', '1', '0', '', '1.00', '0.00', '1', '2', '', '0', '0', '1', 'cn', '0', '0', '1614152869');
+INSERT INTO `ey_users` VALUES ('1', 'admin', '18e6a423f5a873ab50c1c55c59c69517', 'admin', '0', '13644444444', '0', '123@11.com', '', '0.00', '0.00', '3', '0', '1564475243', '1616490069', '127.0.0.1', '4', '', '0', '0', '0', '1', '0', '', '1.00', '0.00', '1', '2', '', '0', '0', '1', 'cn', '0', '0', '1616490069');
 
 -- -----------------------------
 -- Table structure for `ey_users_bottom_menu`
@@ -8198,7 +8577,7 @@ CREATE TABLE `ey_users_config` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='会员功能配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='会员功能配置表';
 
 -- -----------------------------
 -- Records of `ey_users_config`
@@ -8217,6 +8596,7 @@ INSERT INTO `ey_users_config` VALUES ('11', 'users_open_register', '0', '', 'use
 INSERT INTO `ey_users_config` VALUES ('12', 'users_open_reg', '0', '', 'users', 'cn', '1610352452');
 INSERT INTO `ey_users_config` VALUES ('13', 'users_verification', '0', '', 'users', 'cn', '1610352452');
 INSERT INTO `ey_users_config` VALUES ('14', 'theme_color', '#ff9600', '', 'theme', 'cn', '1610616432');
+INSERT INTO `ey_users_config` VALUES ('15', 'pay_balance_open', '1', '', 'pay', 'cn', '1616460912');
 
 -- -----------------------------
 -- Table structure for `ey_users_footprint`
@@ -8400,6 +8780,51 @@ CREATE TABLE `ey_users_notice_read` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='用户已读站内通知';
+
+
+-- -----------------------------
+-- Table structure for `ey_users_notice_tpl`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_users_notice_tpl`;
+CREATE TABLE `ey_users_notice_tpl` (
+  `tpl_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `tpl_name` varchar(200) DEFAULT '' COMMENT '模板名称',
+  `tpl_title` varchar(200) DEFAULT '' COMMENT '站内信标题',
+  `tpl_content` text COMMENT '发送内容',
+  `send_scene` tinyint(1) DEFAULT '0' COMMENT '站内信发送场景(1=留言表单）',
+  `is_open` tinyint(1) DEFAULT '0' COMMENT '是否开启使用这个模板，1为是，0为否。',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '添加时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`tpl_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='站内信模板表';
+
+-- -----------------------------
+-- Records of `ey_users_notice_tpl`
+-- -----------------------------
+INSERT INTO `ey_users_notice_tpl` VALUES ('1', '留言表单', '您有新的留言消息，请到内容管理中查看！', '${content}', '1', '1', 'cn', '1616460912', '1616460912');
+INSERT INTO `ey_users_notice_tpl` VALUES ('5', '订单付款', '您有新的待发货订单消息，请到商城订单查看！', '${content}', '5', '1', 'cn', '1616460912', '1616460912');
+INSERT INTO `ey_users_notice_tpl` VALUES ('6', '订单发货', '您有新的待收货订单消息，请到会员订单查看！', '${content}', '6', '1', 'cn', '1616460912', '1616460912');
+
+-- -----------------------------
+-- Table structure for `ey_users_notice_tpl_content`
+-- -----------------------------
+DROP TABLE IF EXISTS `ey_users_notice_tpl_content`;
+CREATE TABLE `ey_users_notice_tpl_content` (
+  `content_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `source` tinyint(1) DEFAULT '0' COMMENT '来源，对应 users_notice_tpl 表 send_scene 字段',
+  `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID，不为空则表示管理员接收信息',
+  `users_id` int(10) DEFAULT '0' COMMENT '用户ID，不为空则表示会员接收信息，暂未使用',
+  `content_title` varchar(200) DEFAULT '' COMMENT '通知标题',
+  `content` text COMMENT '接收的通知内容',
+  `is_read` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已读，默认0，1是，0否',
+  `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
+  `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
+  `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (`content_id`),
+  KEY `admin_id` (`admin_id`) USING BTREE,
+  KEY `users_id` (`users_id`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='站内信发送接收记录表';
 
 
 -- -----------------------------

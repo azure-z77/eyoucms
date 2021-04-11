@@ -206,9 +206,9 @@
                     $('#city').empty().html(res);
                 }
             },
-            error : function() {
+            error : function(e) {
                 layer.closeAll();
-                layer.alert(ey_unknown_error, {icon: 5});
+                showErrorAlert(e.responseText);
             }
         });
     }
@@ -245,15 +245,23 @@
             success: function(res) {
                 layer.closeAll();
                 if(res.status == 1)
-                {                   
+                {
+                    var _parent = parent;
+                    _parent.layer.close(parentObj);        
                     if(res.hasOwnProperty('data')){
                         if(res.data.hasOwnProperty('url')){
-                            location.href = res.data.url;
+                            _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                                _parent.gourl(res.data.url);
+                            });
                         }else{
-                            location.href = location.href;
+                            _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                                _parent.window.location.reload();
+                            });
                         }
                     }else{
-                        location.href = location.href;
+                        _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                            _parent.window.location.reload();
+                        });
                     }
                     return true;
                 } else {     
@@ -263,7 +271,7 @@
             },
             error: function(e) {
                 layer.closeAll();
-                layer.alert(e.responseText, {icon: 5, title:false});
+                showErrorAlert(e.responseText);
                 return false;
             }
         });   
@@ -288,11 +296,11 @@
                     $('#is_showlist0_label').addClass('selected');//添加一个class
                     $("input:radio[name=is_showlist]").eq(0).attr("checked",false);
                     $("input:radio[name=is_showlist]").eq(1).attr("checked",true);
-                    layer.alert(res.msg, {icon: 2, title:false});
+                    showErrorAlert(res.msg);
                 }
             },
-            error:function(){
-                layer.alert(ey_unknown_error, {icon: 2, title:false});
+            error:function(e){
+                showErrorAlert(e.responseText);
             }
         });
     }

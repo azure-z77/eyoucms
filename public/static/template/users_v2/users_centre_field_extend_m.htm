@@ -10,7 +10,7 @@
             </div>
             <div class="item-flex-r wb75">
                 <div class="item-flex-img">
-                    <img id="single_img_{$vo.fieldArr}_{$vo.name|default=''}" class="img-fluid img1_{$vo.fieldArr}_{$vo.name|default=''}"  onclick="$('#upload_single_pic_{$vo.fieldArr}_{$vo.name|default=''}').trigger('click');" src="__PUBLIC__/static/common/images/not_upload_pic.png"/>
+                    <img id="single_img_{$vo.fieldArr}_{$vo.name|default=''}" class="img-fluid img1_{$vo.fieldArr}_{$vo.name|default=''}"  onclick="$('#upload_single_pic_{$vo.fieldArr}_{$vo.name|default=''}').trigger('click');" src="{$vo.info|default='__PUBLIC__/static/common/images/not_upload_pic.png'}"/>
                     <input type="file" name="upload_single_pic" id="upload_single_pic_{$vo.fieldArr}_{$vo.name|default=''}" onchange="upload_single_pic_1609837252(this,'{$vo.fieldArr}_{$vo.name|default=''}')" style="display: none;">
                     <input type="hidden" class="type-file-text" id="single_pic_input_{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.info|default=''}">
                 </div>
@@ -58,6 +58,8 @@
                     elem: "#upload_{$vo.fieldArr}_{$vo.name|default=''}" //绑定元素
                     ,url: "{:url('user/Uploadify/DownloadUploadFileAjax')}"
                     ,accept: 'file' //普通文件
+                    ,exts: '{$vo.ext}'
+                    ,size: {$vo.filesize} //限制文件大小，单位 KB
                     ,done: function(res){
                         //上传完毕回调
                         if (res.state=="SUCCESS"){

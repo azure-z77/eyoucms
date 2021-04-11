@@ -11,17 +11,14 @@
                 <h3>官方语言包变量</h3>
                 <h5>(共{$pageObj->totalRows}条数据)</h5>
             </div>
-            <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:url('Language/official_pack_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="标题搜索...">
                         <input type="submit" class="btn" value="搜索">
+                        <i class="fa fa-search"></i>
                     </div>
-                    <!-- <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Language/official_pack_index')}';">
-                    </div> -->
                 </div>
             </form>
         </div>
@@ -42,7 +39,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
                         </th>
-                        <th axis="col1" class="w180">
+                        <th axis="col1" class="w160">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -82,10 +79,11 @@
                                     {$vo.update_time|date='Y-m-d',###}
                                 </div>
                             </td>
-                            <td class="">
-                                <div class="w180 tc">
+                            <td class="operation">
+                                <div class="w160 tc">
                                     {eq name="'Language@pack_edit'|is_check_access" value="1"}
-                                    <a href="{:url('Language/pack_edit',array('id'=>$vo['id'],'official'=>1))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Language/pack_edit',array('id'=>$vo['id'],'official'=>1))}" class="btn blue">编辑</a>
+                                    <i></i>
                                     {/eq}
                                     <a href="javascript:void(0);" onclick="showtext('{$vo['name']}');" class="btn blue {$vo['name']}" data-clipboard-text="{{php} echo 'eyou:lang name=\'';{/php}{$vo['name']}{php} echo '\' /';{/php}}">复制标签</a>
                                 </div>

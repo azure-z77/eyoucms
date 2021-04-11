@@ -140,6 +140,15 @@ class Level extends Base
                 'mca'  => 'user/Level/level_centre',
                 'lang' => $this->home_lang,
             ])->getField('title');
+
+        /*余额开关*/
+        $pay_balance_open = getUsersConfigData('pay.pay_balance_open');
+        if (!is_numeric($pay_balance_open) && empty($pay_balance_open)) {
+            $pay_balance_open = 1;
+        }
+        $result['pay_balance_open'] = $pay_balance_open;
+        /*end*/
+
         $eyou = array(
             'field' => $result,
         );
@@ -319,7 +328,7 @@ class Level extends Base
                 $this->error('支付异常，请刷新后重试~');
             }
             $url          = model('Pay')->getMobilePay($out_trade_no,$total_fee);
-            if ('FAIL' == $url['return_code']) {
+            if (isset($url['return_code']) && 'FAIL' == $url['return_code']) {
                 $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试~');
             }
         } else if (isMobile() && isWeixin()) {
@@ -645,7 +654,7 @@ class Level extends Base
                 $result = $wxpayapi->orderQuery($config, $input);
 
                 // 业务处理
-                if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
+                if (isset($result['return_code']) && $result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS'){
                     if ($result['trade_state'] == 'SUCCESS' && !empty($result['transaction_id'])) {
                         if (1 == $transaction_type) {
                             // 支付成功

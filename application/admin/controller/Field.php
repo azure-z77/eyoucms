@@ -103,6 +103,9 @@ class Field extends Base
         $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
         /*--end*/
 
+        // 模型信息
+        $assign_data['channeltype_row'] = \think\Cache::get('extra_global_channeltype');
+
         /*模型ID*/
         $assign_data['channel_id'] = $channel_id;
         /*--end*/
@@ -925,7 +928,7 @@ class Field extends Base
         $fieldtype_list = [];
         $fieldtype_list_tmp = model('Field')->getFieldTypeAll('name,title,ifoption');
         foreach ($fieldtype_list_tmp as $key => $val) {
-            if (!in_array($val['name'], ['file','media'])) {
+            if (!in_array($val['name'], ['file','media','region'])) {
                 $fieldtype_list[] = $val;
             }
         }
@@ -1099,7 +1102,7 @@ class Field extends Base
         $fieldtype_list = [];
         $fieldtype_list_tmp = model('Field')->getFieldTypeAll('name,title,ifoption');
         foreach ($fieldtype_list_tmp as $key => $val) {
-            if (!in_array($val['name'], ['file','media'])) {
+            if (!in_array($val['name'], ['file','media','region'])) {
                 $fieldtype_list[] = $val;
             }
         }

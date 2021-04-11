@@ -44,7 +44,7 @@
     "catcherPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
     "catcherUrlPrefix": "", /* 图片访问路径前缀 */
     "catcherMaxSize": 10240000, /* 上传大小限制，单位B，默认10MB */
-    "catcherAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".svg"], /* 抓取图片格式显示 */
+    "catcherAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp"], /* 抓取图片格式显示 */
 
     /* 上传视频配置 */
     "videoActionName": "uploadvideo", /* 执行上传视频的action名称 */
@@ -66,7 +66,7 @@
         ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp",
         ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
         ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
-        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso", ".svg",
         ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
     ], /* 上传文件格式显示 */
 
@@ -87,7 +87,7 @@
         ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp",
         ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
         ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
-        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso", ".svg",
         ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
     ] /* 列出的文件类型 */
 

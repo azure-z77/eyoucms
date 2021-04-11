@@ -20,13 +20,10 @@ use think\Db;
  */
 class TagSpecnode extends Base
 {
-    public $aid = 0;
-
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
-        $this->aid = input('param.aid/d', 0);
     }
 
     /**

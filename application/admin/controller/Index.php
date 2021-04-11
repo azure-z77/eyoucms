@@ -98,6 +98,14 @@ class Index extends Base
         $this->assign('is_syn_theme_users',$is_syn_theme_users);
         /*--end*/
 
+        // 是否开启安全补丁
+        $security_patch = tpSetting('upgrade.upgrade_security_patch');
+        if (empty($security_patch)) $security_patch = 0;
+        $this->assign('security_patch', $security_patch);
+
+        // 统计未读的站内信数量
+        action('admin/Notify/count_unread_notify');
+
         return $this->fetch();
     }
    
@@ -166,6 +174,10 @@ class Index extends Base
                 'status'    => 1,
             ])->order('sort_order asc, id asc')->select();
         foreach ($quickMenu as $key => $val) {
+            if ($this->php_servicemeal <= 1 && $val['controller'] == 'Shop' && $val['action'] == 'index') {
+                unset($quickMenu[$key]);
+                continue;
+            }
             $quickMenu[$key]['vars'] = !empty($val['vars']) ? $val['vars']."&lang=".$this->admin_lang : "lang=".$this->admin_lang;
         }
         $this->assign('quickMenu',$quickMenu);
@@ -173,6 +185,11 @@ class Index extends Base
         // 内容统计
         $contentTotal = $this->contentTotalList();
         $this->assign('contentTotal',$contentTotal);
+
+        // 是否开启安全补丁
+        $security_patch = tpSetting('upgrade.upgrade_security_patch');
+        if (empty($security_patch)) $security_patch = 0;
+        $this->assign('security_patch', $security_patch);
 
         /*代理贴牌功能限制-s*/
         $upgrade = true;
@@ -193,32 +210,16 @@ class Index extends Base
 
         $ajaxLogic = new \app\admin\logic\AjaxLogic;
         $ajaxLogic->update_template('users'); // 升级前台会员中心的模板文件
-        $ajaxLogic->syn_guestbook_attribute(); // 只同步一次每个留言栏目的字段列表前4个显示(v1.5.1节点去掉)
-        $ajaxLogic->syn_wechat_login_config(); // 只同步一次微信登录配置信息(v1.5.1节点去掉)
         $ajaxLogic->system_langnum_file(); // 记录当前是多语言还是单语言到文件里
-        $ajaxLogic->syn_admin_logic_sms_template(); // 同步手机短信模板(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_unlink(); // 删除多余Minipro的文件(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_update_basic(); // 纠正允许上传文件类型(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_update_tag(); // 纠正tag标签的阅读权限(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_update_arctype(); // 纠正批量新增栏目的错误层级(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_model_addfields(); // 同步内置模型内置的附加表字段(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_session_conf(); // 生成session会话设置文件(v1.5.1节点去掉)
-
-        $ajaxLogic->SynPayConfig(); // 只同步一次微信支付、支付宝支付配置(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_add_tag(); // 纠正tagindex标签被误删的tag(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_users_parameter(); // 纠正会员属性的内置手机号码和邮箱地址(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_users_download(); // 根据下载模型自动开启会员中心的【我的下载】(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_arctype_topid(); // 补充栏目新增的栏目顶级ID字段的值(v1.5.1节点去掉)
-        // $ajaxLogic->admin_logic_footp_msg(); // 足迹/站内通知不与插件同时存在(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_check_oneself(); // 升级之后，完善用户组权限数据，避免刚升级完就发布文档进入待审核状态(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_links_group(); // 同步友情链接分组的数据(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_1608189503();// 同步手机短信模板从阿里云到腾讯云，纠正订单通知短信(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_1608191377();// 内置下载模型的服务器名称列表(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_1608884981();// 补充后台登录logo与背景图(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_1609039608();// 默认分页数(v1.5.1节点去掉)
-        $ajaxLogic->admin_logic_1609291091();// 内置签到配置(v1.5.1节点去掉)
         $ajaxLogic->admin_logic_1609900642(); // 内置方法
-        $ajaxLogic->admin_logic_1610086647(); // 内置手机端会员中心底部菜单数据
+        $ajaxLogic->admin_logic_1608884981();// 补充后台登录logo与背景图(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_1610086647(); // 内置手机端会员中心底部菜单数据(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_model_addfields(); // 同步内置模型内置的附加表字段(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_arctype_topid(); // 纠正栏目的topid字段值(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_balance_pay(); // 内置余额支付开关(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_1610086648(); // 文档图片自适应修改为默认关闭(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_1614829120(); // 补充站内信模板的数据(v1.6.1节点去掉)
+        $ajaxLogic->admin_logic_1616123192(); // 补充邮箱/短信模板的数据(v1.6.1节点去掉)
 
         return $this->fetch();
     }
@@ -437,6 +438,12 @@ class Index extends Base
                 'groups'    => 0,
                 'status'    => 1,
             ])->order('sort_order asc, id asc')->select();
+        foreach ($menuList as $key => $val) {
+            if ($this->php_servicemeal <= 2 && $val['controller'] == 'Shop' && $val['action'] == 'index') {
+                unset($menuList[$key]);
+                continue;
+            }
+        }
         $this->assign('menuList',$menuList);
 
         return $this->fetch();
@@ -809,6 +816,15 @@ class Index extends Base
                         if ('sort_order' == $field) {
                             $data['refresh'] = 1;
                             $data['time'] = 500;
+                        }
+                    }
+                    break;
+
+                // 栏目表
+                case 'arctype':
+                    {
+                        if ('is_hidden' == $field) {
+                            $value = (1 == $value) ? 0 : 1;
                         }
                     }
                     break;

@@ -24,7 +24,6 @@ use think\Config;
  */
 class TagList extends Base
 {
-    public $tid = '';
     public $fieldLogic;
     public $url_screen_var;
     
@@ -33,15 +32,10 @@ class TagList extends Base
     {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
-        $this->tid = input('param.tid/s', '');
         /*应用于文档列表*/
-        $aid = input('param.aid/d', 0);
-        if ($aid > 0) {
-            $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
+        if ($this->aid > 0) {
+            $this->tid = M('archives')->where('aid', $this->aid)->getField('typeid');
         }
-        /*--end*/
-        /*typeid|tid为目录名称的情况下*/
-        $this->tid = $this->getTrueTypeid($this->tid);
         /*--end*/
 
         // 定义筛选标识
@@ -347,6 +341,12 @@ class TagList extends Base
                     ->where('a.lang', $this->home_lang)
                     ->orderRaw($orderby)
                     ->paginate($pagesize, false, $paginate);
+
+                $page = input('param.page/d');
+                if ($page > 1 && $page > $pages->lastPage()) {
+                    abort(404);
+                }
+
                 // $cacheKey = strtolower('taglist_lastPage_'.$module_name_tmp.$ctl_name_tmp.$action_name_tmp.$this->tid);
                 // cache($cacheKey, $pages->lastPage()); // 用于静态页面的分页生成
 
@@ -543,12 +543,23 @@ class TagList extends Base
                     $keyword = implode('|', $keywordArr);
                     $condition[] = Db::raw(" CONCAT(a.title,a.seo_keywords) REGEXP '$keyword' ");
                 } else if ('typeid' == $key) {
+                    $search_type = input('param.type/s', 'default');
                     $param[$key] = str_replace('，', ',', $param[$key]);
                     $param[$key] = preg_replace('/([^0-9,])/i', '', $param[$key]);
                     if (stristr($param[$key], ',')) { // 指定多个栏目ID
                         $typeids = explode(',', $param[$key]);
+                        if ('sonself' == $search_type) { // 当前栏目以及下级栏目
+                            $current_channel_arr = Db::name('arctype')->where(['id'=>['IN', $typeids], 'is_del'=>0])->column('current_channel');
+                            foreach ($typeids as $_k => $_v) {
+                                $childrenRow = model('Arctype')->getHasChildren($_v);
+                                foreach ($childrenRow as $k2 => $v2) {
+                                    if (in_array($v2['current_channel'], $current_channel_arr)) {
+                                        array_push($typeids, $v2['id']);
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        $search_type = input('param.type/s', 'default');
                         if ('default' == $search_type) { // 默认只检索指定的栏目ID，不涉及下级栏目
                             $typeids = [$param[$key]];
                         } else if ('sonself' == $search_type) { // 当前栏目以及下级栏目
@@ -683,6 +694,11 @@ class TagList extends Base
             ->where($condition)
             ->order($orderby)
             ->paginate($pagesize, false, $paginate);
+
+        $page = input('param.page/d');
+        if ($page > 1 && $page > $pages->lastPage()) {
+            abort(404);
+        }
 
         /**
          * 完善数据集信息
@@ -1086,6 +1102,11 @@ class TagList extends Base
             ->order($orderby)
             ->paginate($pagesize, false, $paginate);
 
+        $page = input('param.page/d');
+        if ($page > 1 && $page > $pages->lastPage()) {
+            abort(404);
+        }
+        
         /**
          * 完善数据集信息
          * 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；

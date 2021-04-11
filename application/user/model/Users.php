@@ -508,6 +508,9 @@ class Users extends Model
                         if (isset($addonRow[$val['name']])) {
                             $val[$val['name']] = handle_subdir_pic($addonRow[$val['name']]);
                         }
+                        $ext = tpCache('basic.file_type');
+                        $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
+                        $val['filesize'] = upload_max_filesize();
                         break;
                     }
 

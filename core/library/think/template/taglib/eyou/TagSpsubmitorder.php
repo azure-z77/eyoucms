@@ -138,8 +138,17 @@ class TagSpsubmitorder extends Base
         $controller_name = 'Product';
         $array_new = get_archives_data($result['list'],'aid');
 
+        /*余额开关*/
+        $pay_balance_open = getUsersConfigData('pay.pay_balance_open');
+        if (!is_numeric($pay_balance_open) && empty($pay_balance_open)) {
+            $pay_balance_open = 1;
+        }
+        /*end*/
+
         // 返回data拼装
         $result['data'] = [
+            // 余额支付是否开启
+            'pay_balance_open'   => $pay_balance_open,
             // 温馨提示内容,为空则不展示
             'shop_prompt'        => !empty($ConfigData['shop_prompt']) ? $ConfigData['shop_prompt'] : '',
             // 是否开启线下支付(货到付款)
@@ -256,8 +265,6 @@ class TagSpsubmitorder extends Base
         
         // 封装初始金额隐藏域
         $result['data']['TotalAmountOld'] = '<input type="hidden" id="TotalAmount_old" value="'.$result['data']['TotalAmount'].'">';
-        // 封装订单支付方式隐藏域
-        $result['data']['PayTypeHidden']  = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_wechat">';
 
         // 封装添加收货地址JS
         if (isWeixin() && !isWeixinApplets()) {
@@ -292,6 +299,7 @@ class TagSpsubmitorder extends Base
                 $ShopAddressInfo['district'] = get_area_name($ShopAddressInfo['district']);
                 $ShopAddressInfo['Info'] = $ShopAddressInfo['country'].' '.$ShopAddressInfo['province'].' '.$ShopAddressInfo['city'].' '.$ShopAddressInfo['district'];
             }
+            if (empty($ShopAddressInfo)) $ShopAddressInfo = false;
             $result['data']['ShopAddressInfo'][] = $ShopAddressInfo;
         }
 
@@ -331,6 +339,66 @@ class TagSpsubmitorder extends Base
         $result['data']['PayTotalAmountID'] = " id=\"PayTotalAmountID\" ";
         // 用于获取会员可用余额
         $result['data']['UsersSurplusMoneyID'] = " id=\"UsersSurplusMoneyID\" ";
+        /* END */
+
+        /*默认选中支付方式判断逻辑*/
+        $where = [
+            'status' => 1
+        ];
+        // 手机端微信、小程序不查询支付宝配置
+        if ((isMobile() && isWeixin()) || isWeixinApplets()) $where['pay_mark'] = ['NEQ', 'alipay'];
+        // 查询支付配置
+        $PayApiList = Db::name('pay_api_config')->where($where)->select();
+        // 默认选中支付方式，3:货到付款，2:余额支付，1:在线支付，0:未开启支付方式
+        $use_pay_type = 0;
+        $PayTypeHidden = '<input type="hidden" name="payment_type" id="payment_type" value="">';
+        // 封装订单支付方式隐藏域
+        if (empty($result['data']['shop_open_offline']) && empty($result['data']['PromType'])) {
+            $use_pay_type = 3;
+            $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="1"><input type="hidden" name="payment_type" id="payment_type" value="hdfk_payOnDelivery">';
+        }
+        // 在线支付判断
+        if (!empty($PayApiList)) {
+            foreach ($PayApiList as $key => $value) {
+                if ('wechat' == $value['pay_mark'] && !empty($value['pay_info'])) {
+                    // 微信判断
+                    $PayInfo = unserialize($value['pay_info']);
+                    if (isset($PayInfo['is_open_wechat']) && '0' === $PayInfo['is_open_wechat']) {
+                        $use_pay_type = 1;
+                        $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_wechat">';
+                        break;
+                    }
+                } else if ('alipay' == $value['pay_mark'] && !empty($value['pay_info'])) {
+                    // 支付宝判断
+                    $PayInfo = unserialize($value['pay_info']);
+                    if (isset($PayInfo['is_open_alipay']) && '0' === $PayInfo['is_open_alipay']) {
+                        $use_pay_type = 1;
+                        $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_alipay">';
+                        break;
+                    }  
+                } else if ('0' === $value['system_built'] && !empty($value['pay_info'])) {
+                    // 第三方支付判断
+                    $PayInfo = unserialize($value['pay_info']);
+                    if (isset($PayInfo['is_open_pay']) && '0' === $PayInfo['is_open_pay']) {
+                        $use_pay_type = 1;
+                        if (!empty($PayInfo['wechat_appid']) && !empty($PayInfo['wechat_appsecret'])) {
+                            $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_wechat">';
+                            break;
+                        } else if (!empty($PayInfo['alipay_appid']) && !empty($PayInfo['alipay_appsecret'])) {
+                            $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_alipay">';
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        // 余额支付判断
+        if (in_array($use_pay_type, [0, 3]) && 1 == $result['data']['pay_balance_open']) {
+            $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="yezf_balance">';
+            $use_pay_type = 2;
+        }
+        $result['data']['use_pay_type'] = $use_pay_type;
+        $result['data']['PayTypeHidden'] = $PayTypeHidden;
         /* END */
 
         // 传入JS参数

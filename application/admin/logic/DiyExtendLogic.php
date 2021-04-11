@@ -8,7 +8,7 @@
  * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
  * ============================================================================
  * Author: 小虎哥 <1105415366@qq.com>
- * Date: 2018-4-3
+ * Date: 2018-4-3 
  */
 
 namespace app\admin\logic;
@@ -41,15 +41,20 @@ class DiyExtendLogic extends Model
      */
     public function getChannelid()
     {
-        $channel = input('param.channel/d', 0);
+        $channeltype = input('param.channeltype/d', 0);
+        $channel = input('param.channel/d', $channeltype);
         if (!empty($channel)) {
             return $channel;
         }
 
-        $controllerName = $this->request->controller();
-        if ('Custom' != $controllerName) {
+        $controller_name = input('param.controller_name/s', '');
+        if (empty($controller_name)) {
+            $controller_name = $this->request->controller();
+        }
+        
+        if ('Custom' != $controller_name) {
             $channel = Db::name('channeltype')->where([
-                    'ctl_name'  => $controllerName,
+                    'ctl_name'  => $controller_name,
                 ])->getField('id');
         }
 

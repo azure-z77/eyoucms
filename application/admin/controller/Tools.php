@@ -39,7 +39,9 @@ class Tools extends Base {
         }
         $path = tpCache('global.web_sqldatapath');
         $path = !empty($path) ? $path : config('DATA_BACKUP_PATH');
-        @unlink(realpath(trim($path, '/')) . DS . 'backup.lock');
+        if (file_exists(realpath(trim($path, '/')) . DS . 'backup.lock')) {
+            @unlink(realpath(trim($path, '/')) . DS . 'backup.lock');
+        }
         // if (session('?backup_config.path')) {
             //备份完成，清空缓存
             session('backup_tables', null);

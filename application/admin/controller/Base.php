@@ -20,6 +20,7 @@ use think\Session;
 class Base extends Controller {
 
     public $session_id;
+    public $php_servicemeal = 0;
 
     /**
      * 析构函数
@@ -44,6 +45,11 @@ class Base extends Controller {
         !defined('SESSION_ID') && define('SESSION_ID', $this->session_id); //将当前的session_id保存为常量，供其它方法调用
 
         parent::_initialize();
+
+       /*及时更新cookie中的admin_id，用于前台的可视化权限验证*/
+       // $auth_role_info = model('AuthRole')->getRole(array('id' => session('admin_info.role_id')));
+       // session('admin_info.auth_role_info', $auth_role_info);
+       /*--end*/
 
         //过滤不需要登陆的行为
         $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
@@ -143,7 +149,9 @@ class Base extends Controller {
         }
         /*end*/
 
-        $this->assign('global', tpCache('global'));
+        $globalConf = tpCache('global');
+        $this->php_servicemeal = $globalConf['php_servicemeal'];
+        $this->assign('global', $globalConf);
     } 
     
     /**

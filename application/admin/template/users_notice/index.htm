@@ -4,28 +4,41 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    {include file="member/bar" /}
+    <div class="fixed-bar">
+        <div class="item-title">
+            <ul class="tab-base nc-row">
+                {eq name="'UsersNotice@index'|is_check_access" value="1"}
+                <li>
+                    <a href="{:url('UsersNotice/index')}" {if condition="in_array($Think.const.CONTROLLER_NAME, ['UsersNotice'])"}class="current"{/if}>
+                    <span>站内通知</span>
+                    </a>
+                </li>
+                {/eq}
+            </ul>
+        </div>
+    </div>
+    
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
-                <div class="fbutton">
-                    <a href="javascript:void(0);" data-href="{:url('UsersNotice/add')}" onclick="openFullframe(this, '新增通知');">
-                         <div class="add" title="新增通知">
-                             <span><i class="layui-icon layui-icon-addition"></i>新增通知</span>
-                         </div>
-                     </a>
-                </div>
+                {include file="users_notice/bar" /}
             </div>
             <form class="navbar-form form-inline" action="{:url('UsersNotice/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
+                    <div class="fl">
+                        <div class="fbutton">
+                            <a href="javascript:void(0);" data-href="{:url('Encodes/users_notice_add')}" onclick="openFullframe(this, '新增通知');">
+                                 <div class="add" title="新增通知">
+                                     <span><i class="layui-icon layui-icon-addition"></i>新增通知</span>
+                                 </div>
+                             </a>
+                        </div>
+                    </div>
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
                         <input type="submit" class="btn" value="搜索">
 						<i class="fa fa-search"></i>
-                    </div>
-                    <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('UsersNotice/index')}';">
                     </div>
                     <div class="sDiv2" style="margin-right: 6px;font-size: 12px;border: none;">
                         <a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/doc/label/all/11112.html?1606469785','站内通知标签使用教程')" >

@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 <body class="bodystyle">
-<div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
+<div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div> 
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
@@ -144,38 +144,54 @@
             {/in}
 
             {in name="$field.nid" value="media,download"}
-            {eq name='$weappRow.Qiniuyun' value='1'}
-            <dl class="row">
-                <dt class="tit">
-                    <label>七牛云存储</label>
-                </dt>
-                <dd class="opt">
-                    <div class="onoff">
-                        <label for="qiniuyun_open1" class="cb-enable {if condition='isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1'}selected{/if}">开启</label>
-                        <label for="qiniuyun_open0" class="cb-disable {if condition='empty($field.data.qiniuyun_open)'}selected{/if}">关闭</label>
-                        <input id="qiniuyun_open1" name="data[qiniuyun_open]" value="1" type="radio" {if condition="isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1"} checked="checked"{/if} onclick="qiniuyun_open(this);">
-                        <input id="qiniuyun_open0" name="data[qiniuyun_open]" value="0" type="radio" {if condition="empty($field.data.qiniuyun_open)"} checked="checked"{/if} onclick="qiniuyun_open(this);">
-                    </div>
-                    <p class="notic">开启前，请先安装插件【七牛云图片加速】</p>
-                </dd>
-            </dl>
-            {/eq}
-            {eq name='$weappRow.AliyunOss' value='1'}
-            <dl class="row">
-                <dt class="tit">
-                    <label>oss存储</label>
-                </dt>
-                <dd class="opt">
-                    <div class="onoff">
-                        <label for="oss_open1" class="cb-enable {if condition='isset($field.data.oss_open) && $field.data.oss_open eq 1'}selected{/if}">开启</label>
-                        <label for="oss_open0" class="cb-disable {if condition='empty($field.data.oss_open)'}selected{/if}">关闭</label>
-                        <input id="oss_open1" name="data[oss_open]" value="1" type="radio" {if condition="isset($field.data.oss_open) && $field.data.oss_open eq 1"} checked="checked"{/if} onclick="oss_open(this);">
-                        <input id="oss_open0" name="data[oss_open]" value="0" type="radio" {if condition="empty($field.data.oss_open)"} checked="checked"{/if} onclick="oss_open(this);">
-                    </div>
-                    <p class="notic">开启前，请先安装插件【阿里云OSS对象存储】</p>
-                </dd>
-            </dl>
-            {/eq}
+                {eq name='$weappRow.Qiniuyun' value='1'}
+                <dl class="row">
+                    <dt class="tit">
+                        <label>七牛云存储</label>
+                    </dt>
+                    <dd class="opt">
+                        <div class="onoff">
+                            <label for="qiniuyun_open1" class="cb-enable {if condition='isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1'}selected{/if}">开启</label>
+                            <label for="qiniuyun_open0" class="cb-disable {if condition='empty($field.data.qiniuyun_open)'}selected{/if}">关闭</label>
+                            <input id="qiniuyun_open1" name="data[qiniuyun_open]" value="1" type="radio" {if condition="isset($field.data.qiniuyun_open) && $field.data.qiniuyun_open eq 1"} checked="checked"{/if} onclick="qiniuyun_open(this);">
+                            <input id="qiniuyun_open0" name="data[qiniuyun_open]" value="0" type="radio" {if condition="empty($field.data.qiniuyun_open)"} checked="checked"{/if} onclick="qiniuyun_open(this);">
+                        </div>
+                        <p class="notic">开启前，请先安装插件【七牛云图片加速】</p>
+                    </dd>
+                </dl>
+                {/eq}
+                {eq name='$weappRow.AliyunOss' value='1'}
+                <dl class="row">
+                    <dt class="tit">
+                        <label>oss存储</label>
+                    </dt>
+                    <dd class="opt">
+                        <div class="onoff">
+                            <label for="oss_open1" class="cb-enable {if condition='isset($field.data.oss_open) && $field.data.oss_open eq 1'}selected{/if}">开启</label>
+                            <label for="oss_open0" class="cb-disable {if condition='empty($field.data.oss_open)'}selected{/if}">关闭</label>
+                            <input id="oss_open1" name="data[oss_open]" value="1" type="radio" {if condition="isset($field.data.oss_open) && $field.data.oss_open eq 1"} checked="checked"{/if} onclick="oss_open(this);">
+                            <input id="oss_open0" name="data[oss_open]" value="0" type="radio" {if condition="empty($field.data.oss_open)"} checked="checked"{/if} onclick="oss_open(this);">
+                        </div>
+                        <p class="notic">开启前，请先安装插件【阿里云OSS对象存储】</p>
+                    </dd>
+                </dl>
+                {/eq}
+                {eq name='$weappRow.Cos' value='1'}
+                <dl class="row">
+                    <dt class="tit">
+                        <label>cos存储</label>
+                    </dt>
+                    <dd class="opt">
+                        <div class="onoff">
+                            <label for="cos_open1" class="cb-enable {if condition='isset($field.data.cos_open) && $field.data.cos_open eq 1'}selected{/if}">开启</label>
+                            <label for="cos_open0" class="cb-disable {if condition='empty($field.data.cos_open)'}selected{/if}">关闭</label>
+                            <input id="cos_open1" name="data[cos_open]" value="1" type="radio" {if condition="isset($field.data.cos_open) && $field.data.cos_open eq 1"} checked="checked"{/if} onclick="cos_open(this);">
+                            <input id="cos_open0" name="data[cos_open]" value="0" type="radio" {if condition="empty($field.data.cos_open)"} checked="checked"{/if} onclick="cos_open(this);">
+                        </div>
+                        <p class="notic">开启前，请先安装插件【腾讯云COS对象存储】</p>
+                    </dd>
+                </dl>
+                {/eq}
             {/in}
 
             <div class="bot">
@@ -186,7 +202,7 @@
     </form>
 </div>
 <script type="text/javascript">
-
+    // 七牛云上传开启
     function qiniuyun_open(obj)
     {
         if ($(obj).val() == 1) {
@@ -195,13 +211,14 @@
                 url: "{:url('Channeltype/ajax_qiniuyun_open')}",
                 data: {_ajax:1},
                 dataType: "JSON",
-                success: function(res1){
-                    if (1 == res1.code){
-                        $('label[for=oss_open1]').removeClass('selected');
-                        $('#oss_open1').attr('checked','');
-                        $('label[for=oss_open0]').addClass('selected');
-                        $('#oss_open0').attr('checked','checked');
-                    }else{
+                success: function(res1) {
+                    if (1 == res1.code) {
+                        // 七牛云开启，关闭腾讯云COS、阿里云OSS
+                        $('label[for=cos_open1], label[for=oss_open1]').removeClass('selected');
+                        $('#cos_open1, #oss_open1').attr('checked','');
+                        $('label[for=cos_open0], label[for=oss_open0]').addClass('selected');
+                        $('#cos_open0, #oss_open0').attr('checked','checked');
+                    } else {
                         $('label[for=qiniuyun_open1]').removeClass('selected');
                         $('#qiniuyun_open1').attr('checked','');
                         $('label[for=qiniuyun_open0]').addClass('selected');
@@ -258,11 +275,13 @@
                     }
                 },
                 error: function(e){
-                    showErrorMsg(e);
+                    showErrorAlert(e.responseText);
                 }
             });
         }
     }
+
+    // 阿里云上传开启
     function oss_open(obj)
     {
         if ($(obj).val() == 1) {
@@ -271,13 +290,14 @@
                 url: "{:url('Channeltype/ajax_oss_open')}",
                 data: {_ajax:1},
                 dataType: "JSON",
-                success: function(res1){
-                    if (1 == res1.code){
-                        $('label[for=qiniuyun_open1]').removeClass('selected');
-                        $('#qiniuyun_open1').attr('checked','');
-                        $('label[for=qiniuyun_open0]').addClass('selected');
-                        $('#qiniuyun_open0').attr('checked','checked');
-                    }else{
+                success: function(res1) {
+                    if (1 == res1.code) {
+                        // 阿里云OSS开启，关闭腾讯云COS、七牛云
+                        $('label[for=cos_open1], label[for=qiniuyun_open1]').removeClass('selected');
+                        $('#cos_open1, #qiniuyun_open1').attr('checked','');
+                        $('label[for=cos_open0], label[for=qiniuyun_open0]').addClass('selected');
+                        $('#cos_open0, #qiniuyun_open0').attr('checked','checked');
+                    } else {
                         $('label[for=oss_open1]').removeClass('selected');
                         $('#oss_open1').attr('checked','');
                         $('label[for=oss_open0]').addClass('selected');
@@ -334,7 +354,85 @@
                     }
                 },
                 error: function(e){
-                    showErrorMsg(e);
+                    showErrorAlert(e.responseText);
+                }
+            });
+        }
+    }
+
+    // 腾讯云上传开启
+    function cos_open(obj) {
+        if ($(obj).val() == 1) {
+            $.ajax({
+                type: 'GET',
+                url : "{:url('Channeltype/ajax_cos_open')}",
+                data: {_ajax: 1},
+                dataType: "JSON",
+                success: function(res1) {
+                    if (1 == res1.code) {
+                        // 腾讯云COS开启，关闭七牛云、阿里云OSS
+                        $('label[for=qiniuyun_open1], label[for=oss_open1]').removeClass('selected');
+                        $('#qiniuyun_open1, #oss_open1').attr('checked','');
+                        $('label[for=qiniuyun_open0], label[for=oss_open0]').addClass('selected');
+                        $('#qiniuyun_open0, #oss_open0').attr('checked','checked');
+                    } else {
+                        $('label[for=cos_open1]').removeClass('selected');
+                        $('#cos_open1').attr('checked','');
+                        $('label[for=cos_open0]').addClass('selected');
+                        $('#cos_open0').attr('checked','checked');
+
+                        if (res1.data.code == -1) {
+                            showErrorMsg(res1.msg);
+                        } else if (res1.data.code == -2) {
+                            layer.alert(res1.msg, {icon: 5, title: false, btn:['启用']}, function(index){
+                                layer.close(index);
+                                layer_loading('正在启用');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "{:url('Index/changeTableVal')}",
+                                    data: {table:'weapp', id_name:'id', id_value:res1.data.id, field:'status', value:1, _ajax:1},
+                                    dataType: "JSON",
+                                    success: function (res) {
+                                        layer.closeAll();
+                                        if (res.code == 1) {
+                                            // $('label[for=cos_open1]').addClass('selected');
+                                            // $('#cos_open1').attr('checked','checked');
+                                            // $('label[for=cos_open0]').removeClass('selected');
+                                            // $('#cos_open0').attr('checked','');
+                                        } else {
+                                            showErrorMsg(res.msg);
+                                        }
+                                    }
+                                })
+                            });
+                        } else if (res1.data.code == -3) {
+                            layer.confirm(res1.msg, {
+                                icon: 5,
+                                title: false,
+                                btn: ['立即配置']
+                            }, function () {
+                                layer.closeAll();
+                                //iframe窗
+                                layer.open({
+                                    type: 2,
+                                    title: false,
+                                    fixed: true, //不固定
+                                    shadeClose: false,
+                                    shade: 0.3,
+                                    maxmin: false, //开启最大化最小化按钮
+                                    area: ['80%', '80%'],
+                                    content: "{:weapp_url('Cos/Cos/index')}"
+                                });
+                            }, function (index) {
+                                layer.closeAll();
+                            });
+                        } else {
+                            showErrorMsg(res1.msg);
+                        }
+                    }
+                },
+                error: function(e){
+                    showErrorAlert(e.responseText);
                 }
             });
         }
@@ -370,7 +468,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert(e.responseText, {icon: 5, title:false});
+                showErrorAlert(e.responseText);
             }
         });
     }

@@ -213,6 +213,14 @@
                 return false;
             }
         }
+        
+        // 后台登录超时
+        var web_login_expiretime_obj = $('input[name=web_login_expiretime]');
+        if (web_login_expiretime_obj.val() < 60) {
+            showErrorMsg('后台登录超时不能少于60秒！');
+            web_login_expiretime_obj.focus();
+            return false;
+        }
 
         var adminbasefileObj = $('input[name=adminbasefile]');
         var adminbasefile_oldObj = $('input[name=adminbasefile_old]');

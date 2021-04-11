@@ -8,7 +8,7 @@
  * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
  * ============================================================================
  * Author: 易而优团队 by 陈风任 <491085389@qq.com>
- * Date: 2019-11-21
+ * Date: 2019-11-21 
  */
 
 namespace app\admin\controller;
@@ -93,7 +93,7 @@ class Statistics extends Base {
             'b.order_status' => ['IN', [1, 2, 3]],
         ];
         $Price = Db::name('shop_order_details')->alias('a')
-            ->field('a.product_id, sum(a.product_price*a.num) as price, a.num')
+            ->field('a.product_id, sum(a.product_price*a.num) as price, count(a.details_id) as sales_num')
             ->join('__SHOP_ORDER__ b', 'a.order_id = b.order_id', 'LEFT')
             ->where($where)
             ->group('product_id')
@@ -106,7 +106,7 @@ class Statistics extends Base {
             $Return[$key]['sales_amount'] = !empty($Price[$value['aid']]['price']) ? $Price[$value['aid']]['price'] : 0;
             $Return[$key]['title'] = @msubstr($value['title'], 0, 25, '...');
             $Return[$key]['arcurl'] = get_arcurl($array_new[$value['aid']]);
-            $Return[$key]['sales_num'] = !empty($Price[$value['aid']]['num']) ? $Price[$value['aid']]['num'] : 0;
+            $Return[$key]['sales_num'] = !empty($Price[$value['aid']]['sales_num']) ? $Price[$value['aid']]['sales_num'] : 0;
         }
         return $Return;
     }

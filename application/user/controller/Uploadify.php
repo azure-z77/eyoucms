@@ -17,7 +17,7 @@ class Uploadify extends Base {
 
     private $image_type = '';
     private $sub_name = '';
-    private $fileExt = 'jpg,png,gif,jpeg,bmp,ico,webp';
+    private $imageExt = '';
     private $savePath = 'allimg/';
     private $upload_path = '';
     
@@ -33,8 +33,9 @@ class Uploadify extends Base {
         header("Content-Type: text/html; charset=utf-8");
         
         $this->sub_name = date('Ymd/');
+        $this->imageExt = config('global.image_ext');
         $this->image_type = tpCache('basic.image_type');
-        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->fileExt;
+        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->imageExt;
         $this->upload_path = UPLOAD_PATH.'user/'.$this->users_id.'/';
     }
 
@@ -407,7 +408,7 @@ class Uploadify extends Base {
             respose($return_data,'json');
         }
 
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         // 上传图片框中的描述表单名称，
         $pictitle = input('pictitle');
         $dir = input('dir');
@@ -423,8 +424,8 @@ class Uploadify extends Base {
         if (pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico') {
             $result = $this->validate(
                 ['file' => $file], 
-                ['file'=>'image|fileSize:'.$image_upload_limit_size.'|fileExt:'.$this->fileExt],
-                ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$this->fileExt]                
+                ['file'=>'image|fileSize:'.$max_file_size.'|fileExt:'.$this->image_type],
+                ['file.image' => '上传文件必须为图片','file.fileSize' => '上传图片过大','file.fileExt'=>'上传图片后缀名必须为'.$this->image_type]
                );
         } else {
             $result = true;
@@ -432,7 +433,7 @@ class Uploadify extends Base {
 
         /*验证图片一句话木马*/
         if (false === check_illegal($file->getInfo('tmp_name'))) {
-            $result = '禁止上传木马图片！';
+            $result = '疑似木马图片！';
         }
         /*--end*/
 
@@ -515,8 +516,9 @@ class Uploadify extends Base {
             $return_data['state'] = '非法上传';
             respose($return_data,'json');
         }
-        $fileExt = tpCache('basic.file_type');
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $file_type = tpCache('basic.file_type');
+        $file_type = !empty($file_type) ? str_replace('|', ',', $file_type) : 'zip,gz,rar,iso,doc,xls,ppt,wps,txt,docx';
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
 
         $file = request()->file('file');
         // 定义文件名
@@ -528,24 +530,11 @@ class Uploadify extends Base {
         // 过滤文件名.\/的特殊字符，防止利用上传漏洞
         $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
 
-        /*拓展名验证start*/
-        $fileExtArr = explode('|',$fileExt);
-        //拓展名
-        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        if (!in_array($ext,$fileExtArr)){
-            $res = [ 'state' => '上传文件后缀名必须为' . $fileExt];
-            respose($res,'json');
-
-        }
-        /*拓展名验证end*/
         $result = $this->validate(
             ['file' => $file],
-//            ['file'=>'image|fileSize:'.$image_upload_limit_size.'|fileExt:'.$fileExt],
-//            ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$fileExt]
-            ['file'=>'fileSize:'.$image_upload_limit_size],
-            ['file.fileSize' => '上传文件过大']
+            ['file'=>'fileSize:'.$max_file_size.'|fileExt:'.$file_type],
+            ['file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$file_type]
         );
-
 
         if (true !== $result || empty($file)) {
             $state = "ERROR：" . $result;
@@ -567,22 +556,6 @@ class Uploadify extends Base {
                 $state = "ERROR" . $file->getError();
             }
             $return_url = '/'.$savePath.$info->getSaveName();
-
-            // $ossConfig = tpCache('oss');
-            // if ($ossConfig['oss_switch']) {
-            //     //商品图片可选择存放在oss
-            //     // $object = $savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-            //     $object = $savePath.session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)).'.'.$ext;
-            //     $ossClient = new \app\common\logic\OssLogic;
-            //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-            //     if (!$return_url) {
-            //         $state = "ERROR" . $ossClient->getError();
-            //         $return_url = '';
-            //     } else {
-            //         $state = "SUCCESS";
-            //     }
-            //     @unlink($file->getRealPath());
-            // }
 
             $return_data['url'] = ROOT_DIR.$return_url;// 支持子目录
 

@@ -138,26 +138,9 @@
                             <td>
                                 {$admin_order_status_arr[$OrderData.order_status]|default=''}
                                 {eq name="$OrderData.order_status" value="2"}
-                                    &nbsp;<a href="javascript:void(0);" data-url="{:url('Shop/order_send',array('order_id'=>$OrderData['order_id']))}" onclick="sendOrderDetails(this);" class="ncap-btn ncap-btn-green" >
+                                    &nbsp;<a href="{:url('Shop/order_send',array('order_id'=>$OrderData['order_id']))}" class="ncap-btn ncap-btn-green" >
                                         发货详情
                                     </a>
-                                    <script type="text/javascript">
-                                        // 发货、标记未付款
-                                        function sendOrderDetails(obj){
-                                            var url = $(obj).attr('data-url');
-                                            //iframe窗
-                                            var iframes = layer.open({
-                                                type: 2,
-                                                title: '订单发货详情',
-                                                fixed: true, //不固定
-                                                shadeClose: false,
-                                                shade: 0.3,
-                                                area: ['100%', '100%'],
-                                                content: url
-                                            });
-                                            layer.full(iframes);
-                                        }
-                                    </script>
                                     {eq name="$OrderData.prom_type" value="0"}
                                         &nbsp;<a href="javascript:void(0);" data-url="{$MobileExpressUrl}" onclick="LogisticsInquiry(this);" class="ncap-btn ncap-btn-green" >
                                             物流查询
@@ -277,7 +260,7 @@
                     </dd>
                 </dl>
                 <div class="bot pl120" style="padding-bottom:0px;">
-                    <input type="hidden" name="gourl" value="{$gourl}">
+                    <input type="hidden" name="gourl" value="{$gourl|default=''}">
                     <a href="JavaScript:void(0);" onclick="UpNote('{$OrderData.order_id}');" class="ncap-btn-big ncap-btn-green" id="submitBtn">保存</a>
                 </div>
             </div>

@@ -61,7 +61,12 @@
                         </div>
                         <div class="plug-text">
                             <div class="plug-text-title">
-                                <a href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}">{$vo.name}</a>
+                                {if condition="empty($vo['config']['management']['href'])"}
+                                <a class="title-l" href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}">{$vo.name}</a>
+                                {else /}
+                                <a class="title-l" href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}" target="{$vo['config']['management']['target']|default='_self'}">{$vo.name}</a>
+                                {/if}
+                                {$RenewList[$vo['code']]['maturity_text']|default=''}
                             </div>
                             <div class="plug-text-versions">
                                 <span>版本：{$vo.config.version|default='未知'}</span>
@@ -182,7 +187,7 @@
         var code = $(obj).attr('data-code');
         var v = $("#"+code+"_upgrade").val();    
         var intro = $("#"+code+"_intro").val();   
-        intro += '<style type="text/css">.layui-layer-content{height:270px!important}</style>';
+        intro += '<style type="text/css">.layui-layer-content{height:270px!important;text-align:left!important;}</style>';
         var notice = $("#"+code+"_notice").val(); 
         v = notice + intro + '<br/>' + v;
         //询问框

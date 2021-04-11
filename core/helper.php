@@ -968,4 +968,20 @@ if (!function_exists('code_validate')) {
 
         return false;
     }
+
+    if (!function_exists('DedeM')) {
+        /**
+         * 兼容织梦CMS
+         * @param string $name 表名
+         * @return DB对象
+         */
+        function DedeM($name = '', $prefix = 'dede_')
+        {
+            if(!empty($name))
+            {
+                $table = $prefix . $name;
+                return Db::table($table);
+            }
+        }
+    }
 }

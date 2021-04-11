@@ -19,7 +19,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     
-    <form class="form-horizontal" id="post_form" action="{:url('UsersNotice/add')}" method="post">
+    <form class="form-horizontal" id="post_form" action="{:url('Encodes/users_notice_add')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
                 <dt class="tit">
@@ -110,7 +110,7 @@
         layer_loading('正在处理');
         $.ajax({
             type : 'post',
-            url : "{:url('UsersNotice/add', ['_ajax'=>1])}",
+            url : "{:url('Encodes/users_notice_add', ['_ajax'=>1])}",
             data : $('#post_form').serialize(),
             dataType : 'json',
             success : function(res){

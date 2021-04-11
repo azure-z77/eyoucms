@@ -14,7 +14,6 @@
 namespace think\template\taglib\eyou;
 
 use think\Db;
-
 use app\home\logic\FieldLogic;
 
 /**
@@ -22,7 +21,6 @@ use app\home\logic\FieldLogic;
  */
 class TagLikearticle extends Base
 {
-    public $aid = '';
     public $fieldLogic;
     public $archives_db;
 
@@ -32,7 +30,6 @@ class TagLikearticle extends Base
         parent::_initialize();
         $this->fieldLogic  = new FieldLogic();
         $this->archives_db = Db::name('archives');
-        $this->aid         = input('param.aid/d', 0);
     }
 
     /**
@@ -176,6 +173,7 @@ class TagLikearticle extends Base
 
         // 预定相关文档的数量
         $limit_arr = explode(',', $limit);
+        $limit_start = current($limit_arr);
         $limit_end = end($limit_arr);
         $limit_num = intval($limit_end);
 
@@ -195,7 +193,7 @@ class TagLikearticle extends Base
                 if (!empty($typeidArr)) {
                     $tagmap['typeid'] = ['IN', $typeidArr];
                 }
-                $tag_aids = Db::name('taglist')->where($tagmap)->group('aid')->order('aid desc')->limit(100)->column('aid');
+                $tag_aids = Db::name('taglist')->where($tagmap)->group('aid')->order('aid desc')->limit($limit_start,100)->column('aid');
 
                 $map = [];
                 $map['a.aid'] = ['IN', $tag_aids];
@@ -215,7 +213,7 @@ class TagLikearticle extends Base
                     ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                     ->where($map)
                     ->orderRaw('a.aid desc')
-                    ->limit($limit2)
+                    ->limit($limit_start,$limit2)
                     ->select();
                 $result = array_merge($result, $result2);
             }
@@ -249,7 +247,7 @@ class TagLikearticle extends Base
                 ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
                 ->where($map)
                 ->orderRaw('a.aid desc')
-                ->limit($limit2)
+                ->limit($limit_start,$limit2)
                 ->select();
             $result = array_merge($result, $result2);
         }

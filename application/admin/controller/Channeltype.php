@@ -68,6 +68,11 @@ class Channeltype extends Base
             }
         }
 
+        $nids = [];
+        if (2 > $this->php_servicemeal) array_push($nids, 'ask');
+        if (1.5 > $this->php_servicemeal) array_push($nids, 'media');
+        !empty($nids) && $condition['a.nid'] = ['NOTIN', $nids];
+
         $count = $this->channeltype_db->alias('a')->where($condition)->count('id');// 查询满足要求的总记录数
         $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $this->channeltype_db->alias('a')
@@ -335,14 +340,12 @@ class Channeltype extends Base
 
         /*下载/视频模型*/
         $weappRow = [];
-        $Qiniuyun = Db::name('weapp')->where('code','Qiniuyun')->value('status');
-        $AliyunOss = Db::name('weapp')->where('code','AliyunOss')->value('status');
-        if (!empty($AliyunOss)){
-            $weappRow['AliyunOss'] = 1;
-        }
-        if (!empty($Qiniuyun)){
-            $weappRow['Qiniuyun'] = 1;
-        }
+        $weappList = Db::name('weapp')->field('code, status')->where([
+                'code'  => ['IN', ['Qiniuyun','AliyunOss','Cos']]
+            ])->getAllWithIndex('code');
+        if (!empty($weappList['AliyunOss']['status'])) $weappRow['AliyunOss'] = 1;
+        if (!empty($weappList['Qiniuyun']['status'])) $weappRow['Qiniuyun'] = 1;
+        if (!empty($weappList['Cos']['status'])) $weappRow['Cos'] = 1;
         $assign_data['weappRow'] = $weappRow;
         /*下载/视频模型*/
 
@@ -563,6 +566,8 @@ EOF;
                         'id'    => $id,
                     ])->find();
 
+                if (51 == $id) $this->ajax_ask_show($row, $status); // 问答模型
+
                 $nofileArr = [];
                 /*检测模板是否存在*/
                 $tplplan = 'template/'.TPL_THEME.'pc';
@@ -658,6 +663,7 @@ EOF;
             $id = input('id/d');
             $status = input('status/d');
             if(!empty($id)){
+                // if (51 == $id) return $this->ajax_ask_check_tpl(); // 问答模型
                 $row = Db::name('channeltype')->where([
                         'id'    => $id,
                     ])->find();
@@ -952,6 +958,7 @@ EOF;
             $this->success('检测通过!');
         }
     }
+
     /**
      * oss开关检测
      */
@@ -972,4 +979,155 @@ EOF;
             $this->success('检测通过!');
         }
     }
+
+    /**
+     * cos开关检测
+     */
+    public function ajax_cos_open()
+    {
+        if (IS_AJAX) {
+            $weappInfo = Db::name('weapp')->where('code', 'Cos')->field('id, status, data')->find();
+            if (empty($weappInfo)) {
+                $this->error('请先安装配置【腾讯云OSS对象存储】插件!', null, ['code'=>-1]);
+            } else if (1 != $weappInfo['status']) {
+                $this->error('请先启用【腾讯云OSS对象存储】插件!', null, ['code'=>-2,'id'=>$weappInfo['id']]);
+            } else {
+                $Cos = json_decode($weappInfo['data'], true);
+                if (empty($Cos)) {
+                    $this->error('请先配置【腾讯云OSS对象存储】插件!', null, ['code'=>-3]);
+                }
+            }
+            $this->success('检测通过!');
+        }
+    }
+
+    /*---------------------------------问答模板 start-------------------------*/
+
+    /**
+     * 检测问答模板并启用与禁用
+     */
+    public function ajax_ask_show($row, $status)
+    {
+        if (is_dir('./weapp/Ask/') && 1 == $status) {
+            $this->error('检测到已安装【问答插件】，请先卸载！', null, ['confirm'=>0]);
+        }
+
+        $nofileArr = [];
+        /*检测ask文件目录是否存在*/
+        $tplplan = 'template/'.TPL_THEME.'pc/ask';
+        $planPath = realpath($tplplan);
+        if (!file_exists($planPath)) {
+            $nofileArr[] = [
+                'title' => '缺少文件目录：',
+                'file'  => str_replace('\\', '/', $tplplan),
+            ];
+        }
+        /*--end*/
+
+        if (empty($status) || (1 == $status && empty($nofileArr))) {
+            $r = Db::name('channeltype')->where([
+                    'id'    => $row['id'],
+                ])
+                ->cache(true,null,"channeltype")
+                ->update([
+                    'status'    => $status,
+                    'update_time'   => getTime(),
+                ]);
+            if($r !== false){
+                delFile(CACHE_PATH, true);
+                adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
+                $this->success('操作成功', null, ['confirm'=>0]);
+            }else{
+                $this->error('操作失败', null, ['confirm'=>0]);
+            }
+        } else {
+            $tpltype = [];
+            $msg = "该模型缺少模板，系统将自动下载问答模板文件：<br/>";
+            foreach ($nofileArr as $key => $val) {
+                $msg .= '<font color="red">'.$val['title'].$val['file']."</font><br/>";
+                $tpltype[] = $val['type'];
+            }
+            delFile(CACHE_PATH, true);
+            $this->success($msg, null, ['confirm'=>1,'tpltype'=>base64_encode(json_encode($tpltype))]);
+        }
+
+    }
+
+    /**
+     * 启用并创建问答目录/文件
+     */
+    /*public function ajax_ask_check_tpl()
+    {
+        $themeStyleArr = ['pc','mobile'];
+        foreach ($themeStyleArr as $k1 => $theme) {
+            $path = DATA_PATH . '/template/ask/'.$theme;
+            $path = realpath($path);
+            $copy_to_path = ROOT_PATH . 'template/' . TPL_THEME . $theme;
+            $copy_to_path = realpath($copy_to_path);
+            if (file_exists($path) && file_exists($copy_to_path)) {
+                // 递归复制文件夹
+                $copy_bool = recurse_copy($path, $copy_to_path);
+                if (true !== $copy_bool) {
+                    $this->error($copy_bool);
+                }
+            }
+        }
+        $row = Db::name('channeltype')->find(51);
+        $this->ajax_ask_show($row, 1);
+        $this->success('操作成功');
+    }*/
+
+    // 检测并第一次从官方同步问答中心的前台模板
+    public function ajax_syn_theme_ask()
+    {
+        $id = input('id/d');
+        $status = input('status/d');
+
+        $row = Db::name('channeltype')->find(51);
+        $r = Db::name('channeltype')->where([
+                'id'    => $row['id'],
+            ])
+            ->cache(true,null,"channeltype")
+            ->update([
+                'status'    => $status,
+                'update_time'   => getTime(),
+            ]);
+        if($r !== false){
+            delFile(CACHE_PATH, true);
+            adminLog('编辑【'.$row['title'].'】的状态为：'.(!empty($status)?'启用':'禁用'));
+
+            /*下载问答模板*/
+            $icon = 2;
+            $msg = '下载问答中心模板包异常，请第一时间联系技术支持，排查问题！';
+            $askLogic = new \app\admin\logic\AskLogic;
+            $data = $askLogic->syn_theme_ask();
+            if (true !== $data) {
+                if (1 <= intval($data['code'])) {
+                    $this->success('操作成功', null, ['confirm'=>0]);
+                } else {
+                    if (is_array($data)) {
+                        $msg = $data['msg'];
+                        $icon = !empty($data['icon']) ? $data['icon'] : $icon;
+                    }
+
+                    if (4 == $icon) {
+                        Db::name('channeltype')->where([
+                                'id'    => $row['id'],
+                            ])
+                            ->cache(true,null,"channeltype")
+                            ->update([
+                                'status'    => 0,
+                                'update_time'   => getTime(),
+                            ]);
+                    }
+                }
+            }
+            $this->error($msg, null, ['confirm'=>0, 'icon'=>$icon]);
+            /*end*/
+        }else{
+            $this->error('操作失败', null, ['confirm'=>0]);
+        }
+    }
+
+    /*---------------------------------问答模板 end-------------------------*/
 }

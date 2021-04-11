@@ -100,7 +100,11 @@ EOF;
         if (true === $is_appendJs) {
             // 加载JS需要的参数
             $channel = \think\Db::name('archives')->where(['aid'=>$aid])->getField('channel');
-            $data['get_url'] = ROOT_DIR . "/index.php?m=api&c=Ajax&a=get_arcrank&aid={$aid}";
+            $get_url = ROOT_DIR . "/index.php?m=api&c=Ajax&a=get_arcrank&aid={$aid}";
+            if (!empty($admin_id)) {
+                $get_url .= "&admin_id={$admin_id}";
+            }
+            $data['get_url'] = $get_url;
             $data['buy_url'] = ROOT_DIR . "/index.php?m=user&c=Media&a=media_order_buy&_ajax=1";
             $data['VideoLogicUrl'] = ROOT_DIR . "/index.php?m=api&c=Ajax&a=video_logic&_ajax=1";
             $data['LevelCentreUrl'] = ROOT_DIR . "/index.php?m=user&c=Level&a=level_centre";

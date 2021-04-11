@@ -162,12 +162,14 @@ class Arctype extends Model
             $ids = array_unique($id);
             $row = Db::name('Arctype')->field('parent_id, count(id) AS total')->where([
                     'parent_id'=>['IN', $ids],
+                    'current_channel'=>['neq', 51], // 过滤问答模型
                     'is_del'    => 0,
                 ])->group('parent_id')->getAllWithIndex('parent_id');
             return $row;
         } else {
             $count = Db::name('Arctype')->where([
                     'parent_id' => $id,
+                    'current_channel'=>['neq', 51], // 过滤问答模型
                     'is_del'    => 0,
                 ])->count('id');
             return ($count > 0 ? 1 : 0);
@@ -723,16 +725,16 @@ class Arctype extends Model
                     $aid = M('archives')->insertGetId($archivesData);
                     if ($aid) {
                         // ---------后置操作
-                        if (!isset($post['addonFieldExt'])) {
-                            $post['addonFieldExt'] = array(
+                        if (!isset($data['addonFieldExt'])) {
+                            $data['addonFieldExt'] = array(
                                 'typeid'    => $archivesData['typeid'],
                             );
                         } else {
-                            $post['addonFieldExt']['typeid'] = $archivesData['typeid'];
+                            $data['addonFieldExt']['typeid'] = $archivesData['typeid'];
                         }
-                        $post['addonFieldExt']['content'] = !empty($post['addonFieldExt']['content']) ? $post['addonFieldExt']['content'] : '';
+                        $data['addonFieldExt']['content'] = !empty($data['addonFieldExt']['content']) ? $data['addonFieldExt']['content'] : '';
                         $addData = array(
-                            'addonFieldExt' => $post['addonFieldExt'],
+                            'addonFieldExt' => $data['addonFieldExt'],
                         );
                         $addData = array_merge($addData, $archivesData);
                         model('Single')->afterSave($aid, $addData, 'add');
@@ -954,28 +956,55 @@ class Arctype extends Model
                 ->cache(true,null,"arctype")
                 ->update($data);
             if($bool){
-                /*批量更新所有子孙栏目的最顶级模型ID*/
+                /*批量更新所有子孙栏目的最顶级模型ID / 顶级栏目ID*/
                 $allSonTypeidArr = $this->getHasChildren($data['id'], false); // 获取当前栏目的所有子孙栏目（不包含当前栏目）
                 if (!empty($allSonTypeidArr)) {
+                    /*记录每一上级的指定数据*/
+                    $arctypeArr = [];
+                    $arctypeArr[$data['id']] = [
+                        'dirpath'   => $data['dirpath'],
+                    ];
+                    /*end*/
+
                     $i = 1;
                     $minuendGrade = 0;
+                    $update_data_all = [];
                     foreach ($allSonTypeidArr as $key => $val) {
                         if ($i == 1) {
-                            $firstGrade = intval($post['oldgrade']);
-                            $minuendGrade = intval($grade) - $firstGrade;
+                            $firstGrade = intval($data['oldgrade']);
+                            $minuendGrade = intval($data['grade']) - $firstGrade;
                         }
-                        $update_data = array(
-                            'channeltype'        => $data['channeltype'],
-                            'update_time'        => getTime(),
-                            'grade'   =>  Db::raw('grade+'.$minuendGrade),
-                        );
-                        M('arctype')->where([
-                                'id'    => $val['id'],
-                                'lang'  => $admin_lang,
-                            ])
-                            ->cache(true,null,"arctype")
-                            ->update($update_data);
+
+                        /*记录每一上级的指定数据*/
+                        $arctypeArr[$val['id']] = [
+                            'dirpath'   => $arctypeArr[$val['parent_id']]['dirpath'].'/'.$val['dirname'],
+                        ];
+                        /*end*/
+
+                        $update_data = [
+                            'id'                => $val['id'],
+                            'channeltype'       => $data['channeltype'],
+                            'topid'             => !empty($data['topid']) ? $data['topid'] : $data['id'],
+                            'dirpath'           => $arctypeArr[$val['id']]['dirpath'],
+                            'update_time'       => getTime(),
+                        ];
+                        !empty($minuendGrade) && $update_data['grade'] = Db::raw('grade+'.$minuendGrade);
+
+                        /*父级模板继承*/
+                        if (!empty($data['inherit_status'])) {
+                            $update_data['templist'] = $data['templist'];
+                            $update_data['tempview'] = $data['tempview'];
+                        }
+                        /*end*/
+
+                        $update_data_all[] = $update_data;
+
                         ++$i;
+                    }
+
+                    if (!empty($update_data_all)) {
+                        model('Arctype')->saveAll($update_data_all);
+                        \think\Cache::clear('arctype');
                     }
                 }
                 /*--end*/
@@ -1005,15 +1034,15 @@ class Arctype extends Model
                     }
                     if ($up) {
                         // ---------后置操作
-                        if (!isset($post['addonFieldExt'])) {
-                            $post['addonFieldExt'] = array(
+                        if (!isset($data['addonFieldExt'])) {
+                            $data['addonFieldExt'] = array(
                                 'typeid'    => $data['id'],
                             );
                         } else {
-                            $post['addonFieldExt']['typeid'] = $data['id'];
+                            $data['addonFieldExt']['typeid'] = $data['id'];
                         }
                         $updateData = array(
-                            'addonFieldExt' => $post['addonFieldExt'],
+                            'addonFieldExt' => $data['addonFieldExt'],
                         );
                         $updateData = array_merge($updateData, $archivesData);
                         model('Single')->afterSave($aid, $updateData, $opt);
@@ -1049,5 +1078,29 @@ class Arctype extends Model
             }
         }
         return $bool;
+    }
+
+    /**
+     * 获取当前栏目下有几层，包括自身这一层
+     * @author wengxianhu by 2017-7-26
+     */
+    public function getHierarchy($id = '')
+    {
+        $hierarchy = 1;
+        $ids = [$id];
+        while (true)
+        {
+            $ids = Db::name('arctype')->where([
+                    'parent_id'    => ['IN', $ids],
+                    'lang'    => get_admin_lang(),
+                ])->column('id');
+            if (empty($ids)) {
+                break;
+            } else {
+                $hierarchy++;
+            }
+        }
+
+        return $hierarchy;
     }
 }

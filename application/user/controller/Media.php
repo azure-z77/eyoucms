@@ -26,6 +26,10 @@ class Media extends Base
         parent::_initialize();
         $this->users_db = Db::name('users');
         $this->media_order_db = Db::name('media_order');
+        $this->media_play_record_db = Db::name('media_play_record');
+
+        $functionLogic = new \app\common\logic\FunctionLogic;
+        $functionLogic->validate_authorfile(1.5);
     }
 
     // 视频订单列表页
@@ -153,6 +157,64 @@ class Media extends Base
         return $this->fetch('users/media_index');
     }
 
+    /**
+     * 播放记录
+     */
+    public function play_index()
+    {
+        $condition['a.users_id']    = $this->users_id;
+        $condition['b.users_price'] = ['>', 0];
+        // 分页
+        $count = $this->media_play_record_db
+            ->alias('a')
+            ->join('archives b', 'a.aid=b.aid', 'inner')
+            ->where($condition)
+            ->group('a.aid')->count();
+
+        $Page = new Page($count, 10);
+        $show = $Page->show();
+        $this->assign('page', $show);
+
+        $total_field = 'select sum(file_time) as total_time from ' . PREFIX . 'media_file where aid= a.aid';
+
+        // 数据查询
+        $list = $this->media_play_record_db
+            ->where($condition)
+            ->alias('a')
+            ->field("a.file_id,a.aid,sum(a.play_time) as sum_play_time,max(a.update_time) as last_update_time,c.*,b.*,({$total_field}) as total_time,(sum(a.play_time)/({$total_field})) as process")
+            ->join('archives b', 'a.aid=b.aid', 'inner')
+            ->join('arctype c', 'b.typeid=c.id', 'left')
+            ->group('a.aid')
+            ->order('process desc')
+            ->limit($Page->firstRow . ',' . $Page->listRows)
+            ->select();
+
+        $total_time = 0;
+        // 订单处理
+        foreach ($list as $key => $val) {
+            $total_time              += $val['sum_play_time'];
+            $val['process']          = (round($val['process'], 2) * 100) . "%";
+            $val['sum_play_time']    = gmSecondFormat($val['sum_play_time'], ':');
+            $val['sum_file_time']    = gmSecondFormat($val['total_time'], ':');
+            $val['last_update_time'] = date('Y-m-d H:i:s', $val['last_update_time']);
+            if (!empty($val['litpic'])) {
+                $val['litpic'] = handle_subdir_pic($val['litpic']);
+            } else {
+                $val['litpic'] = get_default_pic();
+            }
+            $val['arcurl'] = urldecode(arcurl('home/Media/view', $val));
+            $list[$key]    = $val;
+        }
+        // 订单列表
+        $eyou['field']['list'] = $list;
+        $total_time = gmSecondFormat($total_time, ':');
+        $eyou['field']['total_time'] = $total_time;
+        $this->assign('eyou', $eyou);
+
+        return $this->fetch('users/users_media_play_index');
+
+    }
+
     // 视频产品购买接口
     public function media_order_buy() {
         if (IS_AJAX_POST) {
@@ -253,6 +315,8 @@ class Media extends Base
 
                 $this->success('订单已生成！', $PaymentUrl);
             }
+        } else {
+            abort(404);
         }
     }
 

@@ -510,7 +510,7 @@ class Uiset extends Controller
         } else {
             $uplaod_data = func_common('litpic_local');
             if ($uplaod_data['errcode'] > 0) {
-                return $uplaod_data;
+                $this->error($uplaod_data['errmsg']);
             }
             $litpic = handle_subdir_pic($uplaod_data['img_url']);
         }

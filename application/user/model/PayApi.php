@@ -39,42 +39,61 @@ class PayApi extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string  $ReturnData : 微信支付所需参数数组
      */
-    public function getWechatPay($openid, $out_trade_no, $total_fee, $body="支付", $attach="微信端H5支付", $is_applets = 0)
+    public function getWechatPay($openid, $out_trade_no, $total_fee, $PayInfo = [], $is_applets = 0, $transaction_type = 2)
     {
         // 获取微信配置信息
-        $where = [
-            'pay_id' => 1,
-            'pay_mark' => 'wechat'
-        ];
-        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
-        if (empty($PayInfo)) return false;
-        $wechat = unserialize($PayInfo);
+        if (empty($PayInfo)) {
+            $where = [
+                'pay_id' => 1,
+                'pay_mark' => 'wechat'
+            ];
+            $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (empty($PayInfo)) return false;
+            $PayInfo = unserialize($PayInfo);
+        }
 
-        $this->key = $wechat['key'];
+        // 支付密钥
+        $this->key = $PayInfo['key'];
 
+        // 小程序配置
         if (1 === $is_applets) {
-            // 小程序配置
             $MiniproValue = Db::name('weapp_minipro0002')->where('type', 'minipro')->getField('value');
             if (empty($MiniproValue)) return false;
             $MiniproValue = !empty($MiniproValue) ? json_decode($MiniproValue, true) : [];
-            $wechat['appid'] = $MiniproValue['appId'];
+            $PayInfo['appid'] = $MiniproValue['appId'];
+
+            // 支付备注
+            $body = "小程序支付";
+        } else {
+            // 支付备注
+            $body = "微信支付";
+        }
+
+        // 支付备注
+        if (1 == config('global.opencodetype')) {
+            $web_name = tpCache('web.web_name');
+            $web_name = !empty($web_name) ? "[{$web_name}]" : "";
+            $body = $web_name . $body;
         }
 
         //支付数据
-        $data['body']             = $body."订单号:{$out_trade_no}";
-        $data['attach']           = $attach;
+        $data['body']             = $body . "订单号:{$out_trade_no}";
+        $data['attach']           = "wechat|,|is_notify|,|" . $transaction_type . '|,|' . session('users_id');
         $data['out_trade_no']     = $out_trade_no;
         $data['total_fee']        = $total_fee * 100;
         $data['nonce_str']        = getTime();
         $data['spbill_create_ip'] = $this->get_client_ip();
-        $data['appid']            = $wechat['appid'];
-        $data['mch_id']           = $wechat['mchid'];
+        $data['appid']            = $PayInfo['appid'];
+        $data['mch_id']           = $PayInfo['mchid'];
         $data['trade_type']       = "JSAPI";
-        $data['notify_url']       = url('users/Pay/mobile_pay_notify');
+        $data['notify_url']       = request()->domain() . ROOT_DIR . '/index.php'; // 异步地址
         $data['openid']           = $openid;
- 
+        
+        // MD5加密签名
         $sign = $this->getParam($data);
-        $dataXML = "<xml>
+
+        // 数据XML化
+        $DataXML = "<xml>
            <appid>".$data['appid']."</appid>
            <attach>".$data['attach']."</attach>
            <body>".$data['body']."</body>
@@ -89,26 +108,24 @@ class PayApi extends Model
            <sign>".$sign."</sign>
         </xml>";
 
-        $url    = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
-        $result =  $this->https_post($url,$dataXML);
-        $ret    =  $this->xmlToArray($result);
-
-        if ($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+        // 调用接口并解析XML数据，返回调用支付所需参数
+        $PostUrl = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        $Result = $this->https_post($PostUrl, $DataXML);
+        $Result = $this->xmlToArray($Result);
+        if (isset($Result['return_code']) && $Result['return_code'] == 'SUCCESS' && $Result['return_msg'] == 'OK') {
             $timeStamp  = getTime();
             $ReturnData = [
-                'appId'     => $wechat['appid'],
+                'appId'     => $PayInfo['appid'],
                 'timeStamp' => "$timeStamp",
                 'nonceStr'  => $this->GetRandomString(12),
-                'package'   => 'prepay_id='.$ret['prepay_id'],
+                'package'   => 'prepay_id='.$Result['prepay_id'],
                 'signType'  => 'MD5',
             ];
             $ReturnSign = $this->getParam($ReturnData);
             $ReturnData['paySign'] = $ReturnSign;
             return $ReturnData;
-        } else if ($ret['return_code'] == 'FAIL') {
-            return $ret;
         } else {
-            return $ret;
+            return $Result;
         }
     }
 
@@ -119,43 +136,48 @@ class PayApi extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string $mweb_url : 二维码URL链接
      */
-    public function getMobilePay($out_trade_no = null, $total_fee = null, $PayInfo = [])
+    public function getMobilePay($out_trade_no = null, $total_fee = null, $PayInfo = [], $transaction_type = 2)
     {
         // 获取微信配置信息
         if (empty($PayInfo)) {
-          $where = [
-              'pay_id' => 1,
-              'pay_mark' => 'wechat'
-          ];
-          $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
-          if (empty($PayInfo)) return false;
-          $PayInfo = unserialize($PayInfo);
+            $where = [
+                'pay_id' => 1,
+                'pay_mark' => 'wechat'
+            ];
+            $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+            if (empty($PayInfo)) return false;
+            $PayInfo = unserialize($PayInfo);
         }
 
+        // 支付密钥
+        $this->key = $PayInfo['key'];
+
         // 支付备注
-        $body = "支付";
+        $body = "微信支付";
         if (1 == config('global.opencodetype')) {
             $web_name = tpCache('web.web_name');
             $web_name = !empty($web_name) ? "[{$web_name}]" : "";
-            $body = $web_name.$body;
+            $body = $web_name . $body;
         }
 
         //支付数据
-        $this->key = $PayInfo['key'];
         $data['out_trade_no']     = $out_trade_no;
         $data['total_fee']        = $total_fee * 100;
         $data['spbill_create_ip'] = $this->get_client_ip();
-        $data['attach']           = '手机浏览器微信H5支付';
-        $data['body']             = $body."订单号:{$out_trade_no}";
+        $data['attach']           = "wechat|,|is_notify|,|" . $transaction_type . '|,|' . session('users_id');
+        $data['body']             = $body . "订单号:{$out_trade_no}";
         $data['appid']            = $PayInfo['appid'];
         $data['mch_id']           = $PayInfo['mchid'];
         $data['nonce_str']        = getTime();
         $data['trade_type']       = "MWEB";
-        $data['scene_info']       = '{"h5_info":{"type":"Wap","wap_url":'.url("users/Pay/mobile_pay_notify").',"wap_name":"支付"}}';
-        $data['notify_url']       = url('users/Pay/mobile_pay_notify');
-
+        $data['notify_url']       = request()->domain() . ROOT_DIR . '/index.php'; // 异步地址
+        $data['scene_info']       = '{"h5_info":{"type":"Wap","wap_url":' . $data['notify_url'] . ',"wap_name":"微信支付"}}';
+        
+        // MD5加密签名
         $sign = $this->getParam($data);
-        $dataXML = "<xml>
+
+        // 数据XML化
+        $DataXML = "<xml>
            <appid>".$data['appid']."</appid>
            <attach>".$data['attach']."</attach>
            <body>".$data['body']."</body>
@@ -170,14 +192,15 @@ class PayApi extends Model
            <sign>".$sign."</sign>
         </xml>";
 
-        $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
-        $result =  $this->https_post($url,$dataXML);
-        $ret = $this->xmlToArray($result);
-        if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
-            if (!empty($ret['err_code'])) return $ret['err_code_des'];
-            return $ret['mweb_url'];
+        // 调用接口并解析XML数据，返回跳转支付链接
+        $PostUrl = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        $Result = $this->https_post($PostUrl, $DataXML);
+        $Result = $this->xmlToArray($Result);
+        if(isset($Result['return_code']) && $Result['return_code'] == 'SUCCESS' && $Result['return_msg'] == 'OK') {
+            if (!empty($Result['err_code'])) return $Result['err_code_des'];
+            return $Result['mweb_url'];
         } else {
-            return $ret;
+            return $Result;
         }
     }
 
@@ -188,9 +211,10 @@ class PayApi extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string $code_url : 二维码URL链接
      */
-    public function payForQrcode($out_trade_no = null, $total_fee = null)
+    public function payForQrcode($out_trade_no = null, $total_fee = null, $transaction_type = 2)
     {
         if (!empty($out_trade_no) || !empty($total_fee)) {
+            // 支付配置
             $where = [
                 'pay_id' => 1,
                 'pay_mark' => 'wechat'
@@ -199,31 +223,34 @@ class PayApi extends Model
             if (empty($PayInfo)) return false;
             $wechat = unserialize($PayInfo);
 
+            // 支付密钥
             $this->key = $wechat['key'];
 
             // 支付备注
-            $body = "支付";
+            $body = "微信支付";
             if (1 == config('global.opencodetype')) {
                 $web_name = tpCache('web.web_name');
                 $web_name = !empty($web_name) ? "[{$web_name}]" : "";
-                $body = $web_name.$body;
+                $body = $web_name . $body;
             }
 
             //支付数据
             $data['out_trade_no']     = $out_trade_no;
             $data['total_fee']        = $total_fee * 100;
             $data['spbill_create_ip'] = $this->get_client_ip();
-            $data['attach']           = "微信扫码支付";
-            $data['body']             = $body."订单号:{$out_trade_no}";
+            $data['attach']           = "wechat|,|is_notify|,|" . $transaction_type . '|,|' . session('users_id');
+            $data['body']             = $body . "订单号:{$out_trade_no}";
             $data['appid']            = $wechat['appid'];
             $data['mch_id']           = $wechat['mchid'];
             $data['nonce_str']        = getTime();
             $data['trade_type']       = "NATIVE";
-            $data['notify_url']       = url('user/Pay/pay_deal_with');
+            $data['notify_url']       = request()->domain() . ROOT_DIR . '/index.php'; // 异步地址
 
+            // MD5加密签名
             $sign = $this->getParam($data);
 
-            $dataXML = "<xml>
+            // 数据XML化
+            $DataXML = "<xml>
                <appid>".$data['appid']."</appid>
                <attach>".$data['attach']."</attach>
                <body>".$data['body']."</body>
@@ -237,13 +264,14 @@ class PayApi extends Model
                <sign>".$sign."</sign>
             </xml>";
 
-            $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
-            $result =  $this->https_post($url,$dataXML);
-            $ret = $this->xmlToArray($result);
-            if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
-                return $ret['code_url'];
+            // 调用接口并解析XML数据，返回二维码链接
+            $PostUrl = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+            $Result = $this->https_post($PostUrl, $DataXML);
+            $Result = $this->xmlToArray($Result);
+            if (isset($Result['return_code']) && $Result['return_code'] == 'SUCCESS' && $Result['return_msg'] == 'OK') {
+                return $Result['code_url'];
             } else {
-                return $ret;
+                return $Result;
             }
         }
     }

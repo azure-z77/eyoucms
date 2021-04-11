@@ -18,6 +18,7 @@
     var GetUploadify_url = "{:url('Uploadify/upload')}";
     var __root_dir__ = "__ROOT_DIR__";
     var __lang__ = "{$admin_lang}";
+    var VarSecurityPatch = "{$security_patch|default='0'}";
 </script>
 
 <link href="__SKIN__/css/main.css?v={$version}" rel="stylesheet" type="text/css">
@@ -130,16 +131,17 @@
               <!-- 小程序 end --> 
 
               <!-- 服务器升级 -->
-              {eq name="upgrade" value="true"}
-              <div id="upgrade_filelist" style="display:none;"></div> 
-              <div id="upgrade_intro" style="display:none;"></div> 
-              <div id="upgrade_notice" style="display:none;"></div> 
-              <a class="btn btn-default dropdown-toggle" style="display: none;color:#F00;" title="不升级可能有安全隐患" href="javascript:void(0);" id="a_upgrade" data-version="" data-max_version="" data-iframe="parent" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}">
-                <i class="fa fa-info-circle"></i>
-                <span class="hidden-xs">系统更新</span>
-              </a>
-              {/eq}
-
+              {empty name="$security_patch"}
+                {eq name="upgrade" value="true"}
+                <div id="upgrade_filelist" style="display:none;"></div> 
+                <div id="upgrade_intro" style="display:none;"></div> 
+                <div id="upgrade_notice" style="display:none;"></div> 
+                <a class="btn btn-default dropdown-toggle" style="display: none;color:#F00;" title="不升级可能有安全隐患" href="javascript:void(0);" id="a_upgrade" data-version="" data-max_version="" data-iframe="parent" data-tips_url="{:url('Upgrade/setPopupUpgrade')}" data-upgrade_url="{:url('Upgrade/OneKeyUpgrade')}" data-check_authority="{:url('Upgrade/check_authority')}">
+                  <i class="fa fa-info-circle"></i>
+                  <span class="hidden-xs">系统更新</span>
+                </a>
+                {/eq}
+              {/empty}
               <!-- 服务器升级 end -->
             </div>
             
@@ -147,11 +149,17 @@
               <div class="admin_user_dropup_bt">
                 <img id="admin_head_pic" tptype="admin_avatar" src="{$admin_info.head_pic|get_head_pic=###}" style="cursor: pointer;width: 34px;height: 34px;">
                 <i class="fa fa-angle-down" aria-hidden="true"></i>
+                {empty name="$is_eyou_authortoken"}
+                <span class="info-num UnreadNotify1615518028 {empty name='$notice_count'}none{/empty}">{$notice_count}</span>
+                {/empty}
               </div>
               <div class="admin_user_dropup_con">
                 <ul>
                   <li><a href="javascript:void(0);" onclick="openItem('Admin|admin_edit|id|{$admin_info['admin_id']}');">个人信息</a></li>
                   <li><a href="javascript:void(0);" data-href="{:url('Encodes/theme_conf')}" onclick="openFullframe(this, '皮肤设置', '80%', '80%');">皮肤设置</a></li>
+                  {empty name="$is_eyou_authortoken"}
+                  <li><a href="javascript:void(0);" onclick="openItem('UsersNotice|admin_notice_index');">站内通知</a><span class="info-num UnreadNotify1615518028 {empty name='$notice_count'}none{/empty}">{$notice_count}</span></li>
+                  {/empty}
                   <li><a href="{:url('Admin/logout')}">安全退出</a></li>
                 </ul>
               </div>
@@ -180,6 +188,28 @@
   </div>
 </div>
 <script type="text/javascript">
+
+  /* 定时查询未读的站内信 --- 暂定为60秒查询一次 */
+  $(function() {
+    var is_author = {$is_eyou_authortoken|default='0'};
+    if (is_author == 0) {
+        window.setInterval(UnreadNotify1615518028, 60000);
+    }
+    function UnreadNotify1615518028() {
+      $.ajax({
+          url : "{:url('Notify/count_unread_notify')}",
+          type: 'post',
+          data: {'_ajax': 1},
+          dataType: 'JSON',
+          success: function(res) {
+              if (1 == res.code) {
+                $('.UnreadNotify1615518028').empty().html(res.data.notice_count);
+              }
+          }
+      });
+    }
+  });
+  /* END */
 
   function valide(obj)
   {

@@ -31,14 +31,19 @@ function btn_upgrade(obj, type)
     intro += '<style type="text/css">.layui-layer-content{height:270px!important;text-align:left!important;}</style>';
     // filelist = filelist.replace(/\n/g,"<br/>");
     v = notice + intro + '<br/>' + filelist;
-    var version = $(obj).data('version');
     var max_version = $(obj).data('max_version');
+    var version = $(obj).data('version');
     var title = '检测系统最新版本：'+version;
-
+    var btn = [];
     if (0 == type) {
-        var btn = ['升级','忽略'];
+        btn = ['升级','忽略'];
     } else if (1 == type) {
-        var btn = ['升级','忽略','不再提醒'];
+        btn = ['升级','忽略','不再提醒'];
+    }
+    
+    if (1 == VarSecurityPatch) {
+        btn = ['升级','忽略'];
+        title = '检测系统安全补丁最新版本：'+version;
     }
 
     /*显示顶部导航更新提示*/

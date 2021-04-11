@@ -14,10 +14,10 @@
                     </dt>
                     <dd class="opt">
                         <div class="onoff">
-                            <label for="is_automatic_review1" class="cb-enable {if condition='$UsersC.is_automatic_review == 1'}selected{/if}">开启</label>
+                            <label for="is_automatic_review1" class="cb-enable {if condition='isset($UsersC.is_automatic_review) && $UsersC.is_automatic_review == 1'}selected{/if}">开启</label>
                             <label for="is_automatic_review0" class="cb-disable {if condition='!isset($UsersC.is_automatic_review) || empty($UsersC.is_automatic_review)'}selected{/if}">关闭</label>
 
-                            <input id="is_automatic_review1" name="users[is_automatic_review]" value="1" type="radio"  {if condition="$UsersC.is_automatic_review == 1"} checked="checked"{/if}>
+                            <input id="is_automatic_review1" name="users[is_automatic_review]" value="1" type="radio"  {if condition="isset($UsersC.is_automatic_review) && $UsersC.is_automatic_review == 1"} checked="checked"{/if}>
 
                             <input id="is_automatic_review0" name="users[is_automatic_review]" value="0" type="radio" {if condition="!isset($UsersC.is_automatic_review) || empty($UsersC.is_automatic_review)"} checked="checked" {/if}>
                         </div>
@@ -32,10 +32,10 @@
                     </dt>
                     <dd class="opt">
                         <div class="onoff">
-                            <label for="is_open_posts_count1" class="cb-enable {if condition='$UsersC.is_open_posts_count == 1'}selected{/if}">开启</label>
+                            <label for="is_open_posts_count1" class="cb-enable {if condition='isset($UsersC.is_open_posts_count) && $UsersC.is_open_posts_count == 1'}selected{/if}">开启</label>
                             <label for="is_open_posts_count0" class="cb-disable {if condition='!isset($UsersC.is_open_posts_count) || empty($UsersC.is_open_posts_count)'}selected{/if}">关闭</label>
 
-                            <input id="is_open_posts_count1" name="users[is_open_posts_count]" value="1" type="radio"  {if condition="$UsersC.is_open_posts_count == 1"} checked="checked"{/if}>
+                            <input id="is_open_posts_count1" name="users[is_open_posts_count]" value="1" type="radio"  {if condition="isset($UsersC.is_open_posts_count) && $UsersC.is_open_posts_count == 1"} checked="checked"{/if}>
                             <input id="is_open_posts_count0" name="users[is_open_posts_count]" value="0" type="radio" {if condition="!isset($UsersC.is_open_posts_count) || empty($UsersC.is_open_posts_count)"} checked="checked" {/if}>
                         </div>
                         

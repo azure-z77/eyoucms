@@ -222,7 +222,7 @@ class Url
                     unset($urlParam[$key]);
                 }
             }
-            $vars = array_merge($vars, $urlParam);
+            is_array($vars) && $vars = array_merge($vars, $urlParam);
             /*--end*/
 
             /*当前默认语言下，在后台的非后台模块链接将去掉lang参数，比如：地图sitemap.xml以及栏目、内容浏览*/

@@ -22,9 +22,10 @@ use think\Db;
  */
 class Ueditor extends Base
 {
+    private $image_type = '';
     private $sub_name = array('date', 'Ymd');
+    private $imageExt = '';
     private $savePath = 'allimg/';
-    private $fileExt = 'jpg,png,gif,jpeg,bmp,ico,webp';
     private $nowFileName = '';
 
     public function __construct()
@@ -47,8 +48,9 @@ class Ueditor extends Base
         
         header("Content-Type: text/html; charset=utf-8");
 
-        $image_type = tpCache('basic.image_type');
-        $this->fileExt = !empty($image_type) ? str_replace('|', ',', $image_type) : $this->fileExt;
+        $this->imageExt = config('global.image_ext');
+        $this->image_type = tpCache('basic.image_type');
+        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->imageExt;
     }
     
     public function index(){
@@ -191,7 +193,7 @@ class Ueditor extends Base
             return json_encode(['state' =>$error]);
         }
 
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         $fileExt = '';
         $image_type = tpCache('basic.image_type');
         !empty($image_type) && $fileExt .= '|'.$image_type;
@@ -203,7 +205,7 @@ class Ueditor extends Base
         $fileExt = str_replace('|', ',', trim($fileExt, '|'));
         $result = $this->validate(
             ['file' => $file], 
-            ['file'=>'fileSize:'.$image_upload_limit_size.'|fileExt:'.$fileExt],
+            ['file'=>'fileSize:'.$max_file_size.'|fileExt:'.$fileExt],
             ['file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$fileExt]
         );
         if (true !== $result || empty($file)) {
@@ -217,29 +219,6 @@ class Ueditor extends Base
         $info = $file->rule(function ($file) {
             return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
         })->move(UPLOAD_PATH.$this->savePath);
-
-        // $ossConfig = tpCache('oss');
-        // if ($ossConfig['oss_switch']) {
-        //     //商品图片可选择存放在oss
-        //     $savePath = $this->savePath;
-        //     $object = UPLOAD_PATH . $savePath . session('admin_id') . '-' . dd2char(date("ymdHis").mt_rand(100,999)) . '.' . pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-        //     $ossClient = new \app\common\logic\OssLogic;
-        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-        //     if (empty($return_url)) {
-        //         $data = array('state' => 'ERROR' . $ossClient->getError());
-        //     } else {
-        //         $data = array(
-        //             'state'     => 'SUCCESS',
-        //             'url'       => $return_url,
-        //             'title'     => $file->getInfo('name'),
-        //             'original'  => $file->getInfo('name'),
-        //             'type'      => $file->getInfo('type'),
-        //             'size'      => $file->getInfo('size'),
-        //         );
-        //     }
-        //     @unlink($file->getRealPath());
-        //     return json_encode($data);
-        // }
 
         if (!empty($info)) {
             $data = array(
@@ -255,7 +234,7 @@ class Ueditor extends Base
             if ($data['state'] == 'SUCCESS') {
                 $file_type = $file->getInfo('type');
                 $file_ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-                $fileextArr = explode(',', $this->fileExt);
+                $fileextArr = explode(',', $this->image_type);
                 if (stristr($file_type, 'image') && 'ico' != $file_ext) {
                     print_water($data['url']);
                 }
@@ -432,24 +411,6 @@ class Ueditor extends Base
             );
 
             print_water($data['url']); // 添加水印
-
-            // $ossConfig = tpCache('oss');
-            // if ($ossConfig['oss_switch']) {
-            //     //图片可选择存放在oss
-            //     $savePath = $this->savePath.date('Ymd/');
-            //     $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
-            //     $getRealPath = ltrim($data['url'], '/');
-            //     $ossClient = new \app\common\logic\OssLogic;
-            //     $return_url = $ossClient->uploadFile($getRealPath, $object);
-            //     if (!$return_url) {
-            //         $state = "ERROR" . $ossClient->getError();
-            //         $return_url = '';
-            //     } else {
-            //         $state = "SUCCESS";
-            //     }
-            //     @unlink($getRealPath);
-            //     $data['url'] = $return_url;
-            // }
         }
         return json_encode($data);
     }
@@ -520,7 +481,7 @@ class Ueditor extends Base
             respose($return_data,'json');
         }
         
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         // 上传图片框中的描述表单名称，
         $pictitle = input('pictitle');
         $dir = input('dir');
@@ -538,12 +499,12 @@ class Ueditor extends Base
         if (pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico') {
             $result = $this->validate(
                 ['file' => $file], 
-                ['file' => 'image|fileSize:' . $image_upload_limit_size . '|fileExt:' . $this->fileExt],
+                ['file' => 'image|fileSize:' . $max_file_size . '|fileExt:' . $this->image_type],
                 [
                     'file.image'    => '上传文件必须为图片',
-                    'file.fileSize' => '上传文件过大',
-                    'file.fileExt'  => '上传文件后缀名必须为' . $this->fileExt
-                ]                
+                    'file.fileSize' => '上传图片过大',
+                    'file.fileExt'  => '上传图片后缀名必须为' . $this->image_type
+                ]
             );
         } else {
             $result = true;
@@ -551,7 +512,7 @@ class Ueditor extends Base
 
         /*验证图片一句话木马*/
         if (false === check_illegal($file->getInfo('tmp_name'))) {
-            $result = '禁止上传木马图片！';
+            $result = '疑似木马图片！';
         }
         /*--end*/
 
@@ -610,7 +571,7 @@ class Ueditor extends Base
      */
     public function appFileUp()
     {      
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         $path = UPLOAD_PATH.'soft/'.date('Ymd/');
         if (!file_exists($path)) {
             mkdir($path);
@@ -625,7 +586,7 @@ class Ueditor extends Base
         
         $result = $this->validate(
             ['file2' => $file], 
-            ['file2'=>'fileSize:'.$image_upload_limit_size.'|fileExt:apk,ipa,pxl,deb'],
+            ['file2'=>'fileSize:'.$max_file_size.'|fileExt:apk,ipa,pxl,deb'],
             ['file2.fileSize' => '上传文件过大', 'file2.fileExt' => '上传文件后缀名必须为：apk,ipa,pxl,deb']                    
            );
         if (true !== $result || empty($file)) {            
@@ -682,10 +643,14 @@ class Ueditor extends Base
         if(!empty($error)){
             echo json_encode(['msg' => $error]);exit;
         }
+
+        $file_type = tpCache('basic.file_type');
+        $file_type = !empty($file_type) ? str_replace('|', ',', $file_type) : 'zip,gz,rar,iso,doc,xls,ppt,wps,txt,docx';
+
         $result = $this->validate(
-            ['file' => $file], 
-            ['file'=>'fileSize:'.$max_file_size],
-            ['file.fileSize' => '上传文件过大']
+            ['file' => $file],
+            ['file'=>'fileSize:'.$max_file_size.'|fileExt:'.$file_type],
+            ['file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$file_type]
         );
         if (true !== $result || empty($file)) {
             echo json_encode(['msg' => $result]);exit;
@@ -715,7 +680,7 @@ class Ueditor extends Base
             // 拼装数据存入session
             $file_path = UPLOAD_PATH.$this->savePath.$info->getSaveName();
             $return = array(
-                'code'      => 0,
+                'code'      => 1,
                 'msg'       => '上传成功',
                 'file_url'  => '/' . UPLOAD_PATH.$this->savePath.$fileName,
                 'file_mime' => $file->getInfo('type'),
@@ -734,45 +699,27 @@ class Ueditor extends Base
     //上传文件
     public function DownloadUploadFileAjax()
     {
-        // 获取定义的上传最大参数
-        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
-        $fileExt = tpCache('basic.file_type');
-
         // 获取上传的文件信息
         $file = request()->file('file');
-
         /*判断上传文件是否存在错误*/
         if (empty($file)) {
             $res = ['code' => 0, 'msg' => '文件过大或文件已损坏！'];
             respose($res);
         }
-
         $error = $file->getError();
         if (!empty($error)) {
             $res = ['code' => 0, 'msg' => $error];
             respose($res);
         }
 
-        /*拓展名验证start*/
-        $fileExtArr = explode('|',$fileExt);
-        //拓展名
-        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-        if (!in_array($ext,$fileExtArr)){
-            $res = ['code' => 0, 'msg' => '上传文件后缀名必须为' . $fileExt];
-            respose($res);
-        }
-        /*拓展名验证end*/
-        // $result = $this->validate(
-        //     ['file' => $file], 
-        //     ['file'=>'image|fileSize:'.$max_file_size.'|fileExt:'.$fileExtArr],
-        //     ['file.image' => '上传文件必须为图片','file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$this->fileExt]                
-        //    );
+        $file_type = tpCache('basic.file_type');
+        $file_type = !empty($file_type) ? str_replace('|', ',', $file_type) : 'zip,gz,rar,iso,doc,xls,ppt,wps,txt,docx';
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+
         $result  = $this->validate(
             ['file' => $file],
-//            ['file' => 'fileSize:' . $max_file_size . '|fileExt:' . $fileExt],
-//            ['file.fileSize' => '上传文件过大', 'file.fileExt' => '上传文件后缀名必须为' . $fileExt]
-            ['file'=>'fileSize:'.$max_file_size],
-            ['file.fileSize' => '上传文件过大']
+            ['file'=>'fileSize:'.$max_file_size.'|fileExt:'.$file_type],
+            ['file.fileSize' => '上传文件过大','file.fileExt'=>'上传文件后缀名必须为'.$file_type]
         );
 
         if (true !== $result || empty($file)) {
@@ -828,17 +775,18 @@ class Ueditor extends Base
             return json_encode(['state' => $error]);
         }
 
-        $fileExt                 = tpCache('basic.media_type');
-        if (empty($fileExt)) {
+        $media_type                 = tpCache('basic.media_type');
+        $media_type = !empty($media_type) ? str_replace('|', ',', $media_type) : config('global.media_ext');
+        if (empty($media_type)) {
             return json_encode(['state' => 'ERROR，请设置上传多媒体文件类型！']);
         } else {
-            $fileExt = str_replace('|', ',', $fileExt);
+            $media_type = str_replace('|', ',', $media_type);
         }
-        $image_upload_limit_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
         $result  = $this->validate(
             ['file' => $file],
-            ['file' => 'fileSize:' . $image_upload_limit_size . '|fileExt:' . $fileExt],
-            ['file.fileSize' => '上传视频过大', 'file.fileExt' => '上传视频后缀名必须为' . $fileExt]
+            ['file' => 'fileSize:' . $max_file_size . '|fileExt:' . $media_type],
+            ['file.fileSize' => '上传视频过大', 'file.fileExt' => '上传视频后缀名必须为' . $media_type]
         );
         if (true !== $result || empty($file)) {
             $state = "ERROR" . $result;

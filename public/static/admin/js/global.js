@@ -255,6 +255,7 @@ function batch_del(obj, name) {
         // 删除按钮
         layer.confirm(title, {
             title: false,
+            closeBtn: false,
             btn: btn //按钮
         }, function () {
             layer_loading('正在处理');
@@ -416,6 +417,7 @@ function delfun(obj) {
         btn = ['确定', '取消']; //按钮
         layer.confirm(title, {
                 title: false,
+                closeBtn: false,
                 btn: btn //按钮
             }, function(){
                 // 确定
@@ -671,6 +673,8 @@ function batch_move(obj, name) {
     }
     // 删除按钮
     layer.confirm('确认批量移动？', {
+        title: false,
+        closeBtn: false,
         btn: ['确定', '取消'] //按钮
     }, function () {
         layer_loading('正在处理');
@@ -943,7 +947,9 @@ function delCookie(name){
 
 function layConfirm(msg , callback){
     layer.confirm(msg, {
-          btn: ['确定','取消'] //按钮
+            title: false,
+            closeBtn: false,
+            btn: ['确定','取消'] //按钮
         }, function(){
             callback();
             layer.closeAll();
@@ -1135,25 +1141,35 @@ function Images(links, max_width, max_height){
     $(img).load(function() {
         width  = this.width;
         height = this.height;
-        if (width > height) {
-            if (width > max_width) {
-                width = max_width;
-            }
-            width += 'px';
-        } else {
-            width = 'auto';
-        }
-        if (width < height) {
-            if (height > max_height) {
-                height = max_height;
-            }
-            height += 'px';
-        } else {
+
+        if (this.width > max_width) {
+            width = max_width + 'px';
             height = 'auto';
         }
 
-        var links_img = "<img style='width:"+width+";height:"+height+";' src="+links+">";
-        
+        if (this.height > max_height) {
+            width = 'auto';
+            height = max_height + 'px';
+        }
+
+        // if (width > height) {
+        //     if (width > max_width) {
+        //         width = max_width;
+        //     }
+        //     width += 'px';
+        // } else {
+        //     width = 'auto';
+        // }
+        // if (width < height) {
+        //     if (height > max_height) {
+        //         height = max_height;
+        //     }
+        //     height += 'px';
+        // } else {
+        //     height = 'auto';
+        // }
+
+        var links_img = "<style type='text/css'>.layui-layer-content{overflow-y: hidden!important;}</style><img style='width:"+width+";height:"+height+";' src="+links+">";
         layer.open({
             type: 1,
             title: false,
@@ -1215,7 +1231,7 @@ function click_to_eyou_1575506523(url,title,width,height) {
         fixed: true, //不固定
         shadeClose: false,
         shade: 0.3,
-        maxmin: true, //开启最大化最小化按钮
+        maxmin: false, //开启最大化最小化按钮
         area: ['80%', '80%'],
         content: url
     });
@@ -1224,7 +1240,12 @@ function click_to_eyou_1575506523(url,title,width,height) {
 //在iframe内打开页面操作
 function openFullframe(obj,title,width,height) {
     //iframe窗
-    var url = $(obj).data('href');
+    var url = '';
+    if (typeof(obj) == 'string' && obj.indexOf("?m=admin&c=") != -1) {
+        url = obj;
+    } else {
+        url = $(obj).data('href');
+    }
     if (!width) width = '80%';
     if (!height) height = '80%';
     var iframes = layer.open({
@@ -1235,7 +1256,10 @@ function openFullframe(obj,title,width,height) {
         shade: 0.3,
         // maxmin: true, //开启最大化最小化按钮
         area: [width, height],
-        content: url
+        content: url,
+        end: function() {
+            if (1 == $(obj).data('closereload')) window.location.reload();
+        }
     });
     if (width == '100%' && height == '100%') {
         layer.full(iframes);
@@ -1331,13 +1355,14 @@ function tags_list_1610411887(obj)
 
 function get_common_tagindex(obj)
 {
-    var tags = $('#tags').val();
+    var val = $(obj).val();
     $('#often_tags').hide();
+    $('#often_tags_input').hide();
     $('#tag_loading').show();
     $.ajax({
         type : 'post',
-        url : eyou_basefile + "?m="+module_name+"&c=Tags&a=get_common_list&lang=" + __lang__,
-        data : {tags,tags, _ajax:1},
+        url : eyou_basefile + "?m="+module_name+"&c=Tags&a=get_common_list&is_click=1&lang=" + __lang__,
+        data : {tags:val, _ajax:1},
         dataType : 'json',
         success : function(res){
             $('#tag_loading').hide();
@@ -1352,6 +1377,32 @@ function get_common_tagindex(obj)
         error: function(e){
             layer.closeAll();
             $('#tag_loading').hide();
+            layer.alert(e.responseText, {icon: 5, title:false});
+        }
+    });
+}
+
+function get_common_tagindex_input(obj)
+{
+    var val = $(obj).val();
+    $('#tags_click_count').val(0);
+    $('#often_tags_input').hide();
+    $.ajax({
+        type : 'post',
+        url : eyou_basefile + "?m="+module_name+"&c=Tags&a=get_common_list&lang=" + __lang__,
+        data : {tags:val,type:1, _ajax:1},
+        dataType : 'json',
+        success : function(res){
+            if(res.code == 1){
+                if (res.data.html) {
+                    $('#often_tags_input').html(res.data.html).show();
+                }
+            }else{
+                showErrorMsg(res.msg);
+            }
+        },
+        error: function(e){
+            layer.closeAll();
             layer.alert(e.responseText, {icon: 5, title:false});
         }
     });
@@ -1377,4 +1428,65 @@ function selectArchivesTag(obj)
     }
     tags = tagsList.join(',');
     $('#tags').val(tags);
+}
+
+function selectArchivesTagInput(obj)
+{
+    event.stopPropagation();
+    var newTag = $.trim($(obj).html());
+    var tags = $.trim($('#tags').val());
+    var count = $('#tags_click_count').val();
+    if (tags != '') {
+        tags = tags.replace(/，/ig, ',');
+        tagsList = tags.split(',');
+    } else {
+        tagsList = new Array();
+    }
+    if (-1 < $.inArray(newTag, tagsList)) {
+        tagsList.splice($.inArray(newTag, tagsList), 1);
+        $(obj).removeClass('cur');
+    } else {
+        if(0 == count){
+            tagsList.splice(tagsList.length-1,1);
+            $(obj).removeClass('cur');
+        }
+
+        tagsList.push(newTag);
+        $(obj).addClass('cur');
+        $('#tags_click_count').val(count+1)
+    }
+    tags = tagsList.join(',');
+    $('#tags').val(tags);
+}
+
+/**
+ * 检测文档的自定义文件名
+ * @return {[type]} [description]
+ */
+function ajax_check_htmlfilename()
+{
+    var flag = false;
+    var aid = $('input[name=aid]').val();
+    var htmlfilename = $.trim($('input[name=htmlfilename]').val());
+    if (htmlfilename == '') {
+        return true;
+    }
+
+    $.ajax({
+        url : eyou_basefile + "?m="+module_name+"&c=Archives&a=ajax_check_htmlfilename&lang=" + __lang__,
+        type: 'POST',
+        async: false,
+        dataType: 'JSON',
+        data: {htmlfilename: htmlfilename, aid: aid, _ajax:1},
+        success: function(res){
+            if(res.code == 1){
+                flag = true;
+            }
+        },
+        error: function(e){
+            showErrorAlert(e.responseText);
+        }
+    });
+
+    return flag;
 }

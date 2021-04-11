@@ -224,7 +224,8 @@ class PayApi extends Base {
     }
 
     // 微信支付，获取订单信息并调用微信接口，生成二维码用于扫码支付
-    public function pay_wechat_png() {
+    public function pay_wechat_png()
+    {
         if (!empty($this->users_id)) {
             $unified_number   = input('param.unified_number/s');
             $transaction_type = input('param.transaction_type/d');
@@ -260,7 +261,7 @@ class PayApi extends Base {
             }
 
             // 调取微信支付链接
-            $payUrl = model('PayApi')->payForQrcode($out_trade_no, $total_fee);
+            $payUrl = model('PayApi')->payForQrcode($out_trade_no, $total_fee, $transaction_type);
 
             // 生成二维码加载在页面上
             vendor('wechatpay.phpqrcode.phpqrcode');
@@ -278,6 +279,8 @@ class PayApi extends Base {
     {
         if (IS_AJAX_POST) {
             $post = input('post.');
+            // 判断是否存在支付方式
+            if (!isset($post['pay_id'])) $this->error('网站支付配置未完善，升级服务暂停使用');
 
             // 处理API标识
             $post['pay_mark'] = $post['pay_mark'][$post['pay_id']];

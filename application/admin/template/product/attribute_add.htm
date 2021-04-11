@@ -4,14 +4,6 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page" style="box-shadow:none;">
-    <div class="fixed-bar">
-        <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-angle-double-left"></i>返回</a>
-            <div class="subject">
-                <h3>新增参数</h3>
-                <h5></h5>
-            </div>
-        </div>
-    </div>
     <form class="form-horizontal" id="post_form" action="{:U('Product/attribute_add')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
@@ -75,6 +67,7 @@
     </form>
 </div>
 <script type="text/javascript">
+    var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
     $(function(){
         $('input[name=attr_input_type]').click(function(){
             var val = $(this).val();
@@ -130,29 +123,37 @@
             url  : "{:url('Product/attribute_add', ['_ajax'=>1])}",
             data : $('#'+form_id).serialize(),// 你的formid
             dataType: "JSON",
-            error: function(request) {
+            success: function(res) {
                 layer.closeAll();
-                layer.alert(ey_unknown_error, {icon: 5, title:false});
-                return false;
-            },
-            success: function(v) {
-                layer.closeAll();
-                if(v.status == 1)
-                {                   
-                    if(v.hasOwnProperty('data')){
-                        if(v.data.hasOwnProperty('url')){
-                            location.href = v.data.url;
+                if(res.status == 1)
+                {
+                    var _parent = parent;
+                    _parent.layer.close(parentObj);    
+                    if(res.hasOwnProperty('data')){
+                        if(res.data.hasOwnProperty('url')){
+                            _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                                _parent.gourl(res.data.url);
+                            });
                         }else{
-                            location.href = location.href;
+                            _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                                _parent.window.location.reload();
+                            });
                         }
                     }else{
-                        location.href = location.href;
+                        _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                            _parent.window.location.reload();
+                        });
                     }
                     return true;
                 } else {     
-                    showErrorMsg(v.msg);                       
+                    showErrorMsg(res.msg);                       
                     return false;
                 }
+            },
+            error: function(e) {
+                layer.closeAll();
+                showErrorAlert(e.responseText);
+                return false;
             }
         });   
     }

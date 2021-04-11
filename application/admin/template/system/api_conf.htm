@@ -6,31 +6,14 @@
 <div class="page" style="min-width:auto; ">
     {include file="system/bar" /}
     <div class="flexigrid htitx">
-        <!-- <div class="mDiv">
-            <div class="ftitle">
-                <h3>接口配置</h3>
-            </div>
-            <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
-        </div> -->
-
         {eq name="$pay_open" value="1"}
-        <!-- 微信、支付宝支付配置 -->
-        {include file="system/pay_api_list" /}
-        <!-- END -->
+            <!-- 微信、支付宝支付配置 -->
+            {include file="system/pay_api_list" /}
+            <!-- END -->
         {/eq}
 
-        <!-- {eq name="$pay_open" value="1"} -->
-        <!-- 微信、支付宝支付配置 -->
-        <!-- {include file="system/pay_set" /} -->
-        <!-- END -->
-        <!-- {/eq} -->
-
-        <!-- 邮箱配置 -->
-        {include file="system/smtp" /}
-        <!-- END -->
-
-        <!-- 手机短信配置 -->
-        {include file="system/sms" /}
+        <!-- 通知管理 -->
+        {include file="system/notify" /}
         <!-- END -->
 
         <!-- 微站点配置 -->
@@ -46,30 +29,18 @@
     </div>
     <div class="floatNav-con">
         <ul>
-            <!-- <li>
-                <div class="dot"></div>
-                <div class="event" data-to="wechat_set"><a href="javascript:void(0);">微信支付配置</a></div>
-            </li> -->
             <li>
                 <div class="dot"></div>
                 <div class="event" data-to="alipay_set"><a href="javascript:void(0);">支付接口</a></div>
             </li>
             <li>
                 <div class="dot"></div>
-                <div class="event" data-to="smtp"><a href="javascript:void(0);">邮箱配置</a></div>
-            </li>
-            <li>
-                <div class="dot"></div>
-                <div class="event" data-to="sms"><a href="javascript:void(0);">短信配置</a></div>
+                <div class="event" data-to="notify_list"><a href="javascript:void(0);">消息通知</a></div>
             </li>
             <li>
                 <div class="dot"></div>
                 <div class="event" data-to="microsite"><a href="javascript:void(0);">微站点设置</a></div>
             </li>
-            <!-- <li>
-                <div class="dot"></div>
-                <div class="event" data-to="oss"><a href="javascript:void(0);">OSS配置</a></div>
-            </li> -->
         </ul>
     </div>
 </div>

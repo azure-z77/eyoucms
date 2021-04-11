@@ -100,7 +100,7 @@ class Pay extends Model
      *   @params number $total_fee : 订单金额，单位分
      *   return string  $ReturnData : 微信支付所需参数数组
      */
-    public function getWechatPay($openid, $out_trade_no, $total_fee, $body="支付", $attach="微信端H5支付", $is_applets = 0)
+    public function getWechatPay($openid, $out_trade_no, $total_fee, $PayInfo, $is_applets = 0, $transaction_type = 2)
     {
         // 获取微信配置信息
         $where = [
@@ -113,19 +113,34 @@ class Pay extends Model
             if (empty($pay_wechat_config)) return false;
         }
         $wechat = unserialize($pay_wechat_config);
+
+        // 支付密钥
         $this->key = $wechat['key'];
 
+        // 小程序配置
         if (1 === $is_applets) {
-            // 小程序配置
             $MiniproValue = Db::name('weapp_minipro0002')->where('type', 'minipro')->getField('value');
             if (empty($MiniproValue)) return false;
             $MiniproValue = !empty($MiniproValue) ? json_decode($MiniproValue, true) : [];
             $wechat['appid'] = $MiniproValue['appId'];
+
+            // 支付备注
+            $body = "小程序支付";
+        } else {
+            // 支付备注
+            $body = "微信支付";
+        }
+
+        // 支付备注
+        if (1 == config('global.opencodetype')) {
+            $web_name = tpCache('web.web_name');
+            $web_name = !empty($web_name) ? "[{$web_name}]" : "";
+            $body = $web_name . $body;
         }
 
         //支付数据
-        $data['body']             = $body."订单号:{$out_trade_no}";
-        $data['attach']           = $attach;
+        $data['body']             = $body . "订单号:{$out_trade_no}";
+        $data['attach']           = "wechat|,|is_notify|,|" . $transaction_type . '|,|' . session('users_id');
         $data['out_trade_no']     = $out_trade_no;
         $data['total_fee']        = $total_fee * 100;
         $data['nonce_str']        = getTime();
@@ -133,7 +148,7 @@ class Pay extends Model
         $data['appid']            = $wechat['appid'];
         $data['mch_id']           = $wechat['mchid'];
         $data['trade_type']       = "JSAPI";
-        $data['notify_url']       = url('users/Pay/mobile_pay_notify');
+        $data['notify_url']       = request()->domain() . ROOT_DIR . '/index.php'; // 异步地址
         $data['openid']           = $openid;
  
         $sign = $this->getParam($data);
@@ -156,7 +171,7 @@ class Pay extends Model
         $result =  $this->https_post($url,$dataXML);
         $ret    =  $this->xmlToArray($result);
 
-        if ($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+        if (isset($ret['return_code']) && $ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
             $timeStamp  = getTime();
             $ReturnData = [
                 'appId'     => $wechat['appid'],
@@ -168,7 +183,7 @@ class Pay extends Model
             $ReturnSign = $this->getParam($ReturnData);
             $ReturnData['paySign'] = $ReturnSign;
             return $ReturnData;
-        } else if ($ret['return_code'] == 'FAIL') {
+        } else if (isset($ret['return_code']) && $ret['return_code'] == 'FAIL') {
             return $ret;
         } else {
             return $ret;
@@ -229,7 +244,7 @@ class Pay extends Model
         $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
         $result =  $this->https_post($url,$dataXML);
         $ret = $this->xmlToArray($result);
-        if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+        if(isset($ret['return_code']) && $ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
             if (!empty($ret['err_code'])) {
                 return $ret['err_code_des'];
             }
@@ -299,7 +314,7 @@ class Pay extends Model
         $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
         $result =  $this->https_post($url,$dataXML);
         $ret = $this->xmlToArray($result);
-        if($ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
+        if(isset($ret['return_code']) && $ret['return_code'] == 'SUCCESS' && $ret['return_msg'] == 'OK') {
             return $ret['code_url'];
         } else {
             return $ret;
@@ -390,18 +405,16 @@ class Pay extends Model
         // 引入SDK文件
         vendor('alipay.pagepay.service.AlipayTradeService');
         vendor('alipay.pagepay.buildermodel.AlipayTradePagePayContentBuilder');
+
         // 获取支付宝配置信息
         $where = [
             'pay_id' => 2,
             'pay_mark' => 'alipay'
         ];
-        $pay_alipay_config = Db::name('pay_api_config')->where($where)->getField('pay_info');
-        if (empty($pay_alipay_config)) {
-            $pay_alipay_config = getUsersConfigData('pay.pay_alipay_config');
-            if (empty($pay_alipay_config)) return false;
-        }
-        $alipay = unserialize($pay_alipay_config);
-        
+        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+        if (empty($PayInfo)) return false;
+        $alipay = unserialize($PayInfo);
+
         $type = $data['transaction_type'];
         // 参数拼装
         $config['app_id'] = $alipay['app_id'];

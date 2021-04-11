@@ -21,28 +21,22 @@ use think\Request;
  */
 class TagChannel extends Base
 {
-    public $tid = '';
     public $currentstyle = '';
     
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
-        $this->tid = I("param.tid/s", ''); // 应用于栏目列表
         /*应用于文档列表*/
-        $aid = I('param.aid/d', 0);
-        if ($aid > 0) {
+        if ($this->aid > 0) {
             $cacheKey = 'tagChannel_'.strtolower('home_'.CONTROLLER_NAME.'_'.ACTION_NAME);
-            $cacheKey .= "_{$aid}";
+            $cacheKey .= "_{$this->aid}";
             $this->tid = cache($cacheKey);
             if ($this->tid == false) {
-                $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
+                $this->tid = Db::name('archives')->where('aid', $this->aid)->getField('typeid');
                 cache($cacheKey, $this->tid);
             }
         }
-        /*--end*/
-        /*tid为目录名称的情况下*/
-        $this->tid = $this->getTrueTypeid($this->tid);
         /*--end*/
     }
 
@@ -79,7 +73,7 @@ class TagChannel extends Base
                 'is_hidden' => 0,
                 'status'    => 1,
             );
-            $typeid = M('arctype')->where($map)->order('sort_order asc')->limit(1)->getField('id');
+            $typeid = Db::name('arctype')->where($map)->order('sort_order asc')->limit(1)->getField('id');
             /*--end*/
         }
 
@@ -284,7 +278,7 @@ class TagChannel extends Base
             'status'  => 1,
             'is_del'    => 0, // 回收站功能
         );
-        $res = M('arctype')->field('parent_id')
+        $res = Db::name('arctype')->field('parent_id')
             ->where($map)
             ->where('lang', $this->home_lang)
             ->group('parent_id')
@@ -336,6 +330,9 @@ class TagChannel extends Base
                 'is_part'   => 0,
             ]; // 标记选择栏目的数组
 
+            // 问答栏目ID
+            $ask_topTypeid = Db::name('arctype')->where(['channeltype'=>51,'is_del'=>0,'status'=>1])->getField('id');
+
             foreach ($res as $key => $val) {
                 /*获取指定路由模式下的URL*/
                 if ($val['is_part'] == 1) {
@@ -350,7 +347,11 @@ class TagChannel extends Base
                     }
                 } else {
                     $ctl_name = $ctl_name_list[$val['current_channel']]['ctl_name'];
-                    $val['typeurl'] = typeurl('home/'.$ctl_name."/lists", $val);
+                    if ($val['current_channel'] == 51){ // 问答模型
+                        $val['typeurl'] = askurl('home/'.$ctl_name."/index");
+                    }else{
+                        $val['typeurl'] = typeurl('home/'.$ctl_name."/lists", $val);
+                    }
                 }
                 /*--end*/
 
@@ -358,6 +359,9 @@ class TagChannel extends Base
                 $val['currentstyle'] = '';
                 $pageurl = request()->url(true);
                 $typelink = htmlspecialchars_decode($val['typelink']);
+                if (CONTROLLER_NAME == 'Ask') { // 问答模型
+                    $topTypeid = $ask_topTypeid;
+                }
                 if ($val['id'] == $topTypeid || (!empty($typelink) && stristr($pageurl, $typelink))) {
                     $is_currentstyle = false;
                     if ($topTypeid != $this->tid && 0 == $currentstyleArr['is_part'] && $val['grade'] <= $currentstyleArr['grade']) { // 当前栏目不是顶级栏目，按外部链接优先

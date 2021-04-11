@@ -174,7 +174,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert(e.responseText, {icon: 5, title:false});
+                showErrorAlert(e.responseText);
             }
         });
     }

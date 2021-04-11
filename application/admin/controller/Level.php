@@ -129,6 +129,7 @@ class Level extends Base {
         // 支付状态
         $pay_status_arr = config('global.pay_status_arr');
         $this->assign('pay_status_arr',$pay_status_arr);
+        
         return $this->fetch();
     }
     

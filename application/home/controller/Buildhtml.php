@@ -267,6 +267,7 @@ class Buildhtml extends Base
         if ($arctypeInfo['current_channel'] != $result['channel']) {
             return false;
         }
+        if (51 == $result['channel']) return false; // 问答模型
         /*--end*/
         $arctypeInfo = model('Arctype')->parentAndTopInfo($result['typeid'], $arctypeInfo);
         /*自定义字段的数据格式处理*/
@@ -429,7 +430,7 @@ class Buildhtml extends Base
         $data['achievepage']  = $achievepage;
         /***********2020 05 19 过滤并删除外部链接生成的静态页面 s*************/
         foreach ($info as $k => $v) {
-            if ($v['is_part'] == 1) {//外部链接
+            if ($v['is_part'] == 1 || $v['nid'] == 'ask') {//外部链接或问答模型
                 unset($info[$k]);//从数组里移除
                 $dir = ROOT_PATH . trim($v['dirpath'], '/');
                 if (!empty($v['dirpath']) && true == is_dir($dir)) {//判断是否生成过文件夹,文件夹存在则删除

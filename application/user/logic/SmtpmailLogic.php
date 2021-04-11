@@ -40,6 +40,7 @@ class SmtpmailLogic extends Model
      */
     public function send_email($email = '', $title = '', $type = 'reg', $scene = 2, $data = [])
     {
+        // 是否传入邮箱地址
         if (empty($email)) {
             return ['code'=>0, 'msg'=>"邮箱地址参数不能为空！"];
         }
@@ -61,22 +62,19 @@ class SmtpmailLogic extends Model
         $send_scene = $send_email_scene[$scene]['scene'];
 
         // 获取邮件模板
-        $emailtemp = M('smtp_tpl')->where([
-                'send_scene'=> $send_scene,
-                'lang'      => $this->home_lang,
-            ])->find();
+        $emailtemp = M('smtp_tpl')->where(['send_scene' => $send_scene, 'lang' => $this->home_lang])->find();
 
         // 是否启用邮件模板
         if (empty($emailtemp) || empty($emailtemp['is_open'])) {
             return ['code'=>0, 'msg'=>"该功能待开放，网站管理员尚未启用(<font color='red'>{$emailtemp['tpl_name']}</font>)邮件模板"];
         }
 
+        // 会员ID
         $users_id = session('users_id');
 
-        if ('retrieve_password' == $type) 
-        {
-            //找回密码
-            // 判断邮箱是否存在
+        // 发送邮件操作分发
+        if ('retrieve_password' == $type) {
+            // 找回密码，判断邮箱是否存在
             $where = array(
                 'info'     => array('eq',$email),
                 'lang'     => array('eq',$this->home_lang),
@@ -117,20 +115,18 @@ class SmtpmailLogic extends Model
                 // }
 
                 // 数据添加
-                $datas['source']    = 4; // 来源，与场景ID对应：0=默认，2=注册，3=绑定邮箱，4=找回密码
-                $datas['email']     = $email;
-                $datas['code']      = rand(1000,9999);
-                $datas['lang']      = $this->home_lang;
-                $datas['add_time']  = $time;
+                $datas['source']   = 4; // 来源，与场景ID对应：4=找回密码
+                $datas['email']    = $email;
+                $datas['code']     = rand(1000,9999);
+                $datas['lang']     = $this->home_lang;
+                $datas['add_time'] = $time;
                 M('smtp_record')->add($datas);
-            }else{
+            } else {
                 return ['code'=>0, 'msg'=>'邮箱地址不存在！'];
             }
-        }
-        else if ('bind_email' == $type) 
-        {
-            // 邮箱绑定
-            // 判断邮箱是否已存在
+
+        } else if ('bind_email' == $type) {
+            // 邮箱绑定，判断邮箱是否已存在
             $listwhere = array(
                 'info'     => array('eq',$email),
                 'users_id' => array('neq',$users_id),
@@ -145,7 +141,6 @@ class SmtpmailLogic extends Model
                 'is_email' => 1,
                 'lang'     => array('eq',$this->home_lang),
             );
-
             $usersdata = M('users')->where($userswhere)->field('is_email')->find();
             if (!empty($usersdata['is_email'])) {
                 return ['code'=>0, 'msg'=>'邮箱已绑定，无需重新绑定！'];
@@ -173,21 +168,19 @@ class SmtpmailLogic extends Model
                 // }
 
                 // 数据添加
-                $datas['source']    = 3; // 来源，与场景ID对应：0=默认，2=注册，3=绑定邮箱，4=找回密码
-                $datas['email']     = $email;
-                $datas['users_id']  = $users_id;
-                $datas['code']      = rand(1000,9999);
-                $datas['lang']      = $this->home_lang;
-                $datas['add_time']  = $time;
+                $datas['source']   = 3; // 来源，与场景ID对应：3=绑定邮箱
+                $datas['email']    = $email;
+                $datas['users_id'] = $users_id;
+                $datas['code']     = rand(1000,9999);
+                $datas['lang']     = $this->home_lang;
+                $datas['add_time'] = $time;
                 M('smtp_record')->add($datas);
-            }else{
+            } else {
                 return ['code'=>0, 'msg'=>"邮箱已经存在，不可以绑定！"];
             }
-        }
-        else if ('reg' == $type) 
-        {
-            // 注册
-            // 判断邮箱是否已存在
+
+        } else if ('reg' == $type) {
+            // 注册，判断邮箱是否已存在
             $where = array(
                 'info' => array('eq',$email),
                 'lang' => array('eq',$this->home_lang),
@@ -214,18 +207,17 @@ class SmtpmailLogic extends Model
                 // }
 
                 // 数据添加
-                $datas['source']    = 2; // 来源，与场景ID对应：0=默认，2=注册，3=绑定邮箱，4=找回密码
-                $datas['email']     = $email;
-                $datas['code']      = rand(1000,9999);
-                $datas['lang']      = $this->home_lang;
-                $datas['add_time']  = $time;
+                $datas['source']   = 2; // 来源，与场景ID对应：2=注册
+                $datas['email']    = $email;
+                $datas['code']     = rand(1000,9999);
+                $datas['lang']     = $this->home_lang;
+                $datas['add_time'] = $time;
                 M('smtp_record')->add($datas);
-            }else{
+            } else {
                 return ['code'=>0, 'msg'=>'邮箱已存在！'];
             }
-        }
-        else if ('order_msg' == $type) 
-        {
+            
+        } else if ('order_msg' == $type) {
             $content = '订单有新的消息，请登录查看。';
             if (!empty($data)) {
                 $PayMethod = '';

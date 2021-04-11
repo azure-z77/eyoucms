@@ -24,9 +24,13 @@ return array(
         'HY000:1045'    => "数据库配置参数不对，请仔细检查核对。",
         'HY000:1049'    => "数据库不存在，请仔细检查核对。",
         'HY000:1615'    => "由于个别空间的数据库配置问题\n请点击：<a href='https://www.eyoucms.com/ask/?ct=question&askaid=3771' target='_blank'>查看教程</a>",
+        'HY000:2000'    => "数据库配置参数不对，请仔细检查核对。",
         'HY000:2002'    => "你的主机不支持 localhost 连接数据，导致报错\n请点击：<a href='http://www.eyoucms.com/wenda/5711.html' target='_blank'>查看教程</a>",
         'HY000:2013'    => "可能MySQL服务器不支持127.0.0.1连接\n请点击：<a href='http://www.eyoucms.com/wenda/5950.html' target='_blank'>查看教程</a>",
         'HY000:1290'    => "请重启MySql数据库，或者联系空间服务商处理。",
+    ],
+    'exception' => [
+        '11602'        => "缓存写入失败，请点击：<a href='https://www.eyoucms.com/ask/list_1_0/5507.html' target='_blank'>查看教程</a>",
     ],
     'wechat' => [
         '-1'    => '系统繁忙，此时请开发者稍候再试',

@@ -18,7 +18,6 @@ namespace think\template\taglib\eyou;
  */
 class TagCollect extends Base
 {
-    public $aid = 0;
     public $users_id = 0;
     public $collect = '';
     public $cancel = '';
@@ -27,7 +26,6 @@ class TagCollect extends Base
     protected function _initialize()
     {
         parent::_initialize();
-        $this->aid = input('param.aid/d', 0);
         $this->collect = input('param.collect/s', '已收藏');
         $this->cancel = input('param.cancel/s', '加入收藏');
         $this->users_id = session('users_id');

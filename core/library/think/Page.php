@@ -7,7 +7,7 @@ class Page{
     public $parameter; // 分页跳转时要带的参数
     public $totalRows; // 总行数
     public $totalPages; // 分页总页面数
-    public $rollPage   = 11;// 分页栏每页显示的页数
+    public $rollPage   = 5;// 分页栏每页显示的页数
     public $lastSuffix = true; // 最后一页是否显示总页数
 
     public $p       = 'p'; //分页参数名
@@ -71,6 +71,16 @@ class Page{
      * @return string
      */
     public function url($page){
+        if (1 >= $page) {
+            $this->url = str_replace('_p'.urlencode('[PAGE]'), '', $this->url);
+        }
+        static $seo_pseudo = null;
+        null === $seo_pseudo && $seo_pseudo = config('ey_config.seo_pseudo');
+        if ($seo_pseudo == 3 || $seo_pseudo == 2) {
+            if (!strstr($this->url, '.htm')){
+                $this->url = rtrim($this->url, '/').'/';
+            }
+        }
         return str_replace(urlencode('[PAGE]'), $page, $this->url);
     }
 
@@ -83,7 +93,9 @@ class Page{
 
         /* 生成URL */
         $this->parameter[$this->p] = '[PAGE]';
-        $this->url = U(ACTION_NAME, $this->parameter);
+        $mca = MODULE_NAME.'/'.CONTROLLER_NAME.'/'.ACTION_NAME;
+        $this->url = U($mca, $this->parameter);
+
         if(!empty($this->totalPages) && $this->nowPage > $this->totalPages) {
             $this->nowPage = $this->totalPages;
         }
@@ -95,41 +107,26 @@ class Page{
         $this->config['last'] = '尾页';
         //上一页
         $up_row  = $this->nowPage - 1;
-        //$up_page = $up_row > 0 ? '<li id="example1_previous" class="paginate_button previous"><a class="prev" href="' . $this->url($up_row) . '">' . $this->config['prev'] . '</a></li>' : '';
-        if ($this->totalPages <=1) {
-            $up_page = '';
-        }else{
-            if ($up_row > 0) {
-                $up_page = '<li id="example1_previous" class="paginate_button previous"><a class="prev" href="' . $this->url($up_row) . '">' . $this->config['prev'] . '</a></li>';
-            }else{
-                $up_page = '<li id="example1_previous" class="paginate_button previous"><a class="prev prev_i" href="javascript:void(0);">' . $this->config['prev'] . '</a></li>';
-            }
-        }
-        //$up_page = $up_row > 0 ? '<li id="example1_previous" class="paginate_button previous"><a class="prev" href="' . $this->url($up_row) . '">' . $this->config['prev'] . '</a></li>' : $this->totalPages>1?:'<li id="example1_previous" class="paginate_button previous"><a class="prev" href="javascript:void(0);">' . $this->config['prev'] . '</a></li>':'';
+        $up_page = $up_row > 0 ? '<li id="example1_previous" class="paginate_button previous"><a class="prev" href="' . $this->url($up_row) . '">' . $this->config['prev'] . '</a></li>' : '';
 
         //下一页
         $down_row  = $this->nowPage + 1;
-        //$down_page = ($down_row <= $this->totalPages) ? '<li id="example1_next" class="paginate_button next"><a class="next" href="' . $this->url($down_row) . '">' . $this->config['next'] . '</a></li>' : '';
-        if ($this->totalPages <=1) {
-            $down_page = '';
-        }else{
-            if (($down_row <= $this->totalPages)) {
-                $down_page = '<li id="example1_next" class="paginate_button next"><a class="next" href="' . $this->url($down_row) . '">' . $this->config['next'] . '</a></li>';
-            }else{
-                $down_page = '<li id="example1_next" class="paginate_button next"><a class="next next_e" href="javascript:void(0);">' . $this->config['next'] . '</a></li>';
-            }
-        }
+        $down_page = ($down_row <= $this->totalPages) ? '<li id="example1_next" class="paginate_button next"><a class="next" href="' . $this->url($down_row) . '">' . $this->config['next'] . '</a></li>' : '';
 
         //第一页
         $the_first = '';
-        if($this->totalPages > $this->rollPage && ($this->nowPage - $now_cool_page) >= 1){
-            $the_first = '<li id="example1_previous" class="paginate_button previous disabled"><a class="first" href="' . $this->url(1) . '">' . $this->config['first'] . '</a></li>';
+        if($this->nowPage > 1 || ($this->totalPages > $this->rollPage && ($this->nowPage - $now_cool_page) >= 1)){
+            $the_first = '<li id="example1_previous" class="paginate_button previous"><a class="first" href="' . $this->url(1) . '">' . $this->config['first'] . '</a></li>';
+        } else if ($this->totalPages > 1) {
+            $the_first = '<li id="example1_previous" class="paginate_button previous disabled"><a class="first" href="javascript:void(0);">' . $this->config['first'] . '</a></li>';
         }
 
         //最后一页
         $the_end = '';
-        if($this->totalPages > $this->rollPage && ($this->nowPage + $now_cool_page) < $this->totalPages){
-            $the_end = '<li id="example1_previous" class="paginate_button previous disabled"><a class="end" href="' . $this->url($this->totalPages) . '">' . $this->config['last'] . '</a></li>';
+        if($this->nowPage < $this->totalPages || ($this->totalPages > $this->rollPage && ($this->nowPage + $now_cool_page) < $this->totalPages)){
+            $the_end = '<li id="example1_previous" class="paginate_button previous"><a class="end" href="' . $this->url($this->totalPages) . '">' . $this->config['last'] . '</a></li>';
+        } else if ($this->totalPages > 1) {
+            $the_end = '<li id="example1_previous" class="paginate_button previous disabled"><a class="end" href="javascript:void(0);">' . $this->config['last'] . '</a></li>';
         }
 
         //数字连接

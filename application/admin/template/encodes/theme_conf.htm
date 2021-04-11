@@ -52,7 +52,6 @@
                                     <span class="theme_color" style="background-color:#963885;"></span>
                                     <span class="assist_color" style="background-color: #772c6a;"></span>
                                 </li>
-                                {if condition="$php_servicemeal > 1"}
                                 <li {if condition="$globalTpCache['web_theme_color_model'] == 'custom'"} class="active" {/if} data-model="custom">
                                     <span style="background-color:#ffffff;">
                                         <img src="__STATIC__/admin/images/empty-color.png?v={$version|default='v1.4.7'}">
@@ -61,7 +60,6 @@
                                         <img src="__STATIC__/admin/images/empty-color.png?v={$version|default='v1.4.7'}">
                                     </span>
                                 </li>
-                                {/if}
                             </ul>
                         </div>
                     </dd>
@@ -92,7 +90,7 @@
                     <dd class="opt">
                         <div class="input-file-show">
                             <span class="show">
-                                <a id="img_a_web_adminlogo" class="nyroModal" rel="gal" href="{$globalTpCache.web_adminlogo|default='javascript:void(0);'}" target="_blank">
+                                <a id="img_a_web_adminlogo" class="nyroModal" rel="gal" href="{$globalTpCache.web_adminlogo|default='javascript:void(0);'}?t={php}echo getTime();{/php}" target="_blank">
                                     <i id="img_i_web_adminlogo" class="fa fa-picture-o" {notempty name="$globalTpCache.web_adminlogo"}onmouseover="layer_tips=layer.tips('<img src={$globalTpCache.web_adminlogo|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                                 </a>
                             </span>
@@ -113,7 +111,7 @@
                     <dd class="opt">
                         <div class="input-file-show">
                             <span class="show">
-                                <a id="img_a_web_loginlogo" class="nyroModal" rel="gal" href="{$globalTpCache.web_loginlogo|default='javascript:void(0);'}" target="_blank">
+                                <a id="img_a_web_loginlogo" class="nyroModal" rel="gal" href="{$globalTpCache.web_loginlogo|default='javascript:void(0);'}?t={php}echo getTime();{/php}" target="_blank">
                                     <i id="img_i_web_loginlogo" class="fa fa-picture-o" {notempty name="$globalTpCache.web_loginlogo"}onmouseover="layer_tips=layer.tips('<img src={$globalTpCache.web_loginlogo|default=''} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
                                 </a>
                             </span>

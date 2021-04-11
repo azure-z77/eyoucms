@@ -45,20 +45,37 @@
                         <th class="sign w40" axis="col0">
                             <div class="tc w40"><input type="checkbox" class="checkAll"></div>
                         </th>
-                        <th abbr="article_title" axis="col3" class="w40">
+                        <th abbr="article_show" axis="col5" class="w50">
                             <div class="tc">ID</div>
                         </th>
                         {volist name="tab_list" id="vo1"}
                             {if condition="$i elt 4" }
-                                <th style="text-align: center;" class="w100">
-                                    <div >{$vo1.attr_name}</div>
+                                {if $i == 1}
+                                <th abbr="ac_id" axis="col4">
+                                    <div class="text-l10">{$vo1.attr_name}</div>
                                 </th>
+                                {else /}
+                                <th abbr="article_show" axis="col5" class="w150">
+                                    <div class="tc">{$vo1.attr_name}</div>
+                                </th>
+                                {/if}
                             {/if}
                         {/volist}
-                        <th abbr="article_time" axis="col6" class="w100">
-                            <div class="tc">所属栏目</div>
+
+                        {empty name='$tab_list'}
+                            <th abbr="ac_id" axis="col4">
+                                <div class="text-l10">所属栏目</div>
+                            </th>
+                        {else /}
+                            <th abbr="article_time" axis="col6" class="w100">
+                                <div class="tc">所属栏目</div>
+                            </th>
+                        {/empty}
+
+                        <th abbr="article_time" axis="col6" class="w50">
+                            <div class="tc">查阅</div>
                         </th>
-                        <th align="center" abbr="article_time" axis="col6" class="w160">
+                        <th abbr="article_time" axis="col6" class="w160">
                             <div class="tc">新增时间</div>
                         </th>
                         <th axis="col1" class="w120">
@@ -82,34 +99,66 @@
                     {else/}
                         {foreach name="list" item="vo" key="k" }
                         <tr>
-                            <td class="sign w40" axis="col0">
-                                <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.aid}"></div>
+                            <td class="sign">
+                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.aid}"></div>
                             </td>
-                            <td abbr="article_title" axis="col3" class="w40">
-                                <div class="tc">{$vo.aid}</div>
+                            <td class="sort">
+                                <div class="w50 tc">
+                                    {$vo.aid}
+                                </div>
                             </td>
-
                             {for start="0" end="count($tab_list)"}
-                                {if condition="$i elt 4" }
-                                <td class="w100">
-                                    <div class="tc">{$vo['attr_list'][$i]['attr_value']}</div>
-                                </td>
+                                {if condition="$i lt 4" }
+                                    {if $i == 0}
+                                    <td style="width: 100%">
+                                        <div class="text-l10">
+                                            {$vo['attr_list'][$i]['attr_value']}
+                                        </div>
+                                    </td>
+                                    {else /}
+                                    <td class="">
+                                        <div class="w150 tc">
+                                            {$vo['attr_list'][$i]['attr_value']}
+                                        </div>
+                                    </td>
+                                    {/if}
                                 {/if}
                             {/for}
 
-                            <td class="w100">
-                                <div class=" tc"><a href="{:url('Guestbook/index', ['typeid'=>$vo.typeid])}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
+                            {empty name='$tab_list'}
+                                <td style="width: 100%">
+                                    <div class="text-l10">
+                                        <a href="{:url('Guestbook/index', ['typeid'=>$vo.typeid])}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a>
+                                    </div>
+                                </td>
+                            {else /}
+                                <td class="">
+                                    <div class="w100 tc">
+                                        <a href="{:url('Guestbook/index', ['typeid'=>$vo.typeid])}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a>
+                                    </div>
+                                </td>
+                            {/empty}
+
+                            <td class="">
+                                <div class="w50 tc" id="td_is_read_{$vo.aid}">
+                                    {eq name='$vo.is_read' value='1'}
+                                        已读
+                                    {else /}
+                                        <font color="red">未读</font>
+                                    {/eq}
+                                </div>
                             </td>
-                            <td class="w160">
-                                <div class=" tc">
+                            <td class="">
+                                <div class="w160 tc">
                                     {$vo.add_time|date='Y-m-d H:i:s',###}
                                 </div>
                             </td>
-                            <td class="w120">
-                                <div class=" tc">
-                                    <a class="btn blue" href="javascript:void(0);" onclick="click_to_eyou_1575506523('{:url('Guestbook/details', ['aid'=>$vo['aid']])}','查看ID='+{$vo.aid}+'的数据')"><i class="fa fa-trash-o"></i>查看</a>
+                            <td class="operation">
+                                <div class="w120 tc">
+                                    <a class="btn blue" href="javascript:void(0);" data-href="{:url('Guestbook/details', ['aid'=>$vo['aid']])}" onclick="openFullframe(this, '查看ID={$vo.aid}的数据');$('#td_is_read_{$vo.aid}').html('已读');">查看</a>
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red" href="javascript:void(0);" data-url="{:url('Guestbook/del')}" data-id="{$vo.aid}" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <i></i>
+                                    <a class="btn red" href="javascript:void(0);" data-url="{:url('Guestbook/del')}" data-id="{$vo.aid}" onClick="delfun(this);">删除</a>
                                     {/eq}
                                 </div>
                             </td>

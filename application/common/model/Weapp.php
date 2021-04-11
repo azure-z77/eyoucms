@@ -39,7 +39,11 @@ class Weapp extends Model
             foreach ($result as $key => &$value) {
                 try {
                     if (!empty($value['data']) && $value['data']!="[]") {
-                        $value['data'] = unserialize($value['data']);
+                        if (preg_match('/^{.*}$/', $value['data'])) { // json格式
+                            $value['data'] = json_decode($value['data'], true);
+                        } else {
+                            $value['data'] = unserialize($value['data']);
+                        }
                     }
                     if (!empty($value['config'])) {
                         $value['config'] = json_decode($value['config'], true);

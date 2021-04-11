@@ -10,7 +10,7 @@
             <div class="ftitle">
                {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
                    <div class="fbutton" style="float: none;">
-                       <a href="{gt name="$Request.param.typeid" value="0"}{:url('ShopProduct/add', ['typeid'=>$Request.param.typeid])}{else /}javascript:quick_release();{/gt}">
+                       <a href="{gt name="$Request.param.typeid" value="0"}{:url('ShopProduct/add', ['typeid'=>$Request.param.typeid])}{else /}javascript:quick_release('{$is_product_arctype}');{/gt}">
                            <div class="add">
                                <span><i class="layui-icon layui-icon-addition"></i>发布商品</span>
                            </div>
@@ -95,7 +95,7 @@
 
                                     <td class="w60">
                                         <div class="tc">
-                                            <a href="{:url('ShopProduct/edit',array('id'=>$vo['aid']))}" style='{eq name="vo.is_b" value="1" } font-weight: bold; {/eq}'>
+                                            <a href="{:url('ShopProduct/edit',array('id'=>$vo['aid']))}" style='{eq name="vo.is_b" value="1"} font-weight: bold; {/eq}'>
                                                 <img width="60" height="60" src="{$vo.litpic}">
                                             </a>
                                         </div>
@@ -105,12 +105,11 @@
                                         <div class="fl" style="padding-left: 10px;">
                                            <div class="title">
                                                 {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                                    <a href="{:url('ShopProduct/edit',array('id'=>$vo['aid']))}" style='{eq name=" vo.is_b" value="1" } font-weight: bold;{/eq}'>{$vo.title}</a>
+                                                    <a href="{:url('ShopProduct/edit',array('id'=>$vo['aid']))}" style='{eq name="$vo.is_b" value="1"}font-weight: bold;{/eq}'>{$vo.title}</a>
                                                 {else /}
                                                     {$vo.title}
                                                 {/eq}
                                            </div>
-                                             <span>{$vo.product_number}</span>
                                         </div>
                                     </td>
 

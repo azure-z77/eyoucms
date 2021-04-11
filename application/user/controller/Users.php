@@ -42,6 +42,15 @@ class Users extends Base
     // 会员中心首页
     public function index()
     {
+        /*清理过期的data/session文件*/
+        $ajaxLogic = new \app\admin\logic\AjaxLogic;
+        $ajaxLogic->clear_session_file();
+        /*end*/
+
+        if (1 == config('global.opencodetype')) {
+            return action('user/Users/index2');
+        }
+        
         if (getUsersTplVersion() == 'v1') {
             return action('user/Users/info');
         }
@@ -92,6 +101,13 @@ class Users extends Base
         }
 
         $this->assign('others', $others);
+
+        //查询部分模型开启信息  下载 视频 问答
+        $part_channel = Db::name('channeltype')
+            ->where('nid','in',['ask','download','media'])
+            ->field('nid,status')
+            ->getAllWithIndex('nid');
+        $this->assign('part_channel', $part_channel);
 
         // 多语言
         $condition_bottom['a.lang'] = array('eq', $this->admin_lang);
@@ -469,6 +485,11 @@ class Users extends Base
         $this->assign('weapp_wblogin', $weapp_wblogin);
         /*end*/
 
+        if (1 == config('global.opencodetype')) {
+            $type = input('param.type/s');
+            $this->assign('type', $type);
+        }
+
         // 跳转链接
         $referurl = input('param.referurl/s', null, 'htmlspecialchars_decode,urldecode');
         if (empty($referurl)) {
@@ -631,7 +652,9 @@ class Users extends Base
             // 添加会员到会员表
             $data['username']       = !empty($post['username']) ? trim($post['username']) : 'yun'.getTime().rand(0,100);
             $data['nickname']       = !empty($post['nickname']) ? $post['nickname'] : $data['username'];
-            $data['password']       = func_encrypt($post['password']);
+            if (0 == config('global.opencodetype')) {
+                $data['password']       = func_encrypt($post['password']);
+            }
             $data['is_mobile']      = !empty($ParaData['mobile_1']) ? 1 : 0;
             $data['is_email']       = !empty($ParaData['email_2']) ? 1 : 0;
             $data['last_ip']        = clientIP();
@@ -719,6 +742,11 @@ class Users extends Base
 
                 // 回跳路径
                 $referurl = input('post.referurl/s', null, 'htmlspecialchars_decode,urldecode');
+
+                if (1 == config('global.opencodetype')) {
+                    cookie('origin_type', null);
+                    cookie('origin_mid', null);
+                }
 
                 session('users_id', $users_id);
                 if (session('users_id')) {
@@ -1534,6 +1562,11 @@ EOF;
                     $this->error('输入的手机号码和手机验证码不一致，请重新输入！');
                 }
             }
+        }
+
+        if (1 == config('global.opencodetype')) {
+            $opt = input('param.opt/s');
+            $this->assign('opt', $opt);
         }
 
         $title = input('param.title/s');

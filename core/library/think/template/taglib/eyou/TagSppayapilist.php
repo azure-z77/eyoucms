@@ -201,9 +201,9 @@ class TagSppayapilist extends Base
                         $PayApiList[$key]['pay_img'] = get_default_pic('/weapp/'.$value['pay_mark'].'/pay.png');
                     }
                 }
-
             }
         }
+        $PayApiList = array_merge([], $PayApiList);
 
         // 传入JS参数
         $JsonData['IsMobile']        = isMobile() ? 1 : 0;
@@ -246,8 +246,7 @@ EOF;
     {
         $hupijiaoInfo = Db::name('weapp')->where(['code'=>'Hupijiaopay','status'=>1])->find();
         $HupijiaoPay = Db::name('pay_api_config')->where(['pay_mark'=>'Hupijiaopay'])->find();
-        if (!$HupijiaoPay || empty($hupijiaoInfo)) return true;
-        if (empty($HupijiaoPay['pay_info'])) return true;
+        if (empty($HupijiaoPay) || empty($hupijiaoInfo)) return true;
         if (empty($HupijiaoPay['pay_info'])) return true;
         $PayInfo = unserialize($HupijiaoPay['pay_info']);
         if (empty($PayInfo)) return true;

@@ -20,7 +20,6 @@ use app\home\logic\FieldLogic;
  */
 class TagArcview extends Base
 {
-    public $aid = '';
     public $fieldLogic;
     
     //初始化
@@ -28,9 +27,6 @@ class TagArcview extends Base
     {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
-        /*应用于文档列表*/
-        $this->aid = I('param.aid/d', 0);
-        /*--end*/
     }
 
     /**

@@ -11,15 +11,17 @@
  * Date: 2018-4-3
  */
 
-$home_rewrite = array();
-$route = array(
-    '__pattern__' => array(
-        'tid' => '[A-Za-z0-9_-]+',
-        'aid' => '\d+',
-    ),
-    '__alias__' => array(),
-    '__domain__' => array(),
-);
+$home_rewrite = [];
+$route = [
+    '__pattern__' => [
+        'tid' => '[\-\w]+',
+        'dirname' => '[\-\w]+',
+        'aid' => '[\-\w]+',
+    ],
+    '__alias__' => [],
+    '__domain__' => [],
+];
+$__pattern__ = $route['__pattern__'];
 
 $globalTpCache = tpCache('global');
 config('tpcache', $globalTpCache);
@@ -81,6 +83,12 @@ config('ey_config.system_home_default_lang', $system_home_default_lang);
 $is_https = !empty($globalTpCache['web_is_https']) ? true : config('is_https');
 config('is_https', $is_https);
 
+// 是否存在问答插件
+$is_ask_weapp = false;
+if (is_dir('./weapp/Ask/')) {
+    $is_ask_weapp = true;
+}
+
 $uiset = input('param.uiset/s', 'off');
 if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
     config('ey_config.seo_inlet', 0);
@@ -128,76 +136,352 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
         if (!empty($lang_rewrite_str)) {
             $lang_rewrite = [
                 // 首页
-                $lang_rewrite_str.'$' => array('home/Index/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'$' => [
+                    'home/Index/index',
+                    ['method' => 'get', 'ext' => ''],
+                    'cache'=>1
+                ],
             ];
         }
         /*--end*/
         if (1 == $seo_rewrite_format || 3 == $seo_rewrite_format) { // 精简伪静态
-            $home_rewrite = array(
+            $home_rewrite = [
                 // 会员中心
-                $lang_rewrite_str.'user$' => array('user/Users/login',array('ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'reg$' => array('user/Users/reg',array('ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'centre$' => array('user/Users/centre',array('ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'user/index$' => array('user/Users/index',array('ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'cart$' => array('user/Shop/shop_cart_list',array('ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'user$' => [
+                    'user/Users/login',
+                    ['ext' => ''],
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'reg$' => [
+                    'user/Users/reg',
+                    ['ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'centre$' => [
+                    'user/Users/centre',
+                    ['ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'user/index$' => [
+                    'user/Users/index',
+                    ['ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'cart$' => [
+                    'user/Shop/shop_cart_list',
+                    ['ext' => ''], 
+                    'cache'=>1
+                ],
                 // 标签伪静态
-                $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'tags/<tagid>_<page>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'tags$' => [
+                    'home/Tags/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'tags/<tagid>_<page>$' => [
+                    'home/Tags/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tagid' => '[\d]+', 'page' => '[\d]+'],
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'tags/<tagid>$' => [
+                    'home/Tags/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tagid' => '[\d]+'],
+                    'cache'=>1
+                ],
                 // 搜索伪静态
-                $lang_rewrite_str.'sindex$' => array('home/Search/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'sindex$' => [
+                    'home/Search/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'search$' => [
+                    'home/Search/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    'cache'=>1
+                ],
+            ];
+
+            if (false === $is_ask_weapp) {
+                // 问答模型
+                $home_rewrite += [
+                    $lang_rewrite_str.'ask/list_<type_id>_p<p>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['type_id' => '[\d]+', 'p' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/list_<is_recom>_<type_id>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['is_recom' => '[\d]+', 'type_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/list_<type_id>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['type_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/view_<ask_id>$' => [
+                        'home/Ask/details',
+                        ['method' => 'get', 'ext' => 'html'], 
+                        ['ask_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                ];
+            }
+
+            $home_rewrite += [
                 // 列表页 - 分页
-                $lang_rewrite_str.'<tid>/list_<typeid>_<page>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'<tid>/list_<typeid>_<page>$' => [
+                    'home/Lists/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
                 // 列表页
-                $lang_rewrite_str.'<tid>$' => array('home/Lists/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
+                $lang_rewrite_str.'<tid>$' => [
+                    'home/Lists/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
                 // 内容页
-                $lang_rewrite_str.'<dirname>/<aid>$' => array('home/View/index',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
-            );
+                $lang_rewrite_str.'<dirname>/<aid>$' => [
+                    'home/View/index',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
+            ];
         } else {
-            $home_rewrite = array(
+            $home_rewrite = [
                 // 会员中心
-                $lang_rewrite_str.'Users/login$' => array('user/Users/login',array('ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'Users/reg$' => array('user/Users/reg',array('ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'Users/centre$' => array('user/Users/centre',array('ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'Users/index$' => array('user/Users/index',array('ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'Users/cart$' => array('user/Shop/shop_cart_list',array('ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'Users/login$' => [
+                    'user/Users/login',
+                    ['ext' => 'html'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'Users/reg$' => [
+                    'user/Users/reg',
+                    ['ext' => 'html'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'Users/centre$' => [
+                    'user/Users/centre',
+                    ['ext' => 'html'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'Users/index$' => [
+                    'user/Users/index',
+                    ['ext' => 'html'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'Users/cart$' => [
+                    'user/Shop/shop_cart_list',
+                    ['ext' => 'html'], 
+                    'cache'=>1
+                ],
                 // 文章模型伪静态
-                $lang_rewrite_str.'article/<tid>/list_<typeid>_<page>$' => array('home/Article/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'article/<tid>$' => array('home/Article/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'article/<dirname>/<aid>$' => array('home/Article/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'article/<tid>/list_<typeid>_<page>$' => [
+                    'home/Article/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'article/<tid>$' => [
+                    'home/Article/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'article/<dirname>/<aid>$' => [
+                    'home/Article/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 产品模型伪静态
-                $lang_rewrite_str.'product/<tid>/list_<typeid>_<page>$' => array('home/Product/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'product/<tid>$' => array('home/Product/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'product/<dirname>/<aid>$' => array('home/Product/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'product/<tid>/list_<typeid>_<page>$' => [
+                    'home/Product/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'product/<tid>$' => [
+                    'home/Product/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'product/<dirname>/<aid>$' => [
+                    'home/Product/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 图集模型伪静态
-                $lang_rewrite_str.'images/<tid>/list_<typeid>_<page>$' => array('home/Images/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'images/<tid>$' => array('home/Images/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'images/<dirname>/<aid>$' => array('home/Images/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'images/<tid>/list_<typeid>_<page>$' => [
+                    'home/Images/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'images/<tid>$' => [
+                    'home/Images/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'images/<dirname>/<aid>$' => [
+                    'home/Images/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 下载模型伪静态
-                $lang_rewrite_str.'download/<tid>/list_<typeid>_<page>$' => array('home/Download/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'download/<tid>$' => array('home/Download/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'download/<dirname>/<aid>$' => array('home/Download/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'download/<tid>/list_<typeid>_<page>$' => [
+                    'home/Download/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'download/<tid>$' => [
+                    'home/Download/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'download/<dirname>/<aid>$' => [
+                    'home/Download/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 视频模型伪静态
-                $lang_rewrite_str.'media/<tid>/list_<typeid>_<page>$' => array('home/Media/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'media/<tid>$' => array('home/Media/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'media/<dirname>/<aid>$' => array('home/Media/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'media/<tid>/list_<typeid>_<page>$' => [
+                    'home/Media/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'media/<tid>$' => [
+                    'home/Media/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'media/<dirname>/<aid>$' => [
+                    'home/Media/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 专题模型伪静态
-                $lang_rewrite_str.'special/<tid>/list_<typeid>_<page>$' => array('home/Special/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'special/<tid>$' => array('home/Special/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'special/<dirname>/<aid>$' => array('home/Special/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
+                $lang_rewrite_str.'special/<tid>/list_<typeid>_<page>$' => [
+                    'home/Special/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'special/<tid>$' => [
+                    'home/Special/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'special/<dirname>/<aid>$' => [
+                    'home/Special/view',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                    'cache'=>1
+                ],
                 // 单页模型伪静态
-                $lang_rewrite_str.'single/<tid>$' => array('home/Single/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'single/<tid>$' => [
+                    'home/Single/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
                 // 标签伪静态
-                $lang_rewrite_str.'tags$' => array('home/Tags/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'tags/<tagid>_<page>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                $lang_rewrite_str.'tags/<tagid>$' => array('home/Tags/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'tags$' => [
+                    'home/Tags/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'tags/<tagid>_<page>$' => [
+                    'home/Tags/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tagid' => '[\d]+', 'page' => '[\d]+'], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'tags/<tagid>$' => [
+                    'home/Tags/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tagid' => '[\d]+'], 
+                    'cache'=>1
+                ],
                 // 搜索伪静态
-                $lang_rewrite_str.'sindex$' => array('home/Search/index',array('method' => 'get', 'ext' => ''), 'cache'=>1),
-                $lang_rewrite_str.'search$' => array('home/Search/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
+                $lang_rewrite_str.'sindex$' => [
+                    'home/Search/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'search$' => [
+                    'home/Search/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    'cache'=>1
+                ],
                 // 留言模型
-                $lang_rewrite_str.'guestbook/<tid>$' => array('home/Guestbook/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-            );
+                $lang_rewrite_str.'guestbook/<tid>$' => [
+                    'home/Guestbook/lists',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['tid' => $__pattern__['tid']], 
+                    'cache'=>1
+                ],
+            ];
+
+            if (false === $is_ask_weapp) {
+                // 问答模型
+                $home_rewrite += [
+                    $lang_rewrite_str.'ask/list_<type_id>_p<p>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['type_id' => '[\d]+', 'p' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/list_<is_recom>_<type_id>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['is_recom' => '[\d]+', 'type_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/list_<type_id>$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        ['type_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask$' => [
+                        'home/Ask/index',
+                        ['method' => 'get', 'ext' => ''], 
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.'ask/view_<ask_id>$' => [
+                        'home/Ask/details',
+                        ['method' => 'get', 'ext' => 'html'], 
+                        ['ask_id' => '[\d]+'],
+                        'cache'=>1
+                    ],
+                ];
+            }
 
             /*自定义模型*/
             $cacheKey = "application_route_channeltype";
@@ -211,17 +495,70 @@ if ('on' == trim($uiset, '/')) { // 可视化页面必须是兼容模式的URL
                 \think\Cache::set($cacheKey, $channeltype_row, EYOUCMS_CACHE_TIME, "channeltype");
             }
             foreach ($channeltype_row as $value) {
-                $home_rewrite += array(
-                    $lang_rewrite_str.$value['nid'].'/<tid>/list_<typeid>_<page>$' => array('home/'.$value['ctl_name'].'/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                    $lang_rewrite_str.$value['nid'].'/<tid>$' => array('home/'.$value['ctl_name'].'/lists',array('method' => 'get', 'ext' => 'html'), 'cache'=>1),
-                    $lang_rewrite_str.$value['nid'].'/<dirname>/<aid>$' => array('home/'.$value['ctl_name'].'/view',array('method' => 'get', 'ext' => 'html'),'cache'=>1),
-                );
+                $home_rewrite += [
+                    $lang_rewrite_str.$value['nid'].'/<tid>/list_<typeid>_<page>$' => [
+                        'home/'.$value['ctl_name'].'/lists',
+                        ['method' => 'get', 'ext' => 'html'], 
+                        ['tid' => $__pattern__['tid'], 'typeid' => '[\d]+', 'page' => '[\d]+'], 
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.$value['nid'].'/<tid>$' => [
+                        'home/'.$value['ctl_name'].'/lists',
+                        ['method' => 'get', 'ext' => 'html'], 
+                        ['tid' => $__pattern__['tid']], 
+                        'cache'=>1
+                    ],
+                    $lang_rewrite_str.$value['nid'].'/<dirname>/<aid>$' => [
+                        'home/'.$value['ctl_name'].'/view',
+                        ['method' => 'get', 'ext' => 'html'], 
+                        ['dirname' => $__pattern__['dirname'], 'aid' => $__pattern__['aid']],
+                        'cache'=>1
+                    ],
+                ];
             }
             /*--end*/
         }
         $home_rewrite = array_merge($lang_rewrite, $home_rewrite);
     }
+    else if (2 == $seo_pseudo) {
+        $lang_rewrite_str = '';
+        $home_rewrite = [];
 
+        if (false === $is_ask_weapp) {
+            // 问答模型
+            $home_rewrite += [
+                $lang_rewrite_str.'ask/list_<type_id>_p<p>$' => [
+                    'home/Ask/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    ['type_id' => '[\d]+', 'p' => '[\d]+'],
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'ask/list_<is_recom>_<type_id>$' => [
+                    'home/Ask/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    ['is_recom' => '[\d]+', 'type_id' => '[\d]+'],
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'ask/list_<type_id>$' => [
+                    'home/Ask/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    ['type_id' => '[\d]+'],
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'ask$' => [
+                    'home/Ask/index',
+                    ['method' => 'get', 'ext' => ''], 
+                    'cache'=>1
+                ],
+                $lang_rewrite_str.'ask/view_<ask_id>$' => [
+                    'home/Ask/details',
+                    ['method' => 'get', 'ext' => 'html'], 
+                    ['ask_id' => '[\d]+'],
+                    'cache'=>1
+                ],
+            ];
+        }
+    }
     /*插件模块路由*/
     $weapp_route_file = 'plugins/route.php';
     if (file_exists(APP_PATH.$weapp_route_file)) {

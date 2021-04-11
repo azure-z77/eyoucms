@@ -17,6 +17,7 @@ use think\Db;
 use think\Config;
 use think\Page;
 use think\Cookie;
+use app\common\logic\ShopCommonLogic;
 
 class Shop extends Base
 {
@@ -29,6 +30,7 @@ class Shop extends Base
         $this->shop_cart_db          = Db::name('shop_cart');           // 购物车表
         $this->shop_order_db         = Db::name('shop_order');          // 订单主表
         $this->shop_order_details_db = Db::name('shop_order_details');  // 订单明细表
+        $this->shop_order_service_db = Db::name('shop_order_service');  // 订单售后服务表
         $this->shop_address_db       = Db::name('shop_address');        // 收货地址表
 
         $this->archives_db           = Db::name('archives');            // 产品表
@@ -39,6 +41,7 @@ class Shop extends Base
         $this->shipping_template_db  = Db::name('shop_shipping_template'); // 运费模板表
 
         $this->shop_model = model('Shop');  // 商城模型
+        $this->shop_common = new ShopCommonLogic(); // common商城业务层，前后台共用
 
         // 订单中心是否开启
         $redirect_url = '';
@@ -585,21 +588,23 @@ class Shop extends Base
             $selected = input('post.selected');
             // 更新数组
             if (!empty($selected)) {
-                $selected = '0';
-            }else{
-                $selected = '1';
+                $selected = 0;
+            } else {
+                $selected = 1;
             }
-            $data['selected']    = $selected;
+            $data['selected'] = $selected;
             $data['update_time'] = getTime();
             // 更新条件
             if ('*' == $cart_id) {
                 $cart_where = [
+                    'product_num' => ['>', 0],
                     'users_id' => $this->users_id,
                     'lang'     => $this->home_lang,
                 ];
-            }else{
+            } else {
                 $cart_where = [
                     'cart_id'  => $cart_id,
+                    'product_num' => ['>', 0],
                     'users_id' => $this->users_id,
                     'lang'     => $this->home_lang,
                 ];
@@ -803,6 +808,7 @@ class Shop extends Base
         if (IS_POST) {
             // 提交的订单信息判断
             $post = input('post.');
+            if (empty($post['payment_type'])) $this->error('网站支付配置未完善，购买服务暂停使用');
             if (empty($post)) $this->error('订单生成失败，商品数据有误！'); 
             $Md5Value = !empty($post['Md5Value']) ? $post['Md5Value'] : null;
             
@@ -1142,6 +1148,10 @@ class Shop extends Base
                         // 手机发送
                         $SmsConfig = tpCache('sms');
                         $ReturnData['mobile'] = GetMobileSendData($SmsConfig, $this->users, $OrderData, 1, 'delivery_pay');
+
+                        // 发送站内信给后台
+                        $OrderData['pay_method'] = '货到付款';
+                        SendNotifyMessage($OrderData, 5, 1, 0);
 
                         // 返回结束
                         $ReturnData['is_gourl'] = 1;
@@ -1662,4 +1672,188 @@ class Shop extends Base
             }
         }
     }
+
+
+    /*------陈风任---2021-1-12---售后服务(退换货)------开始------*/
+    // 申请退换货服务
+    public function after_service_apply()
+    {
+        if (IS_AJAX_POST) {
+            $post = input('post.');
+            if (empty($post)) $this->error('提交数据有误！');
+            if (empty($post['service_type'])) $this->error('请选择服务类型！');
+            if (empty($post['content'])) $this->error('请填写问题描述！');
+            if (empty($post['address'])) $this->error('请填写您的收货地址！');
+            if (empty($post['consignee'])) $this->error('请填写您的姓名！');
+            if (empty($post['mobile'])) $this->error('请填写您的手机号码！');
+            $time = getTime();
+            $data = [
+                'users_id'    => $this->users_id,
+                'address'     => $post['addrinfo'].' '.$post['address'],
+                'upload_img'  => !empty($post['upload_img']) ? implode(',', $post['upload_img']) : '',
+                'refund_balance' => '',
+                'refund_point' => '',
+                'refund_code' => 'HH' . $time . rand(10,100),
+                'add_time'    => $time,
+                'update_time' => $time,
+            ];
+            if (2 == $post['service_type'] && !empty($post['refund_price'])) $data['refund_code'] = 'TK' . $time . rand(10,100);
+            $ServiceData = array_merge($post, $data);
+            $ResultID = $this->shop_order_service_db->add($ServiceData);
+            if (!empty($ResultID)) {
+                /*更新订单明细表中对应商品为申请服务*/
+                $update = [
+                    'apply_service' => 1,
+                    'update_time' => getTime()
+                ];
+                $this->shop_order_details_db->where('details_id', $post['details_id'])->update($update);
+                /* END */
+
+                /*添加订单服务记录*/
+                $LogNote = 1 == $post['service_type'] ? '会员提交换货申请，待管理员审核！' : '会员提交退货申请，待管理员审核！';
+                OrderServiceLog($ResultID, $post['order_id'], $this->users_id, 0, $LogNote);
+                /* END */
+
+                $url = url('user/Shop/after_service_details', ['service_id' => $ResultID]);
+                $this->success('已申请，待审核', $url);
+            } else {
+                $this->error('申请失败！');
+            }
+        }
+
+        $details_id = input('param.details_id/d');
+        if (empty($details_id)) $this->error('售后服务单不存在！');
+
+        // 查询订单中单个商品信息
+        $data = $this->shop_model->GetOrderDetailsInfo($details_id, $this->users_id);
+
+        // 返回错误提示
+        if (!empty($data['msg']) && isset($data['code']) && 0 == $data['code']) $this->error($data['msg']);
+        
+        // 商户收货信息
+        $maddr  = getUsersConfigData('addr');
+        
+        $eyou = [
+            'url'   => url('user/Shop/after_service_apply', ['_ajax'=>1]),
+            'maddr' => $maddr,
+            'field' => $data
+        ];
+        $this->assign('eyou', $eyou);
+        return $this->fetch('users/shop_after_service_apply');
+    }
+
+    // 退货换服务列表
+    public function after_service()
+    {
+        $order_code = input('param.order_code');
+        $ServiceInfo = $this->shop_model->GetAllServiceInfo($this->users_id, $order_code);
+        $eyou = [
+            'field' => [
+               'service' => $ServiceInfo['Service'],
+               'pageStr' => $ServiceInfo['pageStr'],
+            ],
+        ];
+        $this->assign('eyou', $eyou);
+        return $this->fetch('users/shop_after_service');
+    }
+
+    // 申请服务详情
+    public function after_service_details() {
+        /*取消服务单*/
+        if (IS_AJAX_POST) {
+            $param = input('param.');
+            if (empty($param['service_id'])) $this->error('请选择需要取消的服务单！');
+            /*取消服务单*/
+            $where = [
+                'users_id'   => $this->users_id,
+                'service_id' => $param['service_id'],
+            ];
+            $update = [
+                'status' => 8,
+                'update_time' => getTime(),
+            ];
+            $ResultID = $this->shop_order_service_db->where($where)->update($update);
+            /* END */
+
+            if (!empty($ResultID)) {
+                /*更新订单明细表中对应商品为未申请服务*/
+                $where = [
+                    'users_id'   => $this->users_id,
+                    'details_id' => $param['details_id']
+                ];
+                $update = [
+                    'apply_service' => 0,
+                    'update_time' => getTime()
+                ];
+                $this->shop_order_details_db->where($where)->update($update);
+                /* END */
+
+                /*添加记录单*/
+                $param['users_id'] = $this->users_id;
+                $param['status'] = 8;
+                $this->shop_common->AddOrderServiceLog($param, 1);
+                /* END */
+
+                $this->success('取消成功！');
+            } else {
+                $this->error('取消失败！');
+            }
+        }
+        /* END */
+
+        $service_id = input('param.service_id/d');
+
+        // 商户收货信息
+        $maddr  = getUsersConfigData('addr');
+
+        // 加载模板
+        $eyou = [
+            'maddr'      => $maddr,
+            'field'      => $this->shop_model->GetServiceDetailsInfo($service_id, $this->users_id),
+            'ServiceUrl' => url('user/Shop/after_service_update', ['_ajax' => 1]),
+            'StatusArr'  => [6, 7, 8],
+            'StatusLog'  => $this->shop_model->GetOrderServiceLog($service_id, $this->users),
+        ];
+
+        $this->assign('eyou', $eyou);
+        return $this->fetch('users/shop_after_service_details');
+    }
+
+    // 更新服务单状态
+    public function after_service_update()
+    {
+        if (IS_AJAX_POST) {
+            if (empty($this->users_id)) $this->redirect('user/Login/login');
+            $post = input('post.');
+            if (empty($post['delivery']['cost'])) $post['delivery']['cost'] = 0;
+
+            /*查询条件*/
+            $Where = [
+                'users_id' => $this->users_id,
+                'service_id' => $post['service_id'],
+            ];
+            /* END */
+
+            /*更新数据*/
+            $UpDate = [
+                'status' => 4,
+                'users_delivery' => serialize($post['delivery']),
+                'update_time' => getTime(),
+            ];
+            /* END */
+            
+            $ResultID = $this->shop_order_service_db->where($Where)->update($UpDate);
+            if (!empty($ResultID)) {
+                /*添加记录单*/
+                $post['users_id'] = $this->users_id;
+                $this->shop_common->AddOrderServiceLog($post, 1);
+                /* END */
+
+                $this->success('操作成功！');
+            } else {
+                $this->error('操作失败！');
+            }
+        }
+    }
+    /*------陈风任---2021-1-12---售后服务(退换货)------结束------*/
 }

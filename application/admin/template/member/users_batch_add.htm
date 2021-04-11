@@ -1,10 +1,9 @@
 {include file="public/layout" /}
-
-<body class="bodystyle" style="overflow-y: scroll;">
+<body class="bodystyle" style="overflow-y: scroll;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page">
+<div class="page" style="min-width: auto;box-shadow:none;">
     <form class="form-horizontal" id="postForm" action="{:url('Member/users_batch_add')}" method="post">
         <div class="ncap-form-default">
             <dl class="row">
@@ -116,7 +115,7 @@
                 if(res.code == 1){
                     var _parent = parent;
                     _parent.layer.close(parentObj);
-                    _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                    _parent.layer.msg(res.msg, {icon: 1, shade: 0.3, time: 1000}, function(){
                         _parent.window.location.reload();
                     });
                 }else{
@@ -125,7 +124,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert(e.responseText, {icon: 5, title:false});
+                showErrorAlert(e.responseText);
             }
         });
     }

@@ -19,9 +19,9 @@
                     <dd class="opt">
                         <div class="onoff">
                             <label for="is_open_wechat0" class="cb-enable {if condition='!isset($pay_info.is_open_wechat) || empty($pay_info.is_open_wechat)'}selected{/if}">开启</label>
-                            <label for="is_open_wechat1" class="cb-disable {if condition='$pay_info.is_open_wechat == 1'}selected{/if}">关闭</label>
+                            <label for="is_open_wechat1" class="cb-disable {if condition='isset($pay_info.is_open_wechat) && $pay_info.is_open_wechat == 1'}selected{/if}">关闭</label>
                             <input id="is_open_wechat0" name="pay_info[is_open_wechat]" value="0" type="radio" {if condition="!isset($pay_info.is_open_wechat) || empty($pay_info.is_open_wechat)"} checked="checked"{/if}>
-                            <input id="is_open_wechat1" name="pay_info[is_open_wechat]" value="1" type="radio" {if condition="$pay_info.is_open_wechat == 1"} checked="checked"{/if}>
+                            <input id="is_open_wechat1" name="pay_info[is_open_wechat]" value="1" type="radio" {if condition="isset($pay_info.is_open_wechat) && $pay_info.is_open_wechat == 1"} checked="checked"{/if}>
                         </div>
                     </dd>
                 </dl>
@@ -52,7 +52,7 @@
                         <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_wechat'} none {/notempty}">*</em>微信AppId</label>
                     </dt>
                     <dd class="opt">
-                        <input type="text" name="pay_info[appid]" id="appid" value="{$pay_info.appid}" class="input-txt">
+                        <input type="text" name="pay_info[appid]" id="appid" value="{$pay_info.appid|default=''}" class="input-txt">
                         <p class="notic">请输入您的微信公众平台中的微信AppId，用于微信支付。</p>
                     </dd>
                 </dl>
@@ -61,7 +61,7 @@
                         <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_wechat'} none {/notempty}">*</em>微信商户号</label>
                     </dt>
                     <dd class="opt">
-                        <input type="text" name="pay_info[mchid]" id="mchid" value="{$pay_info.mchid}" class="input-txt">
+                        <input type="text" name="pay_info[mchid]" id="mchid" value="{$pay_info.mchid|default=''}" class="input-txt">
                         <p class="notic">请输入您的微信公众平台中的微信商户号，用于微信支付。</p>
                     </dd>
                 </dl>
@@ -70,7 +70,7 @@
                         <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_wechat'} none {/notempty}">*</em>微信KEY值</label>
                     </dt>
                     <dd class="opt">
-                        <input type="text" name="pay_info[key]" id="key" value="{$pay_info.key}" class="input-txt">
+                        <input type="text" name="pay_info[key]" id="key" value="{$pay_info.key|default=''}" class="input-txt">
                         <p class="notic">请输入您的微信公众平台中的微信KEY值，用于微信支付。</p>
                     </dd>
                 </dl>
@@ -85,6 +85,7 @@
     </div>
 </div>
 <script type="text/javascript">
+    var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 
     $(function(){
         $("input[name='pay_info[is_open_wechat]']").click(function(){
@@ -124,16 +125,16 @@
             success: function(res){
                 layer.closeAll();
                 if (1 == res.code) {
-                    layer.msg(res.msg, {icon: 1, time: 1500}, function() {
-                        parent.layer.closeAll();
-                    });
+                    var _parent = parent;
+                    _parent.layer.close(parentObj);
+                    _parent.layer.msg(res.msg, {shade: 0.3, time: 1000});
                 } else {
-                    layer.alert(res.msg, {icon: 2, title: false, closeBtn: 0});
+                    showErrorAlert(res.msg);
                 }
             },
             error: function(e){
                 layer.closeAll();
-                showErrorMsg(ey_unknown_error);
+                showErrorAlert(e.responseText);
                 return false;
             }
         });

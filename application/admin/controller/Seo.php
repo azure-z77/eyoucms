@@ -103,6 +103,8 @@ class Seo extends Base
         $map = array(
             'status'  => 1,
             'is_del'  => 0, // 回收站功能
+            'current_channel'    => ['neq', 51], // 问答模型
+            'weapp_code'    => '',
         );
         $arctypeLogic = new ArctypeLogic();
         $select_html = $arctypeLogic->arctype_list(0, 0, true, config('global.arctype_max_level'), $map);

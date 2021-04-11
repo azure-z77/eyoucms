@@ -30,6 +30,9 @@
                         <th abbr="ac_id" axis="col4">
                             <div class="text-l10">规格值</div>
                         </th>
+                        <th abbr="article_time" axis="col6" class="w100">
+                            <div class="tc">是否同步</div>
+                        </th>
                         <th abbr="article_time" axis="col6" class="w60">
                             <div class="tc">排序</div>
                         </th>
@@ -73,6 +76,13 @@
                                                 <span style="background:#4fc0e8; float: right; color: #fff; border-radius: 4px; padding:0px 6px  0px 20px; position: relative;" class="red" data-id="tr_td_input_old_{$vo.preset_mark_id}" onclick="AddSpecTplValue(this,'{$vo.preset_mark_id}','old');">
                                                     <i class="layui-icon layui-icon-addition" style="position:absolute; left: 0; top:0px; margin: 0 3px; color: #fff"></i>添加规格值
                                                 </span>
+                                        </div>
+                                    </td>
+                                    <td class="sort">
+                                        <div class="w100 tc">
+                                            <label class="label">
+                                                <input class="check" type="checkbox" {eq name="$vo.spec_sync" value="1"} checked {/eq} value="1" name="spec_sync_{$vo.preset_mark_id}" onmouseover="layer_tips = layer.tips('勾选后，修改规格名称或规格值，会自动同步更新已发布的商品规格', this, {time:100000});" onmouseout="layer.close(layer_tips);">
+                                            </label>
                                         </div>
                                     </td>
                                     <td class="sort">
@@ -158,6 +168,14 @@
 
                             '<span style="background:#4fc0e8; float:right; color: #fff; border-radius: 4px; padding:0px 6px  0px 20px; position: relative;" class="red" data-id="tr_td_input_'+PresetMarkId+'" onclick="AddSpecTplValue(this, '+PresetMarkId+');"><i class="layui-icon layui-icon-addition" style="position:absolute;left: 0; top:0px;margin: 0 3px; color: #fff"></i>添加规格值'+
                             '</span>'+
+                    '</div>'+
+                '</td>'+
+
+                '<td class="sort">'+
+                    '<div class="w100 tc">'+
+                        '<label class="label">'+
+                            '<input class="check" type="checkbox" value="0" disabled>'+
+                        '</label>'+
                     '</div>'+
                 '</td>'+
 

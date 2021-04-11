@@ -56,15 +56,15 @@ class PayApiLogic extends Model
 
         //先查虎皮椒支付有没有配置
         $hupijiao_pay_config = $this->pay_api_config_db->where(['pay_mark'=>'Hupijiaopay'])->find();
-        if ($hupijiao_pay_config) {
+        if (!empty($hupijiao_pay_config)) {
             $hupijiao_pay_config['pay_info'] = unserialize($hupijiao_pay_config['pay_info']);
             $hupijiaoInfo = Db::name('weapp')->where(['code'=>'Hupijiaopay','status'=>1])->find();
             if (empty($hupijiaoInfo) || !isset($hupijiao_pay_config['pay_info']['is_open_pay']) || 1 == $hupijiao_pay_config['pay_info']['is_open_pay']) {
                 $Config = $this->GetOtherPayApiConfig($post);
-            }else{
+            } else {
                 //兼容订单轮询查支付配置
                 if ($post['pay_mark'] != 'Hupijiaopay') {
-                    if (empty($hupijiao_pay_config['pay_info'][$post['pay_mark'] . '_appid']) || empty($hupijiao_pay_config['pay_info'][$post['pay_mark'] . '_appid'])) {
+                    if (empty($hupijiao_pay_config['pay_info'][$post['pay_mark'] . '_appid'])) {
                         $Config = $this->GetOtherPayApiConfig($post);
                     } else {
                         $new_pay_info = [];
@@ -75,7 +75,7 @@ class PayApiLogic extends Model
                         $hupijiao_pay_config['pay_info'] = $new_pay_info;
                         $Config = $hupijiao_pay_config;
                     }
-                }else{
+                } else {
                     $new_pay_info = [];
                     $new_pay_info['is_open_pay'] = 0;
                     $new_pay_info['appid'] = $hupijiao_pay_config['pay_info'][$post['pay_type'] . '_appid'];
@@ -85,7 +85,7 @@ class PayApiLogic extends Model
                     $Config = $hupijiao_pay_config;
                 }
             }
-        }else{
+        } else {
             $Config = $this->GetOtherPayApiConfig($post);
         }
 
@@ -292,6 +292,9 @@ class PayApiLogic extends Model
     public function UseWeChatPay($Post = [], $Order = [], $PayInfo = [])
     {
         if (isset($PayInfo['is_open_wechat']) && 0 == $PayInfo['is_open_wechat']) {
+            $total_fee    = $Order['unified_amount'];
+            $out_trade_no = $Order['unified_number'];
+
             if (!isMobile()) {
                 $Param = [
                     'unified_number' => $Post['unified_number'],
@@ -302,38 +305,31 @@ class PayApiLogic extends Model
 
             } else if (isMobile() && !isWeixin()) {
                 // 移动端非微信H5页面支付
-                $out_trade_no = $Order['unified_number'];
-                $total_fee    = $Order['unified_amount'];
-                $weixin_url   = model('PayApi')->getMobilePay($out_trade_no, $total_fee, $PayInfo);
+                $weixin_url   = model('PayApi')->getMobilePay($out_trade_no, $total_fee, $PayInfo, $Post['transaction_type']);
                 if (!empty($weixin_url['return_code']) && 'FAIL' == $weixin_url['return_code']) {
                     $this->error('商户微信支付H5支付尚未配置完成，请在配置开通成功后支付');
                 }
                 $this->success('订单支付中', $weixin_url);
             
             } else if (isMobile() && isWeixin()) {
-                $out_trade_no = $Order['unified_number'];
-                $total_fee    = $Order['unified_amount'];
                 if (!empty($Post['openid'])) {
                     // 小程序支付
-                    $body = "小程序支付";
-                    if (1 == config('global.opencodetype')) {
-                        $web_name = tpCache('web.web_name');
-                        $web_name = !empty($web_name) ? "[{$web_name}]" : "";
-                        $body = $web_name.$body;
-                    }
-                    $Paydata = model('PayApi')->getWechatPay($Post['openid'], $out_trade_no, $total_fee, $body, '小程序支付', 1);
+                    $Paydata = model('PayApi')->getWechatPay($Post['openid'], $out_trade_no, $total_fee, $PayInfo, 1, $Post['transaction_type']);
                     if (!empty($Paydata)) echo json_encode($Paydata);
+
                 } else if (!empty($this->users_id)) {
-                    // 手机端微信支付
+                    // 是否使用余额支付
                     $where = [
                         'users_id' => $this->users_id,
                         'lang'     => $this->home_lang
                     ];
                     $open_id = Db::name('users')->where($where)->getField('open_id');
                     if (empty($open_id)) $this->error('手机端微信使用本站账号登录仅可余额支付！');
-
-                    $Paydata = model('PayApi')->getWechatPay($open_id, $Order['unified_number'], $Order['unified_amount']);
+                    
+                    // 手机端微信支付
+                    $Paydata = model('PayApi')->getWechatPay($open_id, $out_trade_no, $total_fee, $PayInfo, 0, $Post['transaction_type']);
                     if (!empty($Paydata)) $this->success('订单支付中', null, $Paydata);
+
                 } else {
                     $this->error('使用本站账号登录仅可余额支付！');
                 }
@@ -402,7 +398,7 @@ class PayApiLogic extends Model
         // 返回结果
         $WeChatOrder = $WxPayApi->orderQuery($WxPayConfig, $WxPayOrderQuery);
 
-        if ($WeChatOrder['return_code'] == 'SUCCESS' && $WeChatOrder['result_code'] == 'SUCCESS') {
+        if (isset($WeChatOrder['return_code']) && $WeChatOrder['return_code'] == 'SUCCESS' && $WeChatOrder['result_code'] == 'SUCCESS') {
             if ($WeChatOrder['trade_state'] == 'SUCCESS' && !empty($WeChatOrder['transaction_id'])) {
                 $this->OrderProcessing($Post, $Order, $WeChatOrder, $Config);
             } else if ($WeChatOrder['trade_state'] == 'NOTPAY') {
@@ -538,7 +534,7 @@ class PayApiLogic extends Model
                 ];
 
                 // 订单更新数据，更新为已付款
-                $UpMoneyData = $this->GetUpMoneyData(session('UsersTypeData'), $Order['wechat_pay_type']);
+                $UpMoneyData = $this->GetUpMoneyData(session('UsersTypeData'), $Order['pay_method']);
 
                 // 订单更新
                 $ResultID = $this->users_money_db->where($where)->update($UpMoneyData);
@@ -729,7 +725,7 @@ class PayApiLogic extends Model
                 $this->ReturnMoneyPayData($Post, $MoneyData, $PayInfo);
             } else {
                 // 生成新订单覆盖原来的订单返回
-                $UpMoneyData = $this->GetUpMoneyData($UsersTypeData, $PayType);
+                $UpMoneyData = $this->GetUpMoneyData($UsersTypeData, 'wechat');
                 $UpMoneyData['status'] = 1;
                 $UpMoneyData['order_number'] = date('Ymd').getTime().rand(10,100);
                 $this->users_money_db->where('moneyid', $MoneyData['moneyid'])->update($UpMoneyData);
@@ -858,8 +854,10 @@ class PayApiLogic extends Model
             $total_fee = $MoneyData['money'];
             if (empty($total_fee)) $this->error('支付异常，请刷新后重试~');
             
-            $url = model('PayApi')->getMobilePay($out_trade_no, $total_fee, $PayInfo);
-            if ('FAIL' == $url['return_code']) $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试~');
+            $url = model('PayApi')->getMobilePay($out_trade_no, $total_fee, $PayInfo, 3);
+            if (isset($url['return_code']) && 'FAIL' == $url['return_code']) {
+                $this->error('商户公众号尚未成功开通H5支付，请开通成功后重试~');
+            }
             $ReturnDataNew['url_qrcode'] = null;
         } else if (isMobile() && isWeixin()) {
             // 手机微信端支付
@@ -871,7 +869,8 @@ class PayApiLogic extends Model
                 ];
                 $url = url('user/PayApi/pay_wechat_png', $Param);
             } else {
-                $Paydata = model('PayApi')->getWechatPay($this->users['open_id'], $MoneyData['order_number'],$MoneyData['money']);
+                $url = null;
+                $Paydata = model('PayApi')->getWechatPay($this->users['open_id'], $MoneyData['order_number'], $MoneyData['money'], $PayInfo, 0, 3);
                 $ReturnOrderData['PayData'] = $Paydata;
             }
             $ReturnDataNew['url_qrcode'] = $url;
@@ -1057,11 +1056,20 @@ class PayApiLogic extends Model
         } else if ('alipay' == $pay_method) {
             $pay_method_new = '支付宝';
         } else if ('wechat' == $pay_method) {
-            $wechat_pay_type= $pay_method;
+            if (isMobile() && !isWeixin()) {
+                // 手机浏览器端支付
+                $wechat_pay_type = 'WeChatH5';
+            } else if (isMobile() && isWeixin()) {
+                // 手机微信端支付
+                $wechat_pay_type = 'WeChatInternal';
+            } else {
+                // PC端扫码支付
+                $wechat_pay_type = 'WeChatScanCode';
+            } 
             $pay_method_new = '微信';
-            $pay_method     = 'wechat';
         } else {
             $pay_method_new = $pay_method;
+            $pay_method = 'Hupijiaopay' != $pay_method ? 'wechat' : $pay_method;
         }
 
         $details = '会员当前级别为【' . $this->users['level_name'] . '】，使用' . $pay_method_new . '支付【 ' . $data['type_name'] . '】，支付金额为' . $data['price'];

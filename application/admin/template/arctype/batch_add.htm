@@ -1,6 +1,6 @@
 {include file="public/layout" /}
 <body style="background-color: #FFF; overflow: auto;">
-<div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
+<div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div> 
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page" style="box-shadow:none;">
@@ -145,9 +145,9 @@
                                         <td class="">
                                             <div class="w60 tc btn_del_0">
                                                 {eq name='$i' value='1'}
-                                                <a class="btn" href="javascript:void(0);" style="background: #e6e6e6;"><i class="fa fa-trash-o"></i>删除</a>
+                                                <a class="btn grey" href="javascript:void(0);" title='至少保留一个'>删除</a>
                                                 {else /}
-                                                <a class="btn red" href="javascript:void(0);" onclick="$('#tr_0_{$i}').remove();"><i class="fa fa-trash-o"></i>删除</a>
+                                                <a class="btn red" href="javascript:void(0);" onclick="$('#tr_0_{$i}').remove();">删除</a>
                                                 {/eq}
                                             </div>
                                         </td>
@@ -190,7 +190,7 @@
         <div class="ncap-form-default">
             <div class="bot">
                 <input type="hidden" name="grade" id="grade" value="0">
-                <input type="hidden" value="{$dirpath}" name="dirpath" id="dirpath">
+                <input type="hidden" name="dirpath" id="dirpath">
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div> 

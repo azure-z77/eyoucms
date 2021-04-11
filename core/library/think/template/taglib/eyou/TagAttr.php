@@ -18,15 +18,10 @@ namespace think\template\taglib\eyou;
  */
 class TagAttr extends Base
 {
-    public $aid = '';
-    
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
-        /*应用于文档列表*/
-        $this->aid = input('param.aid/d', 0);
-        /*--end*/
     }
 
     /**

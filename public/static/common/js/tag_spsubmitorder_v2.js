@@ -103,8 +103,7 @@ function ShopDelAddress(addr_id){
 }
 
 // 选中收货地址
-function SelectEd(idname,addr_id,addrData)
-{   
+function SelectEd(idname, addr_id, addrData) {
     if (addr_id) {
         $('#'+idname).val(addr_id);
 
@@ -118,19 +117,16 @@ function SelectEd(idname,addr_id,addrData)
             var id  = addr_id+'_ul_li';
             $('#'+id).addClass("selected");
             lis.each(function(){
-                if (id != this.id) {
-                    $('#'+this.id).removeClass("selected");
-                }
+                if (id != this.id) $('#'+this.id).removeClass("selected");
             });
         }
 
         // 查询运费
         var JsonData = b1decefec6b39feb3be1064e27be2a9;
         var url = JsonData.shop_inquiry_shipping;
-        
         $.ajax({
             url : url,
-            data: {addr_id:addr_id,_ajax:1},
+            data: {addr_id: addr_id, _ajax: 1},
             type:'post',
             dataType:'json',
             success:function(res){
@@ -172,11 +168,9 @@ function ShopPaymentPage(){
                 if (res.data.code && 'order_status_0' == res.data.code) { // 兼容第二套会员中心
                     SelectPayMethod_2(res.data.pay_id, res.data.pay_mark, res.data.unified_id, res.data.unified_number, res.data.transaction_type);
                 } else {
-                    var IsSendEmail = 1;
-                    var IsSendMobile = 1;
-                    if (res.data.email) IsSendEmail = SendEmail_1608628263(res.data.email);
-                    if (res.data.mobile) IsSendMobile = SendMobile_1608628263(res.data.mobile);
-                    if (IsSendEmail || IsSendMobile) window.location.href = res.url;
+                    if (res.data.email) SendEmail_1608628263(res.data.email);
+                    if (res.data.mobile) SendMobile_1608628263(res.data.mobile);
+                    window.location.href = res.url;
                 }
             } else {
                 layer.closeAll();
@@ -187,7 +181,7 @@ function ShopPaymentPage(){
                         window.location.href = res.data.url;
                     });
                 } else {
-                    layer.msg(res.msg, {icon: 5,time: 1000});
+                    layer.alert(res.msg, {icon:0, title: false, closeBtn: 0});
                 }
             }
         }
@@ -222,8 +216,7 @@ function SendMobile_1608628263(result) {
     return ResultID;
 }
 
-function goAddressList(obj)
-{
+function goAddressList(obj) {
     var url = $(obj).data('url');
     if (url.indexOf('?') > -1) {
         url += '&';

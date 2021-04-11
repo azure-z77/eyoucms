@@ -343,20 +343,20 @@ class TagScreening extends Base
         $hidden .= <<<EOF
 <script type="text/javascript">
     function {$OnclickScreening}(obj) {
-        var dataurl = $(obj).attr('data-url');
+        var dataurl = obj.getAttribute("data-url");
         if (dataurl) {
             window.location.href = dataurl;
-        }else{
-            layer.msg(res.msg, {time: 2000, icon: 2});
+        } else {
+            alert('没有选择筛选项');
         }
     }
 
     function {$OnchangeScreening}(obj) {
-        var dataurl = $(obj).find("option:selected").attr('data-url');
+        var dataurl = obj.options[obj.selectedIndex].getAttribute("data-url");
         if (dataurl) {
             window.location.href = dataurl;
-        }else{
-            layer.msg(res.msg, {time: 2000, icon: 2});
+        } else {
+            alert('没有选择筛选项');
         }
     }
 </script>

@@ -154,7 +154,7 @@ class UsersRelease extends Model
         if (!empty($result)) {
             $typeid = isset($result['typeid']) ? $result['typeid'] : 0;
             $tags = model('Taglist')->getListByAid($aid, $typeid);
-            if (!empty($tags)){
+            if (!empty($tags['tag_arr'])){
                 $result['tags'] = $tags['tag_arr'];
             }else{
                 $result['tags'] = '';
@@ -470,6 +470,9 @@ class UsersRelease extends Model
                                 $val[$val['name'].'_eyou_local'] =  handle_subdir_pic($addonRow[$val['name']]);
                                 $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
                             }
+                            $ext = tpCache('basic.file_type');
+                            $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
+                            $val['filesize'] = upload_max_filesize();
                             break;
                         }
 

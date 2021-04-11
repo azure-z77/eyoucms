@@ -388,23 +388,28 @@
                     //执行实例
                     upload.render({
                         elem: '#upload_{$vo.fieldArr}_{$vo.name|default=""}' //绑定元素
-                        ,url: "{:url('user/Uploadify/DownloadUploadFileAjax')}"
+                        ,url: "{:url('Ueditor/DownloadUploadFileAjax')}"
                         ,accept: 'file' //普通文件
+                        ,exts: '{$vo.ext}'
+                        ,size: {$vo.filesize} //限制文件大小，单位 KB
                         ,done: function(res){
-                            if (res.state=="SUCCESS"){
-                                layer.msg('上传成功!');
-                                $("#{$vo.fieldArr}_{$vo.name|default=''}").val(res.url);
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('display','');
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").attr('href',res.url);
-                                var  arr = res.url.split("/");
+                            if (res.code==1){
+                                layer.msg(res.msg);
+                                var  arr = res.file_url.split("/");
                                 var download = arr[arr.length-1];
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").attr('download',download);
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('color','#000');
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").html('<img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">下载附件');
+                                $("#{$vo.fieldArr}_{$vo.name|default=''}").val(res.file_url);
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}")
+                                    .show()
+                                    .attr('href',res.file_url)
+                                    .attr('download',download)
+                                    .css('color','#000')
+                                    .html('<img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">下载附件');
                             }else {
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('display','');
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").css('color','red');
-                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}").text(res.state);
+                                $("#download_file_{$vo.fieldArr}_{$vo.name|default=''}")
+                                    .show()
+                                    .css('color','red')
+                                    .text(res.msg)
+                                    .attr('href', 'javascript:void(0);');
                             }
                         }
                         ,error: function(){

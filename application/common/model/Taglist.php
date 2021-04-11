@@ -45,7 +45,10 @@ class Taglist extends Model
      */
     public function getListByAid($aid = '', $typeid = 0, $field = 'tid, tag')
     {
-        $str = [];
+        $str = [
+            'tag_arr'   => '',
+            'tid_arr'   => '',
+        ];
         $result = Db::name('Taglist')->field($field)
             ->where(array('aid'=>$aid, 'typeid'=>$typeid))
             ->order('aid asc')
@@ -150,8 +153,9 @@ class Taglist extends Model
                     'total'     => 1,
                     'weekup'    => $addtime,
                     'monthup'   => $addtime,
-                    'add_time'  => $addtime,
                     'lang'      => get_admin_lang(),
+                    'add_time'  => $addtime,
+                    'update_time'=> $addtime,
                 ]);
         }
         else
@@ -161,7 +165,7 @@ class Taglist extends Model
                     'lang'  => get_admin_lang(),
                 ])->update([
                     'total'     => Db::raw('total + 1'),
-                    'add_time'  => $addtime,
+                    'update_time'  => $addtime,
                     'lang'      => get_admin_lang(),
                 ]);
             $tid = $row['id'];
@@ -177,6 +181,7 @@ class Taglist extends Model
                     'arcrank'   => $arcrank,
                     'lang'      => get_admin_lang(),
                     'add_time'  => $addtime,
+                    'update_time'=> $addtime,
                 ]);
         }
     }
@@ -230,7 +235,7 @@ class Taglist extends Model
                     if (0 < $total) {
                         Db::name('tagindex')->where(['tag'=>$tag,'lang'=>$lang])->update([
                                 'total' => $total,
-                                'add_time'  => getTime(),
+                                'update_time'  => getTime(),
                             ]);
                     } else {
                         Db::name('tagindex')->where(['tag'=>$tag,'lang'=>$lang])->delete();
@@ -290,7 +295,7 @@ class Taglist extends Model
                             ])
                             ->update([
                                 'total' => $total,
-                                'add_time'  => getTime(),
+                                'update_time'  => getTime(),
                             ]);
                     }
                 }

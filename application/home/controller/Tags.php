@@ -109,6 +109,8 @@ class Tags extends Base
                         'lang'  => $this->home_lang,
                     ])->update(array('monthcc'=>0, 'monthup'=>$ntime));
             }
+        } else {
+            abort(404);
         }
 
         $field_data = array(

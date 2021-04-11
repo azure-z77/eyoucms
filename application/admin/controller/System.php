@@ -430,7 +430,7 @@ class System extends Base
             if (0 < $max_filesize && $max_filesize < $param['file_size']) {
                 $this->error("附件上传大小超过空间的最大限制".$maxFileupload);
             }
-
+            // 允许上传图片类型
             $image_ext = config('global.image_ext');
             $image_ext_arr = explode(',', $image_ext);
             $image_type = explode('|', $param['image_type']);
@@ -442,19 +442,23 @@ class System extends Base
             }
             $param['image_type'] = implode('|', $image_type);
 
+            // 允许上传软件类型，类型太多无法进行白名单处理
             $file_type = explode('|', $param['file_type']);
             foreach ($file_type as $key => $val) {
                 $val = trim($val);
-                if (stristr($val, 'php') || empty($val)) {
+                if (preg_match('/^(php|asp|jsp|perl|cgi|asa|pht|phtml)/i', $val) || empty($val)) {
                     unset($file_type[$key]);
                 }
             }
             $param['file_type'] = implode('|', $file_type);
 
+            // 允许多媒体类型
+            $media_ext = config('global.media_ext');
+            $media_ext_arr = explode(',', $media_ext);
             $media_type = explode('|', $param['media_type']);
             foreach ($media_type as $key => $val) {
                 $val = trim($val);
-                if (stristr($val, 'php') || empty($val)) {
+                if (!in_array($val, $media_ext_arr) || empty($val)) {
                     unset($media_type[$key]);
                 }
             }
@@ -525,6 +529,13 @@ class System extends Base
                 $mark_img = $param['mark_img_remote'];
             } else {
                 $mark_img = $param['mark_img_local'];
+            }
+            $waterPath = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $mark_img); 
+            $waterImgInfo = @getimagesize('.'.$waterPath);
+            $waterImgW = !empty($waterImgInfo[0]) ? $waterImgInfo[0] : 0;
+            $waterImgH = !empty($waterImgInfo[1]) ? $waterImgInfo[1] : 0;
+            if ($waterImgW > 2000 || $waterImgH > 2000) {
+                $this->error('水印图片像素不能过大，否则无法对小图片进行水印！');
             }
             $param['mark_img'] = $mark_img;
             unset($param['mark_img_is_remote']);
@@ -664,22 +675,32 @@ class System extends Base
         /* END */
 
         /*邮箱配置*/
-        $smtp = tpCache('smtp');
-        $this->assign('smtp', $smtp);
+        // $smtp = tpCache('smtp');
+        // $this->assign('smtp', $smtp);
         /* END */
 
         /*手机短信配置*/
-        $sms = tpCache('sms');
-        if (!isset($sms['sms_type'])) {
-            $sms['sms_type'] = 1;
-            tpCache('sms',array('sms_type'=>1));
-        }
-        $this->assign('sms', $sms);
+        // $sms = tpCache('sms');
+        // if (!isset($sms['sms_type'])) {
+        //     $sms['sms_type'] = 1;
+        //     tpCache('sms',array('sms_type'=>1));
+        // }
+        // $this->assign('sms', $sms);
         /* END */
 
         /*阿里云OSS配置*/
         $oss = tpCache('oss');
         $this->assign('oss', $oss);
+        /* END */
+
+        /*余额支付开关*/
+        $pay_balance_open = 1;
+        if (!isset($userConfig['pay_balance_open'])) {
+            getUsersConfigData('pay', ['pay_balance_open' => 1]);
+        } else {
+            $pay_balance_open = intval($userConfig['pay_balance_open']);
+        }
+        $this->assign('pay_balance_open', $pay_balance_open);
         /* END */
 
         /*支付接口*/
@@ -695,6 +716,10 @@ class System extends Base
         $this->assign('pay_api_list', $pay_api_list);
         /* END */
 
+        /*通知管理*/
+        // action('admin/Notify/index');
+        /* END */
+
         return $this->fetch();
     }
 
@@ -706,8 +731,8 @@ class System extends Base
         $inc_type =  'smtp';
         if (IS_POST) {
             $param = input('post.');
-            $param['smtp_shop_order_pay'] = !empty($param['smtp_shop_order_pay']) ? 1 : 0;
-            $param['smtp_shop_order_send'] = !empty($param['smtp_shop_order_send']) ? 1 : 0;
+            // $param['smtp_shop_order_pay'] = !empty($param['smtp_shop_order_pay']) ? 1 : 0;
+            // $param['smtp_shop_order_send'] = !empty($param['smtp_shop_order_send']) ? 1 : 0;
 
             /*多语言*/
             if (is_language()) {
@@ -721,16 +746,13 @@ class System extends Base
                 tpCache($inc_type, $param);
             }
             /*--end*/
-            $iframes = input('param.iframes/d');
-            $this->success('操作成功', url('System/smtp', ['iframes'=>$iframes]));
+            
+            $this->success('操作成功', url('System/smtp'));
         }
 
-        $config = tpCache($inc_type);
-        $this->assign('config',$config);//当前配置项
-        /*是否弹窗显示*/
-        $iframes = input('param.iframes/d');
-        $this->assign('iframes',$iframes);
-        /*end*/
+        $smtp = tpCache('smtp');
+        $this->assign('smtp', $smtp);
+
         return $this->fetch();
     }
 
@@ -758,9 +780,20 @@ class System extends Base
             ->select();
         $pageStr = $pageObj->show(); // 分页显示输出
         $this->assign('list', $list); // 赋值数据集
-        $this->assign('pageStr', $pageStr); // 赋值分页输出
-        $this->assign('pageObj', $pageObj); // 赋值分页对象
+        $this->assign('page', $pageStr); // 赋值分页输出
+        $this->assign('pager', $pageObj); // 赋值分页对象
         
+        // 是否填写邮件配置
+        $is_conf = 1;
+        $smtp_config = tpCache('smtp');
+        if (empty($smtp_config['smtp_user']) || empty($smtp_config['smtp_pwd'])) {
+            $is_conf = 0;
+        }
+        $this->assign('is_conf', $is_conf);
+
+        $shop_open = getUsersConfigData('shop.shop_open');
+        $this->assign('shop_open', $shop_open);
+
         return $this->fetch();
     }
 
@@ -782,8 +815,8 @@ class System extends Base
                 unset($param['sms_secretkey']);
             }
 
-            $param['sms_shop_order_pay'] = !empty($param['sms_shop_order_pay']) ? 1 : 0;
-            $param['sms_shop_order_send'] = !empty($param['sms_shop_order_send']) ? 1 : 0;
+            // $param['sms_shop_order_pay'] = !empty($param['sms_shop_order_pay']) ? 1 : 0;
+            // $param['sms_shop_order_send'] = !empty($param['sms_shop_order_send']) ? 1 : 0;
 
             /*多语言*/
             if (is_language()) {
@@ -797,8 +830,17 @@ class System extends Base
                 tpCache($inc_type, $param);
             }
             /*--end*/
+
             $this->success('操作成功', url('System/sms'));
         }
+
+        $sms = tpCache('sms');
+        if (!isset($sms['sms_type'])) {
+            $sms['sms_type'] = 1;
+            tpCache('sms', array('sms_type'=>1));
+        }
+        $this->assign('sms', $sms);
+        return $this->fetch();
     }
 
     /**
@@ -809,10 +851,15 @@ class System extends Base
         $param = input('param.');
         $list = array();
         $keywords = input('keywords/s');
+        $sms_type = input('sms_type/d');
+        if (empty($sms_type)) {
+            $sms_type = tpCache('sms.sms_type');
+            $sms_type = !empty($sms_type) ? $sms_type : 1;
+        }
 
         $map = [
             'lang' => $this->admin_lang,
-            'sms_type' => $param['sms_type'],
+            'sms_type' => $sms_type,
         ];
         if (!empty($keywords)) $map['tpl_title'] = array('LIKE', "%{$keywords}%");
 
@@ -824,9 +871,32 @@ class System extends Base
             ->select();
         $pageStr = $pageObj->show(); // 分页显示输出
         $this->assign('list', $list); // 赋值数据集
-        $this->assign('pageStr', $pageStr); // 赋值分页输出
-        $this->assign('pageObj', $pageObj); // 赋值分页对象
-        $this->assign('sms_type', $param['sms_type']); // 短信服务商
+        $this->assign('page', $pageStr); // 赋值分页输出
+        $this->assign('pager', $pageObj); // 赋值分页对象
+        $this->assign('sms_type', $sms_type); // 短信服务商
+
+        // 是否填写手机短信配置
+        $is_conf = 1;
+        $sms_arr = [];
+        $sms_config = tpCache('sms');
+        foreach ($sms_config as $key => $val) {
+            $sms_arr[$key] = $val;
+        }
+        foreach (['sms_appkey','sms_secretkey','sms_appkey_tx','sms_appid_tx'] as $key => $val) {
+            if (2 == $sms_type) {
+                if (preg_match('/^sms_(.*)_tx$/i', $val) && empty($sms_arr[$val])) {
+                    $is_conf = 0;
+                }
+            } else {
+                if (preg_match('/^sms_/i', $val) && empty($sms_arr[$val])) {
+                    $is_conf = 0;
+                }
+            }
+        }
+        $this->assign('is_conf', $is_conf);
+
+        $shop_open = getUsersConfigData('shop.shop_open');
+        $this->assign('shop_open', $shop_open);
 
         return $this->fetch();
     }

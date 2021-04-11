@@ -14,6 +14,7 @@
 namespace think\template\taglib\eyou;
 
 use think\Request;
+use think\Db;
 
 /**
  * 获取当前频道的下级栏目的内容列表标签
@@ -26,21 +27,16 @@ class TagChannelartlist extends Base
     protected function _initialize()
     {
         parent::_initialize();
-        $this->tid = input("param.tid/s", ''); // 应用于栏目列表
         /*应用于文档列表*/
-        $aid = input('param.aid/d', 0);
-        if ($aid > 0) {
+        if ($this->aid > 0) {
             $cacheKey = 'tagChannelartlist_'.strtolower('home_'.CONTROLLER_NAME.'_'.ACTION_NAME);
-            $cacheKey .= "_{$aid}";
+            $cacheKey .= "_{$this->aid}";
             $this->tid = cache($cacheKey);
             if ($this->tid == false) {
-                $this->tid = M('archives')->where('aid', $aid)->getField('typeid');
+                $this->tid = Db::name('archives')->where('aid', $this->aid)->getField('typeid');
                 cache($cacheKey, $this->tid);
             }
         }
-        /*--end*/
-        /*tid为目录名称的情况下*/
-        $this->tid = $this->getTrueTypeid($this->tid);
         /*--end*/
     }
 
@@ -141,7 +137,7 @@ class TagChannelartlist extends Base
         $map['is_hidden'] = 0;
         $map['status'] = 1;
         $map['is_del'] = 0;
-        $result = M('arctype')->field('*, id as typeid')
+        $result = Db::name('arctype')->field('*, id as typeid')
             ->where($map)
             ->where('lang', $this->home_lang)
             ->order('sort_order asc')
@@ -186,7 +182,7 @@ class TagChannelartlist extends Base
             'status'    => 1,
             'is_del'    => 0,
         );
-        $result = M('arctype')->field('*, id as typeid')
+        $result = Db::name('arctype')->field('*, id as typeid')
             ->where($map)
             ->where('lang', $this->home_lang)
             ->order('sort_order asc')
@@ -226,7 +222,7 @@ class TagChannelartlist extends Base
             'status'    => 1,
             'is_del'    => 0,
         );
-        $result = M('arctype')->field('*, id as typeid')
+        $result = Db::name('arctype')->field('*, id as typeid')
             ->where($map)
             ->where('lang', $this->home_lang)
             ->order('sort_order asc')

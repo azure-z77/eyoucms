@@ -70,7 +70,7 @@ class Lists extends Base
         if (!is_numeric($tid) || strval(intval($tid)) !== strval($tid)) {
             $map = array('a.dirname' => $tid);
         } else {
-            $map = array('a.id' => $tid);
+            $map = array('a.id' => intval($tid));
         }
         $map['a.is_del'] = 0; // 回收站功能
         $map['a.lang']   = $this->home_lang; // 多语言
@@ -138,7 +138,13 @@ class Lists extends Base
         // }
         // /*--end*/
 
-        return $this->fetch(":{$viewfile}");
+        $view = ":{$viewfile}";
+        if (51 == $this->channel) { // 问答模型
+            $Ask = new \app\home\controller\Ask;
+            return $Ask->index();
+        }else{
+            return $this->fetch($view);
+        }
     }
 
     /**
@@ -277,7 +283,8 @@ class Lists extends Base
             }
             /*end*/
 
-            //判断必填项
+            //判断必填项            
+            $ContentArr = []; // 添加站内信所需参数
             foreach ($post as $key => $value) {
                 if (stripos($key, "attr_") !== false) {
                     //处理得到自定义属性id
@@ -304,6 +311,9 @@ class Lists extends Base
                             }
                         }
                     }
+
+                    // 添加站内信所需参数
+                    array_push($ContentArr, $value);
                 }
             }
 
@@ -381,6 +391,10 @@ class Lists extends Base
                     ];
                     $dataStr = implode('|', $data);
                     /*--end*/
+
+                    /*发送站内信给后台*/
+                    SendNotifyMessage($ContentArr, 1, 1, 0);
+                    /* END */
                 } else {
                     // 存在重复数据的表单，将在后台显示在最前面
                     Db::name('guestbook')->where('aid', $guestbookRow['aid'])->update([
@@ -404,7 +418,7 @@ class Lists extends Base
     {
         // post 提交的属性  以 attr_id _ 和值的 组合为键名    
         $post = input("post.");
-        $arr = explode('|',tpCache('basic.image_type'));
+        $arr = explode(',', config('global.image_ext'));
         /*上传图片或附件*/
         foreach ($_FILES as $fileElementId => $file) {
             try {

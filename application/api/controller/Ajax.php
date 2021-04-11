@@ -473,16 +473,16 @@ class Ajax extends Base
         if (IS_AJAX_POST) {
             $post = input('post.');
             $source = !empty($post['source']) ? $post['source'] : 0;
-            if (isset($post['scene']) && 5 == $post['scene']) {
+            if (isset($post['scene']) && in_array($post['scene'], [5, 6])) {
                 if (empty($post['mobile'])) return false;
                 /*发送并返回结果*/
                 $data = $post['data'];
                 //兼容原先消息通知的发送短信的逻辑
                 //查询消息通知模板的内容
-                $sms_type = tpCache('sms.sms_type') ?: 1;
+                $sms_type = tpCache('sms.sms_type') ? : 1;
                 $tpl_content = Db::name('sms_template')->where(["send_scene"=> $post['scene'],"sms_type"=> $sms_type])->value('tpl_content');
                 if (!$tpl_content) return false;
-                $preg_res = preg_match('/订单/',$tpl_content);
+                $preg_res = preg_match('/订单/', $tpl_content);
                 switch ($data['type']) {
                     case '1':
                         $content = $preg_res ? '待发货' : '您有新的待发货订单';
@@ -592,15 +592,16 @@ class Ajax extends Base
                     }
                 }else if (-1 == $Arcrank['arcrank']) {
                     $is_admin = session('?admin_id') ? 1 : 0;
+                    $param_admin_id = input('param.admin_id/d');
                     if ($users_id == $Arcrank['users_id']) {
                         if (IS_AJAX) {
-                            $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件']);
+                            $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件，仅限自己查看！']);
                         } else {
                             return true;
                         }
-                    }else if(!empty($is_admin)){
+                    }else if(!empty($is_admin) && !empty($param_admin_id)){
                         if (IS_AJAX) {
-                            $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件']);
+                            $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件，仅限管理员查看！']);
                         } else {
                             return true;
                         }
@@ -630,8 +631,9 @@ class Ajax extends Base
                     }
                 }else if (-1 == $Arcrank['arcrank']) {
                     $is_admin = session('?admin_id') ? 1 : 0;
-                    if (!empty($is_admin)) {
-                        $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件']);
+                    $param_admin_id = input('param.admin_id/d');
+                    if (!empty($is_admin) && !empty($param_admin_id)) {
+                        $this->success('允许查阅！', null, ['is_admin'=>$is_admin, 'msg'=>'待审核稿件，仅限管理员查看！']);
                     } else {
                         $msg = '待审核稿件，你没有权限阅读！';
                     }
@@ -641,7 +643,11 @@ class Ajax extends Base
                     $msg = '游客不可查看，请登录！';
                 }
                 if (IS_AJAX) {
-                    $this->error($msg);
+                    $data = [
+                        'is_login' => !empty($users_id) ? 1 : 0,
+                        'gourl' => url('user/Users/login'),
+                    ];
+                    $this->error($msg, null, $data);
                 } else {
                     return $msg;
                 }
@@ -740,7 +746,10 @@ class Ajax extends Base
         $this->error($msg);
     }
 
-    // 视频权限播放逻辑
+    /*
+     * 仅用于易小优视频模板
+     * 视频权限播放逻辑
+     */
     public function video_logic()
     {
         \think\Session::pause(); // 暂停session，防止session阻塞机制
@@ -765,18 +774,23 @@ class Ajax extends Base
                 $UsersData = GetUsersLatestData();
                 $UsersID = $UsersData['users_id'];
 
-                // 初始化数据
-                $result['BuyOnclick'] = 'MediaOrderBuy_1592878548();';
-                $result['BuyName']    = '立即购买';
-                $result['MsgOnclick'] = 'MediaOrderBuy_1592878548();';
-                $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
-                $result['MsgName']    = '立即购买';
-                $result['VideoButton'] = '购买观看';
-                $result['DelVideoUrl'] = 1;
+                $result['status_value'] = 0; // status_value 0-所有人免费 1-所有人付费 2-会员免费 3-会员付费
+                $result['status_name'] = ''; //status_name 要求会员等级时会员级别名称
+                $result['play_auth'] = 0; //播放权限
+                $result['vip_status'] = 0; //status_value=3时使用 vip_status=1则已升级会员暂未购买
 
                 /*是否需要付费*/
                 if (!empty($archivesInfo['users_price']) && 0 < $archivesInfo['users_price']) {
-                    $Paid = 0; // 未付费
+                    if (0 == $archivesInfo['arc_level_id']){
+                        //不限会员 付费
+                        $result['status_value'] = 1;
+                    }else{
+                        //3-限制会员 付费
+                        $result['status_value'] = 3;
+                        if ($archivesInfo['level_value'] <= $UsersData['level_value']){
+                            $result['vip_status'] = 1;//已升级会员未购买
+                        }
+                    }
                     if (!empty($UsersID)) {
                         $where = [
                             'users_id' => $UsersID,
@@ -785,62 +799,91 @@ class Ajax extends Base
                         ];
                         // 存在数据则已付费
                         $Paid = Db::name('media_order')->where($where)->count();
+                        //已购买
+                        if (!empty($Paid)) {
+                            if (3 == $result['status_value']) {
+                                if (1 == $result['vip_status']){
+                                    $result['play_auth'] = 1;
+                                }else{
+                                    $result['play_auth'] = 0;
+                                    $result['vip_status'] = 2;//未升级会员已经购买
+                                }
+                            }else{
+                                $result['play_auth'] = 1;
+                            }
+                        }
                     }
 
-                    // 未付费则执行
-                    if (!empty($Paid)) {
-                        $result['BuyOnclick'] = '';
-                        $result['BuyName']    = '已付费';
-                        $result['MsgOnclick'] = '';
-                        $result['MsgTitle']   = '';
-                        $result['MsgName']    = '';
-                        $result['VideoButton'] = '开始播放';
-                        $result['DelVideoUrl'] = 0;
+                    //会员免费
+                    if (1 == $archivesInfo['users_free']) {
+                        $result['status_value'] = 2;
+                        if ($archivesInfo['level_value'] <= $UsersData['level_value']){
+                            $result['play_auth'] = 1;
+                        }
                     }
-                } else {
-                    $result['BuyOnclick'] = '';
-                    $result['BuyName']    = '免费观看';
-                    $result['MsgOnclick'] = '';
-                    $result['MsgTitle']   = '';
-                    $result['MsgName']    = '';
-                    $result['VideoButton'] = '开始播放';
-                    $result['DelVideoUrl'] = 0;
+                }else{
+                    if (0 < $archivesInfo['arc_level_id']) {
+                        $result['status_value'] = 2;
+                        if ($archivesInfo['level_value'] <= $UsersData['level_value']) {
+                            $result['play_auth'] = 1;
+                        }
+                    }
                 }
                 /*END*/
                 /**注册会员免费但是没有登录*/
-                if (!empty($archivesInfo['arc_level_id']) && empty($UsersData['level_value'])) {
-                    $this->error('请先登录', url('user/Users/login'));
+//                if (!empty($archivesInfo['arc_level_id']) && empty($UsersData['level_value'])) {
+//                    $this->error('请先登录', url('user/Users/login'));
+//                }
+                if (0 == $result['status_value']){
+                    $result['play_auth'] = 1; // play_auth 0-没有播放权限 1-有播放权限
                 }
-
-                /*是否会员免费*/
-                if (1 == $archivesInfo['users_free'] && !empty($UsersData['level_value'])) {
-                    $where = [
-                        'is_system' => 1,
-                        'lang' => $this->home_lang
-                    ];
-                    $UsersLevel = DB::name('users_level')->where($where)->getField('level_value');
-                    if (!empty($UsersLevel) && $UsersData['level_value'] > $UsersLevel) {
-                        $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
-                        $result['VideoButton'] = '开始播放';
-                        $result['DelVideoUrl'] = 0;
-                    }
-                } else if (!empty($archivesInfo['level_value']) && !empty($UsersData['level_value'])) {
-                    if ($UsersData['level_value'] >= $archivesInfo['level_value']) {
-                        $result['BuyOnclick'] = $result['MsgOnclick'] = $result['MsgTitle'] = $result['MsgName'] = '';
-                        $result['BuyName']    = '会员免费';
-                        $result['VideoButton'] = '开始播放';
-                        $result['DelVideoUrl'] = 0;
-                    } else if (!empty($archivesInfo['level_value']) && 0 >= $archivesInfo['users_price']) {
-                        $result['BuyOnclick'] = 'LevelCentre_1592878548();';
-                        $result['BuyName']    = '升级会员';
-                        $result['MsgOnclick'] = 'LevelCentre_1592878548();';
-                        $result['MsgTitle']   = '尊敬的用户，该视频需要付费后才可观看全部内容';
-                        $result['MsgName']    = '升级会员';
-                        $result['VideoButton'] = '升级观看';
-                        $result['DelVideoUrl'] = 1;
-                    }
-                }
+                $where = [
+                    'users_id' => $UsersID,
+                    'product_id' => $post['aid'],
+                    'order_status' => 1
+                ];
+                // 存在数据则已付费
                 /*END*/
+                if (in_array($result['status_value'], [1,3])){
+                    $pay_count = Db::name('media_order')->where($where)->count();
+                }
+                if (in_array($result['status_value'], [2,3])){
+                    $result['status_name'] = Db::name('users_level')->where('level_id', $archivesInfo['arc_level_id'])->value('level_name');
+                    $vip_status = 0;
+                    if ($archivesInfo['level_value'] <= $UsersData['level_value']) {
+                        $vip_status = 1;
+                    }
+                }
+                if ($result['status_value'] == 0){
+                    $result['button'] = '免费';
+                }else if ($result['status_value'] == 1){
+                    $result['button'] = '付费';
+                    if (!empty($pay_count)){
+                        $result['button'] = '观看';
+                    }
+                }else if ($result['status_value'] == 2){
+                    $result['button'] = 'VIP';
+                    if (!empty($vip_status)){
+                        $result['button'] = '观看';
+                    }
+                }else if ($result['status_value'] == 3){
+                    if(1 == $result['vip_value']){
+                        $result['button'] = '立即购买';
+                        $result['button_url'] = 'MediaOrderBuy_1592878548();';
+                    }elseif (1 == $result['vip_value']){
+                        $result['button'] = 'VIP';
+                        $result['button_url'] = "window.location.href = '" . url('user/Level/level_centre') . "'";
+                    }else{
+                        $result['button'] = 'VIP付费';
+                        $result['button_url'] = "window.location.href = '" . url('user/Level/level_centre') . "'";
+                    }
+                    if (!empty($pay_count) && !empty($vip_status)){
+                        $result['button'] = '观看';
+                    }
+                }
+                if ('观看' == $result['button']){
+                    $result['button_url'] = url('home/View/index', ['aid' => $post['aid']]);
+                }
 
                 $this->success('查询成功', null, $result);
             } else {
@@ -1000,6 +1043,8 @@ class Ajax extends Base
                 }
                 $this->success('保存成功');
             }
+        } else if (IS_AJAX && !empty($aid) && empty($users_id)) {
+            $this->success('请求成功');
         }
         abort(404);
     }

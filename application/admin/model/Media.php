@@ -42,6 +42,11 @@ class Media extends Model
             $post['addonFieldExt']['total_video'] = count($post['video']);
             $post['addonFieldExt']['total_duration'] = 0;
             foreach ($post['video'] as $k => $v) {
+                $v['file_url'] = trim($v['file_url']);
+                if (empty($v['file_url'])){
+                    $post['addonFieldExt']['total_video'] -= 1;
+                    continue;
+                }
                 $post['addonFieldExt']['total_duration'] += $v['file_time'];
                 $file_size = !empty($v['file_size']) ? $v['file_size'] : 0;
                 $is_remote = 0;
@@ -60,6 +65,7 @@ class Media extends Model
                 }
                 $video_files[] = [
                     'aid'         => $aid,
+                    'file_id'     => $v['file_id'],
                     'title'       => $post['title'],
                     'file_url'    => !empty($v['file_url']) ? $v['file_url'] : '',
                     'file_time'   => !empty($v['file_time']) ? $v['file_time'] : 0,

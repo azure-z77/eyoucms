@@ -43,13 +43,13 @@ class TagSporder extends Base
         if (!empty($order_id)) {
             // 公共条件
             $Where = [
-                'order_id' => $order_id,
-                'users_id' => $this->users_id,
-                'lang'     => $this->home_lang,
+                'a.order_id' => $order_id,
+                'a.users_id' => $this->users_id,
+                'a.lang'     => $this->home_lang,
             ];
 
             // 订单主表
-            $result['OrderData'] = Db::name("shop_order")->where($Where)->find();
+            $result['OrderData'] = Db::name("shop_order")->alias('a')->where($Where)->find();
             //虚拟商品拼接回复
             $virtual_delivery = '';
             // 获取当前链接及参数，用于手机端查询快递时返回页面
@@ -74,15 +74,19 @@ class TagSporder extends Base
             // 获取订单状态列表
             $order_status_arr = Config::get('global.order_status_arr');
             $result['OrderData']['order_status_name'] = $order_status_arr[$result['OrderData']['order_status']];
-
             $result['OrderData']['TotalAmount'] = '0';
-
             
             if (!empty($result['OrderData'])) {
                 // 订单明细表
-                $result['DetailsData'] = Db::name("shop_order_details")->order('product_price desc, product_name desc')->where($Where)->select();
+                $result['DetailsData'] = Db::name("shop_order_details")
+                    ->alias('a')
+                    ->field('a.*, b.is_del')
+                    ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
+                    ->order('product_price desc, product_name desc')
+                    ->where($Where)
+                    ->select();
 
-                $array_new = get_archives_data($result['DetailsData'],'product_id');
+                $array_new = get_archives_data($result['DetailsData'], 'product_id');
                 $virtual_delivery_status = false;
                 // 产品处理
                 foreach ($result['DetailsData'] as $key => $value) {
@@ -141,7 +145,20 @@ class TagSporder extends Base
                     $result['DetailsData'][$key]['new_data'] = $spec_value . $attr_value_new;
                     
                     // 产品内页地址
-                    $result['DetailsData'][$key]['arcurl']   = urldecode(arcurl('home/Product/view', $array_new[$value['product_id']]));
+                    if (!empty($array_new[$value['product_id']]) && 0 == $value['is_del']) {
+                        // 商品存在
+                        $arcurl = urldecode(arcurl('home/Product/view', $array_new[$value['product_id']]));
+                        $has_deleted = 0;
+                        $msg_deleted = '';
+                    } else {
+                        // 商品不存在
+                        $arcurl = urldecode(url('home/View/index', ['aid'=>$value['product_id']]));
+                        $has_deleted = 1;
+                        $msg_deleted = '[商品已停售]';
+                    }
+                    $result['DetailsData'][$key]['arcurl'] = $arcurl;
+                    $result['DetailsData'][$key]['has_deleted'] = $has_deleted;
+                    $result['DetailsData'][$key]['msg_deleted'] = $msg_deleted;
 
                     // 图片处理
                     $result['DetailsData'][$key]['litpic'] = handle_subdir_pic(get_default_pic($value['litpic']));

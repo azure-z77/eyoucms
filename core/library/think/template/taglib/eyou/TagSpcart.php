@@ -46,9 +46,9 @@ class TagSpcart extends Base
             'a.lang'     => $this->home_lang,
             'b.arcrank'  => array('egt','0'),  // 带审核稿件不查询(同等伪删除)
         ];
-
+        $field = 'a.*, b.aid, b.title, b.litpic, b.users_price, b.stock_count, b.attrlist_id, b.is_del, c.spec_price, c.spec_stock';
         $list = Db::name("shop_cart")
-            ->field('a.*, b.aid, b.title, b.litpic, b.users_price, b.stock_count, b.attrlist_id, c.spec_price, c.spec_stock')
+            ->field($field)
             ->alias('a')
             ->join('__ARCHIVES__ b', 'a.product_id = b.aid', 'LEFT')
             ->join('__PRODUCT_SPEC_VALUE__ c', 'a.spec_value_id = c.spec_value_id and a.product_id = c.aid', 'LEFT')
@@ -56,36 +56,67 @@ class TagSpcart extends Base
             ->limit($limit)
             ->order('a.selected desc, a.add_time desc')
             ->select();
-        if (empty($list)) { return false; }
+        if (empty($list)) return false;
 
+        // ClearID 需要清零的ID， RestoreID 需要恢复数据的ID， UpMaxNumID 需要更新最大数量的ID
+        $ClearID = $RestoreID = $UpMaxNumID = [];
         // 规格商品价格及库存处理
-        $CartIds = $CartIdsNew = [];
         foreach ($list as $key => $value) {
+            $list[$key]['StatusMark']  = '';
             if (!empty($value['spec_value_id'])) {
                 if (!empty($value['spec_price'])) {
                     // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
                     $list[$key]['users_price'] = $value['spec_price'];
                 }
-                if (!empty($value['spec_stock'])) {
+
+                if (!empty($value['spec_stock']) && 0 < $value['spec_stock']) {
                     // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
                     $list[$key]['stock_count'] = $value['spec_stock'];
                     $value['stock_count'] = $value['spec_stock'];
+
+                    // 若商品有库存并且购物车数量小于等于0则执行
+                    if ($value['product_num'] <= 0 && 0 == $value['is_del']) {
+                        $list[$key]['selected']    = 1;
+                        $list[$key]['product_num'] = 1;
+                        array_push($RestoreID, $value['cart_id']);
+                    }
                 } else {
+                    // 商品已售罄则执行
                     $list[$key]['stock_count'] = 0;
                     $list[$key]['selected']    = 0;
-                    $list[$key]['IsSoldOut']   = 1; // 已售罄
-                    array_push($CartIds, $value['cart_id']);
+                    $list[$key]['IsSoldOut']   = 1;
+                    $list[$key]['StatusMark']  = '[商品已售罄]';
+                    array_push($ClearID, $value['cart_id']);
                 }
             } else {
-                if (empty($value['stock_count'])) {
+                // 商品已售罄则执行
+                if (empty($value['stock_count']) || 0 > $value['stock_count']) {
                     $list[$key]['stock_count'] = 0;
                     $list[$key]['selected']    = 0;
-                    $list[$key]['IsSoldOut']   = 1; // 已售罄
-                    array_push($CartIds, $value['cart_id']);
+                    $list[$key]['IsSoldOut']   = 1;
+                    $list[$key]['StatusMark']  = '[商品已售罄]';
+                    array_push($ClearID, $value['cart_id']);
+                } else {
+                    // 若商品有库存并且购物车数量小于等于0则执行
+                    if ($value['product_num'] <= 0 && 0 == $value['is_del']) {
+                        $list[$key]['selected']    = 1;
+                        $list[$key]['product_num'] = 1;
+                        array_push($RestoreID, $value['cart_id']);
+                    }
                 }
             }
+
+            // 商品被伪删除则执行
+            if (1 == $value['is_del']) {
+                $list[$key]['stock_count'] = 0;
+                $list[$key]['selected']    = 0;
+                $list[$key]['StatusMark']  = '[商品已停售]';
+                array_push($ClearID, $value['cart_id']);
+            }
+
+            // 购买数量超过库存则执行
             if ($value['product_num'] > $value['stock_count']) {
-                $CartIdsNew[] = [
+                $UpMaxNumID[] = [
                     'cart_id'     => $value['cart_id'],
                     'product_num' => $value['stock_count'],
                     'update_time' => getTime(),
@@ -94,11 +125,35 @@ class TagSpcart extends Base
             }
         }
 
-        // 更新购物车库存为空的商品
-        if (!empty($CartIds)) Db::name("shop_cart")->where('cart_id', 'IN', $CartIds)->update(['selected'=>0,'update_time'=>getTime()]);
-        if (!empty($CartIdsNew)) {
-            // 当购物车库存超过商品库存则执行购物车库存为商品最大库存
-            foreach ($CartIdsNew as $value) {
+        // 更新购物车库存为0并清除选中效果的商品
+        if (!empty($ClearID)) {
+            $ClearWhere = [
+                'cart_id' => ['IN', $ClearID]
+            ];
+            $ClearUpdata = [
+                'selected' => 0,
+                'product_num' => 0,
+                'update_time' => getTime()
+            ];
+            Db::name("shop_cart")->where($ClearWhere)->update($ClearUpdata);
+        }
+
+        // 更新购物车库存为1并恢复选中效果的商品
+        if (!empty($RestoreID)) {
+            $RestoreWhere = [
+                'cart_id' => ['IN', $RestoreID]
+            ];
+            $RestoreUpdata = [
+                'selected' => 1,
+                'product_num' => 1,
+                'update_time' => getTime()
+            ];
+            Db::name("shop_cart")->where($RestoreWhere)->update($RestoreUpdata);
+        }
+
+        // 当购物车库存超过商品库存则执行购物车库存为商品最大库存
+        if (!empty($UpMaxNumID)) {
+            foreach ($UpMaxNumID as $value) {
                 Db::name("shop_cart")->where('cart_id', $value['cart_id'])->update($value);
                 $list[$value['key']]['product_num'] = $value['product_num'];
             }
@@ -181,11 +236,16 @@ class TagSpcart extends Base
             $list[$key]['product_spec_list'] = $product_spec_list;
 
             if (isset($value['IsSoldOut']) && !empty($value['IsSoldOut'])) {
-                $list[$key]['CartChecked'] = " disabled='true' title='已售罄' ";
+                $list[$key]['CartChecked'] = " disabled='true' title='商品已售罄' ";
                 $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
                 $list[$key]['UpdateQuantity'] = " onchange=\"CartUnifiedAlgorithm('IsSoldOut');\" value=\"0\" ";
                 $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsSoldOut');\" ";
-            }else{
+            } else if (isset($value['is_del']) && !empty($value['is_del'])) {
+                $list[$key]['CartChecked'] = " disabled='true' title='商品已停售' ";
+                $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsDel');\" ";
+                $list[$key]['UpdateQuantity'] = " onchange=\"CartUnifiedAlgorithm('IsDel');\" value=\"0\" ";
+                $list[$key]['IncreaseQuantity'] = " onclick=\"CartUnifiedAlgorithm('IsDel');\" ";
+            } else {
                 $list[$key]['CartChecked'] = " name=\"ey_buynum\" id=\"{$value['cart_id']}_checked\" cart-id=\"{$value['cart_id']}\" product-id=\"{$value['product_id']}\" onclick=\"Checked('{$value['cart_id']}','{$value['selected']}');\" ";
                 $list[$key]['ReduceQuantity'] = " onclick=\"CartUnifiedAlgorithm('{$value['stock_count']}','{$value['product_id']}','-','{$value['selected']}','{$value['spec_value_id']}','{$value['cart_id']}');\" ";
                 $list[$key]['UpdateQuantity'] = " onkeyup=\"this.value=this.value.replace(/[^0-9\.]/g,'')\" onafterpaste=\"this.value=this.value.replace(/[^0-9\.]/g,'')\"  onchange=\"CartUnifiedAlgorithm('{$value['stock_count']}','{$value['product_id']}','change','{$value['selected']}','{$value['spec_value_id']}','{$value['cart_id']}');\" value=\"{$value['product_num']}\" id=\"{$value['cart_id']}_num\" ";
@@ -210,7 +270,6 @@ $(function(){
 </script>
 EOF;
         }
-
         $result['list'] = $list;
         
         // 是否购物车的产品全部选中

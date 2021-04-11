@@ -253,17 +253,20 @@ class Download extends Base
             }
 
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
                 $filenameCount = Db::name('archives')->where([
-                    'htmlfilename' => $post['htmlfilename'],
+                    'htmlfilename'  => $htmlfilename,
+                    'lang'  => $this->admin_lang,
                 ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             //做自动通过审核判断
             if ($admin_info['role_id'] > 0 && $auth_role_info['check_oneself'] < 1) {
@@ -324,11 +327,13 @@ class Download extends Base
         //第三方存储空间 七牛云/oss开关信息
         $assign_data['qiniu_open'] = 0;
         $assign_data['oss_open'] = 0;
+        $assign_data['cos_open'] = 0;
         $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
         if(!empty($channelRow)){
             $channelRow['data'] = json_decode($channelRow['data'], true);
             $assign_data['qiniu_open'] = !empty($channelRow['data']['qiniuyun_open']) ? $channelRow['data']['qiniuyun_open'] : 0;
             $assign_data['oss_open'] = !empty($channelRow['data']['oss_open']) ? $channelRow['data']['oss_open'] : 0;
+            $assign_data['cos_open'] = !empty($channelRow['data']['cos_open']) ? $channelRow['data']['cos_open'] : 0;
         }
 
         /*允许发布文档列表的栏目*/
@@ -337,19 +342,19 @@ class Download extends Base
         /*--end*/
 
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = 0;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0,$typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = 0;
         /*--end*/
 
         // 阅读权限
@@ -527,18 +532,21 @@ class Download extends Base
             }
 
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
                 $filenameCount = Db::name('archives')->where([
                     'aid'      => ['NEQ', $post['aid']],
-                    'htmlfilename' => $post['htmlfilename'],
+                    'htmlfilename'  => $htmlfilename,
+                    'lang'  => $this->admin_lang,
                 ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
@@ -621,11 +629,13 @@ class Download extends Base
         //第三方存储空间 七牛云/oss开关信息
         $assign_data['qiniu_open'] = 0;
         $assign_data['oss_open'] = 0;
+        $assign_data['oss_open'] = 0;
         $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
         if(!empty($channelRow)){
             $channelRow['data'] = json_decode($channelRow['data'], true);
             $assign_data['qiniu_open'] = !empty($channelRow['data']['qiniuyun_open']) ? $channelRow['data']['qiniuyun_open'] : 0;
             $assign_data['oss_open'] = !empty($channelRow['data']['oss_open']) ? $channelRow['data']['oss_open'] : 0;
+            $assign_data['cos_open'] = !empty($channelRow['data']['cos_open']) ? $channelRow['data']['cos_open'] : 0;
         }
 
         $info['channel'] = $arctypeInfo['current_channel'];
@@ -664,19 +674,19 @@ class Download extends Base
         /*--end*/
         
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = $id;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0,$typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = $id;
         /*--end*/
 
         // 阅读权限

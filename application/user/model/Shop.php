@@ -132,6 +132,9 @@ class Shop extends Model
                 $select_status = 0;
             }
             $OrderWhere['order_status'] = $select_status;
+            if (3 == $select_status){
+                $OrderWhere['is_comment'] = 0;
+            }
         }
 
         $order = Db::name('shop_order')->where($OrderWhere)->count();
@@ -564,4 +567,156 @@ class Shop extends Model
             ]
         ];
     }
+
+
+    /*------陈风任---2021-1-12---售后服务(退换货)------开始------*/
+
+    // 读取会员自身所有服务单信息
+    public function GetAllServiceInfo($users_id = null, $order_code = null)
+    {
+        $where = [
+            'users_id' => $users_id
+        ];
+        if (!empty($order_code)) $where['order_code'] = ['LIKE', "%{$order_code}%"];
+
+        $count   = Db::name('shop_order_service')->where($where)->count('service_id');
+        $pageObj = new Page($count, config('paginate.list_rows'));
+
+        // 订单主表数据查询
+        $Service = Db::name('shop_order_service')->where($where)
+            ->order('status asc, service_id desc')
+            ->limit($pageObj->firstRow.','.$pageObj->listRows)
+            ->select();
+        $New = get_archives_data($Service, 'product_id');
+        foreach ($Service as $key => $value) {
+            $Service[$key]['status']       = Config::get('global.order_service_status')[$value['status']];
+            $Service[$key]['service_type'] = Config::get('global.order_service_type')[$value['service_type']];
+            $Service[$key]['ArchivesUrl']  = urldecode(arcurl('home/Product/view', $New[$value['product_id']]));
+            $Service[$key]['OrDetailsUrl'] = url('user/Shop/shop_order_details', ['order_id'=>$value['order_id']]);
+            $Service[$key]['SeDetailsUrl'] = url('user/Shop/after_service_details', ['service_id'=>$value['service_id']]);
+            $Service[$key]['product_spec'] = str_replace("&lt;br/&gt;", " &nbsp; ", $value['product_spec']);
+        }
+
+        $Return['Service'] = $Service;
+        $Return['pageStr'] = $pageObj->show();
+
+        return $Return;
+    }
+
+    // 服务详情信息
+    public function GetServiceDetailsInfo($service_id = null, $users_id = null)
+    {
+        $Return = [];
+        if (empty($service_id) || empty($users_id)) return $Return;
+        $where = [
+            'users_id'   => $users_id,
+            'service_id' => $service_id
+        ];
+        $Service = Db::name('shop_order_service')->where($where)->select();
+        $New = get_archives_data($Service, 'product_id');
+        $Service = $Service[0];
+        $Service['arcurl']       = urldecode(arcurl('home/Product/view', $New[$Service['product_id']]));
+        $Service['CancelUrl']    = url('user/Shop/after_service_details', ['_ajax' => 1, 'details_id' => $Service['details_id'], 'order_id' => $Service['order_id']]);
+        $Service['StatusName']   = Config::get('global.order_service_status')[$Service['status']];
+        $Service['upload_img']   = !empty($Service['upload_img']) ? explode(',', $Service['upload_img']) : [];
+        $Service['product_img']  = handle_subdir_pic(get_default_pic($Service['product_img']));
+        if (isMobile()) {
+            $Service['product_spec'] = htmlspecialchars_decode($Service['product_spec']);
+        } else {
+            $Service['product_spec'] = str_replace("&lt;br/&gt;", " <br/> ", $Service['product_spec']);
+        }
+        $Service['service_type_old'] = $Service['service_type'];
+        $Service['service_type'] = Config::get('global.order_service_type')[$Service['service_type']];
+        $Service['admin_delivery'] = unserialize($Service['admin_delivery']);
+        $Service['product_total'] = sprintf("%.2f", $Service['refund_price'] * (string)$Service['product_num']);
+        /*计算退还余额*/
+        $field_new = 'b.details_id, b.product_price, b.num, a.shipping_fee, a.order_total_num';
+        $where_new = [
+            'b.order_id' => $Service['order_id'],
+            'b.details_id' => $Service['details_id'],
+            'b.apply_service' => 1
+        ];
+        $Order = Db::name('shop_order')->alias('a')
+            ->field($field_new)
+            ->join('__SHOP_ORDER_DETAILS__ b', 'a.order_id = b.order_id', 'LEFT')
+            ->where($where_new)
+            ->find();
+        // 运费计算
+        $ShippingFee = 0;
+        if (!empty($Order['shipping_fee'])) {
+            $ShippingFee = sprintf("%.2f", ($Order['shipping_fee'] / (string)$Order['order_total_num']) * (string)$Service['product_num']);
+            $Service['ShippingFee'] = $ShippingFee;
+        }
+        $Service['refund_total_price'] = (string)$Service['product_total'] - (string)$ShippingFee;
+        /* END */
+        return $Service;
+    }
+
+    // 服务详情记录
+    public function GetOrderServiceLog($service_id = null, $Users = []) {
+        if (empty($service_id) || empty($Users)) return [];
+        $Log = Db::name('shop_order_service_log')->order('log_id desc')->where('service_id', $service_id)->select();
+        foreach ($Log as $key => $value) {
+            if (!empty($value['users_id'])) {
+                $Log[$key]['name'] = '会员';
+            } else if (!empty($value['admin_id'])) {
+                $Log[$key]['name'] = '商家';
+            }
+        }
+        return $Log;
+    }
+
+    // 查询订单数据
+    public function GetOrderDetailsInfo($details_id = null, $users_id = null)
+    {
+        $Return = [];
+        if (empty($details_id) || empty($users_id)) return $Return;
+
+        /*查询订单明细数据并处理*/
+        $where = [
+            'details_id' => $details_id,
+            'users_id' => $users_id
+        ];
+        $Details = Db::name('shop_order_details')->where($where)->select();
+        if (empty($Details)) {
+            $Return = [
+                'code' => 0,
+                'msg'  => '售后服务单不存在'
+            ];
+            return $Return;
+        }
+
+        if (!empty($Details[0]) && 1 == $Details[0]['apply_service']) {
+            $Return = [
+                'code' => 0,
+                'msg'  => '已申请售后，请查阅退换货信息'
+            ];
+            return $Return;
+        }
+
+        $array_new = get_archives_data($Details, 'product_id');
+        $Details = $Details[0];
+        $Details['data'] = unserialize($Details['data']);
+        $Details['spec_value'] = htmlspecialchars_decode(htmlspecialchars_decode($Details['data']['spec_value']));
+        $Details['spec_value_id'] = $Details['data']['spec_value_id'];
+        $Details['value_id'] = $Details['data']['value_id'];
+        $Details['arcurl'] = url('home/View/index', ['aid' => $Details['product_id']]);
+        $Details['litpic'] = handle_subdir_pic(get_default_pic($Details['litpic']));
+        unset($Details['data']);
+        /* END */
+
+        /*查询订单主表数据并处理*/
+        $field = 'order_code, consignee, province, city, district, address, mobile';
+        $Order = Db::name('shop_order')->field($field)->where('order_id', $Details['order_id'])->find();
+        $Order['province'] = get_province_name($Order['province']);
+        $Order['city']     = get_city_name($Order['city']);
+        $Order['district'] = get_area_name($Order['district']);
+        /* END */
+
+        // 合并数据返回
+        $Return = array_merge($Details, $Order);
+        return $Return;
+    }
+    /*------陈风任---2021-1-12---售后服务(退换货)------结束------*/
 }
+

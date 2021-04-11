@@ -50,6 +50,12 @@ class TagNotice extends Base
 <script type="text/javascript">
     function tag_notice_1609670918()
     {
+        var before_display = '';
+        if (document.getElementById("{$id}")) {
+            before_display = document.getElementById("{$id}").style.display;
+            document.getElementById("{$id}").style.display = 'none';
+        }
+        
         var users_id = 0;
         if (document.cookie.length>0)
         {
@@ -79,7 +85,14 @@ class TagNotice extends Base
             ajax.onreadystatechange = function () {
                 //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
                 if (ajax.readyState==4 && ajax.status==200) {
-            　　　　document.getElementById("{$id}").innerHTML = ajax.responseText;
+                    if (document.getElementById("{$id}")) {
+                        document.getElementById("{$id}").innerHTML = ajax.responseText;
+                        if (ajax.responseText > 0) {
+                            document.getElementById("{$id}").style.display = before_display;
+                        } else {
+                            document.getElementById("{$id}").style.display = 'none';
+                        }
+                    }
               　}
             } 
         }

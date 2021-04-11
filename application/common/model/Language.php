@@ -347,6 +347,16 @@ class Language extends Model
             Db::name('smtp_tpl')->where("lang",'IN',$lang_list)->delete();
             /*同步删除邮件发送记录表数据*/
             Db::name('smtp_record')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除短信模板表数据*/
+            Db::name('sms_template')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除短信发送记录表数据*/
+            Db::name('sms_log')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除站内信模板表数据*/
+            Db::name('users_notice_tpl')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除站内信发送记录表数据*/
+            Db::name('users_notice_tpl_content')->where("lang",'IN',$lang_list)->delete();
+            /*会员中心移动端底部菜单表*/
+            Db::name('users_bottom_menu')->where("lang",'IN',$lang_list)->delete();
         }
     }
 

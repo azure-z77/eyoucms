@@ -17,6 +17,10 @@
         <div style="width: 10%;min-width: 60px;"><strong>提交时间</strong></div>
         <div style="width: 90%;">{$row.add_time|MyDate='Y-m-d H:i:s',###}</div>
     </div>
+    <div style="display: flex;align-items: center;padding: 15px 0;">
+        <div style="width: 10%;min-width: 60px;"><strong>查看时间</strong></div>
+        <div style="width: 90%;">{$row.update_time|MyDate='Y-m-d H:i:s',###}</div>
+    </div>
 </div>
 
 {include file="public/footer" /}

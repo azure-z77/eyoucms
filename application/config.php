@@ -226,11 +226,17 @@ return array(
         // 日志记录方式，内置 file socket 支持扩展
         'type'  => 'File',
         // 日志保存目录
-        'path'  => LOG_PATH,
+        'path'  => DATA_PATH.'logs/',
+        //单个日志文件的大小限制，超过后会自动记录到第二个文件
+        'file_size' =>2097152,
+        //日志的时间格式，默认是` c `
+        'time_format' =>'c',
+        // error和sql日志单独记录
+        'apart_level' => ['error','sql','notice'],
         // 日志记录级别
-        'level' => array('error'),
+        'level' => array('log','info','notice','error','sql'),
         // 日志开关  1 开启 0 关闭
-        'switch' => 0,  
+        'switch' => 0,
     ),
 
     // +----------------------------------------------------------------------
@@ -437,6 +443,7 @@ return array(
         2   => ['scene'=>2], // 会员注册
         3   => ['scene'=>3], // 绑定邮箱
         4   => ['scene'=>4], // 找回密码
-        5   => ['scene'=>5], // 订单提醒
+        5   => ['scene'=>5], // 订单付款
+        6   => ['scene'=>6], // 订单发货
     ],
 );

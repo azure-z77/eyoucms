@@ -10,6 +10,11 @@ function CartUnifiedAlgorithm(is_sold_out = null ,aid = null, symbol = null, sel
         layer.msg('商品已售罄！', {time: 1500});
         return false;
     }
+    if ('IsDel' == is_sold_out) {
+        layer.msg('无效商品！', {time: 1500});
+        return false;
+    }
+    
     var NumV = $('#'+cart_id+'_num'); //数量
     var CartNum = NumV.val();
     if ('+' == symbol) {
@@ -207,6 +212,9 @@ function CartDel(cart_id,title){
                     $('#' + cart_id + '_product_spec').remove();
                     $('#TotalNumber').html(res.data.NumberVal);
                     $('#TotalAmount').html(res.data.AmountVal);
+                    if (0 == res.data.CartCount) {
+                        window.location.reload();
+                    }
                 } else {
                     layer.msg(res.msg, {time: 2000});
                 }

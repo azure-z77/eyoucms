@@ -83,28 +83,41 @@ class Tags extends Base
     {
         if (IS_POST) {
             $post = input('post.');
-            if (empty($post['id'])) $this->error('操作异常');
-            $updata = [
-                'tag' => !empty($post['tag_tag']) ? trim($post['tag_tag']) : '',
-                'seo_title' => !empty($post['tag_seo_title']) ? trim($post['tag_seo_title']) : '',
-                'seo_keywords' => !empty($post['tag_seo_keywords']) ? trim($post['tag_seo_keywords']) : '',
-                'seo_description' => !empty($post['tag_seo_description']) ? trim($post['tag_seo_description']) : '',
-                'update_time' => getTime(),
-            ];
-            $ResultID = Db::name('tagindex')->where('id', $post['id'])->update($updata);
-            if (false !== $ResultID) {
-                if (trim($post['tag_tag']) != trim($post['tag_tagold'])) {
-                    Db::name('taglist')->where([
-                            'tid'   => $post['id'],
-                        ])->update([
-                            'tag'   => trim($post['tag_tag']),
-                            'update_time'   => getTime(),
-                        ]);
+            if (!empty($post['id'])) {
+                $tag = !empty($post['tag_tag']) ? trim($post['tag_tag']) : '';
+                if (empty($tag)) {
+                    $this->error('标签名称不能为空！');
+                } else {
+                    $row = Db::name('tagindex')->where([
+                            'tag'   => $tag,
+                            'id'    => ['NEQ', $post['id']],
+                            'lang'  => $this->admin_lang,
+                        ])->find();
+                    if (!empty($row)) {
+                        $this->error('标签名称已存在，请更改！');
+                    }
                 }
-                $this->success('操作成功');
-            } else {
-                $this->error('操作异常');
+                $updata = [
+                    'tag' => $tag,
+                    'seo_title' => !empty($post['tag_seo_title']) ? trim($post['tag_seo_title']) : '',
+                    'seo_keywords' => !empty($post['tag_seo_keywords']) ? trim($post['tag_seo_keywords']) : '',
+                    'seo_description' => !empty($post['tag_seo_description']) ? trim($post['tag_seo_description']) : '',
+                    'update_time' => getTime(),
+                ];
+                $ResultID = Db::name('tagindex')->where('id', $post['id'])->update($updata);
+                if (false !== $ResultID) {
+                    if (trim($post['tag_tag']) != trim($post['tag_tagold'])) {
+                        Db::name('taglist')->where([
+                                'tid'   => $post['id'],
+                            ])->update([
+                                'tag'   => trim($post['tag_tag']),
+                                'update_time'   => getTime(),
+                            ]);
+                    }
+                    $this->success('操作成功');
+                }
             }
+            $this->error('操作失败');
         }
 
         $id = input('id/d');
@@ -208,31 +221,70 @@ class Tags extends Base
     public function get_common_list()
     {
         if (IS_AJAX) {
-            $num = 20;
-            $list = $row = Db::name('tagindex')->field('id,tag')->where([
-                    'is_common' => 1,
-                    'lang'  => $this->admin_lang,
-                ])
+            $tags = input('tags/s');
+            $type = input('type/d');
+            if (!empty($tags)){
+                $tagsArr = explode(',',$tags);
+                $tags  = trim(end($tagsArr));
+            }
+
+            /*发布最新文档的tag里前3个*/
+            $newTagList = [];
+            $newtids = [];
+            if (empty($tags)){
+                $taglistRow = Db::name('taglist')->field('tid,tag')->order('aid desc')->limit(20)->select();
+                foreach ($taglistRow as $key => $val) {
+                    if (3 <= count($newTagList)) {
+                        break;
+                    }
+                    if (in_array($val['tid'], $newtids)) {
+                        continue;
+                    }
+                    array_push($newTagList, $val);
+                    array_push($newtids, $val['tid']);
+                }
+            }
+            $list = $newTagList;
+            /*end*/
+
+            /*常用标签*/
+            $where = [];
+            $where['is_common'] = 1;
+            !empty($newtids) && $where['id'] = ['NOTIN', $newtids];
+            $where['lang'] = $this->admin_lang;
+            if (!empty($tags)){
+                $where['tag'] = ['like','%'.$tags."%"];
+            }
+            $num = 20 - count($list);
+            $row = Db::name('tagindex')->field('id as tid,tag')->where($where)
                 ->order('total desc, id desc')
                 ->limit($num)
                 ->select();
+            if (is_array($list) && is_array($row)) {
+                $list = array_merge($list, $row);
+            }
+            /*end*/
 
             // 不够数量进行补充
-            $surplusNum = $num - count($row);
+            $surplusNum = $num - count($list);
             if (0 < $surplusNum) {
-                $ids = get_arr_column($row, 'id');
-                $row2 = Db::name('tagindex')->field('id,tag')->where([
-                        'id'    => ['NOT IN', $ids],
-                        'lang'  => $this->admin_lang,
-                    ])
+                $ids = get_arr_column($list, 'tid');
+                $condition['lang'] = $this->admin_lang;
+                $condition['id'] = ['NOT IN', $ids];
+                if (!empty($tags)){
+                    $condition['tag'] = ['like','%'.$tags."%"];
+                }
+                $row2 = Db::name('tagindex')->field('id as tid,tag')->where($condition)
                     ->order('total desc, id desc')
                     ->limit($surplusNum)
                     ->select();
-                if (is_array($row) && is_array($row2)) {
-                    $list = array_merge($row2, $row);
+                if (is_array($list) && is_array($row2)) {
+                    $list = array_merge($list, $row2);
                 }
             }
+            /*end*/
 
+            $html = "";
             $data = [];
             if (!empty($list)) {
                 $tags = input('param.tags/s');
@@ -242,16 +294,34 @@ class Tags extends Base
                     $tagArr[$key] = trim($val);
                 }
 
-                $html = "";
                 foreach ($list as $_k1 => $_v1) {
-                    if (in_array($_v1['tag'], $tagArr)) {
-                        $html .= "<a class='cur' href='javascript:void(0);' onclick='selectArchivesTag(this);'>{$_v1['tag']}</a>";
-                    } else {
-                        $html .= "<a href='javascript:void(0);' onclick='selectArchivesTag(this);'>{$_v1['tag']}</a>";
+                    if (!empty($type)){
+                        if (in_array($_v1['tag'], $tagArr)) {
+                            $html .= "<a class='cur' href='javascript:void(0);' onclick='selectArchivesTagInput(this);'>{$_v1['tag']}</a>";
+                        } else {
+                            $html .= "<a href='javascript:void(0);' onclick='selectArchivesTagInput(this);'>{$_v1['tag']}</a>";
+                        }
+                    }else{
+                        if (in_array($_v1['tag'], $tagArr)) {
+                            $html .= "<a class='cur' href='javascript:void(0);' onclick='selectArchivesTag(this);'>{$_v1['tag']}</a>";
+                        } else {
+                            $html .= "<a href='javascript:void(0);' onclick='selectArchivesTag(this);'>{$_v1['tag']}</a>";
+                        }
                     }
                 }
+            }
+
+            $is_click = input('param.is_click/d');
+            if (!empty($is_click)) {
+                if (empty($html)) {
+                    $html .= "没有找到记录";
+                }
                 $html .= "<a href='javascript:void(0);' onclick='tags_list_1610411887(this);' style='float: right;'>[设置]</a>";
-                $data['html']   = $html;
+            }
+            $data['html']   = $html;
+
+            if (!empty($type) && empty($tags)){
+                $data = [];
             }
 
             $this->success('请求成功', null, $data);

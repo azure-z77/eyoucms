@@ -22,7 +22,7 @@
                                     <div class="tc">基本信息</div>
                                 </th>
                                 <th abbr="ac_id" axis="col4">
-                                    <div class=""></div>
+                                    <div class="item-title" style="margin-bottom: 0px;line-height: 26px;"><a class="back" style="margin: 1px 0px 0px 0px;" href="{:url('Shop/order_details',array('order_id'=>$OrderData['order_id']))}" title="返回详情"><i class="fa fa-angle-double-left"></i>返回</a></div>
                                 </th>
                             </tr>
                         </thead>
@@ -85,9 +85,9 @@
                         <dd class="opt">          
                             <span id="express_name_new">{$OrderData.express_name}</span>
                             &nbsp;<a href="javascript:void(0);" onclick="Express();" class="ncap-btn ncap-btn-green">选择快递</a>
-                            <input type="hidden" name="express_name" value="{$OrderData.express_name}" id="express_name">
-                            <input type="hidden" name="express_id" value="{$OrderData.express_id}" id="express_id"/>
-                            <input type="hidden" name="express_code" value="{$OrderData.express_code}" id="express_code">
+                            <input type="hidden" name="express_name" value="{$OrderData.express_name|default=''}" id="express_name">
+                            <input type="hidden" name="express_id" value="{$OrderData.express_id|default=''}" id="express_id"/>
+                            <input type="hidden" name="express_code" value="{$OrderData.express_code|default=''}" id="express_code">
                         </dd>
                     </dl>
                     <dl class="row">

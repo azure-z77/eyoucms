@@ -252,6 +252,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'is_comment' => 
+  array (
+    'name' => 'is_comment',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'user_note' => 
   array (
     'name' => 'user_note',
@@ -279,6 +288,24 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'order_source' => 
+  array (
+    'name' => 'order_source',
+    'type' => 'tinyint(3)',
+    'notnull' => false,
+    'default' => '10',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'order_source_id' => 
+  array (
+    'name' => 'order_source_id',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'lang' => 
   array (
     'name' => 'lang',
@@ -303,6 +330,33 @@ return array (
     'type' => 'int(11) unsigned',
     'notnull' => false,
     'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'coupon_id' => 
+  array (
+    'name' => 'coupon_id',
+    'type' => 'int(11) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'use_id' => 
+  array (
+    'name' => 'use_id',
+    'type' => 'int(11) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'coupon_price' => 
+  array (
+    'name' => 'coupon_price',
+    'type' => 'decimal(10,2)',
+    'notnull' => false,
+    'default' => '0.00',
     'primary' => false,
     'autoinc' => false,
   ),

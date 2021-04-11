@@ -37,8 +37,9 @@ class FieldLogic extends Model
         $fields = array();
         if("int" == $dtype)
         {
+            empty($dfvalue) && $dfvalue = 0;
             $default_sql = '';
-            if(preg_match("#[0-9]#", $dfvalue))
+            if(preg_match("#[0-9]+#", $dfvalue))
             {
                 $default_sql = "DEFAULT '$dfvalue'";
             }
@@ -49,8 +50,9 @@ class FieldLogic extends Model
         }
         else if("datetime" == $dtype)
         {
+            empty($dfvalue) && $dfvalue = 0;
             $default_sql = '';
-            if(preg_match("#[0-9\-]#", $dfvalue))
+            if(preg_match("#[0-9\-]+#", $dfvalue))
             {
                 $dfvalue = strtotime($dfvalue);
                 empty($dfvalue) && $dfvalue = 0;
@@ -63,7 +65,7 @@ class FieldLogic extends Model
         }
         else if("switch" == $dtype)
         {
-            if(empty($dfvalue) || preg_match("#[^0-9]#", $dfvalue))
+            if(empty($dfvalue) || preg_match("#[^0-9]+#", $dfvalue))
             {
                 $dfvalue = 1;
             }
@@ -74,8 +76,9 @@ class FieldLogic extends Model
         }
         else if("float" == $dtype)
         {
+            empty($dfvalue) && $dfvalue = 0;
             $default_sql = '';
-            if(preg_match("#[0-9\.]#", $dfvalue))
+            if(preg_match("#[0-9\.]+#", $dfvalue))
             {
                 $default_sql = "DEFAULT '$dfvalue'";
             }
@@ -86,8 +89,9 @@ class FieldLogic extends Model
         }
         else if("decimal" == $dtype)
         {
+            empty($dfvalue) && $dfvalue = 0;
             $default_sql = '';
-            if(preg_match("#[0-9\.]#", $dfvalue))
+            if(preg_match("#[0-9\.]+#", $dfvalue))
             {
                 $default_sql = "DEFAULT '$dfvalue'";
             }
@@ -577,10 +581,10 @@ class FieldLogic extends Model
     {
         if (preg_match('/^int/i', $fieldtype)) {
             $maxlen = preg_replace('/^int\((.*)\)/i', '$1', $fieldtype);
-            if (10 == $maxlen) {
-                $dtype = 'int';
-            } else if (11 == $maxlen) {
+            if (11 == $maxlen) {
                 $dtype = 'datetime';
+            } else {
+                $dtype = 'int';
             }
         } else if (preg_match('/^longtext/i', $fieldtype)) {
             $dtype = 'htmltext';

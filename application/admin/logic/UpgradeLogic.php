@@ -38,9 +38,13 @@ class UpgradeLogic extends Model
         $this->curent_version = getCmsVersion();
         // api_Service_checkVersion
         $upgrade_dev = config('global.upgrade_dev');
+        /*安全补丁*/
+        $security_patch = tpSetting('upgrade.upgrade_security_patch'); // 是否开启
+        $version_security = getVersion('version_security'); // 补丁版本号
+        /* END */
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT1jaGVja1ZlcnNpb24=';
         $this->service_url = base64_decode($this->service_ey).base64_decode($tmp_str);
-        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->curent_version . '&dev=' . $upgrade_dev;
+        $this->upgrade_url = $this->service_url . '&domain='.request()->host(true).'&v=' . $this->curent_version . '&dev=' . $upgrade_dev . '&security_patch=' . $security_patch . '&version_security=' . $version_security;
     }
 
     /**
@@ -96,6 +100,79 @@ class UpgradeLogic extends Model
             return ['code' => 2, 'msg' => $lastupgrade];
         }
         return ['code' => 1, 'msg' => '已是最新版'];
+    }
+
+    /**
+     * 检查是否有安全补丁包
+     * @return type 提示语
+     */
+    public  function checkSecurityVersion() {
+        // error_reporting(0);//关闭所有错误报告
+        $allow_url_fopen = ini_get('allow_url_fopen');
+        if (empty($allow_url_fopen)) {
+            return ['code' => 1, 'msg' => "<font color='red'>请联系空间商（设置 php.ini 中参数 allow_url_fopen = 1）</font>"];
+        }
+        
+        $context = stream_context_set_default(array('http' => array('timeout' => 5, 'method' => 'GET')));
+        $serviceVersionList = @file_get_contents($this->upgrade_url, false, $context);    
+        $serviceVersionList = json_decode($serviceVersionList, true);
+        if(!empty($serviceVersionList)) {
+            /* 插件过期则执行 */
+            if (isset($serviceVersionList['maturity']) && 1 == $serviceVersionList['maturity']) {
+                $WeappUrl = weapp_url('Security/Security/index');
+                $msg = '<a href="'. $WeappUrl .'"> [安全补丁升级] </a>';
+                $remind = str_replace("[安全补丁升级]", $msg, $serviceVersionList['remind']);
+                return ['code' => 0, 'msg' => $remind];
+            }
+            /* END */
+
+            $upgradeArr = array();
+            $introStr = $upgradeStr = '';
+            foreach ($serviceVersionList as $key => $val) {
+                $upgrade = !empty($val['upgrade']) ? $val['upgrade'] : array();
+                $upgradeArr = array_merge($upgradeArr, $upgrade);
+                $introStr .= '<br>' . filter_line_return($val['intro'], '<br>');
+            }
+            $upgradeArr = array_unique($upgradeArr);
+            $upgradeStr = implode('<br>', $upgradeArr); // 升级提示需要覆盖哪些文件
+
+            $introArr = explode('<br>', $introStr);
+            $introStr = '更新日志：';
+            foreach ($introArr as $key => $val) {
+                if (empty($val)) {
+                    continue;
+                }
+                $introStr .= "<br>{$key}、".$val;
+            }
+
+            $lastupgrade = $serviceVersionList[count($serviceVersionList) - 1];
+            if (!empty($lastupgrade['upgrade_title'])) {
+                $introStr .= '<br>'.$lastupgrade['upgrade_title'];
+            }
+            
+            $lastupgrade['intro'] = htmlspecialchars_decode($introStr);
+            $lastupgrade['upgrade'] = htmlspecialchars_decode($upgradeStr); // 升级提示需要覆盖哪些文件
+            tpCache('system', ['system_upgrade_filelist' => base64_encode($lastupgrade['upgrade'])]);
+
+            /*升级公告*/
+            if (!empty($lastupgrade['notice'])) {
+                $lastupgrade['notice'] = htmlspecialchars_decode($lastupgrade['notice']) . '<br>';
+            }
+            /*--end*/
+            
+            return ['code' => 2, 'msg' => $lastupgrade];
+        }
+        return ['code' => 1, 'msg' => '已是最新补丁版'];
+    }
+
+    /**
+     * 查询安全补丁升级插件订单
+     */
+    public  function checkSecurityOrder() {
+        $context = stream_context_set_default(array('http' => array('timeout' => 5, 'method' => 'GET')));
+        $SecurityOrder = @file_get_contents($this->upgrade_url . '&get_order=1', false, $context);    
+        $SecurityOrder = json_decode($SecurityOrder, true);
+        if (!empty($SecurityOrder)) return $SecurityOrder;
     }
 
     /**

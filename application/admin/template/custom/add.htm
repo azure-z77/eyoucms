@@ -111,9 +111,11 @@
                     <label>TAG标签</label>
                 </dt>
                 <dd class="opt">          
-                    <input type="text" value="" name="tags" id="tags" class="input-txt" autocomplete="off" onfocus="$('#often_tags').hide();" onkeyup="this.value=this.value.replace(/[\，]/g,',');" onpaste="this.value=this.value.replace(/[\，]/g,',')">&nbsp;
-                    (逗号分割) <a href="javascript:void(0);" onclick="get_common_tagindex(this);">显示常用标签</a>&nbsp;<img id="tag_loading" src="__STATIC__/common/images/loading.gif" style="display: none;" />
+                    <input type="text" value="" name="tags" id="tags" class="input-txt" placeholder="多个标签之间以逗号隔开" autocomplete="off" oninput="get_common_tagindex_input(this);" onfocus="$('#often_tags').hide();" onkeyup="this.value=this.value.replace(/[\，]/g,',');" onpaste="this.value=this.value.replace(/[\，]/g,',')">&nbsp;
+                    <a href="javascript:void(0);" onclick="get_common_tagindex(this);">显示常用标签</a>&nbsp;<img id="tag_loading" src="__STATIC__/common/images/loading.gif" style="display: none;" />
                     <div class="often_tags" id="often_tags" style="display: none;"></div>
+                    <div class="often_tags" id="often_tags_input" style="display: none;"></div>
+                    <input type="hidden" id="tags_click_count">
                 </dd>
             </dl>
             <dl class="row">
@@ -211,14 +213,14 @@
                     <span class="err"></span>
                 </dd>
             </dl>
-            <dl class="row" {neq name='$seo_pseudo' value='2'}style="display: none;"{/neq}>
+            <dl class="row" {notin name='$seo_pseudo' value='2'}style="display: none;"{/notin}>
                 <dt class="tit">
                     <label>自定义文件名</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" value="" name="htmlfilename" id="htmlfilename" style="width: 120px;" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'');">.html
+                    <input type="text" value="" name="htmlfilename" id="htmlfilename" autocomplete="off" onkeyup="this.value=this.value.replace(/[^\w\-]/g,'-');" onpaste="this.value=this.value.replace(/[^\w\-]/g,'-');" class="input-txt">.html
                     <span class="err"></span>
-                    <p class="notic">自定义文件名可由字母/数字/'_'/'-'等符号组成</p>
+                    <p class="notic">自定义文件名可由字母、数字、下划线(_)、连接符(-)等符号组成，除此之外其他字符将自动转为连接符(-)</p>
                 </dd>
             </dl>
         </div>
@@ -228,8 +230,8 @@
 
         <div class="ncap-form-default">
             <div class="bot">
-                <input type="hidden" name="gourl" value="{$gourl}">
-                <input type="hidden" name="channel" value="{$Request.param.channel}">
+                <input type="hidden" name="gourl" value="{$gourl|default=''}">
+                <input type="hidden" name="channel" value="{$Request.param.channel|default=''}">
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div> 
@@ -273,6 +275,7 @@
 
         $(document).click(function(){
             $('#often_tags').hide();
+            $('#often_tags_input').hide();
             event.stopPropagation();
         });
 
@@ -296,7 +299,16 @@
             $('#typeid').focus();
             return false;
         }
+        
         layer_loading('正在处理');
+        if(!ajax_check_htmlfilename())
+        {
+            layer.closeAll();
+            showErrorMsg('自定义文件名已存在！');
+            $('input[name=htmlfilename]').focus();
+            return false;
+        }
+
         $('#post_form').submit();
     }
 

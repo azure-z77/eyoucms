@@ -4,12 +4,20 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
+    <div class="fixed-bar">
+        <div class="item-title">
+            <a class="back" href="{:url('Channeltype/index')}" title="返回列表"><i class="fa fa-angle-double-left"></i>返回</a>
+            <ul class="tab-base nc-row">
+                <li><a href="javascript:void(0);" class="tab current"><span>{$channeltype_row[$channel_id]['title']|default='无'} - 内容字段</span></a></li>
+            </ul>
+        </div>
+    </div>
     <div class="flexigrid">
         <div class="mDiv">
             <div class="ftitle">
 				{eq name="$Think.const.CONTROLLER_NAME.'@channel_add'|is_check_access" value="1"}
 				<div class="fbutton">
-                    <a href="javascript:void(0);" data-href="{:url('Field/channel_add', array('channel_id'=>$channel_id))}" onclick="openFullframe(this, '新增字段');">
+                    <a href="javascript:void(0);" data-href="{:url('Field/channel_add', array('channel_id'=>$channel_id))}" onclick="openFullframe(this, '新增字段', '100%', '100%');">
 				        <div class="add" title="新增字段">
 				            <span><i class="layui-icon layui-icon-addition"></i>新增字段</span>
 				        </div>
@@ -25,10 +33,8 @@
                         <input type="hidden" name="channel_id" id="channel_id" value="{$channel_id|default='1'}">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="字段搜索...">
                         <input type="submit" class="btn" value="搜索">
+                        <i class="fa fa-search"></i>
                     </div>
-                    <!-- <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('Field/channel_index', array("channel_id"=>$channel_id))}';">
-                    </div> -->
                 </div>
             </form>
         </div>
@@ -90,7 +96,7 @@
                                     {$vo.title}
                                 {else /}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_edit'|is_check_access" value="1"}
-                                    <a href="javascript:void(0);" data-href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" onclick="openFullframe(this, '编辑');">{$vo.title}</a>
+                                    <a href="javascript:void(0);" data-href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" onclick="openFullframe(this, '编辑字段', '100%', '100%');">{$vo.title}</a>
                                     {else /}
                                     {$vo.title}
                                     {/eq}
@@ -141,7 +147,7 @@
                                     {/eq}
                                 {else /}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_edit'|is_check_access" value="1"}
-                                    <a href="javascript:void(0);" data-href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" class="btn blue" onclick="openFullframe(this, '编辑');">编辑</a>
+                                    <a href="javascript:void(0);" data-href="{:url('Field/channel_edit',array('channel_id'=>$channel_id,'id'=>$vo['id']))}" class="btn blue" onclick="openFullframe(this, '编辑字段', '100%', '100%');">编辑</a>
                                     {/eq}
 									<i></i>
                                     {eq name="$Think.const.CONTROLLER_NAME.'@channel_del'|is_check_access" value="1"}

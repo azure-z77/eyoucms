@@ -154,7 +154,7 @@ class Filemanager extends Base
                 $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
                 exit;
             } else {
-                $this->error($r);
+                $this->error($r, null, [], 8);
                 exit;
             }
         }
@@ -245,7 +245,7 @@ class Filemanager extends Base
                 $this->success('操作成功！', url('Filemanager/index', array('activepath'=>$this->filemanagerLogic->replace_path($activepath, ':', false))));
                 exit;
             } else {
-                $this->error($r);
+                $this->error($r, null, [], 8);
                 exit;
             }
         }

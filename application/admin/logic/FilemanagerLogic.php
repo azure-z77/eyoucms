@@ -288,7 +288,7 @@ class FilemanagerLogic extends Model
                 $filetype = 'gif';
                 $icon = 'gif.gif';
             }
-            else if(preg_match("#\.(jpg|jpeg|bmp)#i",$file))
+            else if(preg_match("#\.(jpg|jpeg|bmp|webp)#i",$file))
             {
                 $filemine = 'image';
                 $filetype = 'jpg';

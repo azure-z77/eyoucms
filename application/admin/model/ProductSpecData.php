@@ -162,4 +162,62 @@ class ProductSpecData extends Model
 
         return $assign_data;
     }
+
+    /**
+     * 2020/12/18 大黄 秒杀 编辑秒杀商品，规格原数据处理
+     */
+    public function GetSharpProductSpecData($id)
+    {
+        $assign_data = [];
+        // 商城配置
+        $shopConfig = getUsersConfigData('shop');
+        $assign_data['shopConfig'] = $shopConfig;
+        // 已选规格处理
+        if (isset($shopConfig['shop_open_spec']) && 1 == $shopConfig['shop_open_spec']) {
+            session('spec_arr',null);
+            $SpecWhere = [
+                'aid' => $id,
+                'lang' => $this->admin_lang,
+                'spec_is_select' => 1,// 已选中的
+            ];
+            $order = 'spec_value_id asc, spec_id asc';
+            $product_spec_data = Db::name('product_spec_data')->where($SpecWhere)->order($order)->select();
+            // 参数预定义
+            $assign_data['SpecSelectName'] = $assign_data['HtmlTable'] = $assign_data['spec_mark_id_arr'] = '';
+            if (!empty($product_spec_data)) {
+                $ProductSpecLogic = new ProductSpecLogic;
+                $spec_arr_new = group_same_key($product_spec_data, 'spec_mark_id');
+                foreach ($spec_arr_new as $key => $value) {
+                    $spec_mark_id_arr[] = $key;
+                    $SpecSelectName[$key]  = '<div class="prset-box" id="spec_'.$key.'">';
+                    $SpecSelectName[$key] .= '<div id="div_'.$key.'">';
+                    $SpecSelectName[$key] .= '<div><span class="preset-bt"><span class="spec_name_span_'.$key.'">'.$value[0]['spec_name'].'</span><em data-name="'.$value[0]['spec_name'].'" data-mark_id="'.$key.'" onclick="DelDiv(this)"><i class="fa fa-times-circle" title="关闭"></i></em></span>';
+
+                    $SpecSelectName[$key] .= '<span id="SelectEd_'.$key.'">';
+                    for ($i=0; $i<count($value); $i++) {
+                        $spec_arr_new[$key][$i] = $value[$i]['spec_value_id'];
+                        $SpecSelectName[$key] .= '<span class="preset-bt2" id="preset-bt2_'.$value[$i]['spec_id'].'"><span class="spec_value_span_'.$value[$i]['spec_value_id'].'">'.$value[$i]['spec_value'].'</span><em data-value="'.$value[$i]['spec_value'].'" data-mark_id="'.$value[$i]['spec_mark_id'].'" data-preset_id="'.$value[$i]['spec_value_id'].'" onclick="DelValue(this)"><i class="fa fa-times-circle" title="关闭"></i></em> &nbsp; </span>';
+                    }
+
+                    $SpecSelectName[$key] .= '</span> &nbsp; &nbsp;';
+                    $SpecSelectName[$key] .= '<select name="spec_value" id="spec_value_'.$key.'" onchange="AppEndPreset(this,'.$key.')">';
+                    $SpecSelectName[$key] .= $ProductSpecLogic->GetPresetValueOption('', $key, $id, 1);
+                    $SpecSelectName[$key] .= '</select> &nbsp; <span title="同步规格数据" data-mark_id="'.$key.'" data-name="'.$value[0]['spec_name'].'" onclick="RefreshSpecValue(this);"><i class="fa fa-refresh"></i></span>';
+                    $SpecSelectName[$key] .= '</div></div><br/></div>';
+                }
+
+                session('spec_arr',$spec_arr_new);
+                $assign_data['SpecSelectName']   = $SpecSelectName;
+                $assign_data['HtmlTable']        = $ProductSpecLogic->SharpSpecAssemblyEdit($spec_arr_new, $id);
+                $assign_data['spec_mark_id_arr'] = implode(',', $spec_mark_id_arr);
+            }
+
+            // 预设值名称
+            $where = ['lang' => $this->admin_lang];
+            if (!empty($spec_mark_id_arr)) $where['preset_mark_id'] = ['NOT IN',$spec_mark_id_arr];
+            $assign_data['preset_value'] = Db::name('product_spec_preset')->where($where)->field('preset_id,preset_mark_id,preset_name')->group('preset_mark_id')->order('preset_mark_id desc')->select();
+        }
+
+        return $assign_data;
+    }
 }

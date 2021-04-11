@@ -1125,7 +1125,9 @@ if (!function_exists('checkStrHtml')) {
      */
     function checkStrHtml($string)
     {
+        $string = str_replace("&nbsp;", " ", $string);
         $string = trim_space($string);
+        $string = trim($string);
 
         if (is_numeric($string)) return $string;
         if (!isset($string) or empty($string)) return '';
@@ -1192,7 +1194,7 @@ if (!function_exists('saveRemote')) {
      */
     function saveRemote($fieldName, $savePath = 'temp/')
     {
-        $allowFiles = [".png", ".jpg", ".jpeg", ".gif", ".bmp", "webp"];
+        $allowFiles = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg"];
 
         $imgUrl = htmlspecialchars($fieldName);
         $imgUrl = str_replace("&amp;", "&", $imgUrl);
@@ -1213,9 +1215,9 @@ if (!function_exists('saveRemote')) {
             return json_encode($data);
         }
         //格式验证(扩展名验证和Content-Type验证)
-        if (preg_match("/^http(s?):\/\/(mmbiz.qpic.cn|qimg.91ud.com)\/(.*)/", $imgUrl) != 1) {
+        if (preg_match("/^http(s?):\/\/(mmbiz.qpic.cn)\/(.*)/", $imgUrl) != 1) {
             $fileType = strtolower(strrchr($imgUrl, '.'));
-            if (!in_array($fileType, $allowFiles) || stristr($heads['Content-Type'], "image")) {
+            if (!in_array($fileType, $allowFiles) || (isset($heads['Content-Type']) && !stristr($heads['Content-Type'],"image"))){
                 $data = array(
                     'state' => '链接contentType不正确',
                 );
@@ -1285,32 +1287,6 @@ if (!function_exists('saveRemote')) {
                 'type'     => $file['ext'],
                 'size'     => $file['filesize'],
             );
-
-            // $ossConfig = tpCache('oss');
-            // if ($ossConfig['oss_switch']) {
-            //     //图片可选择存放在oss
-            //     $savePath = $savePath . date('Ymd/');
-            //     // $object = UPLOAD_PATH.$savePath.md5(getTime().uniqid(mt_rand(), TRUE)).'.'.pathinfo($data['url'], PATHINFO_EXTENSION);
-            //     $users_id = 1;
-            //     if (session('?users_id')) {
-            //         $users_id = session('users_id');
-            //     } else if (session('?admin_id')) {
-            //         $users_id = session('admin_id');
-            //     }
-            //     $filename    = $users_id . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
-            //     $object      = UPLOAD_PATH . $savePath . $filename . '.' . pathinfo($data['url'], PATHINFO_EXTENSION);
-            //     $getRealPath = ltrim($data['url'], '/');
-            //     $ossClient   = new \app\common\logic\OssLogic;
-            //     $return_url  = $ossClient->uploadFile($getRealPath, $object);
-            //     if (!$return_url) {
-            //         $state      = "ERROR" . $ossClient->getError();
-            //         $return_url = '';
-            //     } else {
-            //         $state = "SUCCESS";
-            //     }
-            //     @unlink($getRealPath);
-            //     $data['url'] = $return_url;
-            // }
         }
         return json_encode($data);
     }
@@ -1322,10 +1298,10 @@ if (!function_exists('func_common')) {
      *
      * @param     string $fileElementId 上传表单的ID
      * @param     string $path 存储在public/upload的子目录
-     * @param     string $file_ext 图片后缀名
+     * @param     string $file_type 图片后缀名
      * @return    string
      */
-    function func_common($fileElementId = 'uploadImage', $path = 'temp', $file_ext = "jpg|gif|png|bmp|jpeg|webp")
+    function func_common($fileElementId = 'uploadImage', $path = 'temp', $file_type = "")
     {
         $file = request()->file($fileElementId);
 
@@ -1334,18 +1310,20 @@ if (!function_exists('func_common')) {
         }
 
         $validate = array();
-        /*文件大小限制*/
-        $validate_size = tpCache('basic.file_size');
-        if (!empty($validate_size)) {
-            $validate['size'] = $validate_size * 1024 * 1024; // 单位为b
-        }
-        /*--end*/
+        // 文件大小限制
+        $validate['size'] = intval(tpCache('basic.file_size') * 1024 * 1024);
         /*文件扩展名限制*/
-        $validate_ext = tpCache('basic.image_type');
-        if (!empty($validate_ext)) {
-            $validate['ext'] = explode('|', $validate_ext);
-        }
+        $validate_ext = !empty($file_type) ? str_replace(',', '|', $file_type) : tpCache('basic.image_type');
+        $validate_ext = str_replace('|', ',', $validate_ext);
+        $validate['ext'] = explode(',', $validate_ext);
         /*--end*/
+
+        //拓展名
+        $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
+        if (!in_array($ext, $validate['ext'])) {
+            return ['errcode' => 1, 'errmsg' => '上传图片后缀名必须为' . $validate_ext];
+        }
+        /*拓展名验证end*/
 
         /*上传文件验证*/
         if (!empty($validate)) {
@@ -1358,7 +1336,7 @@ if (!function_exists('func_common')) {
 
         /*验证图片一句话木马*/
         if (false === check_illegal($_FILES[$fileElementId]['tmp_name'])) {
-            return ['errcode'=>1,'errmsg'=>'禁止上传木马图片！'];
+            return ['errcode'=>1,'errmsg'=>'疑似木马图片！'];
         }
         /*--end*/
 
@@ -1412,10 +1390,10 @@ if (!function_exists('func_common_doc')) {
      *
      * @param     string $fileElementId 上传表单的ID
      * @param     string $path 存储在public/upload的子目录
-     * @param     string $file_ext 图片后缀名
+     * @param     string $file_type 文件后缀名
      * @return    string
      */
-    function func_common_doc($fileElementId = 'uploadFile', $path = 'temp', $file_ext = "zip|gz|rar|iso|doc|xsl|ppt|wps|txt|docx")
+    function func_common_doc($fileElementId = 'uploadFile', $path = 'temp', $file_type = "")
     {
         $file = request()->file($fileElementId);
         if (empty($file)) {
@@ -1423,27 +1401,21 @@ if (!function_exists('func_common_doc')) {
         }
 
         $validate = array();
-        /*文件大小限制*/
-        $validate_size = tpCache('basic.file_size');
-        if (!empty($validate_size)) {
-            $validate['size'] = $validate_size * 1024 * 1024; // 单位为b
-        }
+        // 文件大小限制
+        $validate['size'] = intval(tpCache('basic.file_size') * 1024 * 1024);
+        /*文件扩展名限制*/
+        $validate_ext = !empty($file_type) ? str_replace(',', '|', $file_type) : tpCache('basic.file_type');
+        $validate_ext = str_replace('|', ',', $validate_ext);
+        $validate['ext'] = explode(',', $validate_ext);
         /*--end*/
-//        /*文件扩展名限制*/
-//        $validate_ext = tpCache('basic.file_type');
-//        if (!empty($validate_ext)) {
-//            $validate['ext'] = explode('|', $validate_ext);
-//        }
-//        /*--end*/
-        /*拓展名验证start*/
-        $fileExt    = tpCache('basic.file_type');
-        $fileExtArr = explode('|', $fileExt);
+
         //拓展名
         $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
-        if (!in_array($ext, $fileExtArr)) {
-            return ['errcode' => 1, 'errmsg' => '上传文件后缀名必须为' . $fileExt];
+        if (!in_array($ext, $validate['ext'])) {
+            return ['errcode' => 1, 'errmsg' => '上传文件后缀名必须为' . $validate_ext];
         }
         /*拓展名验证end*/
+
         /*上传文件验证*/
         if (!empty($validate)) {
             $is_validate = $file->check($validate);
@@ -1481,27 +1453,6 @@ if (!function_exists('func_common_doc')) {
         if ($info) {
             $return_url = '/' . UPLOAD_PATH . $savePath . $info->getSaveName();
         }
-
-        // $ossConfig = tpCache('oss');
-        // if ($ossConfig['oss_switch']) {
-        //     $users_id = 1;
-        //     if (session('?users_id')) {
-        //         $users_id = session('users_id');
-        //     } else if (session('?admin_id')) {
-        //         $users_id = session('admin_id');
-        //     }
-        //     $filename   = $users_id . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
-        //     $object     = UPLOAD_PATH . $savePath . $filename . '.' . $file_ext;
-        //     $ossClient  = new \app\common\logic\OssLogic;
-        //     $return_url = $ossClient->uploadFile($file->getRealPath(), $object);
-        //     if (!$return_url) {
-        //         $state      = "ERROR" . $ossClient->getError();
-        //         $return_url = '';
-        //     } else {
-        //         $state = "SUCCESS";
-        //     }
-        //     @unlink($file->getRealPath());
-        // }
 
         if ($return_url) {
             return ['errcode' => 0, 'errmsg' => '上传成功', 'img_url' => $return_url];
@@ -1826,7 +1777,7 @@ if (!function_exists('img_replace_url')) {
      */
     function img_replace_url($content = '', $imgurl = '')
     {
-        $pregRule = "/<img(.*?)src(\s*)=(\s*)[\'|\"](.*?(?:[\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.ico]))[\'|\"](.*?)[\/]?(\s*)>/i";
+        $pregRule = "/<img(.*?)src(\s*)=(\s*)[\'|\"](.*?(?:[\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.ico|\.webp]))[\'|\"](.*?)[\/]?(\s*)>/i";
         $content  = preg_replace($pregRule, '<img ${1} src="' . $imgurl . '" ${5} />', $content);
 
         return $content;
@@ -2535,7 +2486,7 @@ if (!function_exists('remote_to_local')) {
             }
             // 图片扩展名
             $fileType = substr($heads['Content-Type'], -4, 4);
-            if (!preg_match("#\.(jpg|jpeg|gif|png|ico|bmp)#i", $fileType)) {
+            if (!preg_match("#\.(jpg|jpeg|gif|png|ico|bmp|webp|svg)#i", $fileType)) {
                 if ($fileType == 'image/gif') {
                     $fileType = ".gif";
                 } else if ($fileType == 'image/png') {
@@ -2544,6 +2495,8 @@ if (!function_exists('remote_to_local')) {
                     $fileType = ".ico";
                 } else if ($fileType == 'image/bmp') {
                     $fileType = ".bmp";
+                }  else if ($fileType == 'image/webp') {
+                    $fileType = ".webp";
                 } else if ($heads['Content-Type'] == 'image/svg+xml') {
                     $fileType = ".svg";
                 } else {
@@ -2710,11 +2663,16 @@ if (!function_exists('print_water')) {
                     //$image->water(".".$water['mark_img'],9,$water['mark_degree'])->save($imgresource);
                     $waterPath = "." . $water['mark_img'];
                     if (eyPreventShell($waterPath) && file_exists($waterPath)) {
-                        $quality       = $water['mark_quality'] ? $water['mark_quality'] : 80;
-                        $waterTempPath = dirname($waterPath) . '/temp_' . basename($waterPath);
-                        $image->open($waterPath)->save($waterTempPath, null, $quality);
-                        $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
-                        @unlink($waterTempPath);
+                        $waterImgInfo = @getimagesize($waterPath);
+                        $waterImgW = !empty($waterImgInfo[0]) ? $waterImgInfo[0] : 1000000;
+                        $waterImgH = !empty($waterImgInfo[1]) ? $waterImgInfo[1] : 1000000;
+                        if ($image->width() > $waterImgW && $image->height() > $waterImgH) {
+                            $quality       = $water['mark_quality'] ? $water['mark_quality'] : 80;
+                            $waterTempPath = dirname($waterPath) . '/temp_' . basename($waterPath);
+                            $image->open($waterPath)->save($waterTempPath, null, $quality);
+                            $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
+                            @unlink($waterTempPath);
+                        }
                     }
                 }
             }
@@ -2806,7 +2764,7 @@ if (!function_exists('html_httpimgurl')) {
                 $t = '?t='.getTime();
             }
             
-            $pregRule = "/<img(.*?)src(\s*)=(\s*)[\'|\"]\/(.*?(?:[\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.ico]))[\'|\"](.*?)[\/]?(\s*)>/i";
+            $pregRule = "/<img(.*?)src(\s*)=(\s*)[\'|\"]\/(.*?(?:[\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.ico|\.webp]))[\'|\"](.*?)[\/]?(\s*)>/i";
             $content  = preg_replace($pregRule, '<img ${1} src="' . request()->domain() . '/${4}'.$t.'" ${5} />', $content);
         }
 
@@ -2922,6 +2880,7 @@ if (!function_exists('gmSecondFormat')) {
                 $timeStr = "00{$separator}00{$separator}00";
             }
         } else {
+            $seconds = intval($seconds);
             $hours = intval($seconds/3600);
             if ($hours < 10) {
                 $hours = '0'.$hours;
@@ -2969,7 +2928,7 @@ if (!function_exists('check_illegal')) {
     function check_illegal($image)
     {
         $weapp_check_illegal_open = tpCache('weapp.weapp_check_illegal_open');
-        if (empty($weapp_check_illegal_open)) {
+        if (is_numeric($weapp_check_illegal_open) && strval($weapp_check_illegal_open) === '0') {
             try {
                 if (file_exists($image)) {
                     $resource = fopen($image, 'rb');
@@ -3060,3 +3019,42 @@ if (!function_exists('hex2rgba')) {
         return $output;
     }
 }
+
+if (!function_exists('is_local_ip')) 
+{
+    /**
+     * 简单判断当前访问站点是否本地
+     * @param string $domain 不带协议的域名
+     * @return boolean
+     */
+    function is_local_ip($domain = '')
+    {
+        $is_local = false;
+        $sip = serverIP();
+        $domain = !empty($domain) ? $domain : request()->host();
+        if (preg_match('/127\.0\.\d{1,3}\.\d{1,3}/i', $domain) || preg_match('/192\.168\.\d{1,3}\.\d{1,3}/i', $domain) || 'localhost' == $domain || '127.0.0.1' == $sip) {
+            $is_local = true;
+        }
+
+        return $is_local;
+    }
+}
+
+if (!function_exists('upload_max_filesize'))
+{
+    /**
+     * 获取当前可上传文件大小
+     * @return boolean
+     */
+    function upload_max_filesize()
+    {
+        $file_size           = tpCache('basic.file_size');
+        $postsize            = @ini_get('file_uploads') ? ini_get('post_max_size') : -1;
+        $fileupload          = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : -1;
+        $min_size            = intval($file_size) < intval($postsize) ? $file_size : $postsize;
+        $min_size            = intval($min_size) < intval($fileupload) ? $min_size : $fileupload;
+        $upload_max_filesize = intval($min_size) * 1024 * 1024;
+        return $upload_max_filesize;
+    }
+}
+

@@ -8,7 +8,7 @@
  * 如果商业用途务必到官方购买正版授权, 以免引起不必要的法律纠纷.
  * ============================================================================
  * Author: 小虎哥 <1105415366@qq.com>
- * Date: 2018-4-3
+ * Date: 2018-4-3 
  */
  
 namespace app\admin\controller;
@@ -19,6 +19,7 @@ use app\common\logic\ArctypeLogic;
 class Uploadify extends Base
 {
     public $image_type = '';
+    private $imageExt = '';
 
     /**
      * 析构函数
@@ -26,8 +27,9 @@ class Uploadify extends Base
     function __construct() 
     {
         parent::__construct();
+        $this->imageExt = config('global.image_ext');
         $this->image_type = tpCache('basic.image_type');
-        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : 'jpg,gif,png,bmp,jpeg,ico';
+        $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->imageExt;
     }
 
     /**
@@ -148,7 +150,7 @@ class Uploadify extends Base
         $list = [];
         if (!empty($images_data)) {
             // 图片类型数组
-            $image_ext = explode(',', config('global.image_ext'));
+            $image_ext = explode(',', $this->imageExt);
             // 处理图片
             foreach ($images_data as $key => $file) {
                 $fileArr = explode('.', $file);    
@@ -317,7 +319,7 @@ class Uploadify extends Base
                     $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
                     $size = getimagesize('.'.$filename);
                     $fileInfo = explode('/',$size['mime']);
-                    if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
+                    if($fileInfo[0] != 'image' || $phpfile || !in_array($filetype, explode(',', $this->imageExt))){
                         exit;
                     }
                     if(@unlink('.'.$filename)){
@@ -540,7 +542,7 @@ class Uploadify extends Base
         }
 
         // 图片类型数组
-        $image_ext = explode(',', config('global.image_ext'));
+        $image_ext = explode(',', $this->imageExt);
         $mydir = dir($directory);
         while($file = $mydir->read())
         {
@@ -607,6 +609,12 @@ class Uploadify extends Base
                             $aliyunOssModel = new \weapp\AliyunOss\model\AliyunOssModel;
                             $aliyunOssModel->del_local($filename);
                         }
+                    }
+                } else if (!empty($weappList['Cos']) && 1 == $weappList['Cos']['status']) {
+                    $cosData = json_decode($weappList['Cos']['data'], true);
+                    if (!empty($cosData['local_save']) && $cosData['local_save'] == 1) {
+                        $cosModel = new \weapp\Cos\model\CosModel;
+                        $cosModel->del_local($filename);
                     }
                 }
             }

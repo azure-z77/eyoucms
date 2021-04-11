@@ -115,7 +115,9 @@ return array(
     // 栏目表原始字段
     'arctype_table_fields' => array('id','channeltype','current_channel','parent_id','topid','typename','dirname','dirpath','englist_name','grade','typelink','litpic','templist','tempview','seo_title','seo_keywords','seo_description','sort_order','is_hidden','is_part','admin_id','is_del','del_method','status','is_release','weapp_code','lang','add_time','update_time'),
     // 网络图片扩展名
-    'image_ext' => 'jpg,jpeg,gif,bmp,ico,png,webp,svg',
+    'image_ext' => 'jpg,jpeg,gif,bmp,ico,png,webp',
+    // 网络多媒体扩展名
+    'media_ext' => 'ra,ram,vqf,wma,mp3,mid,cd,wave,aiff,au,mpeg-4,midi,vqf,amr,wav,mp4,swf,mov,rm,dat,mpeg,mpg,avi,wmv,rmvb,mp4,asf,3gp,mkv,flv,f4v,webm,ogg,ogv',
     // 后台语言Cookie变量
     'admin_lang' => 'admin_lang',
     // 前台语言Cookie变量
@@ -126,7 +128,8 @@ return array(
     'pay_cause_type_arr' => array(
         0   => '升级消费',
         1   => '账户充值',
-        // 2   => '后续添加',
+        2   => '订单退款',
+        // 3   => '后续添加',
     ),
     // 充值状态
     'pay_status_arr' => array(
@@ -181,6 +184,8 @@ return array(
     'url_screen_var' => 'ZXljbXM',
     //百度地图ak值
     'baidu_map_ak'  => 'RVRMWGdDeElvVml4Z2dIY0FrNm1LcE1k',
+    // 提示
+    'authori_tips' => '5LuF6ZmQ5LqO5LiT5Lia54mI5ZWG5Lia5o6I5p2D5L2/55So77yB',
     // 会员投稿发布的文章状态，前台使用
     'home_article_arcrank' => array(
         -1  => '未审核',
@@ -379,5 +384,29 @@ return array(
             'mca'  => 'user/Users/centre',
             'icon'  => 'geren',
         ),
+    ),
+
+    // 订单退换货服务状态 -- 陈风任
+    'order_service_status' => array(
+        1 => '审核中',
+        2 => '审核通过',
+        3 => '审核不通过',
+        4 => '会员已发货',
+        5 => '商家已收货',
+        6 => '换货完成',
+        7 => '退款完成',
+        8 => '已取消'
+    ),
+    // 订单退换货服务类型 -- 陈风任
+    'order_service_type' => array(
+        1 => '换货',
+        2 => '退货',
+        3 => '维修'
+    ),
+    // 商品评价评分 -- 陈风任
+    'order_total_score' => array(
+        1 => '好评',
+        2 => '中评',
+        3 => '差评'
     ),
 );

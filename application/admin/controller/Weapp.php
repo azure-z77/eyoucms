@@ -112,7 +112,7 @@ class Weapp extends Base
          * 数据查询，搜索出主键ID的值
          */
         $count = DB::name('weapp')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
-        $Page  = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $Page  = new Page($count, 15);// 实例化分页类 传入总记录数和每页显示的记录数
         $list  = DB::name('weapp')
             ->field('a.*')
             ->alias('a')
@@ -160,6 +160,8 @@ class Weapp extends Base
         $assign_data['list']  = $list; // 赋值数据集
         $assign_data['pager'] = $Page; // 赋值分页对象
 
+        $RenewList = []; // 续费插件列表
+
         /*检测更新*/
         $weapp_upgrade = array();
         if (!empty($weappArr)) {
@@ -175,6 +177,7 @@ class Weapp extends Base
                 'ip'    => serverIP(),
                 'code'   => $codeStr,
                 'v'      => $versionStr,
+                'pid'   => $this->php_servicemeal,
                 // 'dev'   => 1,
             );
             tpCache('system', ['system_usecodelist'=>'']);
@@ -185,14 +188,21 @@ class Weapp extends Base
             $response      = @file_get_contents($url, false, $context);
             $batch_upgrade = json_decode($response, true);
 
-            if (is_array($batch_upgrade) && !empty($batch_upgrade)) {
-                $weapp_upgrade = $this->weappLogic->checkBatchVersion($batch_upgrade); //升级包消息 
+            if (is_array($batch_upgrade)) {
+                if (!empty($batch_upgrade['RenewList20210311'])) {
+                    $RenewList = $batch_upgrade['RenewList20210311'];
+                    unset($batch_upgrade['RenewList20210311']);
+                }
+                if (!empty($batch_upgrade)) {
+                    $weapp_upgrade = $this->weappLogic->checkBatchVersion($batch_upgrade); //升级包消息 
+                }
             }
         }
         $assign_data['weapp_upgrade'] = $weapp_upgrade;
         /*--end*/
 
         $assign_data['weapp_plugin_open'] = tpCache('php.php_weapp_plugin_open');
+        $assign_data['RenewList'] = $RenewList;
 
         $this->assign($assign_data);
         return $this->fetch();
@@ -205,7 +215,10 @@ class Weapp extends Base
     {
         /*云部分*/
         Db::name('weapp')->where('is_buy',1)->delete();
-        $post_data = ['domain'=>$this->request->host(true)];
+        $post_data = [
+            'pid'   => $this->php_servicemeal,
+            'domain'=>$this->request->host(true),
+        ];
         $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=myplugin';
         $response  = httpRequest2($url, 'POST', $post_data);
         $params    = json_decode($response, true);
@@ -281,7 +294,7 @@ class Weapp extends Base
          * 数据查询，搜索出主键ID的值
          */
         $count = DB::name('weapp')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
-        $Page  = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $Page  = new Page($count, 15);// 实例化分页类 传入总记录数和每页显示的记录数
         $list  = DB::name('weapp')
             ->field('a.*')
             ->alias('a')
@@ -292,10 +305,12 @@ class Weapp extends Base
         foreach ($list as $key => $val) {
             if ($val['is_buy'] == 0) {
                 $config                = include WEAPP_PATH . $val['code'] . DS . 'config.php';
-                $config['description'] = filter_line_return($config['description'], '<br/>');
+                $config['description'] = !empty($config['description']) ? filter_line_return($config['description'], '<br/>') : '';
                 $val['version']        = getWeappVersion($val['code']);
             }else if ($val['is_buy'] == 1){
                 $config = json_decode($val['config'],true);
+                $config['description'] = !empty($config['description']) ? filter_line_return($config['description'], '<br/>') : '';
+                $val['version']        = !empty($config['version']) ? $config['version'] : 'v1.0.0';
             }
             $config['litpic']      = !empty($config['litpic']) ? get_default_pic($config['litpic']) : get_default_pic();
             $val['config']         = $config;
@@ -691,6 +706,29 @@ class Weapp extends Base
     }
 
     /**
+     * 插件升级的前置操作（可无）
+     */
+    public function beforeUpgrade($weappClass)
+    {
+        if (method_exists($weappClass, 'beforeUpgrade')) {
+            $weappClass->beforeUpgrade();
+        }
+    }
+
+    /**
+     * 插件升级的后置操作（可无）
+     */
+    public function afterUpgrade($weappClass)
+    {
+        if (method_exists($weappClass, 'afterUpgrade')) {
+            $weappClass->afterUpgrade();
+        }
+        /*存储插件列表所有信息*/
+        model('Weapp')->clearWeappCache();
+        /*end*/
+    }
+
+    /**
      * 插件安装的前置操作（可无）
      */
     public function beforeInstall($weappClass)
@@ -788,8 +826,18 @@ class Weapp extends Base
     public function OneKeyUpgrade()
     {
         header('Content-Type:application/json; charset=utf-8');
-        $code       = input('param.code/s', '');
+        $code = input('param.code/s', '');
+        /*插件升级的前置操作（可无）*/
+        $class = get_weapp_class($code);
+        $weapp = new $class;
+        $this->beforeUpgrade($weapp);
+        /*--end*/
         $upgradeMsg = $this->weappLogic->OneKeyUpgrade($code); //一键更新插件
+        if (!empty($upgradeMsg['code'])) {
+            /*插件升级的后置操作（可无）*/
+            $this->afterUpgrade($weapp);
+            /*--end*/
+        }
         respose($upgradeMsg);
     }
 
@@ -815,7 +863,7 @@ class Weapp extends Base
         if (IS_POST) {
             $post = input('post.');
             foreach ($post as $key => $val) {
-                $post[$key] = str_replace("'", "\'", $val);
+                $post[$key] = addslashes($val);
             }
 
             $code = $post['code'] = trim($post['code']);
@@ -828,11 +876,14 @@ class Weapp extends Base
             if (!preg_match('/^v\d+\.\d+\.\d+([0-9\.]*)$/', $post['version'])) {
                 $this->error('插件版本号格式不正确！');
             }
-            if (empty($post['min_version'])) {
-                $post['min_version'] = getCmsVersion();
-            }
             if (empty($post['version'])) {
                 $post['version'] = 'v1.0.0';
+            }
+            if (!preg_match('/^v\d+\.\d+\.\d+([0-9\.]*)$/', $post['min_version'])) {
+                $this->error('CMS版本号格式不正确！');
+            }
+            if (empty($post['min_version'])) {
+                $post['min_version'] = getCmsVersion();
             }
 
             /*复制样本结构到插件目录下*/
@@ -1111,6 +1162,7 @@ class Weapp extends Base
             'is_pay'    => $is_pay,
             'keywords'  => $keywords,
             'query_str' => input('param.'),
+            'pid'   => $this->php_servicemeal,
         ];
         $response  = httpRequest2($url, 'POST', $post_data);
         $params    = json_decode($response, true);
@@ -1134,7 +1186,7 @@ class Weapp extends Base
             $params['list'][$key] = $val;
         }
 
-        $Page                 = new Page($params['total'], config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $Page                 = new Page($params['total'], 15);// 实例化分页类 传入总记录数和每页显示的记录数
         $show                 = $Page->show(); // 分页显示输出
         $assign_data['page']  = $show; // 赋值分页输出
         $assign_data['list']  = $params['list']; // 赋值数据集
@@ -1215,6 +1267,7 @@ class Weapp extends Base
             $post_data = [
                 'code' => base64_encode($code),
                 'cms_version' => $cms_version,
+                'pid'   => $this->php_servicemeal,
             ];
             $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=verify';
             $response  = httpRequest2($url, 'POST', $post_data);
@@ -1237,6 +1290,12 @@ class Weapp extends Base
         $parse_data = parse_url($url);
         if (empty($parse_data['host']) || GetUrlToDomain($parse_data['host']) != 'eyoucms.com') {
             $this->error('该云插件下载链接出错！', url('Weapp/plugin'));
+        } else {
+            $paths = explode('.', $parse_data['path']);
+            $exts = end($paths);
+            if (empty($exts) || 'zip' != $exts) {
+                $this->error('该云插件下载链接出错！', url('Weapp/plugin'));
+            }
         }
         
         /*远程下载文件start*/
@@ -1406,7 +1465,7 @@ class Weapp extends Base
 
                 if (is_array($batch_upgrade) && !empty($batch_upgrade)) {
                     $upgrade = $this->weappLogic->checkBatchVersion($batch_upgrade); //升级包消息 
-                    $upgrade = !empty($upgrade) ? current($upgrade) : [];
+                    $upgrade = !empty($upgrade[$code]) ? $upgrade[$code] : [];
                 }
             }
         }

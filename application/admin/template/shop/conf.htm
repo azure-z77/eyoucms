@@ -7,15 +7,35 @@
 {include file="shop/left" /}
 <div class="page" style="min-width:auto; margin-left:98px;">
     <div class="flexigrid">
-        
         <form class="form-horizontal" id="post_form" action="{:url('Shop/conf')}" method="post">
+            <div class="hDiv">
+                <div class="hDivBox">
+                    <table cellspacing="0" cellpadding="0" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th class="sign w10" axis="col0">
+                                <div class="tc"></div>
+                            </th>
+                            <th abbr="article_title" axis="col3" class="w10">
+                                <div class="tc">基本设置</div>
+                            </th>
+                            <th abbr="ac_id" axis="col4">
+                                <div class=""></div>
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
             <div class="ncap-form-default">
                 <dl class="row">
                     <dt class="tit">标签调用</dt>
                     <dd class="opt">
-                        <a href="javascript:void(0);" onclick="tag_call('shop_open');" class="ncap-btn ncap-btn-green">查看教程</a>
+                        <a href="javascript:void(0);" onclick="tag_call('shop_open');" class="ncap-btn ncap-btn-green">查看标签</a>
+                        <p class="notic">请确保商城模板已经调用购买行为的标签，里面包含规格、数量、价格等！</p>
                     </dd>
                 </dl>
+
                 <dl class="row">
                     <dt class="tit">
                         <label for="uname">商家提示</label>
@@ -90,7 +110,8 @@
                         </span>-->
                     </dd>
                 </dl>
-                <dl class="row">
+
+                <dl class="row none">
                     <dt class="tit">订单提醒</dt>
                     <dd class="opt">
                         <ul class="nc-row ncap-waybill-list">
@@ -102,7 +123,8 @@
                         </ul>
                     </dd>
                 </dl>
-                <dl class="row">
+
+                <dl class="row none">
                     <dt class="tit">发货提醒</dt>
                     <dd class="opt">
                         <ul class="nc-row ncap-waybill-list">
@@ -114,6 +136,7 @@
                         </ul>
                     </dd>
                 </dl>
+
                 <script type="text/javascript">
                     function OpenSmtp(obj) {
                         if (true == $(obj).is(':checked')) {
@@ -135,6 +158,55 @@
                         }
                     }
                 </script>
+            </div>
+
+            <div class="hDiv">
+                <div class="hDivBox">
+                    <table cellspacing="0" cellpadding="0" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th class="sign w10" axis="col0">
+                                <div class="tc"></div>
+                            </th>
+                            <th abbr="article_title" axis="col3" class="w10">
+                                <div class="tc">商家收货信息</div>
+                            </th>
+                            <th abbr="ac_id" axis="col4">
+                                <div class=""></div>
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ncap-form-default">
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="addr_contact_person">联系人</label>
+                    </dt>
+                    <dd class="opt">
+                        <input type="text" id="addr_contact_person" style="width: 30%;" name="addr[addr_contact_person]" value='{if condition="!isset($userConfig.addr_contact_person) || empty($userConfig.addr_contact_person)"}商家客服{else/}{$userConfig.addr_contact_person}{/if}'/>
+                    </dd>
+                </dl>
+
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="addr_contact_phone">联系号码</label>
+                    </dt>
+                    <dd class="opt">
+                        <input type="text" id="addr_contact_phone" style="width: 30%;" maxlength="11" name="addr[addr_contact_phone]" value='{if condition="!isset($userConfig.addr_contact_phone) || empty($userConfig.addr_contact_phone)"}18388888888{else/}{$userConfig.addr_contact_phone}{/if}'/>
+                    </dd>
+                </dl>
+
+                <dl class="row">
+                    <dt class="tit">
+                        <label for="addr_shipping_addr">收货地址</label>
+                    </dt>
+                    <dd class="opt">
+                        <input type="text" id="addr_shipping_addr" style="width: 30%;" name="addr[addr_shipping_addr]" value='{if condition="!isset($userConfig.addr_shipping_addr) || empty($userConfig.addr_shipping_addr)"}北京市 西城区 西长安街街道{else/}{$userConfig.addr_shipping_addr}{/if}'/>
+                    </dd>
+                </dl>
             </div>
             
             <div class="ncap-form-default">
@@ -193,7 +265,8 @@
             success: function (res) {
                 if(res.code == 1){
                     //询问框
-                    var confirm = layer.confirm(res.data.msg, {
+                    var layer_str = '<style type="text/css">.layui-layer-content{text-align:left!important;}</style>'+res.data.msg;
+                    var confirm = layer.confirm(layer_str, {
                             title: false,
                             area: ['80%','80%'],
                             btn: ['已完成，验证下','下次再操作'],

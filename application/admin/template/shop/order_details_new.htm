@@ -222,7 +222,7 @@
                     </dd>
                 </dl>
                 <div class="bot" style="padding-bottom:0px;">
-                    <input type="hidden" name="gourl" value="{$gourl}">
+                    <input type="hidden" name="gourl" value="{$gourl|default=''}">
                     <a href="JavaScript:void(0);" onclick="UpNote('{$OrderData.order_id}');" class="ncap-btn-big ncap-btn-green" id="submitBtn">保存</a>
                 </div>
             </div>

@@ -7,10 +7,8 @@
     {include file="recycle_bin/bar" /}
     <div class="flexigrid">
         <div class="mDiv">
-			
             <form class="navbar-form form-inline" action="{:url('RecycleBin/arctype_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
-                
 					<div class="ftitle">
                     {include file="recycle_bin/btn" /}
 					</div>
@@ -21,10 +19,6 @@
 							<i class="fa fa-search"></i>
 						</div>
 					</div>
-                    <!-- <div class="sDiv2">
-                        <input type="button" class="btn" value="重置" onClick="window.location.href='{:url('RecycleBin/arctype_index')}';">
-                    </div> -->
-               
             </form>
         </div>
         <div class="hDiv">

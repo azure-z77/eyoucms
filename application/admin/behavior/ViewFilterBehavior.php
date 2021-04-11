@@ -68,7 +68,7 @@ class ViewFilterBehavior {
                             var upgrade_str = res.data.upgrade.msg.upgrade;
                             var intro_str = res.data.upgrade.msg.intro;
                             var notice_str = res.data.upgrade.msg.notice;
-                            intro_str += '<style type="text/css">.layui-layer-content{height:270px!important}</style>';
+                            intro_str += '<style type="text/css">.layui-layer-content{height:270px!important;text-align:left!important;}</style>';
                             upgrade_str = notice_str + intro_str + '<br/>' + upgrade_str;
                             //询问框
                             layer.confirm(upgrade_str, {

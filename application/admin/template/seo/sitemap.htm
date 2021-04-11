@@ -138,7 +138,7 @@
                 <dd class="opt">
                     <input id="sitemap_archives_num" name="sitemap_archives_num" value="{$config.sitemap_archives_num|default='100'}" type="text" style="width: 60px;" />&nbsp;篇
                     <p class="notic">发布/编辑文档时，会同步更新sitemap.xml，包含首页、栏目页、指定数量的最新发布文档。</p>
-                    <p class="{elt name='$config.sitemap_archives_num' value='100'}none{/elt} red" id="p_sitemap_archives_num">推荐设置100篇，数量设置越多，会对文档发布/编辑的速度造成一定影响。</p>
+                    <p class="{if isset($config.sitemap_archives_num) && $config.sitemap_archives_num <= 100}none{/if} red" id="p_sitemap_archives_num">推荐设置100篇，数量设置越多，会对文档发布/编辑的速度造成一定影响。</p>
                 </dd>
             </dl>
             <dl class="row">
@@ -148,7 +148,7 @@
                 <dd class="opt">
                     <input id="sitemap_tags_num" name="sitemap_tags_num" value="{$config.sitemap_tags_num|default='100'}" type="text" style="width: 60px;" />&nbsp;篇
                     <p class="notic">发布/编辑文档时，会同步更新sitemap.xml，包含首页、栏目页、指定数量的最新发布文档。</p>
-                    <p class="{elt name='$config.sitemap_tags_num' value='100'}none{/elt} red" id="p_sitemap_tags_num">推荐设置100篇，数量设置越多，会对文档发布/编辑的速度造成一定影响。</p>
+                    <p class="{if isset($config.sitemap_tags_num) && $config.sitemap_tags_num <= 100}none{/elt} red" id="p_sitemap_tags_num">推荐设置100篇，数量设置越多，会对文档发布/编辑的速度造成一定影响。</p>
                 </dd>
             </dl>
             <dl class="row zzbaidu">
@@ -209,7 +209,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert(ey_unknown_error, {icon: 5, title:false});
+                layer.alert(e.responseText, {icon: 5, title:false});
             }
         });
     }

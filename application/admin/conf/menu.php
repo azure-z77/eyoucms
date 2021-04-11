@@ -11,43 +11,9 @@
  * Date: 2018-4-3
  */
 
-$icon_arr = array(
-    'article' => 'fa fa-file-text',
-    'product'  => 'fa fa-cubes',
-    'images'  => 'fa fa-file-picture-o',
-    'download'  => 'fa fa-cloud-download',
-    'single'  => 'fa fa-bookmark-o',
-    'about'  => 'fa fa-minus',
-    'job'  => 'fa fa-minus',
-    'guestbook'  => 'fa fa-file-text-o',
-    'feedback'  => 'fa fa-file-text-o',
-);
 $main_lang= get_main_lang();
 $admin_lang = get_admin_lang();
 $domain = request()->domain();
-$default_words = array();
-$default_addcontent = array();
-
-// 获取有栏目的模型列表
-$channel_list = model('Channeltype')->getArctypeChannel('yes');
-foreach ($channel_list as $key => $val) {
-    $default_words[] = array(
-        'name'  => $val['ntitle'],
-        'action'  => 'index',
-        'controller'  => $val['ctl_name'],
-        'url'  => $val['typelink'],
-        'icon'  => $icon_arr[$val['nid']],
-    );
-    if (!in_array($val['nid'], array('single','guestbook','feedback'))) {
-        $default_addcontent[] = array(
-            'name'  => $val['ntitle'],
-            'action'  => 'add',
-            'controller'  => $val['ctl_name'],
-            'url'  => $val['typelink'],
-            'icon'  => $icon_arr[$val['nid']],
-        );
-    }
-}
 
 /*PC端可视编辑URl*/
 $uiset_pc_arr = [];
@@ -195,7 +161,8 @@ if (1 == tpCache('web.web_users_switch') && $main_lang == $admin_lang) {
 
 /*商城中心URl*/
 $shop_index_arr = array();
-if (1 == tpCache('web.web_users_switch') && 1 == getUsersConfigData('shop.shop_open') && $main_lang == $admin_lang) {
+$shopServicemeal = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
+if (1 == tpCache('web.web_users_switch') && 1 == getUsersConfigData('shop.shop_open') && $main_lang == $admin_lang && 1.5 <= tpCache($shopServicemeal)) {
     $shop_index_arr = array(
         'is_menu' => 1,
         'is_modules' => 1,

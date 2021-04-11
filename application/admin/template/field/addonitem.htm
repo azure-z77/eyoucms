@@ -237,27 +237,33 @@
                     </dt>
                     <dd class="opt">
                         <div class="tab-pane pics" id="tab_{$vo.fieldArr}_{$vo.name|default=''}">
-                            <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="imgupload">
+                          <!-- <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');" class="imgupload">
                                 <i class="fa fa-photo"></i>上传图片
-                            </a>
+                            </a> -->
                             <table class="table table-bordered">
                                 <tbody>
                                 <tr>
-                                    <td class="sort-list-{$vo.fieldArr}_{$vo.name|default=''}">
-                                        {volist name="$vo[$vo['name'].'_eyou_imgupload_list']" id="v2" key="k2"}
-                                        <div class="images_upload" style="display:inline-block;">
-                                            <div style="position: relative; height: 130px;">
-                                                <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2['image_url']}">
-                                                <a href="{$v2['image_url']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
-                                                    <img src="{$v2['image_url']}" width="100" height="100">
-                                                </a>
-                                                <a href="javascript:void(0)" onclick="{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'{$v2['image_url']}')" class="delect">删除</a>
+                                    <td >
+                                        <div class="sort-list-{$vo.fieldArr}_{$vo.name|default=''}">
+                                            {volist name="$vo[$vo['name'].'_eyou_imgupload_list']" id="v2" key="k2"}
+                                            <div class="images_upload" style="display:inline-block;">
+                                                <div style="position: relative; height: 130px;">
+                                                    <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2['image_url']}">
+                                                    <a href="{$v2['image_url']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
+                                                        <img src="{$v2['image_url']}" width="136" height="136">
+                                                    </a>
+                                                    <a href="javascript:void(0)" onclick="{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'{$v2['image_url']}')" class="delect" title="删除"></a>
+                                                </div>
+                                                <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释">{$v2.intro}</textarea>
                                             </div>
-                                            <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释">{$v2.intro}</textarea>
+                                            {/volist}
+                                            <div class="images_upload">
+                                            </div>
                                         </div>
-                                        {/volist}
-                                        <div class="images_upload">
-                                        </div>
+                                        <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');"  class="img-upload mb15" title="点击上传">
+                                             <div class="y-line"></div>
+                                             <div class="x-line"></div>
+                                         </a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -269,9 +275,9 @@
                                 <div style="position: relative; height: 130px;">
                                     <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="" />
                                     <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
-                                        <img src="__STATIC__/admin/images/add-button.jpg" width="100" height="100" />
+                                        <img src="__STATIC__/admin/images/add-button.jpg" width="136" height="136" />
                                     </a>
-                                    <a href="javascript:void(0)" class="delect">&nbsp;&nbsp;</a>
+                                    <a href="javascript:void(0)" class="delect" title="删除">&nbsp;&nbsp;</a>
                                 </div>
                                 <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释"></textarea>
                             </div>
@@ -289,7 +295,7 @@
                             $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
                             $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
                             $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('删除');
+                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('');
                             $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
                         }             
                     }
@@ -409,10 +415,10 @@
                     </dt>
                     <dd class="opt">          
                         <textarea class="span12 ckeditor" id="{$vo.fieldArr}_{$vo.name|default=''}" data-func="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" title="">{$vo.dfvalue|default=''}</textarea>
-                        <div class="opt-moreOper">
+						<div class="opt-moreOper">
 							<p>
-								<a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">远程图片本地化</a>&nbsp;
-								<a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">清除非本站链接</a>&nbsp;
+							    <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">远程图片本地化</a>&nbsp;
+							    <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">清除非本站链接</a>&nbsp;
 							</p>
 						</div>
                         <span class="err"></span>

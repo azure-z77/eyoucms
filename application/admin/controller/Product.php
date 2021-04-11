@@ -265,17 +265,20 @@ class Product extends Base
             }
             
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
                 $filenameCount = Db::name('archives')->where([
-                        'htmlfilename'  => $post['htmlfilename'],
+                        'htmlfilename'  => $htmlfilename,
+                        'lang'  => $this->admin_lang,
                     ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             // 产品类型
             if (!empty($post['prom_type'])) {
@@ -317,6 +320,7 @@ class Product extends Base
                 'seo_description'     => $seo_description,
                 'admin_id'  => session('admin_info.admin_id'),
                 'stock_show'    => empty($post['stock_show']) ? 0 : $post['stock_show'],
+                'users_price'    => empty($post['users_price']) ? 0 : floatval($post['users_price']),
                 'lang'  => $this->admin_lang,
                 'sort_order'    => 100,
                 'add_time'     => strtotime($post['add_time']),
@@ -330,8 +334,12 @@ class Product extends Base
                 // ---------后置操作
                 model('Product')->afterSave($aid, $data, 'add', true);
                 // ---------end
-                // 添加产品规格
-                model('ProductSpecPreset')->ProductSpecInsertAll($aid, $data);
+                
+                // 若选择多规格选项，则添加产品规格
+                if (!empty($post['spec_type']) && 2 == $post['spec_type']) {
+                    model('ProductSpecPreset')->ProductSpecInsertAll($aid, $data);
+                }
+
                 adminLog('新增产品：'.$data['title']);
 
                 //虚拟商品保存
@@ -364,19 +372,19 @@ class Product extends Base
         /*--end*/
 
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = 0;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0,$typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = 0;
         /*--end*/
 
         /*可控制的字段列表*/
@@ -562,18 +570,21 @@ class Product extends Base
             }
 
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
                 $filenameCount = Db::name('archives')->where([
                         'aid'   => ['NEQ', $post['aid']],
-                        'htmlfilename'  => $post['htmlfilename'],
+                        'htmlfilename'  => $htmlfilename,
+                        'lang'  => $this->admin_lang,
                     ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             // 同步栏目切换模型之后的文档模型
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
@@ -603,6 +614,7 @@ class Product extends Base
                 'seo_keywords'     => $seo_keywords,
                 'seo_description'     => $seo_description,
                 'stock_show'    => empty($post['stock_show']) ? 0 : $post['stock_show'],
+                'users_price'    => empty($post['users_price']) ? 0 : floatval($post['users_price']),
                 'add_time'     => strtotime($post['add_time']),
                 'update_time'     => getTime(),
             );
@@ -625,8 +637,16 @@ class Product extends Base
                     model('ProductNetdisk')->saveProductNetdisk($data['aid'], $data);
                 }
 
-                // 更新规格值及金额数据
-                model('ProductSpecValue')->ProducSpecValueEditSave($data);
+                if (!empty($post['spec_type']) && 1 == $post['spec_type']) {
+                    // 产品规格数据表
+                    Db::name("product_spec_data")->where('aid', $data['aid'])->delete();
+                    // 产品多规格组装表
+                    Db::name("product_spec_value")->where('aid', $data['aid'])->delete();
+                } else if (!empty($post['spec_type']) && 2 == $post['spec_type']) {
+                    // 更新规格值及金额数据
+                    model('ProductSpecValue')->ProducSpecValueEditSave($data);
+                }
+
                 // ---------end
                 adminLog('编辑产品：'.$data['title']);
 
@@ -698,19 +718,19 @@ class Product extends Base
         /*--end*/
         
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = $id;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0,$typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = $id;
         /*--end*/
 
         /*可控制的主表字段列表*/

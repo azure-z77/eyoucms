@@ -189,6 +189,19 @@ class Shop extends Base {
 
         // 计算单页总额
         $total_money = $this->shop_order_db->alias('a')->where($Where)->value("SUM(`order_amount`) as `total_money`");
+
+        /*查询已退还的总额*/
+        $list_order_id = get_arr_column($list, 'order_id');
+        $where_new = [
+            'service_type' => 2,
+            'status' => ['IN', [2, 4, 5, 7]],
+            'order_id' => ['IN', $list_order_id]
+        ];
+        $refund_balance = Db::name('shop_order_service')->where($where_new)->value("SUM(`refund_balance`) as `refund_balance`");
+        /* END */
+
+        // 计算单页总额 - 已退还的总额
+        if (!empty($refund_balance)) $total_money = $total_money - $refund_balance;
         
         // 数据加载
         $this->assign('pager', $pageObj);
@@ -368,8 +381,10 @@ class Shop extends Base {
                 // 添加订单操作记录
                 AddOrderAction($post['order_id'],'0',session('admin_id'),'2','1','1',$Desc,$Note);
 
+                // 查询会员信息
                 $Field = 'username, nickname, email, mobile';
                 $Users = $this->users_db->field($Field)->where('users_id', $post['users_id'])->find();
+
                 // 邮箱发送
                 $SmtpConfig = tpCache('smtp');
                 $Result['email'] = GetEamilSendData($SmtpConfig, $Users, $post, 2);
@@ -377,7 +392,11 @@ class Shop extends Base {
                 // 手机发送
                 $SmsConfig = tpCache('sms');
                 $Result['mobile'] = GetMobileSendData($SmsConfig, $Users, $post, 2);
-                
+
+                // 发送站内信给会员
+                $NickName = !empty($Users['nickname']) ? $Users['nickname'] : $Users['username'];
+                SendNotifyMessage($UpdateData, 6, 0, $post['users_id'], $NickName);
+
                 $this->success('发货成功', null, $Result);
             } else {
                 $this->error('发货失败');
@@ -717,6 +736,124 @@ class Shop extends Base {
     // 以下所有代码都是产品规格处理逻辑 2019-07-08 陈风任
     // ------------------------------------------------------------------------------------------------------
     // 规格列表管理，包含新增、更新
+    public function spec_index()
+    {
+        if (IS_AJAX_POST) {
+            // 新增、更新
+            $post = input('post.');
+            // 当前时间戳
+            $time = getTime();
+            /*新增数据处理*/
+            $post_new = [];
+            foreach ($post['preset_new'] as $key => $value) {
+                // 规格名称不允许为空
+                $preset_name = $post['preset_name_'.$value][0];
+                if (empty($preset_name)) continue;
+                // 是否同步到已发布的商品规格
+                $spec_sync = !empty($post['spec_sync_'.$value]) ? 1 : 0;
+                // 排序号
+                $sort_order  = $post['sort_order_'.$value];
+
+                // 拼装三维数组
+                foreach ($post['preset_value_'.$value] as $kk => $vv) {
+                    if (empty($vv)) continue;
+                    $post_new[$key][$kk]['preset_mark_id'] = $value; // 标记ID，一整条规格信息中的唯一标识
+                    $post_new[$key][$kk]['preset_name']    = $preset_name;
+                    $post_new[$key][$kk]['preset_value']   = $vv;
+                    $post_new[$key][$kk]['spec_sync']      = $spec_sync;
+                    $post_new[$key][$kk]['sort_order']     = $sort_order;
+                    $post_new[$key][$kk]['lang']           = $this->admin_lang;
+                    $post_new[$key][$kk]['add_time']       = $time;
+                    $post_new[$key][$kk]['update_time']    = $time;
+                }
+            }
+
+            // 三维数组降为二维数组
+            $data_new = $this->ProductSpecLogic->ArrayDowngrade($post_new);
+            /* END */
+
+            /*原有数据处理*/
+            $post_old = [];
+            $spec_sync_where = $spec_sync_mark_data = $spec_sync_value_data = [];
+            foreach ($post['preset_old'] as $key => $value) {
+                // 规格名称不允许为空
+                $preset_name = $post['preset_name_old_'.$value][0];
+                if (empty($preset_name)) continue;
+
+                // 是否同步到已发布的商品规格
+                $spec_sync = !empty($post['spec_sync_'.$value]) ? 1 : 0;
+
+                // 排序号
+                $sort_order  = $post['sort_order_'.$value];
+
+                // 需要同步的规格名称
+                if (!empty($spec_sync)) {
+                    array_push($spec_sync_where, $value);
+                    $spec_sync_mark_data[$value]['spec_name'] = $preset_name;
+                }
+
+                // 拼装三维数组
+                foreach ($post['preset_value_old_'.$value] as $kk => $vv) {
+                    if (empty($vv)) continue;
+                    $preset_id = $post['preset_id_old_'.$value][$kk];
+                    // 如果ID是否为空
+                    if (!empty($preset_id)) {
+                        // 有ID则为更新
+                        $post_old[$key][$kk]['preset_id'] = $preset_id;
+
+                        // 需要同步的规格值
+                        if (!empty($spec_sync)) $spec_sync_value_data[$preset_id]['spec_value'] = $vv;
+                    } else {
+                        // 无ID则为新增
+                        $post_old[$key][$kk]['lang']     = $this->admin_lang;
+                        $post_old[$key][$kk]['add_time'] = $time;
+                        $post_old[$key][$kk]['preset_mark_id'] = $value; // 标记ID，一整条规格信息中的唯一标识
+                    }
+                    $post_old[$key][$kk]['preset_name']  = $preset_name;
+                    $post_old[$key][$kk]['preset_value'] = $vv;
+                    $post_old[$key][$kk]['spec_sync']    = $spec_sync;
+                    $post_old[$key][$kk]['sort_order']   = $sort_order;
+                    $post_old[$key][$kk]['update_time']  = $time;
+                }
+            }
+            // 三维数组降为二维数组
+            $data_old = $this->ProductSpecLogic->ArrayDowngrade($post_old);
+            /* END */
+
+            // 合并数组并且更新数据
+            $UpData = array_merge($data_old, $data_new);
+            model('ProductSpecPreset')->saveAll($UpData);
+
+            /*执行同步数据*/
+            if (!empty($spec_sync_where)) {
+                $w_1['spec_mark_id'] = ['IN', $spec_sync_where];
+                $f_1 = 'spec_id, spec_mark_id, spec_name, spec_value_id, spec_value';
+                $SpecMarkData = Db::name('product_spec_data')->where($w_1)->field($f_1)->order('spec_mark_id asc')->select();
+                foreach ($SpecMarkData as $key => $value) {
+                    $SpecMarkData[$key]['spec_name'] = $spec_sync_mark_data[$value['spec_mark_id']]['spec_name'];
+                    $SpecMarkData[$key]['spec_value'] = $spec_sync_value_data[$value['spec_value_id']]['spec_value'];
+                }
+                model('ProductSpecData')->saveAll($SpecMarkData);
+            }
+            /* END */
+
+            $this->success('更新成功！');
+        }
+
+        // 查询规格数据
+        $PresetData = $this->product_spec_preset_db->where('lang',$this->admin_lang)->order('sort_order asc, preset_id asc')->select();
+        // 数组转化
+        $ResultData = $this->ProductSpecLogic->GetPresetData($PresetData);
+        // 获取预设规格中最大的标记MarkId
+        $PresetMarkId = model('ProductSpecPreset')->GetMaxPresetMarkId();
+        // 加载参数
+        $this->assign('info', $ResultData);
+        $this->assign('PresetMarkId', $PresetMarkId);
+        return $this->fetch('spec_index');
+    }
+
+
+    // 规格列表管理，包含新增、更新
     public function spec_template()
     {
         if (IS_AJAX_POST) {
@@ -730,6 +867,8 @@ class Shop extends Base {
                 // 规格名称不允许为空
                 $preset_name = $post['preset_name_'.$value][0];
                 if (empty($preset_name)) continue;
+                // 是否同步到已发布的商品规格
+                $spec_sync = !empty($post['spec_sync_'.$value]) ? 1 : 0;
                 // 排序号
                 $sort_order  = $post['sort_order_'.$value];
 
@@ -739,24 +878,37 @@ class Shop extends Base {
                     $post_new[$key][$kk]['preset_mark_id'] = $value; // 标记ID，一整条规格信息中的唯一标识
                     $post_new[$key][$kk]['preset_name']    = $preset_name;
                     $post_new[$key][$kk]['preset_value']   = $vv;
+                    $post_new[$key][$kk]['spec_sync']      = $spec_sync;
                     $post_new[$key][$kk]['sort_order']     = $sort_order;
                     $post_new[$key][$kk]['lang']           = $this->admin_lang;
                     $post_new[$key][$kk]['add_time']       = $time;
                     $post_new[$key][$kk]['update_time']    = $time;
                 }
             }
+
             // 三维数组降为二维数组
             $data_new = $this->ProductSpecLogic->ArrayDowngrade($post_new);
             /* END */
 
             /*原有数据处理*/
             $post_old = [];
+            $spec_sync_where = $spec_sync_mark_data = $spec_sync_value_data = [];
             foreach ($post['preset_old'] as $key => $value) {
                 // 规格名称不允许为空
                 $preset_name = $post['preset_name_old_'.$value][0];
                 if (empty($preset_name)) continue;
+
+                // 是否同步到已发布的商品规格
+                $spec_sync = !empty($post['spec_sync_'.$value]) ? 1 : 0;
+
                 // 排序号
                 $sort_order  = $post['sort_order_'.$value];
+
+                // 需要同步的规格名称
+                if (!empty($spec_sync)) {
+                    array_push($spec_sync_where, $value);
+                    $spec_sync_mark_data[$value]['spec_name'] = $preset_name;
+                }
 
                 // 拼装三维数组
                 foreach ($post['preset_value_old_'.$value] as $kk => $vv) {
@@ -766,7 +918,10 @@ class Shop extends Base {
                     if (!empty($preset_id)) {
                         // 有ID则为更新
                         $post_old[$key][$kk]['preset_id'] = $preset_id;
-                    }else{
+
+                        // 需要同步的规格值
+                        if (!empty($spec_sync)) $spec_sync_value_data[$preset_id]['spec_value'] = $vv;
+                    } else {
                         // 无ID则为新增
                         $post_old[$key][$kk]['lang']     = $this->admin_lang;
                         $post_old[$key][$kk]['add_time'] = $time;
@@ -774,6 +929,7 @@ class Shop extends Base {
                     }
                     $post_old[$key][$kk]['preset_name']  = $preset_name;
                     $post_old[$key][$kk]['preset_value'] = $vv;
+                    $post_old[$key][$kk]['spec_sync']    = $spec_sync;
                     $post_old[$key][$kk]['sort_order']   = $sort_order;
                     $post_old[$key][$kk]['update_time']  = $time;
                 }
@@ -785,6 +941,20 @@ class Shop extends Base {
             // 合并数组并且更新数据
             $UpData = array_merge($data_old, $data_new);
             model('ProductSpecPreset')->saveAll($UpData);
+
+            /*执行同步数据*/
+            if (!empty($spec_sync_where)) {
+                $w_1['spec_mark_id'] = ['IN', $spec_sync_where];
+                $f_1 = 'spec_id, spec_mark_id, spec_name, spec_value_id, spec_value';
+                $SpecMarkData = Db::name('product_spec_data')->where($w_1)->field($f_1)->order('spec_mark_id asc')->select();
+                foreach ($SpecMarkData as $key => $value) {
+                    $SpecMarkData[$key]['spec_name'] = $spec_sync_mark_data[$value['spec_mark_id']]['spec_name'];
+                    $SpecMarkData[$key]['spec_value'] = $spec_sync_value_data[$value['spec_value_id']]['spec_value'];
+                }
+                model('ProductSpecData')->saveAll($SpecMarkData);
+            }
+            /* END */
+
             $this->success('更新成功！');
         }
 
@@ -1208,6 +1378,7 @@ class Shop extends Base {
         }
     }
 
+    // 暂时已废弃，暂时不清理删除代码
     public function FindSmptConfig() {
         $Smtp = tpCache('smtp');
         if (empty($Smtp['smtp_server']) || empty($Smtp['smtp_port']) || empty($Smtp['smtp_user']) || empty($Smtp['smtp_pwd']) || empty($Smtp['smtp_from_eamil'])) {
@@ -1248,5 +1419,14 @@ class Shop extends Base {
                 $this->error('改价失败，刷新重试');
             }
         }
+    }
+
+    /**
+     * 营销功能
+     * @return [type] [description]
+     */
+    public function market_index()
+    {
+        return $this->fetch();
     }
 }

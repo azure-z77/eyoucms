@@ -52,6 +52,18 @@ class LinksGroup extends Base
 
             if (empty($post['group_name'])) {
                 $this->error('至少新增一个链接分组！');
+            } else {
+                $is_empty = true;
+                foreach ($post['group_name'] as $key => $val) {
+                    $val = trim($val);
+                    if (!empty($val)) {
+                        $is_empty = false;
+                        break;
+                    }
+                }
+                if (true === $is_empty) {
+                    $this->error('分组名称不能为空！');
+                }
             }
 
             // 数据处理

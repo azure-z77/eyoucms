@@ -28,16 +28,8 @@
                         </li>
                     {/if}
                 {/eq}
-
-                {if condition="true || $php_servicemeal > 1"}
-                    {eq name="'UsersNotice@index'|is_check_access" value="1"}
-                    <li>
-                        <a href="{:url('UsersNotice/index')}" {if condition="in_array($Think.const.CONTROLLER_NAME, ['UsersNotice'])"}class="current"{/if}>
-                        <span>站内通知</span>
-                        </a>
-                    </li>
-                    {/eq}
-
+                
+                {if condition="$php_servicemeal > 1"}
                     {eq name="'UsersScore@conf'|is_check_access" value="1"}
                     <li>
                         <a href="{:url('UsersScore/conf')}" {if condition="in_array($Think.const.CONTROLLER_NAME, ['UsersScore'])"}class="current"{/if}>

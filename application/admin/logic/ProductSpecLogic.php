@@ -52,6 +52,7 @@ class ProductSpecLogic extends Model
                 'preset_id'      => $value[0]['preset_id'],
                 'preset_mark_id' => $value[0]['preset_mark_id'],
                 'preset_name'    => $value[0]['preset_name'],
+                'spec_sync'      => $value[0]['spec_sync'],
                 'sort_order'     => $value[0]['sort_order'],
                 'preset_value'   => $value,
             ];
@@ -446,6 +447,81 @@ class ProductSpecLogic extends Model
             $ReturnHtml .="<td><input class='stock_count' name='spec_stock[$spec_key][stock_count]' value='{$specPrice[$spec_key]['spec_stock']}' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\");UpStock(this);' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")' data-old_stock='{$specPrice[$spec_key]['spec_stock']}'/></td>";
 
             $ReturnHtml .="<td><input type='text' name='spec_sales[$spec_key][spec_sales_num]' value='{$specPrice[$spec_key]['spec_sales_num']}' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\")' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")'></td>";
+
+            $ReturnHtml .="</tr>";
+        }
+        $ReturnHtml .= "</tbody>";
+        $ReturnHtml .= "</table>";
+        // $ReturnHtml .= '批量设置：<a href="javascript:void(0);" onclick="BulkSetPrice(this);" >批量设置</a> <a href="javascript:void(0);" onclick="BulkSetStock(this);" >批量设置</a>';
+
+        return $ReturnHtml;
+    }
+
+    /**
+     * 2020/12/18 大黄 秒杀 多规格设置
+     */
+    public function SharpSpecAssemblyEdit($GetData = array(), $aid = null)
+    {
+        if (empty($GetData)) return ' ';
+        // 参数处理
+        foreach ($GetData as $k => $v) {
+            $spec_arr_sort[$k] = count($v);
+        }
+        asort($spec_arr_sort);
+        foreach ($spec_arr_sort as $key =>$val) {
+            $spec_arr2[$key] = $GetData[$key];
+        }
+        // 排序
+        $order = 'spec_value_id asc, spec_id asc, spec_mark_id asc';
+        // 获取KEY值
+        $clo_name  = array_keys($spec_arr2);
+        // 数据组合
+        $spec_arr2 = $this->DataCombination($spec_arr2);
+        // 查询规格名称
+        $spec = Db::name('product_spec_data')->where('aid',$aid)->order($order)->group('spec_mark_id')->getField('spec_mark_id, spec_name');
+        // 查询规格值
+        $specItem = Db::name('product_spec_data')->where('aid',$aid)->order($order)->getField('spec_value_id, spec_value, spec_mark_id');
+        // 查询规格价格
+        $specPrice = Db::name('product_spec_value')->where('aid', $aid)->order('spec_price asc')->getField('spec_value_id, spec_price, spec_stock, seckill_price, seckill_stock');
+        // 组合HTML
+        $ReturnHtml  = "<table class='table table-bordered' id='spec_input_tab' border='1' cellpadding='10' cellspacing='10'><thead><tr>";
+        // 显示第一行的数据
+        foreach ($clo_name as $k => $v) {
+            $ReturnHtml .= "<td><b><input type='hidden' class='spec_name_input_{$v}' name='spec_mark_id[$v][spec_name]' value='{$spec[$v]}'><span class='spec_name_span_{$v}'>{$spec[$v]}</span></b></td>";
+        }
+        $ReturnHtml .= "<td><b>价格 </b></td>";
+        $ReturnHtml .= "<td><b>库存 </b></td>";
+        $ReturnHtml .= "<td><b><em class='red'>*</em>秒杀价格  <a href=\"javascript:void(0);\" onclick=\"BulkSetPrice(this);\">批量设置 </a></b></td>";
+        $ReturnHtml .= "<td><b><em class='red'>*</em>秒杀库存  <a href=\"javascript:void(0);\" onclick=\"BulkSetStock(this);\" >批量设置 </a></b></td>";
+        $ReturnHtml .= "</tr></thead><tbody>";
+
+        // 显示第二行开始
+        foreach ($spec_arr2 as $k => $v) {
+            $ReturnHtml .= "<tr>";
+            $spec_key_name = array();
+            foreach($v as $k2 => $v2) {
+                $ReturnHtml .= "<td><input type='hidden' class='spec_value_input_{$v2}' name='spec_value_id[$v2][spec_value]' value='{$specItem[$v2]['spec_value']}'><span class='spec_value_span_{$v2}'>{$specItem[$v2]['spec_value']}</span></td>";
+                $spec_key_name[$v2] = $spec[$specItem[$v2]['spec_mark_id']].':'.$specItem[$v2]['spec_value'];
+            }
+            ksort($spec_key_name);
+            $spec_key = implode('_', array_keys($spec_key_name));
+
+            $ReturnHtml .="<td>{$specPrice[$spec_key]['spec_price']}<input type='hidden' class='users_price' name='spec_price[$spec_key][users_price]' value='{$specPrice[$spec_key]['spec_price']}' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\");'/></td>";
+
+            $ReturnHtml .="<td>{$specPrice[$spec_key]['spec_stock']}<input type='hidden' class='stock_count' name='spec_stock[$spec_key][stock_count]' value='{$specPrice[$spec_key]['spec_stock']}' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\");' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")' data-old_stock='{$specPrice[$spec_key]['spec_stock']}'/></td>";
+
+            if ($specPrice[$spec_key]['seckill_price'] > 0){
+                $seckill_price = $specPrice[$spec_key]['seckill_price'];
+            }else{
+                $seckill_price = '';
+            }
+            $ReturnHtml .="<td><input class='spec_seckill_price' name='seckill_price[$spec_key][spec_seckill_price]' value='{$seckill_price}' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\");'/></td>";
+            if ($specPrice[$spec_key]['seckill_stock'] > 0){
+                $seckill_stock = $specPrice[$spec_key]['seckill_stock'];
+            }else{
+                $seckill_stock = '';
+            }
+            $ReturnHtml .="<td><input class='spec_seckill_stock' name='seckill_stock[$spec_key][spec_seckill_stock]' value='{$seckill_stock}' onkeyup='this.value=this.value.replace(/[^\d.]/g,\"\");' onpaste='this.value=this.value.replace(/[^\d.]/g,\"\")' data-old_stock='{$specPrice[$spec_key]['seckill_stock']}'/></td>";
 
             $ReturnHtml .="</tr>";
         }

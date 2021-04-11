@@ -36,9 +36,14 @@ class Archives extends Base
         // 目录列表
         $arctypeLogic = new ArctypeLogic(); 
         $where['is_del'] = '0'; // 回收站功能
+        $where['current_channel'] = ['neq',51]; // 问答模型
+        $where['weapp_code'] = '';
         $arctype_list = $arctypeLogic->arctype_list(0, 0, false, 0, $where, false);
         $zNodes = "[";
         foreach ($arctype_list as $key => $val) {
+            if ($val['current_channel'] == 5 && 1.5 > $this->php_servicemeal) {
+                continue;
+            }
             $current_channel = $val['current_channel'];
             if (!empty($val['weapp_code'])) {
                 // 插件栏目
@@ -279,13 +284,15 @@ class Archives extends Base
         /*文档属性*/
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
 
-        /*栏目下没有绑定参数，自动跳到新版发布入口*/
-        $product_attribute_list = model('ProductAttribute')->getListByTypeid($typeid);
-        $assign_data['product_attribute_list'] = $product_attribute_list;
-        /*end*/
-
         // 商城开关
         $assign_data['shop_open'] = getUsersConfigData('shop.shop_open');
+
+        /*是否存在栏目*/
+        $assign_data['is_arctype'] = Db::name('arctype')->where([
+                'is_del'    => 0,
+                'lang'      => get_current_lang(),
+            ])->count();
+        /*end*/
 
         $this->assign($assign_data);
         
@@ -748,6 +755,9 @@ class Archives extends Base
         $this->error('清除失败！');
     }
 
+    /**
+     * 自定义字段
+     */
     public function ajax_get_addonextitem()
     {
         $aid = input('param.aid/d', 0);
@@ -759,15 +769,18 @@ class Archives extends Base
             $info = !empty($aid) ? model('Archives')->UnifiedGetInfo($aid, null, false) : [];
             // 查询对应的自定义字段
             $addonFieldExtList = model('Field')->getChannelFieldList($channeltype, 0, $aid, $info);
-            // 查询绑定的自定义字段
-            $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                    'typeid'    => ['IN', [0, $typeid]],
+            $field_id_row = Db::name('channelfield_bind')->where([
+                    'field_id'    => ['IN', get_arr_column($addonFieldExtList, 'id')],
                 ])->column('field_id');
             // 匹配显示的自定义字段
             $htmltextField = []; // 富文本的字段名
-            if (!empty($channelfieldBindRow)) {
+            if (!empty($field_id_row)) {
+                // 查询绑定的自定义字段
+                $channelfieldBindRow = Db::name('channelfield_bind')->where([
+                        'typeid'    => ['IN', [0, $typeid]],
+                    ])->column('field_id');
                 foreach ($addonFieldExtList as $key => $val) {
-                    if (!in_array($val['id'], $channelfieldBindRow)) {
+                    if (in_array($val['id'], $field_id_row) && !in_array($val['id'], $channelfieldBindRow)) {
                         unset($addonFieldExtList[$key]);
                         continue;
                     }
@@ -779,6 +792,8 @@ class Archives extends Base
             $assign_data['addonFieldExtList'] = $addonFieldExtList;
 
             // 加载模板
+            $assign_data['params'] = input('param.');
+            $assign_data['field'] = $info;
             $this->assign($assign_data);
             // 渲染模板
             
@@ -876,5 +891,31 @@ EOF;
         $this->assign('nid', $nid);
         $this->assign('tpl_theme', TPL_THEME);
         return $this->fetch();
+    }
+
+    /**
+     * 检测自定义文件名是否存在
+     */
+    public function ajax_check_htmlfilename()
+    {
+        $htmlfilename = input('post.htmlfilename/s');
+        $htmlfilename = trim($htmlfilename);
+        if (!empty($htmlfilename)) {
+            $aid = input('post.aid/d');
+            $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+            $htmlfilename = strtolower($htmlfilename);
+            $map = array(
+                'htmlfilename' => $htmlfilename,
+                'lang'  => $this->admin_lang,
+            );
+            if ($aid > 0) {
+                $map['aid'] = array('neq', $aid);
+            }
+            $result = Db::name('archives')->where($map)->find();
+            if (!empty($result)) {
+                $this->error('自定义文件名已存在，请更改！');
+            }
+        }
+        $this->success('自定义文件名可用！');
     }
 }

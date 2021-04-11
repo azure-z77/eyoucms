@@ -133,13 +133,13 @@
 
                         {eq name="'System@water'|is_check_access" value="1"}
                             {eq name='$main_lang' value='$admin_lang'}
-                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/water')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '水印配置');"><i class="fa fa-file-powerpoint-o"></i><span>水印配置</span></a></li>
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/water')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '水印配置', '100%', '100%');"><i class="fa fa-file-powerpoint-o"></i><span>水印配置</span></a></li>
                             {/eq}
                         {/eq}
 
                         {eq name="'System@thumb'|is_check_access" value="1"}
                             {eq name='$main_lang' value='$admin_lang'}
-                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/thumb')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '缩略图配置');"><i class="fa fa fa-file-photo-o"></i><span>缩略图配置</span></a></li>
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/thumb')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '缩略图配置', '100%', '100%');"><i class="fa fa fa-file-photo-o"></i><span>缩略图配置</span></a></li>
                             {/eq}
                         {/eq}
 
@@ -188,6 +188,9 @@
                     {eq name="'Filemanager@index'|is_check_access" value="1"}
                     <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Filemanager/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-folder-open"></i><span>模板管理</span></a></li>
                     {/eq}
+                    <!-- {eq name="'Notify@index'|is_check_access" value="1"}
+                    <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Notify/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-volume-up"></i><span>通知管理</span></a></li>
+                    {/eq} -->
                 </ul>
             </div>
             <script type="text/javascript">

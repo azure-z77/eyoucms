@@ -281,22 +281,29 @@ class Field extends Model
                     }
 
                     case 'file':
-                        {
-                            $val[$val['name'].'_eyou_is_remote'] = 0;
-                            $val[$val['name'].'_eyou_remote'] = '';
-                            $val[$val['name'].'_eyou_local'] = '';
-                            if (array_key_exists($val['name'], $addonRow)) {
-                                if (is_http_url($addonRow[$val['name']])) {
-                                    $val[$val['name'].'_eyou_is_remote'] = 1;
-                                    $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
-                                } else {
-                                    $val[$val['name'].'_eyou_is_remote'] = 0;
-                                    $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
-                                }
+                    {
+                        $val[$val['name'].'_eyou_is_remote'] = 0;
+                        $val[$val['name'].'_eyou_remote'] = '';
+                        $val[$val['name'].'_eyou_local'] = '';
+                        if (array_key_exists($val['name'], $addonRow)) {
+                            if (is_http_url($addonRow[$val['name']])) {
+                                $val[$val['name'].'_eyou_is_remote'] = 1;
+                                $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
+                            } else {
+                                $val[$val['name'].'_eyou_is_remote'] = 0;
+                                $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
                             }
-                            $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
-                            break;
                         }
+                        $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                        break;
+                    }
+                    case 'media':
+                    {
+                        $ext = tpCache('basic.media_type');
+                        $val['ext'] = !empty($ext) ? $ext : config('global.media_ext');
+                        $val['filesize'] = upload_max_filesize();
+                        break;
+                    }
 
                     case 'htmltext':
                     {

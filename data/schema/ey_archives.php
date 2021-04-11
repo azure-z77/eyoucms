@@ -210,7 +210,7 @@ return array (
   'attrlist_id' => 
   array (
     'name' => 'attrlist_id',
-    'type' => 'int(11) unsigned',
+    'type' => 'int(10) unsigned',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
@@ -381,7 +381,7 @@ return array (
   'htmlfilename' => 
   array (
     'name' => 'htmlfilename',
-    'type' => 'varchar(50)',
+    'type' => 'varchar(250)',
     'notnull' => false,
     'default' => '',
     'primary' => false,

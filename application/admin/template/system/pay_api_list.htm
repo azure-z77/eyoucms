@@ -34,6 +34,56 @@
             <div class="iDiv" style="display: none;"></div>
         </div>
     {else /}
+        <!-- 内置余额支付开关 - 陈风任 -->
+        <div class="plug-item-content" style="display: none;">
+            <div class="plug-item-top">
+                <div class="plug-img">
+                    <a href="JavaScript:void(0);"><img src="__SKIN__/images/balance.png?v={$version}"></a>
+                </div>
+                <div class="plug-text">
+                    <div class="plug-text-title"> <a href="JavaScript:void(0);">余额支付</a> </div>
+                    <div class="plug-text-versions"> <span>系统内置</span> </div>
+                </div>
+            </div>
+            <div class="plug-item-bottm">
+                <a href="JavaScript:void(0);" id="pay_balance_open1" onclick="BalancePayOpen('0');" {eq name="$pay_balance_open" value="1"} style="cursor: pointer;" {else/} style="cursor: pointer; display: none;" {/eq} title="点击关闭">已启用 </a>
+                <a href="JavaScript:void(0);" id="pay_balance_open0" onclick="BalancePayOpen('1');" {eq name="$pay_balance_open" value="1"} style="cursor: pointer; color: #9ea3a7; display: none;" {else/} style="cursor: pointer; color: #9ea3a7;" {/eq} title="点击启用">已关闭 </a>
+            </div>
+        </div>
+        <script type="text/javascript">
+            function BalancePayOpen(open_value) {
+                $.ajax({
+                    url: "{:url('Ajax/BalancePayOpen', ['_ajax'=>1])}",
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {open_value: open_value},
+                    success: function(res) {
+                        layer.closeAll();
+                        if (1 == res.code) {
+                            if (1 == open_value) {
+                                $('#pay_balance_open1').show();
+                                $('#pay_balance_open0').hide();
+                            } else {
+                                $('#pay_balance_open0').show();
+                                $('#pay_balance_open1').hide();
+                            }
+                            layer.msg(res.msg, {icon: 1, time: 1000});
+                            return false;
+                        } else {
+                            layer.alert(res.msg, {icon: 2, title:false});
+                            return false;
+                        }
+                    },
+                    error: function(e){
+                        layer.closeAll();
+                        showErrorMsg(ey_unknown_error);
+                        return false;
+                    }
+                });
+            }
+        </script>
+        <!-- 内置余额支付开关 - END -->
+
         {foreach name="pay_api_list" item="vo" key="k" }
         <div class="plug-item-content">
             <div class="plug-item-top">

@@ -21,16 +21,10 @@ use think\Request;
  */
 class TagGuestbookform extends Base
 {
-    public $tid = '';
-    
     //初始化
     protected function _initialize()
     {
         parent::_initialize();
-        $this->tid = I("param.tid/s", ''); // 应用于栏目列表
-        /*tid为目录名称的情况下*/
-        $this->tid = $this->getTrueTypeid($this->tid);
-        /*--end*/
     }
 
     /**
@@ -234,7 +228,8 @@ EOF;
         ajax.onreadystatechange = function () {
             //步骤五 如果能够进到这个判断 说明 数据 完美的回来了,并且请求的页面是存在的
             if (ajax.readyState==4 && ajax.status==200) {
-        　　　　document.getElementById("{$token_id}").value = ajax.responseText;
+                document.getElementById("{$token_id}").value = ajax.responseText;
+                document.getElementById("gourl_{$token_id}").value = window.location.href;
           　}
         } 
     }
@@ -320,7 +315,12 @@ EOF;
     }
 </script>
 EOF;
-            $hidden = '<input type="hidden" name="gourl" id="gourl_'.$token_id.'" value="'.request()->domain().$this->root_dir.'" /><input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
+            $seo_pseudo = tpCache('seo.seo_pseudo');
+            $gourl = $this->request->url(true);
+            if (2 == $seo_pseudo) {
+                $gourl = $this->request->domain().$this->root_dir;
+            }
+            $hidden = '<input type="hidden" name="gourl" id="gourl_'.$token_id.'" value="'.$gourl.'" /><input type="hidden" name="typeid" value="'.$typeid.'" /><input type="hidden" name="__token__'.$token_id.'" id="'.$token_id.'" value="" />'.$tokenStr;
             $newAttribute['hidden'] = $hidden;
 
             $action = $this->root_dir."/index.php?m=home&c=Lists&a=gbook_submit&lang={$this->home_lang}";

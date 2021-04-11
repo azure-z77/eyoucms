@@ -101,28 +101,17 @@ class Product extends Model
         if (is_string($aidArr)) {
             $aidArr = explode(',', $aidArr);
         }
+
+        // 删除条件
+        $where = [
+            'aid' => ['IN', $aidArr]
+        ];
         // 同时删除内容
-        M('product_content')->where(
-                array(
-                    'aid'=>array('IN', $aidArr)
-                )
-            )
-            ->delete();
+        M('product_content')->where($where)->delete();
         // 同时删除属性
-        M('product_attr')->where(
-                array(
-                    'aid'=>array('IN', $aidArr)
-                )
-            )
-            ->delete();
+        M('product_attr')->where($where)->delete();
         // 同时删除图片
-        $result = M('product_img')->field('image_url')
-            ->where(
-                array(
-                    'aid'=>array('IN', $aidArr)
-                )
-            )
-            ->select();
+        $result = M('product_img')->field('image_url')->where($where)->select();
         if (!empty($result)) {
             foreach ($result as $key => $val) {
                 $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
@@ -130,19 +119,29 @@ class Product extends Model
                     @unlink(realpath('.'.$image_url));
                 }
             }
-            M('product_img')->where(
-                array(
-                    'aid'=>array('IN', $aidArr)
-                )
-            )
-            ->delete();
+            M('product_img')->where($where)->delete();
         }
-        //同时删除虚拟商品
-        Db::name("product_netdisk")->where('aid','IN',$aidArr)->delete();
-        //产品规格数据表
-        Db::name("product_spec_data")->where('aid','IN',$aidArr)->delete();
-        //产品多规格组装表
-        Db::name("product_spec_value")->where('aid','IN',$aidArr)->delete();
+        // 同时删除虚拟商品
+        Db::name("product_netdisk")->where($where)->delete();
+        // 产品规格数据表
+        Db::name("product_spec_data")->where($where)->delete();
+        // 产品多规格组装表
+        Db::name("product_spec_value")->where($where)->delete();
+        // 同时删除商品秒杀数据
+        Db::name("sharp_goods")->where($where)->delete();
+        
+        // 删除条件
+        $where = [
+            'product_id' => ['IN', $aidArr]
+        ];
+        // 同时删除商品评论数据
+        Db::name("shop_order_comment")->where($where)->delete();
+        // 同时删除购物车数据
+        Db::name("shop_cart")->where($where)->delete();
+        // 同时删除商品优惠券数据
+        // Db::name("shop_coupon")->where($where)->delete();
+        // Db::name("shop_coupon_use")->where($where)->delete();
+        
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

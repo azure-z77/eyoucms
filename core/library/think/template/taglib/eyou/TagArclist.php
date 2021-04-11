@@ -21,7 +21,6 @@ use app\home\logic\FieldLogic;
  */
 class TagArclist extends Base
 {
-    public $tid = '';
     public $fieldLogic;
     public $archives_db;
 
@@ -30,16 +29,11 @@ class TagArclist extends Base
     {
         parent::_initialize();
         $this->fieldLogic = new FieldLogic();
-        $this->tid = input("param.tid/s", ''); // 应用于栏目列表
         $this->archives_db = Db::name('archives');
         /*应用于文档列表*/
-        $aid = input('param.aid/d', 0);
-        if ($aid > 0) {
-            $this->tid = $this->archives_db->where('aid', $aid)->getField('typeid');
+        if ($this->aid > 0) {
+            $this->tid = $this->archives_db->where('aid', $this->aid)->getField('typeid');
         }
-        /*--end*/
-        /*tid为目录名称的情况下*/
-        $this->tid = $this->getTrueTypeid($this->tid);
         /*--end*/
     }
 
@@ -104,10 +98,19 @@ class TagArclist extends Base
         /*--end*/
 
         if (!empty($param['joinaid'])) {
+
             $joinaid = intval($param['joinaid']);
-            unset($param['typeid']);
-            unset($param['channel']);
             
+            if (!isset($tag['channel'])) {
+                unset($param['channel']);
+            }
+            
+            if (!isset($tag['typeid'])) {
+                unset($param['typeid']);
+            } else {
+                $channeltype = $param['channel'] = M('arctype')->where('id', intval($param['typeid']))->getField('current_channel');
+            }
+
         } else {
 
             if (!empty($channeltype)) { // 如果指定了频道ID，则频道下的所有文档都展示

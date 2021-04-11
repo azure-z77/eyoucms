@@ -54,6 +54,42 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'seckill_price' => 
+  array (
+    'name' => 'seckill_price',
+    'type' => 'decimal(10,2)',
+    'notnull' => false,
+    'default' => '0.00',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'seckill_stock' => 
+  array (
+    'name' => 'seckill_stock',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'seckill_sales_num' => 
+  array (
+    'name' => 'seckill_sales_num',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'is_seckill' => 
+  array (
+    'name' => 'is_seckill',
+    'type' => 'tinyint(1)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'lang' => 
   array (
     'name' => 'lang',

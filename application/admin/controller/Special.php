@@ -263,15 +263,20 @@ class Special extends Base
             }
 
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
-                $filenameCount = Db::name('archives')->where('htmlfilename', $post['htmlfilename'])->count();
+                $filenameCount = Db::name('archives')->where([
+                    'htmlfilename' => $htmlfilename,
+                    'lang'  => $this->admin_lang,
+                ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             //做自动通过审核判断
             if ($admin_info['role_id'] > 0 && $auth_role_info['check_oneself'] < 1) {
@@ -335,19 +340,19 @@ class Special extends Base
         /*--end*/
 
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0, $typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = 0;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($this->channeltype);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0, $typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = 0;
         /*--end*/
 
         // 阅读权限
@@ -495,18 +500,21 @@ class Special extends Base
             $channel = Db::name('arctype')->where(['id'=>$typeid])->getField('current_channel');
 
             //处理自定义文件名,仅由字母数字下划线和短横杆组成,大写强制转换为小写
-            if (!empty($post['htmlfilename'])) {
-                $post['htmlfilename'] = preg_replace("/[^a-zA-Z0-9_-]+/", "", $post['htmlfilename']);
-                $post['htmlfilename'] = strtolower($post['htmlfilename']);
+            $htmlfilename = trim($post['htmlfilename']);
+            if (!empty($htmlfilename)) {
+                $htmlfilename = preg_replace("/[^a-zA-Z0-9_-]+/", "-", $htmlfilename);
+                $htmlfilename = strtolower($htmlfilename);
                 //判断是否存在相同的自定义文件名
                 $filenameCount = Db::name('archives')->where([
                         'aid'   => ['NEQ', $post['aid']],
-                        'htmlfilename'  => $post['htmlfilename'],
+                        'htmlfilename'  => $htmlfilename,
+                        'lang'  => $this->admin_lang,
                     ])->count();
                 if (!empty($filenameCount)) {
                     $this->error("自定义文件名已存在，请重新设置！");
                 }
             }
+            $post['htmlfilename'] = $htmlfilename;
 
             //做未通过审核文档不允许修改文档状态操作
             if ($admin_info['role_id'] > 0 && $auth_role_info['check_oneself'] < 1) {
@@ -605,19 +613,19 @@ class Special extends Base
         /*--end*/
         
         /*自定义字段*/
-        $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
-        $channelfieldBindRow = Db::name('channelfield_bind')->where([
-                'typeid'    => ['IN', [0,$typeid]],
-            ])->column('field_id');
-        if (!empty($channelfieldBindRow)) {
-            foreach ($addonFieldExtList as $key => $val) {
-                if (!in_array($val['id'], $channelfieldBindRow)) {
-                    unset($addonFieldExtList[$key]);
-                }
-            }
-        }
-        $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        $assign_data['aid'] = $id;
+        // $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
+        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
+        //         'typeid'    => ['IN', [0,$typeid]],
+        //     ])->column('field_id');
+        // if (!empty($channelfieldBindRow)) {
+        //     foreach ($addonFieldExtList as $key => $val) {
+        //         if (!in_array($val['id'], $channelfieldBindRow)) {
+        //             unset($addonFieldExtList[$key]);
+        //         }
+        //     }
+        // }
+        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
+        // $assign_data['aid'] = $id;
         /*--end*/
 
         // 阅读权限

@@ -19,7 +19,7 @@ use think\Request;
 use think\Config;
 
 /**
- * 支付宝回调逻辑处理
+ * 回调逻辑处理
  * @package user\Logic
  */
 class PayLogic extends Model
@@ -38,8 +38,10 @@ class PayLogic extends Model
         $this->shop_order_db         = Db::name('shop_order');          // 订单主表
         $this->shop_order_details_db = Db::name('shop_order_details');  // 订单明细表
         $this->users_type_manage_db  = Db::name('users_type_manage');   // 会员升级分类价格表
+        $this->media_order_db        = Db::name('media_order');         // 视频订单表
     }
 
+    /*----------支付宝回调开始----------*/
     public function alipay_return()
     {
         if (!empty($_POST)) {
@@ -256,9 +258,8 @@ class PayLogic extends Model
                'update_time'     => $time,
             ];
             // 若类型为会员升级则删除订单详情
-            if (0 == $MoneyData['cause_type']) {
-                unset($UpMoneyData['pay_details']);
-            }
+            if (0 == $MoneyData['cause_type']) unset($UpMoneyData['pay_details']);
+            // 执行更新
             $ReturnId = $this->users_money_db->where($where)->update($UpMoneyData);
             if (!empty($ReturnId)) {
                 $UpUsersData = [];
@@ -271,7 +272,7 @@ class PayLogic extends Model
                 }else if (0 == $MoneyData['cause_type']) {
                     // 会员升级
                     // 更新会员级别和天数
-                    $UpUsersData = $this->GetUsersUpgradeData($MoneyData, $UsersData);
+                    $UpUsersData = $this->GetUsersUpgradeData($MoneyData);
                 }
 
                 if (!empty($UpUsersData)) {
@@ -331,10 +332,8 @@ class PayLogic extends Model
         $limit_arr = Config::get('global.admin_member_limit_arr');
         // 查询会员升级级别
         $MoneyDataCause = unserialize($MoneyData['cause']);
-        $type = $this->users_type_manage_db->where('level_id',$MoneyDataCause['level_id'])->getField('limit_id');
         // 到期天数
-        $maturity_days = $limit_arr[$type]['maturity_days'];
-
+        $maturity_days = $limit_arr[$MoneyDataCause['limit_id']]['maturity_days'];
         // 更新会员属性表的数组
         $result = [
             'level'       => $MoneyDataCause['level_id'],
@@ -343,7 +342,7 @@ class PayLogic extends Model
         ];
 
         // 查询会员开通会员级别时间和天数
-        $UsersData = $this->users_db->field('open_level_time,level_maturity_days')->find($MoneyData['users_id']);
+        $UsersData = $this->users_db->field('open_level_time, level_maturity_days')->find($MoneyData['users_id']);
         // 36600为终身天数，若数据库中的值大于则不执行，反之执行
         if ($UsersData['level_maturity_days'] < '36600') {
             // 计算逻辑，会员开通的时间戳+(会员到期天数*每天的秒数)
@@ -410,4 +409,252 @@ class PayLogic extends Model
         $return = $alipaySevice->check($data);
         return $return;
     } 
+    /*----------支付宝回调结束----------*/
+
+
+    /*----------微信回调开始----------*/
+    public function wechat_return($GetData = [])
+    {
+        // 查询订单是否真实已支付
+        $PayOrder = $this->WeChatPayOrderInquire($GetData['out_trade_no']);
+        
+        // 已完成支付则执行下列操作
+        if (!empty($PayOrder)) {
+            // 拆分自定义参数
+            $attach = explode('|,|', $GetData['attach']);
+
+            // 订单查询
+            if (1 == $attach[2]) {
+                // 会员充值
+                $where = [
+                    'order_number' => $GetData['out_trade_no']
+                ];
+                if (!empty($attach[3])) $where['users_id'] = $attach[3];
+                // 充值订单查询
+                $MoneyData = $this->users_money_db->where($where)->find();
+                if (empty($MoneyData['status']) || in_array($MoneyData['status'], [0, 4])) {
+                    // 充值订单无需处理，直接返回结束
+                    echo 'FAIL'; exit;
+                } else if (in_array($MoneyData['status'], [1])) {
+                    // 充值订单支付成功后续处理
+                    $Result = $this->RechargeProcessing($GetData, $where, $MoneyData);
+                    // 返回结束
+                    if (!empty($Result)) echo 'SUCCESS'; exit;
+                } else {
+                    // 充值订单已完成处理，直接返回结束
+                    echo 'SUCCESS'; exit;
+                }
+
+            } else if (2 == $attach[2]) {
+                // 商品购买
+                $where = [
+                    'order_code' => $GetData['out_trade_no']
+                ];
+                if (!empty($attach[3])) $where['users_id'] = $attach[3];
+                // 购物订单查询
+                $OrderStatus = $this->shop_order_db->where($where)->getField('order_status');
+                if (empty($OrderStatus) && 0 == $OrderStatus) {
+                    // 购物订单支付成功后续处理
+                    $Result = $this->ProductPayProcessing($attach[3], $GetData['out_trade_no'], $GetData);
+                    // 返回结束
+                    if (!empty($Result)) echo 'SUCCESS'; exit;
+                } else if (in_array($OrderStatus, [1, 2, 3])) {
+                    // 购物订单已完成处理，直接返回结束
+                    echo 'SUCCESS'; exit;
+                } else {
+                    // 购物订单无需处理，直接返回结束
+                    echo 'FAIL'; exit;
+                }
+
+            } else if (3 == $attach[2]) {
+                // 会员升级
+                $where = [
+                    'order_number' => $GetData['out_trade_no']
+                ];
+                if (!empty($attach[3])) $where['users_id'] = $attach[3];
+                // 升级订单查询
+                $MoneyData = $this->users_money_db->where($where)->find();
+                if (empty($MoneyData['status']) || in_array($MoneyData['status'], [0, 4])) {
+                    // 升级订单无需处理，直接返回结束
+                    echo 'FAIL'; exit;
+                } else if (in_array($MoneyData['status'], [1])) {
+                    // 升级订单支付成功后续处理
+                    $Result = $this->UpgradeProcessing($GetData, $where, $MoneyData);
+                    // 返回结束
+                    if (!empty($Result)) echo 'SUCCESS'; exit;
+                } else {
+                    // 升级订单已完成处理，直接返回结束
+                    echo 'SUCCESS'; exit;
+                }
+
+            } else if (8 == $attach[2]) {
+                // 视频购买
+                $where = [
+                    'order_code' => $GetData['out_trade_no']
+                ];
+                if (!empty($attach[3])) $where['users_id'] = $attach[3];
+                // 视频订单查询
+                $OrderStatus = $this->media_order_db->where($where)->getField('order_status');
+                if (empty($OrderStatus) && 0 == $OrderStatus) {
+                    // 视频订单支付成功后续处理
+                    $Result = $this->MediaPayProcessing($GetData, $where);
+                    // 返回结束
+                    if (!empty($Result)) echo 'SUCCESS'; exit;
+                } else if (in_array($OrderStatus, [1])) {
+                    // 视频订单已完成处理，直接返回结束
+                    echo 'SUCCESS'; exit;
+                } else {
+                    // 视频订单无需处理，直接返回结束
+                    echo 'FAIL'; exit;
+                }
+            }
+        }
+    }
+
+    // 查询订单是否真实已支付
+    private function WeChatPayOrderInquire($out_trade_no = null)
+    {
+        $Result = false;
+
+        // 查询微信支付配置
+        $where = [
+            'pay_id' => 1,
+            'pay_mark' => 'wechat'
+        ];
+        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
+
+        // 查询订单是否支付
+        if (!empty($out_trade_no) && !empty($PayInfo)) {
+            // 引入SDK
+            vendor('wechatpay.lib.WxPayApi');
+            vendor('wechatpay.lib.WxPayConfig');
+
+            // 实例化加载订单号
+            $WxPayOrderQuery  = new \WxPayOrderQuery;
+            $WxPayOrderQuery->SetOut_trade_no($out_trade_no);
+
+            // 处理微信配置数据
+            $PayInfo = unserialize($PayInfo);
+            $ApiConfig['app_id'] = $PayInfo['appid'];
+            $ApiConfig['mch_id'] = $PayInfo['mchid'];
+            $ApiConfig['key']    = $PayInfo['key'];
+
+            // 实例化微信配置
+            $WxPayConfig = new \WxPayConfig($ApiConfig);
+            $WxPayApi = new \WxPayApi;
+
+            if (!empty($WxPayConfig->app_id)) {
+                // 判断结果
+                $WeChatOrder = $WxPayApi->orderQuery($WxPayConfig, $WxPayOrderQuery);
+                if (isset($WeChatOrder['return_code']) && $WeChatOrder['return_code'] == 'SUCCESS' && $WeChatOrder['result_code'] == 'SUCCESS') {
+                    if ($WeChatOrder['trade_state'] == 'SUCCESS' && !empty($WeChatOrder['transaction_id'])) {
+                        $Result = true;
+                    }
+                }
+            }
+        }
+
+        // 返回查询结果
+        return $Result;
+    }
+
+    // 会员充值处理
+    private function RechargeProcessing($GetData = [], $Where = [], $MoneyData = [])
+    {
+        $Return = false;
+
+        // 充值订单更新为已付款
+        $data = [
+            'status' => 2,
+            'update_time' => getTime(),
+            'pay_details' => serialize($GetData)
+        ];
+        // 充值订单更新
+        $ResultID = $this->users_money_db->where($Where)->update($data);
+
+        if (!empty($ResultID)) {
+            // 同步修改会员的金额
+            $UsersWhere = [
+                'users_id' => $MoneyData['users_id']
+            ];
+            $UpUsersData = [
+                'users_money' => Db::raw('users_money+'.($MoneyData['money']))
+            ];
+            $UpdateID = $this->users_db->where($UsersWhere)->update($UpUsersData);
+
+            // 业务处理完成，订单已完成
+            if (!empty($UpdateID)) {
+                $data2 = [
+                    'status' => 3,
+                    'update_time' => getTime()
+                ];
+                $this->users_money_db->where($Where)->update($data2);
+                $Return = true;
+            }
+        }
+        // 返回执行结果
+        return $Return;
+    }
+
+    // 商品订单处理
+    private function ProductPayProcessing($users_id = null, $order_code = [], $pay_details = [])
+    {
+        // 商品订单处理
+        $Result = pay_success_logic($users_id, $order_code, $pay_details, 'wechat', false);
+        $Return = !empty($Result['code']) && 1 == $Result['code'] ? true : false;
+
+        // 返回执行结果
+        return $Return;
+    }
+
+    // 会员升级处理
+    private function UpgradeProcessing($GetData = [], $Where = [], $MoneyData = [])
+    {
+        $Return = false;
+
+        // 查询会员升级类型
+        $CauseData = unserialize($MoneyData['cause']);
+        $UsersTypeData = $this->users_type_manage_db->where('type_id', $CauseData['type_id'])->find();
+        if (!empty($UsersTypeData)) {
+            // 更新数据
+            $UpMoneyData = [
+               'status' => 2,
+               'update_time' => getTime()
+            ];
+            // 升级订单更新
+            $ResultID = $this->users_money_db->where($Where)->update($UpMoneyData);
+            if (!empty($ResultID)) {
+                // 更新会员数据
+                $Where = [
+                    'users_id' => $MoneyData['users_id']
+                ];
+                $UpUsersData = $this->GetUsersUpgradeData($MoneyData);
+                $UpdateID = $this->users_db->where($Where)->update($UpUsersData);
+                if (!empty($UpdateID)) $Return = true;
+            }
+        }
+        // 返回执行结果
+        return $Return;
+    }
+
+    // 会员购买视频处理
+    private function MediaPayProcessing($GetData = [], $Where = [])
+    {
+        // 视频订单更新数据，更新为已付款
+        $OrderData = [
+            'order_status' => 1,
+            'pay_details'  => serialize($GetData),
+            'pay_time'     => getTime(),
+            'update_time'  => getTime()
+        ];
+
+        // 视频订单更新
+        $UpdateID = Db::name('media_order')->where($Where)->update($OrderData);
+        $Return = !empty($UpdateID) ? true : false;
+
+        // 返回执行结果
+        return $Return;
+    }
+    
+    /*----------微信回调结束----------*/
 }

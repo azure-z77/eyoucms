@@ -19,6 +19,7 @@ class Index extends Base
 {
     public function _initialize() {
         parent::_initialize();
+        $this->wechat_return();
         $this->alipay_return();
         $this->Express100();
         $this->ey_agent();
@@ -83,7 +84,32 @@ class Index extends Base
     }
 
     /**
-     * 支付宝回调
+     * 微信支付回调
+     */
+    private function wechat_return()
+    {
+        // 获取回调的参数
+        $InputXml = file_get_contents("php://input");
+        if (!empty($InputXml)) {
+            // 解析参数
+            $JsonXml = json_encode(simplexml_load_string($InputXml, 'SimpleXMLElement', LIBXML_NOCDATA));
+            // 转换数组
+            $JsonArr = json_decode($JsonXml, true);
+            // 是否与支付成功
+            if (!empty($JsonArr) && 'SUCCESS' == $JsonArr['result_code'] && 'SUCCESS' == $JsonArr['return_code']) {
+                // 解析判断参数是否为微信支付
+                $attach = explode('|,|', $JsonArr['attach']);
+                if (!empty($attach) && 'wechat' == $attach[0] && 'is_notify' == $attach[1] && !empty($attach[2])) {
+                    // 跳转处理回调信息
+                    $pay_logic = new PayLogic();
+                    $pay_logic->wechat_return($JsonArr);
+                }
+            }
+        }
+    }
+
+    /**
+     * 支付宝支付回调
      */
     private function alipay_return()
     {

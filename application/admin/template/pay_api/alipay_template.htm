@@ -19,9 +19,9 @@
                     <dd class="opt">
                         <div class="onoff">
                             <label for="is_open_alipay0" class="cb-enable {if condition='!isset($pay_info.is_open_alipay) || empty($pay_info.is_open_alipay)'}selected{/if}">开启</label>
-                            <label for="is_open_alipay1" class="cb-disable {if condition='$pay_info.is_open_alipay == 1'}selected{/if}">关闭</label>
+                            <label for="is_open_alipay1" class="cb-disable {if condition='isset($pay_info.is_open_alipay) && $pay_info.is_open_alipay == 1'}selected{/if}">关闭</label>
                             <input id="is_open_alipay0" name="pay_info[is_open_alipay]" value="0" type="radio" {if condition="!isset($pay_info.is_open_alipay) || empty($pay_info.is_open_alipay)"} checked="checked"{/if}>
-                            <input id="is_open_alipay1" name="pay_info[is_open_alipay]" value="1" type="radio" {if condition="$pay_info.is_open_alipay == 1"} checked="checked"{/if}>
+                            <input id="is_open_alipay1" name="pay_info[is_open_alipay]" value="1" type="radio" {if condition="isset($pay_info.is_open_alipay) && $pay_info.is_open_alipay == 1"} checked="checked"{/if}>
                         </div>
                     </dd>
                 </dl>
@@ -66,7 +66,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>支付宝APPID</label>
                         </dt>
                         <dd class="opt">
-                            <input type="text" name="pay_info[app_id]" id="app_id" value="{$pay_info.app_id}" class="input-txt">
+                            <input type="text" name="pay_info[app_id]" id="app_id" value="{$pay_info.app_id|default=''}" class="input-txt">
                             <p class="notic">请输入您的支付宝APPID，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -75,7 +75,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>商户私钥</label>
                         </dt>
                         <dd class="opt">
-                            <textarea rows="5" cols="80" id="merchant_private_key" name="pay_info[merchant_private_key]" style="height:120px;">{$pay_info.merchant_private_key}</textarea>
+                            <textarea rows="5" cols="80" id="merchant_private_key" name="pay_info[merchant_private_key]" style="height:120px;">{$pay_info.merchant_private_key|default=''}</textarea>
                             <p class="notic">请输入您的商户私钥，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -84,7 +84,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>支付宝公钥</label>
                         </dt>
                         <dd class="opt">
-                            <textarea rows="5" cols="80" id="alipay_public_key" name="pay_info[alipay_public_key]" style="height:106px;">{$pay_info.alipay_public_key}</textarea>
+                            <textarea rows="5" cols="80" id="alipay_public_key" name="pay_info[alipay_public_key]" style="height:106px;">{$pay_info.alipay_public_key|default=''}</textarea>
                             <p class="notic">请输入您的支付宝公钥，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -96,7 +96,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>支付宝账号</label>
                         </dt>
                         <dd class="opt">
-                            <input type="text" name="pay_info[account]" id="account" value="{$pay_info.account}" class="input-txt">
+                            <input type="text" name="pay_info[account]" id="account" value="{$pay_info.account|default=''}" class="input-txt">
                             <p class="notic">请输入您的支付宝账号，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -105,7 +105,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>交易安全校验码</label>
                         </dt>
                         <dd class="opt">
-                            <input type="text" name="pay_info[code]" id="code" value="{$pay_info.code}" class="input-txt">
+                            <input type="text" name="pay_info[code]" id="code" value="{$pay_info.code|default=''}" class="input-txt">
                             <p class="notic">请输入您的交易安全校验码，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -114,7 +114,7 @@
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>合作者身份ID</label>
                         </dt>
                         <dd class="opt">
-                            <input type="text" name="pay_info[id]" id="id" value="{$pay_info.id}" class="input-txt">
+                            <input type="text" name="pay_info[id]" id="id" value="{$pay_info.id|default=''}" class="input-txt">
                             <p class="notic">请输入您的合作者身份ID，用于支付宝支付。</p>
                         </dd>
                     </dl>
@@ -122,6 +122,7 @@
                 <dl class="row">
                     <div class="bot" style="padding-bottom: 0px;">
                         <a href="JavaScript:void(0);" onclick="alipayset();" class="ncap-btn-big ncap-btn-green" id="submitAlipayBtn">确认提交</a>
+                        &nbsp;<a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=11284','支付宝支付配置教程')" style="font-size: 12px;padding-left: 10px;position:absolute;top: 30px">不会配置？</a>
                     </div>
                 </dl>
             </div>
@@ -130,6 +131,7 @@
 </div>
 
 <script type="text/javascript">
+    var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 
     $(function(){
         $("input[name='pay_info[is_open_alipay]']").click(function(){
@@ -215,16 +217,16 @@
             success: function(res){
                 layer.closeAll();
                 if (1 == res.code) {
-                    layer.msg(res.msg, {icon: 1, time: 1500}, function() {
-                        parent.layer.closeAll();
-                    });
+                    var _parent = parent;
+                    _parent.layer.close(parentObj);
+                    _parent.layer.msg(res.msg, {shade: 0.3, time: 1000});
                 } else {
-                    layer.alert(res.msg, {icon: 2, title: false, closeBtn: 0});
+                    showErrorAlert(res.msg);
                 }
             },
             error: function(e){
                 layer.closeAll();
-                showErrorMsg(ey_unknown_error);
+                showErrorAlert(e.responseText);
                 return false;
             }
         });

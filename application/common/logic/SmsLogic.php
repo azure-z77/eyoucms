@@ -64,6 +64,7 @@ class SmsLogic extends Model
                     3 => "{\"code\":\"$code\"}",
                     4 => "{\"code\":\"$code\"}",
                     5 => "{\"code\":\"$code\"}",
+                    6 => "{\"code\":\"$code\"}",
                 );
             } else if (strpos($smsTemp['tpl_content'], 'content') !== false) {
                 $smsParams = array(
@@ -73,6 +74,7 @@ class SmsLogic extends Model
                     3 => "{\"content\":\"$content\"}",
                     4 => "{\"content\":\"$content\"}",
                     5 => "{\"content\":\"$content\"}",
+                    6 => "{\"content\":\"$content\"}",
                 );
             } else if (strpos($smsTemp['tpl_content'], 'name') !== false) {
                 $smsParams = array(
@@ -82,6 +84,7 @@ class SmsLogic extends Model
                     3 => "{\"name\":\"$name\"}",
                     4 => "{\"name\":\"$name\"}",
                     5 => "{\"name\":\"$name\"}",
+                    6 => "{\"name\":\"$name\"}",
                 );
             }
 

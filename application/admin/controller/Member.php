@@ -627,8 +627,15 @@ class Member extends Base {
                 $level_id    = $post['level_id'][$key];
                 $level_name  = trim($value);
                 $level_value = intval(trim($post['level_value'][$key]));
-                $discount    = !empty($post['discount'][$key]) ? $post['discount'][$key] : 100;
-                $down_count    = !empty($post['down_count'][$key]) ? intval($post['down_count'][$key]) : 100;
+                if (isset($post['discount'][$key])) {
+                    $discount = trim($post['discount'][$key]);
+                    if ($discount < 0 || $discount == '') {
+                        $discount = 100;
+                    }
+                } else {
+                    $discount = 100;
+                }
+                $down_count    = isset($post['down_count'][$key]) ? intval($post['down_count'][$key]) : 100;
 
                 if (empty($level_name)) $this->error('级别名称不可为空！');
                 if (empty($level_value)) $this->error('会员等级值不可为空！');
@@ -1264,35 +1271,36 @@ class Member extends Base {
     public function money_index()
     {
         $list = array();
-        $keywords = input('keywords/s');
 
-        $condition = array();
+        // 查询条件
+        $condition = [
+            // 查询充值订单
+            'a.cause_type' => 1,
+            // 多语言
+            'a.lang' => $this->admin_lang,
+        ];
+
         // 应用搜索条件
-        if (!empty($keywords)) {
-            $condition['a.order_number'] = array('LIKE', "%{$keywords}%");
-        }
+        $keywords = input('keywords/s');
+        if (!empty($keywords)) $condition['a.order_number'] = array('LIKE', "%{$keywords}%");
 
-        //时间检索条件
-        $begin    = strtotime(input('param.add_time_begin/s'));
-        $end    = input('param.add_time_end/s');
+        // 订单状态搜索
+        $order_status = input('param.status/d');
+        if ($order_status) $condition['a.status'] = $order_status;
+
+        // 时间检索条件
+        $begin = strtotime(input('param.add_time_begin/s'));
+        $end = input('param.add_time_end/s');
         !empty($end) && $end .= ' 23:59:59';
-        $end    = strtotime($end);
+        $end = strtotime($end);
         // 时间检索
         if ($begin > 0 && $end > 0) {
-            $condition['a.add_time'] = array('between',"$begin,$end");
+            $condition['a.add_time'] = array('between', "$begin, $end");
         } else if ($begin > 0) {
             $condition['a.add_time'] = array('egt', $begin);
         } else if ($end > 0) {
             $condition['a.add_time'] = array('elt', $end);
         }
-
-        $order_status = input('param.status/d');
-        if ($order_status) {
-            $condition['a.status'] = $order_status;
-        }
-
-        // 多语言
-        $condition['a.lang'] = array('eq', $this->admin_lang);
 
         /**
          * 数据查询
@@ -1316,8 +1324,8 @@ class Member extends Base {
         $this->assign('pager',$Page);// 赋值分页集
 
         // 订单类型
-        $pay_cause_type_arr = config('global.pay_cause_type_arr');
-        $this->assign('pay_cause_type_arr',$pay_cause_type_arr);
+        // $pay_cause_type_arr = config('global.pay_cause_type_arr');
+        // $this->assign('pay_cause_type_arr',$pay_cause_type_arr);
 
         // 充值状态
         $pay_status_arr = config('global.pay_status_arr');
@@ -1812,7 +1820,7 @@ class Member extends Base {
             ->limit($Page->firstRow.','.$Page->listRows)
             ->select();
         $this->assign('list', $list);
-
+        
         return $this->fetch();
     }
 
@@ -1870,7 +1878,7 @@ class Member extends Base {
     /**
      * 登录会员面板
      */
-    public function syn_users_login($users_id = 0)
+    public function syn_users_login($users_id = 0, $mca = '', $vars = [])
     {
         if (!empty($users_id)) {
             $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
@@ -1886,7 +1894,7 @@ class Member extends Base {
                 }
 
                 session('users_id',$users_id);
-                $url = $this->request->domain().ROOT_DIR.'/index.php?m=user&c=Users&a=index';
+                $url = get_homeurl($mca, $vars);
                 $this->redirect($url);             
             }
         }

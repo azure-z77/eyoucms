@@ -119,8 +119,8 @@ class DownloadFile extends Model
                             }
                             return false;
                           }else{
-                            document.getElementById('form_file_list_'+file_id).submit();
-                            // window.location.href = res.url;
+                            // document.getElementById('form_file_list_'+file_id).submit();
+                            window.location.href = res.url;
                             // window.open(res.url);
                           }
                         } 

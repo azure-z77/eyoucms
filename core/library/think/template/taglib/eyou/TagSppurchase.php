@@ -53,7 +53,8 @@ class TagSppurchase extends Base
         $inc_type = array_join_string(array('d','2V','i'));
         $value = tpCache($inc_type.'.'.$name);
         $value = !empty($value) ? $value : 0;
-        if (is_realdomain() && !empty($value)) {
+        $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
+        if (!empty($value) || (empty($value) && 1 >= tpCache($name2))) {
             return $result;
         }
         

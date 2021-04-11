@@ -39,7 +39,7 @@ if (!function_exists('set_arcseotitle'))
     /**
      * 设置内容标题
      */
-    function set_arcseotitle($title = '', $seo_title = '', $typename = '')
+    function set_arcseotitle($title = '', $seo_title = '', $typename = '', $typeid = 0)
     {
         /*针对没有自定义SEO标题的文档*/
         $title = trim($title);
@@ -68,7 +68,12 @@ if (!function_exists('set_arcseotitle'))
                 
                 case '2':
                 default:
-                    $seo_title = $title.'_'.$web_name;
+                    $opencodetype = config('global.opencodetype');
+                    if (1 == $opencodetype && in_array($typeid, [3,9,10])) {
+                        $seo_title = '';
+                    } else {
+                        $seo_title = $title.'_'.$web_name;
+                    }
                     break;
             }
         }

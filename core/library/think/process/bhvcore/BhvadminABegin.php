@@ -121,7 +121,8 @@ class BhvadminABegin {
             $key2 = array_join_string(array('c2hvcF9vcGVu'));
             $domain = request()->host();
             $sip = gethostbyname($_SERVER["SERVER_NAME"]);
-            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || -8 != $value) {
+            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
+            if (-8 != $value && 1 < tpCache($name2)) {
 
             } else {
                 $data = ['code' => 0];
@@ -143,7 +144,7 @@ class BhvadminABegin {
      */
     private function checkspview()
     {
-        $c = [array_join_string(['U2hvcA==']), array_join_string(['U3RhdGlzdGljcw=='])];
+        $c = [array_join_string(['U2hvcA==']), array_join_string(['U3RhdGlzdGljcw==']), array_join_string(['U2hvcFByb2R1Y3Q='])];
         $c1 = array_join_string(['VXNlcnNSZWxlYXNl']);
         if (in_array(self::$controllerName, [$c1]) || in_array(self::$controllerName, $c)) {
             $name = array_join_string(array('d2ViX2lzX2F1dGhvcnRva2Vu'));
@@ -151,12 +152,14 @@ class BhvadminABegin {
             $value = !empty($value) ? intval($value)*7 : 0;
             $domain = request()->host();
             $sip = gethostbyname($_SERVER["SERVER_NAME"]);
-            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || -7 != $value) {
+            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
+            $value2 = tpCache($name2);
+            if (-7 != $value && 1 <= $value2) {
 
             } else {
-                if (in_array(self::$controllerName, $c)) {
+                if (in_array(self::$controllerName, $c) && 1 < $value2) {
                     $msg = binaryJoinChar(config('binary.23'), 36);
-                } else if ($c1 == self::$controllerName) {
+                } else if ($c1 == self::$controllerName && 1 <= $value2) {
                     $msg = binaryJoinChar(config('binary.24'), 36);
                 } else {
                     $msg = binaryJoinChar(config('binary.25'), 33);

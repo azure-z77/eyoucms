@@ -550,6 +550,53 @@ if (!function_exists('tagurl')) {
     }
 }
 
+if (!function_exists('askurl')) {
+    /**
+     * 问答模型Url生成
+     * @param string $url 路由地址
+     * @param string|array $param 变量
+     * @param bool|string $suffix 生成的URL后缀
+     * @param bool|string $domain 域名
+     * @param string $seo_pseudo URL模式
+     * @param string $seo_pseudo_format URL格式
+     * @return string
+     */
+    function askurl($url = '', $param = '', $suffix = true, $domain = false, $seo_pseudo = '', $seo_pseudo_format = null, $seo_inlet = null)
+    {
+        $eyouUrl    = '';
+        $seo_pseudo = !empty($seo_pseudo) ? $seo_pseudo : config('ey_config.seo_pseudo');
+        if (empty($seo_pseudo_format)) {
+            if (1 == $seo_pseudo) {
+                $seo_pseudo_format = config('ey_config.seo_dynamic_format');
+            }
+        }
+
+        if ($seo_pseudo == 3 || $seo_pseudo == 2) {
+            // static $askdirnameArr = null;
+            // null === $askdirnameArr && $askdirnameArr = \think\Db::name('arctype')->where(['current_channel' => 51, 'is_del' => 0])->getField('dirname');
+            if (is_array($param)) {
+                $vars         = $param;
+                // $vars['code'] = $askdirnameArr;
+            } else {
+                $vars = $param;
+                if (!empty($vars)) {
+                    // $vars .= '&code='.$askdirnameArr;
+                } else {
+                    // $vars = 'code='.$askdirnameArr;
+                }
+            }
+            $eyouUrl = url($url, $vars, $suffix, $domain,3, $seo_pseudo_format, $seo_inlet);
+            if (!strstr($eyouUrl, '.htm')){
+                $eyouUrl .= '/';
+            }
+        } else {
+            $eyouUrl = url($url, $param, $suffix, $domain, $seo_pseudo, $seo_pseudo_format, $seo_inlet);
+        }
+
+        return $eyouUrl;
+    }
+}
+
 if (!function_exists('eyIntval')) {
     /**
      * 强制把数值转为整型

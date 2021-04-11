@@ -5,7 +5,13 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page">
-    
+    <div class="fixed-bar">
+        <div class="item-title"><a class="back" href="{:url('Member/users_index')}" title="返回列表"><i class="fa fa-angle-double-left"></i>返回</a>
+            <ul class="tab-base nc-row">
+                <li><a href="javascript:void(0);" class="current"><span>编辑会员</span></a></li>
+            </ul>
+        </div>
+    </div>
     <form class="form-horizontal" id="postForm" action="{:url('Member/users_edit')}" method="post">
         <div class="ncap-form-default">
             <dl class="row"><dt class="tit"><label><b>基本资料</b></label></dt></dl>
@@ -43,10 +49,9 @@
                 </dt>
                 <dd class="opt">
                     <input type="text" name="password" id="password" autocomplete="off" class="input-txt" placeholder="不修改留空">
-                    <p class="notic">不修改留空</p>
                 </dd>
             </dl>
-            <dl class="row">
+            <dl class="row {if condition="empty($userConfig['level_member_upgrade'])"} none {/if} ">
                 <dt class="tit">
                     <label for="level">会员级别</label>
                 </dt>
@@ -122,6 +127,14 @@
             <dl class="row"><dt class="tit"><label><b>更多资料</b></label></dt></dl>
             {include file="member/users_field"/}
             {/notempty}
+            <dl class="row">
+                <dt class="tit">
+                    <label for="last_login">快捷操作</label>
+                </dt>
+                <dd class="opt">
+                    <a href="{:url('Member/syn_users_login', ['users_id'=>$info.users_id, 'mca'=>'user/Users/index'])}" target="_blank">登录到此用户会员中心</a>
+                </dd>
+            </dl>
             <div class="bot">
                 <input type="hidden" name="users_id" value="{$info.users_id}">
                 <a href="JavaScript:void(0);" onclick="checkForm();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
@@ -163,10 +176,8 @@
             success : function(res){
                 layer.closeAll();
                 if(res.code == 1){
-                    var _parent = parent;
-                    _parent.layer.close(parentObj);
-                    _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
-                        _parent.window.location.reload();
+                    layer.msg(res.msg, {icon: 1, time:1000},function(){
+                        window.location.reload();
                     });
                 }else{
                     showErrorMsg(res.msg);
@@ -174,7 +185,7 @@
             },
             error: function(e){
                 layer.closeAll();
-                layer.alert(e.responseText, {icon: 5, title:false});
+                showErrorAlert(e.responseText);
             }
         });
     }

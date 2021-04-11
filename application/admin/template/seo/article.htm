@@ -136,8 +136,9 @@
                 }
                 send();
             },
-            error:function(){
-                parent.layer.alert('未知错误，文档页生成失败~', {icon: 5, title:false});
+            error:function(e){
+                console.log('未知错误，文档页生成失败~');
+                parent.layer.alert(e.responseText, {icon: 5, title:false});
             }
         });
     }

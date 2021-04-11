@@ -281,9 +281,9 @@ class Language extends Base
 
             /*不允许删除默认语言*/
             $count = $this->langModel->where([
-                'id'    => ['IN', $id_arr],
-                'is_home_default' => 1,
-            ])->count();
+                    'id'    => ['IN', $id_arr],
+                ])->where("is_home_default=1 OR mark='{$this->main_lang}'")
+                ->count();
             if (!empty($count)) {
                 $this->error('禁止删除前台默认语言');
             }

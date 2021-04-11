@@ -45,11 +45,11 @@
                         <th abbr="article_time" axis="col6" class="w60">
                             <div class="tc">点击</div>
                         </th>
-                        {eq name="$arctype_info['current_channel']" value="4"}
+                        {if !empty($arctype_info) && $arctype_info['current_channel'] == 4}
                         <th abbr="download_time" axis="col6" class="w60">
                             <div class="tc">下载</div>
                         </th>
-                        {/eq}
+                        {/if}
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">发布时间</div>
                         </th>
@@ -114,9 +114,9 @@
                             <td>
                                 <div class="tc w60">
                                     {if condition="$vo['arcrank'] eq -1"}
-                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onClick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-ban"></i>否</span>
+                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo|default='1'}" onClick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-ban"></i>否</span>
                                     {else /}
-                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onClick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-check-circle"></i>是</span>
+                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo|default='1'}" onClick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-check-circle"></i>是</span>
                                     {/if}
                                 </div>
                             </td>
@@ -125,13 +125,13 @@
                                     {$vo.click}
                                 </div>
                             </td>
-                            {eq name="$arctype_info['current_channel']" value="4"}
+                            {if !empty($arctype_info) && $arctype_info['current_channel'] == 4}
                             <td>
                                 <div class="tc w60">
                                     {$vo.downcount}
                                 </div>
                             </td>
-                            {/eq}
+                            {/if}
                             <td>
                                 <div class="w100 tc">
                                     {$vo.add_time|date='Y-m-d',###}

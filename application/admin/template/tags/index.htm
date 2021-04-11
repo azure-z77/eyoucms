@@ -16,9 +16,17 @@
         </div>
     </div>
     <div class="flexigrid">
-        
         <div class="mDiv">
             <div class="ftitle">
+                {eq name="'Tags@batch_add'|is_check_access" value="1"}
+                <div class="fbutton">
+                    <a href="javascript:void(0);" data-href="{:url('Tags/batch_add')}" onclick="openFullframe(this, '批量新增', '600px', '600px');">
+                        <div class="add" title="批量新增">
+                            <span><i class="layui-icon layui-icon-addition"></i>批量新增</span>
+                        </div>
+                    </a>
+                </div>
+                {/eq}
                 {eq name="'Tags@clearall'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a href="javascript:void(0);" onclick="clearall();">

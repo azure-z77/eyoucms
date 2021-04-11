@@ -687,6 +687,12 @@ class Guestbook extends Base
         }
         $this->assign('attr_list', $attr_list);
 
+        // 标记为已读
+        Db::name('guestbook')->where(['aid'=>$aid, 'lang'=>$this->admin_lang])->update([
+                'is_read'   => 1,
+                'update_time'   => getTime(),
+            ]);
+
         return $this->fetch();
     }
 

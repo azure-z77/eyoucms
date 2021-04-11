@@ -165,13 +165,12 @@ class Driver
         /*--end*/
 
         if (is_array($params) && $params['errcode'] == 0) {
-
             if (!empty($params['info'])) {
                 $tpCacheData = [];
-                isset($params['info']) && $tpCacheData[$tmpSerInfo] = mchStrCode(json_encode($params['info']));
-                isset($params['info']['pid']) && $tpCacheData[$tmpMeal] = $params['info']['pid'];
+                $tpCacheData[$tmpSerInfo] = mchStrCode(json_encode($params['info']));
+                $tpCacheData[$tmpMeal] = !empty($params['info']['pid']) ? $params['info']['pid'] : 0;
                 isset($params['info']['weapp_plugin_open']) && $tpCacheData[$tmpPlugin] = $params['info']['weapp_plugin_open'];
-                isset($params['info']['code']) && $tpCacheData[$tmpSerCode] = $params['info']['code'];
+                $tpCacheData[$tmpSerCode] = !empty($params['info']['code']) ? $params['info']['code'] : '';
                 if (!empty($tpCacheData)) {
                     /*多语言*/
                     if (is_language()) {
@@ -184,6 +183,9 @@ class Driver
                     }
                     /*--end*/
                 }
+                if (empty($tpCacheData[$tmpMeal])) {
+                    getUsersConfigData('shop', ['shop_open'=>0]);
+                }
             }
 
             if (empty($params['info']['code'])) {
@@ -192,9 +194,11 @@ class Driver
                     $langRow = \think\Db::name('language')->order('id asc')->select();
                     foreach ($langRow as $key => $val) {
                         tpCache('web', [$iseyKey=>-1], $val['mark']); // 否
+                        tpCache('php', [$tmpMeal=>0], $val['mark']); // 否
                     }
                 } else { // 单语言
                     tpCache('web', [$iseyKey=>-1]); // 否
+                    tpCache('php', [$tmpMeal=>0]); // 否
                 }
                 /*--end*/
                 session($session_key2, -1); // 只在Base用

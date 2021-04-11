@@ -55,6 +55,9 @@ class TagSporderlist extends Base
                 $select_status = 0;
             }
             $OrderWhere['order_status'] = $select_status;
+            if (3 == $select_status){
+                $OrderWhere['is_comment'] = 0;
+            }
         }
 
         // 分页查询逻辑
@@ -104,12 +107,17 @@ class TagSporderlist extends Base
             $OrderIds = [];
             $ReturnUrl = request()->url(true);
             foreach ($result['list'] as $key => $value) {
-                $DetailsWhere['users_id'] = $value['users_id'];
-                $DetailsWhere['order_id'] = $value['order_id'];
+                $DetailsWhere['a.users_id'] = $value['users_id'];
+                $DetailsWhere['a.order_id'] = $value['order_id'];
                 // 查询订单明细表数据
-                $result['list'][$key]['details'] = Db::name('shop_order_details')->order('product_price desc, product_name desc')->where($DetailsWhere)->select();
-
-                $array_new = get_archives_data($result['list'][$key]['details'],'product_id');
+                $result['list'][$key]['details'] = Db::name('shop_order_details')->alias('a')
+                    ->field('a.*, b.service_id, c.is_del')
+                    ->join('__SHOP_ORDER_SERVICE__ b', 'a.details_id = b.details_id', 'LEFT')
+                    ->join('__ARCHIVES__ c', 'a.product_id = c.aid', 'LEFT')
+                    ->order('a.product_price desc, a.product_name desc')
+                    ->where($DetailsWhere)
+                    ->select();
+                $array_new = get_archives_data($result['list'][$key]['details'], 'product_id');
 
                 foreach ($result['list'][$key]['details'] as $kk => $vv) {
                     // 产品规格处理
@@ -130,15 +138,32 @@ class TagSporderlist extends Base
                     }
 
                     // 产品内页地址
-                    $arcurl = '';
-                    $vars = !empty($array_new[$vv['product_id']]) ? $array_new[$vv['product_id']] : [];
-                    if (!empty($vars)) {
-                        $arcurl = urldecode(arcurl('home/'.$controller_name.'/view', $vars));
+                    if (!empty($array_new[$vv['product_id']]) && 0 == $vv['is_del']) {
+                        // 商品存在
+                        $arcurl = urldecode(arcurl('home/'.$controller_name.'/view', $array_new[$vv['product_id']]));
+                        $has_deleted = 0;
+                        $msg_deleted = '';
+                    } else {
+                        // 商品不存在
+                        $arcurl = urldecode(url('home/View/index', ['aid'=>$vv['product_id']]));
+                        $has_deleted = 1;
+                        $msg_deleted = '[商品已停售]';
                     }
                     $result['list'][$key]['details'][$kk]['arcurl'] = $arcurl;
+                    $result['list'][$key]['details'][$kk]['has_deleted'] = $has_deleted;
+                    $result['list'][$key]['details'][$kk]['msg_deleted'] = $msg_deleted;
 
                     // 图片处理
                     $result['list'][$key]['details'][$kk]['litpic'] = handle_subdir_pic(get_default_pic($vv['litpic']));
+
+                    // 申请退换货
+                    $result['list'][$key]['details'][$kk]['ApplyService'] = urldecode(url('user/Shop/after_service_apply', ['details_id' => $vv['details_id']]));
+
+                    // 查看售后详情单
+                    $result['list'][$key]['details'][$kk]['ViewAfterSale'] = urldecode(url('user/Shop/after_service_details', ['service_id' => $vv['service_id']]));
+
+                    // 商品评价
+                    $result['list'][$key]['details'][$kk]['CommentProduct'] = urldecode(url('user/ShopComment/product', ['details_id' => $vv['details_id']]));
                 }
 
                 if (empty($value['order_status'])) {
@@ -277,9 +302,24 @@ EOF;
         // 已完成个数总计
         $newData = [
             'order_status' => 3,
+            'is_comment' => 0,
         ];
         $Completed = array_merge($Where, $newData);
         $result['Completed'] = Db::name('shop_order')->where($Completed)->count();
+
+        // 退换货个数总计
+        $newData = [
+
+        ];
+        $AfterService = array_merge($Where, $newData);
+        $result['AfterService'] = Db::name('shop_order_service')->where($AfterService)->count();
+
+        // 评价个数总计
+        $newData = [
+            
+        ];
+        $CommentList = array_merge($Where, $newData);
+        $result['CommentList'] = Db::name('shop_order_comment')->where($CommentList)->count();
 
         // 全部订单
         $newData = [
@@ -289,6 +329,8 @@ EOF;
         $result['All'] = Db::name('shop_order')->where($All)->count();
         
         $result['select_status'] = input('param.select_status');
+        $result['access_controller'] = request()->controller();
+        $result['access_action'] = request()->action();
 
         return $result;
     }

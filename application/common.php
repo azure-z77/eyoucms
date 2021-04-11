@@ -356,7 +356,7 @@ if (!function_exists('write_html_cache'))
     /**
      * 写入静态页面缓存
      */
-    function write_html_cache($html = ''){
+    function write_html_cache($html = '', $result = []){
         $html_cache_status = config('HTML_CACHE_STATUS');
         $html_cache_arr = config('HTML_CACHE_ARR');
         if ($html_cache_status && !empty($html_cache_arr) && !empty($html)) {
@@ -368,7 +368,9 @@ if (!function_exists('write_html_cache'))
             $uiset = input('param.uiset/s', 'off');
             $uiset = trim($uiset, '/');
             $url_screen_var = config('global.url_screen_var');
-            if (isset($param[$url_screen_var]) || 'on' == $uiset || 'admin' == $request->module()) {
+            $arcrank = !empty($result['arcrank']) ? intval($result['arcrank']) : 0;
+            $admin_id = input('param.admin_id/d');
+            if (isset($param[$url_screen_var]) || 'on' == $uiset || 'admin' == $request->module() || -1 == $arcrank || !empty($admin_id)) {
                 return false;
             }
             $seo_pseudo = config('ey_config.seo_pseudo');
@@ -689,7 +691,7 @@ if (!function_exists('get_head_pic'))
         } else {
             $default_pic = ROOT_DIR . '/public/static/common/images/dfboy.png';
         }
-        return empty($pic_url) ? $default_pic : $pic_url;
+        return empty($pic_url) ? $default_pic : handle_subdir_pic($pic_url);
     }
 }
 
@@ -788,11 +790,18 @@ if (!function_exists('handle_subdir_pic'))
                                         $str = $root_dir.$StrData['path'];
                                     }
                                 }
-                            } else if (!empty($weappList['AliyunOss']) && 1 == $weappList['AliyunOss']['status']) {
+                            }
+                            else if (!empty($weappList['AliyunOss']) && 1 == $weappList['AliyunOss']['status']) {
                                 $ossData = json_decode($weappList['AliyunOss']['data'], true);
                                 $aliyunOssModel = new \weapp\AliyunOss\model\AliyunOssModel;
                                 $str = $aliyunOssModel->handle_subdir_pic($ossData, $StrData, $str);
-                            } else {
+                            }
+                            else if (!empty($weappList['Cos']) && 1 == $weappList['Cos']['status']) {
+                                $cosData = json_decode($weappList['Cos']['data'], true);
+                                $cosModel = new \weapp\Cos\model\CosModel;
+                                $str = $cosModel->handle_subdir_pic($cosData, $StrData, $str);
+                            }
+                            else {
                                 // 关闭
                                 $str = $root_dir.$StrData['path'];
                             }
@@ -891,7 +900,7 @@ if (!function_exists('thumb_img'))
         $original_img = is_local_images($original_img);
 
         // 未开启缩略图，或远程图片
-        if (is_http_url($original_img) || stristr($original_img, '/public/static/common/images/not_adv.jpg')) {
+        if (is_http_url($original_img)) {
             return $original_img;
         } else if (empty($original_img)) {
             return ROOT_DIR.'/public/static/common/images/not_adv.jpg';
@@ -967,6 +976,7 @@ if (!function_exists('thumb_img'))
         if (is_file($path . $img_thumb_name . '.gif')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.gif';
         if (is_file($path . $img_thumb_name . '.png')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.png';
         if (is_file($path . $img_thumb_name . '.bmp')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.bmp';
+        if (is_file($path . $img_thumb_name . '.webp')) return ROOT_DIR.'/' . $path . $img_thumb_name . '.webp';
 
         if (!is_file($original_img1)) {
             return ROOT_DIR.'/public/static/common/images/not_adv.jpg';
@@ -1251,6 +1261,12 @@ if (!function_exists('allow_release_arctype'))
         $where['c.weapp_code'] = ''; // 回收站功能
         $where['c.lang']   = get_current_lang(); // 多语言 by 小虎哥
         $where['c.is_del'] = 0; // 回收站功能
+        $current_channel = [51];
+        $php_servicemeal = tpCache('php.php_servicemeal');
+        if (1.5 > $php_servicemeal) {
+            array_push($current_channel, 5);
+        }
+        $where['c.current_channel'] = ['notin', $current_channel];
 
         /*权限控制 by 小虎哥*/
         $admin_info = session('admin_info');
@@ -1435,7 +1451,7 @@ if (!function_exists('get_main_lang'))
     {
         $keys = 'common_get_main_lang';
         $main_lang = \think\Cache::get($keys);
-        if (empty($main_lang)) {
+        if (empty($main_lang) || (!empty($main_lang) && !preg_match('/^[a-z]{2}$/i', $main_lang))) {
             $main_lang = \think\Db::name('language')->order('id asc')
                 ->limit(1)
                 ->cache(true, EYOUCMS_CACHE_TIME, 'language')
@@ -1492,7 +1508,7 @@ if (!function_exists('get_admin_lang'))
     {
         $keys = \think\Config::get('global.admin_lang');
         $admin_lang = \think\Cookie::get($keys);
-        if (empty($admin_lang)) {
+        if (empty($admin_lang) || (!empty($admin_lang) && !preg_match('/^[a-z]{2}$/i', $admin_lang))) {
             $admin_lang = input('param.lang/s');
             empty($admin_lang) && $admin_lang = get_main_lang();
             \think\Cookie::set($keys, $admin_lang);
@@ -1511,7 +1527,7 @@ if (!function_exists('get_home_lang'))
     {
         $keys = \think\Config::get('global.home_lang');
         $home_lang = \think\Cookie::get($keys);
-        if (empty($home_lang)) {
+        if (empty($home_lang) || (!empty($home_lang) && !preg_match('/^[a-z]{2}$/i', $home_lang))) {
             $home_lang = input('param.lang/s');
             if (empty($home_lang)) {
                 $home_lang = \think\Db::name('language')->where([
@@ -1557,11 +1573,7 @@ if (!function_exists('switch_language'))
      */
     function switch_language() 
     {
-        static $language_db = null;
         static $request = null;
-        if (null == $language_db) {
-            $language_db = \think\Db::name('language');
-        }
         if (null == $request) {
             $request = \think\Request::instance();
         }
@@ -1575,6 +1587,11 @@ if (!function_exists('switch_language'))
             }
         }
         /*end*/
+
+        static $language_db = null;
+        if (null == $language_db) {
+            $language_db = \think\Db::name('language');
+        }
 
         $is_admin = false;
         if (!stristr($request->baseFile(), 'index.php')) {
@@ -1829,7 +1846,7 @@ function get_province_list()
 {
     $result = extra_cache('global_get_province_list');
     if ($result == false) {
-        $result = M('region')->field('id, name')
+        $result = \think\Db::name('region')->field('id, name')
             ->where('level',1)
             ->getAllWithIndex('id');
         extra_cache('global_get_province_list', $result);
@@ -1845,7 +1862,7 @@ function get_city_list()
 {
     $result = extra_cache('global_get_city_list');
     if ($result == false) {
-        $result = M('region')->field('id, name')
+        $result = \think\Db::name('region')->field('id, name')
             ->where('level',2)
             ->getAllWithIndex('id');
         extra_cache('global_get_city_list', $result);
@@ -1861,7 +1878,7 @@ function get_area_list()
 {
     $result = extra_cache('global_get_area_list');
     if ($result == false) {
-        $result = M('region')->field('id, name')
+        $result = \think\Db::name('region')->field('id, name')
             ->where('level',3)
             ->getAllWithIndex('id');
         extra_cache('global_get_area_list', $result);
@@ -1968,19 +1985,39 @@ if (!function_exists('GetEamilSendData'))
      */
     function GetEamilSendData($SmtpConfig = [], $users = [], $OrderData = [], $type = 1, $pay_method = null)
     {
+        // 是否传入配置、用户信息、订单信息，缺一则返回结束
         if (empty($SmtpConfig) || empty($users) || empty($OrderData)) return false;
-        if (1 == $type) {
-            if (isset($SmtpConfig['smtp_shop_order_pay']) && 0 == $SmtpConfig['smtp_shop_order_pay']) return false;
-        } else if (2 == $type) {
-            if (isset($SmtpConfig['smtp_shop_order_send']) && 0 == $SmtpConfig['smtp_shop_order_send']) return false;
-        }
+        
+        // 根据类型判断场景是否开启并选择发送场景及地址
         if (in_array($type, [1])) {
+            // 查询判断是否开启邮件订单提醒
+            $send_scene = 5;
+            $where = [
+                'lang' => get_admin_lang(),
+                'send_scene' => $send_scene
+            ];
+            $SmtpOpen = \think\Db::name('smtp_tpl')->where($where)->getField('is_open');
+            // if (isset($SmtpConfig['smtp_shop_order_pay']) && 0 == $SmtpConfig['smtp_shop_order_pay']) return false;
+            
+            // 发送给后台，选择邮件配置中的邮箱地址
             $email = !empty($SmtpConfig['smtp_from_eamil']) ? $SmtpConfig['smtp_from_eamil'] : null;
         } else if (in_array($type, [2])) {
+            $send_scene = 6;
+            $where = [
+                'lang' => get_admin_lang(),
+                'send_scene' => $send_scene
+            ];
+            $SmtpOpen = \think\Db::name('smtp_tpl')->where($where)->getField('is_open');
+            // if (isset($SmtpConfig['smtp_shop_order_send']) && 0 == $SmtpConfig['smtp_shop_order_send']) return false;
+            
+            // 发送给用户，选择用户的邮箱地址
             $email = !empty($users['email']) ? $users['email'] : null;
         }
-        if (empty($email)) return false;
-        
+
+        // 若未开启或邮箱地址不存在则返回结束
+        if (empty($SmtpOpen) || empty($email)) return false;
+
+        // 发送接口及内容拼装
         if (!empty($SmtpConfig['smtp_server']) && !empty($SmtpConfig['smtp_user']) && !empty($SmtpConfig['smtp_pwd'])) {
             $Result = [];
             switch ($type) {
@@ -1997,7 +2034,7 @@ if (!function_exists('GetEamilSendData'))
                     'email' => $email,
                     'title' => $title,
                     'type'  => 'order_msg',
-                    'scene' => 5,
+                    'scene' => $send_scene,
                     'data'  => [
                         'type' => $type,
                         'nickname' => !empty($users['nickname']) ? $users['nickname'] : $users['username'],
@@ -2029,26 +2066,43 @@ if (!function_exists('GetMobileSendData'))
      */
     function GetMobileSendData($SmsConfig = [], $users = [], $OrderData = [], $type = 1, $pay_method = null)
     {
+        // 是否传入配置、用户信息、订单信息，缺一则返回结束
         if (empty($SmsConfig) || empty($users) || empty($OrderData)) return false;
-        if (1 == $type) {
-            if (isset($SmsConfig['sms_shop_order_pay']) && 0 == $SmsConfig['sms_shop_order_pay']) return false;
-        } else if (2 == $type) {
-            if (isset($SmsConfig['sms_shop_order_send']) && 0 == $SmsConfig['sms_shop_order_send']) return false;
-        } else {
-            return false;
-        }
+            
+        // 查询短信配置中的使用平台
+        $sms_type = tpCache('sms.sms_type') ? tpCache('sms.sms_type') : 0;
 
+        // 根据类型判断场景是否开启并选择发送场景及手机号
         if (in_array($type, [1])) {
+            // 查询判断是否开启手机订单提醒
+            $send_scene = 5;
+            $where = [
+                'sms_type' => $sms_type,
+                'lang' => get_admin_lang(),
+                'send_scene' => $send_scene
+            ];
+            $SmsOpen = \think\Db::name('sms_template')->where($where)->getField('is_open');
+            
+            // 发送给后台，选择邮件配置中的手机号
             $mobile = !empty($SmsConfig['sms_test_mobile']) ? $SmsConfig['sms_test_mobile'] : null;
         } else if (in_array($type, [2])) {
+            $send_scene = 6;
+            $where = [
+                'sms_type' => $sms_type,
+                'lang' => get_admin_lang(),
+                'send_scene' => $send_scene
+            ];
+            $SmsOpen = \think\Db::name('sms_template')->where($where)->getField('is_open');
+            
+            // 发送给用户，选择用户的手机号
             $mobile = !empty($users['mobile']) ? $users['mobile'] : null;
-        } else {
-            return false;
         }
-        
-        if (empty($mobile)) return false;
-        
-        if (!empty($SmsConfig['sms_appkey']) && !empty($SmsConfig['sms_secretkey'])) {
+
+        // 若未开启或手机号不存在则返回结束
+        if (empty($SmsOpen) || empty($mobile)) return false;
+
+        // 发送接口及内容拼装
+        if (($sms_type == 1 && !empty($SmsConfig['sms_appkey']) && !empty($SmsConfig['sms_secretkey'])) || ($sms_type == 2 && !empty($SmsConfig['sms_appkey_tx']) && !empty($SmsConfig['sms_appid_tx']))) {
             $Result = [];
             switch ($type) {
                 case '1':
@@ -2062,7 +2116,7 @@ if (!function_exists('GetMobileSendData'))
                 'url' => ROOT_DIR . '/index.php?m=api&c=Ajax&a=SendMobileCode&_ajax=1',
                 'data' => [
                     'mobile' => $mobile,
-                    'scene' => 5,
+                    'scene' => $send_scene,
                     'title' => $title,
                     'type'  => 'order_msg',
                     'data'  => [
@@ -2356,6 +2410,16 @@ if (!function_exists('SynImageObjectBucket'))
                 $result['state'] = $ResultOss['state'];
                 $result['url'] = $ResultOss['url'];
             }
+        } else if (!empty($weappList['Cos']) && 1 == $weappList['Cos']['status']) {
+            // 同步图片到COS
+            $CosData = json_decode($weappList['Cos']['data'], true);
+            $cosModel = new \weapp\Cos\model\CosModel;
+            $ResultCos = $cosModel->Synchronize($ossData, $images);
+            // 数据覆盖
+            if (!empty($ResultCos) && is_array($ResultCos)) {
+                $result['url'] = $ResultCos['url'];
+                $result['state'] = $ResultCos['state'];
+            }
         }
 
         return is_array($result) ? $result : [];
@@ -2480,6 +2544,10 @@ if (!function_exists('getAllArctypeCount'))
         $count_type = \think\Db::name('archives')->field("count(*) as count,typeid")->where($map_arc)->group("typeid")->select();
         $count_type = convert_arr_key($count_type,'typeid');
         foreach($info as $k=>$v){
+            if ('ask' == $v['nid']) {
+                continue;
+            }
+
             if (!isset($info[$k]['count'])){    //判断当前栏目的count是否已经存在
                 $info[$k]['count'] = 0;
             }
@@ -3050,7 +3118,7 @@ if (!function_exists('pay_success_logic'))
     /**
      * 支付成功的后置业务逻辑
      */
-    function pay_success_logic($users_id = 0, $order_code = '', $pay_details = [], $paycode = 'alipay') {
+    function pay_success_logic($users_id = 0, $order_code = '', $pay_details = [], $paycode = 'alipay', $notify = true) {
         $pay_method_arr = config('global.pay_method_arr');
 
         $OrderWhere = [
@@ -3091,12 +3159,16 @@ if (!function_exists('pay_success_logic'))
                 // 添加订单操作记录
                 AddOrderAction($orderData['order_id'], $orderData['users_id'], 0, 1, 0, 1, "支付成功", "使用{$pay_method_arr[$paycode]}完成支付");
 
+                // 发送站内信给后台
+                $orderData['pay_method'] = $pay_method_arr[$paycode];
+                SendNotifyMessage($orderData, 5, 1, 0);
+
                 // 虚拟自动发货
                 $PayModel = new \app\user\model\Pay;
                 $autoSendGoods = $PayModel->afterVirtualProductPay($orderData);
 
                 $data = [];
-                if (false === $autoSendGoods) {
+                if (false === $autoSendGoods && true === $notify) {
                     $users = \think\Db::name('users')->field('*')->find($orderData['users_id']);
                     // 邮箱发送
                     $data['email'] = GetEamilSendData(tpCache('smtp'), $users, $orderData, 1, $paycode);
@@ -3105,12 +3177,12 @@ if (!function_exists('pay_success_logic'))
                 }
 
                 // 订单操作完成，返回跳转
-                if ('alipay' == $paycode) {
-                    $url = url('user/Shop/shop_centre');
-                } else {
-                    $url = url('user/Shop/shop_centre');
-                    // $url = url('user/Shop/shop_order_details', ['order_id' => $orderData['order_id']]);
-                }
+                $url = url('user/Shop/shop_centre');
+                // if ('alipay' == $paycode) {
+                //     $url = url('user/Shop/shop_centre');
+                // } else {
+                //     $url = url('user/Shop/shop_order_details', ['order_id' => $orderData['order_id']]);
+                // }
 
                 if (true === $autoSendGoods) {
                     $msg = '支付订单完成！';
@@ -3151,3 +3223,220 @@ if (!function_exists('pay_success_logic'))
         }
     }
 }
+
+if (!function_exists('OrderServiceLog')) 
+{
+    /**
+     * 订单服务记录表
+     * 参数说明：
+     * $ServiceId 订单服务信息ID
+     * $OrderId   订单ID
+     * $UsersId   会员ID
+     * $AdminId   管理员ID
+     * $LogNote   记录信息
+     * 返回说明：
+     * return 无需返回
+     */
+    function OrderServiceLog($ServiceId = null, $OrderId = null, $UsersId = 0, $AdminId = 0, $LogNote = '会员提交退换货申请')
+    {
+        if (empty($ServiceId) || empty($OrderId)) return false;
+        /*使用余额支付时，同时添加一条记录到金额明细表*/
+        $Time = getTime();
+        $LogData = [
+            'service_id'  => $ServiceId,
+            'order_id'    => $OrderId,
+            'users_id'    => $UsersId,
+            'admin_id'    => $AdminId,
+            'log_note'    => $LogNote,
+            'add_time'    => $Time,
+            'update_time' => $Time,
+        ];
+        M('shop_order_service_log')->add($LogData);
+        /* END */
+    }
+}
+
+if (!function_exists('UsersMoneyRecording')) 
+{
+    /**
+     * 添加会员余额明细表
+     * 参数说明：
+     * $OrderCode  订单编号
+     * $UsersId    会员ID
+     * $UsersMoney 记录余额
+     * $Cause      订单状态，如过期，取消，退款，退货等
+     * 返回说明：
+     * return 无需返回
+     */
+    function UsersMoneyRecording($OrderCode = null, $UsersId = null, $UsersMoney = null, $Cause = '订单过期')
+    {
+        if (empty($OrderCode) || empty($UsersId) || empty($UsersMoney)) return false;
+        $Time = getTime();
+        /*使用余额支付时，同时添加一条记录到金额明细表*/
+        $UsersOldMoney = $UsersId['users_money'];
+        $UsersNewMoney = sprintf("%.2f", $UsersId['users_money'] += $UsersMoney);
+        $MoneyData = [
+            'users_id'     => $UsersId['users_id'],
+            'money'        => $UsersMoney,
+            'users_old_money'  => $UsersOldMoney,
+            'users_money'  => $UsersNewMoney,
+            'cause'        => $Cause.'，退还使用余额，订单号：' . $OrderCode,
+            'cause_type'   => 2,
+            'status'       => 3,
+            'pay_details'  => '',
+            'order_number' => $OrderCode,
+            'add_time'     => $Time,
+            'update_time'  => $Time,
+        ];
+        M('users_money')->add($MoneyData);
+        /* END */
+    }
+}
+
+if (!function_exists('GetScoreArray')) {
+    /**
+     * 评价转换星级评分
+     */
+    function GetScoreArray($total_score = 0)
+    {
+        $Result = [];
+        if (empty($total_score)) return $Result;
+        switch ($total_score) {
+            case '1':
+                // $Result = [0, 1, 2, 3, 4];
+                $Result = 5;
+                break;
+            case '2':
+                // $Result = [0, 1, 2];
+                $Result = 3;
+                break;
+            case '3':
+                // $Result = [0];
+                $Result = 1;
+                break;
+            default:
+                $Result = [];
+                break;
+        }
+        return $Result;
+    }
+}
+
+if (!function_exists('getTrueTypeid')) {
+    /**
+     * 在typeid传值为目录名称的情况下，获取栏目ID
+     */
+    function getTrueTypeid($typeid = '')
+    {
+        /*tid为目录名称的情况下*/
+        if (!empty($typeid) && strval($typeid) != strval(intval($typeid))) {
+            $typeid = \think\Db::name('arctype')->where([
+                    'dirname'   => $typeid,
+                    'lang'  => get_current_lang(),
+                ])->cache(true,EYOUCMS_CACHE_TIME,"arctype")
+                ->getField('id');
+        }
+        /*--end*/
+
+        return $typeid;
+    }
+}
+
+if (!function_exists('getTrueAid')) {
+    /**
+     * 在aid传值为自定义文件名的情况下，获取真实aid
+     */
+    function getTrueAid($aid = '')
+    {
+        /*aid为自定义文件名的情况下*/
+        if (!empty($aid) && strval($aid) != strval(intval($aid))) {
+            $aid = \think\Db::name('archives')->where([
+                    'htmlfilename'   => $aid,
+                    'lang'  => get_current_lang(),
+                ])->cache(true,EYOUCMS_CACHE_TIME,"archives")
+                ->getField('aid');
+        }
+        /*--end*/
+
+        return intval($aid);
+    }
+}
+
+if (!function_exists('SendNotifyMessage')) 
+{
+    /**
+     * 添加会员余额明细表
+     * 参数说明：
+     * $ContentArr  需要存入的通知内容
+     * $SendScene   发送来源
+     * $UsersID     会员ID
+     * $Cause      订单状态，如过期，取消，退款，退货等
+     * 返回说明：
+     * return 无需返回
+     */
+    function SendNotifyMessage($GetContentArr = [], $SendScene = 0, $AdminID = 0, $UsersID = 0, $UsersName = null)
+    {
+        // 存储数据为空则返回结束
+        if (empty($GetContentArr) || empty($SendScene)) return false;
+
+        // 查询通知模板信息
+        $tpl_where = [
+            'lang' => get_home_lang(),
+            'send_scene' => $SendScene
+        ];
+        $Notice = M('users_notice_tpl')->where($tpl_where)->find();
+
+        // 通知模板存在并且开启则执行
+        if (!empty($Notice) && !empty($Notice['tpl_title']) && 1 == $Notice['is_open']) {
+            if (in_array($SendScene, [1, 5])) {
+                $ContentArr = [];
+                if (1 == $SendScene) {
+                    // 留言表单
+                    $ContentArr = $GetContentArr;
+                } else if (5 == $SendScene) {
+                    // 订单付款
+                    $ContentArr = [
+                        '订单编号：' . $GetContentArr['order_code'],
+                        '订单总额：' . $GetContentArr['order_amount'],
+                        '支付方式：' . $GetContentArr['pay_method'],
+                        '手机号：' . $GetContentArr['mobile']
+                    ];
+                }
+
+                $Content = implode('<br/>', $ContentArr);
+                $ContentData = [
+                    'source'      => $SendScene,
+                    'admin_id'    => $AdminID,
+                    'users_id'    => $UsersID,
+                    'content_title' => $Notice['tpl_title'],
+                    'content'     => !empty($Content) ? $Content : '',
+                    'is_read'     => 0,
+                    'lang'        => get_home_lang(),
+                    'add_time'    => getTime(),
+                    'update_time' => getTime()
+                ];
+                M('users_notice_tpl_content')->add($ContentData);
+            } else if (6 == $SendScene) {
+                // 订单发货
+                $ContentArr = [
+                    '快递公司：' . $GetContentArr['express_name'],
+                    '快递单号：' . $GetContentArr['express_order'],
+                    '发货时间：' . date('Y-m-d H:i:s', $GetContentArr['express_time']),
+                ];
+
+                $Content = implode('<br/>', $ContentArr);
+                $ContentData = [
+                    'title'       => $Notice['tpl_title'],
+                    'users_id'    => $UsersID,
+                    'usernames'   => $UsersName,
+                    'remark'      => $Content,
+                    'lang'        => get_home_lang(),
+                    'add_time'    => getTime(),
+                    'update_time' => getTime()
+                ];
+                M('users_notice')->add($ContentData);
+            }
+        }
+    }
+}
+ 

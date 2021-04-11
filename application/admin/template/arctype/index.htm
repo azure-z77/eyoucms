@@ -73,7 +73,7 @@
                                 <div class="tc">所属模型</div>
                             </th>
                             <th axis="col2" class="w60">
-                                <div class="tc">隐藏</div>
+                                <div class="tc">显示</div>
                             </th>
                             <th axis="col1" class="w300">
                                 <div class="tc">操作</div>
@@ -143,6 +143,12 @@
                             {else /}
                                 {if condition="$vo['current_channel'] == 6"}
                                     <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                {elseif condition="$vo['current_channel'] == 51"}
+                                    {if condition="$php_servicemeal >= 2"}
+                                        <a href="{:url('Ask/index')}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                    {else /}
+                                        <a href="javascript:void(0);" class="btn grey" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                    {/if}
                                 {else /}
                                     {if condition="empty($channeltype_list[$vo['current_channel']]['ifsystem'])"}
                                         <a href="{:url('Custom/index',['channel'=>$vo['current_channel'],'typeid'=>$vo['id']])}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
@@ -162,9 +168,9 @@
                         <td align="center" class="">
                             <div class="w60 tc">
                             {if condition='$vo.is_hidden eq 1'}
-                                <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
-                            {else /}
                                 <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-ban"></i>否</span>
+                            {else /}
+                                <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}onClick="changeTableVal('arctype','id','{$vo.id}','is_hidden',this);"{/eq} ><i class="fa fa-check-circle"></i>是</span>
                             {/if}
                             </div>
                         </td>
@@ -178,6 +184,12 @@
                                     {else /}
                                         {if condition="$vo['current_channel'] == 6" /}
                                             <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue">内容</a>
+                                        {elseif condition="$vo['current_channel'] == 51"}
+                                            {if condition="$php_servicemeal >= 2"}
+                                                <a href="{:url('Ask/index')}" class="btn blue">内容</a>
+                                            {else /}
+                                                <a class="btn grey" href="javascript:void(0);">内容</a>
+                                            {/if}
                                         {else /}
                                             {if condition="empty($channeltype_list[$vo['current_channel']]['ifsystem'])"}
                                                 <a href="{:url('Custom/index',array('channel'=>$vo['current_channel'],'typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue">内容</a>
@@ -200,7 +212,7 @@
                                                 <a href="{:url('Arctype/add',array('parent_id'=>$vo['id']))}" class="btn blue">增加子栏目</a>
                                             {else /}
                                                 <i></i>
-                                                <a class="btn blue" title="不支持增加四级栏目">不支持增加</a>
+                                                <a class="btn grey" title="不支持增加四级栏目">不支持增加</a>
                                             {/if}
                                         {/if}
                                     {/if}

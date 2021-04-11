@@ -56,7 +56,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">发布时间</div>
                         </th>
-                        <th axis="col1" class="w180">
+                        <th axis="col1" class="w160">
                             <div class="tc">操作</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w60">
@@ -114,9 +114,9 @@
                             <td>
                                 <div class="tc w50">
                                     {if condition="$vo['arcrank'] eq -1"}
-                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-ban"></i>否</span>
+                                        <span class="no" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo|default='1'}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-ban"></i>否</span>
                                     {else /}
-                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-check-circle"></i>是</span>
+                                        <span class="yes" {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"} data-typeid="{$vo.typeid}" data-seo_pseudo="{$seo_pseudo|default='1'}" onclick="changeTableVal('archives','aid','{$vo.aid}','arcrank',this);" {/eq} ><i class="fa fa-check-circle"></i>是</span>
                                     {/if}
                                 </div>
                             </td>
@@ -130,15 +130,17 @@
                                     {$vo.add_time|date='Y-m-d',###}
                                 </div>
                             </td>
-                            <td class="">
-                                <div class="w180 tc">
+                            <td class="operation">
+                                <div class="w160 tc">
                                     {eq name="$Think.const.CONTROLLER_NAME.'@edit'|is_check_access" value="1"}
-                                    <a href="{:url('Media/edit',array('id'=>$vo['aid']))}" class="btn blue"><i class="fa fa-pencil-square-o"></i>编辑</a>
+                                    <a href="{:url('Media/edit',array('id'=>$vo['aid']))}" class="btn blue">编辑</a>
+                                    <i></i>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Media/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Media/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
+                                    <i></i>
                                     {/eq}
-                                    <a href="{$vo.arcurl}" target="_blank" class="btn blue"><i class="fa fa-pencil-square-o"></i>浏览</a>
+                                    <a href="{$vo.arcurl}" target="_blank" class="btn blue">浏览</a>
                                 </div>
                             </td>
                              <td class="sort">

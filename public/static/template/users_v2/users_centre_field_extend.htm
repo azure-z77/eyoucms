@@ -7,7 +7,7 @@
         </div>
         <div class="from-row-r">
             <div tabindex="0" class="input-file-show"  onclick="$('#upload_single_pic_{$vo.fieldArr}_{$vo.name|default=''}').trigger('click');" style="cursor: pointer;">
-                <img id="single_img_{$vo.fieldArr}_{$vo.name|default=''}" class="img-fluid img1_{$vo.fieldArr}_{$vo.name|default=''}" src="__PUBLIC__/static/common/images/not_upload_pic.png"/>
+                <img id="single_img_{$vo.fieldArr}_{$vo.name|default=''}" class="img-fluid img1_{$vo.fieldArr}_{$vo.name|default=''}" src="{$vo.info|default='__PUBLIC__/static/common/images/not_upload_pic.png'}"/>
             </div>
         </div>
         <input type="file" name="upload_single_pic" id="upload_single_pic_{$vo.fieldArr}_{$vo.name|default=''}" onchange="upload_single_pic_1609837252(this,'{$vo.fieldArr}_{$vo.name|default=''}')" style="display: none;">
@@ -42,6 +42,8 @@
                     elem: "#upload_{$vo.fieldArr}_{$vo.name|default=''}" //绑定元素
                     ,url: "{:url('user/Uploadify/DownloadUploadFileAjax')}"
                     ,accept: 'file' //普通文件
+                    ,exts: '{$vo.ext}'
+                    ,size: {$vo.filesize} //限制文件大小，单位 KB
                     ,done: function(res){
                         if (res.state=="SUCCESS"){
                             layer.msg('上传成功!')
