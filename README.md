@@ -18,7 +18,7 @@
 
 1. 在线浏览：http://demo.eyoucms.com
 2. 后台登录：http://demo.eyoucms.com/login.php
-3. Demo下载：http://www.eyoucms.com/plus/down.php
+3. Demo下载：http://www.eyoucms.com
 4. 更多模板：http://www.eyoucms.com/moban/
 
 #### 安装教程
