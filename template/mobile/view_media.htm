@@ -96,12 +96,15 @@
                         </div>
                         <div class="xl12 xs12">
                             <!-- 价格 -->
-                            <div class="video-period">
+                            <div class="video-period" id="video-period-20190425">
                                 {eyou:gt name="$eyou.field.users_price" value="0"}
-                                <div class="price text-white">￥{$eyou.field.users_price}</div>
-                                <div class="video-buy-now button button-big bg-yellow text-center radius-rounded text-middle" style="display:none;" id="BuyOnclick13579"></div>
-                                {eyou:else/}
-                                <div class="video-free-now button button-big bg-yellow text-center radius-rounded text-middle">免费</div>
+                                  {eyou:eq name="$eyou.field.users_free" value="0"}
+                                	<div class="price text-white">￥{$eyou.field.users_price}</div>
+                                  {eyou:else /}
+                                  <div class="video-buy-now button button-big bg-yellow text-center radius-rounded text-middle" id="Mianfei13579"></div>
+                                  {/eyou:eq}
+                                {eyou:else /}
+                                  <div class="video-free-now button button-big bg-yellow text-center radius-rounded text-middle" id="Mianfei13579">免费</div>
                                 {/eyou:gt}
                             </div>
                             <!-- 价格 end-->

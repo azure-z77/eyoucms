@@ -182,6 +182,10 @@
         $('.fa-refresh').click(function(){
             location.href = location.href;
         });
+
+        $('#postForm select[name=order_status]').change(function(){
+            $('#postForm').submit();
+        });
     });
 
     // 打开订单详情

@@ -122,7 +122,7 @@ article, aside, dialog, footer, header, section, footer, nav, figure, menu { dis
 .p15 { padding: 15px; }
 .p30 { padding: 30px; }
 .pt5 { padding-top: 5px; }
-.pt10 { padding-top: 10px; }
+.pb10 { padding-bottom: 10px !important; }
 .pt15 { padding-top: 15px; }
 .pt20 { padding-top: 20px; }
 .pt30 { padding-top: 30px; }
@@ -2006,7 +2006,62 @@ div.bot2 {
 	text-overflow:ellipsis;
 	white-space: nowrap;
 }
-
+.wx-tempalte .wx-template_wrap .part-selected{
+    position: relative;
+    border: 1px dashed #4caf50;
+}
+.wx-tempalte .wx-template_wrap .part-selected span{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 30px solid #4caf50;
+    border-left: 30px solid transparent;
+}
+.wx-tempalte .wx-template_wrap .part-selected span:before,
+.wx-tempalte .wx-template_wrap .part-selected span:after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    right: -10px;
+    color: black;
+    border: 1px solid #fff;
+    background-color: white;
+}
+.wx-tempalte .wx-template_wrap .part-selected span:before {
+    width: 1px;
+    height: 0px;
+    left: -12px;
+    top: 21px;
+    transform: skew(0deg, 50deg);
+}
+.wx-tempalte .wx-template_wrap .part-selected span:after {
+    width: 4px;
+    height: 0px;
+    left: -9px;
+    top: 20px;
+    transform: skew(0deg, -50deg);
+}
+.wx-tempalte .wx-tempalte-navson{
+    padding:5px;
+    background-color: #f4f4f4;
+    overflow: hidden;
+}
+.wx-tempalte .wx-tempalte-navson li a {
+    color: #666;
+    border-radius: 2px;
+    padding: 4px 10px;
+}
+.wx-tempalte .wx-tempalte-navson li {
+    float: left;
+    margin: 10px;
+}
+.wx-tempalte .wx-tempalte-navson .active{
+    background-color:#2ea8e6;
+    color: #fff;
+}
 /*插件列表*/
 .plug-list{
 	padding: 10px;

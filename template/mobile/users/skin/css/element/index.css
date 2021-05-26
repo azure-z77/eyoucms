@@ -14336,7 +14336,15 @@
     color: #e66a00;
     background-color: transparent
 }
-
+.z_roll{
+    display: flex !important;
+    flex-flow: row nowrap!important;
+    overflow-x: auto;
+    list-style: none;
+}
+.z_roll::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
+}
 .el-button-group {
     display: inline-block;
     vertical-align: middle

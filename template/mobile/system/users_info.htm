@@ -5,7 +5,7 @@
 </div>
 <div class="shopBar badge-corner">
 	<a href="{eyou:Diyurl link='user/Shop/shop_cart_list' /}" class="shop-ico">
-	<span class="badge bg-yellow">{$users.cart_num}</span>
+	{notempty name='$users.cart_num'}<span class="badge bg-yellow">{$users.cart_num}</span>{/notempty}
 	<i class="fa fa-shopping-cart" aria-hidden="true"></i>
 	</a>
 </div>

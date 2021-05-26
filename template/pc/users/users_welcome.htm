@@ -81,6 +81,7 @@
                                 <span class="title">收藏</span>
                                 <span class="link"><a href="{eyou:url link='user/Users/collection_index' /}">查看</a></span>
                             </div>
+                            {gt name='$php_servicemeal' value='1'}
                             <div class="data-info">
                                 <span class="num" id="users_scores">{$users.scores}</span>
                                 <span class="title">{$score_name}</span>
@@ -96,6 +97,7 @@
                                     {/if}
                                 </span>
                             </div>
+                            {/gt}
                             <div class="data-info">
                                 <span class="num">{$others.footprint_num}</span>
                                 <span class="title">足迹</span>
@@ -106,7 +108,7 @@
                 </div>
                 <!-- 数据统计 end-->
 
-                {if isset($usersConfig['shop_open']) && $usersConfig['shop_open'] == 1}
+                {if isset($usersConfig['shop_open']) && $usersConfig['shop_open'] == 1 && $php_servicemeal > 1}
                 <!-- 订单统计 -->
                 <div class=" main-bg">
                     <div class="column-title2">
@@ -115,22 +117,32 @@
                     <div class="el-main">
                         <div class="index-pay mt20">
                             {eyou:spstatus id="field3"}
-                            <div class="pay-item">
-                                <div class="pay-item-l">全部订单</div>
-                                <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre'/}">{$field3.All}</a></div>
-                            </div>
-                            <div class="pay-item">
-                                <div class="pay-item-l">待付款</div>
-                                <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=dzf'/}">{$field3.PendingPayment}</a></div>
-                            </div>
-                            <div class="pay-item">
-                                <div class="pay-item-l">待收货</div>
-                                <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=2'/}">{$field3.PendingReceipt}</a></div>
-                            </div>
-                            <div class="pay-item">
-                                <div class="pay-item-l">已完成</div>
-                                <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=3'/}">{$field3.Completed}</a></div>
-                            </div>
+                                <div class="pay-item">
+                                    <div class="pay-item-l">全部订单</div>
+                                    <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre'/}">{$field3.All}</a></div>
+                                </div>
+                                <div class="pay-item">
+                                    <div class="pay-item-l">待付款</div>
+                                    <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=dzf'/}">{$field3.PendingPayment}</a></div>
+                                </div>
+                                <div class="pay-item">
+                                    <div class="pay-item-l">待收货</div>
+                                    <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=2'/}">{$field3.PendingReceipt}</a></div>
+                                </div>
+                                <div class="pay-item">
+                                    <div class="pay-item-l">已完成</div>
+                                    <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=3'/}">{$field3.Completed}</a></div>
+                                </div>
+                                {eyou:egt name='$php_servicemeal' value='2'}
+                                    <div class="pay-item">
+                                        <div class="pay-item-l">售后</div>
+                                        <div class="pay-item-r"><a href="{eyou:url link='user/Shop/after_service'/}">{$field3.AfterService}</a></div>
+                                    </div>
+                                    <div class="pay-item">
+                                        <div class="pay-item-l">评价</div>
+                                        <div class="pay-item-r"><a href="{eyou:url link='user/ShopComment/index'/}">{$field3.CommentList}</a></div>
+                                    </div>
+                                {/eyou:egt}
                             {/eyou:spstatus}
                         </div>
                     </div>
@@ -157,14 +169,28 @@
                                 
                             </div>
                             {/if}
+                            {notempty name="$part_channel.download.status"}
                             <div class="plugs-item">
                                 <div class="plugs-item-l"><img src="{eyou:static file='users/skin/images/user-down-100x100.png' /}" /></div>
                                 <div class="plugs-item-r"><a href="{eyou:url link='user/Download/index' /}">我的下载</a></div>
                             </div>
-                            <div class="plugs-item">
-                                <div class="plugs-item-l"><img src="{eyou:static file='users/skin/images/user-video-100x100.png' /}" /></div>
-                                <div class="plugs-item-r"><a href="{eyou:url link='user/Users/media_index' /}">我的视频</a></div>
-                            </div>
+                            {/notempty}
+                            {gt name='$php_servicemeal' value='1'}
+                                {notempty name="$part_channel.media.status"}
+                                <div class="plugs-item">
+                                    <div class="plugs-item-l"><img src="{eyou:static file='users/skin/images/user-video-100x100.png' /}" /></div>
+                                    <div class="plugs-item-r"><a href="{eyou:url link='user/Users/media_index' /}">我的视频</a></div>
+                                </div>
+                                {/notempty}
+                            {/gt}
+                            {egt name='$php_servicemeal' value='2'}
+                                {notempty name="$part_channel.ask.status"}
+                                <div class="plugs-item">
+                                    <div class="plugs-item-l"><img src="{eyou:static file='users/skin/images/user-video-100x100.png' /}" /></div>
+                                    <div class="plugs-item-r"><a href="{eyou:url link='user/Ask/ask_index' /}">我的问答</a></div>
+                                </div>
+                                {/notempty}
+                            {/egt}
                             {notempty name="$others.weapp_menu_info"}
                                 {volist name="$others.weapp_menu_info" id="vo"}
                                     <div class="plugs-item">

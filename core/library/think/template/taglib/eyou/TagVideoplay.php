@@ -58,7 +58,7 @@ class TagVideoplay extends Base
             return false;
         } else {
             // 获取文档数据
-            $archives  = Db::name('archives')->where(['aid' => $aid])->field('users_price, arc_level_id')->find();
+            $archives  = Db::name('archives')->where(['aid' => $aid])->field('users_price, users_free, arc_level_id')->find();
             $UsersData = session('users');
             $UsersID   = $UsersData['users_id'];
 
@@ -97,13 +97,12 @@ class TagVideoplay extends Base
                         $val['file_url'] = handle_subdir_pic($val['file_url'], 'media', true);
                     }
 
-                    if (empty($val['gratis']) && 0 == $val['gratis']) {
+                    if (empty($val['gratis'])) {
                         if (empty($MediaOrder[$aid])) {
-                            if (0 < $archives['users_price']) {
+                            if (0 < $archives['users_price'] && empty($archives['users_free'])) {
                                 $val['file_url'] = '';
                             }
-
-                            if (0 < intval($archives['arc_level_id'])) {
+                            else if (0 < intval($archives['arc_level_id'])) {
                                 if (empty($UsersID)) {
                                     $val['file_url'] = '';
                                 } else {
@@ -133,10 +132,15 @@ class TagVideoplay extends Base
                 $result['hidden'] = <<<EOF
                 <input type="hidden" id="fid1616057948" value="{$this->fid}">
 <script type="text/javascript">
+    // if (window.jQuery) {
+    //     $('#{$from_id}').bind('contextmenu',function() { return false; });
+    // }
     if ('video' == document.getElementById('{$from_id}').tagName.toLowerCase()) {
         if (!document.getElementById('{$from_id}').controls) {
             document.getElementById('{$from_id}').controls = 'controls';
         }
+        document.getElementById('{$from_id}').setAttribute('controlslist', 'nodownload');
+        document.getElementById('{$from_id}').setAttribute('oncontextmenu', 'return false');
         {$autoplay_str}
     }
     /**记录播放时长**/
@@ -163,21 +167,25 @@ class TagVideoplay extends Base
         submitPlayRecord();
     });
     function submitPlayRecord() {
-        var fid = document.getElementById('fid1616057948').value;
-        // 步骤一:创建异步对象
-        var ajax = new XMLHttpRequest();
-        //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
-        ajax.open("post", "{$record_process_url}", true);
-        // 给头部添加ajax信息
-        ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
-        // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
-        ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        //步骤三:发送请求+数据
-        ajax.send('_ajax=1&aid=' + {$aid}+'&file_id=' + fid+'&timeDisplay='+timeDisplay);
-        //步骤四:注册事件 onreadystatechange 状态改变就会调用
-        ajax.onreadystatechange = function () {
-            
-        };
+        if (document.getElementById('fid1616057948')) {
+            var fid = document.getElementById('fid1616057948').value;
+            if (fid > 0) {
+                // 步骤一:创建异步对象
+                var ajax = new XMLHttpRequest();
+                //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
+                ajax.open("post", "{$record_process_url}", true);
+                // 给头部添加ajax信息
+                ajax.setRequestHeader("X-Requested-With","XMLHttpRequest");
+                // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
+                ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                //步骤三:发送请求+数据
+                ajax.send('_ajax=1&aid=' + {$aid}+'&file_id=' + fid+'&timeDisplay='+timeDisplay);
+                //步骤四:注册事件 onreadystatechange 状态改变就会调用
+                ajax.onreadystatechange = function () {
+                    
+                };
+            }
+        }
     }
    /**记录播放时长**/
 

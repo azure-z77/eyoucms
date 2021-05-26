@@ -218,9 +218,7 @@ class Media extends Base
     // 视频产品购买接口
     public function media_order_buy() {
         if (IS_AJAX_POST) {
-            // 判断会员是否登录
-            if (empty($this->users) || empty($this->users_id)) $this->error('请先登录！', url('user/Users/login'));
-
+            
             // 提交的订单信息判断
             $post = input('post.');
             if (empty($post) || empty($post['aid'])) $this->error('操作异常，请刷新重试');

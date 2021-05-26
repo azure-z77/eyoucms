@@ -299,6 +299,7 @@ class Field extends Model
                     }
                     case 'media':
                     {
+                        $val['dfvalue'] = $addonRow[$val['name']];
                         $ext = tpCache('basic.media_type');
                         $val['ext'] = !empty($ext) ? $ext : config('global.media_ext');
                         $val['filesize'] = upload_max_filesize();

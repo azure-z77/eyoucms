@@ -83,6 +83,7 @@ class MediaFile extends Model
                     if (!empty($v['file_id'])){
                         $file_ids[] = $v['file_id'];
                     }else{
+                        unset($v['file_id']);
                         $insert[] = $v;
                     }
                 }

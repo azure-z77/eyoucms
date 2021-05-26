@@ -214,7 +214,7 @@ class Ajax extends Base
      */
     public function get_token($name = '__token__')
     {
-        if (IS_AJAX) {
+        if (IS_AJAX && !preg_match('/^(admin_|users)/i', $name)) {
             echo $this->request->token($name);
             exit;
         } else {
@@ -747,7 +747,6 @@ class Ajax extends Base
     }
 
     /*
-     * 仅用于易小优视频模板
      * 视频权限播放逻辑
      */
     public function video_logic()
@@ -757,7 +756,7 @@ class Ajax extends Base
         if (IS_AJAX_POST && !empty($post['aid'])) {
 
             // 查询文档信息 
-            $field = 'a.aid, a.typeid, a.channel, a.users_price, a.users_free, b.level_id, b.level_name, b.level_value,a.arc_level_id';
+            $field = 'a.*,b.*,c.*';
             $where = [
                 'a.aid' => $post['aid'],
                 'a.is_del' => 0
@@ -766,6 +765,7 @@ class Ajax extends Base
                 ->alias('a')
                 ->field($field)
                 ->join('__USERS_LEVEL__ b', 'a.arc_level_id = b.level_id', 'LEFT')
+                ->join('__ARCTYPE__ c', 'c.id = a.typeid', 'LEFT')
                 ->where($where)
                 ->find();
 
@@ -773,15 +773,14 @@ class Ajax extends Base
                 // 获取用户最新信息
                 $UsersData = GetUsersLatestData();
                 $UsersID = $UsersData['users_id'];
-
                 $result['status_value'] = 0; // status_value 0-所有人免费 1-所有人付费 2-会员免费 3-会员付费
                 $result['status_name'] = ''; //status_name 要求会员等级时会员级别名称
                 $result['play_auth'] = 0; //播放权限
                 $result['vip_status'] = 0; //status_value=3时使用 vip_status=1则已升级会员暂未购买
 
                 /*是否需要付费*/
-                if (!empty($archivesInfo['users_price']) && 0 < $archivesInfo['users_price']) {
-                    if (0 == $archivesInfo['arc_level_id']){
+                if (0 < $archivesInfo['users_price'] && empty($archivesInfo['users_free'])) {
+                    if (empty($archivesInfo['arc_level_id'])){
                         //不限会员 付费
                         $result['status_value'] = 1;
                     }else{
@@ -791,10 +790,11 @@ class Ajax extends Base
                             $result['vip_status'] = 1;//已升级会员未购买
                         }
                     }
+
                     if (!empty($UsersID)) {
                         $where = [
-                            'users_id' => $UsersID,
-                            'product_id' => $post['aid'],
+                            'users_id' => intval($UsersID),
+                            'product_id' => intval($post['aid']),
                             'order_status' => 1
                         ];
                         // 存在数据则已付费
@@ -804,85 +804,94 @@ class Ajax extends Base
                             if (3 == $result['status_value']) {
                                 if (1 == $result['vip_status']){
                                     $result['play_auth'] = 1;
+                                    $result['vip_status'] = 3;//已升级会员已经购买
                                 }else{
                                     $result['play_auth'] = 0;
                                     $result['vip_status'] = 2;//未升级会员已经购买
                                 }
                             }else{
                                 $result['play_auth'] = 1;
+                                $result['vip_status'] = 4;//不限会员已经购买
                             }
                         }
                     }
-
-                    //会员免费
-                    if (1 == $archivesInfo['users_free']) {
-                        $result['status_value'] = 2;
-                        if ($archivesInfo['level_value'] <= $UsersData['level_value']){
-                            $result['play_auth'] = 1;
-                        }
-                    }
                 }else{
-                    if (0 < $archivesInfo['arc_level_id']) {
+                    if (0 < intval($archivesInfo['arc_level_id'])) { // 会员免费
                         $result['status_value'] = 2;
-                        if ($archivesInfo['level_value'] <= $UsersData['level_value']) {
+                        if (!empty($UsersID) && $archivesInfo['level_value'] <= $UsersData['level_value']) {
                             $result['play_auth'] = 1;
                         }
+                    } else { // 所有人免费
+                        $result['play_auth'] = 1;
                     }
                 }
                 /*END*/
+
                 /**注册会员免费但是没有登录*/
-//                if (!empty($archivesInfo['arc_level_id']) && empty($UsersData['level_value'])) {
-//                    $this->error('请先登录', url('user/Users/login'));
-//                }
-                if (0 == $result['status_value']){
-                    $result['play_auth'] = 1; // play_auth 0-没有播放权限 1-有播放权限
-                }
+                // if (empty($UsersID) && !empty($result['status_value'])) {
+                //     $this->error('请先登录', url('user/Users/login'));
+                // }
+
                 $where = [
-                    'users_id' => $UsersID,
-                    'product_id' => $post['aid'],
+                    'users_id' => intval($UsersID),
+                    'product_id' => intval($post['aid']),
                     'order_status' => 1
                 ];
                 // 存在数据则已付费
                 /*END*/
-                if (in_array($result['status_value'], [1,3])){
-                    $pay_count = Db::name('media_order')->where($where)->count();
+
+                $is_pay = 0;
+                if (in_array($result['status_value'], [1,3])){ // 所有人、会员付费
+                    $is_pay = Db::name('media_order')->where($where)->count();
                 }
-                if (in_array($result['status_value'], [2,3])){
+                $result['is_pay'] = $is_pay;
+
+                if (in_array($result['status_value'], [2,3])){ // 已满足会员级别要求
+                    $result['status_name'] = Db::name('users_level')->where('level_id', intval($archivesInfo['arc_level_id']))->value('level_name');
+                }
+
+/*
+                if (in_array($result['status_value'], [2,3])){ // 会员免费与会员付费
                     $result['status_name'] = Db::name('users_level')->where('level_id', $archivesInfo['arc_level_id'])->value('level_name');
                     $vip_status = 0;
                     if ($archivesInfo['level_value'] <= $UsersData['level_value']) {
-                        $vip_status = 1;
+                        $vip_status = 1; // 已满足会员级别要求
                     }
-                }
+                }*/
+
                 if ($result['status_value'] == 0){
                     $result['button'] = '免费';
-                }else if ($result['status_value'] == 1){
+                    $result['status_name'] = '免费';
+                }else if ($result['status_value'] == 1){ // 所有人付费
                     $result['button'] = '付费';
-                    if (!empty($pay_count)){
+                    if (!empty($is_pay)){
                         $result['button'] = '观看';
                     }
                 }else if ($result['status_value'] == 2){
                     $result['button'] = 'VIP';
-                    if (!empty($vip_status)){
+                    if (!empty($result['play_auth'])){
                         $result['button'] = '观看';
                     }
                 }else if ($result['status_value'] == 3){
-                    if(1 == $result['vip_value']){
-                        $result['button'] = '立即购买';
-                        $result['button_url'] = 'MediaOrderBuy_1592878548();';
-                    }elseif (1 == $result['vip_value']){
+                    // if(1 == $result['vip_status']){
+                    //     $result['button'] = '立即购买';
+                    //     $result['button_url'] = 'MediaOrderBuy_1592878548();';
+                    // }else
+                    if (2 == $result['vip_status']){
                         $result['button'] = 'VIP';
                         $result['button_url'] = "window.location.href = '" . url('user/Level/level_centre') . "'";
+                    } else if (3 == $result['vip_status']) {
+                        $result['button'] = '观看';
                     }else{
                         $result['button'] = 'VIP付费';
                         $result['button_url'] = "window.location.href = '" . url('user/Level/level_centre') . "'";
                     }
-                    if (!empty($pay_count) && !empty($vip_status)){
-                        $result['button'] = '观看';
-                    }
+                    // if (!empty($is_pay) && !empty($result['vip_status'])){
+                    //     $result['button'] = '观看';
+                    // }
                 }
                 if ('观看' == $result['button']){
-                    $result['button_url'] = url('home/View/index', ['aid' => $post['aid']]);
+                    $result['button_url'] = arcurl('home/Media/view', $archivesInfo);
                 }
 
                 $this->success('查询成功', null, $result);
@@ -1102,5 +1111,19 @@ class Ajax extends Base
             $this->error('今日已签过到', null);
         }
         abort(404);
+    }
+
+    /**
+     * 登录页面清除session多余文件
+     */
+    public function clear_session()
+    {
+        if (IS_AJAX_POST) {
+            \think\Session::pause(); // 暂停session，防止session阻塞机制
+            $ajaxLogic = new \app\admin\logic\AjaxLogic;
+            $ajaxLogic->clear_session_file();
+        } else {
+            abort(404);
+        }
     }
 }

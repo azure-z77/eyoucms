@@ -61,7 +61,7 @@ function WeChatPayment() {
                     WeChatInternal(res.data);
                 }
             } else {
-                layer.msg(res.msg, {icon: 5,time: 2000});
+                layer.alert(res.msg, {icon:0, title: false, closeBtn: 0});
             }
         }
     });
@@ -174,17 +174,19 @@ function SendEmail(result) {
 }
 
 // 支付方式选择
-function payTag(showContent,selfObj,type){
+function payTag(showContent, selfObj, type) {
     // 操作标签
     var tag = document.getElementById("payTags").getElementsByTagName("li");
     var taglength = tag.length;
-    for(i=0; i<taglength; i++){
+    for (i = 0; i < taglength; i++) {
         tag[i].className = "";
     }
     selfObj.parentNode.className = "payTag";
+
     // 操作内容
-    for(i=0; j=document.getElementById("paytagContent"+i); i++){
-        j.style.display = "none";
+    var LiDiv = document.getElementsByClassName('li_div');
+    for (i = 0; i < LiDiv.length; i++) {
+        LiDiv[i].style.display = "none";
     }
     document.getElementById(showContent).style.display = "block";
     

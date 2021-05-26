@@ -32,11 +32,12 @@
         }
         .ey-container .item-from-row .pay-type-item i {
             position: absolute;
-            right: 2px;
-            bottom: 2px;
+            right: 0;
+            bottom: 0;
             display: block;
             color: #fff;
             z-index: 12;
+			font-size: 10px;
             display: none;
         }
         .ey-container .item-from-row .pay-type-item.active:before{
@@ -47,8 +48,8 @@
             color: #1890FF;
             width: 0;
             height: 0;
-            border-bottom: 30px solid #1890FF;
-            border-left: 30px solid transparent;
+            border-bottom: 20px solid #1890FF;
+            border-left: 22px solid transparent;
             z-index: 10;
         }
         .ey-container .item-from-row .pay-type-item.active i{
@@ -158,7 +159,9 @@
     
     $(function(){
         $('input[name=money]').focus();
-
+        // 默认支付方式
+        var default_payment_type = $('#div_zhifufangshi .pay-type-item.active').attr('data-type');
+        $('input[name=payment_type]').val(default_payment_type);
         // 支付类型选择
         $('#div_zhifufangshi .pay-type-item').click(function(){
             $(this).siblings().removeClass('active').end().addClass('active');
@@ -196,12 +199,12 @@
                         $('#unified_id').val(res.data.unified_id);
                         $('#unified_number').val(res.data.unified_number);
                         $('#transaction_type').val(res.data.transaction_type);
-                    }else{
+                    } else {
                         SelectPayMethod_2(res.data.pay_id, res.data.pay_mark, res.data.unified_id, res.data.unified_number, res.data.transaction_type);
                     }
-                }else{
+                } else {
                     layer.closeAll();
-                    showErrorAlert(res.msg);
+                    showErrorAlert(res.msg, 0);
                 }
             },
             error : function(e) {

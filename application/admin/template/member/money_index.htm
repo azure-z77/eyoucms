@@ -11,7 +11,7 @@
                 {include file="member/order_bar" /}
             </div>
            
-            <form class="navbar-form form-inline" action="{:url('Member/money_index')}" method="get" onsubmit="layer_loading('正在处理');">
+            <form class="navbar-form form-inline" id="postForm" action="{:url('Member/money_index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
                 <div class="sDiv">
                     <div class="fl">
@@ -200,6 +200,10 @@
         // 点击刷新数据
         $('.fa-refresh').click(function(){
             location.href = location.href;
+        });
+
+        $('#postForm select[name=status]').change(function(){
+            $('#postForm').submit();
         });
     });
 

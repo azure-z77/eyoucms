@@ -117,10 +117,20 @@ EOF;
 <script type="text/javascript" src="{$root_dir}/public/static/common/js/view_arcrank.js?v={$version}"></script>
 EOF;
             if (5 == $channel) { // 只针对视频模型
-                $JsHtml .= '<script type="text/javascript">ey_1592981821();</script>';
+                $type = 'sp2';
+                if (strstr($params, 'VipFreeLearn20210201')) { // 易而优
+                    $type = 'sp3';
+                } else if (strstr($params, 'video-period-bottom')) {
+                    $type = 'sp1';
+                }
+                $JsHtml2 = "<script type='text/javascript'>video_sp_1618221427 = '{$type}';</script>";
+                $params = str_ireplace('</head>', $JsHtml2."\n</head>", $params);
+                
+                $JsHtml .= "<script type='text/javascript'>ey_1618221427('{$type}');</script>";
+                $params = str_ireplace('</body>', htmlspecialchars_decode($JsHtml)."\n</body>", $params);
+            } else {
+                $params = str_ireplace('</head>', htmlspecialchars_decode($JsHtml)."\n</head>", $params);
             }
-            // 追加替换JS
-            $params = str_ireplace('</head>', htmlspecialchars_decode($JsHtml)."\n</head>", $params);
         }
     }
 }

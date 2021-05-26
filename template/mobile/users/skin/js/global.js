@@ -9,6 +9,19 @@ function showErrorAlert(msg, icon){
     layer.alert(msg, {icon: icon, title: false, closeBtn: false});
 }
 
+function showMbErrorMsg(msg){
+    layer.open({
+        content: msg
+        ,skin: 'footer'
+    });
+}
+function showMbErrorAlert(msg){
+    layer.open({
+        content: '<font color="red">提示：'+msg+'</font>'
+        ,btn: '确定'
+    });
+}
+
 /*
  * 上传图片 后台专用
  * @access  public
@@ -101,6 +114,71 @@ function GetUploadify_mobile(num,url)
             return false;
         }
     });
+}
+
+// 上传头像
+function upload_head_pic(e){
+    var file = $(e)[0].files[0];
+    if (!file) {
+        return false;
+    }
+    var formData = new FormData();
+    formData.append('file',file);
+    formData.append('_ajax',1);
+    LoaDing('正在处理');
+    $.ajax({
+        type: 'post',
+        url: eyou_basefile + "?m=user&c=Uploadify&a=imageUp",
+        data: formData,
+        contentType: false,
+        processData: false,
+        dataType: 'json',
+        success: function (res) {
+            if (res.state == 'SUCCESS') {
+                $.ajax({
+                    url: eyou_basefile + "?m=user&c=Users&a=edit_users_head_pic",
+                    data: {filename:res.url, _ajax:1},
+                    type:'post',
+                    dataType:'json',
+                    success:function(res2){
+                        layer.closeAll();
+                        if (1 == res2.code) {
+                            $('#ey_head_pic_a').attr('src', res2.data.head_pic);
+                            layer.open({
+                                content: res2.msg,
+                                skin: 'msg',
+                                time: 2,
+                            });
+                        } else {
+                            showMbErrorAlert(res2.msg);
+                        }
+                    },
+                    error : function(e) {
+                        layer.closeAll();
+                        showMbErrorAlert(e.responseText);
+                    }
+                });
+            } else {
+                layer.closeAll();
+                showMbErrorAlert(res.state);
+            }
+        },
+        error : function(e) {
+            layer.closeAll();
+            showMbErrorAlert(e.responseText);
+        }
+    })
+}
+
+// 提示动画
+function LoaDing(msg){
+    if (!msg) msg = '正在处理';
+    var loading = layer.open({
+        type:2,
+        content: msg,
+    });
+
+    return loading;
 }
 
 // 加载层

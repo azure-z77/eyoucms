@@ -53,7 +53,7 @@
                             {eyou:sppayapilist id='vo'}
                                 {eyou:notempty name="$vo.pay_id"}
                                     {neq name="$vo.pay_mark" value="Hupijiaopay"}
-                                        <label class="radio-label pl0 e-label" data-type="zxzf_{$vo.pay_mark}">
+                                        <label class="radio-label pl0 e-label {eq name='$key' value='0'} active {/eq}" data-type="zxzf_{$vo.pay_mark}">
                                             {eyou:php}$pay_mark_vars = "users/skin/images/".$vo['pay_mark'].".png";{/eyou:php}
                                             <span><img class="pay_img" src="{eyou:empty name='$vo.pay_img'}{eyou:static file='$pay_mark_vars' /}{eyou:else/}{$vo.pay_img}{/eyou:empty}" alt="{$vo.pay_name}">{$vo.pay_name} </span>
                                             <input class="radio" type="radio" name='pay_id' value="{$vo.pay_id}" {eq name='$key' value='0'} checked="checked" {/eq}>
@@ -107,7 +107,9 @@
     
     $(function(){
         $('input[name=money]').focus();
-
+        // 默认支付方式
+        var default_payment_type = $('#div_zhifufangshi .radio-label').attr('data-type');
+        $('input[name=payment_type]').val(default_payment_type);
         // 支付类型选择
         $('#div_zhifufangshi .radio-label').click(function(){
             $('input[name=payment_type]').val($(this).data('type'));

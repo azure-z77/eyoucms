@@ -55,7 +55,7 @@
 #mobile-mask{position:relative;z-index:1;background:#FFF;overflow-x:hidden;overflow-y:hidden;}
 .offcanvas-visible #mobile-mask {-moz-transform:translateX(-275px);-webkit-transform:translateX(-275px);-ms-transform:translateX(-275px);-o-transform:translateX(-275px);transform:translateX(-275px);}
 #m-header .nav {display:block;}
-#m-header {background:#383838;display:block;height:100%;right:0;overflow-y:auto;position:relative;position:fixed;z-index:1;top:0;width:275px;border:0;}
+#m-header {background:#383838;display:none;height:100%;right:0;overflow-y:auto;position:relative;position:fixed;z-index:1;top:0;width:275px;border:0;}
 #m-header ul li{width:100%}
 #m-header ul li:hover,#m-header ul li.current {background:#383838}
 #m-header ul li a {line-height:49px;border-bottom:1px solid #404040;font-size:18px;color:#F2F2F2;font-weight:normal;display:block;position:relative;padding:0px 0 0 50px;}
@@ -64,7 +64,7 @@
 #m-header ul li ul li a,#m-header ul li.current ul li a {background:#ff9600;border-bottom:1px solid #FFB133;color:#FFF;font-size:16px;line-height:40px;padding:5px 50px;text-align:left;display:block;}
 #m-header ul li ul li a:hover {background:#ff9600;color:#FFF;border-bottom:1px solid #ff9600;}
 #m-header ul li ul li a::before,#m-header ul li ul li a::after {background:none;height:0;padding:0}
-
+.offcanvas-visible #m-header{display: block}
 /* 手机导航面包ico begin */
 .m-toggle {position:relative;cursor:pointer;text-decoration:none;position:absolute;top:50%;right:20px;z-index:99999;display:block;margin:-11px auto 0;cursor:pointer;}
 .m-toggle.active i::before,.m-toggle.active i::after {}

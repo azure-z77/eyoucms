@@ -42,7 +42,7 @@
             <td class="data-password">
               <input type="password" name="dbpw" id="dbpw" value="" class="input" autoComplete="off" onBlur="TestDbPwd(0)">
               <div id="J_install_tip_dbpw"></div>
-              <span class="password-icon show pass-showhide" data-name="dbpw"></span>
+              <span class="password-icon hide pass-showhide" data-name="dbpw"></span>
             </td>
           </tr>
           <tr>
@@ -68,7 +68,7 @@
             <td class="data-password">
               <input type="password" name="manager_pwd" id="manager_pwd" class="input" autoComplete="off">
               <div id="J_install_tip_manager_pwd"></div>
-              <span class="password-icon show pass-showhide" data-name="manager_pwd"></span>
+              <span class="password-icon hide pass-showhide" data-name="manager_pwd"></span>
             </td>
           </tr>
           <tr>
@@ -76,7 +76,7 @@
             <td class="data-password">
               <input type="password" name="manager_ckpwd" id="manager_ckpwd" class="input" autoComplete="off">
               <div id="J_install_tip_manager_ckpwd"></div>
-              <span class="password-icon show pass-showhide" data-name="manager_ckpwd"></span>
+              <span class="password-icon hide pass-showhide" data-name="manager_ckpwd"></span>
             </td>
           </tr>
           
@@ -336,11 +336,11 @@
     $('.pass-showhide').toggle(function(){
         var name = $(this).data('name');
         $("input[name="+name+"]").get(0).type="text";
-        $(this).removeClass('show').addClass('hide');
+        $(this).removeClass('hide').addClass('show');
     }, function(){
         var name = $(this).data('name');
         $("input[name="+name+"]").get(0).type="password";
-        $(this).removeClass('hide').addClass('show');
+        $(this).removeClass('show').addClass('hide');
     });
     
     // $('.pass-showhide').on('mousedown', function(){

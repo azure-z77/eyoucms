@@ -375,7 +375,9 @@ a:focus,
 .mt100 {
     margin-top: 100px !important;
 }
-
+.ml0 {
+    margin-left: unset !important;
+}
 .ml10 {
     margin-left: 10px !important;
 }
@@ -398,6 +400,10 @@ a:focus,
 
 .mb10 {
     margin-bottom: 10px !important;
+}
+
+.mb15 {
+    margin-bottom: 15px !important;
 }
 
 .mb20 {
@@ -2388,9 +2394,8 @@ a:focus,
 }
 
 .recharge .pc-vip-list {
-    height: 80px;
     position: relative;
-    padding: 0 20px;
+    padding: 10px 20px;
     background-color: #fff;
     border: #eee 1px solid;
     margin-bottom: 15px;
@@ -2398,8 +2403,9 @@ a:focus,
 }
 
 .recharge .pc-vip-list2 {
-    float: left;
-    height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .recharge .pc-vip-list.active {
@@ -2425,18 +2431,16 @@ a:focus,
     font-weight: 700;
     font-size: 18px;
     color: #ff7600;
-    padding-top: 17px;
-    padding-bottom: 5px;
-    line-height: 22px;
 }
 
 .recharge .pc-vip-list .money {
-    font-size: 28px;
+    display: flex;
+    padding: 6px 0;
+    align-items: center;
+    width: 100%;
+    font-size: 20px;
     color: #ff7600;
     font-weight: 700;
-    float: right;
-    height: 80px;
-    line-height: 80px;
 }
 
 .recharge .pc-vip-list .money em {
@@ -2448,14 +2452,14 @@ a:focus,
 .recharge .pc-vip-list .money-nd-yj {
     font-size: 14px;
     color: #999;
-    line-height: 20px;
+    margin-right: 10px;
 }
 
-.recharge .pc-vip-list .money .money-nd-yj,
+/* .recharge .pc-vip-list .money .money-nd-yj,
 .recharge .pc-vip-list .money .money-bn-yj,
 .recharge .pc-vip-list .money .money-yd-yj {
     text-decoration: line-through;
-}
+} */
 
 .btfx {
     position: fixed;
@@ -3076,3 +3080,12 @@ a:focus,
     background: #0f97ff;
    
 }
+
+/* 评价星星 */
+.z_comment-star {display: inline-block;width: 78px;height: 14px;background: url(../images/star.png) no-repeat}
+.z_star0 {background-position: -80px 0}
+.z_star1 {background-position: -64px 0}
+.z_star2 {background-position: -48px 0}
+.z_star3 {background-position: -32px 0}
+.z_star4 {background-position: -16px 0}
+.z_star5 {background-position: 0 0}

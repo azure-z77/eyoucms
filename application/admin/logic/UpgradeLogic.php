@@ -60,7 +60,10 @@ class UpgradeLogic extends Model
 
         $url = $this->upgrade_url; 
         $context = stream_context_set_default(array('http' => array('timeout' => 5,'method'=>'GET')));
-        $serviceVersionList = @file_get_contents($url,false,$context);    
+        $serviceVersionList = @file_get_contents($url,false,$context);
+        if (false === $serviceVersionList) {
+            $serviceVersionList = httpRequest($url);
+        }
         $serviceVersionList = json_decode($serviceVersionList,true);
         if(!empty($serviceVersionList))
         {
@@ -114,7 +117,10 @@ class UpgradeLogic extends Model
         }
         
         $context = stream_context_set_default(array('http' => array('timeout' => 5, 'method' => 'GET')));
-        $serviceVersionList = @file_get_contents($this->upgrade_url, false, $context);    
+        $serviceVersionList = @file_get_contents($this->upgrade_url, false, $context);
+        if (false === $serviceVersionList) {
+            $serviceVersionList = httpRequest($this->upgrade_url);
+        }
         $serviceVersionList = json_decode($serviceVersionList, true);
         if(!empty($serviceVersionList)) {
             /* 插件过期则执行 */
@@ -170,7 +176,10 @@ class UpgradeLogic extends Model
      */
     public  function checkSecurityOrder() {
         $context = stream_context_set_default(array('http' => array('timeout' => 5, 'method' => 'GET')));
-        $SecurityOrder = @file_get_contents($this->upgrade_url . '&get_order=1', false, $context);    
+        $SecurityOrder = @file_get_contents($this->upgrade_url . '&get_order=1', false, $context);
+        if (false === $SecurityOrder) {
+            $SecurityOrder = httpRequest($this->upgrade_url);
+        }
         $SecurityOrder = json_decode($SecurityOrder, true);
         if (!empty($SecurityOrder)) return $SecurityOrder;
     }
@@ -190,6 +199,9 @@ class UpgradeLogic extends Model
         }
 
         $serviceVersionList = @file_get_contents($this->upgrade_url);
+        if (false === $serviceVersionList) {
+            $serviceVersionList = httpRequest($this->upgrade_url);
+        }
         if (false === $serviceVersionList) {
             return ['code' => 0, 'msg' => "无法连接远程升级服务器！"];
         } else {
@@ -485,6 +497,9 @@ class UpgradeLogic extends Model
         if (false === $content) {
             $fileUrl = str_replace('http://service', 'https://service', $fileUrl);
             $content = @file_get_contents($fileUrl, 0, null, 0, 1);
+            if (false === $content) {
+                $content = httpRequest($fileUrl);
+            }
         }
 
         if(!$content){
@@ -540,7 +555,7 @@ class UpgradeLogic extends Model
         // api_Service_upgradeLog
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT11cGdyYWRlTG9nJg==';
         $url = base64_decode($this->service_ey).base64_decode($tmp_str).http_build_query($vaules);
-        @file_get_contents($url);
+        httpRequest($url);
     }
 } 
 ?>

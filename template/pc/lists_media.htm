@@ -62,9 +62,13 @@
 									<ul>
 										<li class="v2-1 text-yellow float-left">
 											{eyou:gt name="$field.users_price" value="0"}
-											<span class="Conv_DINCondensedC text-big">￥{$field.users_price}</span>
+												<span class="Conv_DINCondensedC text-big">￥{$field.users_price}</span>
 											{eyou:else/}
-											免费
+												{eyou:eq name="$field.arc_level_id" value="0"}
+													免费
+												{eyou:else/}
+													VIP
+												{/eyou:eq}
 											{/eyou:gt}
 											<!-- {$field.users_free} -->
 										</li>

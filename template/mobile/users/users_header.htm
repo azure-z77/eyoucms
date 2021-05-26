@@ -104,65 +104,6 @@
     </script>
     <!-- 头像上传结束 -->
 
-    <!-- 弹出侧边栏 -->
-    <div id="wrapper">
-        <div class="overlay" style="display: none;"></div>
-        <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper">
-              <div class="sidebar-header d-flex align-items-center">
-                <div class="avatar">
-                    <a href="javascript:void(0);">
-                        <img id="head_pic_a" class="img-fluid rounded-circle" style="width: 100%;" src="{$users.head_pic|get_head_pic=###}" {eyou:eq name='is_mobile' value='1'} onClick="GetUploadify_mobile(1)" {eyou:else/} onClick="GetUploadify(1,'','allimg','head_pic_call_back_mobile')" {/eyou:eq}/>
-                    </a>
-                    <input type="hidden" name="head_pic" id="head_pic" value="{$users.head_pic}">
-                </div>
-                <div class="title">
-                  <h1 class="h4">{$nickname}</h1>
-                  <p>{$users.level_name}</p>
-                </div>
-              </div>
-            <div class="list-group">
-                <!-- 插件菜单 -->
-                {eyou:include file="/public/static/template/users/users_leftmenu.htm" /}
-                <!-- 插件菜单 -->
-                <li class="list-group-item ">
-                    <a href="{eyou:url link='user/Users/logout' /}" class="list-group-item">退出登录</a>
-                </li>
-            </div>
-        </nav>
-    </div>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-          var trigger  = $('.hamburger'),
-              overlay  = $('.overlay'),
-              isClosed = false;
-
-            trigger.click(function () {
-                hamburger_cross();      
-            });
-
-            function hamburger_cross() {
-                if (isClosed == true) {
-                    overlay.hide();
-                    trigger.removeClass('is-open');
-                    trigger.addClass('is-closed');
-                    isClosed = false;
-                    window.location.reload();
-                } else {
-                    overlay.show();
-                    trigger.removeClass('is-closed');
-                    trigger.addClass('is-open');
-                    isClosed = true;
-                }
-            }
-          
-            $('[data-toggle="offcanvas"]').click(function () {
-                $('#wrapper').toggleClass('toggled');
-            });
-        });
-    </script>
-    <!-- 弹出侧边栏结束 -->
-
 <!-- 头像默认更换路径 -->
 <script type="text/javascript">
     var GetUploadify_url = "{eyou:url link='user/Uploadify/upload' /}";

@@ -110,10 +110,10 @@
 							  </div>
 							  <div class="from-row-r">
 								  <div class="images_upload_main" id="tab_imgupload">
-									  <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="el-button el-button--primary is-plain el-button--small" title="拖动修改排序">
+									  <!-- <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="el-button el-button--primary is-plain el-button--small" title="拖动修改排序">
 										  <i class="el-icon-picture"></i>上传图片
-									  </a>
-                                      <div class="sort-list mt20 images_upload_list">
+									  </a> -->
+                                      <div class="sort-list images_upload_list" >
                                           {volist name="imgupload_list" id="vo" key="k"}
                                           <div class="images_upload">
                                               <div class="images_upload_item">
@@ -121,7 +121,7 @@
                                                   <a href="{$vo['image_url']}" onclick="" target="_blank" title="拖动修改排序">
                                                       <img src="{$vo['image_url']}" width="120" height="120">
                                                   </a>
-                                                  <a href="javascript:void(0)" onclick="ClearPicArr2(this,'{$vo['image_url']}')" class="delete">删除</a>
+                                                  <a href="javascript:void(0)" onclick="ClearPicArr2(this,'{$vo['image_url']}')" class="delete" title="删除"></a>
                                               </div>
                                               <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 120px;" placeholder="图片注释" title="标签调用：{literal}{$field.intro}{/literal}">{$vo.intro}</textarea>
                                           </div>
@@ -129,6 +129,10 @@
                                           <div class="images_upload">
                                           </div>
                                       </div>
+                                      <a href="javascript:void(0);" onClick="GetUploadify(30,'','allimg','imgupload_call_back');" class="img-upload" title="点击上传">
+                                          <div class="y-line"></div>
+                                          <div class="x-line"></div>
+                                      </a>
 								  </div>
 								  <!-- 上传图片显示的样板 start -->
 								  <div class="images_upload_tpl none">
@@ -138,7 +142,7 @@
 											  <a href="javascript:void(0);" onClick="" title="拖动修改排序">
 												  <img src="__STATIC__/admin/images/add-button.jpg" width="120" height="120" />
 											  </a>
-											  <a href="javascript:void(0)" class="delete">&nbsp;&nbsp;</a>
+											  <a href="javascript:void(0)" class="delete" title="删除">&nbsp;&nbsp;</a>
 										  </div>
 										  <textarea rows="5" cols="60" name="imgintro[]" style="height:28px; width: 120px;" placeholder="图片注释" ></textarea>
 
@@ -209,7 +213,7 @@
 									  $(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
 									  $(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
 									  $(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-									  $(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"ClearPicArr2(this,'"+paths[i]+"')").text('删除');
+									  $(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"ClearPicArr2(this,'"+paths[i]+"')").text('');
 									  $(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
 								  }
                                       

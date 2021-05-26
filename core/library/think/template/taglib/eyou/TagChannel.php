@@ -64,15 +64,16 @@ class TagChannel extends Base
         if (empty($typeid)) {
             /*应用于没有指定tid的列表，默认获取该控制器下的第一级栏目ID*/
             // http://demo.eyoucms.com/index.php/home/Article/lists.html
-            $controller_name = request()->controller();
-            $channeltype_info = model('Channeltype')->getInfoByWhere(array('ctl_name'=>$controller_name), 'id');
-            $channeltype = $channeltype_info['id'];
             $map = array(
-                'channeltype'   => $channeltype,
                 'parent_id' => 0,
                 'is_hidden' => 0,
                 'status'    => 1,
             );
+            $controller_name = request()->controller();
+            $channeltype_info = model('Channeltype')->getInfoByWhere(array('ctl_name'=>$controller_name), 'id');
+            if (!empty($channeltype_info)) {
+                $map['channeltype'] = $channeltype_info['id'];
+            }
             $typeid = Db::name('arctype')->where($map)->order('sort_order asc')->limit(1)->getField('id');
             /*--end*/
         }

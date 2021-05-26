@@ -219,7 +219,7 @@ class Weapp extends Base
             'pid'   => $this->php_servicemeal,
             'domain'=>$this->request->host(true),
         ];
-        $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=myplugin';
+        $url       = 'http://plugins.eyoucms.com/user/ajax_memberplugin.php?action=myplugin';
         $response  = httpRequest2($url, 'POST', $post_data);
         $params    = json_decode($response, true);
         if (empty($params['code'])) {
@@ -1156,7 +1156,7 @@ class Weapp extends Base
     {
         $is_pay    = input('param.is_pay/d', 0);
         $keywords  = input('param.keywords/s', 0);
-        $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=plugin';
+        $url       = 'http://plugins.eyoucms.com/user/ajax_memberplugin.php?action=plugin';
         $post_data = [
             'page'      => input('param.p/d', 1),
             'is_pay'    => $is_pay,
@@ -1269,7 +1269,7 @@ class Weapp extends Base
                 'cms_version' => $cms_version,
                 'pid'   => $this->php_servicemeal,
             ];
-            $url       = 'https://www.eyoucms.com/user/ajax_memberplugin.php?action=verify';
+            $url       = 'http://plugins.eyoucms.com/user/ajax_memberplugin.php?action=verify';
             $response  = httpRequest2($url, 'POST', $post_data);
             $params    = json_decode($response, true);
 

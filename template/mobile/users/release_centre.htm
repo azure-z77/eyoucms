@@ -112,7 +112,7 @@
                                     <td class="border-b-n" style="width: 20%;">
                                         <div class="list_z">
                                             <a class="el-button el-button--primary is-plain el-button--small" href="javascript:void(0);"
-                                                onclick="BatchDelData(this, 'ids');" data-url="{$eyou.field.delurl}">批量删除</a>
+                                                onclick="BatchDelData(this, 'aids');" data-url="{$eyou.field.delurl}">批量删除</a>
                                         </div>
                                     </td>
                                     <td class="border-b-n" style="width: 70%;"></td>
@@ -190,6 +190,7 @@
                 // 删除按钮
                 layer.confirm('确认批量彻底删除？', {
                     title: false,
+                    closeBtn: false,
                     btn: ['确定', '取消'] //按钮
                 }, function() {
                     layer_loading('正在处理');

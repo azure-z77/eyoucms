@@ -132,7 +132,8 @@ class AjaxLogic extends Model
             $files = glob($path.'/sess_*');
             foreach ($files as $key => $file) {
                 $filemtime = filemtime($file);
-                if (getTime() - intval($filemtime) > $web_login_expiretime) {
+                $filesize = filesize($file);
+                if (empty($filesize) || getTime() - intval($filemtime) > $web_login_expiretime) {
                     @unlink($file);
                 }
             }

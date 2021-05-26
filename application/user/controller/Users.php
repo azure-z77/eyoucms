@@ -42,11 +42,6 @@ class Users extends Base
     // 会员中心首页
     public function index()
     {
-        /*清理过期的data/session文件*/
-        $ajaxLogic = new \app\admin\logic\AjaxLogic;
-        $ajaxLogic->clear_session_file();
-        /*end*/
-
         if (1 == config('global.opencodetype')) {
             return action('user/Users/index2');
         }
@@ -122,7 +117,28 @@ class Users extends Base
 
         $this->assign('bottom_menu_list', $bottom_menu_list);
 
-        return $this->fetch('users_welcome');
+        $clear_session_url = $this->root_dir."/index.php?m=api&c=Ajax&a=clear_session";
+        $replace = <<<EOF
+    <script type="text/javascript">
+        clear_session();
+        function clear_session()
+        {
+            $.ajax({
+                url: "{$clear_session_url}",
+                type: 'post',
+                dataType: 'JSON',
+                data: {_ajax: 1},
+                success: function(res){
+                }
+            });
+        }
+    </script>
+</body>
+EOF;
+        $html = $this->fetch('users_welcome');
+        $html = str_ireplace('</body>', $replace, $html);
+
+        return $html;
     }
 
     // 个人信息

@@ -45,7 +45,14 @@
 						</div>
 					</div>
 					<!-- END -->
-
+					<div class="el-row oper-row">
+						<div class="el-col-12 oper-row-l">
+							<div class="el-button-group">
+								<a href="{:url('user/Users/media_index')}" class="cursor-pointer el-button {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Users' && $Think.const.ACTION_NAME == 'media_index'} el-button--primary {/if}" >视频订单</a>
+								<a href="{:url('user/Media/play_index')}" class="cursor-pointer el-button {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Media' && $Think.const.ACTION_NAME == 'play_index'} el-button--primary {/if}" >播放记录</a>
+							</div>
+						</div>
+					</div>
 					<div class="el-table el-table--fit el-table--enable-row-hover el-table--enable-row-transition mt20" style="width: 100%;">
 
 						<table >

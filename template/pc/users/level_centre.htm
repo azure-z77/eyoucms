@@ -93,9 +93,8 @@
                                 </div>
                             </div>
                             {/eyou:empty}
-                            <div class="el-row mt40 pl20">
+                            <div class="el-row mt40 pl20" id="div_zhifufangshi">
                                 <div class="el-form level-row">
-                                    
                                     <!-- 支付API列表，套板请务必将整块代码一起复制，包含隐藏域 -->
                                     <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.3.2.js"></script>
                                     {eyou:sppayapilist id='vo'}
@@ -104,7 +103,7 @@
                                                 <label class="radio-label">
                                                     {eyou:php}$pay_mark_vars = "users/skin/images/".$vo['pay_mark'].".png";{/eyou:php}
                                                     <span><img src="{eyou:empty name='$vo.pay_img'}{eyou:static file='$pay_mark_vars' /}{eyou:else/}{$vo.pay_img}{/eyou:empty}" alt="{$vo.pay_name}"></span>
-                                                    <input class="radio" type="radio" name='pay_id' value="{$vo.pay_id}">
+                                                    <input class="radio" type="radio" name='pay_id' value="{$vo.pay_id}" {eyou:eq name="$key" value="0"} checked {/eyou:eq}>
                                                     <span class="check-mark"></span>
                                                     <input type="hidden" name='pay_mark[{$vo.pay_id}]' value="{$vo.pay_mark}">
                                                 </label>
@@ -116,12 +115,14 @@
                                     <input type="hidden" id="PayMark">
                                     <input type="hidden" id="PayType">
                                     <!-- END -->
-                                    <label class="radio-label">
-                                        <span class="hint hint-top" data-hint="拥有余额：￥{$users.users_money}"><img src="{eyou:static file='users/skin/images/pay_yiyou.png' /}" alt="余额支付"></span>
-                                        <input  class="radio" type="radio" checked name='pay_id' value="0">
-                                        <span class="check-mark"></span>
-                                        <input  type="hidden" checked name='pay_mark[0]' value="balance">
-                                    </label>
+                                    {eyou:eq name="$eyou.field.pay_balance_open" value="1"}
+                                        <label class="radio-label">
+                                            <span class="hint hint-top" data-hint="拥有余额：￥{$users.users_money}"><img src="{eyou:static file='users/skin/images/pay_yiyou.png' /}" alt="余额支付"></span>
+                                            <input class="radio" type="radio" name='pay_id' value="0" id="balance_pay_id">
+                                            <span class="check-mark"></span>
+                                            <input type="hidden" name='pay_mark[0]' value="balance">
+                                        </label>
+                                    {/eyou:eq}
                                 </div>
                             </div>
                             <div class="el-row mt20 ">
@@ -148,5 +149,15 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(function(){
+        // 默认支付方式
+        var default_pay_id = $('#div_zhifufangshi').find('input[name=pay_id]:checked').length;
+        if (default_pay_id == 0) {
+            $('#balance_pay_id').attr("checked","checked");
+        }
+    });
+</script>
 
 {eyou:include file="users/users_footer.htm" /}

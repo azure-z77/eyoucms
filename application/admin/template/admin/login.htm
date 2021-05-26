@@ -92,6 +92,19 @@
                 $(".formText").blur(function(){
                     $(this).prev().hide();
                 });
+
+                clear_session();
+                function clear_session()
+                {
+                    $.ajax({
+                        url: "{:url('api/Ajax/clear_session')}",
+                        type: 'post',
+                        dataType: 'JSON',
+                        data: {_ajax: 1},
+                        success: function(res){
+                        }
+                    });
+                }
             });
 
             $(function(){

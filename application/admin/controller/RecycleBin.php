@@ -407,10 +407,13 @@ class RecycleBin extends Base
                     // 多语言处理逻辑
                     if (is_language()) {
                         $attr_name_arr = 'tid'.$row['id'];
-                        $id_arr = Db::name('language_attr')->where([
+                        $id_arr_tmp = Db::name('language_attr')->where([
                                 'attr_name'  => $attr_name_arr,
                                 'attr_group' => 'arctype',
                             ])->column('attr_value');
+                        if (!empty($id_arr_tmp)) {
+                            $id_arr = $id_arr_tmp;
+                        }
                         
                         $list = $this->arctype->field('id,del_method')
                             ->where([
@@ -507,10 +510,13 @@ class RecycleBin extends Base
                     // 多语言处理逻辑
                     if (is_language()) {
                         $attr_name_arr = 'tid'.$row['id'];
-                        $id_arr = Db::name('language_attr')->where([
+                        $id_arr_tmp = Db::name('language_attr')->where([
                             'attr_name'  => $attr_name_arr,
                             'attr_group' => 'arctype',
                         ])->column('attr_value');
+                        if (!empty($id_arr_tmp)) {
+                            $id_arr = $id_arr_tmp;
+                        }
 
                         $list = $this->arctype->field('id,del_method')
                             ->where([
@@ -994,10 +1000,13 @@ class RecycleBin extends Base
                 foreach ($id_arr as $key => $val) {
                     array_push($attr_name_arr, 'attr_'.$val);
                 }
-                $id_arr = Db::name('language_attr')->where([
+                $id_arr_tmp = Db::name('language_attr')->where([
                         'attr_name'  => ['IN', $attr_name_arr],
                         'attr_group' => 'product_attribute',
                     ])->column('attr_value');
+                if (!empty($id_arr_tmp)) {
+                    $id_arr = $id_arr_tmp;
+                }
             }
 
             $row = $this->product_attribute->field('attr_id, attr_name')
@@ -1141,10 +1150,13 @@ class RecycleBin extends Base
                 foreach ($id_arr as $key => $val) {
                     array_push($attr_name_arr, 'attr_'.$val);
                 }
-                $id_arr = Db::name('language_attr')->where([
+                $id_arr_tmp = Db::name('language_attr')->where([
                         'attr_name'  => ['IN', $attr_name_arr],
                         'attr_group' => 'guestbook_attribute',
                     ])->column('attr_value');
+                if (!empty($id_arr_tmp)) {
+                    $id_arr = $id_arr_tmp;
+                }
             }
 
             $row = $this->guestbook_attribute->field('attr_id, attr_name')

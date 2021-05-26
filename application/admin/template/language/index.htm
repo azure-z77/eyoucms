@@ -135,7 +135,7 @@
                                     <a href="{:U('Language/edit',array('id'=>$vo['id']))}" class="btn blue">编辑</a>
                                     {/eq}
 
-                                    {eq name='$main_lang' value='$admin_lang'}
+                                    {if condition="$vo['is_home_default'] == 1 OR $vo['mark'] == $main_lang"}
                                         <i></i>
                                         <a class="btn grey"  href="javascript:void(0);" data-id="{$vo.admin_id}">删除</a>
                                     {else /}
@@ -143,7 +143,7 @@
                                         <i></i>
                                         <a class="btn red"  href="javascript:void(0)" data-url="{:U('Language/del')}" data-id="{$vo.id}" onClick="delfun(this);">删除</a>
                                         {/eq}
-                                    {/eq}
+                                    {/if}
                                 </div>
                             </td>
                             <td class="sort">

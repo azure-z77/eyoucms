@@ -20,55 +20,55 @@
 </head>
 
 <body>
-	{eyou:include file="users/users_header.htm" /}
-	<!-- 头部信息 -->
-	<div class="ey-header-status">
-		<div class="header-status-l">
-			<a href="javascript:history.go(-1)"><i class="el-icon-arrow-left"></i></a>
-		</div> 
-		<div class="header-status-m">个人设置</div> 
-		<div class="header-status-r">
-			<a href="{eyou:url link='user/Users/index' /}"><i class="el-icon-user"></i></a>
-		</div>
-	</div>
-	<!-- 头部信息结束 -->
-	<div class="h50"></div>
-	<div class="ey-container">
-		<div class="item-list">
-			<div class="item">
-				<div class="item-l">
-					<div class="face">
-						<div  class="el-upload el-upload--text">
-							<img id="head_pic_a" src="{$users.head_pic|get_head_pic=###}" {eyou:eq name='is_mobile' value='1'} onClick="GetUploadify_mobile(1)" {eyou:else/} onClick="GetUploadify(1,'','allimg','head_pic_call_back_mobile')" {/eyou:eq}/>
-							<span title="编辑头像" class="el-icon-edit-outline"></span>
-							<input type="hidden" name="head_pic" id="head_pic" value="{$users.head_pic}">
-						</div>
-					</div>
-				</div> 
-				
-				<div class="item-m fs16">{$nickname}</div> 
-				<div class="item-r"><span class="member fs16">{$users.level_name}</span></div>
-			</div>
-		</div>
+    {eyou:include file="users/users_header.htm" /}
+    <!-- 头部信息 -->
+    <div class="ey-header-status">
+        <div class="header-status-l">
+            <a href="javascript:history.go(-1)"><i class="el-icon-arrow-left"></i></a>
+        </div> 
+        <div class="header-status-m">个人设置</div> 
+        <div class="header-status-r">
+            <a href="{eyou:url link='user/Users/index' /}"><i class="el-icon-user"></i></a>
+        </div>
+    </div>
+    <!-- 头部信息结束 -->
+    <div class="h50"></div>
+    <div class="ey-container">
+        <div class="item-list">
+            <div class="item">
+                <div class="item-l">
+                    <div class="face">
+                        <div  class="el-upload el-upload--text" onclick="$('#ey_head_pic').trigger('click');">
+                            <img id="ey_head_pic_a" src="{$users.head_pic|get_head_pic=###}"/>
+                            <span title="编辑头像" class="el-icon-edit-outline"></span>
+                        </div>
+                        <input type="file" name="ey_head_pic" id="ey_head_pic" onchange="upload_head_pic(this)" style="display: none;">
+                    </div>
+                </div> 
+                
+                <div class="item-m fs16">{$nickname}</div> 
+                <div class="item-r"><span class="member fs16">{$users.level_name}</span></div>
+            </div>
+        </div>
         <div class="ey-con ey-row mt10">
-        	<div class="item-from-flex">
-        		
-        		<div class="item-flex wb25">
-        			<div class="item-tit fs16">
-        				{$eyou.field.title}
-        			</div>
-        		</div>
+            <div class="item-from-flex">
+                
+                <div class="item-flex wb25">
+                    <div class="item-tit fs16">
+                        {$eyou.field.title}
+                    </div>
+                </div>
                 
                 <div class="item-flex-r flex wb75 fs16 tar_z">
                     {$users.username}
                 </div>
-        		<div class="item-flex-r">
-        			<i class="el-icon-arrow-right"></i>
-        		</div>
-        	</div>
+                <div class="item-flex-r">
+                    <i class="el-icon-arrow-right"></i>
+                </div>
+            </div>
         </div>
         <div class="ey-con ey-row mt10">
-        	<div class="item-from-flex">
+            <div class="item-from-flex">
                     
                     <div class="item-flex wb25">
                         <div class="item-tit fs16">
@@ -80,46 +80,46 @@
                             <input type="text" name="password_edit" id="password_edit" autocomplete="off" placeholder="留空时默认不修改密码" class="input-text fs16 tar_z">
                         </div>
                     </div>
-        		<div class="item-flex-r">
-        			<i class="el-icon-arrow-right"></i>
-        		</div>
-        	</div>
+                <div class="item-flex-r">
+                    <i class="el-icon-arrow-right"></i>
+                </div>
+            </div>
         </div>
         <form name='theForm' id="theForm">
             <div class="ey-con ey-row mt10">
-            	<div class="item-from-flex">
-            		<div class="item-flex wb25">
-            			<div class="item-tit fs16">
-            				我的昵称
-            			</div>
+                <div class="item-from-flex">
+                    <div class="item-flex wb25">
+                        <div class="item-tit fs16">
+                            我的昵称
+                        </div>
                     </div>
                     <div class="item-flex-r flex wb75">
-            			<div class="item-con wb100">
+                        <div class="item-con wb100">
                             <input type="text" name="nickname" value="{$users.nickname}" class="input-text fs16 tar_z">
-            			</div>
-            		</div>
-            		<div class="item-flex-r">
-            			<i class="el-icon-arrow-right"></i>
-            		</div>
-            	</div>
+                        </div>
+                    </div>
+                    <div class="item-flex-r">
+                        <i class="el-icon-arrow-right"></i>
+                    </div>
+                </div>
             </div>
             {eyou:empty name="$users.password"}
             <div class="ey-con ey-row mt10">
-            	<div class="item-from-flex">
-            		<div class="item-flex wb25">
-            			<div class="item-tit fs16">
-            				设置密码
-            			</div>
+                <div class="item-from-flex">
+                    <div class="item-flex wb25">
+                        <div class="item-tit fs16">
+                            设置密码
+                        </div>
                     </div>
                     <div class="item-flex-r flex wb75">
-            			<div class="item-con wb100">
+                        <div class="item-con wb100">
                             <input type="text" name="password" id="password" class="input-text tar_z" placeholder="微信注册用户，请设置密码">
-            			</div>
-            		</div>
-            		<div class="item-flex-r">
-            			<i class="el-icon-arrow-right"></i>
-            		</div>
-            	</div>
+                        </div>
+                    </div>
+                    <div class="item-flex-r">
+                        <i class="el-icon-arrow-right"></i>
+                    </div>
+                </div>
             </div>
             {/eyou:empty}
             <!-- 更多资料中的会员属性 -->
@@ -310,7 +310,7 @@
             </form>
         </div>
     </div>
-		
+        
     <script type="text/javascript">
         // 绑定、更换邮箱
         function BindEmailMobile(title)

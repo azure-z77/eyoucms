@@ -85,6 +85,11 @@
 									</td>
 									<td><div class="cell">
 										<a  href="javascript:void(0);" data-arurl="{$vo.arcurl}" onclick="ArcUrl(this);">
+											{eyou:empty name='$vo.litpic' /}
+											<img src="__PUBLIC__/static/common/images/not_adv.jpg" style="max-height: 25px;max-width: 25px;">
+											{eyou:else /}
+											<img src="{$vo.litpic}" style="max-height: 25px;max-width: 25px;">
+											{/eyou:empty}
 											{$vo.title}
 										</a></div>
 									</td>
@@ -117,6 +122,9 @@
 											<i class="el-icon-delete"></i> 批量删除
 										</a>
 									</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
 								</tr>
 							</tbody>
 						</table>

@@ -38,6 +38,22 @@
 
 
 <div class="ey-container">
+    <div class="ey-con mb10 mt10">
+        <div class="ey-row">
+            <div class="el-col-24 oper-row mb15" >
+                <!-- 导航栏 -->
+                <div class="el-button-group z_roll">
+                    <a class="el-button el-button--default el-button--small {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Users' && $Think.const.ACTION_NAME == 'media_index'}active{/if}" data-toggle="tab" href="{eyou:url link='user/Users/media_index' /}">
+                        视频订单
+                    </a>
+                    <a class="el-button el-button--default el-button--small {if $Think.const.MODULE_NAME == 'user' && $Think.const.CONTROLLER_NAME == 'Media' && $Think.const.ACTION_NAME == 'play_index'}active{/if}" data-toggle="tab" href="{eyou:url link='user/Media/play_index' /}">
+                        播放记录
+                    </a>
+                </div>
+                <!-- 导航栏结束 -->
+            </div>
+        </div>
+    </div>
 	<div class="ey-con">
 		<div class="ey-row">
 			<!-- 中部 -->

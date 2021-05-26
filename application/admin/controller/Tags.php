@@ -20,59 +20,64 @@ class Tags extends Base
 {
     public function index()
     {
-        /*纠正tags标签的文档数*/
-        $this->correct();
-        /*end*/
-
         $list = array();
         $keywords = input('keywords/s');
-
         $condition = array();
         if (!empty($keywords)) {
             $condition['tag'] = array('LIKE', "%{$keywords}%");
         }
-
         // 多语言
         $condition['lang'] = array('eq', $this->admin_lang);
 
         $tagsM =  M('tagindex');
-        $count = $tagsM->where($condition)->count('id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = $tagsM->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
 
-        $show = $Page->show();// 分页显示输出
-        $this->assign('page',$show);// 赋值分页输出
-        $this->assign('list',$list);// 赋值数据集
-        $this->assign('pager',$pager);// 赋值分页对象
+        // 查询分页
+        $count = $tagsM->where($condition)->count('id');
+        $Page = $pager = new Page($count, config('paginate.list_rows'));
+        $show = $Page->show();
+        $this->assign('page', $show);
+        $this->assign('pager', $pager);
+
+        // 查询ID数组，用于纠正本页TAG文档书
+        $IndexID = $tagsM->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->column('id');
+
+        // 纠正tags标签的文档数
+        $this->correct($IndexID);
+    
+        // 查询TAG数据
+        $list = $tagsM->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->select();
+        $this->assign('list', $list);
 
         $source = input('param.source/s');
         $this->assign('source', $source);
-
         return $this->fetch();
     }
  
     public function tag_list()
     {
-        /*纠正tags标签的文档数*/
-        $this->correct();
-        /*end*/
-
         // 多语言
         $condition['lang'] = array('eq', $this->admin_lang);
 
         $tagsM =  M('tagindex');
 
+        // 查询分页
         $count = $tagsM->where($condition)->count('id');
         $Page = $pager = new Page($count, 100);
         $show = $Page->show();
+        $this->assign('page', $show);
+        $this->assign('pager', $pager);
 
+        // 查询ID数组，用于纠正本页TAG文档书
+        $IndexID = $tagsM->where($condition)->order($order)->limit($Page->firstRow.','.$Page->listRows)->column('id');
+
+        // 纠正tags标签的文档数
+        $this->correct($IndexID);
+
+        // 查询TAG数据
         $order = 'total desc, id desc, monthcc desc, weekcc desc';
         $list = $tagsM->where($condition)->order($order)->limit($Page->firstRow . ',' . $Page->listRows)->select();
         
-        $this->assign('page',$show);
-        $this->assign('list',$list);
-        $this->assign('pager',$pager);
-
+        $this->assign('list', $list);
         return $this->fetch();
     }
 
@@ -190,10 +195,14 @@ class Tags extends Base
     /**
      * 纠正tags文档数
      */
-    private function correct()
+    private function correct($IndexID = [])
     {
+        $where = [
+            'tid' => ['IN', $IndexID],
+            'lang' => $this->admin_lang
+        ];
         $taglistRow = Db::name('taglist')->field('count(tid) as total, tid, add_time')
-            ->where(['lang'=>$this->admin_lang])
+            ->where($where)
             ->group('tid')
             ->getAllWithIndex('tid');
         $updateData = [];

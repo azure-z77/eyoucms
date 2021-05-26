@@ -59,9 +59,7 @@
 						</div>
 
 					   <div class="order-progress-con">
-							{eyou:if condition="-1 != $field.order_status"}
-							{eyou:if condition="4 != $field.order_status"}
-							
+							{eyou:if condition="-1 != $field.order_status && 4 != $field.order_status"}
 							    <div class="order-status pt50 pb50">
 									{eyou:empty name="$field.add_time"}
 										<div class="status-item disabled">
@@ -152,7 +150,6 @@
 									{/eyou:empty}
 								</div>  
 							{/eyou:if}
-							{/eyou:if}
 						</div>
 						<div class="order-progress-tit2">
 							<div class="order-progress-titL">商品明细</div>
@@ -183,7 +180,12 @@
 																</div>
 																<div class="goods-item-r fl">
 																	<div class="cell">
-																		<a class="fc3" target="_blank" href="{$field2.arcurl}" title="{$field2.product_name}">{$field2.product_name}</a>
+																		<a class="fc3" target="_blank" href="{$field2.arcurl}" title="{$field2.product_name}">
+																			{$field2.product_name}
+																			{eyou:eq name="$field2.has_deleted" value="1"}
+																				<span style="color: red;">{$field2.msg_deleted}</span>
+																			{/eyou:eq}
+																		</a>
 																		<div class="info mt5">
 																			<!-- 商品参数 -->
 																			{$field2.new_data}

@@ -176,17 +176,11 @@ class System extends Base
             } else {
                 unset($param['web_mobile_domain']);
             }
-
             /*EyouCMS安装目录*/
             empty($param['web_cmspath']) && $param['web_cmspath'] = $this->root_dir; // 支持子目录
             $web_cmspath = trim($param['web_cmspath'], '/');
             $web_cmspath = !empty($web_cmspath) ? '/'.$web_cmspath : '';
             $param['web_cmspath'] = $web_cmspath;
-            /*--end*/
-            /*插件入口*/
-            // $web_weapp_switch = $param['web_weapp_switch'];
-            // $web_weapp_switch_old = tpCache('web.web_weapp_switch');
-            /*--end*/
             /*自定义后台路径名*/
             $adminbasefile = trim($param['adminbasefile']).'.php'; // 新的文件名
             $param['web_adminbasefile'] = $this->root_dir.'/'.$adminbasefile; // 支持子目录
@@ -199,38 +193,13 @@ class System extends Base
             /*--end*/
             $param['web_sqldatapath'] = '/'.trim($param['web_sqldatapath'], '/'); // 数据库备份目录
             $param['web_htmlcache_expires_in'] = intval($param['web_htmlcache_expires_in']); // 页面缓存有效期
-
-            /*后台LOGO*/
-            // $web_adminlogo = $param['web_adminlogo'];
-            // $web_adminlogo_old = tpCache('web.web_adminlogo');
-            // if ($web_adminlogo != $web_adminlogo_old && !empty($web_adminlogo)) {
-            //     $source = preg_replace('#^'.$this->root_dir.'#i', '', $web_adminlogo); // 支持子目录
-            //     $web_is_authortoken = tpCache('web.web_is_authortoken');
-            //     if (-1 == $web_is_authortoken) {
-            //         $destination = '/public/static/admin/images/logo_ey.png';
-            //     } else {
-            //         $destination = '/public/static/admin/images/logo.png';
-            //     }
-
-            //     /*修复copy一句话图片木马漏洞*/
-            //     $image_ext = config('global.image_ext');
-            //     $image_ext_arr = explode(',', $image_ext);
-            //     $source_ext = pathinfo('.'.$source, PATHINFO_EXTENSION);
-            //     if (!empty($source_ext) && !in_array($source_ext, $image_ext_arr)) {
-            //         $this->error('上传图片扩展名错误！');
-            //     }
-            //     /*end*/
-
-            //     if (@copy('.'.$source, '.'.$destination)) {
-            //         $param['web_adminlogo'] = $this->root_dir.$destination;
-            //     }
-            // }
-            /*--end*/
-
             /*后台登录超时*/
             $web_login_expiretime = $param['web_login_expiretime'];
             $web_login_expiretime = preg_replace('/^(\d{0,})(.*)$/i', '${1}', $web_login_expiretime);
             empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
+            if ($web_login_expiretime > 2592000) {
+                $web_login_expiretime = 2592000; // 最多一个月
+            }
             $param['web_login_expiretime'] = $web_login_expiretime;
             /*--end*/
             
@@ -289,12 +258,6 @@ class System extends Base
             if ($web_tpl_theme != $web_tpl_theme_old) {
                 delFile(rtrim(RUNTIME_PATH, '/'), true);
             }
-
-            /*更改之后，需要刷新后台的参数*/
-            // if (false && $web_weapp_switch_old != $web_weapp_switch) {
-            //     $refresh = true;
-            // }
-            /*--end*/
             
             /*刷新整个后台*/
             if ($refresh) {
@@ -316,12 +279,6 @@ class System extends Base
         // 数据库备份目录
         $sqlbackuppath = config('DATA_BACKUP_PATH');
         $this->assign('sqlbackuppath', $sqlbackuppath);
-        // 后台logo
-        // if (-1 == $config['web_is_authortoken']) {
-        //     $config['web_adminlogo'] = $this->root_dir.'/public/static/admin/images/logo_ey.png';
-        // } else {
-        //     $config['web_adminlogo'] = $this->root_dir.'/public/static/admin/images/logo.png';
-        // }
         // 当前域名是否IP或者localhost本地
         $is_localhost = 0;
         if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $this->request->host(true)) || 'localhost' == $this->request->host(true)) {

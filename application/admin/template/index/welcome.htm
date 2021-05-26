@@ -70,7 +70,7 @@
                          <ul>
                             {volist name='$quickMenu' id='vo'}
                             <li>
-                               <a href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}"><p class="navs">{$vo.title}</p></a>
+                                <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}"><p class="navs">{$vo.title}</p></a>
                             </li>
                             {/volist}
                             <li>
@@ -87,7 +87,7 @@
                          <ul>
                             {volist name='$contentTotal' id='vo' length='9'}
                             <li>
-                               <a href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}">
+                               <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}">
                                    <h2>{$vo.title}</h2>
                                    <p><cite>{$vo.total|default='0'}</cite></p>
                                </a>
@@ -103,6 +103,12 @@
                      </div>
                 </div>
             </div>
+            <script type="text/javascript">
+                function GoLocation(obj) {
+                    layer_loading('正在加载');
+                    window.location.href = $(obj).data('href');
+                }
+            </script>
             <div class="section system_section" style="float: none;width: inherit;">
                 <div class="system_section_con">
                     <div class="sc_title" style="padding: 26px 0 14px;">

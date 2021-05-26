@@ -174,16 +174,17 @@
 										<a href="{$field2.arcurl}"><img src="{$field2.litpic}"></a>
 									</div>
 									<div class="item-con-m">
-										<a href="{$field2.arcurl}">{$field2.product_name}</a>
-										<div class="info mt5">
-											{$field2.new_data}
-											
-										</div>
+										<a href="{$field2.arcurl}">
+											{$field2.product_name}
+											{eyou:eq name="$field2.has_deleted" value="1"}
+												<span style="color: red;">{$field2.msg_deleted}</span>
+											{/eyou:eq}
+										</a>
+										<div class="info mt5"> {$field2.new_data} </div>
 									</div>
 									<div class="item-con-r">
 										<span class="price_flag">￥</span><span>{$field2.product_price}</span>
 										<p class="number">x{$field2.num}</p>
-										
 									</div>
 								</div>
 								{/eyou:spordergoods}
@@ -194,7 +195,6 @@
 								<span>订单金额：￥{$field.TotalAmount}元</span>
 								<span class="red">实付金额：￥{$field.order_amount}元</span>
 							</div>
-							
 						</div>
 					</div>		
 				</div>	

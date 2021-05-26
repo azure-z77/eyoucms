@@ -22,7 +22,7 @@
          </ul>
     </div>
     <div class="ey-header-r">
-
+        {egt name='$php_servicemeal' value='1'}
         <div class="right-item user-news">
             <a href="{:url('user/UsersNotice/index')}">
                 {gt name="$unread_num" value="0"}
@@ -31,6 +31,7 @@
                 <span class="icon"><i class="el-icon-bell"></i></span>
             </a>
         </div>
+        {/egt}
         <div class="right-item user-photo">
             <img src="{$users.head_pic|get_head_pic=###}"/>
             <div class="user-drop">
