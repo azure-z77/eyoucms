@@ -7,22 +7,29 @@
 #### 软件架构
 1. 这是基于thinkphp5+小程序+layui研发的一套简易CMS企业建站系统，包含完整后台管理、前台展示。
 
+#### 后台截图
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/201959_68da4d3c_1283764.png "QQ截图20210527180818.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202013_1f40ab6d_1283764.png "QQ截图20210527200858.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202020_d7db394a_1283764.png "QQ截图20210527201250.png")
+
+#### 海量模板
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202459_9da3e8ed_1283764.png "QQ截图20210527202316.png")
+
+#### 海量插件
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202517_83f915ea_1283764.png "QQ截图20210527202153.png")
+
+#### 效果演示
+1. 在线浏览：http://demo.eyoucms.com
+2. 后台登录：http://demo.eyoucms.com/login.php
+3. Demo下载：http://www.eyoucms.com
+4. 更多模板：http://www.eyoucms.com/moban/
+
 #### 软件优点
 1. 易用：使用易优你可以用它十分钟搭建一个企业网站，后台简单易用。
 2. 完善：易优基本包含了一个常规企业网站需要的一切功能。
 3. 扩展性：易优亦可通过插件库支持更多功能，如阿里短信或小程序等第三方扩展。
 4. 丰富的资料：作为一个国内cms，易优拥有完善的帮助文档及标签手册。
 5. 丰富的模版：易优拥有大量免费的漂亮模版，涵盖各行各业，任用户自由选择。
-
-#### 效果演示
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/201959_68da4d3c_1283764.png "QQ截图20210527180818.png")
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202013_1f40ab6d_1283764.png "QQ截图20210527200858.png")
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202020_d7db394a_1283764.png "QQ截图20210527201250.png")
-
-1. 在线浏览：http://demo.eyoucms.com
-2. 后台登录：http://demo.eyoucms.com/login.php
-3. Demo下载：http://www.eyoucms.com
-4. 更多模板：http://www.eyoucms.com/moban/
 
 #### 安装教程
 1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
