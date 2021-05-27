@@ -15,6 +15,9 @@
 5. 丰富的模版：易优拥有大量免费的漂亮模版，涵盖各行各业，任用户自由选择。
 
 #### 效果演示
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/201959_68da4d3c_1283764.png "QQ截图20210527180818.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202013_1f40ab6d_1283764.png "QQ截图20210527200858.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0527/202020_d7db394a_1283764.png "QQ截图20210527201250.png")
 
 1. 在线浏览：http://demo.eyoucms.com
 2. 后台登录：http://demo.eyoucms.com/login.php
@@ -22,10 +25,8 @@
 4. 更多模板：http://www.eyoucms.com/moban/
 
 #### 安装教程
-
 1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
 2. 安装 Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
 
 #### 参与贡献
-
 1. 赞赞团队
