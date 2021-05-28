@@ -41,8 +41,8 @@
 4. 免费模板：http://www.eyoucms.com/moban/
 
 #### 安装教程
-1. 本地使用 Eyoucms 搭建网站步骤：http://www.eyoucms.com/doc/operation/ruheanzhuang/584.html
-2. 安装 Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
+1. 新手必读：https://www.eyoucms.com/help/azwt/2020/1012/11028.html
+2. 安装Eyoucms系统：http://www.eyoucms.com/doc/operation/ruheanzhuang/583.html
 
 #### 参与贡献
 1. 赞赞团队
