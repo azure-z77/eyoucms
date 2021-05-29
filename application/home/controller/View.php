@@ -473,11 +473,14 @@ EOF;
         $data['onclick'] = "if (document.getElementById('ey_login_id_1609665117')) {\$('#ey_login_id_1609665117').trigger('click');}else{window.location.href = '" . url('user/Users/login') . "';}";
         $data['button']  = '点击登录！';
         $data['users_id']  = $UsersID;
-        // 未登录则提示
-        if (empty($UsersID)) $this->error('请先登录！', url('user/Users/login'), $data);
+
+        $arc_level_id = !empty($result['arc_level_id']) ? intval($result['arc_level_id']) : 0;
+        if (!empty($arc_level_id)) {
+            // 未登录则提示
+            if (empty($UsersID)) $this->error('请先登录！', url('user/Users/login'), $data);
+        }
 
         if (empty($result['gratis'])) {
-            $arc_level_id = !empty($result['arc_level_id']) ? intval($result['arc_level_id']) : 0;
             /*是否需要付费*/
             if (0 < $result['users_price'] && empty($result['users_free'])) {
                 $Paid = 0; // 未付费
@@ -638,11 +641,14 @@ EOF;
             if ((0 < $res['users_price'] && empty($res['users_free'])) || 0 < $res['arc_level_id']) {
                 $UsersData = GetUsersLatestData();
                 $UsersID   = !empty($UsersData['users_id']) ? intval($UsersData['users_id']) : 0;
-                if (empty($UsersID)) return ['status'=>1,'msg'=>'请先登录','url'=>url('user/Users/login','', true, false, 1, 1),'is_mobile'=>$is_mobile];
+
+                $arc_level_id = !empty($res['arc_level_id']) ? intval($res['arc_level_id']) : 0;
+                if (!empty($arc_level_id)) {
+                    if (empty($UsersID)) return ['status'=>1,'msg'=>'请先登录','url'=>url('user/Users/login','', true, false, 1, 1),'is_mobile'=>$is_mobile];
+                }
 
                 $gratis = Db::name('media_file')->where(['file_id' => $fid])->value('gratis');
                 if ($gratis == 0) {
-                    $arc_level_id = !empty($res['arc_level_id']) ? intval($res['arc_level_id']) : 0;
                     /*是否需要付费*/
                     if (0 < $res['users_price'] && empty($res['users_free'])) {
                         $Paid = 0; // 未付费
