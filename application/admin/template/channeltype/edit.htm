@@ -134,20 +134,20 @@
 
             {in name="$field.nid" value="article,images,download"}
                 {eq name='$IsOpenRelease' value='1'}
-                    <dl class="row">
-                        <dt class="tit">
-                            <label>开启会员投稿</label>
-                        </dt>
-                        <dd class="opt">
-                            <div class="onoff">
-                                <label for="is_release1" class="cb-enable {if condition='!isset($field.is_release) || $field.is_release eq 1'}selected{/if}">是</label>
-                                <label for="is_release0" class="cb-disable {if condition='isset($field.is_release) && $field.is_release eq 0'}selected{/if}">否</label>
-                                <input id="is_release1" name="is_release" value="1" type="radio" {if condition="!isset($field.is_release) || $field.is_release eq 1"} checked="checked"{/if}>
-                                <input id="is_release0" name="is_release" value="0" type="radio" {if condition="isset($field.is_release) && $field.is_release eq 0"} checked="checked"{/if}>
-                            </div>
-                            <p class="notic">开启则在会员投稿中有发布入口</p>
-                        </dd>
-                    </dl>
+                    <!--<dl class="row">-->
+                        <!--<dt class="tit">-->
+                            <!--<label>开启会员投稿</label>-->
+                        <!--</dt>-->
+                        <!--<dd class="opt">-->
+                            <!--<div class="onoff">-->
+                                <!--<label for="is_release1" class="cb-enable {if condition='!isset($field.is_release) || $field.is_release eq 1'}selected{/if}">是</label>-->
+                                <!--<label for="is_release0" class="cb-disable {if condition='isset($field.is_release) && $field.is_release eq 0'}selected{/if}">否</label>-->
+                                <!--<input id="is_release1" name="is_release" value="1" type="radio" {if condition="!isset($field.is_release) || $field.is_release eq 1"} checked="checked"{/if}>-->
+                                <!--<input id="is_release0" name="is_release" value="0" type="radio" {if condition="isset($field.is_release) && $field.is_release eq 0"} checked="checked"{/if}>-->
+                            <!--</div>-->
+                            <!--<p class="notic">开启则在会员投稿中有发布入口</p>-->
+                        <!--</dd>-->
+                    <!--</dl>-->
                     <dl class="row">
                         <dt class="tit">
                             <label>开启投稿缩略图</label>

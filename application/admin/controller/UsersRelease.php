@@ -18,7 +18,7 @@ use think\Config;
 
 class UsersRelease extends Base {
 
-    public $current_channel = [1,2,3,4,5];
+    public $current_channel = [1,3,4];
     public function __construct(){
         parent::__construct();
 
@@ -29,7 +29,7 @@ class UsersRelease extends Base {
         // 模型是否开启
         $channeltype_row = \think\Cache::get('extra_global_channeltype');
         $this->assign('channeltype_row',$channeltype_row);
-        $this->current_channel = Db::name('channeltype')->where('is_release',1)->where('id','in',$this->current_channel)->column('id');
+//        $this->current_channel = Db::name('channeltype')->where('is_release',1)->where('id','in',$this->current_channel)->column('id');
     }
 
     /**
