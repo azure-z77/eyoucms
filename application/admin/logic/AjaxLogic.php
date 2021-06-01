@@ -73,7 +73,7 @@ class AjaxLogic extends Model
      */
     private function renameInstall()
     {
-        if (serverIP() == '127.0.0.1') {
+        if ($this->request->host() == 'ey.hk') {
             return true;
         }
         $install_path = ROOT_PATH.'install';
