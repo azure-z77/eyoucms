@@ -77,15 +77,13 @@ class TagArclist extends Base
                 if (empty($v)) unset($typeidArr_tmp[$k]);  
             }
             $param['typeid'] = implode(',', $typeidArr_tmp);
-            // end
             
-            /*多语言*/
+            // 多语言
             $param['typeid'] = model('LanguageAttr')->getBindValue($param['typeid'], 'arctype');
             if (empty($param['typeid'])) {
                 echo '标签arclist报错：找不到与第一套【'.$this->main_lang.'】语言关联绑定的属性 typeid 值。';
                 return false;
             }
-            /*--end*/
         }
 
         $typeid = $param['typeid'];
@@ -98,13 +96,8 @@ class TagArclist extends Base
         /*--end*/
 
         if (!empty($param['joinaid'])) {
-
             $joinaid = intval($param['joinaid']);
-            
-            if (!isset($tag['channel'])) {
-                unset($param['channel']);
-            }
-            
+            if (!isset($tag['channel'])) unset($param['channel']);
             if (!isset($tag['typeid'])) {
                 unset($param['typeid']);
             } else {
@@ -112,7 +105,6 @@ class TagArclist extends Base
             }
 
         } else {
-
             if (!empty($channeltype)) { // 如果指定了频道ID，则频道下的所有文档都展示
                 unset($param['typeid']);
             } else {
@@ -151,6 +143,10 @@ class TagArclist extends Base
                 }
             }
         }
+
+        // 查询当前模型的内容条数，是否达到优化标准
+        // $Execute = $this->GetCurrentModelData($channeltype);
+        $Execute = 0;
 
         // 查询条件
         $condition = array();
@@ -239,38 +235,38 @@ class TagArclist extends Base
                 }
             }
         }
+
+        // 默认查询条件
         array_push($condition, "a.arcrank > -1");
         array_push($condition, "a.status = 1");
-        array_push($condition, "a.is_del = 0"); // 回收站功能
-        /*定时文档显示插件*/
+        array_push($condition, "a.is_del = 0");
+
+        // 定时文档显示插件
         if (is_dir('./weapp/TimingTask/')) {
             $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');
             if (!empty($TimingTaskRow['status']) && 1 == $TimingTaskRow['status']) {
                 array_push($condition, "a.add_time <= ".getTime()); // 只显当天或之前的文档
             }
         }
-        /*end*/
-        $where_str = "";
-        if (0 < count($condition)) {
-            $where_str = implode(" AND ", $condition);
-        }
 
+        // 处理拼接查询条件
+        $where_str = 0 < count($condition) ? implode(" AND ", $condition) : "";
+        
         // 给排序字段加上表别名
-        $orderby = getOrderBy($orderby,$orderway,true);
+        $orderby = getOrderBy($orderby, $orderway, true);
+
+        // 用于arclist标签的分页
+        if (0 < $pagesize) {
+            $tag['typeid'] = $typeid;
+            isset($tag['channelid']) && $tag['channelid'] = $channeltype;
+            $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
+        }
 
         // 获取查询的控制器名
         $channeltype_info = model('Channeltype')->getInfo($channeltype);
         $controller_name = $channeltype_info['ctl_name'];
         $channeltype_table = $channeltype_info['table'];
-
-        /*用于arclist标签的分页*/
-        if(0 < $pagesize) {
-            $tag['typeid'] = $typeid;
-            isset($tag['channelid']) && $tag['channelid'] = $channeltype;
-            $tagidmd5 = $this->attDef($tag); // 进行tagid的默认处理
-        }
-        /*--end*/
-
+        
         // 是否显示会员权限
         $users_level_list = $users_level_list2 = [];
         if ('on' == $arcrank || stristr(','.$addfields.',', ',arc_level_name,')) {
@@ -292,47 +288,53 @@ class TagArclist extends Base
             default:
             {
                 $field = "b.*, a.*";
-                $result = $this->archives_db
-                    ->field($field)
-                    ->alias('a')
-                    ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                    ->where($where_str)
-                    ->where('a.lang', $this->home_lang)
-                    ->orderRaw($orderby)
-                    ->limit($limit)
-                    ->select();
-                $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
+                if ('rand()' == $orderby) {
+                    $result = $this->archives_db
+                        ->field("b.*, a.*")
+                        ->alias('a')
+                        ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+                        ->where($where_str)
+                        ->where('a.lang', $this->home_lang)
+                        ->limit(500)
+                        ->select();
+                    shuffle($result);
+                    $result = array_slice($result, 1, 10);
+                } else {
+                    $result = $this->archives_db
+                        ->field($field)
+                        ->alias('a')
+                        ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+                        ->where($where_str)
+                        ->where('a.lang', $this->home_lang)
+                        ->orderRaw($orderby)
+                        ->limit($limit)
+                        ->select();
+                }
 
                 foreach ($result as $key => $val) {
                     array_push($aidArr, $val['aid']); // 收集文档ID
 
-                    /*栏目链接*/
+                    // 栏目链接
                     if ($val['is_part'] == 1) {
                         $val['typeurl'] = $val['typelink'];
                     } else {
                         $val['typeurl'] = typeurl('home/'.$controller_name."/lists", $val);
                     }
-                    /*--end*/
-                    /*文档链接*/
+
+                    // 文档链接
                     if ($val['is_jump'] == 1) {
                         $val['arcurl'] = $val['jumplinks'];
                     } else {
                         $val['arcurl'] = arcurl('home/'.$controller_name.'/view', $val);
                     }
-                    /*--end*/
-                    /*封面图*/
-                    /*if (empty($val['litpic'])) {
-                        $val['is_litpic'] = 0; // 无封面图
-                    } else {
-                        $val['is_litpic'] = 1; // 有封面图
-                    }*/
-                    $val['litpic'] = get_default_pic($val['litpic']); // 默认封面图
-                    if ('on' == $thumb) { // 属性控制是否使用缩略图
+
+                    // 封面图
+                    $val['litpic'] = get_default_pic($val['litpic']);
+                    if ('on' == $thumb) {
                         $val['litpic'] = thumb_img($val['litpic']);
                     }
-                    /*--end*/
 
-                    /*是否显示会员权限*/
+                    // 是否显示会员权限
                     !isset($val['level_name']) && $val['level_name'] = $val['arcrank'];
                     !isset($val['level_value']) && $val['level_value'] = 0;
                     if ('on' == $arcrank) {
@@ -345,13 +347,11 @@ class TagArclist extends Base
                             $val['level_value'] = $firstUserLevel['level_value'];
                         }
                     }
-                    /*--end*/
                     
-                    /*显示下载权限*/
+                    // 显示下载权限
                     if (!empty($users_level_list2)) {
                         $val['arc_level_name'] = !empty($users_level_list2[$val['arc_level_id']]) ? $users_level_list2[$val['arc_level_id']]['level_name'] : '不限会员';
                     }
-                    /*end*/
 
                     $result[$key] = $val;
                 }
@@ -410,32 +410,29 @@ class TagArclist extends Base
                     }
                 }
                 /*--end*/
-
                 break;
             }
         }
 
-        //分页特殊处理
-        if(false !== $tagidmd5 && 0 < $pagesize)
-        {
+        // 分页特殊处理
+        if (false !== $tagidmd5 && 0 < $pagesize) {
             $arcmulti_db = \think\Db::name('arcmulti');
             $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagidmd5])->find();
             $attstr = addslashes(serialize($tag)); //记录属性,以便分页样式统一调用
-
-            if(empty($arcmultiRow))
-            {
+            $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
+            if (empty($arcmultiRow)) {
                 $arcmulti_db->insert([
                     'tagid' => $tagidmd5,
-                    'tagname'   => 'arclist',
+                    'tagname' => 'arclist',
                     'innertext' => '',
-                    'pagesize'  => $pagesize,
-                    'querysql'  => $querysql,
-                    'ordersql'  => $orderby,
-                    'addfieldsSql'  => $addfields,
-                    'addtableName'  => $addtableName,
-                    'attstr'    => $attstr,
-                    'add_time'   => getTime(),
-                    'update_time'   => getTime(),
+                    'pagesize' => $pagesize,
+                    'querysql' => $querysql,
+                    'ordersql' => $orderby,
+                    'addfieldsSql' => $addfields,
+                    'addtableName' => $addtableName,
+                    'attstr' => $attstr,
+                    'add_time' => getTime(),
+                    'update_time' => getTime(),
                 ]);
             } else {
                 $arcmulti_db->where([
@@ -443,31 +440,25 @@ class TagArclist extends Base
                     'tagname' => 'arclist',
                 ])->update([
                     'innertext' => '',
-                    'pagesize'  => $pagesize,
-                    'querysql'  => $querysql,
-                    'ordersql'  => $orderby,
-                    'addfieldsSql'  => $addfields,
-                    'addtableName'  => $addtableName,
-                    'attstr'    => $attstr,
-                    'update_time'   => getTime(),
+                    'pagesize' => $pagesize,
+                    'querysql' => $querysql,
+                    'ordersql' => $orderby,
+                    'addfieldsSql' => $addfields,
+                    'addtableName' => $addtableName,
+                    'attstr' => $attstr,
+                    'update_time' => getTime(),
                 ]);
             }
         }
 
         $data = [
-            'tag'    => $tag,
-            'list'      => $result,
+            'tag' => $tag,
+            'list' => $result,
         ];
-
         return $data;
     }
 
-    /**
-     *  生成hash唯一串
-     *
-     * @param     array  $tag 标签属性
-     * @return    string
-     */
+    // 生成hash唯一串
     private function attDef($tag)
     {
         $tagmd5 = md5(serialize($tag));
@@ -479,5 +470,37 @@ class TagArclist extends Base
         }
 
         return $tagidmd5;
+    }
+
+    // 查询当前模型的内容条数，是否达到优化标准(目前以14W数据为优化标准)
+    private function GetCurrentModelData($channeltype = 0)
+    {
+        if (empty($channeltype)) return 0;
+
+        switch ($channeltype) {
+            case '1':
+                $SqlName = '|article|1|';
+                break;
+            case '2':
+                $SqlName = '|product|2|';
+                break;
+            case '3':
+                $SqlName = '|images|3|';
+                break;
+            case '4':
+                $SqlName = '|download|4|';
+                break;
+            case '5':
+                $SqlName = '|media|5|';
+                break;
+            case '7':
+                $SqlName = '|special|7|';
+                break;
+            default:
+                $SqlName = '|custom|';
+                break;
+        }
+        $SqlResult = Db::name('sql_cache_table')->where('sql_name', 'LIKE', "%{$SqlName}%")->order('cache_id asc')->getField('sql_result');
+        return !empty($SqlResult) && $SqlResult >= '100000' ? 1 : 0;
     }
 }

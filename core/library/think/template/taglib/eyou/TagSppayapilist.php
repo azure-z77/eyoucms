@@ -106,6 +106,26 @@ class TagSppayapilist extends Base
                     $JsonData['unified_amount']   = $Result['order_amount'];
                     $JsonData['unified_number']   = $Result['order_code'];
 
+                }else if (!empty($PayData['type']) && 9 == $PayData['type']) {
+                    // 获取支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $Result = Db::name('article_order')->where($where)->find();
+                    if (empty($Result)) $this->error('订单不存在或已变更', url('user/Article/index'));
+
+                    $url = url('user/Article/index');
+                    if (in_array($Result['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url);
+
+                    // 组装数据返回
+                    $JsonData['transaction_type'] = 9; // 交易类型，8为购买视频
+                    $JsonData['unified_id']       = $Result['order_id'];
+                    $JsonData['unified_amount']   = $Result['order_amount'];
+                    $JsonData['unified_number']   = $Result['order_code'];
+
                 } else {
                     // 获取支付订单
                     $where = [
@@ -140,7 +160,6 @@ class TagSppayapilist extends Base
 
         $where = [
             'status' => 1,
-            //'pay_info' => ['NEQ', '']
         ];
         if ((isMobile() && isWeixin()) || isWeixinApplets()) $where['pay_mark'] = ['NEQ', 'alipay'];
         $PayApiList = Db::name('pay_api_config')->where($where)->select();
@@ -239,21 +258,5 @@ EOF;
         }
 
         return $PayApiList;
-    }
-
-    //查询虎皮椒支付有没有配置相应的(微信or支付宝)支付
-    public function findHupijiaoIsExis($type = '')
-    {
-        $hupijiaoInfo = Db::name('weapp')->where(['code'=>'Hupijiaopay','status'=>1])->find();
-        $HupijiaoPay = Db::name('pay_api_config')->where(['pay_mark'=>'Hupijiaopay'])->find();
-        if (empty($HupijiaoPay) || empty($hupijiaoInfo)) return true;
-        if (empty($HupijiaoPay['pay_info'])) return true;
-        $PayInfo = unserialize($HupijiaoPay['pay_info']);
-        if (empty($PayInfo)) return true;
-        if (!isset($PayInfo['is_open_pay']) || $PayInfo['is_open_pay'] == 1) return true;
-        $type .= '_appid';
-        if (!isset($PayInfo[$type]) || empty($PayInfo[$type])) return true;
-
-        return false;
     }
 }

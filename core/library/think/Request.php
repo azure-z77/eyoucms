@@ -307,7 +307,7 @@ class Request
             if (empty($host)) {
                 return $root;
             }
-            $domain_postfix_cn_array = ["com", "net", "org", "gov", "edu", "nm", "cn", "co"];
+            $domain_postfix_cn_array = ["com", "net", "org", "gov", "edu", "nm", "cn", "co", "hk"];
             $array_domain = explode(".", $host);
             $array_num = count($array_domain) - 1;
             if (in_array($array_domain[$array_num], ['cn','tw','hk','nz','au'])) {

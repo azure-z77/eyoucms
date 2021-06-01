@@ -37,27 +37,24 @@ class ArchivesLogic extends Model
     /**
      * 删除文档
      */
-    public function del($del_id = array(), $thorough = 0)
+    public function del($del_id = array(), $thorough = 0, $table = '')
     {
-        if (empty($del_id)) {
-            $del_id = input('del_id/a');
-        }
-        if (empty($thorough)) {
-            $thorough = input('thorough/d');
-        }
-
+        $del_id = !empty($del_id) ? $del_id : input('del_id/a');
         $id_arr = eyIntval($del_id);
-        if(!empty($id_arr)){
+        $thorough = !empty($thorough) ? $thorough : input('thorough/d');
+        if (!empty($id_arr)) {
             /*分离并组合相同模型下的文档ID*/
+            $field = 'a.aid, a.typeid, a.channel, a.arcrank, a.is_recom, a.is_special, a.is_b, a.is_head, a.is_litpic, a.is_jump, a.is_slide, a.is_roll, a.is_diyattr, a.users_id, b.table, b.ctl_name, b.ifsystem';
             $row = Db::name('archives')
                 ->alias('a')
-                ->field('a.channel,a.aid,b.table,b.ctl_name,b.ifsystem')
+                ->field($field)
                 ->join('__CHANNELTYPE__ b', 'a.channel = b.id', 'LEFT')
                 ->where([
                     'a.aid' => ['IN', $id_arr],
                     'a.lang'    => $this->admin_lang,
                 ])
                 ->select();
+
             $data = array();
             foreach ($row as $key => $val) {
                 $data[$val['channel']]['aid'][] = $val['aid'];
@@ -103,6 +100,20 @@ class ArchivesLogic extends Model
             }
 
             if (0 == $err) {
+                // 处理mysql缓存表数据
+                $DraftData = [
+                    'TypeID' => [],
+                    'UsersID' => [],
+                ];
+                foreach ($row as $key => $value) {
+                    if (-1 === $value['arcrank'] && !empty($value['users_id'])) {
+                        array_push($DraftData['TypeID'], $value['typeid']);
+                        array_push($DraftData['UsersID'], $value['users_id']);
+                        unset($row[$key]);
+                    }
+                }
+                if (!empty($row)) model('SqlCacheTable')->UpdateSqlCacheTable($row, 'del', $table);
+                if (!empty($DraftData)) model('SqlCacheTable')->UpdateDraftSqlCacheTable($DraftData, 'admin_del');
                 $this->success('删除成功！');
             } else if ($err < count($data)) {
                 $this->success('删除部分成功！');
@@ -341,6 +352,10 @@ class ArchivesLogic extends Model
                     }
                 }
             }
+            /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+            Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+            model('SqlCacheTable')->InsertSqlCacheTable(true);
+            /* END */
             $this->success('复制成功！');
         } else {
             $this->error('模型不存在！');

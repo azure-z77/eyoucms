@@ -116,8 +116,8 @@ class FieldLogic extends Model
                 $dfvalue = '';
             }
             $maxlen = 10001;
-            $fields[0] = " `$fieldname` varchar($maxlen) NOT NULL DEFAULT '$dfvalue' COMMENT '$fieldtitle';";
-            $fields[1] = "varchar($maxlen)";
+            $fields[0] = " `$fieldname` text COMMENT '$fieldtitle|{$maxlen}';";
+            $fields[1] = "text";
             $fields[2] = $maxlen;
         }
         else if("media" == $dtype)
@@ -133,8 +133,8 @@ class FieldLogic extends Model
                 $dfvalue = '';
             }
             $maxlen = 10002;
-            $fields[0] = " `$fieldname` varchar($maxlen) NOT NULL DEFAULT '$dfvalue' COMMENT '$fieldtitle';";
-            $fields[1] = "varchar($maxlen)";
+            $fields[0] = " `$fieldname` text COMMENT '$fieldtitle|{$maxlen}';";
+            $fields[1] = "text";
             $fields[2] = $maxlen;
         }
         else if("multitext" == $dtype)
@@ -365,7 +365,7 @@ class FieldLogic extends Model
                 $ifcontrol = 0;
                 $is_release = 0;
                 $ifeditable = 1;
-                $dtype = $this->toDtype($val['Type']);
+                $dtype = $this->toDtype($val['Type'], $val['Comment']);
                 $dfvalue = $this->toDefault($val['Type'], $val['Default']);
                 if (in_array($fieldname, array('content'))) {
                     $ifsystem = 1;
@@ -450,7 +450,7 @@ class FieldLogic extends Model
             $new_arr[] = $fieldname;
             // 对比字段记录 表字段有 字段新增记录没有
             if (empty($channelfieldArr[$fieldname])) {
-                $dtype = $this->toDtype($val['Type']);
+                $dtype = $this->toDtype($val['Type'], $val['Comment']);
                 $dfvalue = $this->toDefault($val['Type'], $val['Default']);
                 if (in_array($fieldname, $controlFields) && !in_array($channel_id, $channeltype_system_ids)) {
                     $ifcontrol = 0;
@@ -521,7 +521,7 @@ class FieldLogic extends Model
             $new_arr[] = $fieldname;
             // 对比字段记录 表字段有 字段新增记录没有
             if (empty($channelfieldArr[$fieldname])) {
-                $dtype = $this->toDtype($val['Type']);
+                $dtype = $this->toDtype($val['Type'], $val['Comment']);
                 $dfvalue = $this->toDefault($val['Type'], $val['Default']);
                 if (in_array($fieldname, $arctypeTableFields)) {
                     $ifsystem = 1;
@@ -577,8 +577,9 @@ class FieldLogic extends Model
      * 表字段类型转为自定义字段类型
      * @author 小虎哥 by 2018-4-16
      */
-    public function toDtype($fieldtype = '')
+    public function toDtype($fieldtype = '', $comment = '')
     {
+        $commentArr = explode('|', $comment);
         if (preg_match('/^int/i', $fieldtype)) {
             $maxlen = preg_replace('/^int\((.*)\)/i', '$1', $fieldtype);
             if (11 == $maxlen) {
@@ -589,7 +590,15 @@ class FieldLogic extends Model
         } else if (preg_match('/^longtext/i', $fieldtype)) {
             $dtype = 'htmltext';
         } else if (preg_match('/^text/i', $fieldtype)) {
-            $dtype = 'multitext';
+            $maxlen = end($commentArr);
+            $maxlen = intval($maxlen);
+            if (1001 == $maxlen || 10001 == $maxlen) {
+                $dtype = 'imgs';
+            } else if (1002 == $maxlen || 10002 == $maxlen) {
+                $dtype = 'files';
+            } else {
+                $dtype = 'multitext';
+            }
         } else if (preg_match('/^enum/i', $fieldtype)) {
             $dtype = 'select';
         } else if (preg_match('/^set/i', $fieldtype)) {

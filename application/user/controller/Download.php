@@ -72,4 +72,35 @@ class Download extends Base
         $this->assign('pager',$pager);// 赋值分页对象
         return $this->fetch('users/download_index');
     }
+
+    public function search_servername()
+    {
+        if (IS_AJAX_POST) {
+            $post = input('param.');
+            $keyword = $post['keyword'];
+
+            $servernames = tpCache('download.download_select_servername');
+            $servernames = unserialize($servernames);
+
+            $search_data = $servernames;
+            if (!empty($keyword)) {
+                $search_data = [];
+                if ($servernames) {
+                    foreach ($servernames as $k => $v) {
+                        if (preg_match("/$keyword/s", $v)) $search_data[] = $v;
+                    }
+                }
+            }
+
+            $this->success("获取成功",null,$search_data);
+        }
+    }
+    public function get_template()
+    {
+        if (IS_AJAX_POST) {
+            //$list = Db::name('download_attr_field')->where('field_use',1)->select();
+            $list = Db::name('download_attr_field')->select();
+            $this->success("查询成功！", null, $list);
+        }
+    }
 }

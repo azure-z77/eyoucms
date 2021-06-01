@@ -82,6 +82,26 @@
                     <p id="txt_smtp_is_open" class="none">提交保存后，请检查【<a href="javascript:void(0);" onclick="smtp_config();">邮件配置</a>】是否正常发送与接收！</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="channel_guestbook_time">留言跳转时间</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="channel_guestbook_time" value="{$channel_guestbook_time|default=5}" id="channel_guestbook_time" autocomplete="off" style="width: 60px;" onkeyup="this.value=this.value.replace(/[^\d]/g,'-');" onpaste="this.value=this.value.replace(/[^\d]/g,'-');">&nbsp;秒
+                    <span class="err"></span>
+                    <p class="notic">官方默认5秒，不建议设置太少，可能会导致邮箱没来得及发送。</p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="channel_guestbook_gourl">留言跳转URL</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="channel_guestbook_gourl" value="{$channel_guestbook_gourl}" id="channel_guestbook_gourl" placeholder="http://" autocomplete="off" class="input-txt">
+                    <span class="err"></span>
+                    <p class="notic">前台提交留言完成后，统一跳转到指定的URL。如果不填写，默认跳转到当前页面URL。</p>
+                </dd>
+            </dl>
             <script type="text/javascript">
                 $(function(){
                     $('input[name="smtp_is_open"]').click(function(){
@@ -95,22 +115,24 @@
 
                 function smtp_config()
                 {
+                    parent.$('#Index_switch_map', parent.window.parent.document).removeClass('on');
+                    parent.$('#System_web', parent.window.parent.document).addClass('on');
+                    parent.$('#workspace', parent.window.parent.document).attr('src', "{:url('System/smtp', ['goback'=>'off'])}");
                     //iframe窗
-                    var iframes = layer.open({
-                        type: 2,
-                        title: '邮件配置',
-                        fixed: true, //不固定
-                        shadeClose: false,
-                        shade: 0.3,
-                        content: "{:url('System/smtp', ['iframes'=>1])}"
-                    });
-                    layer.full(iframes);
+                    // var iframes = layer.open({
+                    //     type: 2,
+                    //     title: '邮件配置',
+                    //     fixed: true, //不固定
+                    //     shadeClose: false,
+                    //     shade: 0.3,
+                    //     content: "{:url('System/smtp', ['iframes'=>1])}"
+                    // });
+                    // layer.full(iframes);
                 }
             </script>
             {/in}
 
-            {in name="$field.nid" value="article,images"}
-
+            {in name="$field.nid" value="article,images,download"}
                 {eq name='$IsOpenRelease' value='1'}
                     <dl class="row">
                         <dt class="tit">
@@ -142,6 +164,23 @@
                     </dl>
                 {/eq}
             {/in}
+
+            {eq name="$field.nid" value="article"}
+                <dl class="row">
+                    <dt class="tit">
+                        <label>开启文章付费</label>
+                    </dt>
+                    <dd class="opt">
+                        <div class="onoff">
+                            <label for="is_article_pay1" class="cb-enable {if condition='isset($field.data.is_article_pay) && $field.data.is_article_pay eq 1'}selected{/if}">是</label>
+                            <label for="is_article_pay0" class="cb-disable {if condition='!isset($field.data.is_article_pay) || $field.data.is_article_pay eq 0'}selected{/if}">否</label>
+                            <input id="is_article_pay1" name="data[is_article_pay]" value="1" type="radio" {if condition="isset($field.data.is_article_pay) && $field.data.is_article_pay eq 1"} checked="checked"{/if}>
+                            <input id="is_article_pay0" name="data[is_article_pay]" value="0" type="radio" {if condition="!isset($field.data.is_article_pay) || $field.data.is_article_pay eq 0"} checked="checked"{/if}>
+                        </div>
+                        <p class="notic"></p>
+                    </dd>
+                </dl>
+            {/eq}
 
             {in name="$field.nid" value="media,download"}
                 {eq name='$weappRow.Qiniuyun' value='1'}
@@ -448,6 +487,25 @@
             return false;
         }
         {/neq}
+
+        {in name="$field.nid" value="guestbook"}
+        var channel_guestbook_time = $.trim($('input[name=channel_guestbook_time]').val());
+        if(parseInt(channel_guestbook_time) < 2){
+            showErrorMsg('留言跳转时间不能少于2秒');
+            $('input[name=channel_guestbook_time]').focus();
+            return false;
+        }
+
+        var channel_guestbook_gourl = $.trim($('input[name=channel_guestbook_gourl]').val());
+        var exp = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+        var objExp = new RegExp(exp);
+        if(channel_guestbook_gourl != '' && objExp.test(channel_guestbook_gourl) != true) {
+            showErrorMsg('留言跳转URL格式不正确！');
+            $('input[name=channel_guestbook_gourl]').focus();
+            return false;
+        }
+        {/in}
+
         layer_loading('正在处理');
         $.ajax({
             type : 'post',

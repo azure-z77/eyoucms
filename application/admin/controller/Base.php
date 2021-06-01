@@ -21,6 +21,7 @@ class Base extends Controller {
 
     public $session_id;
     public $php_servicemeal = 0;
+    public $globalConfig = [];
 
     /**
      * 析构函数
@@ -34,6 +35,10 @@ class Base extends Controller {
         parent::__construct();
 
         $this->global_assign();
+
+        $this->editor = tpSetting('editor');
+        if (empty($this->editor['editor_select'])) $this->editor['editor_select'] = 1;
+        $this->assign('editor', $this->editor);
     }
     
     /*
@@ -60,8 +65,8 @@ class Base extends Controller {
         }else{
             $web_login_expiretime = tpCache('web.web_login_expiretime');
             empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
-            $admin_login_expire = session('admin_login_expire'); // 登录有效期web_login_expiretime
-            if (session('?admin_id') && getTime() - intval($admin_login_expire) < $web_login_expiretime) {
+            $admin_login_expire = session('admin_login_expire'); //最后登录时间
+            if (session('?admin_id') && (getTime() - $admin_login_expire) < $web_login_expiretime) {
                 session('admin_login_expire', getTime()); // 登录有效期
                 $this->check_priv();//检查管理员菜单操作权限
             }else{
@@ -94,9 +99,9 @@ class Base extends Controller {
                 cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c={$controller_name}&a=index&lang=".$this->admin_lang);
             }
         }
-        if ('Archives' == $controller_name && in_array($this->request->action(), ['index_archives'])) {
+        if ('Archives' == $controller_name && in_array($this->request->action(), ['index_archives','index_draft'])) {
             cookie('ENV_GOBACK_URL', $this->request->url());
-            cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c=Archives&a=index_archives&lang=".$this->admin_lang);
+            cookie('ENV_LIST_URL', request()->baseFile()."?m=admin&c=Archives&a=".$this->request->action()."&lang=".$this->admin_lang);
         }
         /* end */
     }
@@ -149,9 +154,12 @@ class Base extends Controller {
         }
         /*end*/
 
-        $globalConf = tpCache('global');
-        $this->php_servicemeal = $globalConf['php_servicemeal'];
-        $this->assign('global', $globalConf);
+        $this->globalConfig = tpCache('global');
+        $this->php_servicemeal = $this->globalConfig['php_servicemeal'];
+        !empty($this->globalConfig['web_adminlogo']) && $this->globalConfig['web_adminlogo'] = handle_subdir_pic($this->globalConfig['web_adminlogo']);
+        !empty($this->globalConfig['web_loginlogo']) && $this->globalConfig['web_loginlogo'] = handle_subdir_pic($this->globalConfig['web_loginlogo']);
+        !empty($this->globalConfig['web_loginbgimg']) && $this->globalConfig['web_loginbgimg'] = handle_subdir_pic($this->globalConfig['web_loginbgimg']);
+        $this->assign('global', $this->globalConfig);
     } 
     
     /**

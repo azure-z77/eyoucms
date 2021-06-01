@@ -118,9 +118,9 @@ class Driver
         $tmpSerCode = 'cGhwX3NlcnZpY2Vjb2Rl';
         $tmpSerCode = base64_decode($tmpSerCode);
 
-        $web_basehost = $request->host(true);
-        if (false !== filter_var($web_basehost, FILTER_VALIDATE_IP)) {
-            $web_basehost = tpCache('web.web_basehost');
+        $web_basehost = tpCache('web.web_basehost');
+        if (empty($web_basehost)) {
+            $web_basehost = $request->host(true);
         }
         $web_basehost = preg_replace('/^(([^\:]+):)?(\/\/)?([^\/\:]*)(.*)$/i', '${4}', $web_basehost);
 

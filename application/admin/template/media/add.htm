@@ -1,9 +1,13 @@
 {include file="public/layout" /}
 <script type="text/javascript" src="__PUBLIC__/plugins/laydate/laydate.js"></script>
 
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 
 <body style="background-color: #FFF; overflow: auto;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
@@ -80,7 +84,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="litpic_local" name="litpic_local" value="" class="type-file-text">
+                            <input type="text" id="litpic_local" name="litpic_local" value="" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                    title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -101,17 +105,17 @@
                     <a href="javascript:void(0);" onclick="addUrlSys();" class="ncap-btn ncap-btn-green">新增</a>
                     <a href="javascript:void(0);" onclick="batch_import_url();" class="ncap-btn ncap-btn-green">批量导入</a>
                     &nbsp;<a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=9993','视频模型的模板标签调用')" style="font-size: 12px;">标签教程</a>
-                    <div id="url-box_sys"style="padding: 10px 0">
+                    <div id="url-box_sys" style="padding: 10px 0">
                         <div id="num_upload_box_sys"  class='media_del_1586481014_1' data-num='1' style='margin-bottom: 10px;'>
                             <span>&nbsp;链接地址：</span>
-                            <input type="text" class="input-txt" id="video_url_sys_1" name="video[1][file_url]" style="width: 400px !important;" >
+                            <input type="text" class="input-txt" id="video_url_sys_1" style="width: 400px !important;" >
                             <span>&nbsp;选集名称：</span>
-                            <input type="text" class="input-txt" id="video_title_sys_1" name="video[1][file_title]" style="width: 200px !important;">
+                            <input type="text" class="input-txt" id="video_title_sys_1" style="width: 200px !important;">
                             <span>&nbsp;时长(秒)：</span>
-                            <input type="text" class="input-txt" id="video_time_sys_1" name="video[1][file_time]" style="width: 50px !important;">
-                            <input type="hidden" class="input-txt" id="video_size_sys_1" name="video[1][file_size]">
-                            <input type="hidden" class="input-txt" id="video_mime_sys_1" name="video[1][file_mime]">
-                            <input type="hidden" class="input-txt" id="video_name_sys_1" name="video[1][file_name]">
+                            <input type="text" class="input-txt" id="video_time_sys_1" style="width: 50px !important;">
+                            <input type="hidden" class="input-txt" id="video_size_sys_1" >
+                            <input type="hidden" class="input-txt" id="video_mime_sys_1" >
+                            <input type="hidden" class="input-txt" id="video_name_sys_1" >
                             <input type="file" class="input-txt" id="qiniu_click_sys_1" onchange="QiniuUpload(1);" style="display: none;">
                             <input type="file" class="input-txt" id="oss_click_sys_1" onchange="OssUpload(1);" style="display: none;">
                             <input type="file" class="input-txt" id="cos_click_sys_1" onchange="CosUpload(1);" style="display: none;">
@@ -129,7 +133,7 @@
 
                             <a href="javascript:void(0);" class="ncap-btn ncap-btn-green " id="upload_video_sys_1" data-num='1'>本地上传</a>
                             <a href="javascript:void(0);" class="ncap-btn ncap-btn-green" onclick="media_del('1');">删除</a>
-                            &nbsp;<label onselectstart="return false"><input type="checkbox" name="video[1][gratis]" value="1">试看</label>
+                            &nbsp;<label onselectstart="return false"><input type="checkbox" id="video_gratis_sys_1" value="1">试看</label>
                         </div>
                     </div>
                     <span class="err"></span>
@@ -323,6 +327,7 @@
         <div class="ncap-form-default">
             <div class="bot">
                 <input type="hidden" name="gourl" value="{$gourl|default=''}">
+                <textarea class="none" name="video" id="video" cols="30" rows="10"></textarea>
                 <a href="JavaScript:void(0);" onclick="check_submit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div>
@@ -437,6 +442,7 @@
 
     // 判断输入框是否为空
     function check_submit(){
+        urlToStr();
         if($.trim($('input[name=title]').val()) == ''){
             showErrorMsg('标题不能为空！');
             $('input[name=title]').focus();
@@ -485,14 +491,14 @@
         var html = "";
         html += "<div id=\"num_upload_box_sys\"  class='media_del_1586481014_"+num+"' data-num='"+num+"' style='margin-bottom: 10px;'>\n" +
             "                            <span>&nbsp;链接地址：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_url_sys_"+num+"\" name=\"video["+num+"][file_url]\" style=\"width: 400px !important;\" >\n" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_url_sys_"+num+"\" style=\"width: 400px !important;\" >\n" +
             "                            <span>&nbsp;选集名称：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_title_sys_"+num+"\" name=\"video["+num+"][file_title]\" style=\"width: 200px !important;\">\n" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_title_sys_"+num+"\" style=\"width: 200px !important;\">\n" +
             "                            <span>&nbsp;时长(秒)：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_time_sys_"+num+"\" name=\"video["+num+"][file_time]\" style=\"width: 50px !important;\">\n" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_size_sys_"+num+"\" name=\"video["+num+"][file_size]\">" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_mime_sys_"+num+"\" name=\"video["+num+"][file_mime]\">" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_name_sys_"+num+"\" name=\"video["+num+"][file_name]\">" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_time_sys_"+num+"\" style=\"width: 50px !important;\">\n" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_size_sys_"+num+"\">" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_mime_sys_"+num+"\">" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_name_sys_"+num+"\">" +
             "                            <input type=\"file\" class=\"input-txt\" id=\"qiniu_click_sys_"+num+"\" onchange=\"QiniuUpload('"+num+"');\" style=\"display: none;\">\n"+
             "                            <input type=\"file\" class=\"input-txt\" id=\"oss_click_sys_"+num+"\" onchange=\"OssUpload('"+num+"');\" style=\"display: none;\">\n"+
             "                            <input type=\"file\" class=\"input-txt\" id=\"cos_click_sys_"+num+"\" onchange=\"CosUpload('"+num+"');\" style=\"display: none;\">\n";
@@ -507,7 +513,7 @@
         }
         html += "                         <a href=\"javascript:void(0);\" class=\"ncap-btn ncap-btn-green \" id=\"upload_video_sys_"+num+"\" data-num='"+num+"'>本地上传</a>\n" +
             "                            <a href=\"javascript:void(0);\" class=\"ncap-btn ncap-btn-green\" onclick=\"media_del('"+num+"');\">删除</a>\n" +
-            "          &nbsp;<label onselectstart='return false'><input type='checkbox' name='video["+num+"][gratis]' value='1'>试看</label>" +
+            "          &nbsp;<label onselectstart='return false'><input type='checkbox' id='video_gratis_sys_"+num+"' value='1'>试看</label>" +
             "                        </div>";
 
         $('#url-box_sys').append(html);
@@ -577,18 +583,6 @@
     }
     function media_del(num) {
         $(".media_del_1586481014_"+num).remove();
-/*
-        layer.confirm('是否确认删除？', {
-            title: false,
-            closeBtn: false,
-            btn: ['确定','取消'] //按钮
-        }, function(){
-            $(".media_del_1586481014_"+num).remove();
-            layer.closeAll();
-        }, function(){
-            layer.closeAll();
-        });
-*/
     }
     function click_qiniu_sys(num)
     {
@@ -1173,12 +1167,13 @@
     function batch_import_url() {
         layer.prompt({
             formType: 2,
-            value: '参考格式：链接地址$选集名称$时长(秒)$试看(是/否)\r\n示例如下：\r\nhttp://www.xxx.com/1.mp4$立即下载$30$是\r\nhttp://www.xxx.com/2.mp4$立即下载$50$否',
+            value: '参考格式：链接地址$选集名称$时长(秒)$试看(是/否)\r\n示例如下：\r\nhttp://www.xxx.com/1.mp4$名称1$30$是\r\nhttp://www.xxx.com/2.mp4$名称2$50$否',
             title: '批量导入视频链接',
             area: ['800px', '250px'] //自定义文本域宽高
             ,id: 'ey_batch_links'
+            ,maxlength: 60000
             ,success: function(layero, index){
-                $("#ey_batch_links").find('textarea').attr('placeholder', '参考格式：链接地址$选集名称$时长(秒)$试看(是/否)\r\n示例如下：\r\nhttp://www.xxx.com/1.mp4$立即下载$30$是\r\nhttp://www.xxx.com/2.mp4$立即下载$50$否');
+                $("#ey_batch_links").find('textarea').attr('placeholder', '参考格式：链接地址$选集名称$时长(秒)$试看(是/否)\r\n示例如下：\r\nhttp://www.xxx.com/1.mp4$名称1$30$是\r\nhttp://www.xxx.com/2.mp4$名称2$50$否');
             }
         }, function(value, index, elem){
             let code = value.split(/[(\r\n)\r\n]+/); // 根据换行或者回车进行识别
@@ -1193,7 +1188,6 @@
             code.forEach((item, index) => { // 删除空项
                 addImportUrlSys(item[0],item[1],item[2],item[3])
             })
-            console.log(code);
             layer.close(index);
         });
     }
@@ -1226,14 +1220,14 @@
         var html = "";
         html += "<div id=\"num_upload_box_sys\"  class='media_del_1586481014_"+num+"' data-num='"+num+"' style='margin-bottom: 10px;'>\n" +
             "                            <span>&nbsp;链接地址：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_url_sys_"+num+"\" value='"+url+"' name=\"video["+num+"][file_url]\" style=\"width: 400px !important;\" >\n" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_url_sys_"+num+"\" value='"+url+"' style=\"width: 400px !important;\" >\n" +
             "                            <span>&nbsp;选集名称：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_title_sys_"+num+"\" value='"+name+"' name=\"video["+num+"][file_title]\" style=\"width: 200px !important;\">\n" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_title_sys_"+num+"\" value='"+name+"' style=\"width: 200px !important;\">\n" +
             "                            <span>&nbsp;时长(秒)：</span>\n" +
-            "                            <input type=\"text\" class=\"input-txt\" id=\"video_time_sys_"+num+"\" value='"+time+"'  name=\"video["+num+"][file_time]\" style=\"width: 50px !important;\">\n" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_size_sys_"+num+"\" name=\"video["+num+"][file_size]\">" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_mime_sys_"+num+"\" name=\"video["+num+"][file_mime]\">" +
-            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_name_sys_"+num+"\" name=\"video["+num+"][file_name]\">" +
+            "                            <input type=\"text\" class=\"input-txt\" id=\"video_time_sys_"+num+"\" value='"+time+"' style=\"width: 50px !important;\">\n" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_size_sys_"+num+"\">" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_mime_sys_"+num+"\">" +
+            "                            <input type=\"hidden\" class=\"input-txt\" id=\"video_name_sys_"+num+"\">" +
             "                            <input type=\"file\" class=\"input-txt\" id=\"qiniu_click_sys_"+num+"\" onchange=\"QiniuUpload('"+num+"');\" style=\"display: none;\">\n"+
             "                            <input type=\"file\" class=\"input-txt\" id=\"oss_click_sys_"+num+"\" onchange=\"OssUpload('"+num+"');\" style=\"display: none;\">\n"+
             "                            <input type=\"file\" class=\"input-txt\" id=\"cos_click_sys_"+num+"\" onchange=\"CosUpload('"+num+"');\" style=\"display: none;\">\n";
@@ -1248,7 +1242,7 @@
         }
         html += "                         <a href=\"javascript:void(0);\" class=\"ncap-btn ncap-btn-green \" id=\"upload_video_sys_"+num+"\" data-num='"+num+"'>本地上传</a>\n" +
             "                            <a href=\"javascript:void(0);\" class=\"ncap-btn ncap-btn-green\" onclick=\"media_del('"+num+"');\">删除</a>\n" +
-            "          &nbsp;<label onselectstart='return false'><input type='checkbox' name='video["+num+"][gratis]' value='1' "+gratis+">试看</label>" +
+            "          &nbsp;<label onselectstart='return false'><input type='checkbox' id='video_gratis_sys_"+num+"' value='1' "+gratis+">试看</label>" +
             "                        </div>";
 
         $('#url-box_sys').append(html);
@@ -1317,6 +1311,31 @@
         });
     }
     /* 批量导入视频信息 end */
+    function urlToStr() {
+        var video = [];
+        $("#url-box_sys div").each(function(){
+            var n = $(this).attr('data-num');
+            var arr ={};
+            arr.file_url = $("#video_url_sys_"+n).val();
+            if (!arr.file_url) {
+                return true
+            }
+            arr.file_title = $("#video_title_sys_"+n).val();
+            arr.file_name = $("#video_name_sys_"+n).val();
+            arr.file_time = $("#video_time_sys_"+n).val();
+            arr.file_size = $("#video_size_sys_"+n).val();
+            arr.file_mime = $("#video_mime_sys_"+n).val();
+            var gratis_checked = $("#video_gratis_sys_"+n).is(':checked');
+            if (gratis_checked == true){
+                arr.gratis = 1;
+            } else{
+                arr.gratis = 0;
+            }
+            video.push(arr);
+        });
+        video = JSON.stringify(video)
+        $("#video").val(video)
+    }
 </script>
 
 {include file="public/footer" /}

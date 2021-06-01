@@ -45,17 +45,20 @@ class System extends Base
             $param['web_description'] = filter_line_return($param['web_description']);
             
             if (1 == $param['web_status']) {
-                /*多语言*/
-                if (is_language()) {
-                    $langRow = \think\Db::name('language')->order('id asc')
-                        ->cache(true, EYOUCMS_CACHE_TIME, 'language')
-                        ->select();
-                    foreach ($langRow as $key => $val) {
-                        tpCache('seo',['seo_pseudo'=>1],$val['mark']);
-                    }
-                } else {
-                    tpCache('seo',['seo_pseudo'=>1]);
-                }
+                /*多语言 - 不知为何v1.4.0新增该逻辑【在静态模式下，关闭网站会自动切换为动态URL模式】*/
+                // $seo_pseudo = tpCache('seo.seo_pseudo');
+                // if (2 == $seo_pseudo) {
+                //     if (is_language()) {
+                //         $langRow = \think\Db::name('language')->order('id asc')
+                //             ->cache(true, EYOUCMS_CACHE_TIME, 'language')
+                //             ->select();
+                //         foreach ($langRow as $key => $val) {
+                //             tpCache('seo',['seo_pseudo'=>1],$val['mark']);
+                //         }
+                //     } else {
+                //         tpCache('seo',['seo_pseudo'=>1]);
+                //     }
+                // }
                 /*--end*/
                 @unlink('./index.html');
             }
@@ -208,6 +211,8 @@ class System extends Base
             $web_tpl_theme_old = tpCache('web.web_tpl_theme');
             /*--end*/
 
+            tpSetting('recycle', ['recycle_switch' => $param['switch']]);//回收站开关
+
             /*多语言*/
             if (is_language()) {
                 $langRow = \think\Db::name('language')->order('id asc')
@@ -316,6 +321,9 @@ class System extends Base
         /*代理贴牌功能限制-e*/
         
         $this->assign('config',$config);//当前配置项
+        $recycle_switch = tpSetting('recycle.recycle_switch');
+        $this->assign('switch', $recycle_switch);//回收站
+
         return $this->fetch();
     }
 
@@ -340,6 +348,7 @@ class System extends Base
 
         if (IS_POST) {
             $param = input('post.');
+
             // 文档默认浏览量
             if (isset($param['other_arcclick']) && 0 <= $param['other_arcclick']) {
                 $arcclick_arr = explode("|", $param['other_arcclick']);
@@ -453,16 +462,24 @@ class System extends Base
                 }
             }
 
+            // 编辑器选项配置
+            if (!empty($param['editor_select'])) {
+                tpSetting('editor', ['editor_select' => $param['editor_select']]);
+            }
+
             $this->success('操作成功', url('System/basic'));
         }
 
         $config = tpCache($inc_type);
         $other_config = tpCache($other_inc_type);
 
-        $this->assign('config',$config);//当前配置项
-        $this->assign('other_config',$other_config);//当前其他配置项
-        $this->assign('max_filesize',$max_filesize);// 文件上传最大字节数
-        $this->assign('max_sizeunit',$max_sizeunit);// 文件上传最大字节的单位
+        $this->assign('config', $config);
+        $this->assign('other_config', $other_config);
+        $this->assign('max_filesize', $max_filesize);
+        $this->assign('max_sizeunit', $max_sizeunit);
+
+        $editor = tpSetting('editor');
+        $this->assign('editor', $editor);
         return $this->fetch();
     }
 
@@ -687,6 +704,7 @@ class System extends Base
     {
         $inc_type =  'smtp';
         if (IS_POST) {
+            $goback = input('param.goback/s');
             $param = input('post.');
             // $param['smtp_shop_order_pay'] = !empty($param['smtp_shop_order_pay']) ? 1 : 0;
             // $param['smtp_shop_order_send'] = !empty($param['smtp_shop_order_send']) ? 1 : 0;
@@ -704,11 +722,14 @@ class System extends Base
             }
             /*--end*/
             
-            $this->success('操作成功', url('System/smtp'));
+            $this->success('操作成功', url('System/smtp', ['goback'=>$goback]));
         }
 
         $smtp = tpCache('smtp');
         $this->assign('smtp', $smtp);
+
+        $goback = input('param.goback/s');
+        $this->assign('goback', $goback);
 
         return $this->fetch();
     }
@@ -1204,23 +1225,19 @@ class System extends Base
         }
     }
 
-    /**
-     * 自定义变量列表
-     */
+    //自定义变量列表
     public function customvar_index()
     {
         $list = array();
         $keywords = input('keywords/s');
 
         $condition = array();
-        // 应用搜索条件
         if (!empty($keywords)) {
             $condition['a.attr_name'] = array('LIKE', "%{$keywords}%");
         }
-        // 多语言
         $condition['a.lang'] = array('eq', $this->admin_lang);
 
-        $attr_var_names = M('config')->field('name')
+        $attr_var_names = Db::name('config')->field('name')
             ->where([
                 'name'  => ['LIKE', "web_attr_%"],
                 'lang'  => $this->admin_lang,
@@ -1228,9 +1245,9 @@ class System extends Base
             ])->getAllWithIndex('name');
         $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
 
-        $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
-        $pageObj = new Page($count, 100);// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = M('config_attribute')->alias('a')
+        $count = Db::name('config_attribute')->alias('a')->where($condition)->count();
+        $pageObj = new Page($count, 100);
+        $list = Db::name('config_attribute')->alias('a')
             ->field('a.*, b.id')
             ->join('__CONFIG__ b', 'b.name = a.attr_var_name AND b.lang = a.lang', 'LEFT')
             ->where($condition)
@@ -1241,11 +1258,12 @@ class System extends Base
             ->limit($pageObj->firstRow.','.$pageObj->listRows)
             ->select();
 
-        $pageStr = $pageObj->show();// 分页显示输出
-        $this->assign('pageStr',$pageStr);// 赋值分页输出
-        $this->assign('list',$list);// 赋值数据集
-        $this->assign('pageObj',$pageObj);// 赋值分页对象
-
+        $pageStr = $pageObj->show();
+        $this->assign('pageStr',$pageStr);
+        $this->assign('list',$list);
+        $this->assign('pageObj',$pageObj);
+        $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
+        $this->assign('recycle_switch', $recycle_switch);
         return $this->fetch();
     }
 
@@ -1366,15 +1384,23 @@ class System extends Base
         $this->language_access(); // 多语言功能操作权限
 
         $id = input('del_id/d');
+        $deltype = input('deltype/s');
         if(!empty($id)){
-            $attr_var_name = M('config')->where([
+            $attr_var_name = Db::name('config')->where([
                     'id'    => $id,
                     'lang'  => $this->admin_lang,
                 ])->getField('name');
-
-            $r = M('config')->where('name', $attr_var_name)->update(array('is_del'=>1, 'update_time'=>getTime()));
+            if ('del' == $deltype){//彻底删除
+                $r = Db::name('config')->where('name', $attr_var_name)->delete();
+            }else{
+                $r = Db::name('config')->where('name', $attr_var_name)->update(array('is_del'=>1, 'update_time'=>getTime()));
+            }
             if($r){
-                M('config_attribute')->where('attr_var_name', $attr_var_name)->update(array('update_time'=>getTime()));
+                if ('del' == $deltype){
+                    Db::name('config_attribute')->where('attr_var_name', $attr_var_name)->delete();
+                }else{
+                    Db::name('config_attribute')->where('attr_var_name', $attr_var_name)->update(array('update_time'=>getTime()));
+                }
                 adminLog('删除自定义变量：'.$attr_var_name);
                 $this->success('删除成功');
             }else{

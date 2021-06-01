@@ -58,8 +58,8 @@ class Archives extends Base
                     $typeurl = url('Archives/index_archives', array('typeid'=>$val['id']));
                 }
             }
-            $typename = $val['typename'];
-            $zNodes .= "{"."id:{$val['id']}, pId:{$val['parent_id']}, name:\"{$typename}\", url:'{$typeurl}',target:'content_body'";
+            $typename = addslashes($val['typename']);
+            $zNodes .= "{id:{$val['id']}, pId:{$val['parent_id']}, name:'{$typename}', url:'{$typeurl}',target:'content_body'";
             /*默认展开一级栏目*/
             if (empty($val['parent_id'])) {
                 $zNodes .= ",open:true";
@@ -92,7 +92,7 @@ class Archives extends Base
         $flag = input('flag/s');
         $typeid = input('typeid/d', 0);
 
-        /*跳转到指定栏目的文档列表*/
+        //跳转到指定栏目的文档列表
         if (0 < intval($typeid)) {
             $row = Db::name('arctype')
                 ->alias('a')
@@ -111,9 +111,7 @@ class Archives extends Base
                 $this->redirect($gourl);
             }
         }
-        /*--end*/
 
-        // 应用搜索条件
         foreach (['keywords','typeid','flag','is_release'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
@@ -122,7 +120,7 @@ class Archives extends Base
                     $typeid = $param[$key];
                     $hasRow = model('Arctype')->getHasChildren($typeid);
                     $typeids = get_arr_column($hasRow, 'id');
-                    /*权限控制 by 小虎哥*/
+                    //权限控制 by 小虎哥
                     $admin_info = session('admin_info');
                     if (0 < intval($admin_info['role_id'])) {
                         $auth_role_info = $admin_info['auth_role_info'];
@@ -137,12 +135,12 @@ class Archives extends Base
                             }
                         }
                     }
-                    /*--end*/
                     $condition['a.typeid'] = array('IN', $typeids);
                 } else if ($key == 'flag') {
                     if ('is_release' == $param[$key]) {
                         $condition['a.users_id'] = array('gt', 0);
                     } else {
+                        $FlagNew = $param[$key];
                         $condition['a.'.$param[$key]] = array('eq', 1);
                     }
                 // } else if ($key == 'is_release') {
@@ -155,7 +153,7 @@ class Archives extends Base
             }
         }
         
-        /*权限控制 by 小虎哥*/
+        //权限控制 by 小虎哥
         if (empty($typeid)) {
             $typeids = [];
             $admin_info = session('admin_info');
@@ -174,8 +172,8 @@ class Archives extends Base
                 $condition['a.typeid'] = array('IN', $typeids); 
             }
         }
-        /*--end*/
 
+        $channelIds = [];
         if (empty($typeid)) {
             $id_tmp = [6,8];
             // 只显示允许发布文档的模型，且是开启状态
@@ -184,118 +182,123 @@ class Archives extends Base
             $condition['a.channel'] = array('NOT IN', $channelIds);
         } else {
             // 只显示当前栏目对应模型下的文档
-            $current_channel = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+            $current_channel = Db::name('arctype')->where('id', $typeid)->getField('current_channel');
             $condition['a.channel'] = array('eq', $current_channel);
         }
 
-        /*多语言*/
         $condition['a.lang'] = array('eq', $this->admin_lang);
-        /*--end*/
-
-        /*回收站数据不显示*/
         $condition['a.is_del'] = array('eq', 0);
-        /*--end*/
+        $continueNew = "(a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0))";
 
-        /*自定义排序*/
         $orderby = input('param.orderby/s');
         $orderway = input('param.orderway/s');
         if (!empty($orderby)) {
-            $orderby = "a.{$orderby} {$orderway}";
-            $orderby .= ", a.aid desc";
+            $orderby = "a.{$orderby} {$orderway}, a.aid desc";
         } else {
             $orderby = "a.aid desc";
         }
-        /*end*/
 
-        /**
-         * 数据查询，搜索出主键ID的值
-         */
-        $count = Db::name('archives')->alias('a')->where($condition)->count('aid');// 查询满足要求的总记录数
-        $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = Db::name('archives')
-            ->field("a.aid,a.channel")
-            ->alias('a')
-            ->where($condition)
-            ->order($orderby)
-            ->limit($Page->firstRow.','.$Page->listRows)
-            ->getAllWithIndex('aid');
-
-        /**
-         * 完善数据集信息
-         * 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；
-         */
-        if ($list) {
-            $aids = array_keys($list);
-            $fields = "b.*, a.*, a.aid as aid";
-            $row = Db::name('archives')
-                ->field($fields)
-                ->alias('a')
-                ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
-                ->where('a.aid', 'in', $aids)
-                ->getAllWithIndex('aid');
-
-            /*获取当页文档的所有模型*/
-            $channelIds = get_arr_column($list, 'channel');
-            $channelRow = Db::name('channeltype')->field('id, ctl_name, ifsystem')
-                ->where('id','IN',$channelIds)
-                ->getAllWithIndex('id');
-            $assign_data['channelRow'] = $channelRow;
-            /*--end*/
-
-            $aids_channel2 = []; // 产品模型的文档ID
-            foreach ($list as $key => $val) {
-                if (2 == $val['channel']) {
-                    array_push($aids_channel2, $val['aid']);
+        // 数据查询，搜索出主键ID的值
+        $SqlQuery = Db::name('archives')->alias('a')->where($condition)->where($continueNew)->fetchSql()->count('aid');
+        $count = Db::name('sql_cache_table')->where(['sql_md5'=>md5($SqlQuery)])->getField('sql_result');
+        if (!isset($count)) {
+            $count = Db::name('archives')->alias('a')->where($condition)->where($continueNew)->count('aid');
+            /*添加查询执行语句到mysql缓存表*/
+            $SqlCacheTable = [
+                'sql_name' => '|archives|!=' . implode(',', $channelIds) . '|',
+                'sql_result' => $count,
+                'sql_md5' => md5($SqlQuery),
+                'sql_query' => $SqlQuery,
+                'add_time' => getTime(),
+                'update_time' => getTime(),
+            ];
+            if (!empty($FlagNew)) $SqlCacheTable['sql_name'] = $SqlCacheTable['sql_name'] . $FlagNew . '|';
+            if (!empty($typeid)) {
+                $channeltype_list = config('global.channeltype_list');
+                foreach ($channeltype_list as $key => $value) {
+                    if ($value == $current_channel) {
+                        $ModelMark = $key;
+                        break;
+                    }
                 }
-                $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
-                $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']); // 支持子目录
-                $list[$key] = $row[$val['aid']];
+                $SqlCacheTable['sql_name'] = '|' . $ModelMark . '|' . $current_channel . '|' . $typeid . '|';
             }
-
-            // 产品参数
-            $product_attr_row = [];
-            if (!empty($aids_channel2)) {
-                $product_attr_row = Db::name('product_attr')->field('count(product_attr_id) as num, aid')->where(['aid'=>['IN', $aids_channel2]])->group('aid')->getAllWithIndex('aid');
-            }
-            $assign_data['product_attr_row'] = $product_attr_row;
+            Db::name('sql_cache_table')->insertGetId($SqlCacheTable);
+            /*END*/
         }
-        $show = $Page->show(); // 分页显示输出
-        $assign_data['page'] = $show; // 赋值分页输出
-        $assign_data['list'] = $list; // 赋值数据集
-        $assign_data['pager'] = $Page; // 赋值分页对象
 
-        // 栏目ID
+        $Page = new Page($count, config('paginate.list_rows'));
+        $list = [];
+        if (!empty($count)) {
+            $limit = $count > config('paginate.list_rows') ? $Page->firstRow.','.$Page->listRows : $count;
+            $list = Db::name('archives')
+                ->field("a.aid, a.channel")
+                ->alias('a')
+                ->where($condition)
+            	->where($continueNew)
+                ->order($orderby)
+                ->limit($limit)
+                ->getAllWithIndex('aid');
+            // 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；
+            if ($list) {
+                $aids = array_keys($list);
+                $fields = "b.*, a.*, a.aid as aid";
+                $row = Db::name('archives')
+                    ->field($fields)
+                    ->alias('a')
+                    ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
+                    ->where('a.aid', 'in', $aids)
+                    ->getAllWithIndex('aid');
+
+                /*获取当页文档的所有模型*/
+                $channelIds = get_arr_column($list, 'channel');
+                $channelRow = Db::name('channeltype')->field('id, ctl_name, ifsystem')
+                    ->where('id','IN',$channelIds)
+                    ->getAllWithIndex('id');
+                $assign_data['channelRow'] = $channelRow;
+
+                $aids_channel2 = []; // 产品模型的文档ID
+                foreach ($list as $key => $val) {
+                    if (2 == $val['channel']) array_push($aids_channel2, $val['aid']);
+                    $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
+                    $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']); // 支持子目录
+                    $list[$key] = $row[$val['aid']];
+                }
+
+                // 产品参数
+                $product_attr_row = [];
+                if (!empty($aids_channel2)) {
+                    $product_attr_row = Db::name('product_attr')->field('count(product_attr_id) as num, aid')->where(['aid'=>['IN', $aids_channel2]])->group('aid')->getAllWithIndex('aid');
+                }
+                $assign_data['product_attr_row'] = $product_attr_row;
+            }
+        }
+
+        $show = $Page->show();
+        $assign_data['page'] = $show;
+        $assign_data['list'] = $list;
+        $assign_data['pager'] = $Page;
+
         $assign_data['typeid'] = $typeid; // 栏目ID
-        /*当前栏目信息*/
+        //当前栏目信息
         $arctype_info = array();
         if ($typeid > 0) {
             $arctype_info = M('arctype')->field('typename,current_channel')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
-        /*--end*/
 
-        /*允许发布文档列表的栏目*/
-        $assign_data['arctype_html'] = allow_release_arctype($typeid, array());
-        /*--end*/
-        
-        /*前台URL模式*/
-        $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo');
-
-        /*文档属性*/
-        $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
-
-        // 商城开关
-        $assign_data['shop_open'] = getUsersConfigData('shop.shop_open');
-
-        /*是否存在栏目*/
+        $assign_data['arctype_html'] = allow_release_arctype($typeid, array());//允许发布文档列表的栏目
+        $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo');//前台URL模式
+        $assign_data['archives_flags'] = model('ArchivesFlag')->getList();//文档属性
+        $assign_data['shop_open'] = getUsersConfigData('shop.shop_open');//商城开关
+        //是否存在栏目
         $assign_data['is_arctype'] = Db::name('arctype')->where([
                 'is_del'    => 0,
                 'lang'      => get_current_lang(),
             ])->count();
-        /*end*/
-
         $this->assign($assign_data);
-        
+        $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
+        $this->assign('recycle_switch', $recycle_switch);
         return $this->fetch('index_archives');
     }
 
@@ -417,6 +420,10 @@ class Archives extends Base
                 $r = Db::name('archives')->where('aid','IN',$aids)->cache(true,null,'archives')->save($info);
                 if ($r !== false) {
                     adminLog('审核文档-id：'.implode(',', $aids));
+                    /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    model('SqlCacheTable')->InsertSqlCacheTable(true);
+                    /* END */
                     $this->success('操作成功！');
                 } else {
                     $this->error('操作失败！');
@@ -441,6 +448,10 @@ class Archives extends Base
                 $r = Db::name('archives')->where('aid','IN',$aids)->cache(true,null,'archives')->save($info);
                 if ($r !== false) {
                     adminLog('取消审核-id：'.implode(',', $aids));
+                    /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    model('SqlCacheTable')->InsertSqlCacheTable(true);
+                    /* END */
                     $this->success('操作成功！');
                 } else {
                     $this->error('操作失败！');
@@ -483,6 +494,10 @@ class Archives extends Base
                     'aid' => ['IN', $aids],
                 ])->update($update_data);
             if($r){
+                /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                model('SqlCacheTable')->InsertSqlCacheTable(true);
+                /* END */
                 adminLog('移动文档-id：'.$aids);
                 $this->success('操作成功');
             }else{
@@ -917,5 +932,165 @@ EOF;
             }
         }
         $this->success('自定义文件名可用！');
+    }
+
+    //投稿列表
+    public function index_draft()
+    {
+        $assign_data = array();
+        $condition = array();
+        $param = input('param.');
+        $typeid = input('typeid/d', 0);
+        foreach (['keywords','typeid'] as $key) {
+            if (isset($param[$key]) && $param[$key] !== '') {
+                if ($key == 'keywords') {
+                    $condition['a.title'] = array('LIKE', "%{$param[$key]}%");
+                } else if ($key == 'typeid') {
+                    $typeid = $param[$key];
+                    $hasRow = model('Arctype')->getHasChildren($typeid);
+                    $typeids = get_arr_column($hasRow, 'id');
+                    //权限控制 by 小虎哥
+                    $admin_info = session('admin_info');
+                    if (0 < intval($admin_info['role_id'])) {
+                        $auth_role_info = $admin_info['auth_role_info'];
+                        if(! empty($auth_role_info)){
+                            if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                                $condition['a.admin_id'] = $admin_info['admin_id'];
+                            }
+                            if(! empty($auth_role_info['permission']['arctype'])){
+                                if (!empty($typeid)) {
+                                    $typeids = array_intersect($typeids, $auth_role_info['permission']['arctype']);
+                                }
+                            }
+                        }
+                    }
+                    $condition['a.typeid'] = array('IN', $typeids);
+                } else {
+                    $condition['a.'.$key] = array('eq', $param[$key]);
+                }
+            }
+        }
+        
+        //权限控制 by 小虎哥
+        if (empty($typeid)) {
+            $typeids = [];
+            $admin_info = session('admin_info');
+            if (0 < intval($admin_info['role_id'])) {
+                $auth_role_info = $admin_info['auth_role_info'];
+                if(! empty($auth_role_info)){
+                    if(isset($auth_role_info['only_oneself']) && 1 == $auth_role_info['only_oneself']){
+                        $condition['a.admin_id'] = $admin_info['admin_id'];
+                    }
+                    if (!empty($auth_role_info['permission']['arctype'])) $typeids = $auth_role_info['permission']['arctype'];
+                }
+            }
+            if (!empty($typeids)) $condition['a.typeid'] = array('IN', $typeids); 
+        }
+
+        if (empty($typeid)) {
+            $id_tmp = [6,8];
+            // 只显示允许发布文档的模型，且是开启状态
+            $channelIds = Db::name('channeltype')->where('status',0)
+                ->whereOr('id','IN',$id_tmp)->column('id');
+            $condition['a.channel'] = array('NOT IN', $channelIds);
+        } else {
+            // 只显示当前栏目对应模型下的文档
+            $current_channel = Db::name('arctype')->where('id',$typeid)->getField('current_channel');
+            $condition['a.channel'] = array('eq', $current_channel);
+        }
+
+        $condition['a.users_id'] = array('gt', 0);
+        $condition['a.arcrank'] = array('lt', 0);
+        $condition['a.lang'] = array('eq', $this->admin_lang);
+        $condition['a.is_del'] = array('eq', 0);
+
+        // 自定义排序
+        $orderby = input('param.orderby/s');
+        $orderway = input('param.orderway/s');
+        $orderby = !empty($orderby) ? "a.{$orderby} {$orderway}, a.aid desc" : "a.aid desc";
+
+        // 查询并处理缓存表
+        $SqlQuery = Db::name('archives')->alias('a')->where($condition)->fetchSql()->count('aid');
+        $count = Db::name('sql_cache_table')->where(['sql_md5'=>md5($SqlQuery)])->getField('sql_result');
+        if (!isset($count)) {
+            $count = Db::name('archives')->alias('a')->where($condition)->count('aid');
+            // 添加查询执行语句到mysql缓存表
+            $SqlCacheTable = [
+                'sql_name' => '|archives|draft|',
+                'sql_result' => $count,
+                'sql_md5' => md5($SqlQuery),
+                'sql_query' => $SqlQuery,
+                'add_time' => getTime(),
+                'update_time' => getTime()
+            ];
+            if (!empty($typeid)) $SqlCacheTable['sql_name'] = $SqlCacheTable['sql_name'] . $typeid . '|';
+            Db::name('sql_cache_table')->insertGetId($SqlCacheTable);
+        }
+        // 分页
+        $Page = new Page($count, config('paginate.list_rows'));
+        $list = [];
+        if (!empty($count)) {
+            // 数据查询，搜索出主键ID的值
+            $limit = $count > config('paginate.list_rows') ? $Page->firstRow.','.$Page->listRows : $count;
+            $list = Db::name('archives')
+                ->field("a.aid,a.channel")
+                ->alias('a')
+                ->where($condition)
+                ->order($orderby)
+                ->limit($limit)
+                ->getAllWithIndex('aid');
+
+            // 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；
+            if ($list) {
+                $aids = array_keys($list);
+                $fields = "b.*, a.*, a.aid as aid";
+                $row = Db::name('archives')
+                    ->field($fields)
+                    ->alias('a')
+                    ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
+                    ->where('a.aid', 'in', $aids)
+                    ->getAllWithIndex('aid');
+
+                // 获取当页文档的所有模型
+                $channelIds = get_arr_column($list, 'channel');
+                $assign_data['channelRow'] = Db::name('channeltype')->field('id, ctl_name, ifsystem')
+                    ->where('id', 'IN', $channelIds)
+                    ->getAllWithIndex('id');
+
+                // 产品模型的文档ID
+                $aids_channel2 = [];
+                foreach ($list as $key => $val) {
+                    if (2 == $val['channel']) array_push($aids_channel2, $val['aid']);
+                    $row[$val['aid']]['arcurl'] = get_arcurl($row[$val['aid']]);
+                    $row[$val['aid']]['litpic'] = handle_subdir_pic($row[$val['aid']]['litpic']);
+                    $list[$key] = $row[$val['aid']];
+                }
+
+                // 产品参数
+                $product_attr_row = [];
+                if (!empty($aids_channel2)) {
+                    $product_attr_row = Db::name('product_attr')->field('count(product_attr_id) as num, aid')->where(['aid'=>['IN', $aids_channel2]])->group('aid')->getAllWithIndex('aid');
+                }
+                $assign_data['product_attr_row'] = $product_attr_row;
+            }
+        }
+
+        // 加载信息
+        $assign_data['page'] = $Page->show();
+        $assign_data['list'] = $list;
+        $assign_data['pager'] = $Page;
+        $assign_data['typeid'] = $typeid;
+        $arctype_info = array(); // 当前栏目信息
+        if ($typeid > 0) $arctype_info = M('arctype')->field('typename,current_channel')->find($typeid);
+        $assign_data['arctype_info'] = $arctype_info;
+        $assign_data['arctype_html'] = allow_release_arctype($typeid, array()); // 允许发布文档列表的栏目
+        $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo'); // 前台URL模式
+        $assign_data['archives_flags'] = model('ArchivesFlag')->getList(); // 文档属性
+        $assign_data['shop_open'] = getUsersConfigData('shop.shop_open'); // 商城开关
+        $assign_data['is_arctype'] = Db::name('arctype')->where(['is_del'=>0,'lang'=>get_current_lang()])->count(); // 是否存在栏目
+        $this->assign($assign_data);
+        $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
+        $this->assign('recycle_switch', $recycle_switch);
+        return $this->fetch('index_draft');
     }
 }

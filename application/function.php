@@ -33,6 +33,27 @@ if (!function_exists('convert_arr_key')) {
     }
 }
 
+if (!function_exists('reform_keys')) {
+    /**
+     * 重置数组索引，兼容多维数组
+     *
+     * @param array $arr 数组
+     * @param string $key_name 数组键名
+     * @return array
+     */
+    function reform_keys($array){
+        if(!is_array($array)){
+            return $array;
+        }
+        $keys = implode('', array_keys($array));
+        if(is_numeric($keys)){
+            $array = array_values($array);
+        }
+        $array = array_map('reform_keys', $array);
+        return $array;
+    }
+}
+
 if (!function_exists('func_encrypt')) {
     /**
      * md5加密

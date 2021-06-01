@@ -50,6 +50,10 @@
                                 </th>
                             {/eq}
 
+                            <th abbr="article_title" axis="col3" class="w60">
+                                <div class="tc">ID</div>
+                            </th>
+
                             <th abbr="article_title" axis="col3">
                                 <div class="tl text-l10" style="width: 100%">广告名称</div>
                             </th>
@@ -93,6 +97,9 @@
                                     <div class="w40 tc"> <input type="checkbox" name="ids[]" value="{$vo.id}"> </div>
                                 </td>
                                 {/eq}
+                                <td>
+                                    <div class="tc w60"> {$vo.id} </div>
+                                </td>
 
                                 <td align="left" style="width:100%;">
                                     <div class="tl text-l10">

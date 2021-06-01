@@ -177,11 +177,10 @@ class Upgrade extends Controller {
             $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVNlcnZpY2UmYT1nZXRfZGF0YWJhc2VfdHh0';
             $service_url = base64_decode(config('service_ey')).base64_decode($tmp_str);
             $url = $service_url . '&version=' . getCmsVersion();
-            $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
-            $response = @file_get_contents($url,false,$context);
-            if (false === $response) {
-                $url = str_replace('http://service', 'https://service', $url);
-                $response = @httpRequest($url);
+            $response = @httpRequest($url);
+            if (empty($response)) {
+                $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+                $response = @file_get_contents($url,false,$context);
             }
             $params = json_decode($response,true);
             if (false == $params) {

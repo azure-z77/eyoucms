@@ -39,6 +39,7 @@ class PayLogic extends Model
         $this->shop_order_details_db = Db::name('shop_order_details');  // 订单明细表
         $this->users_type_manage_db  = Db::name('users_type_manage');   // 会员升级分类价格表
         $this->media_order_db        = Db::name('media_order');         // 视频订单表
+        $this->article_order_db      = Db::name('article_order');       // 文章订单表
     }
 
     /*----------支付宝回调开始----------*/
@@ -125,7 +126,7 @@ class PayLogic extends Model
             $return = $this->ShopOrderProcessing($param, $order_amount);
             return $return;
 
-        }else if (1 == $param['transaction_type']) {
+        }else if (1 == $param['transaction_type'] || 3 == $param['transaction_type']) {
             // 会员充值或升级支付回调处理
             $return = $this->MoneyOrderProcessing($param, $order_amount);
             return $return;
@@ -142,7 +143,7 @@ class PayLogic extends Model
             $return = $this->ShopOrderProcessing($param, $order_amount);
             return $return;
 
-        }else if (1 == $param['transaction_type']) {
+        }else if (1 == $param['transaction_type'] || 3 == $param['transaction_type']) {
             // 会员充值或升级支付回调处理
             $return = $this->MoneyOrderProcessing($param, $order_amount);
             return $return;
@@ -507,6 +508,26 @@ class PayLogic extends Model
                     // 视频订单无需处理，直接返回结束
                     echo 'FAIL'; exit;
                 }
+            }else if (9 == $attach[2]) {
+                // 文章购买
+                $where = [
+                    'order_code' => $GetData['out_trade_no']
+                ];
+                if (!empty($attach[3])) $where['users_id'] = $attach[3];
+                // 文章订单查询
+                $OrderStatus = $this->article_order_db->where($where)->getField('order_status');
+                if (empty($OrderStatus) && 0 == $OrderStatus) {
+                    // 文章订单支付成功后续处理
+                    $Result = $this->ArticlePayProcessing($GetData, $where);
+                    // 返回结束
+                    if (!empty($Result)) echo 'SUCCESS'; exit;
+                } else if (in_array($OrderStatus, [1])) {
+                    // 视频订单已完成处理，直接返回结束
+                    echo 'SUCCESS'; exit;
+                } else {
+                    // 视频订单无需处理，直接返回结束
+                    echo 'FAIL'; exit;
+                }
             }
         }
     }
@@ -650,6 +671,24 @@ class PayLogic extends Model
 
         // 视频订单更新
         $UpdateID = Db::name('media_order')->where($Where)->update($OrderData);
+        $Return = !empty($UpdateID) ? true : false;
+
+        // 返回执行结果
+        return $Return;
+    }
+    // 会员购买文章处理
+    private function ArticlePayProcessing($GetData = [], $Where = [])
+    {
+        // 视频订单更新数据，更新为已付款
+        $OrderData = [
+            'order_status' => 1,
+            'pay_details'  => serialize($GetData),
+            'pay_time'     => getTime(),
+            'update_time'  => getTime()
+        ];
+
+        // 视频订单更新
+        $UpdateID = $this->article_order_db->where($Where)->update($OrderData);
         $Return = !empty($UpdateID) ? true : false;
 
         // 返回执行结果

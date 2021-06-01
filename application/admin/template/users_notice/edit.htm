@@ -6,9 +6,13 @@
     .comboTreeDropDownContainer {box-shadow: 0 0 8px rgba(0,0,0,0.2);border-radius: 4px!important;background-color: #FFF !important;border: solid 1px #eee !important;}
     .multiplesFilter{height: 30px !important;}
 </style>
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 <link href="__SKIN__/css/notice.css?v={$version}" rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="__SKIN__/js/icontains.js?v={$version}"></script>

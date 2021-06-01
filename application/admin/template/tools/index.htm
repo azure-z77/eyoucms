@@ -33,7 +33,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" onclick="javascript:$('input[name*=tables]').prop('checked',this.checked);" checked="checked"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=tables]').prop('checked',this.checked);" checked="checked"></div>
                         </th>
                         <th abbr="article_title" axis="col3">
                             <div style="padding-left: 10px;" class="">数据库表</div>
@@ -76,7 +76,7 @@
                             {foreach name="list" item="vo" key="k" }
                             <tr data-id="{$vo.Name}">
                                 <td class="sign">
-                                    <div class="w40 tc"><input type="checkbox" name="tables[]" value="{$vo.Name}" checked="checked"></div>
+                                    <div class="w40 tc"><input type="checkbox" autocomplete="off" name="tables[]" value="{$vo.Name}" checked="checked"></div>
                                 </td>
                                 <td style="width: 100%">
                                     <div style="padding-left: 10px;">{$vo.Name}</div>
@@ -119,7 +119,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" onclick="javascript:$('input[name*=tables]').prop('checked',this.checked);" checked="checked">
+                    <input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=tables]').prop('checked',this.checked);" checked="checked">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@export'|is_check_access" value="1"}
                 <div class="fbutton export_btn">

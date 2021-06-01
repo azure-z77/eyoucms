@@ -551,6 +551,9 @@ class Template
                             if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/^users(_([^\/]*))?\//i', $file)) {
                                 $file = str_ireplace("{$web_users_tpl_theme}/", "{$web_users_tpl_theme}/{$users_wap_tpl_dir}/", $file);
                             }
+                            else if (file_exists('./template/'.TPL_THEME.'pc/ask/'.$users_wap_tpl_dir) && preg_match('/^ask(_([^\/]*))?\//i', $file)) {
+                                $file = str_ireplace("ask/", "ask/{$users_wap_tpl_dir}/", $file);
+                            }
                         }
                         $file = preg_replace('/^users(_([^\/]*))?\//', $web_users_tpl_theme.'/', $file); // 支持会员中心模板切换
                     }
@@ -621,6 +624,9 @@ class Template
                         if (!empty($is_mobile)) {
                             if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/^users(_([^\/]*))?\//i', $file)) {
                                 $file = str_ireplace("{$web_users_tpl_theme}/", "{$web_users_tpl_theme}/{$users_wap_tpl_dir}/", $file);
+                            }
+                            else if (file_exists('./template/'.TPL_THEME.'pc/ask/'.$users_wap_tpl_dir) && preg_match('/^ask(_([^\/]*))?\//i', $file)) {
+                                $file = str_ireplace("ask/", "ask/{$users_wap_tpl_dir}/", $file);
                             }
                         }
                         $file = preg_replace('/^users(_([^\/]*))?\//', $web_users_tpl_theme.'/', $file); // 支持会员中心模板切换
@@ -1262,6 +1268,32 @@ class Template
                 $path   = $this->config['view_base'] . ($module ? $module . DS : '');
             } else {
                 $path = isset($module) ? APP_PATH . $module . DS . basename($this->config['view_path']) . DS : $this->config['view_path'];
+
+                /*会员/问答中心模板切换，兼容响应式模板目录下*/
+                static $is_mobile = null;
+                if (null == $is_mobile) {
+                    $is_mobile = isMobile();
+                }
+                if (!empty($is_mobile)) {
+                    static $web_users_tpl_theme = null;
+                    if (null == $web_users_tpl_theme) {
+                        $web_users_tpl_theme = config('ey_config.web_users_tpl_theme');
+                    }
+                    static $users_wap_tpl_dir = null;
+                    if (null == $users_wap_tpl_dir) {
+                        $users_wap_tpl_dir = config('ey_config.users_wap_tpl_dir');
+                    }
+
+                    $template_tmp = str_replace('\\', '/', $template);
+                    $template_tmp = '/'.trim($template_tmp, '/').'/';
+                    if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/\/'.$web_users_tpl_theme.'\/'.$users_wap_tpl_dir.'\//i', $template_tmp)) {
+                        $path = str_replace('/mobile/', '/pc/', $path);
+                    }
+                    else if (file_exists('./template/'.TPL_THEME.'pc/ask/'.$users_wap_tpl_dir) && preg_match('/\/ask\/'.$users_wap_tpl_dir.'\//i', $template_tmp)) {
+                        $path = str_replace('/mobile/', '/pc/', $path);
+                    }
+                }
+                /*end*/
             }
             $filename = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
             $template = realpath($filename);

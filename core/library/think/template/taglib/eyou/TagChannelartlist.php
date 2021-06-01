@@ -48,13 +48,12 @@ class TagChannelartlist extends Base
      */
     public function getChannelartlist($typeid = '', $type = 'self')
     {
-        $typeid  = !empty($typeid) ? $typeid : $this->tid;
+        $typeid = !empty($typeid) ? $typeid : $this->tid;
 
-        if (empty($typeid)) {
-            $type = 'top'; // 默认顶级栏目
-        }
+        // 栏目ID为空则默认顶级栏目
+        if (empty($typeid)) $type = 'top';
         
-        /*多语言*/
+        // 多语言
         if (!empty($typeid)) {
             $typeid = model('LanguageAttr')->getBindValue($typeid, 'arctype');
             if (empty($typeid)) {
@@ -62,10 +61,8 @@ class TagChannelartlist extends Base
                 return false;
             }
         }
-        /*--end*/
 
         $result = $this->getSwitchType($typeid, $type);
-
         return $result;
     }
 
@@ -100,7 +97,7 @@ class TagChannelartlist extends Base
         if (!empty($result)) {
             /*获取自定义表字段信息*/
             $map = array(
-                'channel_id'    => config('global.arctype_channel_id'),
+                'channel_id' => config('global.arctype_channel_id')
             );
             $fieldInfo = model('Channelfield')->getListByWhere($map, '*', 'name');
             /*--end*/

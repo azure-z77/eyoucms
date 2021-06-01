@@ -159,7 +159,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
+                                <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back')" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}"
                                      title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -192,7 +192,7 @@
                 <dd class="opt">
                     <div class="input-file-show div_{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" {neq name="$vo[$vo['name'].'_eyou_is_remote']" value="0"}style="display: none;"{/neq}>
                         <span class="type-file-box">
-                            <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
+                            <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" type="file" onchange="upload_file_1585641738(this)" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}">
                         </span>

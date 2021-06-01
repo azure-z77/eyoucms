@@ -64,7 +64,7 @@
                                     <div class="w120 tl">
                                         {eq name="'System@customvar_del'|is_check_access" value="1"}
                                             {eq name='$main_lang' value='$admin_lang'}
-                                            <a class="btn red" href="javascript:void(0);" data-id="{$vo.id}" onClick="customvar_del(this);"><i class="fa fa-trash-o"></i>删除</a>
+                                            <a class="btn red" href="javascript:void(0);" data-id="{$vo.id}" onClick="customvar_del(this);" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq}><i class="fa fa-trash-o"></i>删除</a>
                                             {/eq}
                                         {/eq}
                                         <a class="btn blue {$vo['attr_var_name']}" href="javascript:void(0);" onclick="showtext('{$vo['attr_var_name']}');" data-clipboard-text="{{php} echo 'eyou:global name=\'';{/php}{$vo['attr_var_name']}{php} echo '\' /';{/php}}">标签调用</a>
@@ -159,6 +159,7 @@
 
     // 提交
     function customvar_save(obj){
+
         if ($('input[name*=attr_name]').length == 0) {
             showErrorAlert('至少新增一个自定义变量！');
             return false;
@@ -200,7 +201,12 @@
     }
 
     function customvar_del(obj) {
-        layer.confirm('删除到回收站，确认删除？', {
+        var deltype = $(obj).attr('data-deltype');
+        var confirm_title = '删除到回收站，确认删除？';
+        if ('del' == deltype){
+            confirm_title = '此操作不可恢复，确认删除？';
+        }
+        layer.confirm(confirm_title, {
                 title: false,
                 closeBtn: false,
                 btn: ['确定','取消'] //按钮
@@ -210,7 +216,7 @@
                 $.ajax({
                     type : 'post',
                     url : "{:url('System/customvar_del')}",
-                    data : {del_id:$(obj).attr('data-id'),_ajax:1},
+                    data : {del_id:$(obj).attr('data-id'),deltype:deltype,_ajax:1},
                     dataType : 'json',
                     success : function(data){
                         layer.closeAll();

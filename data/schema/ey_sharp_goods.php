@@ -54,6 +54,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'virtual_sales' => 
+  array (
+    'name' => 'virtual_sales',
+    'type' => 'tinyint(3)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'sort_order' => 
   array (
     'name' => 'sort_order',

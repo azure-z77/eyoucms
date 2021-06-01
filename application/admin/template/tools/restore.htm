@@ -23,7 +23,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="article_title" axis="col3" class="">
                             <div class="tl text-l10">文件名称</div>
@@ -66,7 +66,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr data-id="{$vo.basename}">
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.time}"></div>
+                                <div class="w40 tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.time}"></div>
                             </td>
                             <td style="width: 100%">
                                 <div class="tl text-l10" >{$vo.basename}</div>
@@ -114,7 +114,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">

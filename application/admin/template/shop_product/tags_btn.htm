@@ -1,5 +1,3 @@
-
-
 <div class="sDiv2">  
     <select name="typeid" class="select" style="margin:0px 5px;">
         <option value="">--所有栏目--</option>
@@ -7,16 +5,13 @@
     </select>
 </div>
 <!-- 扩展 -->
-
 <script type="text/javascript">
-    $(document).ready(function(){
-        $('#searchForm select[name=typeid]').change(function(){
+    $(document).ready(function() {
+        $('#searchForm select[name=typeid]').change(function() {
             $('#searchForm').submit();
         });
     });
-
-    function quick_release(is_product_arctype)
-    {
+    function quick_release(is_product_arctype) {
         if (is_product_arctype && 0 < is_product_arctype) {
             //iframe窗
             layer.open({

@@ -38,18 +38,29 @@ class UsersRelease extends Model
      * @param array $post post数据
      * @param string $opt 操作
      */
-    public function afterSave($aid, $post, $opt)
+    public function afterSave($aid, $post, $opt, $table)
     {
-        $post['aid']   = $aid;
+        $post['aid'] = $aid;
         $addonFieldExt = !empty($post['addonFieldExt']) ? $post['addonFieldExt'] : array();
         $this->dealChannelPostData($post['channel'], $post, $addonFieldExt);
-        //图集模型
-        if ($post['channel'] == 3){
-            $this->saveimg($aid,$post);
+
+        // 图集模型
+        if ($post['channel'] == 3) {
+            $this->saveimg($aid, $post);
+        } else if ($post['channel'] == 4) {
+            model('DownloadFile')->savefile($aid, $post);
         }
 
-        // --处理TAG标签
+        // 处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags'], $post['arcrank'], $opt);
+
+        if (isset($post['arcrank']) && 0 <= $post['arcrank']) {
+            // 投稿已审核
+            model('SqlCacheTable')->UpdateSqlCacheTable($post, $opt, $table, true);
+        } else if (isset($post['arcrank']) && -1 == $post['arcrank']) {
+            // 投稿待审核
+            model('SqlCacheTable')->UpdateDraftSqlCacheTable($post, $opt);
+        }
     }
 
     /**
@@ -242,8 +253,10 @@ class UsersRelease extends Model
 
                     case 'htmltext':
                     {
-                        $preg = "/&lt;script[\s\S]*?script&gt;/i";
-                        $val = preg_replace($preg,"",$val);
+                        if (!empty($val)) {
+                            $val = preg_replace("/^&amp;nbsp;/i", "", $val);
+                        }
+                        $val = preg_replace("/&lt;script[\s\S]*?script&gt;/i", "", $val);
                         $val = trim($val);
                     }
 
@@ -375,7 +388,6 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'float':
                     case 'decimal':
                     {
@@ -389,7 +401,6 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'select':
                     {
                         $dfvalue = $val['dfvalue'];
@@ -403,7 +414,6 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'radio':
                     {
                         $dfvalue = $val['dfvalue'];
@@ -417,7 +427,6 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'region':
                     {
                         $dfvalue    = unserialize($val['dfvalue']);
@@ -440,7 +449,6 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'checkbox':
                     {
                         $dfvalue = $val['dfvalue'];
@@ -453,68 +461,105 @@ class UsersRelease extends Model
                         }
                         break;
                     }
-
                     case 'img':
                     {
                         if (isset($addonRow[$val['name']])) {
                             $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                            if (is_http_url($val['dfvalue'])){
+                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
+                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
+                                }
+                            }
                         }
                         break;
                     }
-
                     case 'file':
-                        {
-                            if (isset($addonRow[$val['name']])) {
-                                $val[$val['name'].'_eyou_is_remote'] = 0;
-                                $val[$val['name'].'_eyou_remote'] = '';
-                                $val[$val['name'].'_eyou_local'] =  handle_subdir_pic($addonRow[$val['name']]);
-                                $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                    {
+                        if (isset($addonRow[$val['name']])) {
+                            $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                            if (is_http_url($val['dfvalue'])){
+                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
+                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
+                                }
                             }
-                            $ext = tpCache('basic.file_type');
-                            $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
-                            $val['filesize'] = upload_max_filesize();
-                            break;
+                        }
+                        $ext = tpCache('basic.file_type');
+                        $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
+                        $val['filesize'] = upload_max_filesize();
+                        break;
+                    }
+                    case 'media':
+                    {
+                        if (isset($addonRow[$val['name']])) {
+                            $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']],'media');
+                            if (is_http_url($val['dfvalue'])){
+                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
+                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
+                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
+                                }
+                            }
+                        }
+                        $val['upload_flag'] = 'local';
+                        $WeappConfig = Db::name('weapp')->field('code, status')->where('code', 'IN', ['Qiniuyun', 'AliyunOss', 'Cos'])->where('status',1)->select();
+                        foreach ($WeappConfig as $value) {
+                            if ('Qiniuyun' == $value['code']) {
+                                $val['upload_flag'] = 'qny';
+                            } else if ('AliyunOss' == $value['code']) {
+                                $val['upload_flag'] = 'oss';
+                            } else if ('Cos' == $value['code']) {
+                                $val['upload_flag'] = 'cos';
+                            }
                         }
 
+                        $ext = tpCache('basic.media_type');
+                        $val['ext'] = !empty($ext) ? $ext : "swf|mpg|mp3|rm|rmvb|wmv|wma|wav|mid|mov|mp4";
+                        $val['filesize'] = upload_max_filesize();
+                        break;
+                    }
                     case 'imgs':
                     {
                         $val[$val['name'].'_eyou_imgupload_list'] = array();
                         if (isset($addonRow[$val['name']]) && !empty($addonRow[$val['name']])) {
                             $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
-                            /*支持子目录*/
+                            //支持子目录
                             foreach ($eyou_imgupload_list as $k1 => $v1) {
                                 $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
+                                if (is_http_url($eyou_imgupload_list[$k1])){
+                                    if (substr($eyou_imgupload_list[$k1], 0, strlen('http:')) === 'http:'){
+                                        $eyou_imgupload_list[$k1] = substr($eyou_imgupload_list[$k1],strlen('http:'));
+                                    }elseif (substr($eyou_imgupload_list[$k1], 0, strlen('https:')) === 'https:'){
+                                        $eyou_imgupload_list[$k1] = substr($eyou_imgupload_list[$k1],strlen('https:'));
+                                    }
+                                }
                             }
-                            /*--end*/
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
                         }
                         break;
                     }
-
                     case 'datetime':
                     {
                         $val['dfvalue'] = !empty($addonRow[$val['name']]) ? date('Y-m-d H:i:s', $addonRow[$val['name']]) : date('Y-m-d H:i:s');
                         break;
                     }
-
                     case 'htmltext':
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
-                        /*支持子目录*/
-                        $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');
-                        /*--end*/
+                        $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');//支持子目录
                         break;
                     }
-
                     default:
                     {
                         $val['dfvalue'] = isset($addonRow[$val['name']]) ? $addonRow[$val['name']] : $val['dfvalue'];
-                        /*支持子目录*/
                         if (is_string($val['dfvalue'])) {
+                            //支持子目录
                             $val['dfvalue'] = handle_subdir_pic($val['dfvalue'], 'html');
                             $val['dfvalue'] = handle_subdir_pic($val['dfvalue']);
                         }
-                        /*--end*/
                         break;
                     }
                 }
@@ -523,5 +568,4 @@ class UsersRelease extends Model
         }
         return $list;
     }
-
 }

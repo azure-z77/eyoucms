@@ -30,8 +30,11 @@ function SelectPayMethod(pay_id, pay_mark) {
                 $('#PayMark').val(pay_mark);
                 if (res.data.appId) {
                     callpay(res.data);
-                } else if (res.data.url_qrcode) {
+                } else if (res.data.url_qrcode && 0 == JsonData.IsMobile) {
                     AlertPayImg(res.data);
+                } else if (res.data.url && 1 == JsonData.IsMobile) {
+                    window.open(res.data.url);
+                    PayPolling = window.setInterval(OrderPayPolling, 1000);
                 } else {
                     layer_loading('订单支付中');
                     if (1 == JsonData.IsMobile) {
@@ -274,8 +277,11 @@ function UsersUpgradePay(obj) {
                     unified_id = res.data.unified_id;
                     unified_number = res.data.unified_number;
                     transaction_type = 3;
-                    if (res.data.url_qrcode) {
+                    if (res.data.url_qrcode && 0 == JsonData.IsMobile) {
                         AlertPayImg(res.data);
+                    } else if (res.data.url && 1 == JsonData.IsMobile) {
+                        window.open(res.data.url);
+                        PayPolling = window.setInterval(OrderPayPolling, 1000);
                     } else {
                         layer_loading('订单支付中');
                         if (1 == JsonData.IsMobile) {

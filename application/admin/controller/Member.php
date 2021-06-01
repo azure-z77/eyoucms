@@ -67,7 +67,7 @@ class Member extends Base {
         foreach (['keywords','origin_type'] as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'keywords') {
-                    $condition['a.username|a.nickname'] = array('LIKE', "%{$param[$key]}%");
+                    $condition['a.username|a.nickname|a.mobile|a.email'] = array('LIKE', "%{$param[$key]}%");
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
                 }
@@ -196,7 +196,6 @@ class Member extends Base {
                     'reg_time'       => getTime(),
                     'head_pic'       => ROOT_DIR . '/public/static/common/images/dfboy.png',
                     'lang'           => $this->admin_lang,
-                    'add_time'       => getTime(),
                 ];
             }
             if (!empty($addData)) {
@@ -465,6 +464,7 @@ class Member extends Base {
             }
         }
 
+        $assign_data = [];
         $users_id = input('param.id/d');
 
         // 会员信息
@@ -482,18 +482,18 @@ class Member extends Base {
         }else{
             $info['level_maturity_days_new'] = $days;
         }
-        $this->assign('info',$info);
+        $assign_data['info'] = $info;
 
         // 等级信息
-        $level = $this->users_level_db->field('level_id,level_name')
+        $assign_data['level'] = $this->users_level_db->field('level_id,level_name')
             ->where(['lang'=>$this->admin_lang])
             ->order('level_value asc')
             ->select();
-        $this->assign('level',$level);
 
         // 属性信息
-        $users_para = model('Member')->getDataParaList($users_id);
-        $this->assign('users_para',$users_para);
+        $assign_data['users_para'] = model('Member')->getDataParaList($users_id);
+        // 积分
+        $assign_data['scoreCofing'] = getUsersConfigData('score');
 
         // 上一个页面来源
         $from = input('param.from/s');
@@ -502,8 +502,9 @@ class Member extends Base {
         } else {
             $backurl = url('Member/users_index');
         }
-        $this->assign('backurl', $backurl);
-
+        $assign_data['backurl'] = $backurl;
+        
+        $this->assign($assign_data);
         return $this->fetch();
     }
 
@@ -1898,5 +1899,100 @@ class Member extends Base {
                 $this->redirect($url);             
             }
         }
+    }
+
+    // 文章订单列表页
+    public function article_index()
+    {
+        $list = [];
+        $condition = [
+            'a.lang' => $this->admin_lang,
+        ];
+
+        $order_code = input('order_code/s');
+        if (!empty($order_code)) $condition['a.order_code'] = ['LIKE', "%{$order_code}%"];
+        $order_status = input('param.order_status/d');
+        if ($order_status) {
+            $order_status = $order_status == 1 ? $order_status : 0;
+            $condition['a.order_status'] = $order_status;
+        }
+
+        //时间检索条件
+        $begin    = strtotime(input('param.add_time_begin/s'));
+        $end    = input('param.add_time_end/s');
+        !empty($end) && $end .= ' 23:59:59';
+        $end    = strtotime($end);
+        // 时间检索
+        if ($begin > 0 && $end > 0) {
+            $condition['a.add_time'] = array('between',"$begin,$end");
+        } else if ($begin > 0) {
+            $condition['a.add_time'] = array('egt', $begin);
+        } else if ($end > 0) {
+            $condition['a.add_time'] = array('elt', $end);
+        }
+
+        $count = Db::name('article_order')->alias('a')->where($condition)->count();
+        $total_money = Db::name('article_order')->alias('a')->where($condition)->value("SUM(`order_amount`) as `total_money`");
+        $this->assign('total_money', $total_money);
+        $Page = new Page($count, config('paginate.list_rows'));
+        $show = $Page->show();
+        $this->assign('page', $show);
+        $this->assign('pager', $Page);
+
+        $list = Db::name('article_order')->where($condition)
+            ->field('a.*, b.username')
+            ->alias('a')
+            ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
+            ->order('a.order_id desc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
+        $this->assign('list', $list);
+
+        return $this->fetch();
+    }
+
+    // 文章订单详情页
+    public function article_order_details()
+    {
+        $order_id = input('param.order_id');
+        if (!empty($order_id)) {
+            $OrderData = Db::name('article_order')->field('*, product_id as aid')->find($order_id);
+            $UsersData = $this->users_db->find($OrderData['users_id']);
+            // 用于点击视频文档跳转到前台
+            $array_new = get_archives_data([$OrderData], 'product_id');
+            // 内页地址
+            $OrderData['arcurl'] = get_arcurl($array_new[$OrderData['product_id']]);
+            // 支持子目录
+            $OrderData['product_litpic'] = get_default_pic($OrderData['product_litpic']);
+            $this->assign('OrderData', $OrderData);
+            $this->assign('UsersData', $UsersData);
+            return $this->fetch();
+        } else {
+            $this->error('非法访问！');
+        }
+    }
+
+    // 文章订单批量删除
+    public function article_order_del()
+    {
+        $order_id = input('del_id/a');
+        $order_id = eyIntval($order_id);
+        if (IS_AJAX_POST && !empty($order_id)) {
+            $Where = [
+                'order_id'  => ['IN', $order_id],
+                'lang'      => $this->admin_lang
+            ];
+            $result = Db::name('article_order')->field('order_code')->where($Where)->select();
+            $order_code_list = get_arr_column($result, 'order_code');
+            // 删除订单列表数据
+            $return = Db::name('article_order')->where($Where)->delete();
+            if ($return) {
+                adminLog('删除订单：'.implode(',', $order_code_list));
+                $this->success('删除成功');
+            } else {
+                $this->error('删除失败');
+            }
+        }
+        $this->error('参数有误');
     }
 }

@@ -35,7 +35,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="id" axis="col5" class="w60">
                             <div class="tc">活动ID</div>
@@ -74,7 +74,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.active_id}"></div>
+                                <div class="w40 tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.active_id}"></div>
                             </td>
                             <td class="sort">
                                 <div class="w60 tc">
@@ -128,7 +128,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="'Sharp@active_del'|is_check_access" value="1"}
                 <div class="fbutton">

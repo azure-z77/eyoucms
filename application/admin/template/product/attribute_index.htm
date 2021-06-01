@@ -42,7 +42,7 @@
                     <tr>
                         {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         {/eq}
                         <th abbr="article_title" axis="col3" class="w40">
@@ -90,7 +90,7 @@
                         <tr>
                             {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign">
-                                <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.attr_id}"></div>
+                                <div class="tc w40"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.attr_id}"></div>
                             </td>
                             {/eq}
                             <td class="sort">
@@ -131,7 +131,7 @@
                                     {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                                     {eq name='$main_lang' value='$admin_lang'}
                                     <i></i>
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Product/attribute_del')}" data-id="{$vo.attr_id}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Product/attribute_del')}" data-id="{$vo.attr_id}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq} onClick="delfun(this);">删除</a>
                                     {/eq}
                                     {/eq}
                                     <!-- <a class="btn blue" href="javascript:void(0);" onclick="copyToClipBoard('{$vo.fieldname}', '{$vo.attr_id}', {$vo.attr_input_type|default='0'})">标签调用</a> -->
@@ -159,7 +159,7 @@
             <div class="tDiv2">
                 {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                 <div class="fbutton">

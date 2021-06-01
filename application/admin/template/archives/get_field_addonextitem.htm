@@ -10,13 +10,10 @@
     });
     
     function GetAddonextitem(init, typeidNew, channeltypeNew, aidNew, is_destroy, ControllerName) {
-        var loadingTxt = '正在加载';
-        if (1 == init) {
-            loadingTxt = '正在切换';
-        }
+        var loadingTxt = 1 == init ? '正在切换' : '正在加载';
         layer_loading(loadingTxt);
-        
         ControllerName = ControllerName ? ControllerName : '';
+        
         $.ajax({
             url: "{:url('Archives/ajax_get_addonextitem')}",
             data: {typeid: typeidNew, channeltype: channeltypeNew, aid: aidNew, controller_name: ControllerName, _ajax:1},
@@ -26,11 +23,36 @@
                 if (res.code == 0) {
                     layer.alert(res.msg, {icon: 2, title:false});
                 } else {
-                    $('#FieldAddonextitem').empty().html(res.data.html);
-                    if (1 == init) {
+                    var EditorSelect = {$editor.editor_select};
+                    if (2 == EditorSelect) {
+                        // 编辑器内容数据提取
+                        var contentData = [];
                         $.each(res.data.htmltextField, function (index, value) {
-                            showEditor_1597892187('addonFieldExt_'+value);
+                            var contentID = 'addonFieldExt_' + value;
+                            var getContent = '';
+                            for (instance in CKEDITOR.instances) {
+                                CKEDITOR.instances[contentID].updateElement();
+                                getContent = CKEDITOR.instances[contentID].getData();
+                            }
+                            contentData.push(getContent);
                         });
+                        // 覆盖原先的编辑器HTML
+                        $('#FieldAddonextitem').empty().html(res.data.html);
+                        // 追加编辑器的内容
+                        $.each(res.data.htmltextField, function (index, value) {
+                            if (contentData[index]) {
+                                var contentID = 'addonFieldExt_' + value;
+                                CKEDITOR.instances[contentID].setData(contentData[index]);
+                            }
+                        });
+                    } else if (1 == EditorSelect) {
+                        $('#FieldAddonextitem').empty().html(res.data.html);
+                        
+                        if (1 == init) {
+                            $.each(res.data.htmltextField, function (index, value) {
+                                showEditor_1597892187('addonFieldExt_'+value);
+                            });
+                        }
                     }
                 }
             },
@@ -42,15 +64,12 @@
     }
 
     // 渲染编辑器
-    function showEditor_1597892187(elemtid){
-
+    function showEditor_1597892187(elemtid) {
         var content = '';
-
         try{
             content = UE.getEditor(elemtid).getContent();
             UE.getEditor(elemtid).destroy();
         }catch(e){}
-
         var serverUrl = eyou_basefile+'?m=admin&c=Ueditor&a=index&savepath=ueditor&lang='+__lang__;
         var options = {
             serverUrl : serverUrl,
@@ -64,7 +83,6 @@
             autoHeightEnabled: false,
             toolbars: ueditor_toolbars
         };
-
         eval("ue_"+elemtid+" = UE.getEditor(elemtid, options);ue_"+elemtid+".ready(function() {ue_"+elemtid+".setContent(content);});");
     }
 </script>

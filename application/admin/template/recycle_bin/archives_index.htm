@@ -27,7 +27,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="article_title" axis="col3" class="w40">
                             <div class="tc">ID</div>
@@ -63,7 +63,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="sign">
-                                <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.aid}"></div>
+                                <div class="tc w40"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.aid}"></div>
                             </td>
                            
                             <td class="sort">
@@ -110,7 +110,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="'RecycleBin@archives_recovery'|is_check_access" value="1"}
                 <div class="fbutton">
@@ -122,7 +122,7 @@
                 {eq name="'RecycleBin@archives_del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('RecycleBin/archives_del')}" class="layui-btn layui-btn-primary">
-                            <span>批量彻底删除</span>
+                        <span>批量彻底删除</span>
                     </a>
                 </div>
                 {/eq}

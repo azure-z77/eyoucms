@@ -283,6 +283,47 @@ class PayApiLogic extends Model
                 }
                 Db::name('media_order')->where($where)->update($update);
             }
+        } else if (9 == $post['transaction_type']) {
+            //文章购买
+            $where = [
+                'users_id'   => $this->users_id,
+                'lang'       => $this->home_lang,
+                'order_id'   => $post['unified_id'],
+                'order_code' => $post['unified_number']
+            ];
+            $OrderData = Db::name('article_order')->where($where)->find();
+            if (empty($OrderData)) $this->error('订单不存在或已变更', url('user/Article/index'));
+
+            $url = url('user/Article/index');
+            if (in_array($OrderData['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url, true);
+            $OrderData['unified_amount'] = $OrderData['order_amount'];
+            $OrderData['unified_number'] = $post['unified_number'];
+
+            // 更新订单支付方式
+            if (!empty($is_up_order)) {
+                $update = [
+                    'pay_name' => $post['pay_mark'],
+                    'update_time' => getTime()
+                ];
+                if ('wechat' == $post['pay_mark']) {
+                    if (!isMobile()) {
+                        // PC端
+                        $wechat_pay_type = 'WeChatScanCode';
+                    } else if (isMobile() && !isWeixin()) {
+                        // 手机端浏览器
+                        $wechat_pay_type = 'WeChatH5';
+                    } else if (isMobile() && isWeixin()) {
+                        // 手机端微信
+                        $wechat_pay_type = 'WeChatInternal';
+                    }
+                    if (!empty($OrderData['wechat_pay_type'])) {
+                        $ReturnData = $this->determine_pay_type($OrderData['wechat_pay_type'], $wechat_pay_type);
+                        if (!empty($ReturnData)) $this->error($ReturnData);
+                    }
+                    $update['wechat_pay_type'] = $wechat_pay_type;
+                }
+                Db::name('article_order')->where($where)->update($update);
+            }
         }
 
         return $OrderData;
@@ -585,6 +626,34 @@ class PayApiLogic extends Model
                 if (!empty($ResultID)) {
                     // 订单操作完成，返回跳转
                     $ViewUrl = cookie($this->users_id . '_' . $Order['product_id'] . '_EyouMediaViewUrl');
+                    $this->success('支付成功，处理订单完成', $ViewUrl, true);
+                }
+            }
+        }else if (9 == $Post['transaction_type']) {
+            // 付款成功后，订单并未修改状态时，修改订单状态并返回
+            if (empty($Order['order_status'])) {
+                // 订单更新条件
+                $OrderWhere = [
+                    'order_id'  => $Order['order_id'],
+                    'users_id'  => $this->users_id,
+                    'lang'      => $this->home_lang
+                ];
+
+                // 订单更新数据，更新为已付款
+                $OrderData = [
+                    'order_status' => 1,
+                    'pay_details'  => serialize($PayDetails),
+                    'pay_time'     => getTime(),
+                    'update_time'  => getTime()
+                ];
+
+                // 订单更新
+                $ResultID = Db::name('article_order')->where($OrderWhere)->update($OrderData);
+
+                // 订单更新后续操作
+                if (!empty($ResultID)) {
+                    // 订单操作完成，返回跳转
+                    $ViewUrl = cookie($this->users_id . '_' . $Order['product_id'] . '_EyouArticleViewUrl');
                     $this->success('支付成功，处理订单完成', $ViewUrl, true);
                 }
             }

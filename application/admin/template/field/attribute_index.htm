@@ -8,7 +8,7 @@
         <div class="item-title">
             <a class="back" href="{:url('Channeltype/index')}" title="返回列表"><i class="fa fa-angle-double-left"></i>返回</a>
             <ul class="tab-base nc-row">
-                <li><a href="javascript:void(0);" class="tab current"><span>留言模型 - 内容属性</span></a></li>
+                <li><a href="javascript:void(0);" class="tab current"><span>留言属性</span></a></li>
             </ul>
         </div>
     </div>
@@ -105,7 +105,7 @@
                             {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign">
                                 <div class="tc w40">
-                                    <input type="checkbox" name="ids[]" value="{$vo.attr_id}">
+                                    <input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.attr_id}">
 
                                 </div>
                             </td>
@@ -149,7 +149,7 @@
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                                         {eq name='$main_lang' value='$admin_lang'}
-                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Field/attribute_del')}" data-id="{$vo.attr_id}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
+                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Field/attribute_del')}" data-id="{$vo.attr_id}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq} onClick="delfun(this);">删除</a>
                                         <i></i>
                                         {/eq}
                                     {/eq}
@@ -168,11 +168,11 @@
             <div class="tDiv2">
                 {eq name='$main_lang' value='$admin_lang'}
                     <div class="fbutton checkboxall">
-                        <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
+                        <input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                     </div>
                     {eq name="$Think.const.CONTROLLER_NAME.'@attribute_del'|is_check_access" value="1"}
                     <div class="fbutton">
-                        <a onclick="batch_del(this, 'ids');" data-url="{:url('Field/attribute_del')}" class="layui-btn layui-btn-primary">批量删除</a>
+                        <a onclick="batch_del(this, 'ids');" data-url="{:url('Field/attribute_del')}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq} class="layui-btn layui-btn-primary">批量删除</a>
                     </div>
                     {/eq}
                 {/eq}

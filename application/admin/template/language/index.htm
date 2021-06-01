@@ -35,13 +35,13 @@
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="ac_id" axis="col4">
-                            <div class="">语言名称</div>
+                            <div class="text-l10">语言名称</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="w180">
-                            <div class="">中文名称</div>
+                            <div class="text-l10">中文名称</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w40">
-                            <div class="tl">国旗</div>
+                            <div class="tc">国旗</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">前台默认语言</div>
@@ -80,7 +80,7 @@
                             <td class="sign">
                                 <div class="w40 tc">
                                     {if condition="1 != $vo.is_home_default AND 0 < $k"}
-                                    <input type="checkbox" name="ids[]" value="{$vo.id}">
+                                    <input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}">
                                     {/if}
                                 </div>
                             </td>
@@ -91,19 +91,19 @@
                                 </div>
                             </td>
                             <td style="width: 100%">
-                                <div style="">
+                                <div class="text-l10" style="">
                                     <a href="{:url('Language/edit',array('id'=>$vo['id']))}">
                                     {$vo.title}</a>
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w180">
+                                <div class="w180 text-l10">
                                     {$languagemarkList[$vo['mark']]['cn_title']}
                                 </div>
                             </td>
-                            <td class="">
+                            <td class="tc">
                                 <div class="w40 tc">
-                                    <img src="__STATIC__/common/images/language/{$vo.mark}.gif" alt="{$vo.cn_title}"/>
+                                    <img src="__STATIC__/common/images/language/{$vo.mark}.gif" alt="{$vo.cn_title}" style="float: unset;"/>
                                 </div>
                             </td>
                             <td class="">
@@ -168,7 +168,7 @@
             <div class="tDiv2">
                 {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
+                    <input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
                 {eq name="'Language@del'|is_check_access" value="1"}
                 <div class="fbutton">

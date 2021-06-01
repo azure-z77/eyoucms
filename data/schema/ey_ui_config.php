@@ -63,6 +63,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'idcode' => 
+  array (
+    'name' => 'idcode',
+    'type' => 'varchar(50)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'lang' => 
   array (
     'name' => 'lang',

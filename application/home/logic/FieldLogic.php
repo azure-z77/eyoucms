@@ -90,10 +90,9 @@ class FieldLogic extends Model
                 switch ($dtype) {
                     case 'int':
                     case 'float':
-                    case 'decimal':
                     case 'text':
                     {
-                        $data[$key.'_unit'] = $dfvalue_unit;
+                        !empty($dfvalue_unit) && $data[$key.'_unit'] = $dfvalue_unit;
                         break;
                     }
 
@@ -109,6 +108,13 @@ class FieldLogic extends Model
                                         'image_url' => handle_subdir_pic($v1),
                                         'intro'     => '',
                                     ];
+                                    if (is_http_url($eyou_imgupload_list[$k1]['image_url'])){
+                                        if (substr($eyou_imgupload_list[$k1]['image_url'], 0, strlen('http:')) === 'http:'){
+                                            $eyou_imgupload_list[$k1]['image_url'] = substr($eyou_imgupload_list[$k1]['image_url'],strlen('http:'));
+                                        }elseif (substr($eyou_imgupload_list[$k1]['image_url'], 0, strlen('https:')) === 'https:'){
+                                            $eyou_imgupload_list[$k1]['image_url'] = substr($eyou_imgupload_list[$k1]['image_url'],strlen('https:'));
+                                        }
+                                    }
                                 }
                             }
                         } else {
@@ -116,6 +122,13 @@ class FieldLogic extends Model
                             $eyou_imgupload_data = $val;
                             foreach ($eyou_imgupload_data as $k1 => $v1) {
                                 $v1['image_url'] = handle_subdir_pic($v1['image_url']);
+                                if (is_http_url($v1['image_url'])){
+                                    if (substr($v1['image_url'], 0, strlen('http:')) === 'http:'){
+                                        $v1['image_url'] = substr($v1['image_url'],strlen('http:'));
+                                    }elseif (substr($v1['image_url'], 0, strlen('https:')) === 'https:'){
+                                        $v1['image_url'] = substr($v1['image_url'],strlen('https:'));
+                                    }
+                                }
                                 isset($v1['intro']) && $v1['intro'] = htmlspecialchars_decode($v1['intro']);
                                 $eyou_imgupload_list[$k1] = $v1;
                             }
@@ -123,18 +136,51 @@ class FieldLogic extends Model
                         $val = $eyou_imgupload_list;
                         break;
                     }
-
+                    case 'img':
+                        {
+                            $val = handle_subdir_pic($val);
+                            if (is_http_url($val)){
+                                if (substr($val, 0, strlen('http:')) === 'http:'){
+                                    $val = substr($val,strlen('http:'));
+                                }elseif (substr($val, 0, strlen('https:')) === 'https:'){
+                                    $val = substr($val,strlen('https:'));
+                                }
+                            }
+                            break;
+                        }
+                    case 'media':
+                    {
+                        $val = handle_subdir_pic($val,'media');
+                        if (is_http_url($val)){
+                            if (substr($val, 0, strlen('http:')) === 'http:'){
+                                $val = substr($val,strlen('http:'));
+                            }elseif (substr($val, 0, strlen('https:')) === 'https:'){
+                                $val = substr($val,strlen('https:'));
+                            }
+                        }
+                        break;
+                    }
+                    case 'file':
+                        {
+                            $val = handle_subdir_pic($val);
+                            if (is_http_url($val)){
+                                if (substr($val, 0, strlen('http:')) === 'http:'){
+                                    $val = substr($val,strlen('http:'));
+                                }elseif (substr($val, 0, strlen('https:')) === 'https:'){
+                                    $val = substr($val,strlen('https:'));
+                                }
+                            }
+                            break;
+                        }
                     case 'checkbox':
                     case 'files':
                     {
                         if (!is_array($val)) {
                             $val = !empty($val) ? explode(',', $val) : array();
                         }
-                        /*支持子目录*/
                         foreach ($val as $k1 => $v1) {
                             $val[$k1] = handle_subdir_pic($v1);
                         }
-                        /*--end*/
                         break;
                     }
 

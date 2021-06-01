@@ -52,6 +52,10 @@ class Language extends Base
      */
     public function __construct(){
         parent::__construct();
+
+        $functionLogic = new \app\common\logic\FunctionLogic;
+        $functionLogic->validate_authorfile(1);
+        
         $this->langModel = model('Language');
         $this->langMarkModel = model('LanguageMark');
         $this->langAttributeModel = model('LanguageAttribute');

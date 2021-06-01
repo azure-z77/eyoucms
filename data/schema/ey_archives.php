@@ -246,7 +246,7 @@ return array (
   'sales_num' => 
   array (
     'name' => 'sales_num',
-    'type' => 'int(10) unsigned',
+    'type' => 'int(10)',
     'notnull' => false,
     'default' => '0',
     'primary' => false,
@@ -372,6 +372,24 @@ return array (
   'downcount' => 
   array (
     'name' => 'downcount',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'appraise' => 
+  array (
+    'name' => 'appraise',
+    'type' => 'int(10)',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
+  'collection' => 
+  array (
+    'name' => 'collection',
     'type' => 'int(10)',
     'notnull' => false,
     'default' => '0',

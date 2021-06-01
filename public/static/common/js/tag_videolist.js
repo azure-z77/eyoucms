@@ -40,28 +40,36 @@ function changeVideoUrl1586341922_sp1(id, aid, uhash, type) {
                 document.getElementById('fid1616057948').value = id;
             }
             if (res.code == 1) {
-                let obj = document.getElementById('video_play_20200520_'+aid);
-                if (obj) {
-                    if (document.getElementById("VideoDiv13579")) {
-                        document.getElementById("VideoDiv13579").style.display = 'none';
-                    }
-                    obj.src = res.url;
-                    if ('video' == obj.tagName.toLowerCase()) {
-                        obj.controls = 'controls';
-                        var autoplay = vars1612143009.autoplay;
-                        if ('on' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        } else if ('off' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).autoplay = false;
-                        } else {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        }
-                    }
+                if (res.data.txy_video_html) {
+                    // 腾讯云点播视频
+                    $('#local_video_id').hide();
+                    $('#txy_video_id').show().empty().html(res.data.txy_video_html);
                 } else {
-                    if (!window.layer) {
-                        alert('请查看模板里videoplay视频播放标签是否完整！');
+                    $('#local_video_id').show();
+                    $('#txy_video_id').hide();
+                    let obj = document.getElementById('video_play_20200520_'+aid);
+                    if (obj) {
+                        if (document.getElementById("VideoDiv13579")) {
+                            document.getElementById("VideoDiv13579").style.display = 'none';
+                        }
+                        obj.src = res.url;
+                        if ('video' == obj.tagName.toLowerCase()) {
+                            obj.controls = 'controls';
+                            var autoplay = vars1612143009.autoplay;
+                            if ('on' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            } else if ('off' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).autoplay = false;
+                            } else {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            }
+                        }
                     } else {
-                        layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        if (!window.layer) {
+                            alert('请查看模板里videoplay视频播放标签是否完整！');
+                        } else {
+                            layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        }
                     }
                 }
             } else {
@@ -110,28 +118,36 @@ function changeVideoUrl1586341922_sp2(id, aid, uhash, type) {
                 document.getElementById('fid1616057948').value = id;
             }
             if (res.code == 1) {
-                let obj = document.getElementById('video_play_20200520_'+aid);
-                if (obj) {
-                    if (document.getElementById("VideoDiv13579")) {
-                        document.getElementById("VideoDiv13579").style.display = 'none';
-                    }
-                    obj.src = res.url;
-                    if ('video' == obj.tagName.toLowerCase()) {
-                        obj.controls = 'controls';
-                        var autoplay = vars1612143009.autoplay;
-                        if ('on' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        } else if ('off' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).autoplay = false;
-                        } else {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        }
-                    }
+                if (res.data.txy_video_html) {
+                    // 腾讯云点播视频
+                    $('#local_video_id').hide();
+                    $('#txy_video_id').show().empty().html(res.data.txy_video_html);
                 } else {
-                    if (!window.layer) {
-                        alert('请查看模板里videoplay视频播放标签是否完整！');
+                    $('#local_video_id').show();
+                    $('#txy_video_id').hide();
+                    let obj = document.getElementById('video_play_20200520_'+aid);
+                    if (obj) {
+                        if (document.getElementById("VideoDiv13579")) {
+                            document.getElementById("VideoDiv13579").style.display = 'none';
+                        }
+                        obj.src = res.url;
+                        if ('video' == obj.tagName.toLowerCase()) {
+                            obj.controls = 'controls';
+                            var autoplay = vars1612143009.autoplay;
+                            if ('on' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            } else if ('off' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).autoplay = false;
+                            } else {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            }
+                        }
                     } else {
-                        layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        if (!window.layer) {
+                            alert('请查看模板里videoplay视频播放标签是否完整！');
+                        } else {
+                            layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        }
                     }
                 }
             } else {
@@ -185,28 +201,36 @@ function changeVideoUrl1586341922_sp3(id, aid, uhash, type) {
                 document.getElementById('fid1616057948').value = id;
             }
             if (res.code == 1) {
-                let obj = document.getElementById('video_play_20200520_'+aid);
-                if (obj) {
-                    if (document.getElementById("VideoDiv13579")) {
-                        document.getElementById("VideoDiv13579").setAttribute("style", "display: none");
-                    }
-                    obj.src = res.url;
-                    if ('video' == obj.tagName.toLowerCase()) {
-                        obj.controls = 'controls';
-                        var autoplay = vars1612143009.autoplay;
-                        if ('on' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        } else if ('off' == autoplay) {
-                            document.getElementById('video_play_20200520_'+aid).autoplay = false;
-                        } else {
-                            document.getElementById('video_play_20200520_'+aid).play();
-                        }
-                    }
+                if (res.data.txy_video_html) {
+                    // 腾讯云点播视频
+                    $('#local_video_id').hide();
+                    $('#txy_video_id').show().empty().html(res.data.txy_video_html);
                 } else {
-                    if (!window.layer) {
-                        alert('请查看模板里videoplay视频播放标签是否完整！');
+                    $('#local_video_id').show();
+                    $('#txy_video_id').hide();
+                    let obj = document.getElementById('video_play_20200520_'+aid);
+                    if (obj) {
+                        if (document.getElementById("VideoDiv13579")) {
+                            document.getElementById("VideoDiv13579").setAttribute("style", "display: none");
+                        }
+                        obj.src = res.url;
+                        if ('video' == obj.tagName.toLowerCase()) {
+                            obj.controls = 'controls';
+                            var autoplay = vars1612143009.autoplay;
+                            if ('on' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            } else if ('off' == autoplay) {
+                                document.getElementById('video_play_20200520_'+aid).autoplay = false;
+                            } else {
+                                document.getElementById('video_play_20200520_'+aid).play();
+                            }
+                        }
                     } else {
-                        layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        if (!window.layer) {
+                            alert('请查看模板里videoplay视频播放标签是否完整！');
+                        } else {
+                            layer.alert('请查看模板里videoplay视频播放标签是否完整！', {icon: 5, title: false, closeBtn: false});
+                        }
                     }
                 }
             } else {

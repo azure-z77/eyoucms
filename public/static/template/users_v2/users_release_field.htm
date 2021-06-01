@@ -299,6 +299,306 @@
                 <!-- 单个文件 end -->
             {/case}
 
+            {case value="media"}
+                {eyou:static file="/public/plugins/layui/css/layui.css" /}
+                <!-- {eyou:static file="/public/plugins/layui/layui.js" /} -->
+                <!-- 多媒体上传 -->
+                <div class="item-from-row">
+                    <div class="from-row-l">
+                        {$vo.title}：
+                    </div>
+                    <div class="from-row-r" >
+                        <a id="media_a_{$vo.fieldArr}_{$vo.name|default=''}" style="margin-right: 30px;text-decoration: underline;{eyou:notempty name='$vo.dfvalue' /}display: '';{eyou:else /}display: none;{/eyou:notempty}" target="_blank"
+                           {eyou:notempty name='$vo.dfvalue' /} href="{$vo.dfvalue|default=''}" {/eyou:notempty}>
+                        <img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">点击查看</a>
+                        <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.dfvalue|default=''}" style="display: none;">
+                        <input type="file" id="{$vo.fieldArr}_{$vo.name|default=''}_upload_media" onchange="{$vo.fieldArr}_{$vo.name|default=''}_upload_media_20210506(this)" style="display: none;">
+                        <button type="button" class="el-button el-button--primary is-plain el-button--small" id="{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media" onclick="$('#{$vo.fieldArr}_{$vo.name|default=\'\'}_upload_media').attr('data-type', '{$vo.upload_flag}').trigger('click');">上传文件</button>
+                        </div>
+                </div>
+                <script>
+                    function {$vo.fieldArr}_{$vo.name|default=''}_upload_media_20210506(e){
+                        var data_type = $(e).attr('data-type');
+                        if ('qny' == data_type) {
+                            {$vo.fieldArr}_{$vo.name|default=''}_qny_upload_media(e);
+                        } else if ('oss' == data_type) {
+                            {$vo.fieldArr}_{$vo.name|default=''}_oss_upload_media(e);
+                        } else if ('cos' == data_type) {
+                            {$vo.fieldArr}_{$vo.name|default=''}_cos_upload_media(e);
+                        } else {
+                            {$vo.fieldArr}_{$vo.name|default=''}_local_upload_media(e);
+                        }
+                    }
+                    function beforeUploadMedia(ext,file){
+                        var type = '{$vo.ext}';
+                        var extArr = [];
+                        extArr = type.split("|");
+                        var exts = ext.replace(".","");
+                        if (extArr.indexOf(exts) == -1) {
+                            showErrorMsg('仅支持{$vo.ext}格式');
+                            return false;
+                        }
+                        size = parseInt("{$vo.filesize}");
+                        if (file.size > size) {
+                            if (size >= 1048576) {
+                                limit = size/1024/1024;
+                                limit = limit + 'MB';
+                            }else {
+                                limit = size/1024 ;
+                                limit = limit + 'KB';
+                            }
+                            showErrorMsg('仅支持'+limit+'以内的文件');
+                            return false;
+                        }
+                        return true;
+                    }
+                    function {$vo.fieldArr}_{$vo.name|default=''}_qny_upload_media(e) {
+                        var file = $(e)[0].files[0];
+                        var fileName = file.name;
+                        var fileExt = fileName.substr(fileName.lastIndexOf('.')).toLowerCase();
+                        ret = beforeUploadMedia(fileExt,file);
+                        if (ret){
+                            $.ajax({
+                                type: 'POST',
+                                url: '__ROOT_DIR__/index.php?m=plugins&c=Qiniuyun&a=qiniu_upload',
+                                data: {_ajax: 1},
+                                dataType: "JSON",
+                                success: function(res1) {
+                                    if (1 == res1.code) {
+                                        var token  = res1.data.token;
+                                        var formData = new FormData();
+                                        formData.append('file', file);
+                                        formData.append('token', token);
+
+                                        fileName = res1.data.filePath + fileExt;
+                                        formData.append('key', fileName);
+                                        $.ajax({
+                                            url: res1.data.uphost,
+                                            type: 'POST',
+                                            dataType: 'JSON',
+                                            data: formData,
+                                            timeout: 1200000,
+                                            cache: false,
+                                            processData: false,
+                                            contentType: false,
+                                            xhr: function () {
+                                                myXhr = $.ajaxSettings.xhr();
+                                                if (myXhr.upload) {
+                                                    myXhr.upload.addEventListener('progress', function(e){
+                                                        var curr = e.loaded;
+                                                        var total = e.total;
+                                                        process = parseInt(curr / total * 100);
+                                                        $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传中...'+process+"%");
+                                                    });
+                                                }
+                                                return myXhr;
+                                            },
+                                            success: function(res2) {
+                                                $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传成功');
+                                                setTimeout(function() {
+                                                    $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').text('上传文件');
+                                                }, 2000);
+                                                var video_url = res1.data.domain + "/" + res2.key;
+                                                video_url = video_url.replace("http://", "//");
+                                                video_url = video_url.replace("https://", "//");
+                                                $("#{$vo.fieldArr}_{$vo.name|default=''}").val(video_url);
+                                                $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").show();
+                                                $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href',video_url);
+                                            },
+                                            error: function(e) {
+                                                layer.closeAll();
+                                                showErrorMsg(e.responseText);
+                                                return false;
+                                            }
+                                        });
+                                    } else {
+                                        layer.closeAll();
+                                        showErrorMsg(res1.msg);
+                                    }
+                                },
+                                error: function(e) {
+                                    layer.closeAll();
+                                    showErrorMsg(e.responseText);
+                                }
+                            });
+                        }
+                    }
+
+                    function {$vo.fieldArr}_{$vo.name|default=''}_oss_upload_media(e) {
+                        var file = $(e)[0].files[0];
+                        var fileName = file.name;
+                        var fileExt = fileName.substr(fileName.lastIndexOf('.')).toLowerCase();
+                        ret = beforeUploadMedia(fileExt,file);
+                        if (ret) {
+                            $.ajax({
+                                type: 'POST',
+                                url: '__ROOT_DIR__/index.php?m=plugins&c=AliyunOss&a=oss_upload',
+                                data: {_ajax: 1},
+                                dataType: "JSON",
+                                success: function (res1) {
+                                    if (1 == res1.code) {
+                                        fileName = res1.data.filePath + fileExt;
+                                        //组装发送数据
+                                        var request = new FormData();
+                                        request.append("OSSAccessKeyId", res1.data.accessid);
+                                        request.append("policy", res1.data.policy);
+                                        request.append("Signature", res1.data.signature);
+                                        request.append("key", fileName);
+                                        request.append("success_action_status", 201);
+                                        request.append('file', file);
+                                        $.ajax({
+                                            url: res1.data.host,
+                                            data: request,
+                                            processData: false,
+                                            cache: false,
+                                            contentType: false,
+                                            dataType: 'xml',
+                                            type: 'post',
+                                            xhr: function () {
+                                                myXhr = $.ajaxSettings.xhr();
+                                                if (myXhr.upload) {
+                                                    myXhr.upload.addEventListener('progress', function (e) {
+                                                        var curr = e.loaded;
+                                                        var total = e.total;
+                                                        var process = parseInt(curr / total * 100);
+                                                        $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传中...' + process + "%");
+                                                    });
+                                                }
+                                                return myXhr;
+                                            },
+                                            success: function (data) {
+                                                var res = $(data).find('PostResponse');
+                                                if (res) {
+                                                    var key = res.find('Key').text();
+                                                    $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传成功');
+                                                    setTimeout(function () {
+                                                        $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').text('上传文件');
+                                                    }, 2000);
+                                                    var video_url = res1.data.domain + "/" + key;
+                                                    $("#{$vo.fieldArr}_{$vo.name|default=''}").val(video_url);
+                                                    $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").show();
+                                                    $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href', video_url);
+                                                } else {
+                                                    $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传失败');
+                                                    setTimeout(function () {
+                                                        $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').text('上传文件');
+                                                    }, 2000);
+                                                }
+                                            },
+                                            error: function (e) {
+                                                layer.closeAll();
+                                                console.log(e.responseText);
+                                            }
+                                        });
+                                    } else {
+                                        layer.closeAll();
+                                        showErrorMsg(res1.msg);
+                                    }
+                                },
+                                error: function (e) {
+                                    layer.closeAll();
+                                    showErrorMsg(e.responseText);
+                                }
+                            });
+                        }
+                    }
+                    function {$vo.fieldArr}_{$vo.name|default=''}_cos_upload_media(e) {
+                        var file = $(e)[0].files[0];
+                        var fileName = file.name;
+                        var fileExt = fileName.substr(fileName.lastIndexOf('.')).toLowerCase();
+                        ret = beforeUploadMedia(fileExt,file);
+                        if (ret) {
+                            var formData = new FormData();
+                            formData.append('file', file);
+                            formData.append('file_ext', fileExt);
+                            $.ajax({
+                                type: 'post',
+                                url: '__ROOT_DIR__/index.php?m=plugins&c=Cos&a=cos_upload&_ajax=1',
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                dataType: 'json',
+                                xhr: function () {
+                                    myXhr = $.ajaxSettings.xhr();
+                                    if (myXhr.upload) {
+                                        myXhr.upload.addEventListener('progress', function (e) {
+                                            var curr = e.loaded;
+                                            var total = e.total;
+                                            process = parseInt(curr / total * 100);
+                                            if (100 == process) {
+                                                process = 99;
+                                            }
+                                            $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传中...' + process + "%");
+                                        });
+                                    }
+                                    return myXhr;
+                                },
+                                success: function (res) {
+                                    if (1 == res.code) {
+                                        $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传成功');
+                                        $("#{$vo.fieldArr}_{$vo.name|default=''}").val(res.data.url);
+                                        $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").show();
+                                        $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href', res.data.url);
+                                    } else {
+                                        $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").text('上传失败');
+                                    }
+                                    setTimeout(function () {
+                                        $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').text('上传文件');
+                                    }, 2000);
+                                },
+                                error: function (e) {
+                                    layer.closeAll();
+                                    showErrorMsg(e.responseText);
+                                }
+                            });
+                        }
+                    }
+                    function {$vo.fieldArr}_{$vo.name|default=''}_local_upload_media(e){
+                        var file = $(e)[0].files[0];
+                        var fileName = file.name;
+                        var fileExt = fileName.substr(fileName.lastIndexOf('.')).toLowerCase();
+                        ret = beforeUploadMedia(fileExt,file);
+                        if (ret) {
+                            var formData = new FormData();
+                            formData.append('file', file);
+                            $.ajax({
+                                type: 'post',
+                                url: "{:url('user/Uploadify/AjaxUploadMedia', ['savepath'=>'media'])}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                dataType: 'json',
+                                xhr: function () {
+                                    myXhr = $.ajaxSettings.xhr();
+                                    if (myXhr.upload) {
+                                        myXhr.upload.addEventListener('progress', function (e) {
+                                            var curr = e.loaded;
+                                            var total = e.total;
+                                            process = parseInt(curr / total * 100);
+                                            $("#upload_video_litpic_local").html('上传中...' + process + "%");
+                                        });
+                                    }
+                                    return myXhr;
+                                },
+                                success: function (res) {
+                                    if ("SUCCESS" == res.state) {
+                                        $("#{$vo.fieldArr}_{$vo.name|default=''}_title_upload_media").html('上传成功');
+                                        setTimeout(function () {
+                                            $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').html('上传文件');
+                                        }, 2000);
+                                        $("#{$vo.fieldArr}_{$vo.name|default=''}").val(res.url);
+                                        $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").show();
+                                        $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href', res.url);
+                                    } else {
+                                        showErrorMsg(res.msg);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                </script>
+            {/case}
+
             {case value="imgs"}
                 <script type="text/javascript" src="__STATIC__/admin/js/jquery-ui/jquery-ui.min.js"></script>
                 <!-- 多张图 start -->
@@ -349,7 +649,6 @@
                 <script type="text/javascript">
                     // 上传多图回调函数
                     function {$vo.fieldArr}_{$vo.name|default=''}_call_back(paths){
-                        
                         var  last_div = $(".{$vo.fieldArr}_{$vo.name|default=''}_upload_tpl").html();
                         for (var i=0;i<paths.length ;i++ )
                         {

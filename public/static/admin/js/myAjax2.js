@@ -113,6 +113,10 @@ function changeTableVal(table,id_name,id_value,field,obj)
         dataType: 'json',
         success: function(res){
             if (res.code == 1) {
+                var inputype = $(obj).attr('data-inputype');
+                if ('int' == inputype) {
+                    $(obj).val(parseInt($(obj).val()));
+                }
                 if ($(obj).hasClass('no')) {
                     $(obj).removeClass('no').addClass('yes');
                     $(obj).html(text);

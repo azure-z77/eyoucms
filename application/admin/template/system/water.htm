@@ -52,7 +52,7 @@
                         <p class="notic">全站图片添加水印</p>
                     </dd>
                 </dl>
-                <dl class="row">
+                <dl class="row none">
                     <dt class="tit">缩略图水印</dt>
                     <dd class="opt">
                         <div class="onoff">
@@ -114,7 +114,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text"  name="mark_img_local" id="mark_img_local" value="{$config.mark_img_local|default=''}" class="type-file-text">
+                                <input type="text"  name="mark_img_local" id="mark_img_local" value="{$config.mark_img_local|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','allimg','call_back','water');" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>

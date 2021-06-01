@@ -91,6 +91,17 @@
                     <p class="notic">比如：100|500 表示随机数100-500之间</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="editor_select">内容编辑器</label>
+                </dt>
+                <dd class="opt">
+                    <label class="curpoin"><input type="radio" name="editor_select" value="1" {if condition="empty($editor.editor_select) || $editor.editor_select eq 1"} checked="checked" {/if}>Ueditor</label>
+                    &nbsp;&nbsp;
+                    <label class="curpoin"><input type="radio" name="editor_select" value="2" {if condition="isset($editor.editor_select) && $editor.editor_select eq 2"} checked="checked" {/if}>Ckeditor</label>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
             {/eq}
             <div class="bot">
                 <input type="hidden" name="max_filesize" id="max_filesize" value="{$max_filesize}">

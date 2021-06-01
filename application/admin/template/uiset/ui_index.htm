@@ -80,7 +80,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="sign w40">
-                                <div class="tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                <div class="tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}"></div>
                             </td>
                             <td class="">
                                 <div style=" padding-left: 10px">
@@ -121,7 +121,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
+                    <input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">

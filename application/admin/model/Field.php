@@ -220,6 +220,13 @@ class Field extends Model
                             if (is_http_url($addonRow[$val['name']])) {
                                 $val[$val['name'].'_eyou_is_remote'] = 1;
                                 $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
+                                if (is_http_url($val[$val['name'].'_eyou_remote'])){
+                                    if (substr($val[$val['name'].'_eyou_remote'], 0, strlen('http:')) === 'http:'){
+                                        $val[$val['name'].'_eyou_remote'] = substr($val[$val['name'].'_eyou_remote'],strlen('http:'));
+                                    }elseif (substr($val[$val['name'].'_eyou_remote'], 0, strlen('https:')) === 'https:'){
+                                        $val[$val['name'].'_eyou_remote'] = substr($val[$val['name'].'_eyou_remote'],strlen('https:'));
+                                    }
+                                }
                             } else {
                                 $val[$val['name'].'_eyou_is_remote'] = 0;
                                 $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
@@ -242,7 +249,7 @@ class Field extends Model
                                 $tableExt = PREFIX.$tableExt.'_content';
                                 $fieldComment = $channelfieldRow['title'];
                                 empty($fieldComment) && $fieldComment = '图集';
-                                $sql = " ALTER TABLE `{$tableExt}` MODIFY COLUMN `{$val['name']}`  varchar(10001) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '{$fieldComment}' ";
+                                $sql = " ALTER TABLE `{$tableExt}` MODIFY COLUMN `{$val['name']}`  varchar(10001) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '{$fieldComment}|10001' ";
                                 if (@Db::execute($sql)) {
                                     Db::name('channelfield')->where([
                                             'id'          => $channelfieldRow['id'],
@@ -267,6 +274,13 @@ class Field extends Model
                                         'image_url' => handle_subdir_pic($v1),
                                         'intro'     => '',
                                     ];
+                                    if (is_http_url($eyou_imgupload_list[$k1]['image_url'])){
+                                        if (substr($eyou_imgupload_list[$k1]['image_url'], 0, strlen('http:')) === 'http:'){
+                                            $eyou_imgupload_list[$k1]['image_url'] = substr($eyou_imgupload_list[$k1]['image_url'],strlen('http:'));
+                                        }elseif (substr($eyou_imgupload_list[$k1]['image_url'], 0, strlen('https:')) === 'https:'){
+                                            $eyou_imgupload_list[$k1]['image_url'] = substr($eyou_imgupload_list[$k1]['image_url'],strlen('https:'));
+                                        }
+                                    }
                                 }
                             }
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
@@ -289,17 +303,55 @@ class Field extends Model
                             if (is_http_url($addonRow[$val['name']])) {
                                 $val[$val['name'].'_eyou_is_remote'] = 1;
                                 $val[$val['name'].'_eyou_remote'] = handle_subdir_pic($addonRow[$val['name']]);
+                                if (is_http_url($val[$val['name'].'_eyou_remote'])){
+                                    if (substr($val[$val['name'].'_eyou_remote'], 0, strlen('http:')) === 'http:'){
+                                        $val[$val['name'].'_eyou_remote'] = substr($val[$val['name'].'_eyou_remote'],strlen('http:'));
+                                    }elseif (substr($val[$val['name'].'_eyou_remote'], 0, strlen('https:')) === 'https:'){
+                                        $val[$val['name'].'_eyou_remote'] = substr($val[$val['name'].'_eyou_remote'],strlen('https:'));
+                                    }
+                                }
                             } else {
                                 $val[$val['name'].'_eyou_is_remote'] = 0;
                                 $val[$val['name'].'_eyou_local'] = handle_subdir_pic($addonRow[$val['name']]);
                             }
                         }
                         $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
+                        $val['upload_flag'] = 'local';
+                        $WeappConfig = Db::name('weapp')->field('code, status')->where('code', 'IN', ['Qiniuyun', 'AliyunOss', 'Cos'])->where('status',1)->select();
+                        foreach ($WeappConfig as $value) {
+                            if ('Qiniuyun' == $value['code']) {
+                                $val['upload_flag'] = 'qny';
+                            } else if ('AliyunOss' == $value['code']) {
+                                $val['upload_flag'] = 'oss';
+                            } else if ('Cos' == $value['code']) {
+                                $val['upload_flag'] = 'cos';
+                            }
+                        }
+                        $val['ext'] = tpCache('basic.file_type');
+                        $val['filesize'] = upload_max_filesize();
                         break;
                     }
                     case 'media':
                     {
                         $val['dfvalue'] = $addonRow[$val['name']];
+                        if (is_http_url($val['dfvalue'])){
+                            if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
+                                $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
+                            }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
+                                $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
+                            }
+                        }
+                        $val['upload_flag'] = 'local';
+                        $WeappConfig = Db::name('weapp')->field('code, status')->where('code', 'IN', ['Qiniuyun', 'AliyunOss', 'Cos'])->where('status',1)->select();
+                        foreach ($WeappConfig as $value) {
+                            if ('Qiniuyun' == $value['code']) {
+                                $val['upload_flag'] = 'qny';
+                            } else if ('AliyunOss' == $value['code']) {
+                                $val['upload_flag'] = 'oss';
+                            } else if ('Cos' == $value['code']) {
+                                $val['upload_flag'] = 'cos';
+                            }
+                        }
                         $ext = tpCache('basic.media_type');
                         $val['ext'] = !empty($ext) ? $ext : config('global.media_ext');
                         $val['filesize'] = upload_max_filesize();
@@ -451,8 +503,10 @@ class Field extends Model
                     
                     case 'htmltext':
                     {
-                        $preg = "/&lt;script[\s\S]*?script&gt;/i";
-                        $val = preg_replace($preg, "", $val);
+                        if (!empty($val)) {
+                            $val = preg_replace("/^&amp;nbsp;/i", "", $val);
+                        }
+                        $val = preg_replace("/&lt;script[\s\S]*?script&gt;/i", "", $val);
                         $val = trim($val);
 
                     //     /*追加指定内嵌样式到编辑器内容的img标签，兼容图片自动适应页面*/

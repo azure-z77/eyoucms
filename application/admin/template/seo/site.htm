@@ -127,7 +127,6 @@
              }
          },
          error:function(e){
-            console.log('未知错误，首页生成失败~');
             parent.layer.alert(e.responseText, {icon: 5, title:false});
          }
      });
@@ -162,7 +161,6 @@
                  sendChannel();
              },
              error:function(e){
-                console.log('未知错误，栏目页生成失败~');
                 parent.layer.alert(e.responseText, {icon: 5, title:false});
              }
          });
@@ -201,7 +199,6 @@
                  sendArticle();
              },
              error:function(e){
-                console.log('未知错误，文档页生成失败~');
                 parent.layer.alert(e.responseText, {icon: 5, title:false});
              }
          });

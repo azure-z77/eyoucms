@@ -511,6 +511,7 @@ class UpgradeLogic extends Model
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
             $file = curl_exec ($ch);
+            curl_close ($ch);  
         } else {
             $file = httpRequest($fileUrl);
         }
@@ -518,8 +519,7 @@ class UpgradeLogic extends Model
         if (preg_match('#__HALT_COMPILER()#i', $file)) {
             return ['code' => 0, 'msg' => '下载包损坏，请联系官方客服！'];
         }
-
-        curl_close ($ch);                                                            
+                                                          
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);

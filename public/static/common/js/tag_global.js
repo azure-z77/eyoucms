@@ -26,7 +26,13 @@ function GetUploadify(num,elementid,path,callback,url,title,is_mobile)
     }
     if (num > 0) {
         if (!url) url = GetUploadify_url;
-        if (!title) title = '上传头像';
+        if (!title) {
+            if (callback.indexOf('head_pic_call_back') > -1) {
+                title = '上传头像';
+            } else {
+                title = '选择上传';
+            }
+        }
         if (!is_mobile) is_mobile = 0;
         
         if (url.indexOf('?') > -1) {

@@ -49,10 +49,10 @@
                             <div class="tc">选择</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w200">
-                            <div class="tl">变量名</div>
+                            <div class="tl text-l10">变量名</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="">
-                            <div style="text-align: left; padding-left: 10px;" class="">变量值</div>
+                            <div class="tl text-l10">变量值</div>
                         </th>
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">更新时间</div>
@@ -81,17 +81,17 @@
                             <td class="sign">
                                 <div class="tc w40">
                                     {neq name='$vo.is_syn' value='1'}
-                                    <input type="checkbox" name="ids[]" value="{$vo.id}">
+                                    <input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}">
                                     {/neq}
                                 </div>
                             </td>
                             <td class="">
-                                <div class="w200 tl">
+                                <div class="w200 tl text-l10">
                                     <a href="{:url('Language/pack_edit',array('id'=>$vo['id']))}">{$vo.name}</a>
                                 </div>
                             </td>
                             <td class="" style="width: 100%;">
-                                <div class="tl" style="padding-left: 10px;">
+                                <div class="tl text-l10">
                                     {$vo.value|htmlentities=###}
                                 </div>
                             </td>
@@ -126,7 +126,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
+                    <input type="checkbox" autocomplete="off" onclick="javascript:$('input[name*=ids]').prop('checked',this.checked);">
                 </div>
                 {eq name="'Language@pack_del'|is_check_access" value="1"}
                 <div class="fbutton">

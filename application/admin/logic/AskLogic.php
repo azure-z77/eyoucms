@@ -57,7 +57,7 @@ class AskLogic extends Model
     public function syn_theme_ask()
     {
         error_reporting(0);//关闭所有错误报告
-        if (!file_exists("./{$this->planPath_pc}ask")) {
+        if (!file_exists("{$this->planPath_pc}ask")) {
             return $this->OneKeyUpgrade();
         } else {
             return true;
@@ -148,8 +148,11 @@ class AskLogic extends Model
         }
 
         $url = $this->upgrade_url; 
-        $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
-        $serviceVersionList = @file_get_contents($url,false,$context);    
+        $serviceVersionList = @httpRequest($url);
+        if (false === $serviceVersionList) {
+            $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+            $serviceVersionList = @file_get_contents($url,false,$context); 
+        } 
         $serviceVersionList = json_decode($serviceVersionList,true);
         if(!empty($serviceVersionList))
         {
@@ -211,7 +214,10 @@ class AskLogic extends Model
             return ['code' => 0, 'msg' => "请联系空间商，开启 php.ini 中的php-zip扩展"];
         }
 
-        $serviceVersionList = @file_get_contents($this->upgrade_url);
+        $serviceVersionList = @httpRequest($this->upgrade_url);
+        if (false === $serviceVersionList) {
+            $serviceVersionList = @file_get_contents($this->upgrade_url); 
+        }
         $serviceVersionList = json_decode($serviceVersionList,true);
         if (empty($serviceVersionList)) {
             return ['code' => 0, 'msg' => "没找到模板包信息"];
@@ -411,9 +417,8 @@ class AskLogic extends Model
         $downFileName = 'ask-'.end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.'theme'.DS.$downFileName; // 保存目录
         tp_mkdir(dirname($saveDir));
-        $content = @file_get_contents($fileUrl, 0, null, 0, 1);
+        $content = @httpRequest($fileUrl);
         if (false === $content) {
-            $fileUrl = str_replace('http://service', 'https://service', $fileUrl);
             $content = @file_get_contents($fileUrl, 0, null, 0, 1);
         }
 
@@ -426,6 +431,7 @@ class AskLogic extends Model
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
             $file = curl_exec ($ch);
+            curl_close ($ch);
         } else {
             $file = httpRequest($fileUrl);
         }
@@ -433,8 +439,7 @@ class AskLogic extends Model
         if (preg_match('#__HALT_COMPILER()#i', $file)) {
             return ['code' => 0, 'msg' => '问答模板包损坏，请联系官方客服！'];
         }
-
-        curl_close ($ch);                                                            
+                                                            
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);
@@ -471,7 +476,7 @@ class AskLogic extends Model
         // api_Service_upgradeLog
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVVwZ3JhZGUmYT11cGdyYWRlTG9nJg==';
         $url = base64_decode($this->service_ey).base64_decode($tmp_str).http_build_query($vaules);
-        @file_get_contents($url);
+        @httpRequest($url);
     }
 
     /**

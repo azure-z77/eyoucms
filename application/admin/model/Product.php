@@ -59,6 +59,16 @@ class Product extends Model
         
         // --处理TAG标签
         model('Taglist')->savetags($aid, $post['typeid'], $post['tags'],$post['arcrank'], $opt);
+
+        // 处理mysql缓存表数据
+        if (isset($post['arcrank']) && -1 == $post['arcrank'] && -1 == $post['old_arcrank'] && !empty($post['users_id'])) {
+            // 待审核
+            model('SqlCacheTable')->UpdateDraftSqlCacheTable($post, $opt);
+        } else if (isset($post['arcrank'])) {
+            // 已审核
+            $post['old_typeid'] = intval($post['attr']['typeid']);
+            model('SqlCacheTable')->UpdateSqlCacheTable($post, $opt, 'product');
+        }
     }
 
     /**

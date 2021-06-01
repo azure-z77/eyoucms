@@ -42,7 +42,6 @@ class RecycleBin extends Base
         $this->guestbook_attribute  = Db::name('guestbook_attribute');  // 留言表单数据表
         $this->guestbook_attr         = Db::name('guestbook_attr');         // 留言表单内容表
         $this->arctype_channel_id = config('global.arctype_channel_id');
-        
     }
 
     /**
@@ -213,6 +212,10 @@ class RecycleBin extends Base
                 if (false !== $r) {
                     delFile(CACHE_PATH);
                     adminLog('还原栏目：'.$row['typename']);
+                    /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    model('SqlCacheTable')->InsertSqlCacheTable(true);
+                    /* END */
                     $this->success('操作成功');
                 }
             }
@@ -360,6 +363,10 @@ class RecycleBin extends Base
                 $typename .= $row['typename'].',';
             }
             adminLog('还原栏目：'.trim($typename,','));
+            /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+            Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+            model('SqlCacheTable')->InsertSqlCacheTable(true);
+            /* END */
             $this->success('操作成功');
         }
         $this->error('非法访问');
@@ -661,8 +668,7 @@ class RecycleBin extends Base
     {
         $id_arr = input('del_id/a');
         $id_arr = eyIntval($id_arr);
-        if(IS_POST && !empty($id_arr)){
-
+        if(IS_POST && !empty($id_arr)) {
             // 当前文档信息
             $row = $this->archives->field('aid, title, typeid')
                 ->where([
@@ -673,7 +679,6 @@ class RecycleBin extends Base
                 ->select();
             if (!empty($row)) {
                 $id_arr = get_arr_column($row, 'aid');
-
                 // 关联的栏目ID集合
                 $typeids = [];
                 $typeidArr = get_arr_column($row, 'typeid');
@@ -719,6 +724,10 @@ class RecycleBin extends Base
                         if ($r2) {
                             delFile(CACHE_PATH);
                             adminLog('还原文档：'.implode('|', get_arr_column($row, 'title')));
+                            /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                            Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                            model('SqlCacheTable')->InsertSqlCacheTable(true);
+                            /* END */
                             $this->success('操作成功');
                         } else {
                             $this->success('关联栏目还原成功，文档还原失败！');

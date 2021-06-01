@@ -1152,18 +1152,14 @@ class Field extends Base
         }
     }
 
-    /**
-     * 留言表单表单列表
-     */
+    //留言表单表单列表
     public function attribute_index()
     {
         $assign_data = array();
         $condition   = array();
-        // 获取到所有GET参数
         $get    = input('get.');
         $typeid = input('typeid/d');
 
-        // 应用搜索条件
         foreach (['keywords', 'typeid'] as $key) {
             if (isset($get[$key]) && $get[$key] !== '') {
                 if ($key == 'keywords') {
@@ -1179,17 +1175,13 @@ class Field extends Base
 
         $condition['b.id']     = ['gt', 0];
         $condition['a.is_del'] = 0;
-        // 多语言
         $condition['a.lang'] = $this->admin_lang;
 
-        /**
-         * 数据查询，搜索出主键ID的值
-         */
         $count = DB::name('guestbook_attribute')->alias('a')
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
             ->where($condition)
-            ->count();// 查询满足要求的总记录数
-        $Page  = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+            ->count();
+        $Page  = new Page($count, config('paginate.list_rows'));
         $list  = DB::name('guestbook_attribute')
             ->field("a.attr_id")
             ->alias('a')
@@ -1199,10 +1191,6 @@ class Field extends Base
             ->limit($Page->firstRow . ',' . $Page->listRows)
             ->getAllWithIndex('attr_id');
 
-        /**
-         * 完善数据集信息
-         * 在数据量大的情况下，经过优化的搜索逻辑，先搜索出主键ID，再通过ID将其他信息补充完整；
-         */
         if ($list) {
             $attr_ida = array_keys($list);
             $fields   = "b.*, a.*";
@@ -1213,9 +1201,8 @@ class Field extends Base
                 ->where('a.attr_id', 'in', $attr_ida)
                 ->getAllWithIndex('attr_id');
 
-            /*获取多语言关联绑定的值*/
-            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute', $this->main_lang); // 多语言
-            /*--end*/
+            //获取多语言关联绑定的值
+            $row = model('LanguageAttr')->getBindValue($row, 'guestbook_attribute', $this->main_lang);
 
             foreach ($row as $key => $val) {
                 $val['fieldname'] = 'attr_' . $val['attr_id'];
@@ -1225,28 +1212,23 @@ class Field extends Base
                 $list[$key] = $row[$val['attr_id']];
             }
         }
-        $show                 = $Page->show(); // 分页显示输出
-        $assign_data['page']  = $show; // 赋值分页输出
-        $assign_data['list']  = $list; // 赋值数据集
-        $assign_data['pager'] = $Page; // 赋值分页对象
+        $show                 = $Page->show();
+        $assign_data['page']  = $show;
+        $assign_data['list']  = $list;
+        $assign_data['pager'] = $Page;
 
-        /*获取当前模型栏目*/
+        //获取当前模型栏目
         $select_html = allow_release_arctype($typeid, array(8));
         $typeidNum   = substr_count($select_html, '</option>');
         $this->assign('select_html', $select_html);
         $this->assign('typeidNum', $typeidNum);
-        /*--end*/
 
-        // 栏目ID
-        $assign_data['typeid'] = $typeid; // 栏目ID
-        /*当前栏目信息*/
+        $assign_data['typeid'] = $typeid;
         $arctype_info = array();
         if ($typeid > 0) {
             $arctype_info = Db::name('arctype')->field('typename')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
-        /*--end*/
-
         $assign_data['attrInputTypeArr'] = config('global.guestbook_attr_input_type'); // 表单类型
 
         //留言模型的栏目数量
@@ -1257,6 +1239,8 @@ class Field extends Base
             ])->count();
 
         $this->assign($assign_data);
+        $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
+        $this->assign('recycle_switch', $recycle_switch);
         return $this->fetch();
     }
 
@@ -1541,9 +1525,10 @@ class Field extends Base
         $this->language_access(); // 多语言功能操作权限
 
         $id_arr = input('del_id/a');
+        $thorough = input('thorough/d');
         $id_arr = eyIntval($id_arr);
         if (!empty($id_arr)) {
-            /*多语言*/
+            //多语言
             if (is_language()) {
                 $attr_name_arr = [];
                 foreach ($id_arr as $key => $val) {
@@ -1555,13 +1540,18 @@ class Field extends Base
                 ])->column('attr_value');
                 !empty($new_id_arr) && $id_arr = $new_id_arr;
             }
-            /*--end*/
-            $r = Db::name('GuestbookAttribute')->where([
-                'attr_id' => ['IN', $id_arr],
-            ])->update([
-                'is_del'      => 1,
-                'update_time' => getTime(),
-            ]);
+            if (1 == $thorough){
+                $r = Db::name('GuestbookAttribute')->where([
+                    'attr_id' => ['IN', $id_arr],
+                ])->delete();
+            }else{
+                $r = Db::name('GuestbookAttribute')->where([
+                    'attr_id' => ['IN', $id_arr],
+                ])->update([
+                    'is_del'      => 1,
+                    'update_time' => getTime(),
+                ]);
+            }
             if ($r) {
                 adminLog('删除留言表单-id：' . implode(',', $id_arr));
                 $this->success('删除成功');

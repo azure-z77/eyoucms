@@ -2,10 +2,13 @@
 <link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css">
 <script type="text/javascript" src="__PUBLIC__/plugins/laydate/laydate.js"></script>
 
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
-
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 <style type="text/css">
     /*服务器名称下拉*/
     .help-hot-list {
@@ -101,6 +104,7 @@
                     <label for="title"><em>*</em>所属栏目</label>
                 </dt>
                 <dd class="opt"> 
+                    <input type="hidden" name="attr[typeid]" id="attr_typeid" value="{$field.typeid}">
                     <select name="typeid" id="typeid">
                         {$arctype_html}
                     </select>
@@ -114,6 +118,7 @@
                 </dt>
                 <dd class="opt">
                     {volist name="archives_flags" id="vo"}
+                        <input type="hidden" name="attr[{$vo.flag_fieldname}]" {if $field[$vo.flag_fieldname] == 1}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="{$vo.flag_fieldname}" value="1" {if $field[$vo.flag_fieldname] == 1}checked{/if}>{$vo.flag_name}[{$vo.flag_attr}]</label>&nbsp;
                     {/volist}
                     <span class="err"></span>
@@ -142,7 +147,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text">
+                            <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                  title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -360,6 +365,7 @@
                     <label>浏览量</label>
                 </dt>
                 <dd class="opt">    
+                    <input type="hidden" value="{$field.users_id}" name="users_id" class="input-txt">
                     <input type="text" value="{$field.click}" name="click" id="click" class="input-txt">
                     <span class="err"></span>
                     <p class="notic"></p>
@@ -380,6 +386,7 @@
                     <label>阅读权限</label>
                 </dt>
                 <dd class="opt">
+                    <input type="hidden" value="{$field.arcrank}" name="old_arcrank" class="input-txt">
                     <select name="arcrank" id="arcrank" {if $field.arcrank < 0 && $admin_info.role_id > 0 && $auth_role_info.check_oneself < 1} disabled="disabled" {/if}>
                         {volist name="arcrank_list" id="vo"}
                         <option value="{$vo.rank}" {eq name="$vo.rank" value="$field.arcrank"}selected{/eq}>{$vo.name}</option>
@@ -439,7 +446,6 @@
 <script type="text/javascript" src="__PUBLIC__/plugins/webuploader/webuploader.min.js"></script>
 <script type="text/javascript">
     var uploader_swf = '__PUBLIC__/plugins/webuploader/Uploader.swf';
-    // var server_url="{:url('Ueditor/downFileUp',array('savepath'=>'soft','nowfilename'=>-1))}";
     var server_url   = "{:url('Ueditor/DownloadUploadFile',array('savepath'=>'soft'))}";
     var admin_id = "{$Think.session.admin_id|default='1'}";
 </script>
@@ -653,6 +659,8 @@
                                 },
                                 success: function (res2) {
                                     var video_url = res1.data.domain + "/" + res2.key;
+                                    video_url = video_url.replace("http://", "//");
+                                    video_url = video_url.replace("https://", "//");
                                     var html = '';
                                     html += '<input type="hidden" name="fileupload[file_url][]" value="'+ video_url +'">';
                                     html += '<input type="hidden" name="fileupload[file_mime][]" value="'+file_mime+'">';
@@ -859,7 +867,10 @@
     }
 
     // 获取模板属性数据
-    function GetTemplateAddr(num = 1){
+    function GetTemplateAddr(num){
+        if (!num) {
+            num = 1;
+        }
         $.ajax({
             url: "{:url('Download/get_template', ['_ajax'=>1])}",
             data: {num:num},
@@ -876,9 +887,11 @@
     function DeleteFile(obj){
         $(obj).parent().parent().remove();
     }
-
     // 拼装模板属性并追加
-    function AddTemplateAddr(num = 1,data = ''){
+    function AddTemplateAddr(num,data){
+        if (!num) {
+            num = 1;
+        }
         // 获取指定div数量
         var SerialNum = $('#Template div.template_div').length;
         var default_servername = "{$default_servername}";

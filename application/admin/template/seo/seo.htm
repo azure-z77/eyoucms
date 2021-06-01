@@ -551,7 +551,7 @@
             //生成整站
             $("#up_site").click(function(){
                 $.ajax({
-                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
+                    url: "{:url('Seo/handle', ['is_buildhtml'=>1,'_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -561,7 +561,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
+                            showErrorAlert(res.msg);
                         } else {
                             var url = eyou_basefile+"?m=admin&c=Seo&a=site&lang="+__lang__;
                             var index = layer.open({type: 2,title: '开始生成',area: ['500px', '300px'],fix: false, maxmin: false,content: url});
@@ -577,7 +577,7 @@
             //生成首页
             $("#up_index").click(function(){
                 $.ajax({
-                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
+                    url: "{:url('Seo/handle', ['is_buildhtml'=>1,'_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -587,7 +587,7 @@
                     success: function(res){
                         if (0 == res.code) {
                             layer.closeAll();
-                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
+                            showErrorAlert(res.msg);
                         } else {
                             var timestamp1 = Date.parse(new Date());
                             $.ajax({
@@ -617,14 +617,14 @@
                                 },
                                 error: function(e){
                                     layer.closeAll();
-                                    layer.alert(e.responseText, {icon: 5, title:false});
+                                    showErrorAlert(e.responseText);
                                 }
                             });
                         }
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert(e.responseText, {icon: 5, title:false});
+                        showErrorAlert(e.responseText);
                     }
                 });
             })
@@ -632,7 +632,7 @@
             //生成栏目页
             $("#up_channel").click(function(){
                 $.ajax({
-                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
+                    url: "{:url('Seo/handle', ['is_buildhtml'=>1,'_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -642,7 +642,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
+                            showErrorAlert(res.msg);
                         } else {
                             var typeid = $("#html_typeid").val();     //栏目id
                             var url = eyou_basefile+"?m=admin&c=Seo&a=channel&typeid="+typeid+"&lang="+__lang__;
@@ -651,7 +651,7 @@
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert('生成失败，请先提交保存配置！', {icon: 5, title:false});
+                        showErrorAlert(e.responseText);
                     }
                 });
             })
@@ -659,7 +659,7 @@
             //生成文章页
             $("#up_article").click(function(){
                 $.ajax({
-                    url: "{:url('Seo/handle', ['_ajax'=>1])}",
+                    url: "{:url('Seo/handle', ['is_buildhtml'=>1,'_ajax'=>1])}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#handlepost').serialize(),
@@ -669,7 +669,7 @@
                     success: function(res){
                         layer.closeAll();
                         if (0 == res.code) {
-                            layer.alert('未知错误，生成失败！', {icon: 5, title:false});
+                            showErrorAlert(res.msg);
                         } else {
                             var typeid = $("#html_arc_typeid").val();     //栏目id
                             var url = eyou_basefile+"?m=admin&c=Seo&a=article&typeid="+typeid+"&lang="+__lang__;
@@ -678,7 +678,7 @@
                     },
                     error: function(e){
                         layer.closeAll();
-                        layer.alert(e.responseText, {icon: 5, title:false});
+                        showErrorAlert(e.responseText);
                     }
                 });
             })

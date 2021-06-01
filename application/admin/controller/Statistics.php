@@ -35,7 +35,7 @@ class Statistics extends Base {
 
         // 起始时间
         $StartTime = $this->GetTime(6);
-        $EndTime   = getTime();
+        $EndTime = getTime();
         $this->assign('StartTime', $StartTime);
         $this->assign('EndTime', $EndTime);
         // 数据统计
@@ -80,35 +80,37 @@ class Statistics extends Base {
     // 商品销售榜
     private function GetOrderSalesList()
     {
-        $Return = Db::name('archives')
-            ->field('aid, title, sales_num')
-            ->order('sales_num desc')
-            ->limit('0, 10')
-            ->where('channel', 2)
-            ->select();
-        $aid  = get_arr_column($Return, 'aid');
+        // 查询销量最高的前十个商品
+        $field_0 = 'aid, title, sales_num';
+        $where_0 = [
+            'typeid' => ['IN', Db::name('arctype')->where('current_channel', 2)->column('id')],
+            'channel' => 2,
+        ];
+        $Archives = Db::name('archives')->field($field_0)->where($where_0)->limit(10)->order('sales_num desc')->select();
 
-        $where = [
-            'a.product_id' => ['IN', $aid],
+        // 统计单个商品销售总额
+        $where_1 = [
+            'a.product_id' => ['IN', get_arr_column($Archives, 'aid')],
             'b.order_status' => ['IN', [1, 2, 3]],
         ];
         $Price = Db::name('shop_order_details')->alias('a')
             ->field('a.product_id, sum(a.product_price*a.num) as price, count(a.details_id) as sales_num')
             ->join('__SHOP_ORDER__ b', 'a.order_id = b.order_id', 'LEFT')
-            ->where($where)
+            ->where($where_1)
             ->group('product_id')
             ->select();
+            
+        // 数据处理并返回
         $Price = convert_arr_key($Price, 'product_id');
-        $array_new = get_archives_data($Return, 'aid');
-        $Return = convert_arr_key($Return, 'aid');
-
-        foreach ($Return as $key => $value) {
-            $Return[$key]['sales_amount'] = !empty($Price[$value['aid']]['price']) ? $Price[$value['aid']]['price'] : 0;
-            $Return[$key]['title'] = @msubstr($value['title'], 0, 25, '...');
-            $Return[$key]['arcurl'] = get_arcurl($array_new[$value['aid']]);
-            $Return[$key]['sales_num'] = !empty($Price[$value['aid']]['sales_num']) ? $Price[$value['aid']]['sales_num'] : 0;
+        $Archives = convert_arr_key($Archives, 'aid');
+        $ArchivesNew = get_archives_data($Archives, 'aid');
+        foreach ($Archives as $key => $value) {
+            $Archives[$key]['arcurl'] = get_arcurl($ArchivesNew[$key]);
+            $Archives[$key]['title'] = @msubstr($value['title'], 0, 25, '...');
+            $Archives[$key]['sales_amount'] = !empty($Price[$key]['price']) ? $Price[$key]['price'] : 0;
+            $Archives[$key]['sales_num'] = !empty($Price[$key]['sales_num']) ? $Price[$key]['sales_num'] : 0;
         }
-        return $Return;
+        return $Archives;
     }
 
     // 获取时间周期内的指定数据
@@ -137,6 +139,7 @@ class Statistics extends Base {
 
         // 商品查询条件
         $Awhere = [
+            'typeid' => ['IN', Db::name('arctype')->where('current_channel', 2)->column('id')],
             'channel'  => 2,
             'add_time' => ['between', [$param['Start'], $param['End']]]
         ];

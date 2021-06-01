@@ -17,9 +17,8 @@ use think\Db;
 use think\Config;
 
 class UsersRelease extends Base {
-    /**
-     * 构造方法
-     */
+
+    public $current_channel = [1,2,3,4,5];
     public function __construct(){
         parent::__construct();
 
@@ -30,6 +29,7 @@ class UsersRelease extends Base {
         // 模型是否开启
         $channeltype_row = \think\Cache::get('extra_global_channeltype');
         $this->assign('channeltype_row',$channeltype_row);
+        $this->current_channel = Db::name('channeltype')->where('is_release',1)->where('id','in',$this->current_channel)->column('id');
     }
 
     /**
@@ -53,7 +53,7 @@ class UsersRelease extends Base {
                 ];
                 if (0 == $typeids[0]) {
                     $where = [
-                        'current_channel' => ['in',[1,3]],
+                        'current_channel' => ['in',$this->current_channel],
                         'lang' => $this->admin_lang,
                     ];
                 }
@@ -64,7 +64,7 @@ class UsersRelease extends Base {
                 if (!empty($where) && !empty($update)) {
                     /*将全部设置为不可投稿*/
                     Db::name('arctype')->where([
-                        'current_channel' => ['in',[1,3]],
+                        'current_channel' => ['in',$this->current_channel],
                         'lang' => $this->admin_lang,
                     ])->update([
                         'is_release' => 0,
@@ -81,19 +81,20 @@ class UsersRelease extends Base {
                 $this->success('设置成功！');
             }
         }
-
         // 会员投稿配置信息
         $UsersC = getUsersConfigData('users');
         $this->assign('UsersC',$UsersC);
-
         /*允许发布文档列表的栏目*/
         $arctype = Db::name('arctype')->where([
-            'current_channel' => ['in',[1,3]],
+            'current_channel' => ['in',$this->current_channel],
             'is_release' => 1,
             'lang' => $this->admin_lang,
         ])->field('id')->select();
         $arctype = get_arr_column($arctype,'id');
-        $select_html = allow_release_arctype($arctype, [1,3]);
+        $select_html = allow_release_arctype($arctype, $this->current_channel);
+        if (empty($this->current_channel)){
+            $select_html = [];
+        }
         $this->assign('select_html',$select_html);
         /*--end*/
         return $this->fetch('conf');

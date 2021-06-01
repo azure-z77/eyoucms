@@ -37,7 +37,7 @@
                     <tr>
                         {eq name='$main_lang' value='$admin_lang'}
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         {/eq}
                         <th abbr="article_title" axis="col3" class="w40">
@@ -86,7 +86,7 @@
                             {eq name='$main_lang' value='$admin_lang'}
                             <td class="sign w40">
                                 <div class="tc">
-                                    <input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                    <input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}"></div>
                             </td>
                             {/eq}
                             <td class="sort w40">
@@ -164,7 +164,7 @@
             <div class="tDiv2">
                 {eq name='$main_lang' value='$admin_lang'}
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
                 <div class="fbutton">

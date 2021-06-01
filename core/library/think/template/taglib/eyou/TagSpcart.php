@@ -64,10 +64,8 @@ class TagSpcart extends Base
         foreach ($list as $key => $value) {
             $list[$key]['StatusMark']  = '';
             if (!empty($value['spec_value_id'])) {
-                if (!empty($value['spec_price'])) {
-                    // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
-                    $list[$key]['users_price'] = $value['spec_price'];
-                }
+                // 购物车商品存在规格并且价格不为空，则覆盖商品原来的价格
+                if (!empty($value['spec_price'])) $list[$key]['users_price'] = $value['spec_price'];
 
                 if (!empty($value['spec_stock']) && 0 < $value['spec_stock']) {
                     // 购物车商品存在规格并且库存不为空，则覆盖商品原来的库存
@@ -105,9 +103,9 @@ class TagSpcart extends Base
                     }
                 }
             }
-
-            // 商品被伪删除则执行
-            if (1 == $value['is_del']) {
+                    
+            // 商品 被伪删除 或 规格被删除 则执行
+            if ((1 == $value['is_del']) || (empty($value['spec_price']) && !empty($value['spec_value_id']))) {
                 $list[$key]['stock_count'] = 0;
                 $list[$key]['selected']    = 0;
                 $list[$key]['StatusMark']  = '[商品已停售]';
@@ -168,7 +166,7 @@ class TagSpcart extends Base
         $selected = 0;
 
         $controller_name = 'Product';
-        $array_new = get_archives_data($list,'product_id');
+        $array_new = get_archives_data($list, 'product_id');
         $level_discount = $this->users['level_discount'];
         
         foreach ($list as $key => $value) {
@@ -273,10 +271,7 @@ EOF;
         $result['list'] = $list;
         
         // 是否购物车的产品全部选中
-        $listcount = count($list);
-        if ($listcount == $selected) {
-            $result['AllSelected'] = '1';
-        }
+        if (count($list) == $selected) $result['AllSelected'] = 1;
 
         // 下单地址
         $result['ShopOrderUrl']  = urldecode(url('user/Shop/shop_under_order'));

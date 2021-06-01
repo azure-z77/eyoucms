@@ -89,8 +89,7 @@ class Index extends Base
         $this->assign('menu',getMenuList());
 
         /*检测是否存在会员中心模板*/
-        $globalConfig = tpCache('global');
-        if ('v1.0.1' > getVersion('version_themeusers') && !empty($globalConfig['web_users_switch'])) {
+        if ('v1.0.1' > getVersion('version_themeusers') && !empty($this->globalConfig['web_users_switch'])) {
             $is_syn_theme_users = 1;
         } else {
             $is_syn_theme_users = 0;
@@ -111,8 +110,9 @@ class Index extends Base
    
     public function welcome()
     {
-        $globalConfig = tpCache('global');
-
+        // 更新数据缓存表信息
+        $this->update_sql_cache_table();
+        
         /*小程序组件更新*/
         $is_update_component_access = 1;
         if (!is_dir('./weapp/Diyminipro/') || $this->admin_lang != $this->main_lang) {
@@ -122,7 +122,7 @@ class Index extends Base
         /*end*/
 
         // 纠正上传附件的大小，始终以空间大小为准
-        $file_size = $globalConfig['file_size'];
+        $file_size = $this->globalConfig['file_size'];
         $maxFileupload = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 0;
         $maxFileupload = intval($maxFileupload);
         if (empty($file_size) || $file_size > $maxFileupload) {
@@ -141,7 +141,7 @@ class Index extends Base
         }
 
         /*未备份数据库提示*/
-        $system_explanation_welcome = !empty($globalConfig['system_explanation_welcome']) ? $globalConfig['system_explanation_welcome'] : 0;
+        $system_explanation_welcome = !empty($this->globalConfig['system_explanation_welcome']) ? $this->globalConfig['system_explanation_welcome'] : 0;
         $sqlfiles = glob(DATA_PATH.'sqldata/*');
         foreach ($sqlfiles as $file) {
             if(stristr($file, getCmsVersion())){
@@ -153,7 +153,7 @@ class Index extends Base
 
         /*检查密码复杂度*/
         $admin_login_pwdlevel = -1;
-        $system_explanation_welcome_2 = !empty($globalConfig['system_explanation_welcome_2']) ? $globalConfig['system_explanation_welcome_2'] : 0;
+        $system_explanation_welcome_2 = !empty($this->globalConfig['system_explanation_welcome_2']) ? $this->globalConfig['system_explanation_welcome_2'] : 0;
         if (empty($system_explanation_welcome_2)) {
             $admin_login_pwdlevel = session('admin_login_pwdlevel');
             if (!session('?admin_login_pwdlevel') || 3 < intval($admin_login_pwdlevel)) {
@@ -203,7 +203,7 @@ class Index extends Base
         // 服务器信息
         $this->assign('sys_info',$this->get_sys_info());
         // 升级弹窗
-        $this->assign('web_show_popup_upgrade', $globalConfig['web_show_popup_upgrade']);
+        $this->assign('web_show_popup_upgrade', $this->globalConfig['web_show_popup_upgrade']);
 
         // 升级系统时，同时处理sql语句
         $this->synExecuteSql();
@@ -220,7 +220,11 @@ class Index extends Base
         $ajaxLogic->admin_logic_1610086648(); // 文档图片自适应修改为默认关闭(v1.6.1节点去掉)
         $ajaxLogic->admin_logic_1614829120(); // 补充站内信模板的数据(v1.6.1节点去掉)
         $ajaxLogic->admin_logic_1616123192(); // 补充邮箱/短信模板的数据(v1.6.1节点去掉)
-
+        // 补充问题点赞表的like_source字段(v1.6.1节点去掉--陈风任)
+        $ajaxLogic->admin_logic_1617069276();
+        // 纠正商品主表的评价数(appraise 字段)、收藏数(collection 字段)(v1.6.1节点去掉--陈风任)
+        $ajaxLogic->admin_logic_archives_1618279798();
+        
         return $this->fetch();
     }
 
@@ -338,6 +342,8 @@ class Index extends Base
                         'status'    => 1,
                         'is_del'    => 0,
                     ];
+                    $mapNew = "(users_id = 0 OR (users_id > 0 AND arcrank >= 0))";
+
                     /*权限控制 by 小虎哥*/
                     $admin_info = session('admin_info');
                     if (0 < intval($admin_info['role_id'])) {
@@ -349,8 +355,24 @@ class Index extends Base
                         }
                     }
                     /*--end*/
-                    $archivesTotalRow = Db::name('archives')->field('channel, count(aid) as total')->where($map)->group('channel')
-                        ->getAllWithIndex('channel');
+                    $SqlQuery = Db::name('archives')->field('channel, count(aid) as total')->where($map)->where($mapNew)->group('channel')->select(false);
+                    $SqlResult = Db::name('sql_cache_table')->where(['sql_md5'=>md5($SqlQuery)])->getField('sql_result');
+                    if (!empty($SqlResult)) {
+                        $archivesTotalRow = json_decode($SqlResult, true);
+                    } else {
+                        $archivesTotalRow = Db::name('archives')->field('channel, count(aid) as total')->where($map)->where($mapNew)->group('channel')->getAllWithIndex('channel');
+                        /*添加查询执行语句到mysql缓存表*/
+                        $SqlCacheTable = [
+                            'sql_name' => '|model|all|count|',
+                            'sql_result' => json_encode($archivesTotalRow),
+                            'sql_md5' => md5($SqlQuery),
+                            'sql_query' => $SqlQuery,
+                            'add_time' => getTime(),
+                            'update_time' => getTime(),
+                        ];
+                        Db::name('sql_cache_table')->insertGetId($SqlCacheTable);
+                        /*END*/
+                    }
                 }
                 parse_str($val['vars'], $vars);
                 $total = !empty($archivesTotalRow[$vars['channel']]['total']) ? intval($archivesTotalRow[$vars['channel']]['total']) : 0;
@@ -676,13 +698,19 @@ class Index extends Base
                 'refresh'   => 0,
             ];
 
-            $param = input('param.');
+            $param    = input('param.');
             $table    = input('param.table/s'); // 表名
             $id_name  = input('param.id_name/s'); // 表主键id名
             $id_value = input('param.id_value/d'); // 表主键id值
             $field    = input('param.field/s'); // 修改哪个字段
             $value    = input('param.value/s', '', null); // 修改字段值
             $value    = eyPreventShell($value) ? $value : strip_sql($value);
+            if ('archives' == $table && 'arcrank' == $field) {
+                $ScreeningTable = $table;
+                $ScreeningField = $field;
+                $ScreeningValue = $value;
+                $ScreeningAid   = $id_value;
+            }
 
             /*插件专用*/
             if ('weapp' == $table) {
@@ -851,8 +879,16 @@ class Index extends Base
                     break;
                 }
             }
-            $r = Db::name($table)->where([$id_name => $id_value])->cache(true,null,$table)->save($savedata); // 根据条件保存修改的数据
+            // 根据条件保存修改的数据
+            $r = Db::name($table)->where([$id_name => $id_value])->cache(true,null,$table)->save($savedata);
             if ($r !== false) {
+                if ('archives' == $ScreeningTable && 'arcrank' == $ScreeningField) {
+                    $Result = model('SqlCacheTable')->ScreeningArchives($ScreeningAid, $ScreeningValue);
+                    if (!empty($Result)) {
+                        $data['refresh'] = 1;
+                        $data['time'] = 500;
+                    }
+                }
                 // 以下代码可以考虑去掉，与行为里的清除缓存重复 AppEndBehavior.php / clearHtmlCache
                 switch ($table) {
                     case 'auth_modular':
@@ -1117,8 +1153,7 @@ class Index extends Base
         $this->assign('weapp_switch', $weapp_switch);
         /*代理贴牌功能限制-e*/
         
-        $globalConfig = tpCache('global');
-        $this->assign('globalConfig', $globalConfig);
+        $this->assign('globalConfig', $this->globalConfig);
 
         $UsersConfigData = getUsersConfigData('all');
         $this->assign('userConfig',$UsersConfigData);
@@ -1160,6 +1195,26 @@ class Index extends Base
         $this->assign('pay_list', $pay);
         /*--end*/
 
+        $recycle_switch = tpSetting('recycle.recycle_switch');
+        $this->assign('recycle_switch', $recycle_switch);//回收站
         return $this->fetch();
+    }
+
+    // 更新数据缓存表信息
+    public function update_sql_cache_table()
+    {
+        $CacheMaxID = Db::name('sql_cache_table')->where('sql_name', 'ArchivesMaxID')->getField('sql_result');
+        if (empty($CacheMaxID)) {
+            // 添加查询执行语句到mysql缓存表
+            model('SqlCacheTable')->InsertSqlCacheTable(true);
+        } else {
+            $ArchivesMaxID = Db::name('archives')->max('aid');
+            if ($ArchivesMaxID != $CacheMaxID) {
+                /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
+                Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                model('SqlCacheTable')->InsertSqlCacheTable(true);
+                /* END */
+            }
+        }
     }
 }

@@ -101,19 +101,31 @@ class TagStatic extends Base
                         if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/^users(_([^\/]*))?\//i', $file)) {
                             $file = str_ireplace("{$web_users_tpl_theme}/", "{$web_users_tpl_theme}/{$users_wap_tpl_dir}/", $file);
                         }
+                        else if (file_exists('./template/'.TPL_THEME.'pc/ask/'.$users_wap_tpl_dir) && preg_match('/^ask(_([^\/]*))?\//i', $file)) {
+                            $file = str_ireplace("ask/", "ask/{$users_wap_tpl_dir}/", $file);
+                        }
                     }
                     $file = preg_replace('/^users(_([^\/]*))?\//', $web_users_tpl_theme.'/', $file); // 支持会员中心模板切换
                     if (empty($code)) {
-                        $file = '/template/'.THEME_STYLE_PATH.'/'.$file;
+                        if (!empty($is_mobile) && preg_match('/^([a-zA-Z0-9_-]+)\/'.$users_wap_tpl_dir.'\//i', $file)) {
+                            $file = '/template/'.TPL_THEME.'pc/'.$file;
+                        } else {
+                            $file = '/template/'.THEME_STYLE_PATH.'/'.$file;
+                        }
                     } else {
                         $file = '/template/plugins/'.$code.'/'.THEME_STYLE.'/'.$file;
                     }
                 } else {
-                    // if (!empty($is_mobile)) {
-                    //     if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/\/users(_([^\/]*))?\//i', $file)) {
-                    //         $file = str_ireplace("{$web_users_tpl_theme}/", "{$web_users_tpl_theme}/{$users_wap_tpl_dir}/", $file);
-                    //     }
-                    // }
+/*
+                    if (!empty($is_mobile)) {
+                        if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir) && preg_match('/\/users(_([^\/]*))?\//i', $file)) {
+                            $file = str_ireplace("{$web_users_tpl_theme}/", "{$web_users_tpl_theme}/{$users_wap_tpl_dir}/", $file);
+                        }
+                        else if (file_exists('./template/'.TPL_THEME.'pc/ask/'.$users_wap_tpl_dir) && preg_match('/\/ask(_([^\/]*))?\//i', $file)) {
+                            $file = str_ireplace("ask/", "ask/{$users_wap_tpl_dir}/", $file);
+                        }
+                    }
+                    */
                     if (empty($code)) {
                         $tpl_theme = trim(TPL_THEME, '/');
                         // 支持前台模板切换

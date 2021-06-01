@@ -324,4 +324,13 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'coin' => 
+  array (
+    'name' => 'coin',
+    'type' => 'int(11) unsigned',
+    'notnull' => false,
+    'default' => '0',
+    'primary' => false,
+    'autoinc' => false,
+  ),
 );

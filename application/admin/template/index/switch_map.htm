@@ -28,7 +28,7 @@
                                 <div class="on-off_btn_r">
                                     <input type="checkbox" name="users[users_open_release]" lay-skin="switch" lay-text="开启|关闭" lay-filter="switchTest"
                                            data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" {eq name="$userConfig.users_open_release" value="1"}checked="" {/eq}
-                                           data-type="users" data-name="users_open_release" data-lmenuid="Member_users_index" value="{$userConfig.users_open_release}">
+                                           data-type="users" data-name="users_open_release" data-lmenuid="Archives_index_draft" value="{$userConfig.users_open_release}">
                                 </div>
                             </div>
                         </li>
@@ -40,7 +40,7 @@
                                 <div class="on-off_btn_r">
                                     <input type="checkbox" name="level[level_member_upgrade]" lay-skin="switch" lay-text="开启|关闭" lay-filter="switchTest"
                                            data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" {eq name="$userConfig.level_member_upgrade" value="1"}checked="" {/eq}
-                                    data-type="level" data-name="level_member_upgrade" data-lmenuid="Member_users_index" value="{$userConfig.level_member_upgrade}">
+                                    data-type="level" data-name="level_member_upgrade" data-lmenuid="off" value="{$userConfig.level_member_upgrade}">
                                 </div>
                             </div>
                         </li>
@@ -72,7 +72,7 @@
                                 <div class="on-off_btn_r">
                                     <input type="checkbox" name="pay[pay_open]" lay-skin="switch" lay-text="开启|关闭" lay-filter="switchTest"
                                            data-authortoken="{$is_eyou_authortoken}" data-is_online="{$is_online}" {eq name="$userConfig.pay_open" value="1"}checked="" {/eq}
-                                    data-type="pay" data-name="pay_open" data-lmenuid="Member_users_index" value="{$userConfig.pay_open}">
+                                    data-type="pay" data-name="pay_open" data-lmenuid="off" value="{$userConfig.pay_open}">
             
                                 </div>
                             </div>
@@ -97,18 +97,20 @@
                         {/eq}
 
                         {eq name="'Language@index'|is_check_access" value="1"}
-                        <li class="more_li">
-                            <div class="on-off_btn">
-                                <div class="on-off_btn_l">
-                                    <p>多语言：</p>
+                            {if condition="$php_servicemeal > 1"}
+                            <li class="more_li">
+                                <div class="on-off_btn">
+                                    <div class="on-off_btn_l">
+                                        <p>多语言：</p>
+                                    </div>
+                                    <div class="on-off_btn_r">
+                                        <input type="checkbox" name="web[web_language_switch]" lay-skin="switch" lay-text="开启|关闭" lay-filter="switchTest"
+                                               data-type="web" data-name="web_language_switch" data-lmenuid="Language_index" value="{$globalConfig.web_language_switch}"
+                                               {eq name="$globalConfig.web_language_switch" value="1"}checked="" {/eq}>
+                                    </div>
                                 </div>
-                                <div class="on-off_btn_r">
-                                    <input type="checkbox" name="web[web_language_switch]" lay-skin="switch" lay-text="开启|关闭" lay-filter="switchTest"
-                                           data-type="web" data-name="web_language_switch" data-lmenuid="Language_index" value="{$globalConfig.web_language_switch}"
-                                           {eq name="$globalConfig.web_language_switch" value="1"}checked="" {/eq}>
-                                </div>
-                            </div>
-                        </li>
+                            </li>
+                            {/if}
                         {/eq}
                     </ul>
                 </form>
@@ -118,33 +120,33 @@
     {/eq}
 
     <div class="on-off_panel" id="gengduogongneng" style="display: none;">
-        <div class="title">更多功能</div>
+       <!-- <div class="title">更多功能</div> -->
             <div class="on-off_list">
                 <div class="son-tit" id="wendangxiagnguan" style="display: none;">
-                    <span>文档相关</span>
+                    <div class="title">文档相关</div>
                 </div>
                 <div class="on-off_list" id="wendangxiagnguan_child" style="display: none;">
                     <ul>
                         {eq name="'ArchivesFlag@index'|is_check_access" value="1"}
                             {eq name='$main_lang' value='$admin_lang'}
-                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('ArchivesFlag/index')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '文档属性配置');"><i class="fa fa-file-text-o"></i><span>文档属性</span></a></li>
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('ArchivesFlag/index')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '文档属性配置');"><img src="__SKIN__/images/map_icon_wendang.png?v={$version}" ><span>文档属性</span></a></li>
                             {/eq}
                         {/eq}
 
                         {eq name="'System@water'|is_check_access" value="1"}
                             {eq name='$main_lang' value='$admin_lang'}
-                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/water')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '水印配置', '100%', '100%');"><i class="fa fa-file-powerpoint-o"></i><span>水印配置</span></a></li>
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/water')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '水印配置', '100%', '100%');"><img src="__SKIN__/images/map_icon_shuiyin.png?v={$version}" ><span>水印配置</span></a></li>
                             {/eq}
                         {/eq}
 
                         {eq name="'System@thumb'|is_check_access" value="1"}
                             {eq name='$main_lang' value='$admin_lang'}
-                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/thumb')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '缩略图配置', '100%', '100%');"><i class="fa fa fa-file-photo-o"></i><span>缩略图配置</span></a></li>
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('System/thumb')}" data-leftmenu="Index_switch_map" onclick="openFullframe(this, '缩略图配置', '100%', '100%');"><img src="__SKIN__/images/map_icon_suoluetu.png?v={$version}" ><span>缩略图配置</span></a></li>
                             {/eq}
                         {/eq}
 
                         {eq name="'Tags@index'|is_check_access" value="1"}
-                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Tags/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-tags"></i><span>TAG管理</span></a></li>
+                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Tags/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_tag.png?v={$version}" ><span>TAG管理</span></a></li>
                         {/eq}
                     </ul>
                 </div>
@@ -158,35 +160,37 @@
             </script>
          
             <div class="son-tit" id="gaojixuanxiang" style="display: none;">
-                <span>高级选项</span>
+                <div class="title">高级选项</div>
             </div>
             <div class="on-off_list" id="gaojixuanxiang_child" style="display: none;">
                 <ul>
                     {eq name="'Admin@admin_pwd'|is_check_access" value="1"}
-                    <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Admin/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-user"></i><span>管理员</span></a></li>
+                    <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Admin/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_guanliyuan.png?v={$version}" ><span>管理员</span></a></li>
                     {/eq}
                     {eq name="'RecycleBin@arctype_index'|is_check_access" value="1"}
                         {eq name='$main_lang' value='$admin_lang'}
-                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('RecycleBin/archives_index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-trash-o"></i><span>回收站</span></a></li>
+                            {neq name='$recycle_switch' value='1'}
+                            <li class="more_li"><a href="javascript:void(0);" data-href="{:url('RecycleBin/archives_index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_huishouzhan.png?v={$version}" ><span>回收站</span></a></li>
+                            {/neq}
                         {/eq}
                     {/eq}
                     {eq name="'Tools@index'|is_check_access" value="1"}
                         {eq name='$main_lang' value='$admin_lang'}
-                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Tools/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-files-o"></i><span>备份还原</span></a></li>
+                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Tools/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_beifenhuanyuan.png?v={$version}" ><span>备份还原</span></a></li>
                         {/eq}
                     {/eq}
                     {eq name="'Channeltype@index'|is_check_access" value="1"}
                         {eq name='$main_lang' value='$admin_lang'}
-                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Channeltype/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-paste"></i><span>频道模型</span></a></li>
+                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Channeltype/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_pindao.png?v={$version}" ><span>频道模型</span></a></li>
                         {/eq}
                     {/eq}
                     {eq name="'Field@arctype_index'|is_check_access" value="1"}
                         {eq name='$main_lang' value='$admin_lang'}
-                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Field/arctype_index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-file-code-o"></i><span>栏目字段</span></a></li>
+                        <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Field/arctype_index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_lanmuziduan.png?v={$version}" ><span>栏目字段</span></a></li>
                         {/eq}
                     {/eq}
                     {eq name="'Filemanager@index'|is_check_access" value="1"}
-                    <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Filemanager/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-folder-open"></i><span>模板管理</span></a></li>
+                    <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Filemanager/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><img src="__SKIN__/images/map_icon_moban.png?v={$version}" ><span>模板管理</span></a></li>
                     {/eq}
                     <!-- {eq name="'Notify@index'|is_check_access" value="1"}
                     <li class="more_li"><a href="javascript:void(0);" data-href="{:url('Notify/index')}" data-leftmenu="Index_switch_map" onclick="gourl2(this,1);"><i class="fa fa-volume-up"></i><span>通知管理</span></a></li>
@@ -303,7 +307,7 @@
             $.ajax({
                 type: "POST",
                 url: url,
-                data: {inc_type:inc_type,name:name,value:value,lmenuid:lmenuid},
+                data: {inc_type:inc_type,name:name,value:value},
                 dataType: 'json',
                 success: function (res) {
                     if(res.code == 1){
@@ -350,17 +354,36 @@
                     try{
                         if (1 == value) {
                             $('#'+lmenuid, window.parent.document).show();
-                            if ('shop_open' == name) {
+                            if (-1 < $.inArray(name, ['shop_open','users_open_release','level_member_upgrade','pay_open'])) {
                                 $('#Member_users_index', window.parent.document).show();
                             } else if ('web_users_switch' == name && 1 == $("input[name='shop[shop_open]']:checked").val()) {
                                 $('#Shop_home', window.parent.document).show();
                             }
                         } else {
-                            if (-1 < $.inArray(name, ['web_users_switch','web_language_switch','shop_open','web_weapp_switch'])) {
-                                $('#'+lmenuid, window.parent.document).hide();
-                                if ('web_users_switch' == name) {
-                                    $('#Shop_home', window.parent.document).hide();
-                                }
+                            $('#'+lmenuid, window.parent.document).hide();
+                            if (-1 < $.inArray(name, ['web_users_switch'])) {
+                                $('#Shop_home', window.parent.document).hide();
+                                $('#Archives_index_draft', window.parent.document).hide();
+
+                                $('input[name="users[users_open_release]').removeAttr('checked');
+                                $('input[name="users[users_open_release]').val(0);
+                                $('input[name="users[users_open_release]').next().removeClass('layui-form-onswitch');
+                                $('input[name="users[users_open_release]').next().html('<em>关闭</em><i></i>');
+
+                                $('input[name="level[level_member_upgrade]').removeAttr('checked');
+                                $('input[name="level[level_member_upgrade]').val(0);
+                                $('input[name="level[level_member_upgrade]').next().removeClass('layui-form-onswitch');
+                                $('input[name="level[level_member_upgrade]').next().html('<em>关闭</em><i></i>');
+
+                                $('input[name="shop[shop_open]').removeAttr('checked');
+                                $('input[name="shop[shop_open]').val(0);
+                                $('input[name="shop[shop_open]').next().removeClass('layui-form-onswitch');
+                                $('input[name="shop[shop_open]').next().html('<em>关闭</em><i></i>');
+
+                                $('input[name="pay[pay_open]').removeAttr('checked');
+                                $('input[name="pay[pay_open]').val(0);
+                                $('input[name="pay[pay_open]').next().removeClass('layui-form-onswitch');
+                                $('input[name="pay[pay_open]').next().html('<em>关闭</em><i></i>');
                             }
                         }
                     }catch(e){}

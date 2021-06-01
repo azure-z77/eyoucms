@@ -255,9 +255,11 @@ class TagList extends Base
         if (0 < count($condition)) {
             $where_str = implode(" AND ", $condition);
         }
-
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby,$orderway);
+
+        // 获取排序信息 --- 陈风任
+        $orderby = $this->GetSortData($orderby);
 
         // 是否显示会员权限
         $users_level_list = $users_level_list2 = [];
@@ -657,6 +659,9 @@ class TagList extends Base
 
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby,$orderway);
+
+        // 获取排序信息 --- 陈风任
+        $orderby = $this->GetSortData($orderby);
 
         // 是否显示会员权限
         $users_level_list = $users_level_list2 = [];
@@ -1069,6 +1074,9 @@ class TagList extends Base
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby,$orderway);
 
+        // 获取排序信息 --- 陈风任
+        $orderby = $this->GetSortData($orderby);
+
         // 是否显示会员权限
         $users_level_list = $users_level_list2 = [];
         if ('on' == $arcrank || stristr(','.$addfields.',', ',arc_level_name,')) {
@@ -1214,6 +1222,28 @@ class TagList extends Base
         $result['list'] = $list; // 赋值数据集
 
         return $result;
+    }
+
+    // 排序处理
+    private function GetSortData($orderby = '')
+    {
+        $Param = $this->request->param();
+        if (!empty($Param['sort']) && 'sales' == $Param['sort']) {
+            $orderby = 'a.sales_num desc, ' . $orderby;
+        } else if (!empty($Param['sort']) && 'price' == $Param['sort']) {
+            $orderby = 'a.users_price ' . $Param['sort_asc'] . ', ' . $orderby;
+        } else if (!empty($Param['sort']) && 'appraise' == $Param['sort']) {
+            $orderby = 'a.appraise desc, ' . $orderby;
+        } else if (!empty($Param['sort']) && 'new' == $Param['sort']) {
+            $orderby = 'a.add_time desc, ' . $orderby;
+        } else if (!empty($Param['sort']) && 'collection' == $Param['sort']) {
+            $orderby = 'a.collection desc, ' . $orderby;
+        } else if (!empty($Param['sort']) && 'click' == $Param['sort']) {
+            $orderby = 'a.click desc, ' . $orderby;
+        } else if (!empty($Param['sort']) && 'download' == $Param['sort']) {
+            $orderby = 'a.downcount desc, ' . $orderby;
+        }
+        return $orderby;
     }
 
 }

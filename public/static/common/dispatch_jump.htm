@@ -33,7 +33,13 @@
         {switch name="$code"}
             {case value="1"}
             <div class="status-ico status-ico-ok"></div>
-            <p class="success">{$msg|strip_tags=###}</p>
+            <p class="success">
+                {in name=':get_current_lang()' value='cn,zh'}
+                    {$msg|strip_tags=###}
+                {else /}
+                    success
+                {/in}
+            </p>
             {/case}
             {case value="0"}
             <div class="status-ico status-ico-error"></div>

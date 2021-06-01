@@ -45,6 +45,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'like_source' => 
+  array (
+    'name' => 'like_source',
+    'type' => 'tinyint(1) unsigned',
+    'notnull' => false,
+    'default' => '2',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'users_ip' => 
   array (
     'name' => 'users_ip',

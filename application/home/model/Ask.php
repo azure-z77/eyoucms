@@ -294,6 +294,12 @@ class Ask extends Model
                 $result['AskData'][$key]['HeadPic']    = ['0' => ['head_pic' => $value['head_pic']]];
                 $result['AskData'][$key]['UsersConut'] = $value['nickname'];
             }
+
+            // 内容处理
+            $preg = '/<img.*?src=[\"|\']?(.*?)[\"|\']?\s.*?>/i';
+            $value['content'] = strip_tags(preg_replace($preg, '[图片]', htmlspecialchars_decode($value['content'])));
+            $result['AskData'][$key]['content'] = $value['content'];
+            // $result['AskData'][$key]['content'] = mb_strimwidth($value['content'], 0, 120, "...");
         }
         /* END */
 
@@ -309,6 +315,90 @@ class Ask extends Model
         return $result;
     }
 
+    // 加急问题列表(默认10条数据)
+    public function GetUrgentAskData($limit = 10)
+    {
+        $field = 'ask_id, ask_title, money';
+        $where = [
+            'is_del' => 0,
+            'is_review' => 1,
+            'money' => ['>', 0]
+        ];
+        $result['UrgentAsk'] = $this->ask_db->field($field)->where($where)->order('money desc')->limit($limit)->select();
+        foreach ($result['UrgentAsk'] as &$value) {
+            $value['AskUrl'] = askurl('home/Ask/details', ['ask_id' => $value['ask_id']]);
+        }
+
+        return $result;
+    }
+
+    // 统计会员提问、回答、被评论、被点赞次数
+    public function GetCountAskData($users_id = null)
+    {
+        // 查询提问数据
+        $where = [
+            'is_del' => 0,
+            'users_id' => $users_id
+        ];
+        $AskListID = $this->ask_db->field('ask_id')->where($where)->column('ask_id');
+        // 统计会员所有提问数
+        $CountAsk = count($AskListID);
+
+        // 查询回答、评论、回复数据
+        $where = [
+            'is_del' => 0
+        ];
+        $answer_list = $this->ask_answer_db->where($where)->select();
+        $CountAnswer = $CountBeLike = $CountBeAnswer = 0;
+        $CountBeLikeID = $CountAnswerID = [];
+        foreach ($answer_list as $key => $value) {
+            // 统计数量
+            if (($users_id == $value['users_id'])) {
+                // 统计会员所有回答数
+                if (empty($value['answer_pid'])) $CountAnswer += 1;
+
+                // 统计会员所有回答、评论、回复被点赞ID，用于查询点赞数据表中符合的点赞数
+                if (!empty($value['click_like'])) array_push($CountBeLikeID, $value['answer_id']);
+
+                // 统计会员所有回答、评论、回复ID，用于下一个foreach做被评论、被@回复计算
+                array_push($CountAnswerID, $value['answer_id']);
+            }
+        }
+
+        // 统计会员所有提问、回答、评论、回复被点赞数
+        $LikeWhere = '';
+        if (!empty($AskListID) && empty($CountBeLikeID)) {
+            $AskListID = implode(',', $AskListID);
+            $LikeWhere = '(`like_source` = 1 AND `ask_id` IN ('.$AskListID.') AND `users_id` <> '.$users_id.')';
+        } else if (empty($AskListID) && !empty($CountBeLikeID)) {
+            $CountBeLikeID = implode(',', $CountBeLikeID);
+            $LikeWhere = '(`users_id` <> '.$users_id.' AND `answer_id` IN ('.$CountBeLikeID.'))';
+        } else if (!empty($AskListID) && !empty($CountBeLikeID)) {
+            $AskListID = implode(',', $AskListID);
+            $CountBeLikeID = implode(',', $CountBeLikeID);
+            $LikeWhere = '(`like_source` IN (2,3) AND `answer_id` IN ('.$CountBeLikeID.') AND `users_id` <> '.$users_id.') OR (`like_source` = 1 AND `ask_id` IN ('.$AskListID.') AND `users_id` <> '.$users_id.')';
+        }
+        $CountBeLike = !empty($LikeWhere) ? $this->ask_answer_like_db->where($LikeWhere)->count() : $CountBeLike;
+
+        // 统计会员所有回答被、评论、被@回复数量，仅针对会员回答的层级下
+        if (!empty($CountAnswerID)) {
+            foreach ($answer_list as $value) {
+                if (in_array($value['answer_pid'], $CountAnswerID) && $users_id != $value['users_id']) {
+                    $CountBeAnswer += 1;
+                }
+            }
+        }
+
+        // 返回统计结果
+        $result['CountUsersAsk'] = [
+            'CountAsk' => $CountAsk,
+            'CountAnswer' => $CountAnswer,
+            'CountBeLike' => $CountBeLike,
+            'CountBeAnswer' => $CountBeAnswer
+        ];
+        return $result;
+    }
+
     // 问题栏目分类数据
     public function GetAskTypeData($param = array(), $is_add = null)
     {
@@ -318,7 +408,7 @@ class Ask extends Model
             'ParentId' => 0,
             'TypeId'   => 0,
             'TypeName' => '',
-            'HtmlCode' => '<span style="color: red;">请先让管理员在插件栏目列表中添加分类！</span>',
+            'HtmlCode' => '<span style="color: red;">请先让管理员在问答栏目列表中添加分类！</span>',
             'TypeData' => []
         ];
 
@@ -394,29 +484,34 @@ class Ask extends Model
     // 周榜
     public function GetAskWeekListData()
     {
-        $time1              = strtotime(date('Y-m-d H:i:s', time()));
-        $time2              = $time1 - (86400 * 7);
-        $where              = [
+        $time1 = strtotime(date('Y-m-d H:i:s', time()));
+        $time2 = $time1 - (86400 * 7);
+        $where = [
             'a.add_time'  => ['between time', [$time2, $time1]],
             'a.is_review' => 1,
         ];
         $result['WeekList'] = [];
-        $WeekList           = $this->ask_db->field('a.ask_id, a.ask_title, a.click, a.replies, b.head_pic')
+        $WeekList = $this->ask_db->field('a.ask_id, a.type_id, a.ask_title, a.click, a.replies, b.head_pic, c.type_name')
             ->alias('a')
             ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
+            ->join('__ASK_TYPE__ c', 'c.type_id = a.type_id', 'LEFT')
             ->order('click desc, replies desc')
             ->where($where)
             ->limit('0, 10')
             ->select();
-        if (empty($WeekList)) {
-            return $result;
-        }
-
+        if (empty($WeekList)) return $result;
         foreach ($WeekList as $key => $value) {
+            // 内页详情URL
             $result['WeekList'][$key]['AskUrl'] = askurl('home/Ask/details', ['ask_id' => $value['ask_id']]);
+            // 问题标题
             $result['WeekList'][$key]['ask_title'] = $value['ask_title'];
+            // 问答栏目板块URL
+            $result['WeekList'][$key]['type_url'] = askurl('home/Ask/index', ['type_id' => $value['type_id']]);
+            // 问答栏目板块名称
+            $result['WeekList'][$key]['type_name'] = $value['type_name'];
+            // 回答数
+            $result['WeekList'][$key]['replies'] = $value['replies'];
         }
-
         return $result;
     }
 
@@ -446,38 +541,41 @@ class Ask extends Model
     // 问题详情数据
     public function GetAskDetailsData($param = array(), $parent_id = null, $users_id = null)
     {
-        $ResultData['code'] = 1;
-        $ResultData['info'] = $this->ask_db->field('a.*, b.username, b.nickname, b.head_pic, c.type_name')
+        $info = $this->ask_db->field('a.*, b.username, b.nickname, b.head_pic, c.type_name')
             ->alias('a')
             ->join('ask_type c', 'c.type_id = a.type_id', 'LEFT')
             ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
             ->where('ask_id', $param['ask_id'])
             ->find();
-        if (empty($ResultData['info'])) return ['code' => 0, 'msg' => '浏览的问题不存在！'];
-        if (0 !== $parent_id) {
-            if (0 == $ResultData['info']['is_review'] && $ResultData['info']['users_id'] !== $users_id) {
-                return ['code' => 0, 'msg' => '问题未审核通过，暂时不可浏览！'];
-            }
+        if (empty($info)) return ['code' => 0, 'msg' => '浏览的问题不存在'];
+        if (0 !== $parent_id && 0 == $info['is_review'] && $info['users_id'] !== $users_id) {
+            return ['code' => 0, 'msg' => '问题未审核通过，暂时不可浏览'];
         }
-
+        // 问答栏目板块URL
+        $info['type_url'] = askurl('home/Ask/index', ['type_id' => $info['type_id']]);
+        // 问题的回答数
+        $info['ques_answer_count'] = $this->ask_answer_db->where(['answer_pid'=>0, 'ask_id'=>$info['ask_id']])->count();
+        // 问题的点赞数
+        $info['ques_like_count'] = $this->ask_answer_like_db->where(['ask_id'=>$info['ask_id'], 'like_source'=>1])->count();
         // 头像处理
-        $ResultData['info']['head_pic'] = get_head_pic($ResultData['info']['head_pic']);
-
+        $info['head_pic'] = get_head_pic($info['head_pic']);
         // 时间友好显示处理
-        $ResultData['info']['add_time'] = friend_date($ResultData['info']['add_time']);
-        $ResultData['IsUsers']          = 0;
-        if ($ResultData['info']['users_id'] == session('users_id')) $ResultData['IsUsers'] = 1;
-
+        $info['add_time'] = friend_date($info['add_time']);
         // 处理格式
-        $ResultData['info']['content'] = htmlspecialchars_decode($ResultData['info']['content']);
-
-        $ResultData['SearchName'] = null;
-
+        $info['content'] = htmlspecialchars_decode($info['content']);
         // seo信息
-        $ResultData['info']['seo_title']       = $ResultData['info']['ask_title'] . ' - ' . $ResultData['info']['type_name'];
-        $ResultData['info']['seo_keywords']    = $ResultData['info']['ask_title'];
-        $ResultData['info']['seo_description'] = @msubstr(checkStrHtml($ResultData['info']['content']), 0, config('global.arc_seo_description_length'), false);
-
+        $info['seo_title'] = $info['ask_title'].' - '.$info['type_name'];
+        $info['seo_keywords'] = $info['ask_title'];
+        $info['seo_description'] = @msubstr(checkStrHtml($info['content']), 0, config('global.arc_seo_description_length'), false);
+        // 返回数据
+        $ResultData = [
+            'code' => 1,
+            'info' => $info,
+            // 搜索的内容
+            'SearchName' => null,
+            // 登录者是否为问题的发布者
+            'IsUsers' => $info['users_id'] == session('users_id') ? 1 : 0
+        ];
         return $ResultData;
     }
 
@@ -485,28 +583,26 @@ class Ask extends Model
     public function GetAskReplyData($param = array(), $parent_id = null)
     {
         /*查询条件*/
+        $WhereOr = [];
+        $RepliesWhere = ['ask_id' => $param['ask_id'], 'is_review' => 1];
         $bestanswer_id = $this->ask_db->where('ask_id', $param['ask_id'])->getField('bestanswer_id');
-        $RepliesWhere  = ['ask_id' => $param['ask_id'], 'is_review' => 1];
-        $WhereOr       = [];
         if (!empty($param['answer_id'])) {
+            $WhereOr = ['answer_pid' => $param['answer_id']];
             $RepliesWhere = ['answer_id' => $param['answer_id'], 'is_review' => 1];
-            $WhereOr      = ['answer_pid' => $param['answer_id']];
         }
-
         // 若为则创始人则去除仅查询已审核评论这个条件，$parent_id = 0 表示为创始人
-        if (0 == $parent_id) unset($RepliesWhere['is_review']);
+        if (isset($parent_id) && 0 == $parent_id) unset($RepliesWhere['is_review']);
         /* END */
-
         /*评论读取条数*/
-        $firstRow           = !empty($param['firstRow']) ? $param['firstRow'] : 0;
-        $listRows           = !empty($param['listRows']) ? $param['listRows'] : 5;
+        $firstRow = !empty($param['firstRow']) ? $param['firstRow'] : 0;
+        $listRows = !empty($param['listRows']) ? $param['listRows'] : 5;
         $result['firstRow'] = $firstRow;
         $result['listRows'] = $listRows;
         /* END */
 
         /*排序*/
-        $OrderBy             = !empty($param['click_like']) ? 'a.click_like ' . $param['click_like'] . ', a.add_time asc' : 'a.add_time asc';
-        $click_like          = isset($param['click_like']) ? $param['click_like'] : '';
+        $OrderBy = !empty($param['click_like']) ? 'a.click_like ' . $param['click_like'] . ', a.add_time asc' : 'a.add_time asc';
+        $click_like = isset($param['click_like']) ? $param['click_like'] : '';
         $result['SortOrder'] = 'desc' == $click_like ? 'asc' : 'desc';
         /* END */
 
@@ -517,13 +613,13 @@ class Ask extends Model
             ->join('__USERS__ c', 'a.at_users_id = c.users_id', 'LEFT')
             ->order($OrderBy)
             ->where($RepliesWhere)
-            ->WhereOr($WhereOr)
+            ->whereOr($WhereOr)
             ->select();
         if (empty($RepliesData)) return [];
         /* END */
 
         /*点赞数据*/
-        $AnswerIds      = get_arr_column($RepliesData, 'answer_id');
+        $AnswerIds = get_arr_column($RepliesData, 'answer_id');
         $AnswerLikeData = $this->ask_answer_like_db->field('a.*, b.nickname')
             ->alias('a')
             ->join('__USERS__ b', 'a.users_id = b.users_id', 'LEFT')
@@ -568,6 +664,8 @@ class Ask extends Model
                     array_push($result['AnswerData'][$key]['AnswerSubData'], $AnswerValue);
                 }
             }
+            // 回答的评论回复数
+            $result['AnswerData'][$key]['CommentReplyNum'] = count($result['AnswerData'][$key]['AnswerSubData']);
             /* END */
 
             /*读取指定数据*/
@@ -583,7 +681,7 @@ class Ask extends Model
             foreach ($AnswerLikeData as $LikeKey => $LikeValue) {
                 if ($PidValue['answer_id'] == $LikeKey) {
                     // 点赞总数
-                    $LikeNum                                             = count($LikeValue);
+                    $LikeNum = count($LikeValue);
                     $result['AnswerData'][$key]['AnswerLike']['LikeNum'] = $LikeNum;
                     for ($i = 0; $i < $LikeNum; $i++) {
                         // 获取前三个点赞人处理后退出本次for
@@ -901,21 +999,14 @@ class Ask extends Model
         Db::name('users')->where('users_id', $users_id)->update($update);
     }
 
-    public function RebackDel($ask_id = 0)
+    public function RebackDel($ask_id = 0,$ask = [])
     {
-        $ask      = Db::name('ask')->where('ask_id', $ask_id)->find();
+        $money = $ask['money'];
         $users_id = $ask['users_id'];
-        $money    = $ask['money'];
         if ($money > 0) {
             //退钱
             Db::name('users')->where('users_id', $users_id)->setInc('users_money', $money);
-            adminLog($users_id . '删除问题,id:' . $ask_id . ',标题:' . $ask['ask_title']);
-            $data = [
-                'ask_id'   => $ask_id,
-                'users_id' => $users_id,
-                'type'     => 1,
-            ];
-            Db::name('users_score')->where($data)->delete();
+//            adminLog($users_id . '删除问题,id:' . $ask_id . ',标题:' . $ask['ask_title']);
         }
 
         $count_score = Db::name('users_score')->where(['ask_id' => $ask_id, 'users_id' => $users_id])->sum('score');
@@ -925,24 +1016,29 @@ class Ask extends Model
         if (!empty($user_info)) {
             //更新
             $update['scores'] = ($user_info['scores'] - $count_score) > 0 ? $user_info['scores'] - $count_score : 0;
-            if ($money > 0) {
-                $update['users_money'] = ($user_info['users_money'] - $money) > 0 ? $user_info['users_money'] - $money : 0;
-            }
             $update['update_time'] = getTime();
             Db::name('users')->where('users_id', $users_id)->update($update);
         }
     }
 
-    public function getQq()
+    // 获取问答设置内容
+    public function getAskSetting($action = null)
     {
         $data = tpSetting('ask');
         if (!empty($data)) {
-            $result['data']       = $data;
-            $result['ask_qq']         = $data['ask_qq'];
-            $result['ask_qq_link']    = $data['ask_qq_link'];
-            $result['ask_intro']      = $data['ask_intro'];
-            $result['score_name'] = getUsersConfigData('score.score_name');
-
+            $AskQuesSteps = in_array($action, ['add_ask', 'edit_ask']) ? str_replace("\n", "<br/>", $data['ask_ques_steps']) : '';
+            $result = [
+                // 一键入群设置
+                'Qq' => [
+                    'ask_qq' => $data['ask_qq'],
+                    'ask_intro' => $data['ask_intro'],
+                    'ask_qq_link' => $data['ask_qq_link']
+                ],
+                // 问答提问步骤
+                'ask_ques_steps' => $AskQuesSteps,
+                // 积分管理设置的积分名称
+                'score_name' => getUsersConfigData('score.score_name'),
+            ];
             return $result;
         }
     }

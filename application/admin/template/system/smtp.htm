@@ -6,7 +6,9 @@
 <div class="page" style="min-width: auto;box-shadow:none;">
     <div class="fixed-bar">
         <div class="item-title">
+            {neq name='$goback' value='off'}
             <a class="back" href="{:url('System/api_conf')}" title="返回"><i class="fa fa-angle-double-left"></i>返回</a>
+            {/neq}
             <ul class="tab-base nc-row">
                 {eq name="'System@smtp'|is_check_access" value="1"}
                 <li><a href="{:url('System/smtp')}" {if condition="'smtp'==$Think.const.ACTION_NAME"}class="current"{/if}><span>邮箱配置</span></a></li>
@@ -118,7 +120,7 @@
         
         layer_loading("正在处理");
         $.ajax({
-            url: "{:url('System/smtp', ['_ajax'=>1])}",
+            url: "{:url('System/smtp', ['goback'=>$goback,'_ajax'=>1])}",
             type: 'POST',
             dataType: 'JSON',
             data: $('#handlepost').serialize(),

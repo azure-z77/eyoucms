@@ -32,7 +32,7 @@ class AskLogic extends Model
     }
 
     // 查询条件处理
-    public function GetAskWhere($param = array(), $parent_id = null)
+    public function GetAskWhere($param = [], $parent_id = null)
     {
     	// 查询条件
         $where = [
@@ -69,71 +69,59 @@ class AskLogic extends Model
     }
 
     // Url处理
-    public function GetUrlData($param = array(), $SpecifyUrl = null)
+    public function GetUrlData($param = [], $SpecifyUrl = null)
     {
         if (empty($param['ask_id'])) $param['ask_id'] = 0;
     	$result = [];
     	// 最新问题url
         $result['NewDateUrl'] = askurl('home/Ask/index');
-        
         // 问题详情页url
         $result['AskDetailsUrl'] = askurl('home/Ask/details', ['ask_id'=>$param['ask_id']]);
-
         // 推荐问题url
         $result['RecomDateUrl'] = askurl('home/Ask/index', ['type_id'=>0, 'is_recom'=>1]);
-
         // 等待回答url
         $result['PendingAnswerUrl'] = askurl('home/Ask/index', ['type_id'=>0, 'is_recom'=>2]);
-
         // 悬赏问题列表url
         $result['RewardUrl'] = askurl('home/Ask/index', ['type_id'=>0, 'is_recom'=>3]);
-
         // 提交回答url
         $result['AddAnswerUrl'] = askurl('home/Ask/ajax_add_answer', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
-
-        // 删除回答url
+        // 删除整个问题数据(包扣提问、回答、评论、回复)url
+        $result['DelAskUrl'] = askurl('home/Ask/ajax_del_ask', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
+        // 删除整个回答数据(包扣回答、评论、回复)url
         $result['DelAnswerUrl'] = askurl('home/Ask/ajax_del_answer', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
-
+        // 删除回答url
+        $result['DelCommentUrl'] = askurl('home/Ask/ajax_del_comment', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
         // 点赞回答url
         $result['ClickLikeUrl'] = askurl('home/Ask/ajax_click_like', ['_ajax'=>1], true, false, 1, 1, 0);
-
 		// 发布问题url
 		$result['AddAskUrl'] = askurl('home/Ask/add_ask');
-        // 提交问题url
+        // 提交发布问题url
         $result['SubmitAddAsk'] = askurl('home/Ask/add_ask', ['_ajax'=>1], true, false, 1, 1, 0);
-
 		// 编辑问题url
 		$result['EditAskUrl'] = askurl('home/Ask/edit_ask', ['ask_id'=>$param['ask_id']]);
-
+        // 提交编辑问题url
+        $result['SubmitEditAsk'] = askurl('home/Ask/edit_ask', ['_ajax'=>1], true, false, 1, 1, 0);
 		// 用户问题首页
 		$result['UsersIndexUrl'] = askurl('home/Ask/ask_index');
-
 		// 编辑回答url
 		$result['EditAnswer'] = askurl('home/Ask/ajax_edit_answer');
         if ('ajax_edit_answer' == request()->action()) {
             $result['EditAnswer'] = askurl('home/Ask/ajax_edit_answer', ['_ajax'=>1], true, false, 1, 1, 0);
         }
-
 		// 采纳最佳答案url
 		$result['BestAnswerUrl'] = askurl('home/Ask/ajax_best_answer', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
-
         // 获取指定数量的评论数据（分页）
         $result['ShowCommentUrl'] = askurl('home/Ask/ajax_show_comment', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
-
         // 创始人审核评论URL(前台)
         $result['ReviewCommentUrl'] = askurl('home/Ask/ajax_review_comment', ['ask_id'=>$param['ask_id'], '_ajax'=>1], true, false, 1, 1, 0);
-
         // 创始人审核问题URL(前台)
         $result['ReviewAskUrl'] = askurl('home/Ask/ajax_review_ask', ['_ajax'=>1], true, false, 1, 1, 0);
-
 		// 按点赞量排序url
 		$result['AnswerLikeNum'] = askurl('home/Ask/details', ['ask_id' => $param['ask_id']], true, false, 1, 1, 0);
-        
         // 等待回答url
         if (!empty($param['type_id'])) {
             $result['PendingAnswerUrl'] = askurl('home/Ask/index', ['type_id'=>$param['type_id'], 'is_recom'=>2]);
         }
-
         if (!empty($SpecifyUrl)) {
             if (!empty($result[$SpecifyUrl])) {
                 return $result[$SpecifyUrl];
@@ -181,10 +169,10 @@ class AskLogic extends Model
     }
 
     // 栏目分类格式化输出
-    public function GetTypeHtmlCode($PidData = array(), $TidData = array(), $type_id = null)
+    public function GetTypeHtmlCode($PidData = [], $TidData = [], $type_id = null)
     {
     	// 下拉框拼装
-    	$HtmlCode = '<select name="ask_type_id" id="ask_type_id" class="input_reward">';
+    	$HtmlCode = '<select name="ask_type_id" id="ask_type_id" class="select-inner">';
         $HtmlCode .= '<option value="0">请选择分类</option>';
     	foreach ($PidData as $P_key => $PidValue) {
     		/*是否默认选中*/
@@ -214,7 +202,7 @@ class AskLogic extends Model
     }
 
     // 拼装html代码
-    public function GetReplyHtml($data = array())
+    public function GetReplyHtml($data = [])
     {
         $ReplyHtml = '';
         // 如果是需要审核的评论则返回空
@@ -226,53 +214,78 @@ class AskLogic extends Model
         // 处理内容格式
         $data['content']  = htmlspecialchars_decode($data['content']);
         if (!empty($data['at_users_id'])) {
-            $data['content'] = '回复 @'.$data['at_usersname'].':&nbsp;'.$data['content'];
+            $data['content'] = '回复 @'.$data['at_usersname'].': &nbsp; '.$data['content'];
         }
         // 删除评论回答URL
-        $DelAnswerUrl = $this->GetUrlData($data, 'DelAnswerUrl');
+        $DelCommentUrl = $this->GetUrlData($data, 'DelCommentUrl');
+        // 提交评论回复URL
+        $AddAnswerUrl = $this->GetUrlData($data, 'AddAnswerUrl');
+        // 提交点赞URL
+        $ClickLikeUrl = $this->GetUrlData($data, 'ClickLikeUrl');
 
         // 拼装html
         $ReplyHtml = <<<EOF
-<li class="secend-li" id="{$data['answer_id']}_answer_li">
-    <div class="head-secend">
-        <a><img src="{$data['head_pic']}" style="width:30px;height:30px;border-radius:100%;margin-right: 16px;"></a>
-        <strong>{$data['username']}</strong>
-        <span style="margin:0 10px"> | </span>
-        <span>{$data['add_time']}</span>
-        <div style="flex-grow:1"></div>
-        <span id="{$data['answer_id']}_replyA" onclick="replyUser('{$data['answer_pid']}','{$data['users_id']}','{$data['username']}','{$data['answer_id']}')" class="secend-huifu-btn" style="cursor: pointer;">回复</span>
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a data-url="{$DelAnswerUrl}" onclick="DataDel(this, '{$data['answer_id']}', 2)" class="secend-huifu-btn" style="cursor: pointer; color:red;">删除</a>
+<div class="ask-comment-item" id="reply_comment_div_{$data['answer_id']}">
+    <div class="user-info">
+        <a class="user-box" href="javascript:void(0);">
+            <img src="{$data['head_pic']}">
+            <span class="name">{$data['username']}</span>
+        </a>
+        <span class="time">{$data['add_time']}</span>
     </div>
-    <div class="secend-huifu-text">
-        {$data['content']}
+    <div class="txt-con mt10">{$data['content']}</div>
+    <div class="tool mt10">
+       <div class="tool-l">
+            <span class="btn zan" data-url="{$ClickLikeUrl}" data-is_like='' onclick="ClickLike(this, '{$data['ask_id']}', '{$data['answer_id']}', 3);"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>点赞 <em id="ReplyLikeNum_{$data['answer_id']}">0</em></span>
+            <span class="btn btn-reply" id="show_reply_frame_{$data['answer_id']}" onclick="ShowReplyFrame(this, '{$data['answer_id']}');">回复</span>
+        </div>
+        <div class="tool-r">
+            <a href="javascript:void(0);" data-url="{$DelCommentUrl}" onclick="DataDel(this, '{$data['answer_id']}', 3, '{$data['answer_pid']}');" style="cursor: pointer; color:red;">删除</a>
+        </div>
     </div>
-</li>
+    <form id="reply_comment_form_{$data['answer_id']}">
+        <input type="hidden" name="answer_id" value="{$data['answer_pid']}">
+        <input type="hidden" name="type_id" value="{$data['type_id']}">
+        <input type="hidden" name="at_users_id" value="{$data['users_id']}">
+        <input type="hidden" name="at_answer_id" value="{$data['answer_id']}">
+        <div class="reply-form" id="reply_comment_{$data['answer_id']}">
+           <input type="text" name="content" id="reply_comment_input_{$data['answer_id']}" placeholder="回复用户 chenfy ...">
+           <span class="btn-comment" data-url="{$AddAnswerUrl}" onclick="SubmitReplyData(this, '{$data['answer_id']}');">回复</span>
+        </div>
+    </form>
+</div>
 EOF;
     // 返回html
-    $ReturnHtml = ['review' => false, 'htmlcode' => $ReplyHtml];
+    $ReturnHtml = ['review' => false, 'answer_pid' => $data['answer_pid'], 'htmlcode' => $ReplyHtml];
     return $ReturnHtml;
     }
 
     // 获取指定条数的评论(分页)
-    public function ForeachReplyHtml($data = array(), $parent_id = null)
+    public function ForeachReplyHtml($data = [], $parent_id = null, $comment_type = 0, $users_id = 0)
     {
         $ReplyHtml = '';
         foreach ($data as $key => $value) {
             // 如果是需要审核的评论则返回空
             $review = '';
-            if (empty($value['is_review']) && 0 == $parent_id) {
+            if (empty($value['is_review']) && isset($parent_id) && 0 == $parent_id) {
                 // 创始人审核评论URL(前台)
                 $ReviewCommentUrl = $this->GetUrlData($value, 'ReviewCommentUrl');
                 $review = <<<EOF
-<span id='{$value['answer_id']}_Review'>
-    <span data-url='{$ReviewCommentUrl}' onclick="Review(this, '{$value['answer_id']}')" class="secend-huifu-btn" style="cursor: pointer; color: red;" title="该评论未审核，可点击审核，仅创始人可操作">审核</span>
-    <span style="margin:0 10px"> | </span>
-</span>
+<a href="javascript:void(0);" data-url="{$ReviewCommentUrl}" onclick="Review(this, '{$value['answer_id']}', '{$comment_type}');" style="color: red;" title="该回答未审核，可点击审核，仅创始人可操作">审核</a>
 EOF;
             } else if (empty($value['is_review'])) {
                 // 其他人查询数据，去除未审核评论，跳过这条数据拼装
                 unset($value); continue;
+            }
+
+            // 是否允许删除
+            $del_comment = '';
+            if ((isset($parent_id) && 0 == $parent_id) || ($users_id == $value['users_id'])) {
+                // 删除评论回答URL
+                $DelCommentUrl = $this->GetUrlData($value, 'DelCommentUrl');
+                $del_comment = <<<EOF
+<a href="javascript:void(0);" data-url="{$DelCommentUrl}" onclick="DataDel(this, '{$value['answer_id']}', 3, '{$value['answer_pid']}');" style="cursor: pointer; color:red;">删除</a>
+EOF;
             }
 
             /*拼装html代码*/
@@ -280,26 +293,42 @@ EOF;
                 $value['content'] = '回复 @'.$value['at_usersname'].':&nbsp;'.$value['content'];
             }
 
-            // 删除评论回答URL
-            $DelAnswerUrl = $this->GetUrlData($value, 'DelAnswerUrl');
+            // 提交评论回复URL
+            $AddAnswerUrl = $this->GetUrlData($value, 'AddAnswerUrl');
+            // 提交点赞URL
+            $ClickLikeUrl = $this->GetUrlData($value, 'ClickLikeUrl');
             // 拼装html
             $ReplyHtml .= <<<EOF
-<li class="secend-li" id="{$value['answer_id']}_answer_li">
-    <div class="head-secend">
-        <a><img src="{$value['head_pic']}" style="width:30px;height:30px;border-radius:100%;margin-right: 16px;"></a>
-        <strong>{$value['username']}</strong>
-        <span style="margin:0 10px"> | </span>
-        <span>{$value['add_time']}</span>
-        <div style="flex-grow:1"></div>
-        {$review}
-        <span id="{$value['answer_id']}_replyA" onclick="replyUser('{$value['answer_pid']}','{$value['users_id']}','{$value['username']}','{$value['answer_id']}')" class="secend-huifu-btn" style="cursor: pointer;">回复</span>
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a data-url="{$DelAnswerUrl}" onclick="DataDel(this, '{$value['answer_id']}', 2)" class="secend-huifu-btn" style="cursor: pointer; color:red;">删除</a>
+<div class="ask-comment-item" id="reply_comment_div_{$value['answer_id']}">
+    <div class="user-info">
+        <a class="user-box" href="javascript:void(0);">
+            <img src="{$value['head_pic']}">
+            <span class="name">{$value['username']}</span>
+        </a>
+        <span class="time">{$value['add_time']}</span>
     </div>
-    <div class="secend-huifu-text">
-        {$value['content']}
+    <div class="txt-con mt10">{$value['content']}</div>
+    <div class="tool mt10">
+       <div class="tool-l">
+            <span class="btn zan" data-url="{$ClickLikeUrl}" data-is_like='' onclick="ClickLike(this, '{$value['ask_id']}', '{$value['answer_id']}', 3);"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>点赞 <em id="ReplyLikeNum_{$value['answer_id']}">0</em></span>
+            <span class="btn btn-reply" id="show_reply_frame_{$value['answer_id']}" onclick="ShowReplyFrame(this, '{$value['answer_id']}');">回复</span>
+        </div>
+        <div class="tool-r">
+            {$review}
+            {$del_comment}
+        </div>
     </div>
-</li>
+    <form id="reply_comment_form_{$value['answer_id']}">
+        <input type="hidden" name="answer_id" value="{$value['answer_pid']}">
+        <input type="hidden" name="type_id" value="{$value['type_id']}">
+        <input type="hidden" name="at_users_id" value="{$value['users_id']}">
+        <input type="hidden" name="at_answer_id" value="{$value['answer_id']}">
+        <div class="reply-form" id="reply_comment_{$value['answer_id']}">
+           <input type="text" name="content" id="reply_comment_input_{$value['answer_id']}" placeholder="回复用户 chenfy ...">
+           <span class="btn-comment" data-url="{$AddAnswerUrl}" onclick="SubmitReplyData(this, '{$value['answer_id']}');">回复</span>
+        </div>
+    </form>
+</div>
 EOF;
         }
 

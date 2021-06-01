@@ -253,7 +253,12 @@ class Lists extends Base
         $typeid = input('post.typeid/d');
 
         if (IS_POST && !empty($typeid)) {
-            $gourl = input('post.gourl/s');
+            $channel_guestbook_gourl = tpSetting('channel_guestbook.channel_guestbook_gourl');
+            if (!empty($channel_guestbook_gourl)) {
+                $gourl = $channel_guestbook_gourl;
+            } else {
+                $gourl = input('post.gourl/s');
+            }
             $post = input('post.');
             unset($post['gourl']);
 
@@ -402,7 +407,9 @@ class Lists extends Base
                         'update_time' => getTime(),
                     ]);
                 }
-                $this->success('操作成功！', $gourl, $dataStr, 5);
+                $channel_guestbook_time = tpSetting('channel_guestbook.channel_guestbook_time');
+                $channel_guestbook_time = !empty($channel_guestbook_time) ? intval($channel_guestbook_time) : 5;
+                $this->success('操作成功！', $gourl, $dataStr, $channel_guestbook_time);
             }
         }
 

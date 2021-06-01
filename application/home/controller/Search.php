@@ -76,10 +76,30 @@ class Search extends Base
 
         /*记录搜索词*/
         $word = $this->request->param('keywords');
+        if(empty($word)){
+            $this->error('关键词不能为空！');
+        }
         $page = $this->request->param('page');
         if(!empty($word) && 2 > $page)
         {
             $word = addslashes($word);
+            
+            /*前台禁止搜索开始*/
+            if (is_dir('./weapp/Wordfilter/')) {
+                $wordfilterRow = Db::name('weapp')->where(['code'=>'Wordfilter', 'status'=>1])->find();
+                if(!empty($wordfilterRow['data'])){
+                    $wordfilterRow['data'] = json_decode($wordfilterRow['data'], true);
+                    if ($wordfilterRow['data']['search'] == 3){
+                        $wordfilter = Db::name('weapp_wordfilter')->where(['title'=>$word, 'status'=>1])->find();
+                        if(!empty($wordfilter)){
+                            $this->error('包含敏感关键词，禁止搜索！');
+                        }
+                    }
+                }
+            }
+            /*前台禁止搜索结束*/
+
+            /*记录搜索词*/
             $nowTime = getTime();
             $row = $this->searchword_db->field('id')->where(['word'=>$word, 'lang'=>$this->home_lang])->find();
             if(empty($row))

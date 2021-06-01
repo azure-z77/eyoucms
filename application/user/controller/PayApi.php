@@ -60,7 +60,20 @@ class PayApi extends Base {
             /*第三方插件*/
             $ControllerName  = "\weapp\\" . $Config['pay_mark']."\controller\\" . $Config['pay_mark'];
             $UnifyController = new $ControllerName;
-            $ResultData = $UnifyController->UnifyGetPayAction($PayInfo, $Order);
+
+            // 虎皮椒支付成功后返回页面，主要用于手机浏览器端、微信端使用虎皮椒支付后页面跳转
+            if (1 == $post['transaction_type']) {
+                $UnifiedUrl = url('user/Pay/pay_consumer_details');
+            } else if (2 == $post['transaction_type']) {
+                $UnifiedUrl = url('user/Shop/shop_order_details', ['order_id' => $post['unified_id']]);
+            } else if (8 == $post['transaction_type']) {
+                $UnifiedUrl = cookie($this->users_id . '_' . $Order['product_id'] . '_EyouMediaViewUrl');
+            } else if (9 == $post['transaction_type']) {
+                $UnifiedUrl = cookie($this->users_id . '_' . $Order['product_id'] . '_EyouArticleViewUrl');
+            }
+            $ReturnUrl = $_SERVER['HTTP_ORIGIN'] . $UnifiedUrl;
+
+            $ResultData = $UnifyController->UnifyGetPayAction($PayInfo, $Order, $ReturnUrl);
             if (!empty($ResultData)) {
                 $this->success('订单支付中', $ResultData['url'], $ResultData['data']);
             } else {
@@ -110,7 +123,7 @@ class PayApi extends Base {
         }
     }
 
-    // 购物余额支付(购物+购买视频时使用)
+    // 购物余额支付(购物+购买视频+购买文章时使用)
     public function balance_payment()
     {
         if (IS_AJAX_POST) {
@@ -145,6 +158,52 @@ class PayApi extends Base {
                         'update_time'  => getTime()
                     ];
                     $ResultID = Db::name('media_order')->where($OrderWhere)->update($OrderData);
+
+                    // 订单更新后续操作
+                    if (!empty($ResultID)) {
+                        $Where = [
+                            'users_id' => $this->users_id,
+                            'lang'     => $this->home_lang
+                        ];
+                        $UsersData = [
+                            'users_money' => $this->users['users_money'] - $Data['order_amount'],
+                            'update_time' => getTime()
+                        ];
+                        $users_id = Db::name('users')->where($Where)->update($UsersData);
+
+                        // 订单操作完成，返回跳转
+                        $this->success('支付成功，处理订单完成', $ViewUrl);
+                    }
+                } else {
+                    $url = urldecode(url('user/Pay/pay_account_recharge'));
+                    $this->error('余额不足，请先充值！', $url);
+                }
+            }else if (9 == $post['transaction_type']) {
+                // 文章购买
+                $Data = Db::name('article_order')->find($post['unified_id']);
+                if (empty($Data)) $this->error('订单异常，刷新重试');
+
+                $ViewUrl = cookie($this->users_id . '_' . $Data['product_id'] . '_EyouArticleViewUrl');
+                if (in_array($Data['order_status'], [1])) $this->success('订单已支付！即将跳转', $ViewUrl);
+
+                if ($this->users['users_money'] >= $Data['order_amount']) {
+                    // 订单更新条件
+                    $OrderWhere = [
+                        'order_id'  => $Data['order_id'],
+                        'users_id'  => $this->users_id,
+                        'lang'      => $this->home_lang
+                    ];
+
+                    // 订单更新数据，更新为已付款
+                    $post['payment_type'] = '余额支付';
+                    $post['payment_amount'] = $Data['order_amount'];
+                    $OrderData = [
+                        'order_status' => 1,
+                        'pay_details'  => serialize($post),
+                        'pay_time'     => getTime(),
+                        'update_time'  => getTime()
+                    ];
+                    $ResultID = Db::name('article_order')->where($OrderWhere)->update($OrderData);
 
                     // 订单更新后续操作
                     if (!empty($ResultID)) {
@@ -258,6 +317,15 @@ class PayApi extends Base {
                 $data  = Db::name('media_order')->where($where)->find();
                 $out_trade_no = $data['order_code'];
                 $total_fee    = $data['order_amount'];
+            } else if (9 == $transaction_type) {
+                // 文章购买订单
+                $where  = array(
+                    'users_id'   => $this->users_id,
+                    'order_code' => $unified_number
+                );
+                $data  = Db::name('article_order')->where($where)->find();
+                $out_trade_no = $data['order_code'];
+                $total_fee    = $data['order_amount'];
             }
 
             // 调取微信支付链接
@@ -317,11 +385,13 @@ class PayApi extends Base {
                     $Order['unified_amount'] = $Order['money'];
                     $Order['unified_number'] = $Order['order_number'];
                     /* END */
-                    
+
                     /*第三方插件*/
                     $ControllerName  = "\weapp\\" . $Config['pay_mark']."\controller\\" . $Config['pay_mark'];
                     $UnifyController = new $ControllerName;
-                    $ResultData = $UnifyController->UnifyGetPayAction($PayInfo, $Order);
+                    // 虎皮椒支付成功后返回页面，主要用于手机浏览器端、微信端使用虎皮椒支付后页面跳转
+                    $ReturnUrl = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . url('user/Level/level_centre');
+                    $ResultData = $UnifyController->UnifyGetPayAction($PayInfo, $Order, $ReturnUrl);
                     if (!empty($ResultData)) {
                         $ResultData['data']['pay_id'] = $Config['pay_id'];
                         $ResultData['data']['pay_mark'] = $Config['pay_mark'];

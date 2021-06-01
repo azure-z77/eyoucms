@@ -95,7 +95,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="web_adminlogo" name="web[web_adminlogo]" value="{$globalTpCache.web_adminlogo|default=''}" class="type-file-text">
+                                <input type="text" id="web_adminlogo" name="web[web_adminlogo]" value="{$globalTpCache.web_adminlogo|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','adminlogo','adminlogo_call_back','{:url('Uploadify/upload_full')}');" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>
@@ -116,7 +116,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="web_loginlogo" name="web[web_loginlogo]" value="{$globalTpCache.web_loginlogo|default=''}" class="type-file-text">
+                                <input type="text" id="web_loginlogo" name="web[web_loginlogo]" value="{$globalTpCache.web_loginlogo|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','loginlogo','loginlogo_call_back','{:url('Uploadify/upload_full')}');" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>
@@ -136,6 +136,9 @@
                             <ul>
                                 <li {if condition="$globalTpCache['web_loginbgimg_model'] == 1"} class="active" {/if} data-model="1"><img src="__SKIN__/loginbg/login-bg-1.png"></li>
                                 <li {if condition="$globalTpCache['web_loginbgimg_model'] == 2"} class="active" {/if} data-model="2"><img src="__SKIN__/loginbg/login-bg-2.png"></li>
+                                {if condition="$php_servicemeal >= 2"}
+                                <li {if condition="$globalTpCache['web_loginbgimg_model'] == 3"} class="active" {/if} data-model="3"><img src="__SKIN__/loginbg/login-bg-3.png"></li>
+                                {/if}
                                 <li {if condition="$globalTpCache['web_loginbgimg_model'] == 'custom'"} class="active" {/if} data-model="custom"><img src="__SKIN__/images/login-bg-empty.png" title="自定义背景"></li>
                             </ul>
                         </div>
@@ -153,7 +156,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="web_loginbgimg" name="web[web_loginbgimg]" value="{$globalTpCache.web_loginbgimg|default=''}" class="type-file-text">
+                                <input type="text" id="web_loginbgimg" name="web[web_loginbgimg]" value="{$globalTpCache.web_loginbgimg|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','loginbgimg','loginbgimg_call_back','{:url('Uploadify/upload_full')}');" size="30" hidefocus="true" nc_type="change_site_logo" title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
                             </span>

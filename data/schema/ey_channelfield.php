@@ -30,7 +30,7 @@ return array (
   'title' => 
   array (
     'name' => 'title',
-    'type' => 'varchar(32)',
+    'type' => 'varchar(250)',
     'notnull' => false,
     'default' => '',
     'primary' => false,

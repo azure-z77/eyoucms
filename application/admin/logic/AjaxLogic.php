@@ -59,7 +59,7 @@ class AjaxLogic extends Model
     /**
      * 只保留最近一个月的操作日志
      */
-    private function del_adminlog()
+    public function del_adminlog()
     {
         $mtime = strtotime("-1 month");
         Db::name('admin_log')->where([
@@ -127,13 +127,21 @@ class AjaxLogic extends Model
     {
         $path = \think\Config::get('session.path');
         if (!empty($path) && file_exists($path)) {
+            $time = getTime();
             $web_login_expiretime = tpCache('web.web_login_expiretime');
             empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
             $files = glob($path.'/sess_*');
             foreach ($files as $key => $file) {
+                clearstatcache(); // 清除文件状态缓存
                 $filemtime = filemtime($file);
+                if (false === $filemtime) {
+                    $filemtime = $time;
+                }
                 $filesize = filesize($file);
-                if (empty($filesize) || getTime() - intval($filemtime) > $web_login_expiretime) {
+                if (false === $filesize) {
+                    $filesize = 1;
+                }
+                if (empty($filesize) || (($time - $filemtime) > ($web_login_expiretime + 300))) {
                     @unlink($file);
                 }
             }
@@ -332,26 +340,17 @@ class AjaxLogic extends Model
     {
         $syn_admin_logic_1608884981 = tpCache('syn.syn_admin_logic_1608884981', [], 'cn');
         if (empty($syn_admin_logic_1608884981)) {
-            $result = Db::name('config')->field('id,desc', true)->where(['name'=>'web_adminlogo'])->select();
-            if (!empty($result)) {
-                $addSave = [];
-                foreach ($result as $key => $val) {
-                    $value = $val['value'];
-
-                    $val['name'] = 'web_loginlogo';
-                    $val['value'] = str_ireplace('logo', 'login-logo', $value);
-                    array_push($addSave, $val);
-
-                    $val['name'] = 'web_loginbgimg';
-                    $val['value'] = str_ireplace('logo', 'login-bg', $value);
-                    $val['value'] = str_ireplace('.png', '.jpg', $val['value']);
-                    array_push($addSave, $val);
-                }
-                $r = Db::name('config')->insertAll($addSave);
-                if (false !== $r) {
-                    tpCache('syn', ['syn_admin_logic_1608884981'=>1], 'cn');
-                }
-            }
+            $web_adminlogo = Db::name('config')->where(['name'=>'web_adminlogo'])->value('value');
+            $web_loginlogo = str_ireplace('logo', 'login-logo', $web_adminlogo);
+            $web_loginbgimg = str_ireplace('logo', 'login-bg', $web_adminlogo);
+            $web_loginbgimg = str_ireplace('.png', '.jpg', $web_adminlogo);
+            $data = [
+                'web_adminlogo' => $web_adminlogo,
+                'web_loginlogo' => $web_loginlogo,
+                'web_loginbgimg' => $web_loginbgimg,
+            ];
+            tpCache('web', $data);
+            tpCache('syn', ['syn_admin_logic_1608884981'=>1], 'cn');
         }
 
         $syn_admin_logic_1608884981_2 = tpCache('syn.syn_admin_logic_1608884981_2', [], 'cn');
@@ -599,95 +598,55 @@ class AjaxLogic extends Model
         $syn_admin_logic_1614829120 = tpCache('syn.syn_admin_logic_1614829120', [], 'cn');
         if (empty($syn_admin_logic_1614829120)) {
             try{
-                /*多语言*/
-                if (is_language()) {
-                    $saveData = [];
-                    $langRow = Db::name('language')->field('mark')->order('id asc')->select();
-                    $i = 1;
-                    foreach ($langRow as $key => $val) {
-                        $saveData = [
-                            [
-                                'tpl_id'    => 1,
-                                'tpl_name'    => '留言表单',
-                                'tpl_title'    => '您有新的留言消息，请到内容管理中查看！',
-                                'tpl_content'    => '${content}',
-                                'send_scene'    => 1,
-                                'is_open'        => 1,
-                                'lang'          => $val['mark'],
-                                'add_time'      => getTime(),
-                                'update_time'   => getTime(),
-                            ],
-                            [
-                                'tpl_id'    => 5,
-                                'tpl_name'    => '订单付款',
-                                'tpl_title'    => '您有新的待发货订单消息，请到商城订单查看！',
-                                'tpl_content'    => '${content}',
-                                'send_scene'    => 5,
-                                'is_open'        => 1,
-                                'lang'          => $val['mark'],
-                                'add_time'      => getTime(),
-                                'update_time'   => getTime(),
-                            ],
-                            [
-                                'tpl_id'    => 6,
-                                'tpl_name'    => '订单发货',
-                                'tpl_title'    => '您有新的待收货订单消息，请到会员订单查看！',
-                                'tpl_content'    => '${content}',
-                                'send_scene'    => 6,
-                                'is_open'        => 1,
-                                'lang'          => $val['mark'],
-                                'add_time'      => getTime(),
-                                'update_time'   => getTime(),
-                            ],
-                        ];
-                        if ($i != 1) {
-                            foreach ($saveData as $_k => $_v) {
-                                unset($saveData[$_k]['tpl_id']);
-                            }
-                        }
-                        Db::name('users_notice_tpl')->insertAll($saveData);
-                        $i++;
-                    }
-                } else { // 单语言
-                    $saveData = [
-                        [
-                            'tpl_id'    => 1,
-                            'tpl_name'    => '留言表单',
-                            'tpl_title'    => '您有新的留言消息，请到内容管理中查看！',
-                            'tpl_content'    => '${content}',
-                            'send_scene'    => 1,
-                            'is_open'        => 1,
-                            'lang'          => get_main_lang(),
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
-                        ],
-                        [
-                            'tpl_id'    => 5,
-                            'tpl_name'    => '订单付款',
-                            'tpl_title'    => '您有新的待发货订单消息，请到商城订单查看！',
-                            'tpl_content'    => '${content}',
-                            'send_scene'    => 5,
-                            'is_open'        => 1,
-                            'lang'          => get_main_lang(),
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
-                        ],
-                        [
-                            'tpl_id'    => 6,
-                            'tpl_name'    => '订单发货',
-                            'tpl_title'    => '您有新的待收货订单消息，请到会员订单查看！',
-                            'tpl_content'    => '${content}',
-                            'send_scene'    => 6,
-                            'is_open'        => 1,
-                            'lang'          => get_main_lang(),
-                            'add_time'      => getTime(),
-                            'update_time'   => getTime(),
-                        ],
-                    ];
-                    Db::name('users_notice_tpl')->insertAll($saveData);
+                $saveData = [
+                    [
+                        'tpl_id'    => 1,
+                        'tpl_name'    => '留言表单',
+                        'tpl_title'    => '您有新的留言消息，请到内容管理中查看！',
+                        'tpl_content'    => '${content}',
+                        'send_scene'    => 1,
+                        'is_open'        => 1,
+                        'lang'          => get_main_lang(),
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ],
+                    [
+                        'tpl_id'    => 5,
+                        'tpl_name'    => '订单付款',
+                        'tpl_title'    => '您有新的待发货订单消息，请到商城订单查看！',
+                        'tpl_content'    => '${content}',
+                        'send_scene'    => 5,
+                        'is_open'        => 1,
+                        'lang'          => get_main_lang(),
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ],
+                    [
+                        'tpl_id'    => 6,
+                        'tpl_name'    => '订单发货',
+                        'tpl_title'    => '您有新的待收货订单消息，请到会员订单查看！',
+                        'tpl_content'    => '${content}',
+                        'send_scene'    => 6,
+                        'is_open'        => 1,
+                        'lang'          => get_main_lang(),
+                        'add_time'      => getTime(),
+                        'update_time'   => getTime(),
+                    ],
+                ];
+                $r = Db::name('users_notice_tpl')->insertAll($saveData);
+                if ($r !== false) {
+                    tpCache('syn', ['syn_admin_logic_1614829120'=>1], 'cn');
                 }
-                /*--end*/
-                tpCache('syn', ['syn_admin_logic_1614829120'=>1], 'cn');
+            }catch(\Exception $e){}
+        }
+
+        $syn_admin_logic_1614829121 = tpCache('syn.syn_admin_logic_1614829121', [], 'cn');
+        if (empty($syn_admin_logic_1614829121)) {
+            try{
+                $r = Db::name('users_notice_tpl')->where(['lang'=>['NEQ', get_main_lang()]])->delete();
+                if ($r !== false) {
+                    tpCache('syn', ['syn_admin_logic_1614829121'=>1], 'cn');
+                }
             }catch(\Exception $e){}
         }
     }
@@ -781,6 +740,87 @@ class AjaxLogic extends Model
                 /*--end*/
                 tpCache('syn', ['syn_admin_logic_1616123192'=>1], 'cn');
             }catch(\Exception $e){}
+        }
+    }
+
+    // 补充问题点赞表的like_source字段(v1.6.1节点去掉--陈风任)
+    public function admin_logic_1617069276()
+    {
+        $syn_admin_logic_ask_answer_like = tpCache('syn.syn_admin_logic_ask_answer_like', [], 'cn');
+        if (empty($syn_admin_logic_ask_answer_like)) {
+
+            $ask_ques_steps = <<<EOF
+1、写问题标题，描述具体现象。杜绝 “求救，大佬，小白…” 等和问题无关的词汇。
+2、选择问题的分类，选择正确的内容分类，能更快的得到其他人的回复。
+3、遇到的问题比较急需解决，可以给问题悬赏一定的金额报酬，能让更多同行参与进来出谋策划，从中选择自己心仪的答案。
+4、写问题内容详细描述你碰到的困难，写清楚你尝试了什么方法，错误代码，软件的版本等，更容易得到答案。
+5、点击发布。
+EOF;
+            tpSetting('ask', ['ask_ques_steps'=>$ask_ques_steps]);
+
+            $getTableInfo = Db::name('ask_answer_like')->getTableFields();
+            if (!in_array('like_source', $getTableInfo)) {
+                $Prefix = config('database.prefix');
+                $likeSql = "ALTER TABLE `{$Prefix}ask_answer_like` ADD COLUMN `like_source` tinyint(1) unsigned NOT NULL DEFAULT '2' COMMENT '点赞来源，1=点赞提问(ask_id)，2=点赞评论(answer_id)，3=点赞回复(answer_id)，默认值为2，兼容以前的那些评论数据' AFTER `click_like`";
+                Db::execute($likeSql);
+            }
+            tpCache('syn', ['syn_admin_logic_ask_answer_like'=>1], 'cn');
+        }
+    }
+
+    // 纠正商品主表的评价数(appraise字段)、收藏数(collection字段)(v1.6.1节点去掉--陈风任)
+    public function admin_logic_archives_1618279798()
+    {
+        $syn_admin_logic_archives_1618279798 = tpCache('syn.syn_admin_logic_archives_1618279798', [], 'cn');
+        if (empty($syn_admin_logic_archives_1618279798)) {
+            // 评价数据
+            $Field_0 = "product_id as aid, count('comment_id') as appraise, 0 as collection";
+            $Data_0 = Db::name('shop_order_comment')->field($Field_0)->group('aid')->select();
+
+            // 收藏数据
+            $Field_1 = "aid, count('id') as collection, 0 as appraise";
+            $Data_1 = Db::name('users_collection')->field($Field_1)->group('aid')->getAllWithIndex('aid');
+
+            // 整合数据
+            $UpdateData = [];
+            foreach ($Data_0 as $key => $value) {
+                $UpdateData[$key] = $value;
+                if ($value['aid'] == $Data_1[$value['aid']]['aid']) {
+                    $UpdateData[$key]['collection'] = $Data_1[$value['aid']]['collection'];
+                    unset($Data_1[$value['aid']]);
+                }
+            }
+
+            // 批量处理
+            $UpdateData = array_merge($UpdateData, $Data_1);
+            if (!empty($UpdateData)) {
+                $ArchivesModel = new \app\admin\model\Archives;
+                $ArchivesModel->saveAll($UpdateData);
+            }
+
+            // 标记已执行
+            tpCache('syn', ['syn_admin_logic_archives_1618279798'=>1], 'cn');
+        }
+    }
+
+    /**
+     * 区分专业版与基础版的登录界面
+     * @return [type] [description]
+     */
+    public function logintheme_logic()
+    {
+        $web_loginbgimg_model = tpCache('web.web_loginbgimg_model');
+        if ($web_loginbgimg_model != 'custom') {
+            $data = [];
+            $servicemeal = tpCache('php.php_servicemeal');
+            if (2 <= $servicemeal) { // 专业版
+                $web_loginbgimg = ROOT_DIR.'/public/static/admin/loginbg/login-bg-3.png';
+                $data['web_loginbgimg_model'] = 3;
+            } else {
+                $web_loginbgimg = ROOT_DIR.'/public/static/admin/loginbg/login-bg.png';
+            }
+            $data['web_loginbgimg'] = $web_loginbgimg;
+            tpCache('web', $data);
         }
     }
 }

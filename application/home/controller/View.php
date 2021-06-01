@@ -141,19 +141,12 @@ class View extends Base
         }
         /*--end*/
 
-        // seo
         $result['seo_title']       = set_arcseotitle($result['title'], $result['seo_title'], $result['typename'], $result['typeid']);
         $result['seo_description'] = @msubstr(checkStrHtml($result['seo_description']), 0, config('global.arc_seo_description_length'), false);
-
-        /*支持子目录*/
-        $result['litpic'] = handle_subdir_pic($result['litpic']);
-        /*--end*/
-
+        $result['tags'] = !empty($result['tags']['tag_arr']) ? $result['tags']['tag_arr'] : '';
+        $result['litpic'] = handle_subdir_pic($result['litpic']); // 支持子目录
         $result = view_logic($aid, $this->channel, $result, true); // 模型对应逻辑
-
-        /*自定义字段的数据格式处理*/
-        $result = $this->fieldLogic->getChannelFieldList($result, $this->channel);
-        /*--end*/
+        $result = $this->fieldLogic->getChannelFieldList($result, $this->channel); // 自定义字段的数据格式处理
 
         $eyou = array(
             'type'  => $arctypeInfo,
@@ -182,10 +175,10 @@ class View extends Base
         if ($this->eyou['field']['arcrank'] > 0) { // 若需要会员权限则执行
             if (!session('?users_id')) {
                 $url = url('user/Users/login');
-                if (stristr($url, '.html')) {
-                    $url = $url."?referurl={$result['arcurl']}";
+                if (stristr($url, '?')) {
+                    $url = $url."&referurl=".urlencode($result['arcurl']);
                 } else {
-                    $url = url('user/Users/login', ['referurl'=>$result['arcurl']]);
+                    $url = $url."?referurl=".urlencode($result['arcurl']);
                 }
                 $this->redirect($url);
             }
@@ -442,13 +435,12 @@ EOF;
     {
         $file_id = input('param.id/d', 0);
         $uhash   = input('param.uhash/s', '');
-
         if (empty($file_id) || empty($uhash)) $this->error('视频播放链接出错！');
 
         // 查询信息
-        $map    = array(
+        $map = array(
             'a.file_id' => $file_id,
-            'a.uhash'   => $uhash
+            'a.uhash' => $uhash
         );
         $result = Db::name('media_file')
             ->alias('a')
@@ -456,23 +448,34 @@ EOF;
             ->join('__ARCHIVES__ b', 'a.aid = b.aid', 'LEFT')
             ->where($map)
             ->find();
-
-        if (preg_match('#^(/[\w]+)?(/uploads/media/)#i', $result['file_url'])) {
-            $file_url = preg_replace('#^(/[\w]+)?(/uploads/media/)#i', '$2', $result['file_url']);
-        } else {
-            $file_url = preg_replace('#^(' . $this->root_dir . ')?(/)#i', '$2', $result['file_url']);
+        $result['txy_video_id'] = '';
+        if (!empty($result['file_url'])) {
+            $FileUrl = explode('txy_video_', $result['file_url']);
+            if (empty($FileUrl[0]) && !empty($FileUrl[1])) {
+                // 腾讯云视频ID
+                $result['txy_video_id'] = $FileUrl[1];
+            } else if (!empty($FileUrl[0]) && empty($FileUrl[1])) {
+                // 原本的逻辑
+                if (preg_match('#^(/[\w]+)?(/uploads/media/)#i', $result['file_url'])) {
+                    $file_url = preg_replace('#^(/[\w]+)?(/uploads/media/)#i', '$2', $result['file_url']);
+                } else {
+                    $file_url = preg_replace('#^(' . $this->root_dir . ')?(/)#i', '$2', $result['file_url']);
+                }
+                if (empty($result) || (!is_http_url($result['file_url']) && !file_exists('.' . $file_url))) {
+                    $this->error('视频文件不存在！');
+                }
+            } else {
+                $this->error('视频文件不存在！');
+            }
         }
-        if (empty($result) || (!is_http_url($result['file_url']) && !file_exists('.' . $file_url))) {
-            $this->error('视频文件不存在！');
-        }
 
-        $UsersData       = GetUsersLatestData();
-        $UsersID         = !empty($UsersData['users_id']) ? intval($UsersData['users_id']) : 0;
+        $UsersData = GetUsersLatestData();
+        $UsersID = !empty($UsersData['users_id']) ? intval($UsersData['users_id']) : 0;
 
-        $upVip           = "window.location.href = '" . url('user/Level/level_centre') . "'";
+        $upVip = "window.location.href = '" . url('user/Level/level_centre') . "'";
         $data['onclick'] = "if (document.getElementById('ey_login_id_1609665117')) {\$('#ey_login_id_1609665117').trigger('click');}else{window.location.href = '" . url('user/Users/login') . "';}";
         $data['button']  = '点击登录！';
-        $data['users_id']  = $UsersID;
+        $data['users_id'] = $UsersID;
 
         $arc_level_id = !empty($result['arc_level_id']) ? intval($result['arc_level_id']) : 0;
         if (!empty($arc_level_id)) {
@@ -485,8 +488,8 @@ EOF;
             if (0 < $result['users_price'] && empty($result['users_free'])) {
                 $Paid = 0; // 未付费
                 $where = [
-                    'users_id'     => $UsersID,
-                    'product_id'   => $result['aid'],
+                    'users_id' => $UsersID,
+                    'product_id' => $result['aid'],
                     'order_status' => 1
                 ];
                 // 存在数据则已付费
@@ -495,12 +498,12 @@ EOF;
                 if (empty($Paid)) {
                     if (0 < $arc_level_id && $UsersData['level'] < $arc_level_id) {
                         $data['onclick'] = $upVip;
-                        $data['button']  = '升级会员';
+                        $data['button'] = '升级会员';
                         $level_name = Db::name('users_level')->where(['level_id'=>$arc_level_id])->value('level_name');
                         $this->error('未付费，需要【' . $level_name . '】付费才能播放', '', $data);
                     } else {
                         $data['onclick'] = 'MediaOrderBuy_1592878548();';
-                        $data['button']  = '立即购买';
+                        $data['button'] = '立即购买';
                         $this->error('未付费，视频需要付费才能播放', '', $data);
                     }
                 }
@@ -508,9 +511,9 @@ EOF;
 
             //会员
             if (0 < $arc_level_id && $UsersData['level'] < $arc_level_id) {
-                $where      = [
+                $where = [
                     'level_id' => $arc_level_id,
-                    'lang'     => $this->home_lang
+                    'lang' => $this->home_lang
                 ];
                 $arcLevel = Db::name('users_level')->where($where)->Field('level_value,level_name')->find();
                 $data['onclick'] = $upVip;
@@ -519,35 +522,49 @@ EOF;
             }
         }
 
+        // 腾讯云点播视频
+        if (!empty($result['txy_video_id'])) {
+            $this->video_log($result['file_id'], $result['aid']);
+            if (IS_AJAX) {
+                $time = 'eyoucms-video-id-' . getTime();
+                $txy_video_id = $result['txy_video_id'];
+                $txy_video_html = <<<EOF
+<video id="{$time}" preload="auto" width="600" height="400" playsinline webkit-playsinline x5-playsinline></video>
+<script type="text/javascript">
+    var txy_video_id = '{$txy_video_id}';
+    var app_id = $('#appID').val();
+    TxyVideo();
+    function TxyVideo() {
+        var player = TCPlayer('{$time}', { fileID: txy_video_id, appID: app_id});
+    }
+</script>
+EOF;
+                $this->success('准备播放中……', null, ['txy_video_html'=>$txy_video_html]);
+            } else {
+                $this->error('腾讯云点播视频不支持跳转播放');
+            }
+        }
         // 外部视频链接
-        if (is_http_url($result['file_url'])) {
-
+        else if (is_http_url($result['file_url'])) {
             // 记录播放次数
             $this->video_log($result['file_id'], $result['aid']);
-
             if (IS_AJAX) {
                 $this->success('准备播放中……', $result['file_url']);
             } else {
                 $this->redirect($result['file_url']);
-                exit;
             }
         } 
         // 本站链接
         else
         {
-            if (md5_file('.' . $file_url) != $result['md5file']) {
-                $this->error('视频文件已损坏！');
-            }
-
+            if (md5_file('.' . $file_url) != $result['md5file']) $this->error('视频文件已损坏！');
             // 记录播放次数
             $this->video_log($result['file_id'], $result['aid']);
-
             $url = $this->request->domain() . $this->root_dir . $file_url;
             if (IS_AJAX) {
                 $this->success('准备播放中……', $url);
             } else {
                 $this->redirect($url);
-                exit;
             }
         }
     }

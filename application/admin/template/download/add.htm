@@ -2,10 +2,13 @@
 <link rel="stylesheet" type="text/css" href="__PUBLIC__/plugins/webuploader/webuploader.css">
 <script type="text/javascript" src="__PUBLIC__/plugins/laydate/laydate.js"></script>
 
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
-
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 <style type="text/css">
     /*服务器名称下拉*/
     .help-hot-list {
@@ -144,7 +147,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="litpic_local" name="litpic_local" value="" class="type-file-text">
+                            <input type="text" id="litpic_local" name="litpic_local" value="" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                  title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -613,7 +616,8 @@
                                 },
                                 success: function (res2) {
                                     var video_url = res1.data.domain + "/" + res2.key;
-                                    //
+                                    video_url = video_url.replace("http://", "//");
+                                    video_url = video_url.replace("https://", "//");
                                     var html = '';
                                     html += '<input type="hidden" name="fileupload[file_url][]" value="'+ video_url +'">';
                                     html += '<input type="hidden" name="fileupload[file_mime][]" value="'+ file_mime +'">';
@@ -812,7 +816,10 @@
     }
 
     // 获取模板属性数据
-    function GetTemplateAddr(num = 1){
+    function GetTemplateAddr(num){
+        if (!num) {
+            num = 1;
+        }
         $.ajax({
             url: "{:url('Download/get_template', ['_ajax'=>1])}",
             data: {num:num},
@@ -829,10 +836,11 @@
     function DeleteFile(obj){
         $(obj).parent().parent().remove();
     }
-
-
     // 拼装模板属性并追加
-    function AddTemplateAddr(num = 1,data = ''){
+    function AddTemplateAddr(num,data){
+        if (!num) {
+            num = 1;
+        }
         // 获取指定div数量
         var SerialNum = $('#Template div.template_div').length;
         var default_servername = "{$default_servername}";

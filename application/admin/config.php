@@ -31,7 +31,7 @@ $admin_config = array(
         'list_rows' => $system_paginate_pagesize,
     ),
     // 默认全局过滤方法 用逗号分隔多个
-    'default_filter'         => 'htmlspecialchars', // htmlspecialchars
+    'default_filter'         => 'htmlspecialchars',
     // 登录有效期
     'login_expire' => 3600,
     // 登录错误最大次数
@@ -72,18 +72,18 @@ $admin_config = array(
 
     // 过滤不需要登录的操作
     'filter_login_action' => array(
-        'Admin@login', // 登录
-        'Admin@logout', // 退出
-        'Admin@vertify', // 验证码
+        'Admin@login',
+        'Admin@logout',
+        'Admin@vertify',
     ),
     
     // 无需验证权限的操作
     'uneed_check_action' => array(
-        'Base@*', // 基类
-        'Index@*', // 后台首页
-        'Ajax@*', // 所有ajax操作
-        'Ueditor@*', // 编辑器上传
-        'Uploadify@*', // 图片上传
+        'Base@*',
+        'Index@*',
+        'Ajax@*',
+        'Ueditor@*',
+        'Uploadify@*',
     ),
 );
 

@@ -26,7 +26,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th align="center" abbr="article_title" axis="col3" class="w60">
                             <div class="tc">缩略图</div>
@@ -74,7 +74,7 @@
                         {volist name="Service" id="vo"}
                         <tr>
                             <td class="sign">
-                                <div class="w40 tc"> <input type="checkbox" name="ids[]" value="{$vo.service_id}"> </div>
+                                <div class="w40 tc"> <input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.service_id}"> </div>
                             </td>
 
                             <td class="w60">
@@ -96,19 +96,19 @@
                             </td>
 
                             <td class="">
-                                {eq name="$vo.service_type" value="1"}<div class="w100 tc blue">￥{$vo.product_total_price}</div>{/eq}
-                                {eq name="$vo.service_type" value="2"}<div class="w100 tc red">￥{$vo.product_total_price}</div>{/eq}
+                                {eq name="$vo.service_type" value="1"}￥{$vo.product_total_price}{/eq}
+                                {eq name="$vo.service_type" value="2"}￥{$vo.product_total_price}{/eq}
                             </td>
 
                             <td class="">
-                                {eq name="$vo.service_type" value="1"}<div class="w100 tc blue"> ￥{$vo.refund_price} </div>{/eq}
-                                {eq name="$vo.service_type" value="2"}<div class="w100 tc red"> ￥{$vo.refund_price} </div>{/eq}
+                                {eq name="$vo.service_type" value="1"}￥{$vo.refund_price}{/eq}
+                                {eq name="$vo.service_type" value="2"}￥{$vo.refund_price}{/eq}
                             </td>
 
                             <td class="">
-                                {eq name="$vo.service_type" value="1"}<div class="w100 tc blue"> 换货 </div>{/eq}
-                                {eq name="$vo.service_type" value="2"}<div class="w100 tc red"> 退货 </div>{/eq}
-                                {eq name="$vo.service_type" value="3"}<div class="w100 tc"> 维修 </div>{/eq}
+                                {eq name="$vo.service_type" value="1"}<div class="w100 tc blue">换货</div>{/eq}
+                                {eq name="$vo.service_type" value="2"}<div class="w100 tc red">退货</div>{/eq}
+                                {eq name="$vo.service_type" value="3"}<div class="w100 tc">维修</div>{/eq}
                             </td>
 
                             <td class=""> <div class="w100 tc"> {$ServiceStatus[$vo.status]|default=''} </div> </td>
@@ -142,7 +142,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('ShopService/after_service_del')}" class="layui-btn layui-btn-primary"><span>批量删除</span></a>

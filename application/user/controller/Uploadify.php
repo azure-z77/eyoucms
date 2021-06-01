@@ -13,6 +13,8 @@
 
 namespace app\user\controller;
 
+use think\Db;
+
 class Uploadify extends Base {
 
     private $image_type = '';
@@ -67,11 +69,14 @@ class Uploadify extends Base {
      */
     public function delupload()
     {
+        echo 1;
+        exit;
+        
         if (IS_AJAX_POST) {
             $action = input('param.action/s','del');                
             $filename= input('param.filename/s');
             $filename= empty($filename) ? input('url') : $filename;
-            $filename= str_replace('../','',$filename);
+            $filename= str_replace(['(',')',',',' ','../'],'',$filename);
             $filename= trim($filename,'.');
             $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $filename);
             if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){
@@ -408,7 +413,10 @@ class Uploadify extends Base {
             respose($return_data,'json');
         }
 
-        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $max_file_size = input('param.max_file_size/d');
+        if (empty($max_file_size)) {
+            $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        }
         // 上传图片框中的描述表单名称，
         $pictitle = input('pictitle');
         $dir = input('dir');
@@ -417,15 +425,16 @@ class Uploadify extends Base {
         //$input_file ['upfile'] = $info['Filedata'];  一个是上传插件里面来的, 另外一个是 文章编辑器里面来的
         // 获取表单上传文件
         $file = request()->file('file');
-        if(empty($file))
+        if(empty($file)) {
             $file = request()->file('upfile');    
+        }
 
         // ico图片文件不进行验证
         if (pathinfo($file->getInfo('name'), PATHINFO_EXTENSION) != 'ico') {
             $result = $this->validate(
                 ['file' => $file], 
                 ['file'=>'image|fileSize:'.$max_file_size.'|fileExt:'.$this->image_type],
-                ['file.image' => '上传文件必须为图片','file.fileSize' => '上传图片过大','file.fileExt'=>'上传图片后缀名必须为'.$this->image_type]
+                ['file.image' => '上传文件必须为图片','file.fileSize' => '上传图片不能超过'.format_bytes($max_file_size),'file.fileExt'=>'上传图片后缀名必须为'.$this->image_type]
                );
         } else {
             $result = true;
@@ -504,6 +513,16 @@ class Uploadify extends Base {
         $return_data['original'] = ''; // 这里好像没啥用 暂时注释起来
         $return_data['state'] = $state;
         $return_data['path'] = $path;
+
+        //同步到第三方对象存储空间
+        $bucket_data = SynImageObjectBucket($return_url);
+        if (!empty($bucket_data['local_save']) && $bucket_data['local_save'] == 1) {
+            unset($info);//解除图片的进程占用
+            $this->del_local($return_url);
+        }
+        unset($bucket_data['local_save']);
+        $return_data = array_merge($return_data, $bucket_data);
+
         respose($return_data,'json');
     }
 
@@ -547,7 +566,6 @@ class Uploadify extends Base {
 
             // 移动到框架应用根目录/public/uploads/ 目录下
             $info = $file->rule(function ($file) {
-                // return  md5(mt_rand()); // 使用自定义的文件保存规则
                 return session('users_id').'-'.dd2char(date("ymdHis").mt_rand(100,999));
             })->move($savePath);
             if ($info) {
@@ -558,9 +576,180 @@ class Uploadify extends Base {
             $return_url = '/'.$savePath.$info->getSaveName();
 
             $return_data['url'] = ROOT_DIR.$return_url;// 支持子目录
-
         }
         $return_data['state'] = $state;
+        //同步到第三方对象存储空间
+        $bucket_data = SynImageObjectBucket($return_url);
+        if (!empty($bucket_data['local_save']) && $bucket_data['local_save'] == 1) {
+            unset($info);
+            $this->del_local($return_url);//解除图片的进程占用
+        }
+        unset($bucket_data['local_save']);
+        $return_data = array_merge($return_data, $bucket_data);
+
         respose($return_data,'json');
+    }
+
+    // 上传多媒体
+    public function AjaxUploadMedia()
+    {
+        $file     = request()->file('file');
+        if (empty($file)) {
+            if (!@ini_get('file_uploads')) {
+                return json_encode(['state' => '请检查空间是否开启文件上传功能！']);
+            } else {
+                return json_encode(['state' => 'ERROR，空间限制上传大小！']);
+            }
+        }
+        $error = $file->getError();
+        if (!empty($error)) {
+            return json_encode(['state' => $error]);
+        }
+
+        $media_type                 = tpCache('basic.media_type');
+        $media_type = !empty($media_type) ? str_replace('|', ',', $media_type) : config('global.media_ext');
+        if (empty($media_type)) {
+            return json_encode(['state' => 'ERROR，请设置上传多媒体文件类型！']);
+        } else {
+            $media_type = str_replace('|', ',', $media_type);
+        }
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        $result  = $this->validate(
+            ['file' => $file],
+            ['file' => 'fileSize:' . $max_file_size . '|fileExt:' . $media_type],
+            ['file.fileSize' => '上传视频过大', 'file.fileExt' => '上传视频后缀名必须为' . $media_type]
+        );
+        if (true !== $result || empty($file)) {
+            $state = "ERROR" . $result;
+            return json_encode(['state' => $state]);
+        }
+
+        $this->savePath = $this->savePath.date('Ymd/');
+        $info = $file->rule(function ($file) {
+            return session('admin_id') . '-' . dd2char(date("ymdHis") . mt_rand(100, 999));
+        })->move(UPLOAD_PATH . $this->savePath);
+
+        if ($info) {
+            $file_path = UPLOAD_PATH.$this->savePath.$info->getSaveName();
+            $data = array(
+                'state'    => 'SUCCESS',
+                'url'      => '/' . $file_path,
+            );
+
+            $data['url'] = ROOT_DIR . $data['url'];
+        } else {
+            $data = array('state' => 'ERROR' . $info->getError());
+        }
+        return $data;
+    }
+
+    //未开启同步本地功能，并删除本地图片
+    public function del_local($filenames = '')
+    {
+        $filename= str_replace('../','',$filenames);
+        $filename= trim($filename,'.');
+        $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/admin/logo/)#i', '$2', $filename);
+        if(eyPreventShell($filename) && !empty($filename) && file_exists('.'.$filename)){
+            $filename_new = trim($filename,'/');
+            $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
+            $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
+            $size = getimagesize($filename_new);
+            $fileInfo = explode('/',$size['mime']);
+            if( $phpfile ){
+                return false;
+            }
+
+            if( @unlink('.'.$filename) ){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //上传文件
+    public function DownloadUploadFile(){
+        header('Content-Type: text/html; charset=utf-8');
+        // 获取定义的上传最大参数
+        $max_file_size = intval(tpCache('basic.file_size') * 1024 * 1024);
+        // 获取上传的文件信息
+        $files = request()->file();
+        // 若获取不到则定义为空
+        $file  = !empty($files['file']) ? $files['file'] : '';
+
+        /*判断上传文件是否存在错误*/
+        if(empty($file)){
+            echo json_encode(['msg' => '文件过大或文件已损坏！']);exit;
+        }
+        $error = $file->getError();
+        if(!empty($error)){
+            echo json_encode(['msg' => $error]);exit;
+        }
+
+        $file_type = tpCache('basic.file_type');
+        $file_type = !empty($file_type) ? str_replace('|', ',', $file_type) : 'zip,gz,rar,iso,doc,xls,ppt,wps,txt,docx';
+
+        $result = $this->validate(
+            ['file' => $file],
+            ['file'=>'fileSize:'.$max_file_size.'|fileExt:'.$file_type],
+            ['file.fileSize' => '上传文件超过'.tpCache('basic.file_size').'M','file.fileExt'=>'上传文件后缀名必须为'.$file_type]
+        );
+        if (true !== $result || empty($file)) {
+            echo json_encode(['msg' => $result]);exit;
+        }
+        /*--end*/
+
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $this->savePath = $this->savePath.date('Ymd/');
+        // 定义文件名
+        $fileName    = $file->getInfo('name');
+        // 提取文件名后缀
+        $file_ext    = pathinfo($fileName, PATHINFO_EXTENSION);
+        // 提取出文件名，不包括扩展名
+        $newfileName = preg_replace('/\.([^\.]+)$/', '', $fileName);
+        // 过滤文件名.\/的特殊字符，防止利用上传漏洞
+        $newfileName = preg_replace('#(\\\|\/|\.)#i', '', $newfileName);
+        // 过滤后的新文件名
+        $fileName = $newfileName.'.'.$file_ext;
+        // 中文转码
+        $this->fileName = iconv("utf-8","gb2312//IGNORE",$fileName);
+
+        // 使用自定义的文件保存规则
+        $info = $file->rule(function ($file) {
+            return  $this->fileName;
+        })->move(UPLOAD_PATH.$this->savePath);
+        if($info){
+            // 拼装数据存入session
+            $file_path = UPLOAD_PATH.$this->savePath.$info->getSaveName();
+            $return = array(
+                'code'      => 1,
+                'msg'       => '上传成功',
+                'file_url'  => '/' . UPLOAD_PATH.$this->savePath.$fileName,
+                'file_mime' => $file->getInfo('type'),
+                'file_name' => $fileName,
+                'file_ext'  => '.' . $file_ext,
+                'file_size' => $info->getSize(),
+                'uhash'     => $this->uhash($file_path),
+                'md5file'   => md5_file($file_path),
+            );
+        }else{
+            $return = array('msg' => $info->getError());
+        }
+        echo json_encode($return);
+    }
+    public function uhash( $file ) {
+        $fragment = 65536;
+
+        $rh = fopen($file, 'rb');
+        $size = filesize($file);
+
+        $part1 = fread( $rh, $fragment );
+        fseek($rh, $size-$fragment);
+        $part2 = fread( $rh, $fragment);
+        fclose($rh);
+
+        return md5( $part1.$part2 );
     }
 }

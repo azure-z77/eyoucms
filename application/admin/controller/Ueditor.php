@@ -53,11 +53,9 @@ class Ueditor extends Base
         $this->image_type = !empty($this->image_type) ? str_replace('|', ',', $this->image_type) : $this->imageExt;
     }
     
-    public function index(){
-        
+    public function index() {
         $CONFIG2 = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", "", file_get_contents("./public/plugins/Ueditor/php/config.json")), true);
         $action = $_GET['action'];
-        
         switch ($action) {
             case 'config':
                 $result =  json_encode($CONFIG2);
@@ -179,8 +177,11 @@ class Ueditor extends Base
     }
     
     //上传文件
-    private function upFile($fieldName){
+    private function upFile($fieldName) {
         $file = request()->file($fieldName);
+        if (empty($file)) $file = request()->file('upfile');
+        if (empty($file)) $file = request()->file('upload');
+
         if(empty($file)){
             if (!@ini_get('file_uploads')) {
                 return json_encode(['state' =>'请检查空间是否开启文件上传功能！']);
@@ -244,7 +245,15 @@ class Ueditor extends Base
         } else {
             $data = array('state' => 'ERROR'.$info->getError());
         }
-        return json_encode($data);
+        
+        if (1 == $this->editor['editor_select']) {
+            return json_encode($data);
+        } else if (2 == $this->editor['editor_select']) {
+            $CKEditorFuncNum = input('param.CKEditorFuncNum/d');
+            $message = '';
+            $str = '<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction('.$CKEditorFuncNum.', \''.$data['url'].'\', \''.$message.'\');</script>';
+            exit($str);
+        }
     }
 
     //列出图片

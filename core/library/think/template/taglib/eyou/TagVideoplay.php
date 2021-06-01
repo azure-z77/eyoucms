@@ -93,7 +93,13 @@ class TagVideoplay extends Base
             $result = [];
             foreach ($row as $key => $val) {
                 if (!empty($val['file_url'])) {
-                    if (!is_http_url($val['file_url'])) {
+                    $val['txy_video_id'] = '';
+                    $FileUrl = explode('txy_video_', $val['file_url']);
+                    if (empty($FileUrl[0]) && !empty($FileUrl[1])) {
+                        $val['txy_video_id'] = $FileUrl[1];// 腾讯云视频ID
+                    }
+
+                    if (empty($val['txy_video_id']) && !is_http_url($val['file_url'])) {
                         $val['file_url'] = handle_subdir_pic($val['file_url'], 'media', true);
                     }
 
@@ -118,8 +124,14 @@ class TagVideoplay extends Base
                     break;
                 }
             }
-
+            
             if (!empty($result)) {
+                // 腾讯云点播视频所需内置JS及CSS样式
+                $result['txy_video_file'] = <<<EOF
+<link href="https://imgcache.qq.com/open/qcloud/video/tcplayer/tcplayer.css" rel="stylesheet">
+<script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/libs/hls.min.0.13.2m.js"></script>
+<script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/tcplayer.v4.1.min.js"></script>
+EOF;
                 $from_id = "video_play_20200520_{$aid}";
                 $result['id'] = " id='{$from_id}' ";
                 if ('on' == $autoplay) {

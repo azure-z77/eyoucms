@@ -78,6 +78,19 @@
                     <p class="notic2">开启前，请先在空间正确配置SSL证书。<br/>在能正常访问https://域名的情况下，才开启这个功能，使整站的URL都强制采用https协议访问。</p>
                 </dd>
             </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label for="switch">回收站</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="switch0" class="cb-enable {if condition='empty($switch)'}selected{/if}">开启</label>
+                        <label for="switch1" class="cb-disable {if condition='$switch eq 1'}selected{/if}">关闭</label>
+                        <input id="switch0" name="switch" value="0" type="radio" {if condition="empty($switch)"} checked="checked"{/if}>
+                        <input id="switch1" name="switch" value="1" type="radio" {if condition="$switch eq 1"} checked="checked"{/if}>
+                    </div>
+                </dd>
+            </dl>
             <dl class="row none">
                 <dt class="tit">
                     <label for="web_cmspath">系统安装目录</label>
@@ -110,8 +123,9 @@
                     <label for="web_login_expiretime">后台登录超时</label>
                 </dt>
                 <dd class="opt">
-                    <input id="web_login_expiretime" name="web_login_expiretime" value="{$config.web_login_expiretime|default=config('login_expire')}" type="text" style="width: 200px;" />&nbsp;(秒)
-                    <p class="notic">默认3600秒等于1小时</p>
+                    <input id="web_login_expiretime" name="web_login_expiretime" value="{$config.web_login_expiretime|default=config('login_expire')}" autocomplete="off" type="text" style="width: 200px;" />&nbsp;(秒)
+                    <p class="notic">默认3600秒等于1小时，最多不超过1个月（2592000秒）</p>
+                    <p class="notic2 none red" id="tips_web_login_expiretime"></p>
                 </dd>
             </dl>
             <dl class="row">
@@ -197,6 +211,18 @@
                     $('#web_is_https0').attr('checked','checked');
                     layer.close(index);
                 });
+            }
+        });
+
+        $('#web_login_expiretime').keyup(function(){
+            var web_login_expiretime = $(this).val();
+            if (web_login_expiretime > 2592000) {
+                $(this).val(2592000);
+                $('#tips_web_login_expiretime').html('最多不能设置超过一个月（2592000秒）').show();
+            } else if (web_login_expiretime < 60) {
+                $('#tips_web_login_expiretime').html('最少不能设置低于60秒').show();
+            } else {
+                $('#tips_web_login_expiretime').hide();
             }
         });
 

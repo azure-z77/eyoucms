@@ -30,24 +30,6 @@
                             </div>
                         </a>
                     </div>
-
-                    <!-- <div class="cate-dropup">
-                        <div class="cate-dropup-bt">增加栏目<i class="fa fa-angle-down" aria-hidden="true"></i></div>
-                        <div class="cate-dropup-con" style="">
-                            <a href="{:url('Arctype/add')}">增加顶级栏目</a>
-                            <a href="{:url('Arctype/batch_add')}">批量增加栏目</a>
-                        </div>
-                    </div>
-                    <script type="text/javascript">
-                        $(".cate-dropup-bt").click(function(event){
-                            $(".cate-dropup-con").slideToggle(200);
-                            event.stopPropagation();
-                        })
-                        $(document).click(function(event){
-                            $(".cate-dropup-con").slideUp(200);
-                            event.stopPropagation();
-                        })
-                    </script> -->
                     {/eq}
                 {/eq}
             </div>
@@ -58,7 +40,7 @@
                     <thead>
                         <tr>
                             <th class="sign w40" axis="col0">
-                                <div class="tc"><input type="checkbox" onClick="javascript:$('input[name*=ids]').prop('checked',this.checked);"></div>
+                                <div class="tc"><input type="checkbox" onClick="javascript:$('input[name*=ids]').prop('checked',this.checked);" autocomplete="off"></div>
                             </th>
                             <th axis="col3" class="w60">
                                 <div class="sundefined tc">ID</div>
@@ -107,7 +89,7 @@
                 {foreach name="arctype_list" item="vo" key="k" }
                     <tr nctype="0" {if condition="$vo['parent_id'] gt 0"} style="display:none;"{/if} class="parent_id_{$vo['parent_id']}" data-level="{$vo['level']}" data-id="{$vo['id']}">
                         <td class="sign">
-                            <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                            <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.id}" autocomplete="off"></div>
                         </td>
                         <td class="name">
                             <div class="w60 tc">
@@ -143,11 +125,28 @@
                             {else /}
                                 {if condition="$vo['current_channel'] == 6"}
                                     <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                    {assign name='$uisetRow' value=":check_single_uiset($vo['templist'])"}
+                                    {if condition="!empty($uisetRow['pc']) && !empty($uisetRow['mobile'])"}
+                                        &nbsp;&nbsp;<a href="javascript:void(0);" data-href="{:url('Arctype/single_uiset', ['tid'=>$vo['id']])}" onclick="single_uiset_select(this);" title="可视化编辑"><i class="fa fa-edit"></i></a>
+                                    {else /}
+                                        {if condition="!empty($uisetRow['pc'])"}
+                                            &nbsp;&nbsp;<a href="{:url('Arctype/single_uiset', ['tid'=>$vo['id'], 'v'=>'pc'])}" target="_blank" title="PC端可视化编辑"><i class="fa fa-edit"></i></a>
+                                        {elseif condition="!empty($uisetRow['mobile'])"}
+                                            &nbsp;&nbsp;<a href="{:url('Arctype/single_uiset', ['tid'=>$vo['id'], 'v'=>'mobile'])}" target="_blank" title="手机端可视化编辑"><i class="fa fa-edit"></i></a>
+                                        {/if}
+                                    {/if}
+                                {elseif condition="$vo['current_channel'] == 5"}
+                                    {if condition="$php_servicemeal > 1"}
+                                        <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',['typeid'=>$vo['id']])}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                    {else /}
+                                    <a href="javascript:void(0);" class="btn grey" title="该功能仅限专业版授权！" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                    {/if}
+                                    <i class="arctotal">（文档：{$vo.id|get_total_arc=###}条）</i>
                                 {elseif condition="$vo['current_channel'] == 51"}
                                     {if condition="$php_servicemeal >= 2"}
                                         <a href="{:url('Ask/index')}" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
                                     {else /}
-                                        <a href="javascript:void(0);" class="btn grey" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
+                                        <a href="javascript:void(0);" class="btn grey" title="该功能仅限专业版授权！" {neq name='$main_lang' value='$admin_lang'}title="{$main_arctype_list[$vo['id']]['typename']|default=$vo['typename']}"{/neq}>{$vo.typename}</a>
                                     {/if}
                                 {else /}
                                     {if condition="empty($channeltype_list[$vo['current_channel']]['ifsystem'])"}
@@ -184,11 +183,17 @@
                                     {else /}
                                         {if condition="$vo['current_channel'] == 6" /}
                                             <a href="{:url('Arctype/single_edit',array('typeid'=>$vo['id']))}" class="btn blue">内容</a>
+                                        {elseif condition="$vo['current_channel'] == 5"}
+                                            {if condition="$php_servicemeal > 1"}
+                                                <a href="{:url($channeltype_list[$vo['current_channel']]['ctl_name'].'/index',array('typeid'=>$vo['id'], 'tab'=>3))}" class="btn blue">内容</a>
+                                            {else /}
+                                                <a class="btn grey" href="javascript:void(0);" title="该功能仅限专业版授权！">内容</a>
+                                            {/if}
                                         {elseif condition="$vo['current_channel'] == 51"}
                                             {if condition="$php_servicemeal >= 2"}
                                                 <a href="{:url('Ask/index')}" class="btn blue">内容</a>
                                             {else /}
-                                                <a class="btn grey" href="javascript:void(0);">内容</a>
+                                                <a class="btn grey" href="javascript:void(0);" title="该功能仅限专业版授权！">内容</a>
                                             {/if}
                                         {else /}
                                             {if condition="empty($channeltype_list[$vo['current_channel']]['ifsystem'])"}
@@ -220,8 +225,7 @@
 
                                 {eq name="'Arctype@pseudo_del'|is_check_access" value="1"}
                                     {eq name='$main_lang' value='$admin_lang'}
-                                        <i></i>
-                                        <a class="btn red"  href="javascript:void(0);" data-url="{:url('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
+                                        <i></i><a class="btn red"  href="javascript:void(0);" data-url="{:url('Arctype/pseudo_del')}" data-id="{$vo.id}" data-typename="{$vo.typename}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq} onClick="delfun(this);">删除</a>
                                     {/eq}
                                 {/eq}
                                 <i></i>
@@ -245,19 +249,28 @@
 
         <div class="footer-oper">
             <span class="ml15">
-                <input type="checkbox" class="checkAll">
+                <input type="checkbox" class="checkAll" autocomplete="off">
             </span>
             <div class="nav-dropup">
                 {eq name="'Arctype@pseudo_del'|is_check_access" value="1"}
-                <button class="layui-btn layui-btn-primary" onclick="batch_del_arctype(this, 'ids')"  data-url="{:url('Arctype/batch_pseudo_del')}" data-deltype="pseudo">批量删除</button>
+                    <button class="layui-btn layui-btn-primary" onclick="batch_del_arctype(this, 'ids')"  data-url="{:url('Arctype/batch_pseudo_del')}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq}>批量删除</button>
                 {/eq}
             </div>
             {eq name="'RecycleBin@arctype_index'|is_check_access" value="1"}
-            <a href="{:url('RecycleBin/arctype_index')}" style="text-decoration:none;color: #555;" class="layui-btn layui-btn-primary" title="回收站">回收站</a>
+                {neq name='$recycle_switch' value='1'}
+                    <a href="{:url('RecycleBin/arctype_index')}" style="text-decoration:none;color: #555;" class="layui-btn layui-btn-primary" title="回收站">回收站</a>
+                {/neq}
             {/eq}
         </div>
     </div>
 </div>
+<div id="div_single_uiset_select" style="display: none;">
+    <div class="select-show-box">
+        <a href="pc_url" target="_blank" class="pc" title="可视化编辑"><i class="fa fa-desktop"></i>PC端</a>
+        <a href="mobile_url" target="_blank" class="mobile" title="可视化编辑"><i class="fa fa-mobile"></i>手机端</a>
+    </div>
+</div>
+
 <script type="text/javascript">
     $(function(){
         $('input[name*=ids]').click(function(){
@@ -369,7 +382,12 @@
   
     function delfun(obj){
         var title = $(obj).attr('data-typename');
-        layer.confirm('<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除到回收站？', {
+        var deltype = $(obj).attr('data-deltype');
+        var confirm_title = '<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除到回收站？';
+        if ('del' == deltype) {
+            confirm_title = '<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认直接删除？';
+        }
+        layer.confirm(confirm_title, {
             title: false,
             btn: ['确定','取消'] //按钮
         }, function(){
@@ -378,7 +396,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id'),_ajax:1},
+                data : {del_id:$(obj).attr('data-id'),deltype:deltype,_ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -411,8 +429,12 @@
             layer.alert('请至少选择一项', {icon: 5, title:false});
             return;
         }
-        // console.log(111);return false;
-        layer.confirm('<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除到回收站？', {
+        var deltype = $(obj).attr('data-deltype');
+        var confirm_title = '<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认删除到回收站？';
+        if ('del' == deltype) {
+            confirm_title = '<font color="#ff0000">如有子栏目及文档将一起清空</font>，确认直接删除？';
+        }
+        layer.confirm(confirm_title, {
             title: false,
             btn: ['确定','取消'] //按钮
         }, function(){
@@ -421,7 +443,7 @@
             $.ajax({
                 type : 'post',
                 url : $(obj).attr('data-url'),
-                data : {del_id:a,_ajax:1},
+                data : {del_id:a,deltype:deltype,_ajax:1},
                 dataType : 'json',
                 success : function(data){
                     layer.closeAll();
@@ -438,6 +460,24 @@
             layer.close(index);
         });
         return false;
+    }
+
+    function single_uiset_select(obj)
+    {
+        var url = $(obj).attr('data-href');
+        var pc_url = url + '&v=pc';
+        var mobile_url = url + '&v=mobile';
+        var content = $('#div_single_uiset_select').html();
+        content = content.replace('pc_url', pc_url);
+        content = content.replace('mobile_url', mobile_url);
+        layer.open({
+            type: 1,
+            title: false,
+            shadeClose: false,
+            maxmin: false, //开启最大化最小化按钮
+            area: ['350px', '150px'],
+            content: content
+        });
     }
 
     /* 生成静态页面代码 */

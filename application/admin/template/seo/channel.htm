@@ -137,7 +137,6 @@
                 send();
             },
             error:function(e){
-                console.log('未知错误，栏目页生成失败~');
                 parent.layer.alert(e.responseText, {icon: 5, title:false});
             }
         });

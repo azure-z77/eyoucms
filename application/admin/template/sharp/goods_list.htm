@@ -35,7 +35,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="article_title" axis="col3" class="w50">
                             <div class="tc">ID</div>
@@ -76,7 +76,7 @@
                         <tr>
                             <td class="sign">
                                 <div class="tc w40">
-                                    <input type="checkbox" name="infos[]" value='{$vo.json_encode_params}'>
+                                    <input type="checkbox" autocomplete="off" name="infos[]" value='{$vo.json_encode_params}'>
                                 </div>
                             </td>
                            
@@ -127,7 +127,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 <div class="fbutton">
                     <a onclick="confirm_choose();" class="layui-btn layui-btn-primary">

@@ -85,6 +85,7 @@ class MediaFile extends Model
                     }else{
                         unset($v['file_id']);
                         $insert[] = $v;
+                        unset($video_files[$k]);
                     }
                 }
 
@@ -111,6 +112,10 @@ class MediaFile extends Model
                         }
                     } catch (\Exception $e) {}
                 }
+            }
+        }else{
+            if ('edit' == $opt) {
+                Db::name('media_file')->where('aid',$aid)->delete();
             }
         }
     }

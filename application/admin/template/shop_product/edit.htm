@@ -1,9 +1,13 @@
 {include file="public/layout" /}
 <script type="text/javascript" src="__PUBLIC__/plugins/laydate/laydate.js"></script>
 
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 
 <body style="overflow: auto; cursor: default; -moz-user-select: inherit;background-color:#F4F4F4; padding: 20px; ">
 <div id="append_parent"></div>
@@ -13,7 +17,6 @@
     <div class="flexigrid">
         <div class="fixed-bar">
             <div class="item-title"><a class="back" href="javascript:history.back();" title="返回列表"><i class="fa fa-angle-double-left"></i>返回</a>
-                
                 <ul class="tab-base nc-row">
                     <li><a href="javascript:void(0);" data-index='1' class="tab current"><span>常规选项</span></a></li>
                     <li><a href="javascript:void(0);" data-index='2' class="tab"><span>商品参数</span></a></li>
@@ -40,6 +43,7 @@
                         <label for="title"><em>*</em>所属栏目</label>
                     </dt>
                     <dd class="opt"> 
+                        <input type="hidden" name="attr[typeid]" id="attr_typeid" value="{$field.typeid}">
                         <select name="typeid" id="typeid">
                             {$arctype_html}
                         </select>
@@ -52,11 +56,17 @@
                         <label>文档属性</label>
                     </dt>
                     <dd class="opt">
+                        <input type="hidden" name="attr[is_head]" {if condition="$field.is_head == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_head" value="1" {if condition="$field.is_head == 1"}checked{/if}>头条[h]</label>&nbsp;
+                        <input type="hidden" name="attr[is_recom]" {if condition="$field.is_recom == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_recom" value="1" {if condition="$field.is_recom == 1"}checked{/if}>推荐[c]</label>&nbsp;
+                        <input type="hidden" name="attr[is_special]" {if condition="$field.is_special == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_special" value="1" {if condition="$field.is_special == 1"}checked{/if}>特荐[a]</label>&nbsp;
+                        <input type="hidden" name="attr[is_b]" {if condition="$field.is_b == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_b" value="1" {if condition="$field.is_b == 1"}checked{/if}>加粗[b]</label>&nbsp;
+                        <input type="hidden" name="attr[is_litpic]" {if condition="$field.is_litpic == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_litpic" value="1" {if condition="$field.is_litpic == 1"}checked{/if}>图片[p]</label>&nbsp;
+                        <input type="hidden" name="attr[is_jump]" {if condition="$field.is_jump == 1"}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="is_jump" value="1" {if condition="$field.is_jump == 1"}checked{/if}>跳转[j]</label>&nbsp;
                         <span class="err"></span>
                         <p class="notic"></p>
@@ -84,7 +94,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text">
+                                <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                      title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -873,6 +883,7 @@
                         <label for="author">作者</label>
                     </dt>
                     <dd class="opt">
+                        <input type="hidden" value="{$field.users_id}" name="users_id" class="input-txt">
                         <input type="text" value="{$field.author}" name="author" id="author" class="input-txt">
                         <!-- &nbsp;<a href="javascript:void(0);" onclick="set_author();" class="ncap-btn ncap-btn-green">设置</a> -->
                         <!-- <p class="notic">设置作者默认名称（将同步至管理员笔名）</p> -->
@@ -893,6 +904,7 @@
                         <label>阅读权限</label>
                     </dt>
                     <dd class="opt">
+                        <input type="hidden" value="{$field.arcrank}" name="old_arcrank" class="input-txt">
                         <select name="arcrank" id="arcrank" {if $field.arcrank < 0 && $admin_info.role_id > 0 && $auth_role_info.check_oneself < 1} disabled="disabled" {/if}>
                             {volist name="arcrank_list" id="vo"}
                             <option value="{$vo.rank}" {eq name="vo.rank" value="$field.arcrank"}selected{/eq}>{$vo.name}</option>

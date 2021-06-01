@@ -30,21 +30,14 @@ class Base extends Common {
         $assignValue2 = tpCache('php.'.$assignName2);
         $this->assign($assignName2, $assignValue2);
 
-        if(session('?users_id'))
-        {
+        if (session('?users_id')) {
             $users_id = session('users_id');
             $users = GetUsersLatestData($users_id);
             $this->users = $users;
             $this->users_id = $users['users_id'];
-            
-            $nickname = $this->users['nickname'];
-            if (empty($nickname)) {
-                $nickname = $this->users['username'];
-            }
-            $this->assign('nickname',$nickname);
-            
-            $this->assign('users',$users); //存储会员信息
-            $this->assign('users_id',$this->users_id);
+            $this->assign('users', $users);
+            $this->assign('users_id', $this->users_id);
+            $this->assign('nickname', !empty($this->users['nickname']) ? $this->users['nickname'] : $this->users['username']);
         } else {
             //过滤不需要登陆的行为
             $ctl_act = CONTROLLER_NAME.'@'.ACTION_NAME;
@@ -61,11 +54,9 @@ class Base extends Common {
                         if (isWeixin()) {
                             //微信端
                             $this->redirect('user/Users/users_select_login');
-                            exit;
                         } else {
                             // 其他端
                             $this->redirect('user/Users/login');
-                            exit;
                         }
                     }
                 }
@@ -80,6 +71,7 @@ class Base extends Common {
         // 会员功能是否开启
         $logut_redirect_url = '';
         $this->usersConfig = getUsersConfigData('all');
+        $this->assign('usersConfig', $this->usersConfig);
         $web_users_switch = tpCache('web.web_users_switch');
         if (empty($web_users_switch) || isset($this->usersConfig['users_open_register']) && $this->usersConfig['users_open_register'] == 1) { 
             // 前台会员中心已关闭
@@ -90,21 +82,16 @@ class Base extends Common {
         }
 
         // 是否开启会员注册功能
-        $Method = request()->action();
-        if (isset($this->usersConfig['users_open_reg']) && $this->usersConfig['users_open_reg'] == 1 && 'reg' == $Method) {
+        if (isset($this->usersConfig['users_open_reg']) && $this->usersConfig['users_open_reg'] == 1 && 'reg' == request()->action()) {
             $logut_redirect_url = ROOT_DIR.'/';
         }
-
         if (!empty($logut_redirect_url)) {
             // 清理session并回到首页
             session('users_id', null);
             session('users', null);
             $this->redirect($logut_redirect_url);
-            exit;
         }
         // --end
-
-        $this->assign('usersConfig', $this->usersConfig);
         
         // 默认主题颜色
         if (!empty($this->usersConfig['theme_color'])) {
@@ -119,26 +106,14 @@ class Base extends Common {
         $this->usersConfig['theme_color'] = $theme_color;
         $this->assign('theme_color', $theme_color);
 
-        // 是否为手机端
-        $is_mobile = 2;     // 其他端
-        if (isMobile()) {
-            $is_mobile = 1; // 手机端
-        }
-        $this->assign('is_mobile',$is_mobile);
+        // 是否为手机端，1手机端，2其他端
+        $this->assign('is_mobile', isMobile() ? 1 : 2);
         
-        // 是否为端微信
-        $is_wechat = 2;     // 其他端
-        if (isWeixin()) {
-            $is_wechat = 1; // 微信端
-        }
-        $this->assign('is_wechat',$is_wechat);
+        // 是否为端微信，1微信端，2其他端
+        $this->assign('is_wechat', isWeixin() ? 1 : 2);
 
-        // 是否为微信端小程序
-        $is_wechat_applets = 0;     // 不在微信小程序中
-        if (isWeixinApplets()) {
-            $is_wechat_applets = 1; // 在微信小程序中
-        }
-        $this->assign('is_wechat_applets',$is_wechat_applets);
+        // 是否为微信端小程序，1在微信小程序中，0不在微信小程序中
+        $this->assign('is_wechat_applets', isWeixinApplets() ? 1 : 0);
 
         // 站内消息
         if ($usersTplVersion != 'v1') {

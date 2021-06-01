@@ -26,7 +26,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th class="sign w10 none" axis="col0">
                             <div class="tc"></div>
@@ -70,7 +70,7 @@
                             {volist name="list" id="vo" key="k"}
                             <tr class="tr">
                                 <td class="sign">
-                                    <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.list_id}"></div>
+                                    <div class="tc w40"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.list_id}"></div>
                                 </td>
 
                                 <td class="sign none">
@@ -143,7 +143,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="$Think.const.CONTROLLER_NAME.'@attrlist_del'|is_check_access" value="1"}
                     <div class="fbutton">

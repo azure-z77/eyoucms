@@ -35,7 +35,7 @@ class Shop extends Base {
         $this->shop_order_details_db = Db::name('shop_order_details');      // 订单明细表
         $this->shop_address_db       = Db::name('shop_address');            // 收货地址表
         $this->shop_express_db       = Db::name('shop_express');            // 物流名字表
-        $this->shop_order_log_db  = Db::name('shop_order_log');             // 订单操作表
+        $this->shop_order_log_db     = Db::name('shop_order_log');          // 订单操作表
         $this->shipping_template_db  = Db::name('shop_shipping_template');  // 运费模板表
         $this->product_spec_preset_db = Db::name('product_spec_preset');    // 产品规格预设表
 
@@ -59,7 +59,8 @@ class Shop extends Base {
     /**
      * 商城设置
      */
-    public function conf(){
+    public function conf()
+    {
         if (IS_POST) {
             $post = input('post.');
             if (!empty($post)) {

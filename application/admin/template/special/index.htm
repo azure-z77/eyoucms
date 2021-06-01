@@ -5,7 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page" style="box-shadow:none;">
     {include file="special/bar" /}
-    <div class="flexigrid">
+    <div class="flexigrid" style="min-height: 600px;">
         <div class="mDiv">
             <div class="ftitle">
                 {include file="archives/tags_btn" /}
@@ -29,9 +29,9 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
-                        <th abbr="article_title" axis="col3" class="w40">
+                        <th abbr="article_title" axis="col3" class="w80">
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="article_title" axis="col3" class="">
@@ -75,11 +75,11 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr>
                             <td class="sign">
-                                <div class="tc w40"><input type="checkbox" name="ids[]" value="{$vo.aid}"></div>
+                                <div class="tc w40"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.aid}"></div>
                             </td>
                            
                             <td class="sort">
-                                <div class="tc w40">
+                                <div class="tc w80">
                                     {$vo.aid}
                                 </div>
                             </td>
@@ -130,7 +130,7 @@
                                     <i></i>
                                     {/eq}
                                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Special/del')}" data-id="{$vo.aid}" data-deltype="pseudo" onClick="delfun(this);">删除</a>
+                                    <a class="btn red"  href="javascript:void(0);" data-url="{:url('Special/del')}" data-id="{$vo.aid}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq} onClick="delfun(this);">删除</a>
                                     <i></i>
                                     {/eq}
                                     <a href="{$vo.arcurl}" target="_blank" class="btn blue">浏览</a>
@@ -156,11 +156,11 @@
         </div>
         <div class="footer-oper">
             <span class="ml15">
-                <input type="checkbox" class="checkAll">
+                <input type="checkbox" autocomplete="off" class="checkAll">
             </span>
             <div class="nav-dropup">
                 <button class="layui-btn layui-btn-primary dropdown-bt">批量操作<i class="layui-icon layui-icon-up"></i></button>
-                <div class="dropdown-menus" style="display:none;">
+                <div class="dropdown-menus" style="display:none; {if condition='0 < $pager->totalRows && ($pager->totalRows < 3 || $pager->listRows < 3)'}top:30px;bottom:unset;border-bottom:1px solid rgba(0,0,0,.15);border-top:none;{/if}">
                     {eq name="'Archives@batch_attr'|is_check_access" value="1"}
                     <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量新增属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'add'])}">新增属性</a>
                     <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量删除属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'del'])}">删除属性</a>
@@ -173,7 +173,7 @@
                     <a href="javascript:void(0);" onclick="func_move(this, 'ids');" data-url="{:url('Archives/move', array('typeid'=>$Request.param.typeid))}">移动专题</a>
                     {/eq}
                     {eq name="$Think.const.CONTROLLER_NAME.'@del'|is_check_access" value="1"}
-                    <a href="javascript:void(0);" onclick="batch_del(this, 'ids');" data-url="{:url('Special/del')}" data-deltype="pseudo">删除专题</a>
+                    <a href="javascript:void(0);" onclick="batch_del(this, 'ids');" data-url="{:url('Special/del')}" {eq name='$recycle_switch' value='1'} data-deltype="del" {else /} data-deltype="pseudo" {/eq}>删除专题</a>
                     {/eq}
                     {eq name="'Archives@check'|is_check_access" value="1"}
                     <hr class="layui-bg-gray">
@@ -183,7 +183,7 @@
                 </div>
             </div>
             {eq name="'RecycleBin@archives_index'|is_check_access" value="1"}
-            <a href="{:url('RecycleBin/archives_index')}" class="layui-btn layui-btn-primary" title="回收站">回收站</a>
+            {neq name='$recycle_switch' value='1'} <a href="{:url('RecycleBin/archives_index')}" class="layui-btn layui-btn-primary" title="回收站">回收站</a> {/neq}
             {/eq}
             {include file="public/page" /}
         </div>

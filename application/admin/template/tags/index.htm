@@ -27,15 +27,13 @@
                     </a>
                 </div>
                 {/eq}
-                {eq name="'Tags@clearall'|is_check_access" value="1"}
                 <div class="fbutton">
-                    <a href="javascript:void(0);" onclick="clearall();">
-                        <div class="add" title="一键清空">
-                            <span>一键清空</span>
+                    <a href="javascript:void(0);" data-href="{:url('Tags/edit_index_seo')}" onclick="openFullframe(this, 'Tag主页SEO', '700px', '500px');">
+                        <div class="add" title="Tag主页SEO">
+                            <span>Tag主页SEO</span>
                         </div>
                     </a>
                 </div>
-                {/eq}
             </div>
             <form class="navbar-form form-inline" action="{:url('Tags/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
@@ -54,7 +52,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="ac_id" axis="col4">
                             <div class="">标签</div>
@@ -71,7 +69,7 @@
                         <th abbr="article_time" axis="col6" class="w100">
                             <div class="tc">新增时间</div>
                         </th>
-                        <th axis="col1" class="w160">
+                        <th axis="col1" class="w180">
                             <div class="tc">操作</div>
                         </th>
                     </tr>
@@ -93,7 +91,7 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr class="tagTr" data-id="{$vo.id}" data-tag="{$vo.tag}">
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                <div class="w40 tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}"></div>
                             </td>
                             <td style="width: 100%">
                                 <div style="">
@@ -102,7 +100,7 @@
                             </td>
                             <td class="">
                                 <div class="w100 tc">
-                                    <input style="text-align:center;width: 80px;" type="text" onchange="changeTableVal('tagindex','id','{$vo.id}','count',this);" value="{$vo.count}" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" />
+                                    <input style="text-align:center;width: 80px;" type="text" data-inputype="int" onchange="changeTableVal('tagindex','id','{$vo.id}','count',this);" value="{$vo.count}" onkeyup="this.value=this.value.replace(/[^\d]/g,'');" onpaste="this.value=this.value.replace(/[^\d]/g,'')" />
                                 </div>
                             </td>
                             <td class="">
@@ -125,9 +123,13 @@
                                 </div>
                             </td>
                             <td class="operation">
-                                <div class="w160 tc">
+                                <div class="w180 tc">
+                                    {eq name="'Tags@relation_archives'|is_check_access" value="1"}
+                                    <a class="btn blue" href="javascript:void(0);" data-href="{:url('Tags/relation_archives', ['tid'=>$vo.id])}" data-tid="{$vo.id}" onclick="relation(this, '标签【{$vo.tag}】 - 关联文档');">关联</a>
+                                        <i></i>
+                                    {/eq}
                                     {eq name="'Tags@edit'|is_check_access" value="1"}
-                                        <a class="btn blue hint hint-top" data-hint="可以编辑tag页面seo设置" href="javascript:void(0);" data-url="{:url('Tags/edit', ['id'=>$vo.id])}" onclick="SeoEdit(this);" >编辑</a>
+                                        <a class="btn blue hint hint-top" data-hint="可以编辑tag页面seo设置" href="javascript:void(0);" data-href="{:url('Tags/edit', ['id'=>$vo.id])}" onclick="openFullframe(this, 'TAG标签 - 编辑', '100%', '100%');" >编辑</a>
                                         <i></i>
                                     {/eq}
                                     {eq name="'Tags@del'|is_check_access" value="1"}
@@ -147,12 +149,19 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 {eq name="'Tags@del'|is_check_access" value="1"}
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('Tags/del')}"class="layui-btn layui-btn-primary">
-                            <span>批量删除</span>
+                        <span>批量删除</span>
+                    </a>
+                </div>
+                {/eq}
+                {eq name="'Tags@clearall'|is_check_access" value="1"}
+                <div class="fbutton">
+                    <a onclick="clearall();" href="javascript:void(0);" class="layui-btn layui-btn-primary">
+                        <span>一键清空</span>
                     </a>
                 </div>
                 {/eq}
@@ -175,7 +184,7 @@
             $('input[type=checkbox]').prop('checked',this.checked);
         });
     });
-    
+
     $(document).ready(function() {
         // 表格行点击选中切换
         $('#flexigrid > table>tbody >tr').click(function(){
@@ -190,6 +199,49 @@
 	
 	var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
  
+    //tag关联文档
+    function relation(obj,title) {
+        setCookies('tagaids_1619141574', '');
+        var url = $(obj).data('href');
+        var iframes = layer.open({
+            type: 2,
+            title: title,
+            id: 'relation_iframes',
+            fixed: true, //不固定
+            shadeClose: false,
+            shade: 0.3,
+            area: ['90%', '90%'],
+            // btn: ['确认'],
+            content: url,
+            // yes: function(index, layero){
+            //     layer_loading('正在处理');
+            //     var tagaids = getCookie("tagaids_1619141574");
+            //     var tid = $(obj).attr('data-tid');
+            //     $.ajax({
+            //         type : 'post',
+            //         url : eyou_basefile+'?m=admin&c=Tags&a=relation_archives_save&tid='+tid,
+            //         data : {tagaids:tagaids, _ajax:1},
+            //         dataType : 'json',
+            //         success : function(res){
+            //             layer.closeAll();
+            //             if(res.code == 1){
+            //                 layer.close(iframes);
+            //                 layer.msg(res.msg, {icon:1, shade: 0.3, time: 1000}, function(){
+            //                     window.location.reload();
+            //                 });
+            //             }else{
+            //                 showErrorMsg(res.msg);
+            //             }
+            //         },
+            //         error: function(e){
+            //             layer.closeAll();
+            //             showErrorAlert(e.responseText);
+            //         }
+            //     });
+            // }
+        });
+    }
+
     /**
      * 关闭当前弹窗
      */
@@ -200,7 +252,7 @@
 
     // 编辑TAG标签的SEO优化
     function SeoEdit(obj) {
-        var url = $(obj).data('url');
+        var url = $(obj).data('href');
         //iframe窗
         layer.open({
             type: 2,
@@ -209,7 +261,7 @@
             shadeClose: false,
             shade: 0.3,
             maxmin: true,
-            area: ['700px', '450px'],
+            area: ['700px', '480px'],
             content: url
         });
     }

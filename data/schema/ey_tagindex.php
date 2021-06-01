@@ -27,6 +27,15 @@ return array (
     'primary' => false,
     'autoinc' => false,
   ),
+  'litpic' => 
+  array (
+    'name' => 'litpic',
+    'type' => 'varchar(250)',
+    'notnull' => false,
+    'default' => '',
+    'primary' => false,
+    'autoinc' => false,
+  ),
   'seo_title' => 
   array (
     'name' => 'seo_title',

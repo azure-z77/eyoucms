@@ -419,8 +419,7 @@ function shop_cart_list(url){
     } else {
         var confirms = layer.confirm('已加入购物车成功！', {
             title: false
-            , closeBtn: false
-            , btn: ['确定','前往购物车']
+            , btn: ['前往购物车']
         }, function (index) {
             layer.close(index);
             window.location.reload();

@@ -30,8 +30,11 @@ function SelectPayMethod(pay_id, pay_mark) {
                 $('#PayMark').val(pay_mark);
                 if (res.data.appId) {
                     callpay(res.data);
-                } else if (res.data.url_qrcode) {
+                } else if (res.data.url_qrcode && 0 == JsonData.IsMobile) {
                     AlertPayImg(res.data);
+                } else if (res.data.url && 1 == JsonData.IsMobile) {
+                    window.open(res.data.url);
+                    PayPolling = window.setInterval(OrderPayPolling, 1000);
                 } else {
                     layer_loading('订单支付中');
                     if (1 == JsonData.IsMobile) {
@@ -77,8 +80,11 @@ function SelectPayMethod_2(pay_id, pay_mark, unifiedId, unifiedNumber, transacti
                 $('#PayMark').val(pay_mark);
                 if (res.data.appId) {
                     callpay(res.data);
-                } else if (res.data.url_qrcode) {
+                } else if (res.data.url_qrcode && 0 == JsonData.IsMobile) {
                     AlertPayImg(res.data);
+                } else if (res.data.url && 1 == JsonData.IsMobile) {
+                    window.open(res.data.url);
+                    PayPolling = window.setInterval(OrderPayPolling, 1000);
                 } else {
                     layer_loading('订单支付中');
                     if (1 == JsonData.IsMobile) {
@@ -331,8 +337,11 @@ function UsersUpgradePay(obj) {
                     unified_id = res.data.unified_id;
                     unified_number = res.data.unified_number;
                     transaction_type = 3;
-                    if (res.data.url_qrcode) {
+                    if (res.data.url_qrcode && 0 == JsonData.IsMobile) {
                         AlertPayImg(res.data);
+                    } else if (res.data.url && 1 == JsonData.IsMobile) {
+                        window.open(res.data.url);
+                        PayPolling = window.setInterval(OrderPayPolling, 1000);
                     } else {
                         layer_loading('订单支付中');
                         if (1 == JsonData.IsMobile) {
@@ -366,3 +375,87 @@ function IsRecharge(data) {
     });
 }
 /*-------------会员升级调用---------结束----------*/
+
+// 弹框支付 开始
+function SelectPayMethodLayer(pay_id, pay_mark) {
+    var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    var _parent = parent;
+
+    if (!pay_id || !pay_mark || !unified_id || !unified_number || !transaction_type) {
+        _parent.layer.close(parentObj);
+        _parent.layer.msg('订单异常，刷新重试', {time: 1500}, function(){
+            window.location.reload();
+        });
+    }
+    layer_loading('订单处理中');
+    $.ajax({
+        url: JsonData.SelectPayMethod,
+        data: {
+            pay_id: pay_id,
+            pay_mark: pay_mark,
+            unified_id: unified_id,
+            unified_number: unified_number,
+            transaction_type: transaction_type
+        },
+        type:'post',
+        dataType:'json',
+        success:function(res) {
+            layer.closeAll();
+            _parent.layer.close(parentObj);
+            var pollingData = {
+                pay_id: pay_id,
+                pay_mark: pay_mark,
+                unified_id: unified_id,
+                unified_number: unified_number,
+                transaction_type: transaction_type,
+                OrderPayPolling: JsonData.OrderPayPolling,
+            };
+            if (1 == res.code) {
+                $('#PayID').val(pay_id);
+                $('#PayMark').val(pay_mark);
+                if (res.data.appId) {
+                    callpay(res.data);
+                } else if (res.data.url_qrcode) {
+                    AlertPayImgLayer(res.data,pollingData);
+                } else {
+                    if (1 == JsonData.IsMobile) {
+                        _parent.window.location.href = res.url;
+                    } else {
+                        _parent.layer.confirm('支付页面已在新窗口打开，请支付！', {
+                            btn: ['支付成功','支付失败'],
+                            title:false,
+                            closeBtn:0
+                        }, function(){
+                            _parent.window.location.reload();
+                        }, function(){
+                            _parent.window.location.reload();
+                        });
+                        _parent.window.open(res.url);
+                    }
+                    pollingData = JSON.stringify(pollingData);
+                    _parent.PayPolling = _parent.setInterval("parent.OrderPayPolling('"+pollingData+"');", 3000);
+                }
+            } else {
+                _parent.layer.alert(res.msg, {icon:0, title: false, closeBtn: 0});
+            }
+        }
+    });
+}
+
+// 装载显示扫码支付的二维码
+function AlertPayImgLayer(data,pollingData) {
+    var _parent = parent;
+    var html = "<img src='"+data.url_qrcode+"' style='width: 250px; height: 250px;'><br/><span style='color: red; display: inline-block; width: 100%; text-align: center;'>正在支付中...请勿刷新</span>";
+    _parent.layer.alert(html, {
+        title: false,
+        btn: [],
+        success: function() {
+            pollingData = JSON.stringify(pollingData);
+            _parent.PayPolling = _parent.setInterval("parent.OrderPayPolling('"+pollingData+"');", 3000);
+        },
+        cancel: function() {
+            clearInterval(_parent.PayPolling);
+        }
+    });
+}
+// 弹框支付 结束

@@ -144,7 +144,7 @@ class AuthRole extends Base {
     
     public function edit()
     {
-        $id = input('id/d', 0);
+        $id = input('param.id/d', 0);
         if($id <= 0){
             $this->error('非法访问');
         }

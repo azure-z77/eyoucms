@@ -38,7 +38,7 @@
                     <thead style="background-color: #f7f7f7; height: 40px;line-height: 40px;">
                     <tr>
                        <th class="sign w40" axis="col0">
-                           <div class="tc"><input type="checkbox" class="checkAll"></div>
+                           <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                        </th>
                         <th abbr="article_title" axis="col3" class="">
                             <div class="text-l10" class="">订单号</div>
@@ -81,7 +81,7 @@
 						{foreach name="list" item="vo" key="k" }
 						<tr>
                             <td class="sign w40">
-                                <div class="tc"><input type="checkbox" name="ids[]" value="{$vo.moneyid}"></div>
+                                <div class="tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.moneyid}"></div>
                             </td>
                             <td >
                                 <div class="text-l10">
@@ -135,7 +135,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('Level/upgrade_del')}" class="layui-btn layui-btn-primary">

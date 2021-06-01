@@ -44,6 +44,10 @@ if (!function_exists('adminLog'))
         $add['log_ip'] = clientIP();
         $add['log_url'] = request()->baseUrl() ;
         M('admin_log')->add($add);
+        
+        // 只保留最近一个月的操作日志
+        $ajaxLogic = new \app\admin\logic\AjaxLogic;
+        $ajaxLogic->del_adminlog();
     }
 }
 
@@ -391,14 +395,20 @@ if (!function_exists('sitemap_xml'))
         }
 
         $modelu_name = 'home';
-        $filename = ROOT_PATH . "sitemap.xml";
-        $main_lang = get_main_lang();
+        $lang = get_current_lang();
+        $default_lang = get_default_lang();
+        $langRow = \think\Db::name('language')->field('is_home_default')->where(['mark'=>$lang])->find();
+        if (!empty($langRow['is_home_default'])) {
+            $filename = ROOT_PATH . "sitemap.xml";
+        } else {
+            $filename = ROOT_PATH . "sitemap_{$lang}.xml";
+        }
 
         /* 分类列表(用于生成列表链接的sitemap) */
         $map = array(
             'status'    => 1,
             'is_del'    => 0,
-            'lang'      => $main_lang,
+            'lang'      => $lang,
         );
         if (is_array($globalConfig)) {
             // 过滤隐藏栏目
@@ -428,7 +438,7 @@ if (!function_exists('sitemap_xml'))
                 'arcrank'   => array('gt', -1),
                 'status'    => 1,
                 'is_del'    => 0,
-                'lang'      => $main_lang,
+                'lang'      => $lang,
             );
             if (is_array($globalConfig)) {
                 // 过滤外部模块
@@ -461,7 +471,7 @@ if (!function_exists('sitemap_xml'))
         $result_tags = [];
         if (0 < $sitemap_tags_num) {
             $map = array(
-                'lang'      => $main_lang,
+                'lang'      => $lang,
             );
             $field = "id, add_time, id AS loc, add_time AS lastmod, 'daily' AS changefreq, '0.5' AS priority";
             $result_tags = M('tagindex')->field($field)
@@ -503,31 +513,84 @@ XML;
             ->cache(true, EYOUCMS_CACHE_TIME, 'language')
             ->select();
 
-        /*去掉入口文件*/
+        // 去掉入口文件
         $inletStr = '/index.php';
         $seo_inlet = config('ey_config.seo_inlet');
         1 == intval($seo_inlet) && $inletStr = '';
-        /*--end*/
 
-        /*首页*/
-        foreach ($langRow as $key => $val) {
-            /*关闭多语言*/
-            if (empty($globalConfig['web_language_switch']) && 1 != $val['is_home_default']) {
-                continue;
-            }
-            /*end*/
-
-            /*单独域名*/
-            $mark = $val['mark'];
-            $url = $val['url'];
-            if (empty($url)) {
-                if (1 == $val['is_home_default']) {
-                    $url = request()->domain().ROOT_DIR.'/'; // 支持子目录
+        // 首页
+        if ($lang == $default_lang) {
+            foreach ($langRow as $key => $val) {
+                $mark = $val['mark'];
+                if (empty($globalConfig['web_language_switch']) && $lang != $mark) { // 关闭多语言
+                    continue;
+                }
+                /*单独域名*/
+                $url = $val['url'];
+                if (empty($url)) {
+                    if (1 == $val['is_home_default']) {
+                        $url = request()->domain().ROOT_DIR.'/';
+                    } else {
+                        if ($mark != $default_lang) {
+                            $url = request()->domain().ROOT_DIR."/sitemap_{$mark}.xml";
+                        } else {
+                            $seoConfig = tpCache('seo', [], $mark);
+                            $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+                            if (1 == $seo_pseudo) {
+                                $url = request()->domain().ROOT_DIR.$inletStr;
+                                if (!empty($inletStr)) {
+                                    $url .= '?';
+                                } else {
+                                    $url .= '/?';
+                                }
+                                $url .= http_build_query(['lang'=>$mark]);
+                            } else {
+                                $url = request()->domain().ROOT_DIR.$inletStr.'/'.$mark;
+                            }
+                        }
+                    }
                 } else {
+                    if (0 == $val['is_home_default']) {
+                        $url = $url.ROOT_DIR."/sitemap_{$mark}.xml";
+                    }
+                }
+                /*--end*/
+
+                $item = $xml->addChild('url'); //使用addChild添加节点
+                foreach (['loc','lastmod','changefreq','priority'] as $key1) {
+                    if ('loc' == $key1) {
+                        $row = $url;
+                    } else if ('lastmod' == $key1) {
+                        $row = date('Y-m-d');
+                    } else if ('changefreq' == $key1) {
+                        $row = $sitemap_changefreq_index;
+                    } else if ('priority' == $key1) {
+                        $row = $sitemap_priority_index;
+                    }
+                    try {
+                        $node = $item->addChild($key1, $row);
+                    } catch (\Exception $e) {}
+                    if (isset($attribute_array[$key1]) && is_array($attribute_array[$key1])) {
+                        foreach ($attribute_array[$key1] as $akey => $aval) {//设置属性值，我这里为空
+                            $node->addAttribute($akey, $aval);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            foreach ($langRow as $key => $val) {
+                $mark = $val['mark'];
+                if (empty($globalConfig['web_language_switch']) || $lang != $mark) { // 关闭多语言
+                    continue;
+                }
+                /*单独域名*/
+                $url = $val['url'];
+                if (empty($url)) {
                     $seoConfig = tpCache('seo', [], $mark);
                     $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
                     if (1 == $seo_pseudo) {
-                        $url = request()->domain().ROOT_DIR.$inletStr; // 支持子目录
+                        $url = request()->domain().ROOT_DIR.$inletStr;
                         if (!empty($inletStr)) {
                             $url .= '?';
                         } else {
@@ -535,29 +598,29 @@ XML;
                         }
                         $url .= http_build_query(['lang'=>$mark]);
                     } else {
-                        $url = request()->domain().ROOT_DIR.$inletStr.'/'.$mark; // 支持子目录
+                        $url = request()->domain().ROOT_DIR.$inletStr.'/'.$mark;
                     }
                 }
-            }
-            /*--end*/
+                /*--end*/
 
-            $item = $xml->addChild('url'); //使用addChild添加节点
-            foreach (['loc','lastmod','changefreq','priority'] as $key1) {
-                if ('loc' == $key1) {
-                    $row = $url;
-                } else if ('lastmod' == $key1) {
-                    $row = date('Y-m-d');
-                } else if ('changefreq' == $key1) {
-                    $row = $sitemap_changefreq_index;
-                } else if ('priority' == $key1) {
-                    $row = $sitemap_priority_index;
-                }
-                try {
-                    $node = $item->addChild($key1, $row);
-                } catch (\Exception $e) {}
-                if (isset($attribute_array[$key1]) && is_array($attribute_array[$key1])) {
-                    foreach ($attribute_array[$key1] as $akey => $aval) {//设置属性值，我这里为空
-                        $node->addAttribute($akey, $aval);
+                $item = $xml->addChild('url'); //使用addChild添加节点
+                foreach (['loc','lastmod','changefreq','priority'] as $key1) {
+                    if ('loc' == $key1) {
+                        $row = $url;
+                    } else if ('lastmod' == $key1) {
+                        $row = date('Y-m-d');
+                    } else if ('changefreq' == $key1) {
+                        $row = $sitemap_changefreq_index;
+                    } else if ('priority' == $key1) {
+                        $row = $sitemap_priority_index;
+                    }
+                    try {
+                        $node = $item->addChild($key1, $row);
+                    } catch (\Exception $e) {}
+                    if (isset($attribute_array[$key1]) && is_array($attribute_array[$key1])) {
+                        foreach ($attribute_array[$key1] as $akey => $aval) {//设置属性值，我这里为空
+                            $node->addAttribute($akey, $aval);
+                        }
                     }
                 }
             }
@@ -899,6 +962,8 @@ if (!function_exists('get_total_arc'))
                 'lang'  => get_admin_lang(),
                 'is_del'    => 0, // 回收站功能
             ];
+            $mapNew = "(users_id = 0 OR (users_id > 0 AND arcrank >= 0))";
+
             /*权限控制 by 小虎哥*/
             $admin_info = session('admin_info');
             if (0 < intval($admin_info['role_id'])) {
@@ -910,7 +975,24 @@ if (!function_exists('get_total_arc'))
                 }
             }
             /*--end*/
-            $archivesNums = \think\Db::name('archives')->field('typeid, count(typeid) as num')->where($map)->group('typeid')->getAllWithIndex('typeid');
+            $SqlQuery = \think\Db::name('archives')->field('typeid, count(typeid) as num')->where($map)->where($mapNew)->group('typeid')->select(false);
+            $SqlResult = \think\Db::name('sql_cache_table')->where(['sql_md5'=>md5($SqlQuery)])->getField('sql_result');
+            if (!empty($SqlResult)) {
+                $archivesNums = json_decode($SqlResult, true);
+            } else {
+                $archivesNums = \think\Db::name('archives')->field('typeid, count(typeid) as num')->where($map)->where($mapNew)->group('typeid')->getAllWithIndex('typeid');
+                /*添加查询执行语句到mysql缓存表*/
+                $SqlCacheTable = [
+                    'sql_name' => '|arctype|all|count|',
+                    'sql_result' => json_encode($archivesNums),
+                    'sql_md5' => md5($SqlQuery),
+                    'sql_query' => $SqlQuery,
+                    'add_time' => getTime(),
+                    'update_time' => getTime(),
+                ];
+                \think\Db::name('sql_cache_table')->insertGetId($SqlCacheTable);
+                /*END*/
+            }
             /*-----------------文档列表模型统计数 end--------------*/
 
             /*-----------------留言模型 start--------------*/
@@ -1402,5 +1484,32 @@ if (!function_exists('downloadExcel')) {
         header('Expires:0');
         header('Pragma:public');
         echo '<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . $strTable . '</html>';
+    }
+
+    /**
+     * 检测指定单页模板是否支持可视化
+     */
+    function check_single_uiset($templist = '')
+    {
+        $uisetRow = [];
+        $templist = !empty($templist) ? $templist : 'lists_single.htm';
+
+        $file = "./template/".TPL_THEME."pc/{$templist}";
+        if (file_exists($file)) {
+            $content = @file_get_contents($file);
+            if (!empty($content) && preg_match('/eyou\:ui(\s+)open\=(\'|\")(on|off)(\'|\")/i', $content)) {
+                $uisetRow['pc'] = true;
+            }
+        }
+
+        $file = "./template/".TPL_THEME."mobile/{$templist}";
+        if (file_exists($file)) {
+            $content = @file_get_contents($file);
+            if (!empty($content) && preg_match('/eyou\:ui(\s+)open\=(\'|\")(on|off)(\'|\")/i', $content)) {
+                $uisetRow['mobile'] = true;
+            }
+        }
+
+        return $uisetRow;
     }
 }

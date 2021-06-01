@@ -6,6 +6,10 @@ max-width: 100% ; /*图片自适应宽度*/
 body {
 overflow-y: scroll !important;
 }
+body.view img{
+    max-width: 50%!important;
+    height: auto!important;
+}
 .view {
 word-break: break-all;
 }

@@ -56,7 +56,7 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="article_show" axis="col5" class="w40">
                             <div class="tc">ID</div>
@@ -92,7 +92,7 @@
                         {volist name="list" id="vo"}
                         <tr>
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.id}"></div>
+                                <div class="w40 tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.id}"></div>
                             </td>
                             <td class="sort">
                                 <div class="w40 tc">
@@ -132,7 +132,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('UsersNotice/del')}" class="layui-btn layui-btn-primary">

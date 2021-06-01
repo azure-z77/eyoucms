@@ -5,6 +5,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page">
     <form class="form-horizontal" id="postForm" method="post" action="{:url('AuthRole/edit')}">
+        <input type="hidden" name="id" value="{$info.id}">
         <div class="ncap-form-default">
             <dl class="row"><dt class="tit"><label><b>角色信息</b></label></dt></dl>
             <dl class="row">
@@ -113,7 +114,7 @@
                                             {php}$first_arctype_id = $arctype['id'];{/php}
                                             {/if}
                                         {/if}
-                                        <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" name="permission[arctype][]" value="{$arctype.id}"{if condition="! empty($info.permission.arctype) && in_array($arctype.id, $info.permission.arctype)"} checked="checked"{/if} />{$arctype.typename}</label>
+                                        <label><input type="checkbox" class="arctype_cbox arctype_id_{$arctype.id}" value="{$arctype.id}"{if condition="! empty($info.permission.arctype) && in_array($arctype.id, $info.permission.arctype)"} checked="checked"{/if} />{$arctype.typename}</label>
                                     {/foreach}
                                 </p>
                                 
@@ -122,13 +123,13 @@
                                     <div class="arctype_child" id="arctype_child_{$arctype['id']}"{if condition="$first_arctype_id==$arctype['id']"} style="display: block;"{/if}>
                                     {foreach $arctype_array[$arctype['id']] as $item}
                                         <div class="arctype_child1">
-                                            <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" name="permission[arctype][]" value="{$item.id}" data-pid="{$item.parent_id}" {if condition="! empty($info.permission.arctype) && in_array($item.id, $info.permission.arctype)"} checked="checked"{/if} />{$item.typename}</label>
+                                            <label><input type="checkbox" class="arctype_cbox arctype_id_{$item.id}" value="{$item.id}" data-pid="{$item.parent_id}" {if condition="! empty($info.permission.arctype) && in_array($item.id, $info.permission.arctype)"} checked="checked"{/if} />{$item.typename}</label>
                                         </div>
                                         {if condition="isset($arctype_array[$item['id']])"}
                                         <div class="arctype_child2" id="arctype_child_{$item['id']}">
                                             <span class="button level1 switch center_docu"></span>
                                             {foreach $arctype_array[$item['id']] as $vo}
-                                            <label><input type="checkbox" class="arctype_cbox" name="permission[arctype][]" value="{$vo.id}" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" {if condition="! empty($info.permission.arctype) && in_array($vo.id, $info.permission.arctype)"} checked="checked"{/if} />{$vo.typename}</label>
+                                            <label><input type="checkbox" class="arctype_cbox" value="{$vo.id}" data-pid="{$vo.parent_id}" data-tpid="{$item.parent_id}" {if condition="! empty($info.permission.arctype) && in_array($vo.id, $info.permission.arctype)"} checked="checked"{/if} />{$vo.typename}</label>
                                             {/foreach}
                                         </div>
                                         {/if}
@@ -176,7 +177,7 @@
                 </dd>
             </dl>
             <div class="bot2">
-                <input type="hidden" name="id" value="{$info.id}">
+                <input type="hidden" name="arctype_str" id="arctype_str" value="">
                 <a href="JavaScript:void(0);" onclick="postSubmit();" class="ncap-btn-big ncap-btn-green" id="submitBtn">确认提交</a>
             </div>
         </div>
@@ -231,11 +232,13 @@
         $('#select_all_permission').bind('click', function(){
             if($(this).attr('checked')){
                 $('#postForm input[name^="permission"]').attr('checked', 'checked');
+                $('#postForm .arctype_cbox').attr('checked', 'checked');
             }else{
                 $('#postForm input[name^="permission"]').removeAttr('checked');
+                $('#postForm .arctype_cbox').removeAttr('checked');
             }
         });
-        $('#postForm input[name^="permission"],#postForm input[name^="cud"]').bind('click', function(){
+        $('#postForm input[name^="permission"],#postForm .arctype_cbox,#postForm input[name^="cud"]').bind('click', function(){
             hasSelectAll();
         });
 
@@ -244,7 +247,7 @@
 
     function hasSelectAll(){
         var c = true;
-        $('#postForm input[name^="permission"]').each(function(idx, ele){
+        $('#postForm input[name^="permission"],#postForm .arctype_cbox').each(function(idx, ele){
             if(! $(ele).attr('checked')){
                 c = false;
                 return;
@@ -340,7 +343,7 @@
         }
 
         var a = [];
-        $('input[name^=permission]').each(function(i,o){
+        $('input[name^=permission],#postForm .arctype_cbox').each(function(i,o){
             if($(o).is(':checked')){
                 a.push($(o).val());
             }
@@ -349,6 +352,13 @@
             showErrorMsg('请具体分配权限！');
             return false;
         }
+
+        var arctype_arr = new Array();
+        $(".arctype_cbox:checked").each(function(i){
+            arctype_arr[i] = $(this).val();
+        });
+        var arctype_str = arctype_arr.join(",");
+        $('#arctype_str').val(arctype_str);
         
         var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 

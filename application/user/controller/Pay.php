@@ -416,7 +416,28 @@ class Pay extends Base
                     $data['cause']            = '购买视频';
                     $data['pay_balance_open'] = $pay_balance_open;
                     $this->assign('data', $data);
+                }else if(!empty($PayData['type']) && 9 == $PayData['type']){
+                    //文章支付订单
+                    $where = [
+                        'order_id'   => $order_id,
+                        'order_code' => $order_code,
+                        'users_id'   => $this->users_id,
+                        'lang'       => $this->home_lang
+                    ];
+                    $data = Db::name('article_order')->where($where)->find();
+                    if (empty($data)) $this->error('订单不存在或已变更', url('user/Article/index'));
 
+                    $url = url('user/Article/index');
+                    if (in_array($data['order_status'], [1])) $this->error('订单已支付，即将跳转！', $url);
+
+                    // 组装数据返回
+                    $data['transaction_type'] = 9; // 交易类型，9为购买文章
+                    $data['unified_id']       = $data['order_id'];
+                    $data['unified_amount']   = $data['order_amount'];
+                    $data['unified_number']   = $data['order_code'];
+                    $data['cause']            = $data['product_name'];
+                    $data['pay_balance_open'] = $pay_balance_open;
+                    $this->assign('data', $data);
                 } else {
                     // 获取支付订单
                     $where = [

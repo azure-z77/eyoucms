@@ -183,7 +183,22 @@ $(function(){
         if (urlString != "") {
             var reg = /^((\w)*:)?(\/\/).*$/;
             if(reg.test(urlString)){
-                remsg = '禁止篡改上传图片为远程地址！';
+                $.ajax({
+                    type:'POST',
+                    url:"{:url('api/Ajax/get_third_domain', ['_ajax'=>1])}",
+                    data:{},
+                    success:function(res){
+                        var third_domain = res.data;
+                        if (1 == res.code && third_domain != '') {
+                            var arr = urlString.split('/');
+                            if (arr[2] != third_domain) {
+                                remsg = '禁止篡改上传图片为远程地址！';
+                            }
+                        }else {
+                            remsg = '禁止篡改上传图片为远程地址！';
+                        }
+                    }
+                });
             }
         }
         return remsg;

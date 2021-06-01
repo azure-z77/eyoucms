@@ -53,6 +53,10 @@ class AuthRole extends Model{
 
     public function saveAuthRole($input, $batchAdminRole = false){
 
+        if (!empty($input['arctype_str'])) {
+            $input['permission']['arctype'] = explode(',', $input['arctype_str']);
+        }
+
         $permission = $input['permission'] ? $input['permission'] : null;
 
         // 角色权限

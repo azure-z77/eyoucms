@@ -419,8 +419,10 @@ class ArctypeLogic extends Model
         $disableDirname = config('global.disable_dirname');
         $disableDirname = array_merge($disableDirname, $langMarks, $result);
         !empty($newDirnameArr) && $disableDirname = array_merge($disableDirname, $newDirnameArr);
-        if (in_array(strtolower($dirname), $disableDirname)) {
-            return false;
+        foreach ($disableDirname as $key => $val) {
+            if (strtolower($dirname) == strtolower($val)) {
+                return false;
+            }
         }
         return true;
     }

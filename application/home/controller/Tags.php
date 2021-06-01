@@ -24,9 +24,10 @@ class Tags extends Base
      */
     public function index()
     {
-        /*获取当前页面URL*/
-        $result['pageurl'] = $this->request->url(true);
-        /*--end*/
+        $result['pageurl'] = $this->request->url(true); // 获取当前页面URL
+        $result['seo_title'] = !empty($this->eyou['global']['tag_seo_title']) ? $this->eyou['global']['tag_seo_title'] : '标签页_'.$this->eyou['global']['web_name'];
+        $result['seo_keywords'] = !empty($this->eyou['global']['tag_seo_keywords']) ? $this->eyou['global']['tag_seo_keywords'] : '';
+        $result['seo_description'] = !empty($this->eyou['global']['tag_seo_description']) ? $this->eyou['global']['tag_seo_description'] : '';
         $eyou = array(
             'field' => $result,
         );
@@ -116,6 +117,7 @@ class Tags extends Base
         $field_data = array(
             'tag'   => $tag,
             'tagid'   => $tagid,
+            'litpic'   => !empty($tagindexInfo['litpic']) ? handle_subdir_pic($tagindexInfo['litpic']) : $tagindexInfo['litpic'],
             'seo_title'   => set_tagseotitle($tag, $tagindexInfo['seo_title']),
             'seo_keywords'   => !empty($tagindexInfo['seo_keywords']) ? $tagindexInfo['seo_keywords'] : $tagindexInfo['seo_keywords'],
             'seo_description'   => !empty($tagindexInfo['seo_description']) ? $tagindexInfo['seo_description'] : $tagindexInfo['seo_description'],

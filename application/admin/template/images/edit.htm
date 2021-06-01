@@ -1,9 +1,13 @@
 {include file="public/layout" /}
 <script type="text/javascript" src="__PUBLIC__/plugins/laydate/laydate.js"></script>
 
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
-{load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{eq name="$editor.editor_select" value="1"}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.config.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/ueditor.all.min.js" /}
+    {load href="__PUBLIC__/plugins/Ueditor/lang/zh-cn/zh-cn.js" /}
+{else/}
+    {load href="__PUBLIC__/plugins/ckeditor/ckeditor.js" /}
+{/eq}
 
 <body style="background-color: #FFF; overflow: auto;min-width:auto;">
 <div id="toolTipLayer" style="position: absolute; z-index: 9999; display: none; visibility: visible; left: 95px; top: 573px;"></div>
@@ -37,6 +41,7 @@
                     <label for="title"><em>*</em>所属栏目</label>
                 </dt>
                 <dd class="opt"> 
+                    <input type="hidden" name="attr[typeid]" id="attr_typeid" value="{$field.typeid}">
                     <select name="typeid" id="typeid">
                         {$arctype_html}
                     </select>
@@ -50,6 +55,7 @@
                 </dt>
                 <dd class="opt">
                     {volist name="archives_flags" id="vo"}
+                        <input type="hidden" name="attr[{$vo.flag_fieldname}]" {if $field[$vo.flag_fieldname] == 1}value="1"{else/}value="0"{/if}>
                         <label><input type="checkbox" name="{$vo.flag_fieldname}" value="1" {if $field[$vo.flag_fieldname] == 1}checked{/if}>{$vo.flag_name}[{$vo.flag_attr}]</label>&nbsp;
                     {/volist}
                     <span class="err"></span>
@@ -78,7 +84,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text">
+                            <input type="text" id="litpic_local" name="litpic_local" value="{$field.litpic_local|default=''}" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                  title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -201,6 +207,7 @@
                     <label for="author">作者</label>
                 </dt>
                 <dd class="opt">
+                    <input type="hidden" value="{$field.users_id}" name="users_id" class="input-txt">
                     <input type="text" value="{$field.author}" name="author" id="author" class="input-txt">
                     <!-- &nbsp;<a href="javascript:void(0);" onclick="set_author();" class="ncap-btn ncap-btn-green">设置</a> -->
                     <!-- <p class="notic">设置作者默认名称（将同步至管理员笔名）</p> -->
@@ -221,6 +228,7 @@
                     <label>阅读权限</label>
                 </dt>
                 <dd class="opt">
+                    <input type="hidden" value="{$field.arcrank}" name="old_arcrank" class="input-txt">
                     <select name="arcrank" id="arcrank" {if $field.arcrank < 0 && $admin_info.role_id > 0 && $auth_role_info.check_oneself < 1} disabled="disabled" {/if}>
                         {volist name="arcrank_list" id="vo"}
                         <option value="{$vo.rank}" {eq name="$vo.rank" value="$field.arcrank"}selected{/eq}>{$vo.name}</option>
@@ -403,21 +411,8 @@
 
     $( ".sort-list" ).sortable({
         start: function( event, ui) {
-        
         }
         ,stop: function( event, ui ) {
-            // var rdata = '', url="{:url('Images/ajax_sort_imgupload')}";
-            // var container = $(ui.item).closest("TB");
-            // var LIs = $(container).find("DIV");
-            // $(LIs).each(function(){
-            //     console.log($(this))
-            //     rdata += $(this).attr('rel') + ',' + $(this).index() + '|';
-            // });
-            // rdata = rdata.substr(0, (rdata.length-1));
-            // console.log(rdata)
-            // $.post(url, {str:rdata}, function(){
-            
-            // });
         }
     });
     //因为他们要拖动，所以尽量设置他们的文字不能选择。 

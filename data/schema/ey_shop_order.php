@@ -12,7 +12,7 @@ return array (
   'order_code' => 
   array (
     'name' => 'order_code',
-    'type' => 'varchar(20)',
+    'type' => 'varchar(30)',
     'notnull' => false,
     'default' => '',
     'primary' => false,
@@ -84,7 +84,7 @@ return array (
   'express_order' => 
   array (
     'name' => 'express_order',
-    'type' => 'varchar(32)',
+    'type' => 'varchar(50)',
     'notnull' => false,
     'default' => '',
     'primary' => false,

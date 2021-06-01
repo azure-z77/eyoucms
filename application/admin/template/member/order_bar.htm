@@ -24,4 +24,14 @@
 				{/eq}	
 			{/if}	
 		{/eq}
+
+		{eq name="'Member@article_index'|is_check_access" value="1"}
+		{if condition="!empty($channeltype_row[1]['status'])"}
+		{eq name="'Member@article_index'|is_check_access" value="1"}
+		<label class="member-nav-item">
+			<input type="button" class="btn {if condition="!in_array($Request.action, ['article_index'])"}current{else/}selected{/if}" value="文章订单" onclick="window.location.href='{:url("Member/article_index")}';">
+		</label>
+		{/eq}
+		{/if}
+		{/eq}
 	</div>

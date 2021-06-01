@@ -360,26 +360,24 @@ class TagSpsubmitorder extends Base
         // 在线支付判断
         if (!empty($PayApiList)) {
             foreach ($PayApiList as $key => $value) {
-                if ('wechat' == $value['pay_mark'] && !empty($value['pay_info'])) {
+                $PayInfo = unserialize($value['pay_info']);
+                if ('wechat' == $value['pay_mark']) {
                     // 微信判断
-                    $PayInfo = unserialize($value['pay_info']);
-                    if (isset($PayInfo['is_open_wechat']) && '0' === $PayInfo['is_open_wechat']) {
+                    if ((isset($PayInfo['is_open_wechat']) && 0 == $PayInfo['is_open_wechat']) || false === $this->findHupijiaoIsExis('wechat')) {
                         $use_pay_type = 1;
                         $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_wechat">';
                         break;
                     }
-                } else if ('alipay' == $value['pay_mark'] && !empty($value['pay_info'])) {
+                } else if ('alipay' == $value['pay_mark']) {
                     // 支付宝判断
-                    $PayInfo = unserialize($value['pay_info']);
-                    if (isset($PayInfo['is_open_alipay']) && '0' === $PayInfo['is_open_alipay']) {
+                    if ((isset($PayInfo['is_open_alipay']) && 0 == $PayInfo['is_open_alipay']) || false === $this->findHupijiaoIsExis('wechat')) {
                         $use_pay_type = 1;
                         $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_alipay">';
                         break;
                     }  
-                } else if ('0' === $value['system_built'] && !empty($value['pay_info'])) {
+                } else if (0 == $value['system_built']) {
                     // 第三方支付判断
-                    $PayInfo = unserialize($value['pay_info']);
-                    if (isset($PayInfo['is_open_pay']) && '0' === $PayInfo['is_open_pay']) {
+                    if (isset($PayInfo['is_open_pay']) && 0 == $PayInfo['is_open_pay']) {
                         $use_pay_type = 1;
                         if (!empty($PayInfo['wechat_appid']) && !empty($PayInfo['wechat_appsecret'])) {
                             $PayTypeHidden = '<input type="hidden" name="payment_method" id="payment_method" value="0"><input type="hidden" name="payment_type" id="payment_type" value="zxzf_wechat">';

@@ -24,6 +24,7 @@
 <link href="__SKIN__/css/main.css?v={$version}" rel="stylesheet" type="text/css">
 <link href="__SKIN__/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css">
 <link href="__SKIN__/font/css/font-awesome.min.css" rel="stylesheet" />
+<link href="__SKIN__/font/css/iconfont.css?v={$version}" rel="stylesheet" />
 <link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
 {include file="public/theme_css" /}
 <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
@@ -77,16 +78,7 @@
                   <span class="hidden-xs">清除缓存</span>
                 </a>
               {/eq}
-<!-- 
-              {eq name="'Index@switch_map'|is_check_access" value="1"}
-                {eq name="function_switch" value="true"}
-                <a class="btn btn-default dropdown-toggle" href="javascript:void(0);" onclick="switch_map();">
-                  <i class="fa fa-toggle-on"></i>
-                  <span class="hidden-xs">功能地图</span>
-                </a>
-                {/eq}
-              {/eq}
-               -->
+              
               {notempty name="$is_eyou_authortoken"}
               <!-- 商业授权 -->   
               <em class="eyou_tool em_authortoken" data-expanded="close">
@@ -105,6 +97,7 @@
               {/notempty}
 
               <!-- 多语言 -->
+              {empty name="$is_eyou_authortoken"}
               <em id="Language_index" class="eyou_tool em_lang" data-expanded="close" {if condition='empty($web_language_switch)'}style="display: none;"{/if}>
                 <a class="btn btn-default dropdown-toggle" title="支持多语言切换" href="javascript:void(0);" onclick="valide(this);">
                   <i class="fa fa-globe"></i>
@@ -119,6 +112,7 @@
                     </li>
                 </ul>
                </em>
+              {/empty}
               <!-- 多语言 -->   
 
               <!-- 小程序 start --> 

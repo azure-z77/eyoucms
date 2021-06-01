@@ -93,6 +93,17 @@
                 </dd>
             </dl>
             {/if}
+            {if condition="$php_servicemeal > 1"}
+            <dl class="row">
+                <dt class="tit">
+                    <label for="coin">{$scoreCofing['score_name']|default='积分'}</label>
+                </dt>
+                <dd class="opt">
+                    <input type="text" name="scores" id="scores" value="{$info.scores|default='0'}" onkeyup='this.value=this.value.replace(/[^\d]/g,"");' onpaste='this.value=this.value.replace(/[^\d]/g,"")' maxlength="10">
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            {/if}
             <dl class="row">
                 <dt class="tit">
                     <label>是否激活</label>

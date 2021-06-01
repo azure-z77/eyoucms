@@ -21,6 +21,32 @@
 
             <dl class="row">
                 <dt class="tit">
+                  <label>缩略图</label>
+                </dt>
+                <dd class="opt">
+                    <div class="input-file-show div_litpic_local" {neq name="$tag.is_remote" value="0"}style="display: none;"{/neq}>
+                        <span class="show">
+                            <a id="img_a" target="_blank" class="nyroModal" rel="gal" href="{$tag.litpic_local|default='javascript:void(0);'}">
+                                <i id="img_i" class="fa fa-picture-o" {notempty name="$tag.litpic_local"}onmouseover="layer_tips=layer.tips('<img src={$tag.litpic_local} class=\'layer_tips_img\'>',this,{tips: [1, '#fff']});"{/notempty} onmouseout="layer.close(layer_tips);"></i>
+                            </a>
+                        </span>
+                        <span class="type-file-box">
+                            <input type="text" id="litpic_local" name="litpic_local" value="{$tag.litpic_local|default=''}" class="type-file-text" autocomplete="off">
+                            <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
+                            <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
+                                 title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
+                        </span>
+                    </div>
+                    <input type="text" id="litpic_remote" name="litpic_remote" value="{$tag.litpic_remote|default=''}" placeholder="http://" class="input-txt" onKeyup="keyupRemote(this, 'litpic');" {neq name="$tag.is_remote" value="1"}style="display: none;"{/neq}>
+                    &nbsp;
+                    <label><input type="checkbox" name="is_remote" id="is_remote" value="1" {eq name="$tag.is_remote" value="1"}checked="checked"{/eq} onClick="clickRemote(this, 'litpic');">远程图片</label>
+                    <span class="err"></span>
+                    <p class="notic">标签调用方法：{literal}{$eyou.field.litpic}{/literal}</p>
+                </dd>
+            </dl>
+
+            <dl class="row">
+                <dt class="tit">
                     <label for="tag_seo_title">SEO标题</label>
                 </dt>
                 <dd class="opt">
@@ -70,7 +96,7 @@
                 if (1 == res.code) {
                     var _parent = parent;
                     _parent.layer.close(parentObj);
-                    _parent.layer.msg(res.msg, {shade: 0.3, time: 1000}, function(){
+                    _parent.layer.msg(res.msg, {icon: 1, shade: 0.3, time: 1000}, function(){
                         _parent.window.location.reload();
                     });
                 } else {
@@ -82,6 +108,13 @@
                 showErrorMsg(e.responseText);
             }
        });
+    }
+
+    function img_call_back(fileurl_tmp)
+    {
+        $("#litpic_local").val(fileurl_tmp);
+        $("#img_a").attr('href', fileurl_tmp);
+        $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
     }
 </script>
 

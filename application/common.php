@@ -23,7 +23,7 @@ if (!function_exists('switch_exception'))
     // 模板错误提示
     function switch_exception() {
         $web_exception = tpCache('web.web_exception');
-        if (!empty($web_exception)) {
+        if (true || !empty($web_exception)) {
             config('ey_config.web_exception', $web_exception);
             error_reporting(-1);
         }
@@ -1038,7 +1038,7 @@ if (!function_exists('thumb_img'))
             //图片水印处理
             $water = tpCache('water');
             if($water['is_mark']==1 && $water['is_thumb_mark'] == 1 && $image->width()>$water['mark_width'] && $image->height()>$water['mark_height']){
-                $imgresource = '.' . ROOT_DIR . '/' . $path . $img_thumb_name;
+                $imgresource = './' . $path . $img_thumb_name;
                 if($water['mark_type'] == 'text'){
                     //$image->text($water['mark_txt'],ROOT_PATH.'public/static/common/font/hgzb.ttf',20,'#000000',9)->save($imgresource);
                     $ttf = ROOT_PATH.'public/static/common/font/hgzb.ttf';
@@ -1169,6 +1169,7 @@ if (!function_exists('ui_write_bidden_inc')) {
             $type = $tmp_val['type'];
             $page = $tmp_val['page'];
             $lang = !empty($tmp_val['lang']) ? $tmp_val['lang'] : cookie(config('global.home_lang'));
+            $idcode = $tmp_val['idcode'];
             if (empty($lang)) {
                 $lang = model('language')->order('id asc')
                     ->limit(1)
@@ -1185,6 +1186,7 @@ if (!function_exists('ui_write_bidden_inc')) {
                 'name'  => $name,
                 'value' => $value,
                 'lang'  => $lang,
+                'idcode'=> $idcode,
             );
             $map = array(
                 'name'   => $name,
@@ -2397,6 +2399,7 @@ if (!function_exists('SynImageObjectBucket'))
             }
             // 数据覆盖
             if (!empty($ResultQny) && is_array($ResultQny)) {
+                $result['local_save'] = $qnyData['local_save'];
                 $result['state'] = $ResultQny['state'];
                 $result['url'] = $ResultQny['url'];
             }
@@ -2407,6 +2410,7 @@ if (!function_exists('SynImageObjectBucket'))
             $ResultOss = $aliyunOssModel->Synchronize($ossData, $images);
             // 数据覆盖
             if (!empty($ResultOss) && is_array($ResultOss)) {
+                $result['local_save'] = $ossData['local_save'];
                 $result['state'] = $ResultOss['state'];
                 $result['url'] = $ResultOss['url'];
             }
@@ -2414,9 +2418,10 @@ if (!function_exists('SynImageObjectBucket'))
             // 同步图片到COS
             $CosData = json_decode($weappList['Cos']['data'], true);
             $cosModel = new \weapp\Cos\model\CosModel;
-            $ResultCos = $cosModel->Synchronize($ossData, $images);
+            $ResultCos = $cosModel->Synchronize($CosData, $images);
             // 数据覆盖
             if (!empty($ResultCos) && is_array($ResultCos)) {
+                $result['local_save'] = $CosData['local_save'];
                 $result['url'] = $ResultCos['url'];
                 $result['state'] = $ResultCos['state'];
             }
@@ -3039,8 +3044,10 @@ if (!function_exists('GetTotalArc'))
             if (empty($row)) return 0;
             
             $typeids = array_keys($row);
+            $allow_release_channel = config('global.allow_release_channel');
             $condition = [
                 'typeid'    => ['IN', $typeids],
+                'channel'   => ['IN', $allow_release_channel],
                 'arcrank'   => ['gt', -1],
                 'status'    => 1,
                 'is_del'    => 0,

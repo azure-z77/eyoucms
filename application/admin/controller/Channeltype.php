@@ -266,6 +266,15 @@ class Channeltype extends Base
                     ->cache(true,null,"channeltype")
                     ->update($data);
                 if ($r) {
+                    //下载模型开始投稿默认后自动勾选全部栏目
+                    if ($post['nid'] = 'download'){
+                        Db::name('arctype')->where([
+                            'channeltype'    => $post['id'],
+                        ])->update([
+                            'is_release'   => $post['is_release'],
+                            'update_time'   => getTime(),
+                        ]);
+                    }
                     /*留言模型 - 同步邮箱模板的开启与关闭*/
                     if (8 == $post['id']) {
                         Db::name('smtp_tpl')->where([
@@ -276,16 +285,20 @@ class Channeltype extends Base
                             ]);
                         
                         /*留言间隔时间 - 多语言*/
-                        $channel_guestbook_interval = intval($post['channel_guestbook_interval']);
+                        $paramData = [
+                            'channel_guestbook_interval'    => intval($post['channel_guestbook_interval']),
+                            'channel_guestbook_gourl'       => trim($post['channel_guestbook_gourl']),
+                            'channel_guestbook_time'    => intval($post['channel_guestbook_time']),
+                        ];
                         if (is_language()) {
                             $langRow = \think\Db::name('language')->order('id asc')
                                 ->cache(true, EYOUCMS_CACHE_TIME, 'language')
                                 ->select();
                             foreach ($langRow as $key => $val) {
-                                tpSetting('channel_guestbook', ['channel_guestbook_interval'=>$channel_guestbook_interval], $val['mark']);
+                                tpSetting('channel_guestbook', $paramData, $val['mark']);
                             }
                         } else {
-                            tpSetting('channel_guestbook',['channel_guestbook_interval'=>$channel_guestbook_interval]);
+                            tpSetting('channel_guestbook',$paramData);
                         }
                         /*--end*/
                     }
@@ -328,12 +341,14 @@ class Channeltype extends Base
                     'send_scene'    => 1,
                     'lang'          => $this->main_lang,
                 ])->find();
-            /*end*/
 
             /*间隔时间*/
             $channel_guestbook_interval = tpSetting('channel_guestbook.channel_guestbook_interval');
             $assign_data['channel_guestbook_interval'] = is_numeric($channel_guestbook_interval) ? intval($channel_guestbook_interval) : 60;
-            /*end*/
+            /*跳转URL*/
+            $assign_data['channel_guestbook_gourl'] = tpSetting('channel_guestbook.channel_guestbook_gourl');
+            /*跳转时间*/
+            $assign_data['channel_guestbook_time'] = tpSetting('channel_guestbook.channel_guestbook_time');
         }
         $assign_data['smtpTplRow'] = $smtpTplRow;
         /*end*/

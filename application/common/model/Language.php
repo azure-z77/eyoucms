@@ -97,17 +97,20 @@ class Language extends Model
                 ->select();
             if (!empty($configRow)) {
 
-                /* 生成静态页面代码 */
-                $markArr = Db::name('language')->field('mark')->order('id asc')->limit('1,1')->select();
-                if (!empty($markArr)) {
+                $seo_pseudo = tpCache('seo.seo_pseudo');
+                if (2 == $seo_pseudo) { // 生成静态页面代码
+                    $markArr = Db::name('language')->field('mark')->order('id asc')->limit('1,1')->select();
                     $seo_pseudo_lang = tpCache('seo.seo_pseudo', [], $markArr[0]['mark']);
                     $seo_dynamic_format_lang = tpCache('seo.seo_dynamic_format', [], $markArr[0]['mark']);
                     $seo_rewrite_format_lang = tpCache('seo.seo_rewrite_format', [], $markArr[0]['mark']);
+                } else {
+                    $seo_pseudo_lang = tpCache('seo.seo_pseudo', [], $post['copy_lang']);
+                    $seo_dynamic_format_lang = tpCache('seo.seo_dynamic_format', [], $post['copy_lang']);
+                    $seo_rewrite_format_lang = tpCache('seo.seo_rewrite_format', [], $post['copy_lang']);
                 }
                 $seo_pseudo_lang = !empty($seo_pseudo_lang) ? $seo_pseudo_lang : 1;
                 $seo_dynamic_format_lang = !empty($seo_dynamic_format_lang) ? $seo_dynamic_format_lang : 1;
                 $seo_rewrite_format_lang = !empty($seo_rewrite_format_lang) ? $seo_rewrite_format_lang : 1;
-                /* end */
 
                 foreach ($configRow as $key => $val) {
                     $configRow[$key]['lang'] = $mark;

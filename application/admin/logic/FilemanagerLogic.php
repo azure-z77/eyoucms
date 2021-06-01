@@ -90,6 +90,9 @@ class FilemanagerLogic extends Model
         }
         if ('htm' == $ext) {
             $content = htmlspecialchars_decode($content, ENT_QUOTES);
+            if (preg_match('#<([^?]*)\?php#i', $content) || preg_match('#<\?\=(\s+)#i', $content) || preg_match('#\{eyou\:php([^\}]*)\}#i', $content) || preg_match('#\{php([^\}]*)\}#i', $content)) {
+                return "模板里不允许有php语法，为了安全考虑，请通过FTP工具进行编辑上传。";
+            }
             foreach ($this->disableFuns as $key => $val) {
                 $val_new = msubstr($val, 0, 1).'-'.msubstr($val, 1);
                 $content = preg_replace("/(@)?".$val."(\s*)\(/i", "{$val_new}(", $content);

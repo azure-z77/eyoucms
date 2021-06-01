@@ -306,11 +306,14 @@ class Uploadify extends Base
      */
     public function delupload()
     {
+        echo 1;
+        exit;
+            
         if (IS_POST) {
             $action = input('action','del');  
             $filename= input('filename/s');
             $filename= empty($filename) ? input('url') : $filename;
-            $filename= str_replace('../','',$filename);
+            $filename= str_replace(['(',')',',',' ','../'],'',$filename);
             $filename= trim($filename,'.');
             $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/admin/logo/)#i', '$2', $filename);
             if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){

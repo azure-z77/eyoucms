@@ -285,7 +285,11 @@ class Taglist extends Model
                 // 更新标签的文档总数
                 foreach ($tags as $key => $tag) {
                     if (empty($tagsgroup[$tag])) {
-                        Db::name('tagindex')->where(['tag'=>$tag])->delete();
+                        Db::name('tagindex')->where(['tag'=>$tag])->update([
+                            'typeid'    => 0,
+                            'update_time'  => getTime(),
+                        ]);
+                        // Db::name('tagindex')->where(['tag'=>$tag])->delete(); // 此逻辑作废
                     } else {
                         $total = Db::name('taglist')->where(['tag'=>$tag])->count();
                         Db::name('tagindex')->where([

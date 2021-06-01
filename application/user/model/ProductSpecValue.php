@@ -100,6 +100,7 @@ class ProductSpecValue extends Model
             if (!empty($ArcUpData)){
                 $ArchivesModel = new \app\user\model\Archives();
                 $ArchivesModel->saveAll($ArcUpData);
+                Db::name('archives')->where(['sales_num'=>['lt',0]])->update(['sales_num'=>0, 'update_time'=>getTime()]);
             }
         }
     }

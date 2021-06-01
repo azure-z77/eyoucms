@@ -214,12 +214,13 @@ class Seo extends Base
                 tpCache($inc_type,$param);
             }
             /*--end*/
-            
-            /* 生成静态页面代码 - 更新分页php文件支持生成静态功能*/
-            $this->update_paginatorfile();
-            /* end */
 
-            // 清空缓存
+            $is_buildhtml = input('is_buildhtml/d');
+            if (!empty($is_buildhtml) && !file_exists('./index.php')) {
+                $this->error('网站根目录缺少 index.php 文件，请拷贝该文件上传到空间里！');
+            }
+            $this->update_paginatorfile();
+
             delFile(rtrim(HTML_ROOT, '/'));
             \think\Cache::clear();
             $this->success('操作成功', url('Seo/seo'));

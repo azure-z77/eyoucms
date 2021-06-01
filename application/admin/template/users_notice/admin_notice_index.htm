@@ -42,13 +42,13 @@
                     <thead>
                     <tr>
                         <th class="sign w40" axis="col0">
-                            <div class="tc"><input type="checkbox" class="checkAll"></div>
+                            <div class="tc"><input type="checkbox" autocomplete="off" class="checkAll"></div>
                         </th>
                         <th abbr="article_show" axis="col5" class="w40">
                             <div class="tc">ID</div>
                         </th>
                         <th abbr="article_title" axis="col3" >
-                            <div class="text-l10">通知标题</div>
+                            <div class="text-l10">通知标题 [<a href="javascript:void(0);" onclick="signAllRead(this);">全部标记已读</a>]</div>
                         </th>
                         <th abbr="ac_id" axis="col4" class="w160">
                             <div class="text-l10">通知类型</div>
@@ -78,7 +78,7 @@
                         {volist name="list" id="vo"}
                         <tr>
                             <td class="sign">
-                                <div class="w40 tc"><input type="checkbox" name="ids[]" value="{$vo.content_id}"></div>
+                                <div class="w40 tc"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.content_id}"></div>
                             </td>
 
                             <td class="sort">
@@ -87,7 +87,7 @@
 
                             <td style="width: 100%">
                                 <div class="text-l10">
-                                    <a href="javascript:void(0);" data-href="{:url('UsersNotice/admin_notice_edit',array('content_id'=>$vo['content_id']))}" onclick="OpenNotice('{$vo.content_id}', '{$vo.is_read}', this);">{eq name="$vo.is_read" value="0"}<span style="color: red;" id="content_id_{$vo.content_id}">[未读]</span>{/eq} {$vo.content_title}</a>
+                                    <a href="javascript:void(0);" data-href="{:url('UsersNotice/admin_notice_edit',array('content_id'=>$vo['content_id']))}" onclick="OpenNotice('{$vo.content_id}', '{$vo.is_read}', this);">{eq name="$vo.is_read" value="0"}<span style="color: red;" id="content_id_{$vo.content_id}" class="notread1620347507">[未读]</span>{/eq} {$vo.content_title}</a>
                                 </div>
                             </td>
 
@@ -117,7 +117,7 @@
         <div class="tDiv">
             <div class="tDiv2">
                 <div class="fbutton checkboxall">
-                    <input type="checkbox" class="checkAll">
+                    <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
                 <div class="fbutton">
                     <a onclick="batch_del(this, 'ids');" data-url="{:url('UsersNotice/admin_notice_del')}" class="layui-btn layui-btn-primary"><span>批量删除</span></a>
@@ -165,6 +165,31 @@
             }
         }
         $('#content_id_'+ContentID).remove();
+    }
+
+    function signAllRead(obj) {
+        layer_loading('正在处理');
+        $.ajax({
+            type : 'post',
+            url : "{:url('UsersNotice/sign_admin_allread')}",
+            data : {_ajax:1},
+            dataType : 'json',
+            success : function(res){
+                layer.closeAll();
+                if(res.code == 1){
+                    $(".UnreadNotify1615518028", window.parent.document).html(0);
+                    $(".UnreadNotify1615518028", window.parent.document).hide();
+                    $(".notread1620347507").hide();
+                    layer.msg(res.msg, {icon: 1, shade: 0.3, time: 1000});
+                }else{
+                    showErrorMsg(res.msg);
+                }
+            },
+            error: function(e){
+                layer.closeAll();
+                showErrorAlert(e.responseText);
+            }
+        });
     }
 </script>
 {include file="public/footer" /}

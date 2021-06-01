@@ -44,27 +44,18 @@ class TagSporderlist extends Base
 
         // 应用搜索条件
         $keywords = input('param.keywords/s');
-        if (!empty($keywords)) {
-            $OrderWhere['order_code'] =  ['LIKE', "%{$keywords}%"];
-        }
+        if (!empty($keywords)) $OrderWhere['order_code'] = ['LIKE', "%{$keywords}%"];
 
         // 订单状态搜索
         $select_status = input('param.select_status');
         if (!empty($select_status)) {
-            if ('daifukuan' === $select_status) {
-                $select_status = 0;
-            }
+            if ('daifukuan' === $select_status) $select_status = 0;
+            if (3 == $select_status) $OrderWhere['is_comment'] = 0;
             $OrderWhere['order_status'] = $select_status;
-            if (3 == $select_status){
-                $OrderWhere['is_comment'] = 0;
-            }
         }
 
         // 分页查询逻辑
-        $paginate_type = 'userseyou';
-        if (isMobile()) {
-            $paginate_type = 'usersmobile';
-        }
+        $paginate_type = isMobile() ? 'usersmobile' : 'userseyou';
         $query_get = input('get.');
         $paginate = array(
             'type'     => $paginate_type,
@@ -77,7 +68,6 @@ class TagSporderlist extends Base
             ->where($OrderWhere)
             ->order('add_time desc')
             ->paginate($pagesize, false, $paginate);
-
         $result['list']  = $pages->items();
         $result['pages'] = $pages;
 
@@ -284,49 +274,27 @@ EOF;
             'users_id' => $this->users_id,
             'lang'     => $this->home_lang,
         ];
-
-        // 待支付个数总计(同等未付款，已下单)
-        $newData = [
-            'order_status' => 0,
-        ];
-        $PendingPayment = array_merge($Where, $newData);
-        $result['PendingPayment'] = Db::name('shop_order')->where($PendingPayment)->count();
-       
-        // 待收货个数总计(同等已发货)
-        $newData = [
-            'order_status' => 2,
-        ];
-        $PendingReceipt = array_merge($Where, $newData);
-        $result['PendingReceipt'] = Db::name('shop_order')->where($PendingReceipt)->count();
-
-        // 已完成个数总计
-        $newData = [
-            'order_status' => 3,
-            'is_comment' => 0,
-        ];
-        $Completed = array_merge($Where, $newData);
-        $result['Completed'] = Db::name('shop_order')->where($Completed)->count();
+        $ShopOrder = Db::name('shop_order')->where($Where)->field('order_status, is_comment')->select();
+        $result['All'] = $result['PendingPayment'] = $result['PendingReceipt'] = $result['Completed'] = 0;
+        foreach ($ShopOrder as $key => $value) {
+            if (0 == $value['order_status']) {
+                // 待支付个数总计(同等未付款，已下单)
+                $result['PendingPayment']++;
+            } else if (2 == $value['order_status']) {
+                // 待收货个数总计(同等已发货)
+                $result['PendingReceipt']++;
+            } else if (3 == $value['order_status'] && 0 == $value['is_comment']) {
+                // 待收货个数总计(同等已发货)
+                $result['Completed']++;
+            }
+        }
+        $result['All'] = count($ShopOrder);
 
         // 退换货个数总计
-        $newData = [
-
-        ];
-        $AfterService = array_merge($Where, $newData);
-        $result['AfterService'] = Db::name('shop_order_service')->where($AfterService)->count();
+        $result['AfterService'] = Db::name('shop_order_service')->where($Where)->count();
 
         // 评价个数总计
-        $newData = [
-            
-        ];
-        $CommentList = array_merge($Where, $newData);
-        $result['CommentList'] = Db::name('shop_order_comment')->where($CommentList)->count();
-
-        // 全部订单
-        $newData = [
-
-        ];
-        $All = array_merge($Where, $newData);
-        $result['All'] = Db::name('shop_order')->where($All)->count();
+        $result['CommentList'] = Db::name('shop_order_comment')->where($Where)->count();
         
         $result['select_status'] = input('param.select_status');
         $result['access_controller'] = request()->controller();

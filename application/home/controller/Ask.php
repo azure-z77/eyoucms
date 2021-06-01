@@ -33,33 +33,19 @@ class Ask extends Base
     public function _initialize()
     {
         parent::_initialize();
-        $this->AskModel = new \app\home\model\Ask;
-
-        /*问答本身的URL模式*/
-        $ask_seo_pseudo = tpCache('ask.seo_pseudo');
-        /*切换伪静态之后，动态URL跳到伪静态问答首页*/
-//        if ('index' == $this->request->action()) {
-//            $url = $this->request->url();
-//            if (3 == $ask_seo_pseudo && stristr($url, '&c=') && stristr($url, '&a=')) {
-//                $url = url('home/Ask/index');
-//                $this->redirect($url);
-//            }
-//        }
-        /*end*/
-
-        // 头像处理
+        // 问答数据层
+        $this->AskModel = model('Ask');
+        // 问答业务层
+        $this->AskLogic = new AskLogic;
+        // 用户头像处理
         $this->users['head_pic'] = get_head_pic();
         // 问题表
         $this->ask_db = Db::name('ask');
         // 答案表
         $this->ask_answer_db = Db::name('ask_answer');
-        // 问题回答点赞表
+        // 问题、回答、评论、回复点赞表
         $this->ask_answer_like_db = Db::name('ask_answer_like');
-        // 问答业务层
-        $this->AskLogic = new AskLogic;
-        // 问答数据层
-        $this->AskModel = model('Ask');
-
+        
         /*获取最新的会员信息*/
         $LatestData = $this->GetUsersLatestData();
         if (!empty($LatestData)) {
@@ -68,33 +54,30 @@ class Ask extends Base
             // 会员ID
             $this->users_id = $LatestData['users_id'];
             // 会员昵称
-            $this->nickname    = $LatestData['nickname'];
+            $this->nickname = $LatestData['nickname'];
+            // 会员余额
             $this->users_money = $LatestData['users_money'];
             // 后台管理员信息
             $this->parent_id = session('admin_info.parent_id');
         } else {
             //过滤不需要登陆的行为
-            $ctl_act             = CONTROLLER_NAME . '@' . ACTION_NAME;
-            $ctl_all             = CONTROLLER_NAME . '@*';
+            $ctl_act = CONTROLLER_NAME . '@' . ACTION_NAME;
+            $ctl_all = CONTROLLER_NAME . '@*';
             $filter_login_action = [
-                'Lists@index',   // 问答内容列表
+                'Lists@index', // 问答内容列表
                 'Ask@index',   // 问答内容列表
                 'Ask@details', // 问答详情
             ];
             if (!in_array($ctl_act, $filter_login_action) && !in_array($ctl_all, $filter_login_action)) {
                 if (IS_AJAX) {
-                    if (empty($this->users)) {
-                        $this->error('请先登录！');
-                    }
+                    if (empty($this->users)) $this->error('请先登录！');
                 } else {
                     if (isWeixin()) {
                         //微信端
                         $this->redirect('user/Users/users_select_login');
-                        exit;
                     } else {
                         // 其他端
                         $this->redirect('user/Users/login');
-                        exit;
                     }
                 }
             }
@@ -102,124 +85,111 @@ class Ask extends Base
         /* END */
 
         /*加载到模板*/
-
         $this->assign('users', $this->users);
+        $this->assign('users_id', $this->users_id);
         $this->assign('nickname', $this->nickname);
         $this->assign('AdminParentId', $this->parent_id);
         /* END */
 
         /*会员功能是否开启*/
-        $logut_redirect_url = '';
-        $msg                = '';
+        $msg = $logut_redirect_url = '';
         $this->usersConfig  = getUsersConfigData('all');
         $web_users_switch   = tpCache('web.web_users_switch');
         if (empty($web_users_switch) || isset($this->usersConfig['users_open_register']) && $this->usersConfig['users_open_register'] == 1) {
             // 前台会员中心已关闭
+            $msg = '会员中心尚未开启！';
             $logut_redirect_url = ROOT_DIR . '/';
-            $msg                = '会员中心尚未开启！';
         } else if (session('?users_id') && empty($this->users)) {
             // 登录的会员被后台删除，立马退出会员中心
+            $msg = '当前用户名不存在！';
             $logut_redirect_url = url('user/Users/centre');
-            $msg                = '当前用户名不存在！';
         }
         if (!empty($logut_redirect_url)) {
             // 清理session并回到首页
             session('users_id', null);
             session('users', null);
             $this->error($msg, $logut_redirect_url);
-            exit;
         }
         /* END */
     }
 
-    /**
-     * 问答首页
-     */
+    // 问答首页
     public function index()
     {
         $functionLogic = new \app\common\logic\FunctionLogic;
         $functionLogic->validate_authorfile(2);
-
         $param = input('param.');
-
         // 查询条件处理
         $Where = $this->AskLogic->GetAskWhere($param, $this->parent_id);
-        // Url处理
-        $UrlData = $this->AskLogic->GetUrlData($param);
-
         // 最新问题，默认读取20条，可传入条数及字段名称进行获取
         $ResultAsk = $this->AskModel->GetNewAskData($Where);
-
+        // Url处理
+        $UrlData = $this->AskLogic->GetUrlData($param);
         // 栏目处理
         $TypeData = $this->AskModel->GetAskTypeData($param);
-        //贡献榜(积分)score
-        $ScoreList = $this->AskModel->GetOrderList();
-        //财富榜(金币)money
-        $MoneyList = $this->AskModel->GetOrderList('money');
-        //QQ群信息
-        $QqInfo = $this->AskModel->getQq();
-
         // 主页SEO信息
         $type_id = !empty($param['type_id']) ? intval($param['type_id']) : 0;
         $SeoData = $this->AskLogic->GetSeoData($type_id);
-
+        // 加急(悬赏)问题，默认读取10条，可传入数字进行获取
+        $UrgentAsk = $this->AskModel->GetUrgentAskData(10);
+        // 统计会员提问、回答、被评论、被点赞次数
+        $CountUsersAsk = $this->AskModel->GetCountAskData($this->users_id);
+        // 问答设置内容
+        $AskSetting = $this->AskModel->getAskSetting($this->request->action());
+        // 贡献榜(积分)score
+        $ScoreList = $this->AskModel->GetOrderList();
+        // 财富榜(金币)money
+        // $MoneyList = $this->AskModel->GetOrderList('money');
         // 数组合并加载到模板
-        $result              = array_merge($ResultAsk, $UrlData, $TypeData, $SeoData);
-//        dump($result);exit();
+        $result = array_merge($ResultAsk, $UrlData, $TypeData, $SeoData, $UrgentAsk, $CountUsersAsk, $AskSetting);
         $result['ScoreList'] = $ScoreList;
-        $result['MoneyList'] = $MoneyList;
-        $result['Qq']        = $QqInfo;
-        $eyou                = array(
+        // $result['MoneyList'] = $MoneyList;
+        // dump($result);exit;
+        $eyou = array(
             'field' => $result,
         );
-
         $this->assign('eyou', $eyou);
-        return $this->fetch(TEMPLATE_PATH . $this->theme_style_path . DS . 'ask' . DS . 'index.' . $this->view_suffix);
+
+        return $this->fetch('ask/index');
     }
 
-    /**
-     * 问题详情页
-     */
+    // 问题详情页
     public function details()
     {
         $param = input('param.');
-
         if (empty($param['ask_id'])) $this->error('请选择浏览的问题');
-
         // 增加问题浏览点击量
         $this->AskModel->UpdateAskClick($param['ask_id']);
-
         // 问题详情数据
         $AskDetails = $this->AskModel->GetAskDetailsData($param, $this->parent_id, $this->users_id);
         if (0 == $AskDetails['code']) $this->error($AskDetails['msg']);
-
         // 问题回答数据，包含最佳答案
         $AskReplyData = $this->AskModel->GetAskReplyData($param, $this->parent_id);
-
         // 栏目处理
         $TypeData = $this->AskModel->GetAskTypeData($param);
-
         // 热门帖子，周榜
         $WeekList = $this->AskModel->GetAskWeekListData();
-
         // 热门帖子，总榜
         $TotalList = $this->AskModel->GetAskTotalListData();
-
         // Url处理
         $UrlData = $this->AskLogic->GetUrlData($param);
+        // 加急(悬赏)问题，默认读取10条，可传入数字进行获取
+        $UrgentAsk = $this->AskModel->GetUrgentAskData(10);
+        // 统计会员提问、回答、被评论、被点赞次数
+        $CountUsersAsk = $this->AskModel->GetCountAskData($this->users_id);
         //QQ群信息
-        $QqInfo = $this->AskModel->getQq();
-
+        $AskSetting = $this->AskModel->getAskSetting($this->request->action());
+        // 贡献榜(积分)score
+        $ScoreList = $this->AskModel->GetOrderList();
         // 数组合并加载到模板
-        $result       = array_merge($AskDetails, $AskReplyData, $TypeData, $WeekList, $TotalList, $UrlData);
-        $result['Qq'] = $QqInfo;
-        $eyou         = array(
+        $result = array_merge($AskDetails, $AskReplyData, $TypeData, $WeekList, $TotalList, $UrlData, $UrgentAsk, $CountUsersAsk, $AskSetting);
+        $result['ScoreList'] = $ScoreList;
+        $eyou = array(
             'field' => $result,
         );
         $this->assign('eyou', $eyou);
-//        return $this->fetch($this->Code . THEME_STYLE . '/details');
-        return $this->fetch(TEMPLATE_PATH . $this->theme_style_path . DS . 'ask' . DS . 'details.' . $this->view_suffix);
 
+        return $this->fetch('ask/details');
     }
 
     // 提交问题
@@ -229,6 +199,9 @@ class Ask extends Base
             $param = input('param.');
             // 是否登录、是否允许发布问题、数据判断及处理，返回内容数据
             $content = $this->ParamDealWith($param);
+            if ($param['money'] > 0 && $param['money'] > $this->users['users_money']) {
+                $this->error('余额不足以抵扣悬赏金额,请充值！');
+            }
 
             /*添加数据*/
             $AddAsk = [
@@ -244,17 +217,14 @@ class Ask extends Base
             // 如果这个会员组属于需要审核的，则追加
             if (1 == $this->users['ask_is_review']) $AddAsk['is_review'] = 0;
             /* END */
-            if ($param['money'] > 0 && $param['money'] > $this->users['users_money']){
-                $this->error('余额不足以抵扣悬赏金额,请充值！');
-            }
             $ResultId = $this->ask_db->add($AddAsk);
             if (!empty($ResultId)) {
-//                //悬赏 积分奖励记录
+                // 悬赏 积分奖励记录
                 $this->AskModel->setScore($this->users_id, $ResultId,0,1,$param['money']);
 
                 $url = $this->AskLogic->GetUrlData($param, 'NewDateUrl');
                 if (1 == $this->users['ask_is_review']) {
-                    $this->success('回答成功，但你的回答需要管理员审核！', $url, ['review' => true]);
+                    $this->success('发布成功，但你的问题需要管理员审核！', $url, ['review' => true]);
                 } else {
                     $this->success('发布成功！', $url);
                 }
@@ -265,23 +235,27 @@ class Ask extends Base
 
         // 是否允许发布问题
         $this->IsRelease();
-
         // 栏目处理
-        $result                 = $this->AskModel->GetAskTypeData(null, 'add_ask');
+        $result = $this->AskModel->GetAskTypeData(null, 'add_ask');
         $result['SubmitAddAsk'] = $this->AskLogic->GetUrlData(null, 'SubmitAddAsk');
         $result['users_money']  = $this->users_money;
-
+        $result['AddAskUrl'] = $this->AskLogic->GetUrlData([], 'AddAskUrl');
+        $result['NewDateUrl'] = $this->AskLogic->GetUrlData([], 'NewDateUrl');
+        $result['SearchName'] = null;
+        // 统计会员提问、回答、被评论、被点赞次数
+        $CountUsersAsk = $this->AskModel->GetCountAskData($this->users_id);
         // 主页SEO信息
         $SeoData = $this->AskLogic->GetSeoData(0);
-
+        // 问答设置内容
+        $AskSetting = $this->AskModel->getAskSetting($this->request->action());
         // 数组合并加载到模板
-        $result              = array_merge($result, $SeoData);
-        $eyou                   = array(
+        $result = array_merge($result, $CountUsersAsk, $SeoData, $AskSetting);
+        $eyou = array(
             'field' => $result,
         );
         $this->assign('eyou', $eyou);
 
-        return $this->fetch(TEMPLATE_PATH . $this->theme_style_path . DS . 'ask' . DS . 'add_ask.' . $this->view_suffix);
+        return $this->fetch('ask/add_ask');
     }
 
     // 编辑问题
@@ -290,13 +264,13 @@ class Ask extends Base
         if (IS_AJAX_POST || IS_POST) {
             $param = input('param.');
             // 是否登录、是否允许发布问题、数据判断及处理，返回内容数据
-            $content   = $this->ParamDealWith($param, false);
+            $content = $this->ParamDealWith($param, false);
             $ori_money = Db::name('ask')->where('ask_id', $param['ask_id'])->getField('money');
             if ($ori_money > $param['money']) {
                 $this->error('悬赏金额不能小于' . $ori_money . '元！');
             }
-            if ($param['money'] > 0 && $param['money'] > $this->users['users_money']){
-                $this->error('余额不足以抵扣悬赏金额,请充值！');
+            if ($param['money'] > 0 && $param['money'] > $this->users['users_money']) {
+                $this->error('余额不足以抵扣悬赏金额，请充值！');
             }
 
             /*添加数据*/
@@ -318,8 +292,8 @@ class Ask extends Base
             if (empty($this->users['admin_id'])) $where['users_id'] = $this->users_id;
             /* END */
 
-            $ResultId = $this->ask_db->where($where)->update($UpAsk);
-            if (!empty($ResultId)) {
+            $ResultID = $this->ask_db->where($where)->update($UpAsk);
+            if (!empty($ResultID)) {
                 if ($ori_money < $param['money']) {
                     $this->AskModel->updateMoney($this->users_id, $param['money'], $ori_money, $param['ask_id']);
                 }
@@ -333,65 +307,74 @@ class Ask extends Base
         // 是否允许发布问题
         $this->IsRelease(false);
         $ask_id = input('ask_id/d');
-
         $where['ask_id'] = $ask_id;
         // 不是后台管理则只能修改自己的问题
         if (empty($this->users['admin_id'])) $where['users_id'] = $this->users_id;
         $Info = $this->ask_db->where($where)->find();
         if (empty($Info)) $this->error('请选择编辑的问题！');
-
         // 栏目处理
-        $result                = $this->AskModel->GetAskTypeData($Info, 'edit_ask');
-        $result['Info']        = $Info;
-        $result['EditAskUrl']  = $this->AskLogic->GetUrlData(['ask_id' => $ask_id], 'EditAskUrl');
+        $result = $this->AskModel->GetAskTypeData($Info, 'edit_ask');
+        $result['Info'] = $Info;
+        $result['SubmitEditAsk']  = $this->AskLogic->GetUrlData(['ask_id' => $ask_id], 'SubmitEditAsk');
         $result['users_money'] = $this->users_money;
-        $eyou                  = array(
+        $result['AddAskUrl'] = $this->AskLogic->GetUrlData([], 'AddAskUrl');
+        $result['NewDateUrl'] = $this->AskLogic->GetUrlData([], 'NewDateUrl');
+        $result['SearchName'] = null;
+        // 统计会员提问、回答、被评论、被点赞次数
+        $CountUsersAsk = $this->AskModel->GetCountAskData($this->users_id);
+        // 主页SEO信息
+        $SeoData = $this->AskLogic->GetSeoData(0);
+        // 问答设置内容
+        $AskSetting = $this->AskModel->getAskSetting($this->request->action());
+        // 数组合并加载到模板
+        $result = array_merge($result, $CountUsersAsk, $SeoData, $AskSetting);
+        $eyou = array(
             'field' => $result,
         );
         $this->assign('eyou', $eyou);
 
-//        return $this->fetch($this->Code . THEME_STYLE . '/edit_ask');
-        return $this->fetch(TEMPLATE_PATH . $this->theme_style_path . DS . 'ask' . DS . 'edit_ask.' . $this->view_suffix);
-
+        return $this->fetch('ask/edit_ask');
     }
 
     // 采纳最佳答案
     public function ajax_best_answer()
     {
         if (IS_AJAX_POST) {
-            if (!empty($this->users['admin_id']) || $this->users_id = input('post.users_id/d')) {
-                $param = input('param.');
-
-                // 数据判断处理
-                if (empty($param['answer_id']) || empty($param['ask_id'])) $this->error('请选择采纳的回答！');
-
+            $param = input('param.');
+            // 数据判断处理
+            if (empty($param['answer_id']) || empty($param['ask_id'])) $this->error('请选择采纳的回答');
+            // 查询提问信息
+            $AskInfo = $this->ask_db->field('users_id, status')->where('ask_id', $param['ask_id'])->find();
+            if (!empty($this->users['admin_id']) || $AskInfo['users_id'] = input('post.users_id/d')) {
+                // 查询问答状态
+                $AskStatus = $this->ask_db->where('ask_id', $param['ask_id'])->getField('status');
                 // 更新问题数据表
-                $Updata   = [
+                $Updata = [
                     'ask_id'        => $param['ask_id'],
                     'status'        => 1,
                     'solve_time'    => getTime(),
                     'bestanswer_id' => $param['answer_id'],
-                    'update_time'   => getTime(),
+                    'update_time'   => getTime()
                 ];
-                $ResultId = $this->ask_db->update($Updata);
-
-                if (!empty($ResultId)) {
+                $ResultID = $this->ask_db->update($Updata);
+                if (!empty($ResultID)) {
                     // 将这个问题下的所有答案设置为非最佳答案
                     $this->ask_answer_db->where('ask_id', $param['ask_id'])->update(['is_bestanswer' => 0]);
                     // 设置当前问题为最佳答案
                     $this->ask_answer_db->where('answer_id', $param['answer_id'])->update(['is_bestanswer' => 1]);
+                    // 问题未解决并存在悬赏金则执行
                     $money = $this->ask_db->where('ask_id', $param['ask_id'])->value('money');
-                    if (0 < $money) {
+                    if (isset($AskInfo['status']) && 0 == $AskInfo['status'] && 0 < $money) {
                         $answer_user_id = $this->ask_answer_db->where('answer_id', $param['answer_id'])->value('users_id');
-                        //悬赏金额插入记录
+                        // 悬赏金额插入记录
                         $this->AskModel->setMoney($answer_user_id, $money, $param['ask_id'], $param['answer_id']);
                     }
-                    $this->success('已采纳！');
+                    $this->success('已采纳');
                 } else {
-                    $this->error('请选择采纳的回答！');
+                    $this->error('请选择采纳的回答');
                 }
             } else {
-                $this->error('无操作权限！');
+                $this->error('无操作权限');
             }
         }
     }
@@ -403,7 +386,6 @@ class Ask extends Base
             $param = input('param.');
             // 是否登录、是否允许发布问题、数据判断及处理，返回内容数据
             $content = $this->AnswerDealWith($param, false);
-
             /*添加数据*/
             $AddAnswer = [
                 'ask_id'       => $param['ask_id'],
@@ -422,28 +404,30 @@ class Ask extends Base
                 'add_time'     => getTime(),
                 'update_time'  => getTime(),
             ];
-            $ResultId  = $this->ask_answer_db->add($AddAnswer);
+            $ResultID = $this->ask_answer_db->add($AddAnswer);
             /* END */
 
-            if (!empty($ResultId)) {
+            if (!empty($ResultID)) {
                 $ask_users_id = Db::name('ask')->where('ask_id',$param['ask_id'])->getField('users_id');
                 if ($ask_users_id != $this->users_id){
-                    //回答加积分 自问自答不加积分
-                    $this->AskModel->setScore($this->users_id, $param['ask_id'], $ResultId, 2);
+                    // 回答加积分 自问自答不加积分
+                    $this->AskModel->setScore($this->users_id, $param['ask_id'], $ResultID, 2);
                 }
                 // 增加问题回复数
                 $this->AskModel->UpdateAskReplies($param['ask_id'], true);
                 if (1 == $this->users['ask_is_review']) {
                     $this->success('回答成功，但你的回答需要管理员审核！', null, ['review' => true]);
                 } else {
-                    $AddAnswer['answer_id']    = $ResultId;
-                    $AddAnswer['head_pic']     = $this->users['head_pic'];
+                    $AddAnswer['answer_id'] = $ResultID;
+                    $AddAnswer['head_pic'] = $this->users['head_pic'];
                     $AddAnswer['at_usersname'] = '';
                     if (!empty($AddAnswer['at_users_id'])) {
-                        $FindData                  = Db::name('users')->field('nickname, username')->where('users_id', $AddAnswer['at_users_id'])->find();
+                        $FindData = Db::name('users')->field('nickname, username')->where('users_id', $AddAnswer['at_users_id'])->find();
                         $AddAnswer['at_usersname'] = empty($FindData['nickname']) ? $FindData['username'] : $FindData['nickname'];
                     }
                     $ResultData = $this->AskLogic->GetReplyHtml($AddAnswer);
+                    // 查询这个回答的评论回复数
+                    $ResultData['comment_reply_num'] = $this->ask_answer_db->where('answer_pid', $AddAnswer['answer_pid'])->count();
                     $this->success('回答成功！', null, $ResultData);
                 }
             } else {
@@ -510,94 +494,122 @@ class Ask extends Base
 
         // 更新人
         $AnswerData['nickname']  = $this->nickname;
-        $result['Info']          = $AnswerData;
+        $result['Info'] = $AnswerData;
         $result['EditAnswerUrl'] = $this->AskLogic->GetUrlData(['answer_id' => $answer_id], 'EditAnswer');
-        $eyou                    = array(
+        $result['AddAskUrl'] = $this->AskLogic->GetUrlData([], 'AddAskUrl');
+        $result['NewDateUrl'] = $this->AskLogic->GetUrlData([], 'NewDateUrl');
+        $result['SearchName'] = null;
+        // 统计会员提问、回答、被评论、被点赞次数
+        $CountUsersAsk = $this->AskModel->GetCountAskData($this->users_id);
+        // 问答设置内容
+        $AskSetting = $this->AskModel->getAskSetting($this->request->action());
+        // 数组合并加载到模板
+        $result = array_merge($result, $CountUsersAsk, $AskSetting);
+        $eyou = array(
             'field' => $result,
         );
         $this->assign('eyou', $eyou);
-//        return $this->fetch($this->Code . THEME_STYLE . '/edit_answer');
-        return $this->fetch(TEMPLATE_PATH . $this->theme_style_path . DS . 'ask' . DS . 'edit_answer.' . $this->view_suffix);
 
+        return $this->fetch('ask/edit_answer');
     }
 
-    // 删除问题、回答
+    // 删除指定的问题、回答、评论、回复、点赞
+    public function ajax_del_ask()
+    {
+        if (IS_AJAX_POST) {
+            // 是否登录
+            $this->UsersIsLogin();
+            // 数据判断
+            $type = input('param.type/d');
+            $ask_id = input('param.ask_id/d');
+            if (empty($this->users['admin_id'])) $this->error('无操作权限');
+            if (empty($ask_id) || 1 != $type) $this->error('请选择要删除的提问问题');
+            // 执行删除
+            $Where['ask_id'] = $ask_id;
+            $askData = $this->ask_db->where($Where)->find();
+            $ResultID = $this->ask_db->where($Where)->delete();
+            if (!empty($ResultID)) {
+                // 同步删除对应问题下所有回答
+                $this->ask_answer_db->where($Where)->delete();
+                // 同步删除对应问题下所有点赞
+                $this->ask_answer_like_db->where($Where)->delete();
+                // 更新会员提问及回答所得积分和余额
+                $this->AskModel->RebackDel($ask_id,$askData);
+                // 返回跳转链接
+                $url = $this->AskLogic->GetUrlData([], 'NewDateUrl');
+                $this->success('删除成功！', $url);
+            } else {
+                $this->error('删除信息错误，请刷新重试');
+            }
+        }
+        
+    }
+
+    // 删除指定的回答、评论、回复、点赞
     public function ajax_del_answer()
     {
         if (IS_AJAX_POST) {
             // 是否登录
             $this->UsersIsLogin();
-
-            /*数据判断*/
+            // 数据判断
             $type      = input('param.type/d');
             $ask_id    = input('param.ask_id/d');
             $answer_id = input('param.answer_id/d');
-            if (isset($type) && 3 == $type) {
-                // 删除整条回复内容
-                $answer_id = input('param.id/d');
-            } else if (isset($type) && 1 == $type) {
-                // 删除整个提问问题则执行
-                $this->DelAsk(input('param.'));
-            }
-            if (empty($answer_id) || empty($ask_id)) $this->error('请选择删除信息！');
-            /* END */
-
-            /*删除条件*/
+            if (empty($ask_id) || empty($answer_id) || 2 != $type) $this->error('请选择删除内容');
+            // 执行删除
             $Where = [
                 'ask_id'    => $ask_id,
                 'answer_id' => $answer_id,
             ];
-            // 若操作人为后台管理员则允许删除所有人的评论回答
-            if (empty($this->users['admin_id'])) $where['users_id'] = $this->users_id;
-            /* END */
-
-            /*执行删除*/
-            if (isset($type) && 3 == $type) {
-                // 整条评论回答，算计整个评论有多少条数量
-                $CountWhere['answer_pid'] = $answer_id;
-                // 查询整条回答的评论数量
-                $DelNum = $this->ask_answer_db->where($Where)->whereOr($CountWhere)->count();
-                // 删除
-                $ResultId = $this->ask_answer_db->where($Where)->whereOr($CountWhere)->delete();
-            } else {
-                $DelNum = 0;
-                // 删除
-                $ResultId = $this->ask_answer_db->where($Where)->delete();
-            }
-            /* END */
-
-            if (!empty($ResultId)) {
+            // 若操作人为后台管理员则允许删除其他会员的回答、评论
+            if (empty($this->users['admin_id'])) $Where['users_id'] = $this->users_id;
+            // 查询整个回答评论回复共有条数的ID
+            $CountWhere['answer_pid'] = $answer_id;
+            $AskAnswerID = $this->ask_answer_db->where($Where)->whereOr($CountWhere)->column('answer_id');
+            // 执行删除
+            $ResultID = $this->ask_answer_db->where($Where)->whereOr($CountWhere)->delete();
+            if (!empty($ResultID)) {
+                // 同步删除对应问题下所有点赞
+                $this->ask_answer_like_db->where('answer_id', 'IN', $AskAnswerID)->delete();
                 // 减少问题回复数
-                $this->AskModel->UpdateAskReplies($ask_id, false, $DelNum);
+                $this->AskModel->UpdateAskReplies($ask_id, false, count($AskAnswerID));
                 $this->success('删除成功！');
             } else {
-                $this->error('删除信息错误，请刷新重试！');
+                $this->error('删除信息错误，请刷新重试');
             }
         }
     }
 
-    // 删除整个提问问题
-    public function DelAsk($param = array())
+    // 删除问题、回答
+    public function ajax_del_comment()
     {
-        if (empty($param['ask_id']) || empty($param['id'])) $this->error('请选择要删除的提问问题！');
-        if (empty($this->users['admin_id'])) $this->error('无操作权限！');
-
-        /*执行删除*/
-        $Where['ask_id'] = $param['ask_id'];
-        $ResultId        = $this->ask_db->where($Where)->delete();
-        if (!empty($ResultId)) {
-            // 同步删除对应问题下所有回答
-            $this->ask_answer_db->where($Where)->delete();
-            // 同步删除对应问题下所有点赞
-            $this->ask_answer_like_db->where($Where)->delete();
-            $url = $this->AskLogic->GetUrlData($param, 'NewDateUrl');
-            $url = $this->AskModel->RebackDel($param['ask_id']);
-
-            $this->success('删除成功！', $url);
-        } else {
-            $this->error('删除信息错误，请刷新重试！');
+        if (IS_AJAX_POST) {
+            // 是否登录
+            $this->UsersIsLogin();
+            // 数据判断
+            $type      = input('param.type/d');
+            $ask_id    = input('param.ask_id/d');
+            $answer_id = input('param.answer_id/d');
+            if (empty($ask_id) || empty($answer_id) || 3 != $type) $this->error('请选择删除内容');
+            // 执行删除
+            $Where = [
+                'ask_id'    => $ask_id,
+                'answer_id' => $answer_id,
+            ];
+            // 若操作人为后台管理员则允许删除其他会员的回答、评论
+            if (empty($this->users['admin_id'])) $Where['users_id'] = $this->users_id;
+            // 执行删除
+            $ResultID = $this->ask_answer_db->where($Where)->delete();
+            if (!empty($ResultID)) {
+                // 同步删除对应问题下所有点赞
+                $this->ask_answer_like_db->where('answer_id', $answer_id)->delete();
+                // 减少问题回复数
+                $this->AskModel->UpdateAskReplies($ask_id, false, 1);
+                $this->success('删除成功！');
+            } else {
+                $this->error('删除信息错误，请刷新重试');
+            }
         }
-        /* END */
     }
 
     // 点赞
@@ -606,15 +618,20 @@ class Ask extends Base
         if (IS_AJAX_POST) {
             // 是否登录
             $this->UsersIsLogin();
-
-            $ask_id    = input('param.ask_id/d');
-            $answer_id = input('param.answer_id/d');
-            if (empty($answer_id) || empty($ask_id)) $this->error('请选择点赞信息！');
-
-            $Where   = [
+            $post = input('post.');
+            $ask_id = !empty($post['ask_id']) ? $post['ask_id'] : 0;
+            $answer_id = !empty($post['answer_id']) ? $post['answer_id'] : 0;
+            $like_source = !empty($post['like_source']) ? $post['like_source'] : 0;
+            if (empty($like_source) || (1 == $like_source && empty($ask_id))) {
+                $this->error('请选择点赞信息');
+            } else if (in_array($like_source, [2, 3]) && (empty($ask_id) || empty($answer_id))) {
+                $this->error('请选择点赞信息');
+            }
+            $Where = [
                 'ask_id'    => $ask_id,
-                'users_id'  => $this->users_id,
                 'answer_id' => $answer_id,
+                'users_id'  => $this->users_id,
+                'like_source' => $like_source
             ];
             $IsCount = $this->ask_answer_like_db->where($Where)->count();
             if (!empty($IsCount)) {
@@ -623,15 +640,22 @@ class Ask extends Base
                 // 添加新的点赞记录
                 $AddData  = [
                     'click_like'  => 1,
+                    'like_source' => $like_source,
                     'users_ip'    => clientIP(),
                     'add_time'    => getTime(),
                     'update_time' => getTime(),
                 ];
                 $AddData  = array_merge($Where, $AddData);
-                $ResultId = $this->ask_answer_like_db->add($AddData);
-
-                if (!empty($ResultId)) {
-                    unset($Where['users_id']);
+                $ResultID = $this->ask_answer_like_db->add($AddData);
+                if (!empty($ResultID)) {
+                    if (1 == $like_source) {
+                        unset($Where['users_id']);
+                    } else if (in_array($like_source, [2, 3])) {
+                        $Where = [
+                            'answer_id' => $answer_id,
+                            'like_source' => $like_source
+                        ];
+                    }
                     $LikeCount = $this->ask_answer_like_db->where($Where)->count();
                     if (1 == $LikeCount) {
                         $LikeName = '<a href="javascript:void(0);">' . $this->nickname . '</a>';
@@ -646,6 +670,10 @@ class Ask extends Base
                     ];
 
                     // 同步点赞次数到答案表
+                    $Where = [
+                        'ask_id'    => $ask_id,
+                        'answer_id' => $answer_id
+                    ];
                     $UpdataNew = [
                         'click_like'  => $LikeCount,
                         'update_time' => getTime(),
@@ -711,13 +739,13 @@ class Ask extends Base
     public function ajax_show_comment()
     {
         if (IS_AJAX_POST) {
-            $param   = input('param.');
+            $param = input('param.');
             $Comment = $this->AskModel->GetAskReplyData($param, $this->parent_id);
-            $Data    = !empty($param['is_comment']) ? $Comment['AnswerData'][0]['AnswerSubData'] : $Comment['BestAnswer'][0]['AnswerSubData'];
+            $Data = !empty($param['is_comment']) ? $Comment['AnswerData'][0]['AnswerSubData'] : $Comment['BestAnswer'][0]['AnswerSubData'];
             if (!empty($Data)) {
-                $ResultData = $this->AskLogic->ForeachReplyHtml($Data, $this->parent_id);
+                $ResultData = $this->AskLogic->ForeachReplyHtml($Data, $this->parent_id, $param['is_comment'], $this->users_id);
                 if (empty($ResultData['htmlcode'])) $this->error('没有更多数据');
-                $this->success('查询成功！', null, $ResultData);
+                $this->success('加载完成', null, $ResultData);
             } else {
                 $this->error('没有更多数据');
             }

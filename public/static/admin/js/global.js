@@ -255,14 +255,13 @@ function batch_del(obj, name) {
         // 删除按钮
         layer.confirm(title, {
             title: false,
-            closeBtn: false,
             btn: btn //按钮
         }, function () {
             layer_loading('正在处理');
             $.ajax({
                 type: "POST",
                 url: url,
-                data: {del_id:a, _ajax:1},
+                data: {del_id:a, thorough:1,_ajax:1},
                 dataType: 'json',
                 success: function (data) {
                     layer.closeAll();
@@ -408,7 +407,6 @@ function batch_del_pseudo(obj, a) {
 function delfun(obj) {
 
     var url = $(obj).attr('data-url');
-    
     var deltype = $(obj).attr('data-deltype');
     if ('pseudo' == deltype) {
         delfun_pseudo(obj);
@@ -417,7 +415,6 @@ function delfun(obj) {
         btn = ['确定', '取消']; //按钮
         layer.confirm(title, {
                 title: false,
-                closeBtn: false,
                 btn: btn //按钮
             }, function(){
                 // 确定
@@ -425,7 +422,7 @@ function delfun(obj) {
                 $.ajax({
                     type : 'POST',
                     url : url,
-                    data : {del_id:$(obj).attr('data-id'), _ajax:1},
+                    data : {del_id:$(obj).attr('data-id'),thorough:1, _ajax:1},
                     dataType : 'json',
                     success : function(data){
                         layer.closeAll();
@@ -674,7 +671,6 @@ function batch_move(obj, name) {
     // 删除按钮
     layer.confirm('确认批量移动？', {
         title: false,
-        closeBtn: false,
         btn: ['确定', '取消'] //按钮
     }, function () {
         layer_loading('正在处理');
@@ -948,7 +944,6 @@ function delCookie(name){
 function layConfirm(msg , callback){
     layer.confirm(msg, {
             title: false,
-            closeBtn: false,
             btn: ['确定','取消'] //按钮
         }, function(){
             callback();
@@ -1051,8 +1046,10 @@ function ueditorHandle()
  * 封装的加载层
  */
 function layer_loading(msg){
-    ueditorHandle(); // post提交之前，切换编辑器从【源代码】到【设计】视图
-
+    try {
+        ueditorHandle(); // post提交之前，切换编辑器从【源代码】到【设计】视图
+    }catch(e){}
+    
     var loading = layer.msg(
     msg+'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请勿刷新页面', 
     {
@@ -1173,7 +1170,6 @@ function Images(links, max_width, max_height){
         layer.open({
             type: 1,
             title: false,
-            closeBtn: true,
             area: [width, height],
             skin: 'layui-layer-nobg', //没有背景色
             content: links_img
@@ -1276,6 +1272,7 @@ function ey_selectPagesize(obj)
     layer_loading('正在处理');
     var pagesize = $(obj).val();
     var thisURL = ey_updateUrlParam('pagesize', pagesize);
+    thisURL = thisURL.replace(/&p=\d+/, '&p=1');
     window.location.href = thisURL;
 }
 

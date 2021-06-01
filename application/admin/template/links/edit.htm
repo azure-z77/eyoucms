@@ -63,7 +63,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="logo_local" name="logo_local" value="{$info.logo_local|default=''}" class="type-file-text">
+                            <input type="text" id="logo_local" name="logo_local" value="{$info.logo_local|default=''}" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input class="type-file-file" onClick="GetUploadify(1,'','allimg','img_call_back')" size="30" hidefocus="true" nc_type="change_site_logo"
                                  title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -114,6 +114,20 @@
                         <label for="target0" class="cb-disable {if condition='$info.target eq 0'}selected{/if}">否</label>
                         <input id="target1" name="target" value="1" type="radio" {if condition="$info.target eq 1"} checked="checked"{/if}>
                         <input id="target0" name="target" value="0" type="radio" {if condition="$info.target eq 0"} checked="checked"{/if}>
+                    </div>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="tit">
+                    <label>nofollow</label>
+                </dt>
+                <dd class="opt">
+                    <div class="onoff">
+                        <label for="nofollow1" class="cb-enable {if condition='$info.nofollow eq 1'}selected{/if}">是</label>
+                        <label for="nofollow0" class="cb-disable {if condition='empty($info.nofollow)'}selected{/if}">否</label>
+                        <input id="nofollow1" name="nofollow" value="1" type="radio" {if condition="$info.nofollow eq 1"} checked="checked"{/if}>
+                        <input id="nofollow0" name="nofollow" value="0" type="radio" {if condition="empty($info.nofollow)"} checked="checked"{/if}>
                     </div>
                     <p class="notic"></p>
                 </dd>

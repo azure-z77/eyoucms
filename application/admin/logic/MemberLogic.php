@@ -56,7 +56,12 @@ class MemberLogic extends Model
     public function syn_theme_users()
     {
         error_reporting(0);//关闭所有错误报告
-        if ('v1.0.1' > $this->version) {
+        $web_users_tpl_theme = tpCache('web.web_users_tpl_theme');
+        if (empty($web_users_tpl_theme)) {
+            $web_users_tpl_theme = 'users'; 
+        }
+        
+        if ('v1.0.1' > $this->version && !file_exists($this->planPath_pc.$web_users_tpl_theme)) {
             return $this->OneKeyUpgrade();
         } else {
             return true;
@@ -147,8 +152,11 @@ class MemberLogic extends Model
         }
 
         $url = $this->upgrade_url; 
-        $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
-        $serviceVersionList = @file_get_contents($url,false,$context);    
+        $serviceVersionList = @httpRequest($url);
+        if (false === $serviceVersionList) {
+            $context = stream_context_set_default(array('http' => array('timeout' => 3,'method'=>'GET')));
+            $serviceVersionList = @file_get_contents($url,false,$context); 
+        }
         $serviceVersionList = json_decode($serviceVersionList,true);
         if(!empty($serviceVersionList))
         {
@@ -210,7 +218,10 @@ class MemberLogic extends Model
             return ['code' => 0, 'msg' => "请联系空间商，开启 php.ini 中的php-zip扩展"];
         }
 
-        $serviceVersionList = @file_get_contents($this->upgrade_url);
+        $serviceVersionList = @httpRequest($this->upgrade_url);
+        if (false === $serviceVersionList) {
+            $serviceVersionList = @file_get_contents($this->upgrade_url); 
+        }
         $serviceVersionList = json_decode($serviceVersionList,true);
         if (empty($serviceVersionList)) {
             if ('v1.0.1' > $this->version) {
@@ -419,14 +430,29 @@ class MemberLogic extends Model
         $downFileName = 'users-'.end($downFileName);
         $saveDir = $this->data_path.'backup'.DS.'theme'.DS.$downFileName; // 保存目录
         tp_mkdir(dirname($saveDir));
-        if(!file_get_contents($fileUrl, 0, null, 0, 1)){
+        $content = @httpRequest($fileUrl);
+        if (false === $content) {
+            $content = @file_get_contents($fileUrl, 0, null, 0, 1);
+        }
+
+        if(!$content){
             return ['code' => 0, 'msg' => '官方升级包不存在']; // 文件存在直接退出
         }
-        $ch = curl_init($fileUrl);            
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-        $file = curl_exec ($ch);
-        curl_close ($ch);
+
+        if (!stristr($fileUrl, 'https://service')) {
+            $ch = curl_init($fileUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+            $file = curl_exec ($ch);
+            curl_close ($ch);
+        } else {
+            $file = httpRequest($fileUrl);
+        }
+
+        if (preg_match('#__HALT_COMPILER()#i', $file)) {
+            return ['code' => 0, 'msg' => '下载包损坏，请联系官方客服！'];
+        }
+ 
         $fp = fopen($saveDir,'w');
         fwrite($fp, $file);
         fclose($fp);
@@ -463,7 +489,7 @@ class MemberLogic extends Model
         // api_Service_upgradeLog
         $tmp_str = 'L2luZGV4LnBocD9tPWFwaSZjPVVwZ3JhZGUmYT11cGdyYWRlTG9nJg==';
         $url = base64_decode($this->service_ey).base64_decode($tmp_str).http_build_query($vaules);
-        @file_get_contents($url);
+        @httpRequest($url);
     }
 
     /**

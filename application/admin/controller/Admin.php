@@ -244,10 +244,14 @@ class Admin extends Base {
 
         $ajaxLogic = new AjaxLogic;
         $ajaxLogic->login_handle();
+        $ajaxLogic->logintheme_logic();
         
         session('admin_info', null);
-
-        return $this->fetch();
+        $viewfile = 'admin/login';
+        if (2 <= $this->php_servicemeal) {
+            $viewfile = 'admin/login_zy';
+        }
+        return $this->fetch(":{$viewfile}");
     }
 
     /**
@@ -412,7 +416,6 @@ class Admin extends Base {
                                 'level'    => 1,
                                 'lang'     => $this->admin_lang,
                                 'reg_time' => getTime(),
-                                'add_time' => getTime(),
                                 'head_pic' => ROOT_DIR . '/public/static/common/images/dfboy.png',
                                 'register_place' => 1,
                                 'admin_id' => $admin_id,

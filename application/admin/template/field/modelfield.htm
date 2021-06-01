@@ -182,7 +182,7 @@
                                 </a>
                             </span>
                             <span class="type-file-box">
-                                <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
+                                <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text" autocomplete="off">
                                 <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                                 <input class="type-file-file" onClick="GetUploadify(1,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back')" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}"
                                      title="点击前方预览图可查看大图，点击按钮选择文件并提交表单后上传生效">
@@ -220,7 +220,7 @@
                             </a>
                         </span>
                         <span class="type-file-box">
-                            <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text">
+                            <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}_eyou_local" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_local]" value="{$vo[$vo['name'].'_eyou_local']|default=''}" class="type-file-text" autocomplete="off">
                             <input type="button" name="button" id="button1" value="选择上传..." class="type-file-button">
                             <input title="点击前方文件图标可下载文件，点击按钮选择文件并提交表单后上传生效" class="type-file-file" type="file" onchange="upload_file_{$vo.fieldArr}_{$vo.name|default=''}_1585641737(this)" size="30" hidefocus="true" nc_type="change_site_{$vo.fieldArr}_{$vo.name|default=''}">
                         </span>
@@ -441,95 +441,179 @@
 
             {case value="htmltext"}
                 <!-- HTML文本 start -->
-                <dl class="row">
-                    <dt class="tit">
-                        <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
-                    </dt>
-                    <dd class="opt">          
-                        <textarea class="span12 ckeditor" id="{$vo.fieldArr}_{$vo.name|default=''}" data-func="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" title="">{$vo.dfvalue|default=''}</textarea>
-						<div class="opt-moreOper">
-							<p>
-							    <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">远程图片本地化</a>&nbsp;
-							    <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">清除非本站链接</a>&nbsp;
-							</p>
-						</div>
-                        <input type="hidden" id="ArticleContent" value="{$vo.fieldArr}_{$vo.name|default=''}">
-                        <span class="err"></span>
-                        <p class="notic">{$vo.remark|default=''}</p>
-                    </dd>
-                </dl>
-                <script type="text/javascript">
-                    UE.getEditor('{$vo.fieldArr}_{$vo.name|default=''}',{
-                        serverUrl :"{:url('Ueditor/index',array('savepath'=>'ueditor'))}",
-                        zIndex: 999,
-                        initialFrameWidth: "100%", //初化宽度
-                        initialFrameHeight: 450, //初化高度            
-                        focus: false, //初始化时，是否让编辑器获得焦点true或false
-                        maximumWords: 99999,
-                        removeFormatAttributes: 'class,style,lang,width,height,align,hspace,valign',//允许的最大字符数 'fullscreen',
-                        pasteplain:false, //是否默认为纯文本粘贴。false为不使用纯文本粘贴，true为使用纯文本粘贴
-                        autoHeightEnabled: false,
-                        toolbars: ueditor_toolbars
-                    });
+                {eq name="$editor.editor_select" value="1"}
+                    <dl class="row">
+                        <dt class="tit">
+                            <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
+                        </dt>
+                        <dd class="opt">          
+                            <textarea class="span12 ckeditor" id="{$vo.fieldArr}_{$vo.name|default=''}" data-func="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" title="">{$vo.dfvalue|default=''}</textarea>
+    						<div class="opt-moreOper">
+    							<p>
+    							    <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">远程图片本地化</a>&nbsp;
+    							    <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">清除非本站链接</a>&nbsp;
+    							</p>
+    						</div>
+                            <input type="hidden" id="ArticleContent" value="{$vo.fieldArr}_{$vo.name|default=''}">
+                            <span class="err"></span>
+                            <p class="notic">{$vo.remark|default=''}</p>
+                        </dd>
+                    </dl>
+                    <script type="text/javascript">
+                        UE.getEditor('{$vo.fieldArr}_{$vo.name|default=''}',{
+                            serverUrl :"{:url('Ueditor/index',array('savepath'=>'ueditor'))}",
+                            zIndex: 999,
+                            initialFrameWidth: "100%", //初化宽度
+                            initialFrameHeight: 450, //初化高度            
+                            focus: false, //初始化时，是否让编辑器获得焦点true或false
+                            maximumWords: 99999,
+                            removeFormatAttributes: 'class,style,lang,width,height,align,hspace,valign',//允许的最大字符数 'fullscreen',
+                            pasteplain:false, //是否默认为纯文本粘贴。false为不使用纯文本粘贴，true为使用纯文本粘贴
+                            autoHeightEnabled: false,
+                            toolbars: ueditor_toolbars
+                        });
 
-                    //必须在提交前渲染编辑器；
-                    function {$vo.fieldArr}_{$vo.name|default=''}() {
-                        //判断编辑模式状态:0表示【源代码】HTML视图；1是【设计】视图,即可见即所得；-1表示不可用
-                        if(UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").queryCommandState('source') != 0) {
-                            UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").execCommand('source'); //切换到【设计】视图
+                        //必须在提交前渲染编辑器；
+                        function {$vo.fieldArr}_{$vo.name|default=''}() {
+                            //判断编辑模式状态:0表示【源代码】HTML视图；1是【设计】视图,即可见即所得；-1表示不可用
+                            if(UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").queryCommandState('source') != 0) {
+                                UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").execCommand('source'); //切换到【设计】视图
+                            }
                         }
-                    }
 
-                    // 远程图片本地化
-                    function remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}() {
-                        var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
-                        layer_loading('下载中');
-                        $.ajax({
-                            type: 'POST',
-                            url: "{:url('Archives/ajax_remote_to_local')}",
-                            data: {body:body,_ajax:1},
-                            dataType: "JSON",
-                            success: function(res){
-                                layer.closeAll();
-                                if (res.code == 1) {
-                                    UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
-                                    layer.msg(res.msg, {icon: 1, time:1000});
-                                } else {
+                        // 远程图片本地化
+                        function remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}() {
+                            var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
+                            layer_loading('下载中');
+                            $.ajax({
+                                type: 'POST',
+                                url: "{:url('Archives/ajax_remote_to_local')}",
+                                data: {body:body,_ajax:1},
+                                dataType: "JSON",
+                                success: function(res){
+                                    layer.closeAll();
+                                    if (res.code == 1) {
+                                        UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
+                                        layer.msg(res.msg, {icon: 1, time:1000});
+                                    } else {
+                                        showErrorMsg(res.msg);
+                                    }
+                                },
+                                error: function(e){
+                                    layer.closeAll();
                                     showErrorMsg(res.msg);
                                 }
-                            },
-                            error: function(e){
-                                layer.closeAll();
-                                showErrorMsg(res.msg);
-                            }
-                        });
-                    }
+                            });
+                        }
 
-                    // 清除非本站链接
-                    function replace_links_{$vo.fieldArr}_{$vo.name|default=''}() {
-                        var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
-                        layer_loading('正在处理');
-                        $.ajax({
-                            type: 'POST',
-                            url: "{:url('Archives/ajax_replace_links')}",
-                            data: {body:body,_ajax:1},
-                            dataType: "JSON",
-                            success: function(res){
-                                layer.closeAll();
-                                if (res.code == 1) {
-                                    UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
-                                    layer.msg(res.msg, {icon: 1, time:1000});
-                                } else {
+                        // 清除非本站链接
+                        function replace_links_{$vo.fieldArr}_{$vo.name|default=''}() {
+                            var body = UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").getContent();
+                            layer_loading('正在处理');
+                            $.ajax({
+                                type: 'POST',
+                                url: "{:url('Archives/ajax_replace_links')}",
+                                data: {body:body,_ajax:1},
+                                dataType: "JSON",
+                                success: function(res){
+                                    layer.closeAll();
+                                    if (res.code == 1) {
+                                        UE.getEditor("{$vo.fieldArr}_{$vo.name|default=''}").setContent(res.data.body);
+                                        layer.msg(res.msg, {icon: 1, time:1000});
+                                    } else {
+                                        showErrorMsg(res.msg);
+                                    }
+                                },
+                                error: function(e){
+                                    layer.closeAll();
                                     showErrorMsg(res.msg);
                                 }
-                            },
-                            error: function(e){
-                                layer.closeAll();
-                                showErrorMsg(res.msg);
-                            }
+                            });
+                        }
+                    </script>
+                {else/}
+                    <dl class="row">
+                        <dt class="tit">
+                            <label>{if condition="isset($vo['ifrequire']) AND !empty($vo['ifrequire'])"}<em>*</em>{/if}{$vo.title|default=''}</label>
+                        </dt>
+                        <dd class="opt">
+                            <textarea id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]">{$vo.dfvalue|default=''}</textarea>
+                            <div class="opt-moreOper">
+                                <p>
+                                    <a href="javascript:void(0);" onclick="remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">远程图片本地化</a>&nbsp;
+                                    <a href="javascript:void(0);" onclick="replace_links_{$vo.fieldArr}_{$vo.name|default=''}();" class="ncap-btn2">清除非本站链接</a>&nbsp;
+                                </p>
+                            </div>
+                            <span class="err"></span>
+                            <p class="notic">{$vo.remark|default=''}</p>
+                        </dd>
+                    </dl>
+                    <script type="text/javascript">
+                        // 加载编辑器，若存在编辑器则先进行销毁
+                        try {
+                            var elemtid = "{$vo.fieldArr}_{$vo.name|default=''}";
+                            var editor = CKEDITOR.instances[elemtid];
+                            if (editor) editor.destroy(true);
+                        } catch(e) {}
+
+                        CKEDITOR.replace(elemtid, {
+                            filebrowserBrowseUrl: "{:url('Ueditor/index', ['savepath'=>'ueditor', 'action'=>'uploadimage'])}",
+                            filebrowserImageBrowseUrl: "{:url('Ueditor/index', ['savepath'=>'ueditor', 'action'=>'uploadimage'])}",
+                            filebrowserUploadUrl: "{:url('Ueditor/index', ['savepath'=>'ueditor', 'action'=>'uploadimage'])}",
+                            filebrowserImageUploadUrl: "{:url('Ueditor/index', ['savepath'=>'ueditor', 'action'=>'uploadimage'])}",
                         });
-                    }
-                </script>
+
+                        // 远程图片本地化
+                        function remote_to_local_{$vo.fieldArr}_{$vo.name|default=''}() {
+                            var body = CKEDITOR.instances.{$vo.fieldArr}_{$vo.name|default=''}.getData();
+                            layer_loading('下载中');
+                            $.ajax({
+                                type: 'POST',
+                                url: "{:url('Archives/ajax_remote_to_local')}",
+                                data: {body:body,_ajax:1},
+                                dataType: "JSON",
+                                success: function(res){
+                                    layer.closeAll();
+                                    if (res.code == 1) {
+                                        CKEDITOR.instances.{$vo.fieldArr}_{$vo.name|default=''}.setData(res.data.body);
+                                        layer.msg(res.msg, {icon: 1, time:1000});
+                                    } else {
+                                        showErrorMsg(res.msg);
+                                    }
+                                },
+                                error: function(e){
+                                    layer.closeAll();
+                                    showErrorMsg(res.msg);
+                                }
+                            });
+                        }
+
+                        // 清除非本站链接
+                        function replace_links_{$vo.fieldArr}_{$vo.name|default=''}() {
+                            var body = CKEDITOR.instances.{$vo.fieldArr}_{$vo.name|default=''}.getData();
+                            layer_loading('正在处理');
+                            $.ajax({
+                                type: 'POST',
+                                url: "{:url('Archives/ajax_replace_links')}",
+                                data: {body:body,_ajax:1},
+                                dataType: "JSON",
+                                success: function(res){
+                                    layer.closeAll();
+                                    if (res.code == 1) {
+                                        CKEDITOR.instances.{$vo.fieldArr}_{$vo.name|default=''}.setData(res.data.body);
+                                        layer.msg(res.msg, {icon: 1, time:1000});
+                                    } else {
+                                        showErrorMsg(res.msg);
+                                    }
+                                },
+                                error: function(e){
+                                    layer.closeAll();
+                                    showErrorMsg(res.msg);
+                                }
+                            });
+                        }
+                    </script>
+                {/eq}
                 <!-- HTML文本 end -->
             {/case}
 

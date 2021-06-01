@@ -1126,4 +1126,81 @@ class Ajax extends Base
             abort(404);
         }
     }
+
+    //文章付费
+    public function ajax_get_content($aid=0)
+    {
+        if (empty($aid)){
+            $this->error('缺少文档id');
+        }
+        $artData = Db::name('archives')
+            ->alias('a')
+            ->field('a.users_price,b.content')
+            ->join('article_content b','a.aid = b.aid')
+            ->where('a.aid',$aid)
+            ->find();
+        $pay_data = Db::name('article_pay')->field('part_free,free_content')->where('aid',$aid)->find();
+
+        $users_id = session('users_id');
+
+        if (0<$artData['users_price'] && !empty($pay_data)){
+            if (empty($users_id)){
+                $result['content'] = $pay_data['free_content'];
+                $result['display'] = 1;//1显示购买 0-不显示
+            }else{
+                $is_pay = Db::name('article_order')->where(['users_id'=>$users_id,'order_status'=>1,'product_id'=>$aid])->find();
+                if (empty($is_pay)){
+                    $result['display'] = 1;//1显示购买 0-不显示
+                    if(0 == $pay_data['part_free']){
+                        $result['content'] = '';
+                    }else if(in_array($pay_data['part_free'],[1,2])){
+                        $result['content'] = $pay_data['free_content'];
+                    }
+                }else{
+                    $result['display'] = 0;
+                    if(0 == $pay_data['part_free']){
+                        $result['content'] = $artData['content'];
+                    }else if(1 == $pay_data['part_free']){
+                        $result['content'] = $pay_data['free_content'].$artData['content'];
+                    }else if(2 == $pay_data['part_free']){
+                        $result['content'] = $artData['content'];
+                    }
+                }
+            }
+        }else{
+            $result['display'] = 0;
+            $result['content'] = $artData['content'];
+        }
+
+        $result['content'] = htmlspecialchars_decode($result['content']);
+        $titleNew = !empty($data['title']) ? $data['title'] : '';
+        $result['content'] = img_style_wh($result['content'], $titleNew);
+        $result['content'] = handle_subdir_pic($result['content'], 'html');
+
+        $this->success('success', null,$result);
+    }
+    //获取第三方上传的域名
+    public function get_third_domain()
+    {
+        $weappList = \think\Db::name('weapp')->field('code,data,status,config')->where([
+            'status'    => 1,
+        ])->cache(true, EYOUCMS_CACHE_TIME, 'weapp')
+            ->getAllWithIndex('code');
+        $third_domain = '';
+        if (!empty($weappList['Qiniuyun']) && 1 == $weappList['Qiniuyun']['status']) {
+            // 七牛云
+            $qnyData = json_decode($weappList['Qiniuyun']['data'], true);
+            $third_domain = $qnyData['domain'];
+        } else if (!empty($weappList['AliyunOss']) && 1 == $weappList['AliyunOss']['status']) {
+            // 到OSS
+            $ossData = json_decode($weappList['AliyunOss']['data'], true);
+            $third_domain = $ossData['domain'];
+        } else if (!empty($weappList['Cos']) && 1 == $weappList['Cos']['status']) {
+            // 同步图片到COS
+            $CosData = json_decode($weappList['Cos']['data'], true);
+            $third_domain = $CosData['domain'];
+        }
+        $this->success('success', null,$third_domain);
+
+    }
 }

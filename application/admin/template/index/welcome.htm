@@ -69,13 +69,17 @@
                      <div class="container-fluid">
                          <ul>
                             {volist name='$quickMenu' id='vo'}
-                            <li>
-                                <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}"><p class="navs">{$vo.title}</p></a>
-                            </li>
+                                {if condition="is_check_access($vo['controller'].'@'.$vo['action'])"}
+                                <li>
+                                    <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}"><p class="navs">{$vo.title}</p></a>
+                                </li>
+                                {/if}
                             {/volist}
+                            {eq name="'Index@ajax_quickmenu'|is_check_access" value="1"}
                             <li>
                                <a href="javascript:void(0);" id="quickMenuAdd"><p class="navs"><i style="font-size: 20px;" class="fa fa-plus"></i></p></a>
                             </li>
+                            {/eq}
                          </ul>
                      </div>
                 </div>
@@ -86,19 +90,23 @@
                      <div class="container-fluid">
                          <ul>
                             {volist name='$contentTotal' id='vo' length='9'}
-                            <li>
-                               <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}">
-                                   <h2>{$vo.title}</h2>
-                                   <p><cite>{$vo.total|default='0'}</cite></p>
-                               </a>
-                            </li>
+                                {if condition="is_check_access($vo['controller'].'@'.$vo['action'])"}
+                                <li>
+                                   <a href="javascript:void(0);" onclick="GoLocation(this);" data-href="{:url($vo.controller.'/'.$vo.action, $vo.vars)}">
+                                       <h2>{$vo.title}</h2>
+                                       <p><cite>{$vo.total|default='0'}</cite></p>
+                                   </a>
+                                </li>
+                                {/if}
                             {/volist}
+                            {eq name="'Index@ajax_content_total'|is_check_access" value="1"}
                             <li>
                                <a href="javascript:void(0);" id="contentTotalAdd">
                                    <h2>添加统计</h2>
                                    <p><cite><i class="fa fa-plus"></i></cite></p>
                                </a>
                             </li>
+                            {/eq}
                          </ul>
                      </div>
                 </div>

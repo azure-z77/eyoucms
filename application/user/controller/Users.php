@@ -94,14 +94,16 @@ class Users extends Base
             }
             $others['weapp_menu_info'] = $weapp_menu_info;
         }
-
         $this->assign('others', $others);
 
         //查询部分模型开启信息  下载 视频 问答
         $part_channel = Db::name('channeltype')
-            ->where('nid','in',['ask','download','media'])
-            ->field('nid,status')
+            ->where('nid','in',['ask','download','media','article'])
+            ->field('nid,status,data')
             ->getAllWithIndex('nid');
+        if (!empty($part_channel['article']['data'])){
+            $part_channel['article']['data'] = json_decode($part_channel['article']['data'], true);
+        }
         $this->assign('part_channel', $part_channel);
 
         // 多语言
@@ -137,7 +139,7 @@ class Users extends Base
 EOF;
         $html = $this->fetch('users_welcome');
         $html = str_ireplace('</body>', $replace, $html);
-
+        
         return $html;
     }
 
@@ -888,8 +890,8 @@ EOF;
     // 会员中心
     public function centre()
     {
-        $result = Db::name('users_menu')->where(['is_userpage' => 1, 'lang' => $this->home_lang])->find();
-        $mca    = !empty($result['mca']) ? $result['mca'] : 'user/Users/index';
+        $mca = Db::name('users_menu')->where(['is_userpage' => 1, 'lang' => $this->home_lang])->getField('mca');
+        $mca = !empty($mca) ? $mca : 'user/Users/index';
         $this->redirect($mca);
     }
 
@@ -1802,9 +1804,7 @@ EOF;
         $this->error('删除失败');
     }
 
-    /*
-     * 我的视频
-     */
+    //我的视频
     public function media_index()
     {
         $keywords = input('keywords/s');
@@ -1814,10 +1814,8 @@ EOF;
         if (!empty($order_code)) $condition['a.order_code'] = ['LIKE', "%{$order_code}%"];
 
         $condition['a.users_id'] = $this->users_id;
-        // 多语言
         $condition['a.lang'] = $this->home_lang;
 
-        // 订单状态搜索
         $order_status = input('order_status/s');
         $this->assign('order_status', $order_status);
         if (!empty($order_status)) {
@@ -1827,9 +1825,8 @@ EOF;
             $condition['a.order_status'] = 1;//默认查询已购买
         }
 
-
-        $count = Db::name('media_order')->alias('a')->where($condition)->count('order_id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $count = Db::name('media_order')->alias('a')->where($condition)->count('order_id');
+        $Page = $pager = new Page($count, config('paginate.list_rows'));
 
         $result['data'] = Db::name('media_order')->where($condition)
             ->field('a.*,c.aid,c.typeid,c.channel,d.*,a.add_time as order_add_time')
@@ -1855,11 +1852,11 @@ EOF;
         $eyou = array(
             'field' => $result,
         );
-        $show = $Page->show();// 分页显示输出
-        $this->assign('page',$show);// 赋值分页输出
+        $show = $Page->show();
+        $this->assign('page',$show);
         // 数据
         $this->assign('eyou', $eyou);
-        $this->assign('pager',$pager);// 赋值分页对象
+        $this->assign('pager',$pager);
         return $this->fetch('users_media_index');
     }
 
@@ -1917,8 +1914,8 @@ EOF;
         // 多语言
         $condition['a.lang'] = $this->home_lang;
 
-        $count = Db::name('users_score')->alias('a')->where($condition)->count('id');// 查询满足要求的总记录数
-        $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
+        $count = Db::name('users_score')->alias('a')->where($condition)->count('id');
+        $Page = $pager = new Page($count, config('paginate.list_rows'));
 
         $result['data'] = Db::name('users_score')
             ->field('a.*')
@@ -1932,12 +1929,101 @@ EOF;
             'field' => $result,
         );
 
-        $show = $Page->show();// 分页显示输出
-        $this->assign('page',$show);// 赋值分页输出
-        // 数据
+        $show = $Page->show();
+        $this->assign('page',$show);
         $this->assign('eyou', $eyou);
-        $this->assign('pager',$pager);// 赋值分页对象
+        $this->assign('pager',$pager);
         return $this->fetch('users_score_index');
     }
 
+    //我的文章
+    public function article_index()
+    {
+        $keywords = input('keywords/s');
+
+        $condition = array();
+        $order_code = input('order_code/s');
+        if (!empty($order_code)) $condition['a.order_code'] = ['LIKE', "%{$order_code}%"];
+
+        $condition['a.users_id'] = $this->users_id;
+        $condition['a.lang'] = $this->home_lang;
+
+        $order_status = input('order_status/s');
+        $this->assign('order_status', $order_status);
+        if (!empty($order_status)) {
+            if (-1 == $order_status) $order_status = 0;
+            $condition['a.order_status'] = $order_status;
+        }else{
+            $condition['a.order_status'] = 1;//默认查询已购买
+        }
+
+        $count = Db::name('article_order')->alias('a')->where($condition)->count('order_id');
+        $Page = $pager = new Page($count, config('paginate.list_rows'));
+
+        $result['data'] = Db::name('article_order')->where($condition)
+            ->field('a.*,c.aid,c.typeid,c.channel,d.*,a.add_time as order_add_time')
+            ->alias('a')
+            ->join('__ARCHIVES__ c', 'a.product_id = c.aid', 'LEFT')
+            ->join('__ARCTYPE__ d', 'c.typeid = d.id', 'LEFT')
+            ->order('a.order_id desc')
+            ->limit($Page->firstRow.','.$Page->listRows)
+            ->select();
+
+        $array_new = get_archives_data($result['data'], 'product_id');
+        foreach ($result['data'] as $key => $value) {
+            $arcurl = '';
+            $vars = !empty($array_new[$value['product_id']]) ? $array_new[$value['product_id']] : [];
+            if (!empty($vars)) {
+                $arcurl = urldecode(arcurl('home/Article/view', $vars));
+            }
+            $result['data'][$key]['arcurl']  = $arcurl;
+        }
+
+        $result['delurl']  = url('user/Users/collection_del');
+
+        $eyou = array(
+            'field' => $result,
+        );
+        $show = $Page->show();
+        $this->assign('page',$show);
+        // 数据
+        $this->assign('eyou', $eyou);
+        $this->assign('pager',$pager);
+        return $this->fetch('users_article_index');
+    }
+
+    // 文章订单详情页
+    public function article_order_details()
+    {
+        $order_id = input('param.order_id');
+        if (!empty($order_id)) {
+            // 查询订单信息
+            $OrderData = Db::name('article_order')
+                ->field('a.*, product_id,c.aid,c.typeid,c.channel,d.*')
+                ->alias('a')
+                ->join('__ARCHIVES__ c', 'a.product_id = c.aid', 'LEFT')
+                ->join('__ARCTYPE__ d', 'c.typeid = d.id', 'LEFT')
+                ->find($order_id);
+
+            // 查询会员数据
+            $UsersData = $this->users_db->find($OrderData['users_id']);
+            // 用于点击视频文档跳转到前台
+            $array_new = get_archives_data([$OrderData], 'product_id');
+            // 内页地址
+            $arcurl = '';
+            $vars = !empty($array_new[$OrderData['product_id']]) ? $array_new[$OrderData['product_id']] : [];
+            if (!empty($vars)) {
+                $arcurl = urldecode(arcurl('home/Article/view', $vars));
+            }
+            $OrderData['arcurl'] = $arcurl;
+            // 支持子目录
+            $OrderData['product_litpic'] = get_default_pic($OrderData['product_litpic']);
+            // 加载数据
+            $this->assign('OrderData', $OrderData);
+            $this->assign('UsersData', $UsersData);
+            return $this->fetch();
+        } else {
+            $this->error('非法访问！');
+        }
+    }
 }
