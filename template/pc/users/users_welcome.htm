@@ -175,6 +175,12 @@
                                 <div class="plugs-item-r"><a href="{eyou:url link='user/Download/index' /}">我的下载</a></div>
                             </div>
                             {/notempty}
+                            {if isset($part_channel['article']['data']['is_article_pay']) && $part_channel['article']['data']['is_article_pay'] == 1}
+                            <div class="plugs-item">
+                                <div class="plugs-item-l"><img src="{eyou:static file='users/skin/images/user-video-100x100.png' /}" /></div>
+                                <div class="plugs-item-r"><a href="{eyou:url link='user/Users/article_index' /}">我的文章</a></div>
+                            </div>
+                            {/if}
                             {gt name='$php_servicemeal' value='1'}
                                 {notempty name="$part_channel.media.status"}
                                 <div class="plugs-item">

@@ -2203,3 +2203,92 @@ width: 100%;
         padding: 30px;
         word-break: break-all;
     }
+/*服务器名称下拉*/
+.help-hot-list {
+    padding: 10px 0;
+    width: 164px;
+    position: absolute;
+    left: 16px;
+    top: 45px;
+    margin: 0;
+    line-height: 32px;
+    font-size: 14px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.2);
+    background-color: #fff;
+    display: none;
+    z-index: 999999;
+}
+.remote-hot-list{
+    left: 86px;
+    top: 26px;
+}
+.help-hot-list>a {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    overflow: hidden;
+    padding-right: 10px;
+}
+.help-hot-list>a:hover {
+    background-color: #f3f3f3;
+}
+.help-hot-list>a>div {
+    float: left;
+    height: 32px;
+    overflow: hidden;
+    max-width:94%;
+}
+.help-hot-list>a>div.number {
+    text-align: center;
+    width: 22px;
+    color: #ff8105
+}
+.help-hot-list>a>div.hottxt{
+    width: 132px;
+   overflow: hidden;
+   text-overflow:ellipsis;
+   white-space: nowrap;
+}
+.help-hot-list>a>div.number.c1 {
+    color: #ff2c00
+}
+.help-hot-list>a>div.number.c2 {
+    color: #ff5a00
+}
+.help-hot-list>a>div.number.c3 {
+    color: #3cbe85
+}
+.template_div .ey_server_name{
+    position: relative;
+}
+ .th_server_name input[type=text]{
+     width: 100%;
+     padding: 0 4px;
+     height: 36px;
+     line-height: 36px;
+     border-radius: 4px;
+     border: 1px solid #DCDFE6;
+ }
+.template_div20210507{
+     margin: 5px 0px;
+     position: relative;
+     color: #777;
+     line-height: 24px;
+ }
+.template_div20210507 .ey_server_name {
+     position: relative;
+ }
+.template_div20210507 input[type="text"]{
+     line-height: 20px;
+     white-space: nowrap;
+     display: inline-block;
+     height: 20px;
+     overflow: hidden;
+     cursor: text;
+     font-size: 13px;
+     padding: 14px 6px;
+     color: #555555;
+     background-color: #FFF;
+     border: solid 1px #eee;
+ }

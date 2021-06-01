@@ -191,6 +191,13 @@
                         <div class="item-r"><i class="el-icon-arrow-right"></i></div>
                     </a>
                     {/if}
+                    {if isset($part_channel['article']['data']['is_article_pay']) && $part_channel['article']['data']['is_article_pay'] == 1}
+                    <a href="{eyou:url link='user/Users/article_index'/}" class="item">
+                        <div class="item-l">我的文章</div>
+                        <div class="item-m tr"></div>
+                        <div class="item-r"><i class="el-icon-arrow-right"></i></div>
+                    </a>
+                    {/if}
                     {if isset($part_channel['media']['status']) && $part_channel['media']['status'] == 1 && $php_servicemeal > 1}
                     <a href="{eyou:url link='user/Users/media_index' /}" class="item">
                         <div class="item-l">我的视频</div>

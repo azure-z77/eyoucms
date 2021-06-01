@@ -31,6 +31,10 @@
 	<script type="text/javascript">
         var eyou_basefile = "{$Request.baseFile}";
 		window.UEDITOR_HOME_URL = "__ROOT_DIR__/public/plugins/Ueditor/";
+        var type20210507 = '';//下载模型的上传类型
+        var default_servername20210507 = '';//下载模型的default_servername
+        var attr_field20210507 = '';//下载模型的attr_field
+        var servername_use20210507 = '';//下载模型的servername_use
 	</script> 
 	{eyou:static file="/public/plugins/Ueditor/ueditor.config.js"/}
 	{eyou:static file="/public/plugins/Ueditor/ueditor.all.min.js"/}
@@ -53,6 +57,7 @@
         <form  id="post_form">
             <input type="hidden" name="aid" value="{$ArchivesData.aid}">
             <input type="hidden" name="channel" value="{$channel_id}">
+            <input type="hidden" name="old_typeid" value="{$ArchivesData.typeid}">
             <div class="ey-con ey-row mt10">
             	<div class="item-from-flex">
             		<div class="item-flex-l">
@@ -124,8 +129,9 @@
 				<!-- 单张图 end -->
             	{/eq}
             </div>
-            
-           <div class="ey-con ey-row mt10" style="display:none;" id="tupianji">
+			{eyou:include file="users/article_download_edit.htm" /}
+
+			<div class="ey-con ey-row mt10" style="display:none;" id="tupianji">
            	<div class="item-from-flex" >
            		<div class="item-flex wb25">
            			<div class="item-tit">
@@ -399,7 +405,11 @@
                     }else{
                         $("#tupianji").hide()
                     }
-
+                    if (channel == 4){
+                    //     $("#xiazai").show()
+                    // }else{
+                        $("#xiazai").hide()
+                    }
                     var loadingTxt = '正在加载';
                     if (1 == init) {
                         loadingTxt = '正在切换';
@@ -420,6 +430,97 @@
                                     $.each(res.data.htmltextField, function (index, value) {
                                         showEditor_1597892187('addonFieldExt_'+value);
                                     });
+                                }
+                                if (channel == 4) {
+                                    var download = res.data.download;
+                                    var users_level_html = '<option value="0" selected>不限会员</option>';
+                                    $.each(download.users_level, function (index, value) {
+                                        if ('{$ArchivesData.arc_level_id}' == value.level_id) {
+                                            users_level_html += '<option value="'+value.level_id+'" selected>'+value.level_name+'</option>\n';
+                                        }else{
+                                            users_level_html += '<option value="'+value.level_id+'">'+value.level_name+'</option>\n';
+                                        }
+                                    });
+                                    $('#arc_level_id').html(users_level_html);
+
+                                    if('local' != download.upload_flag){
+                                        //第三方
+                                        var upload_button_html = '<button type="button" class="layui-btn layui-btn-normal" style="position: relative;z-index: 1;">\n' +download.upload_flag+'选择多文件\n' +
+                                            '                       <input type="file" name="file" id="'+download.upload_flag+'File" multiple="multiple" onchange="'+download.upload_flag+'_download__upload(this);" style="position: absolute;top: 0;right: 0;opacity: 0;width: 110px;height: 30px;"/>\n' +
+                                            '                  </button>';
+                                        $('#download-layui-upload').prepend(upload_button_html);
+                                    }else{
+                                        $("#buttonList").show();
+                                    }
+                                    $('#download-layui-upload').attr('data-type',download.upload_flag);
+                                    if (1 == download.servername_use){
+                                        $(".th_server_name").show();
+                                    }
+                                    type20210507 = download.basic.file_type;
+                                    default_servername20210507 = download.default_servername;
+                                    attr_field20210507 = download.attr_field;
+                                    servername_use20210507 = download.servername_use;
+
+                                    if ("{$is_remote_file}" == 1){
+                                        $("#remote-file-checkbox").prop("checked",true);
+                                        var downfile_list = '{$downfile_list}';
+                                        downfile_list = JSON.parse(downfile_list);
+                                        console.log(downfile_list);
+                                        var template_div_remote20210507_html = '';
+                                        var demoList_html = '';
+                                        var i = 1;
+                                        var n = 1;
+                                        $.each(downfile_list, function (index, v) {
+                                            if (1 == v.is_remote) {
+                                                template_div_remote20210507_html += '<div class="template_div20210507">远程地址'+i+'：<input type="text" name="remote_file[]" value="'+v.file_url+'" placeholder="http://" style="width: 50%;">\n' ;
+                                                $.each(attr_field20210507, function (index, value) {
+                                                    var field_use_style = '';
+                                                    if(1 != value.field_use){
+                                                        field_use_style = ' style="display: none;" ';
+                                                    }
+                                                    if('server_name' == value.field_name){
+                                                        template_div_remote20210507_html += '<span class="ey_'+value.field_name+'" '+field_use_style+'>\n' +
+                                                            '<span class="title_'+value.field_name+'">'+value.field_title+'</span>：' +
+                                                            '<input type="text" name="'+value.field_name+'[]" id="'+value.field_name+'_remote_'+i+'" style="width: 7%;" onclick="searchServername(this);" autocomplete="off" value="'+v[value.field_name]+'" >\n' +
+                                                            '<div class="help-hot-list remote-hot-list" style="display: none;" data-test_val="5434" id="search_keywords_list_'+value.field_name+'_remote_'+i+'"></div>\n' +
+                                                            '</span>\n' ;
+                                                    }else{
+                                                        template_div_remote20210507_html += '<span class="ey_'+value.field_name+'" '+field_use_style+'>\n' +
+                                                            '<span class="title_'+value.field_name+'">'+value.field_title+'</span>：' +
+                                                            '<input type="text" name="'+value.field_name+'[]" id="'+value.field_name+'_remote_'+i+'" style="width: 7%;"  value="'+v[value.field_name]+'"></span>\n' ;
+                                                    }
+                                                });
+                                                template_div_remote20210507_html += '</div>';
+                                                i++;
+                                            }else{
+                                                var servername_html = '';
+                                                if (servername_use20210507 != 1) {
+                                                    servername_html = " style=\"display: none;\" ";
+                                                }
+                                                demoList_html += '<tr><td><a href="'+v.file_url+'" target="_blank">'+v.file_name+'</a></td>\n' +
+                                                    '    <td  class="th_server_name" '+servername_html+'>\n' +
+                                                    '    <input type="text" name="fileupload[server_name][]" value="'+v.server_name+'" id="servername_local_'+n+'" onclick="searchServername(this);" autocomplete="off">\n' +
+                                                    '         <div class="help-hot-list" style="display: none;" id="search_keywords_list_servername_local_'+n+'"></div>\n' +
+                                                    '    </td>\n' +
+                                                    '    <td>'+v.file_size+'</td>\n' +
+                                                    '    <td><span style="color: #5FB878;">上传成功</span></td>\n' +
+                                                    '    <td>\n' +
+                                                    '          <span class="layui-btn layui-btn-xs layui-btn-danger" style="line-height:unset;height: unset;" onclick="DeleteFile(this)">移除</span>\n' +
+                                                    '          <input type="hidden" name="fileupload[file_url][]" value="'+v.file_url+'">\n' +
+                                                    '          <input type="hidden" name="fileupload[file_mime][]" value="'+v.file_mime+'">\n' +
+                                                    '          <input type="hidden" name="fileupload[file_name][]" value="'+v.file_name+'">\n' +
+                                                    '          <input type="hidden" name="fileupload[file_ext][]" value="'+v.file_ext+'">\n' +
+                                                    '          <input type="hidden" name="fileupload[file_size][]" value="'+v.file_size+'">\n' +
+                                                    '          <input type="hidden" name="fileupload[uhash][]" value="'+v.uhash+'}">\n' +
+                                                    '          <input type="hidden" name="fileupload[md5file][]" value="'+v.md5file+'">\n' +
+                                                    '     </td></tr>'
+                                                n++;
+                                            }
+                                        });
+                                        $("#Template20210507").html(template_div_remote20210507_html);
+                                        $("#demoList").html(demoList_html);
+                                        $('#ClickRemoteFile').show();
+                                    }
                                 }
                             }
                         },

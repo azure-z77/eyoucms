@@ -31,13 +31,15 @@
 <script type="text/javascript">
     var __lang__ = "<?php echo $admin_lang; ?>";
     window.UEDITOR_HOME_URL = "__ROOT_DIR__/public/plugins/Ueditor/";
-</script> 
+    var type20210507 = '';//下载模型的上传类型
+    var default_servername20210507 = '';//下载模型的default_servername
+    var attr_field20210507 = '';//下载模型的attr_field
+    var servername_use20210507 = '';//下载模型的servername_use
+</script>
 {eyou:static file="/public/plugins/Ueditor/ueditor.config.js"/}
 {eyou:static file="/public/plugins/Ueditor/ueditor.all.min.js"/}
 {eyou:static file="/public/plugins/Ueditor/lang/zh-cn/zh-cn.js"/}
-
 {eyou:static file="/public/plugins/laydate/laydate.js"/}
-
 {eyou:static file="/public/plugins/layui/layui.js" /}
 <div class="ey-body-bg">
     <div class="ey-body">
@@ -99,8 +101,9 @@
                                 <input type="hidden" class="type-file-text" id="single_pic_input_litpic_inpiut" name="litpic_inpiut" value="">
                             </div>
                             <!-- 单张图 end -->
-
                             {/eq}
+
+                            {eyou:include file="users/article_download_add.htm" /}
 
                             <div class="item-from-row" id="tupianji">
                                 <div class="from-row-l">
@@ -259,6 +262,11 @@
                                     }else{
                                         $("#tupianji").hide()
                                     }
+                                    if (channel == 4){
+                                        $("#xiazai").show()
+                                    }else{
+                                        $("#xiazai").hide()
+                                    }
 
                                     var loadingTxt = '正在加载';
                                     if (1 == init) {
@@ -280,6 +288,31 @@
                                                     $.each(res.data.htmltextField, function (index, value) {
                                                         showEditor_1597892187('addonFieldExt_'+value);
                                                     });
+                                                }
+                                                if (channel == 4) {
+                                                    var download = res.data.download;
+                                                    var users_level_html = '<option value="0" selected>不限会员</option>';
+                                                    $.each(download.users_level, function (index, value) {
+                                                        users_level_html += '<option value="'+value.level_id+'">'+value.level_name+'</option>\n';
+                                                    });
+                                                    $('#arc_level_id').html(users_level_html);
+                                                    if('local' != download.upload_flag){
+                                                        //第三方
+                                                        var upload_button_html = '<button type="button" class="el-button el-button--primary is-plain el-button--small" style="position: relative;z-index: 1;">\n选择多文件\n' +
+                                                            '                       <input type="file" name="file" id="'+download.upload_flag+'File" multiple="multiple" onchange="'+download.upload_flag+'_download__upload(this);" style="position: absolute;top: 0;right: 0;opacity: 0;width: 110px;height: 30px;"/>\n' +
+                                                            '                  </button>';
+                                                        $('#download-layui-upload').prepend(upload_button_html);
+                                                    }else{
+                                                        $("#buttonList").show();
+                                                    }
+                                                    $('#download-layui-upload').attr('data-type',download.upload_flag);
+                                                    if (1 == download.servername_use){
+                                                        $(".th_server_name").show();
+                                                    }
+                                                    type20210507 = download.basic.file_type;
+                                                    default_servername20210507 = download.default_servername;
+                                                    attr_field20210507 = download.attr_field;
+                                                    servername_use20210507 = download.servername_use;
                                                 }
                                             }
                                         },

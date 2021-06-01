@@ -124,6 +124,8 @@ function upload_head_pic(e){
     }
     var formData = new FormData();
     formData.append('file',file);
+    var max_file_size = $(e).attr('data-max_file_size') * 1024 * 1024;
+    formData.append('max_file_size', max_file_size);
     formData.append('_ajax',1);
     LoaDing('正在处理');
     $.ajax({

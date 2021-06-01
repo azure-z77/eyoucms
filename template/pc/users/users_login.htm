@@ -38,7 +38,7 @@
       </div>
           {/eyou:eq}
           <div class="login-link"> <a class="login-link-reg" href="{eyou:url link='user/Users/reg' /}">注册</a> <a href="{eyou:url link='user/Users/retrieve_password' /}">找回密码</a> </div>
-          <input type="hidden" name="referurl" value="{:url('user/Users/centre')}"/>
+          <input type="hidden" name="referurl" value="{$referurl}"/>
           <input type="hidden" name="website" value="website"/>
           <input type="button" name="submit" class="btn btn-lg btn-primary btn-block group_z" value="登录"/>
           
