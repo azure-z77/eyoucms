@@ -73,6 +73,9 @@ class AjaxLogic extends Model
      */
     private function renameInstall()
     {
+        if (serverIP() == '127.0.0.1') {
+            return true;
+        }
         $install_path = ROOT_PATH.'install';
         if (is_dir($install_path) && file_exists($install_path)) {
             $install_time = DEFAULT_INSTALL_DATE;
