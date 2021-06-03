@@ -61,10 +61,12 @@ class AjaxLogic extends Model
      */
     public function del_adminlog()
     {
-        $mtime = strtotime("-1 month");
-        Db::name('admin_log')->where([
-            'log_time'  => ['lt', $mtime],
-            ])->delete();
+        try {
+            $mtime = strtotime("-1 month");
+            Db::name('admin_log')->where([
+                'log_time'  => ['lt', $mtime],
+                ])->delete();
+        } catch (\Exception $e) {}
     }
 
     /**
