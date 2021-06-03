@@ -13,8 +13,8 @@
 
 namespace app\admin\logic;
 
+use think\Db;
 use think\Model;
-use think\db;
 /**
  * 产品逻辑定义
  * Class CatsLogic

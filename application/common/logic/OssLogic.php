@@ -15,6 +15,7 @@ namespace app\common\logic;
 
 use OSS\OssClient;
 use OSS\Core\OssException;
+use think\Db;
 
 require_once './vendor/aliyun-oss-php-sdk/autoload.php';
 
