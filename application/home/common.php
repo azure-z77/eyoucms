@@ -90,8 +90,9 @@ if (!function_exists('set_typeseotitle'))
      */
     function set_typeseotitle($typename = '', $seo_title = '')
     {
-        /*针对没有自定义SEO标题的列表*/
-        if (empty($seo_title)) {
+        static $lang = null;
+        $lang === null && $lang = get_home_lang();
+        if (empty($seo_title)) { // 针对没有自定义SEO标题的列表
             $web_name = tpCache('web.web_name');
             $seo_liststitle_format = tpCache('seo.seo_liststitle_format');
             switch ($seo_liststitle_format) {
@@ -103,7 +104,11 @@ if (!function_exists('set_typeseotitle'))
                 default:
                     $page = I('param.page/d', 1);
                     if ($page > 1) {
-                        $typename .= "_第{$page}页";
+                        if (in_array($lang, ['cn'])) {
+                            $typename .= "_第{$page}页";
+                        } else {
+                            $typename .= "_{$page}";
+                        }
                     }
                     $seo_title = $typename.'_'.$web_name;
                     break;
@@ -111,7 +116,11 @@ if (!function_exists('set_typeseotitle'))
         } else {
             $page = I('param.page/d', 1);
             if ($page > 1) {
-                $seo_title .= "_第{$page}页";
+                if (in_array($lang, ['cn'])) {
+                    $seo_title .= "_第{$page}页";
+                } else {
+                    $seo_title .= "_{$page}";
+                }
             }
         }
 
@@ -127,16 +136,25 @@ if (!function_exists('set_tagseotitle'))
     function set_tagseotitle($tag = '', $seo_title = '')
     {
         $page = I('param.page/d', 1);
-        /*针对没有自定义SEO标题的Tag*/
-        if (empty($seo_title)) {
+        static $lang = null;
+        $lang === null && $lang = get_home_lang();
+        if (empty($seo_title)) { // 针对没有自定义SEO标题的Tag
             $web_name = tpCache('web.web_name');
             if ($page > 1) {
-                $tag .= "_第{$page}页";
+                if (in_array($lang, ['cn'])) {
+                    $tag .= "_第{$page}页";
+                } else {
+                    $tag .= "_{$page}";
+                }
             }
             $seo_title = $tag.'_'.$web_name;
         } else {
             if ($page > 1) {
-                $seo_title .= "_第{$page}页";
+                if (in_array($lang, ['cn'])) {
+                    $seo_title .= "_第{$page}页";
+                } else {
+                    $seo_title .= "_{$page}";
+                }
             }
         }
 
