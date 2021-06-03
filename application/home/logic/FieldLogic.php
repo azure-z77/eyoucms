@@ -86,6 +86,9 @@ class FieldLogic extends Model
         if (!empty($data) && !empty($fieldInfo)) {
             foreach ($data as $key => $val) {
                 $dtype = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dtype'] : '';
+                if (empty($dtype)) {
+                    continue;
+                }
                 $dfvalue_unit = !empty($fieldInfo[$key]) ? $fieldInfo[$key]['dfvalue_unit'] : '';
                 switch ($dtype) {
                     case 'int':
