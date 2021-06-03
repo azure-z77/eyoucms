@@ -672,7 +672,7 @@ class Images extends Base
 //        }
 //    }
     /**
-     * 删除商品相册图
+     * 删除图集相册图
      */
     public function del_imgupload()
     {
@@ -683,7 +683,6 @@ class Images extends Base
                 Db::name('images_upload')->where('image_url','like','%'.$filename)->where('aid',$aid)->delete();
 
             }
-
         }
     }
 }

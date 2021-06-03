@@ -76,7 +76,7 @@ class Member extends Model
             'is_system'=> 1,
             'lang'     => $this->admin_lang,
         ];
-        $users_parameter =Db::name('users_parameter')->where($where_1)->field('para_id,title,name')->getAllWithIndex('name');
+        $users_parameter = Db::name('users_parameter')->where($where_1)->field('para_id,title,name')->getAllWithIndex('name');
 
         // 判断手机和邮箱格式是否正确
         foreach ($post_users as $key => $val) {
@@ -104,7 +104,7 @@ class Member extends Model
                 // 若users_id为空，则清除条件中的users_id条件
                 if (empty($users_id)) { unset($where_2['users_id']); }
 
-                $users_list =Db::name('users_list')->where($where_2)->field('info')->find();
+                $users_list = Db::name('users_list')->where($where_2)->field('info')->find();
                 if (!empty($users_list['info'])) {
                     return $value['title'].'已存在！';
                 }
@@ -127,13 +127,13 @@ class Member extends Model
                 'is_system' => 1,
                 'lang'      => $this->admin_lang,
             ];
-            $paraData =Db::name('users_parameter')->where($parawhere)->field('para_id')->find();
+            $paraData = Db::name('users_parameter')->where($parawhere)->field('para_id')->find();
             $listwhere = [
                 'para_id'   => $paraData['para_id'],
                 'users_id'  => $users_id,
                 'lang'      => $this->admin_lang,
             ];
-            $listData =Db::name('users_list')->where($listwhere)->field('users_id,info')->find();
+            $listData = Db::name('users_list')->where($listwhere)->field('users_id,info')->find();
             $Data['email'] = !empty($listData['info']) ? $listData['info'] : '';
         }
 
@@ -144,13 +144,13 @@ class Member extends Model
                 'is_system' => 1,
                 'lang'     => $this->admin_lang,
             ];
-            $paraData_1 =Db::name('users_parameter')->where($parawhere_1)->field('para_id')->find();
+            $paraData_1 = Db::name('users_parameter')->where($parawhere_1)->field('para_id')->find();
             $listwhere_1 = [
                 'para_id'   => $paraData_1['para_id'],
                 'users_id'  => $users_id,
                 'lang'     => $this->admin_lang,
             ];
-            $listData_1 =Db::name('users_list')->where($listwhere_1)->field('users_id,info')->find();
+            $listData_1 = Db::name('users_list')->where($listwhere_1)->field('users_id,info')->find();
             $Data['mobile'] = !empty($listData_1['info']) ? $listData_1['info'] : '';
         }
 
