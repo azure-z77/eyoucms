@@ -109,7 +109,9 @@ class TagArcview extends Base
 
         $result = view_logic($aid, $result['channel'], $result, true);
 
-        return ['data'=>$result];
+        return [
+            'data'=> !empty($result) ? $result : false,
+        ];
     }
 
     /**
@@ -128,7 +130,7 @@ class TagArcview extends Base
             $result = $this->getSingleInfo($typeid, $addfields);
             $result['typename'] = text_msubstr($result['typename'], 0, $titlelen, false);
             $redata = [
-                'data'  => $result,
+                'data'=> !empty($result) ? $result : false,
             ];
             cache($cacheKey, $redata, null, 'arctype');
         }

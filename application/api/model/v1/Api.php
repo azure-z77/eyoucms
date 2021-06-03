@@ -37,28 +37,23 @@ class Api extends Base
         $args = [$aid, $users];
         $cacheKey = "api-model-v1-Api-getArchivesView-".json_encode($args);
         $result = cache($cacheKey);
-        if (empty($result)) {
-            $code = 0;
-            $msg = 'OK';
+        if (true || empty($result)) {
             $detail = $this->getViewInfo($aid, $users);
             if (!empty($detail)) {
-                if (0 <= $detail['arcrank']) {
-                    $code = 1;
-                } else if (0 > $detail['arcrank']) {
-                    $msg = '文档暂未开放，无权查看！';
+                if (0 <= $detail['arcrank']) { // 待审核稿件
+                    $detail['title'] = htmlspecialchars_decode($detail['title']);
+                    $detail['add_time'] = date('Y-m-d H:i:s', $detail['add_time']); // 格式化发布时间
+                    $detail['content'] = $this->html_httpimgurl($detail['content'], true); // 转换内容图片为http路径
+                } else {
+                    $detail = [
+                        'arcrank'   => $detail['arcrank'],
+                    ];
                 }
-                $detail['title'] = htmlspecialchars_decode($detail['title']);
-                $detail['add_time'] = date('Y-m-d H:i:s', $detail['add_time']); // 格式化发布时间
-                $detail['content'] = $this->html_httpimgurl($detail['content'], true); // 转换内容图片为http路径
-            } else {
-                $msg = '文档不存在！';
             }
 
             $result = [
-                'code' => $code,
-                'msg'   => $msg,
                 'detail' => [
-                    'data' => !empty($detail) ? $detail : [],
+                    'data' => !empty($detail) ? $detail : false,
                 ],
             ];
 
@@ -75,7 +70,7 @@ class Api extends Base
     private function getViewInfo($aid, $users = [])
     {
         $result = [];
-        $detail = Db::name('archives')->field('aid,typeid,channel,title,litpic,author,click,arcrank,seo_title,seo_keywords,seo_description,users_price,users_free,old_price,sales_num,stock_show,stock_count,prom_type,status,arc_level_id,downcount,add_time')->where([
+        $detail = Db::name('archives')->field('aid,typeid,channel,title,litpic,author,click,arcrank,seo_title,seo_keywords,seo_description,users_price,users_free,old_price,sales_num,stock_show,stock_count,prom_type,arc_level_id,downcount,add_time')->where([
                 'aid'       => $aid,
                 'status'    => 1,
                 'is_del'    => 0,
@@ -89,6 +84,8 @@ class Api extends Base
             $detail['litpic'] = $this->get_default_pic($detail['litpic']); // 默认封面图
             $detail['content'] = '';
             if (2 == $detail['channel']) { // 产品模型
+                unset($detail['users_free']);
+                unset($detail['downcount']);
                 /*产品参数*/
                 $productAttrModel = new \app\home\model\ProductAttr;
                 $attr_list = $productAttrModel->getProAttrNew($aid, 'a.attr_id,a.attr_name,b.attr_value,b.aid');
@@ -98,7 +95,7 @@ class Api extends Base
                     unset($val['aid']);
                     $attr_list[$key] = $val;
                 }
-                $detail['attr_list'] = $attr_list;
+                $detail['attr_list'] = !empty($attr_list) ? $attr_list : false;
 
                 /*规格数据*/
                 // $detail['spec_attr'] = $this->getSpecAttr($aid, $users);
@@ -113,7 +110,7 @@ class Api extends Base
                     isset($val['intro']) && $val['intro'] = htmlspecialchars_decode($val['intro']);
                     $image_list[$key] = $val;
                 }
-                $detail['image_list'] = $image_list;
+                $detail['image_list'] = !empty($image_list) ? $image_list : false;
 
                 /*可控制的主表字段列表*/
                 $detail['ifcontrolRow'] = Db::name('channelfield')->field('id,name')->where([
@@ -152,6 +149,14 @@ class Api extends Base
                 // }
             }
             else if (3 == $detail['channel']) { // 图集模型
+                unset($detail['users_price']);
+                unset($detail['users_free']);
+                unset($detail['old_price']);
+                unset($detail['sales_num']);
+                unset($detail['stock_show']);
+                unset($detail['stock_count']);
+                unset($detail['prom_type']);
+                unset($detail['downcount']);
                 // 图集相册
                 $imagesUploadModel = new \app\home\model\ImagesUpload;
                 $image_list = $imagesUploadModel->getImgUpload($aid, 'aid,image_url,intro');
@@ -161,9 +166,16 @@ class Api extends Base
                     isset($val['intro']) && $val['intro'] = htmlspecialchars_decode($val['intro']);
                     $image_list[$key] = $val;
                 }
-                $detail['image_list'] = $image_list;
+                $detail['image_list'] = !empty($image_list) ? $image_list : false;
             }
-            else if (4 == $detail['channel']) {
+            else if (4 == $detail['channel']) { // 下载模型
+                unset($detail['users_price']);
+                unset($detail['users_free']);
+                unset($detail['old_price']);
+                unset($detail['sales_num']);
+                unset($detail['stock_show']);
+                unset($detail['stock_count']);
+                unset($detail['prom_type']);
                 if (0 == $detail['arc_level_id']) {
                     $downloadFileModel = new \app\home\model\DownloadFile;
                     $down_list = $downloadFileModel->getDownFile($aid);
@@ -175,9 +187,14 @@ class Api extends Base
                 } else {
                     $down_list = false;
                 }
-                $detail['down_list'] = $down_list;
+                $detail['down_list'] = !empty($down_list) ? $down_list : false;
             }
             else if (5 == $detail['channel']) { // 视频模型
+                unset($detail['sales_num']);
+                unset($detail['stock_show']);
+                unset($detail['stock_count']);
+                unset($detail['prom_type']);
+                unset($detail['downcount']);
                 // 视频附件列表
                 $mediaFileModel = new \app\home\model\MediaFile;
                 $media_list = $mediaFileModel->getMediaFile($aid);
@@ -185,7 +202,17 @@ class Api extends Base
                     $val['file_url'] = handle_subdir_pic($val['file_url'], 'media');
                     $media_list[$key] = $val;
                 }
-                $detail['media_list'] = $media_list;
+                $detail['media_list'] = !empty($media_list) ? $media_list : false;
+            }
+            else {
+                unset($detail['users_price']);
+                unset($detail['users_free']);
+                unset($detail['old_price']);
+                unset($detail['sales_num']);
+                unset($detail['stock_show']);
+                unset($detail['stock_count']);
+                unset($detail['prom_type']);
+                unset($detail['downcount']);
             }
 
             // 获取自定义字段的数据
@@ -234,7 +261,7 @@ class Api extends Base
                 }
                 $customField = array_values($customField);  
             }
-            $detail['customField'] = $customField;
+            $detail['customField'] = !empty($customField) ? $customField : false;
 
             // 浏览量
             Db::name('archives')->where(['aid'=>$aid])->setInc('click'); 

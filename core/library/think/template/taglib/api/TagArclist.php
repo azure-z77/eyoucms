@@ -17,7 +17,7 @@ use think\Db;
 use app\home\logic\FieldLogic;
 
 /**
- * 文章列表(,用于任何页面拿到部分文章,不分页)
+ * 文章列表(用于任何页面拿到部分文章,不分页)
  */
 class TagArclist extends Base
 {
@@ -42,10 +42,15 @@ class TagArclist extends Base
         $field = 'a.aid,a.title,a.litpic,a.click,a.channel,a.users_price,a.old_price,a.seo_title,a.seo_description,a.add_time,a.is_litpic,a.typeid,b.typename';
         empty($orderway) && $orderway = 'desc';
         $limit = preg_replace('/[^\d\,]/i', '', $limit);
-        $channeltype = !empty($param['channel']) ? intval($param['channel']) : '';
         $param['typeid'] = $typeid = !empty($param['typeid']) ? $param['typeid'] : $this->tid;
         $titlelen = !empty($param['titlelen']) ? intval($param['titlelen']) : 100;
         $infolen = !empty($param['infolen']) ? intval($param['infolen']) : 160;
+        if (!empty($param['channelid'])) {
+            if (empty($param['typeid']) && empty($param['channel'])) {
+                $param['channel'] = intval($param['channelid']);
+            }
+        }
+        $channeltype = !empty($param['channel']) ? intval($param['channel']) : '';
 
         /*
         $args = [$param,$limit,$orderby,$addfields,$orderway,$field];
@@ -325,7 +330,7 @@ class TagArclist extends Base
         /*--end*/
 
         $redata = [
-            'data'  => $result,
+            'data'=> !empty($result) ? $result : false,
         ];
         !empty($arctypeInfo) && $redata['arctype'] = $arctypeInfo;
         // cache($cacheKey, $redata, null, 'archives');

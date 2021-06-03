@@ -91,6 +91,8 @@ class TagAdv extends Base
             $result[$key] = $val;
         }
 
-        return ['data'=>$result];
+        return [
+            'data'=> !empty($result) ? $result : false,
+        ];
     }
 }

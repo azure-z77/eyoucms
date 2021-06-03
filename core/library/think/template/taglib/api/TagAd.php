@@ -51,6 +51,8 @@ class TagAd extends Base
             unset($result['media_type']);
         }
 
-        return ['data'=>$result];
+        return [
+            'data'=> !empty($result) ? $result : false,
+        ];
     }
 }

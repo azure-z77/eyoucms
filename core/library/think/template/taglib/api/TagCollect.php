@@ -16,7 +16,7 @@ namespace think\template\taglib\api;
 use think\Db;
 
 /**
- * 文章收藏信息
+ * 文档收藏信息
  */
 class TagCollect extends Base
 {
@@ -29,24 +29,27 @@ class TagCollect extends Base
     }
 
     /**
-     * 获取文章收藏信息
+     * 获取文档收藏信息
      * @author wengxianhu by 2018-4-20
      */
-    public function getCollect($aid = '',$type = '',$users = [])
+    public function getCollect($aid = '',$type = 'default',$users = [])
     {
         if (empty($aid)) {
             return false;
         }
-        $data['is_collect'] = 0;
-        if (0 < $users['users_id']){
+        
+        $is_collect = 0;
+        if (0 < $users['users_id']) {
             $result = Db::name("users_collection")
-                ->where(['aid'=>$aid,'users_id'=>$users['users_id']])
+                ->where(['aid' => $aid, 'users_id' => $users['users_id']])
                 ->find();
             if (!empty($result)){
-                $data['is_collect'] = 1;
+                $is_collect = 1;
             }
         }
 
-        return ['data'=>$data];
+        return [
+            'is_collect'=>$is_collect
+        ];
     }
 }

@@ -228,7 +228,6 @@ class TagList extends Base
             ->alias('a')
             ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
             ->where($where_str)
-            ->where('a.lang', $this->main_lang)
             ->orderRaw($orderby)
             ->paginate($pagesize, false, $paginate);
         $result = $pages->toArray();
@@ -326,6 +325,8 @@ class TagList extends Base
         // }
         /*--end*/
 
+        empty($result['data']) && $result['data'] = false;
+        
         $redata = $result;
         // cache($cacheKey, $redata, null, 'archives');
 

@@ -99,7 +99,9 @@ class TagChannel extends Base
                     $result = $this->getTree($parent_id, $showAllTxt);
                 }
                 $result = reform_keys($result); // 重置数组索引，兼容多维数组
-                return ['data'=>$result];
+                return [
+                    'data'=> !empty($result) ? $result : false,
+                ];
                 break;
 
             case 'channel': // 该模型的全部顶级栏目以及子栏目
@@ -125,7 +127,9 @@ class TagChannel extends Base
         // }
         /*--end*/
 
-        return ['data'=>$result];
+        return [
+            'data'=> !empty($result) ? $result : false,
+        ];
     }
 
     /**

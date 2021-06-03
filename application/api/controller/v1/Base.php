@@ -78,6 +78,21 @@ class Base extends \app\api\controller\Base
     }
 
     /**
+     * 返回操作失败
+     * @param array $data
+     * @param string|array $msg
+     * @return array
+     */
+    protected function renderError($msg = '', $url = null, $data = [], $wait = 1, array $header = [], $target = '_self')
+    {
+        if (!empty($url) && is_array($data)) {
+            $data['url'] = $url;
+        }
+
+        return $this->result($data, 0, $msg);
+    }
+
+    /**
      * 返回操作成功
      * @param array $data
      * @param string|array $msg

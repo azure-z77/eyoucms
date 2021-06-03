@@ -83,6 +83,6 @@ class TagPrenext extends Base
             }
         }
 
-        return $result;
+        return !empty($result) ? $result : false;
     }
 }

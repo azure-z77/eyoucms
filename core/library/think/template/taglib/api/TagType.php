@@ -42,7 +42,7 @@ class TagType extends Base
         $typeid = !empty($typeid) ? $typeid : $this->tid;
         if (empty($typeid)) {
             $redata = [
-                'data'  => [],
+                'data'  => false,
             ];
             return $redata;
         }
@@ -81,7 +81,7 @@ class TagType extends Base
         /*--end*/
 
         $redata = [
-            'data'  => $result,
+            'data'  => !empty($result) ? $result : false,
         ];
         cache($cacheKey, $redata, null, 'arctype');
 

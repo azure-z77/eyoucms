@@ -84,8 +84,8 @@ class Api extends Base
      */
     public function archivesView($aid = '', $typeid = '')
     {
-        !empty($aid) && $aid = intval($aid);
-        !empty($typeid) && $typeid = intval($typeid);
+        $aid = intval($aid);
+        $typeid = intval($typeid);
 
         if (empty($aid) && !empty($typeid)) { // 单页栏目详情页
             $data = $this->apiLogic->taglibData();

@@ -64,6 +64,8 @@ class TagGlobal extends Base
             $result[$key] = htmlspecialchars_decode($value);
         }
         
-        return ['data'=>$result];
+        return [
+            'data'=> !empty($result) ? $result : false,
+        ];
     }
 }

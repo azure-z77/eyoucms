@@ -490,27 +490,27 @@ class Users extends Base
         if (IS_AJAX_POST) {
             $aid = input('param.aid/d');
             if(empty($aid)){
-                $this->error('缺少文章ID');
+                $this->error('缺少文档ID！');
             }
             $count = Db::name('users_collection')->where([
                 'aid'   => $aid,
                 'users_id'  => $this->users_id,
             ])->count();
             if (empty($count)) {
-                $insert = Db::name('archives')->field('aid,channel,typeid,lang,title,litpic')->where('aid',$aid)->find();
-                if(empty($insert)){
-                    $this->error('文章不存在');
+                $addSave = Db::name('archives')->field('aid,channel,typeid,lang,title,litpic')->where('aid',$aid)->find();
+                if(empty($addSave)){
+                    $this->error('文档不存在！');
                 }
-                $insert['add_time']  = getTime();
-                $insert['users_id']  = $this->users_id;
-                $r = Db::name('users_collection')->insert($insert);
+                $addSave['add_time']  = getTime();
+                $addSave['users_id']  = $this->users_id;
+                $r = Db::name('users_collection')->insert($addSave);
                 if (!empty($r)){
-                    $this->success('收藏成功', null, ['is_collect'=>1]);
+                    $this->success('已收藏', null, ['is_collect'=>1]);
                 }
             }else{
                 $r = Db::name('users_collection')->where(['aid'=>$aid,'users_id'=>$this->users_id])->delete();
                 if (!empty($r)){
-                    $this->success('取消成功', null, ['is_collect'=>0]);
+                    $this->success('已取消', null, ['is_collect'=>0]);
                 }
             }
         }
