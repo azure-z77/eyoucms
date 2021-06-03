@@ -155,7 +155,7 @@ class Admin extends Base {
             $condition['password'] = $password;
             if (!empty($condition['user_name']) && !empty($condition['password'])) {
                 $condition['password'] = func_encrypt($condition['password']);
-                $admin_info = M('admin')->where($condition)->find();
+                $admin_info = Db::name('admin')->where($condition)->find();
                 if (empty($admin_info)) {
                     adminLog('登录失败(用户名/密码错误)');
                     /*记录登录错误次数*/
@@ -182,7 +182,7 @@ class Admin extends Base {
                         $isFounder = 1;
                     }
                     if (0 < intval($role_id)) {
-                        $auth_role_info = M('auth_role')
+                        $auth_role_info = Db::name('auth_role')
                             ->field("a.*, a.name AS role_name")
                             ->alias('a')
                             ->where('a.id','eq', $role_id)
@@ -200,7 +200,7 @@ class Admin extends Base {
                     $last_login_time = getTime();
                     $last_login_ip = clientIP();
                     $login_cnt = $admin_info['login_cnt'] + 1;
-                    M('admin')->where("admin_id = ".$admin_info['admin_id'])->save(array('last_login'=>$last_login_time, 'last_ip'=>$last_login_ip, 'login_cnt'=>$login_cnt, 'session_id'=>$this->session_id));
+                    Db::name('admin')->where("admin_id = ".$admin_info['admin_id'])->save(array('last_login'=>$last_login_time, 'last_ip'=>$last_login_ip, 'login_cnt'=>$login_cnt, 'session_id'=>$this->session_id));
                     $admin_info['last_login'] = $last_login_time;
                     $admin_info['last_ip'] = $last_login_ip;
 
@@ -283,7 +283,7 @@ class Admin extends Base {
         if(!$admin_id){
             $admin_id = session('admin_id');
         }
-        $info = M('admin')->where("admin_id", $admin_id)->find();
+        $info = Db::name('admin')->where("admin_id", $admin_id)->find();
         $info['password'] =  "";
         $this->assign('info',$info);
         
@@ -291,7 +291,7 @@ class Admin extends Base {
             //修改密码
             $enOldPwd = func_encrypt($oldPwd);
             $enNewPwd = func_encrypt($newPwd);
-            $admin = M('admin')->where('admin_id' , $admin_id)->find();
+            $admin = Db::name('admin')->where('admin_id' , $admin_id)->find();
             if(!$admin || $admin['password'] != $enOldPwd){
                 exit(json_encode(array('status'=>-1,'msg'=>'旧密码不正确')));
             }else if($newPwd != $new2Pwd){
@@ -301,7 +301,7 @@ class Admin extends Base {
                     'update_time'   => getTime(),
                     'password'      => $enNewPwd,
                 );
-                $row = M('admin')->where('admin_id' , $admin_id)->save($data);
+                $row = Db::name('admin')->where('admin_id' , $admin_id)->save($data);
                 if($row){
                     /*检查密码复杂度*/
                     $admin_login_pwdlevel = checkPasswordLevel($newPwd);
@@ -342,7 +342,7 @@ class Admin extends Base {
     {
         if (IS_AJAX_POST) {
             $user_name = input('post.user_name/s');
-            if (M('admin')->where("user_name", $user_name)->count()) {
+            if (Db::name('admin')->where("user_name", $user_name)->count()) {
                 $this->error("此用户名已被注册，请更换！");
             }
             $row = Db::name('users')->field('users_id')->where([
@@ -383,10 +383,10 @@ class Admin extends Base {
             if (empty($data['pen_name'])) {
                 $data['pen_name'] = $data['user_name'];
             }
-            if (M('admin')->where("user_name", $data['user_name'])->count()) {
+            if (Db::name('admin')->where("user_name", $data['user_name'])->count()) {
                 $this->error("此用户名已被注册，请更换",url('Admin/admin_add'));
             } else {
-                $admin_id = M('admin')->insertGetId($data);
+                $admin_id = Db::name('admin')->insertGetId($data);
                 if ($admin_id) {
                     adminLog('新增管理员：'.$data['user_name']);
 
@@ -463,7 +463,7 @@ class Admin extends Base {
 
         // 栏目
         $arctype_data = $arctype_array = array();
-        $arctype = M('arctype')->select();
+        $arctype = Db::name('arctype')->select();
         if(! empty($arctype)){
             foreach ($arctype as $item){
                 if($item['parent_id'] <= 0){
@@ -518,7 +518,7 @@ class Admin extends Base {
             }
             /*--end*/
             $data['update_time'] = getTime();
-            $r = M('admin')->where('admin_id', $id)->save($data);
+            $r = Db::name('admin')->where('admin_id', $id)->save($data);
             if ($r) {
                 /*检查密码复杂度*/
                 if ($id == session('admin_info.admin_id')) {
@@ -558,7 +558,7 @@ class Admin extends Base {
         }
 
         $id = input('get.id/d', 0);
-        $info = M('admin')->field('a.*')
+        $info = Db::name('admin')->field('a.*')
             ->alias('a')
             ->where("a.admin_id", $id)->find();
         $info['password'] =  "";
@@ -594,7 +594,7 @@ class Admin extends Base {
 
         // 栏目
         $arctype_data = $arctype_array = array();
-        $arctype = M('arctype')->select();
+        $arctype = Db::name('arctype')->select();
         if(! empty($arctype)){
             foreach ($arctype as $item){
                 if($item['parent_id'] <= 0){
@@ -628,17 +628,17 @@ class Admin extends Base {
             }
             if (!empty($id_arr)) {
                 if (0 < intval(session('admin_info.role_id')) || !empty($parent_id) ) {
-                    $count = M('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
+                    $count = Db::name('admin')->where("admin_id in (".implode(',', $id_arr).") AND role_id = -1")
                         ->count();
                     if (!empty($count)) {
                         $this->error('禁止删除超级管理员');
                     }
                 }
 
-                $result = M('admin')->field('user_name')->where("admin_id",'IN',$id_arr)->select();
+                $result = Db::name('admin')->field('user_name')->where("admin_id",'IN',$id_arr)->select();
                 $user_names = get_arr_column($result, 'user_name');
 
-                $r = M('admin')->where("admin_id",'IN',$id_arr)->delete();
+                $r = Db::name('admin')->where("admin_id",'IN',$id_arr)->delete();
                 if($r){
                     adminLog('删除管理员：'.implode(',', $user_names));
 
@@ -669,7 +669,7 @@ class Admin extends Base {
             $saveData = [];
             foreach ($roleRow as $key => $val) {
                 $permission = $val['permission'];
-                $arctype = M('arctype')->where('status',1)->column('id');
+                $arctype = Db::name('arctype')->where('status',1)->column('id');
                 if (!empty($arctype)) {
                     $permission['arctype'] = $arctype;
                 } else {
@@ -695,7 +695,7 @@ class Admin extends Base {
             $field  = input('field'); // 修改哪个字段
             $value  = input('value', '', null); // 修改字段值  
             if (!empty($admin_id)) {
-                $r = M('admin')->where('admin_id',intval($admin_id))->save([
+                $r = Db::name('admin')->where('admin_id',intval($admin_id))->save([
                         $field=>$value,
                         'update_time'=>getTime(),
                     ]); // 根据条件保存修改的数据
@@ -810,7 +810,7 @@ class Admin extends Base {
         
         // 加载前台session
         if (!empty($users_id)) {
-            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
+            $users = Db::name('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
                 ->alias('a')
                 ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
                 ->where([

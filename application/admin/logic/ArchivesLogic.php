@@ -71,7 +71,7 @@ class ArchivesLogic extends Model
             if (1 == $thorough) { // 直接删除，跳过回收站
                 $err = 0;
                 foreach ($data as $key => $val) {
-                    $r = M('archives')->where('aid','IN',$val['aid'])->delete();
+                    $r = Db::name('archives')->where('aid','IN',$val['aid'])->delete();
                     if ($r) {
                         if (empty($val['ifsystem'])) {
                             model($val['ctl_name'])->afterDel($val['aid'], $val['table']);
@@ -90,7 +90,7 @@ class ArchivesLogic extends Model
 
                 $err = 0;
                 foreach ($data as $key => $val) {
-                    $r = M('archives')->where('aid','IN',$val['aid'])->update($info);
+                    $r = Db::name('archives')->where('aid','IN',$val['aid'])->update($info);
                     if ($r) {
                         adminLog('删除文档-id：'.implode(',', $val['aid']));
                     } else {

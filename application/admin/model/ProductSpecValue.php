@@ -57,7 +57,7 @@ class ProductSpecValue extends Model
                     'update_time'   => $time,
                 ];
             }
-            M('product_spec_value')->insertAll($UpValue);
+           Db::name('product_spec_value')->insertAll($UpValue);
         }
     }
 }

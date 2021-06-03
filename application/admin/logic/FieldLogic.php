@@ -269,7 +269,7 @@ class FieldLogic extends Model
             }
             $fieldname = $row['name'];
             $channel_id = $row['channel_id'];
-            $table = M('channeltype')->where('id',$channel_id)->getField('table');
+            $table = Db::name('channeltype')->where('id',$channel_id)->getField('table');
             $table = PREFIX.$table.'_content';
             if ($this->checkChannelFieldList($table, $fieldname, $channel_id)) {
                 $sql = "ALTER TABLE `{$table}` DROP COLUMN `{$fieldname}`;";
@@ -346,12 +346,12 @@ class FieldLogic extends Model
         //     return true;
         // }
 
-        $channelfieldArr = M('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
+        $channelfieldArr = Db::name('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
 
         $new_arr = array(); // 表字段数组
         $addData = array(); // 数据存储变量
 
-        $table = M('channeltype')->where('id',$channel_id)->getField('table');
+        $table = Db::name('channeltype')->where('id',$channel_id)->getField('table');
         $tableExt = PREFIX.$table.'_content';
         $rowExt = Db::query("SHOW FULL COLUMNS FROM {$tableExt}");
         foreach ($rowExt as $key => $val) {
@@ -407,7 +407,7 @@ class FieldLogic extends Model
             }
         }
         if (!empty($addData)) {
-            M('channelfield')->insertAll($addData);
+            Db::name('channelfield')->insertAll($addData);
         }
 
         /*字段新增记录有，表字段没有*/
@@ -418,7 +418,7 @@ class FieldLogic extends Model
                     'ifmain'    => 0,
                     'name'  => $v['name'],
                 );
-                M('channelfield')->where($map)->delete();
+                Db::name('channelfield')->where($map)->delete();
             }
         }
         /*--end*/
@@ -432,7 +432,7 @@ class FieldLogic extends Model
      */
     public function synArchivesTableColumns($channel_id = '')
     {
-        $channelfieldArr = M('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
+        $channelfieldArr = Db::name('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
 
         $new_arr = array(); // 表字段数组
         $addData = array(); // 数据存储变量
@@ -477,7 +477,7 @@ class FieldLogic extends Model
             }
         }
         if (!empty($addData)) {
-            M('channelfield')->insertAll($addData);
+            Db::name('channelfield')->insertAll($addData);
         }
 
         /*字段新增记录有，表字段没有*/
@@ -488,7 +488,7 @@ class FieldLogic extends Model
                     'ifmain'    => 1,
                     'name'  => $v['name'],
                 );
-                M('channelfield')->where($map)->delete();
+                Db::name('channelfield')->where($map)->delete();
             }
         }
         /*--end*/
@@ -507,7 +507,7 @@ class FieldLogic extends Model
         }
 
         $channel_id = !empty($channel_id) ? $channel_id : config('global.arctype_channel_id');
-        $channelfieldArr = M('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
+        $channelfieldArr = Db::name('channelfield')->field('name,dtype')->where('channel_id',$channel_id)->getAllWithIndex('name');
 
         $new_arr = array(); // 表字段数组
         $addData = array(); // 数据存储变量
@@ -548,7 +548,7 @@ class FieldLogic extends Model
             }
         }
         if (!empty($addData)) {
-            M('channelfield')->insertAll($addData);
+            Db::name('channelfield')->insertAll($addData);
         }
 
         /*字段新增记录有，表字段没有*/
@@ -558,13 +558,13 @@ class FieldLogic extends Model
                     'channel_id'  => $channel_id,
                     'name'  => $v['name'],
                 );
-                M('channelfield')->where($map)->delete();
+                Db::name('channelfield')->where($map)->delete();
             }
         }
         /*--end*/
 
         /*修复v1.1.9版本的admin_id为系统字段*/
-        M('channelfield')->where('name','admin_id')->update(['ifsystem'=>1]);
+        Db::name('channelfield')->where('name','admin_id')->update(['ifsystem'=>1]);
         /*--end*/
 
         \think\Cache::clear('channelfield');

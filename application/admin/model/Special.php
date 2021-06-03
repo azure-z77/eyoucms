@@ -73,7 +73,7 @@ class Special extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName =Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -99,9 +99,9 @@ class Special extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('special_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
+       Db::name('special_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
         // 同时删除节点
-        M('special_node')->where(array('aid'=>array('IN', $aidArr)))->delete();
+       Db::name('special_node')->where(array('aid'=>array('IN', $aidArr)))->delete();
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

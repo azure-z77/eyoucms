@@ -45,14 +45,14 @@ class AdPosition extends Base
         // 多语言
         $condition['a.lang'] = array('eq', $this->admin_lang);
 
-        $adPositionM =  M('ad_position');
+        $adPositionM =  Db::name('ad_position');
         $count = $adPositionM->alias('a')->where($condition)->count();// 查询满足要求的总记录数
         $Page = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $adPositionM->alias('a')->where($condition)->order('id desc')->limit($Page->firstRow.','.$Page->listRows)->getAllWithIndex('id');
 
         // 每组获取三张图片
         $pids = get_arr_column($list, 'id');
-        $ad = M('ad')->where(['pid' => ['IN', $pids], 'lang' => $this->admin_lang])->order('pid asc, id asc')->select();
+        $ad = Db::name('ad')->where(['pid' => ['IN', $pids], 'lang' => $this->admin_lang])->order('pid asc, id asc')->select();
         foreach ($list as $k => $v) {
             if (1 == $v['type']) {
                 // 图片封面图片
@@ -112,7 +112,7 @@ class AdPosition extends Base
                 'title' => trim($post['title']),
                 'lang'  => $this->admin_lang,
             );
-            if(M('ad_position')->where($map)->count() > 0){
+            if(Db::name('ad_position')->where($map)->count() > 0){
                 $this->error('该广告名称已存在，请检查', url('AdPosition/index'));
             }
 
@@ -126,7 +126,7 @@ class AdPosition extends Base
                 'add_time'    => getTime(),
                 'update_time' => getTime(),
             );
-            $insertID = M('ad_position')->insertGetId($data);
+            $insertID = Db::name('ad_position')->insertGetId($data);
 
             if (!empty($insertID)) {
                 // 同步广告位置ID到多语言的模板变量里，添加多语言广告位
@@ -436,7 +436,7 @@ class AdPosition extends Base
         $assign_data = array();
 
         $id = input('id/d');
-        $field = M('ad_position')->field('a.*')->alias('a')->where(array('a.id'=>$id))->find();
+        $field = Db::name('ad_position')->field('a.*')->alias('a')->where(array('a.id'=>$id))->find();
         if (empty($field)) $this->error('广告不存在，请联系管理员！');
         switch ($field['type']) {
             case '1':
@@ -571,23 +571,23 @@ class AdPosition extends Base
             }
             /*--end*/
 
-            $r = M('ad_position')->where('id','IN',$id_arr)->delete();
+            $r = Db::name('ad_position')->where('id','IN',$id_arr)->delete();
             if ($r) {
 
                 /*多语言*/
                 if (!empty($attr_name_arr)) {
-                    M('language_attr')->where([
+                    Db::name('language_attr')->where([
                             'attr_name' => ['IN', $attr_name_arr],
                             'attr_group'    => 'ad_position',
                         ])->delete();
-                    M('language_attribute')->where([
+                    Db::name('language_attribute')->where([
                             'attr_name' => ['IN', $attr_name_arr],
                             'attr_group'    => 'ad_position',
                         ])->delete();
                 }
                 /*--end*/
 
-                M('ad')->where('pid','IN',$id_arr)->delete();
+                Db::name('ad')->where('pid','IN',$id_arr)->delete();
 
                 adminLog('删除广告-id：'.implode(',', $id_arr));
                 $this->success('删除成功');

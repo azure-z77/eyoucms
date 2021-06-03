@@ -119,7 +119,7 @@ class Media extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -145,14 +145,14 @@ class Media extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('media_content')->where(
+       Db::name('media_content')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )
             )
             ->delete();
         // 同时删除软件
-        $result = M('media_file')->field('file_url')
+        $result = Db::name('media_file')->field('file_url')
             ->where(
                 array(
                     'aid'=>array('IN', $aidArr)
@@ -166,13 +166,13 @@ class Media extends Model
                     @unlink(realpath('.'.$file_url));
                 }
             }
-            $r = M('media_file')->where(
+            $r = Db::name('media_file')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )
             )->delete();
             if ($r !== false) {
-                M('media_log')->where(array('aid'=>array('IN', $aidArr)))->delete();
+               Db::name('media_log')->where(array('aid'=>array('IN', $aidArr)))->delete();
             }
         }
         // 同时删除TAG标签

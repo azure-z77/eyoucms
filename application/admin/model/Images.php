@@ -81,7 +81,7 @@ class Images extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -157,7 +157,7 @@ class Images extends Model
      */
     public function getAllCateByTypeid($typeid)
     {
-        $result = M('arctype')->field('id,parent_id,typename')
+        $result = Db::name('arctype')->field('id,parent_id,typename')
             ->where(array('id|parent_id'=>$typeid, 'status'=>1))
             ->order('parent_id asc, sort_order asc')
             ->getAllWithIndex('id');   
@@ -176,14 +176,14 @@ class Images extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('images_content')->where(
+        Db::name('images_content')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )
             )
             ->delete();
         // 同时删除图片
-        $result = M('images_upload')->field('image_url')
+        $result = Db::name('images_upload')->field('image_url')
             ->where(
                 array(
                     'aid'=>array('IN', $aidArr)
@@ -191,13 +191,14 @@ class Images extends Model
             )
             ->select();
         if (!empty($result)) {
-            foreach ($result as $key => $val) {
-                $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
-                if (!is_http_url($image_url) && file_exists('.'.$image_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $image_url)) {
-                    @unlink(realpath('.'.$image_url));
-                }
-            }
-            M('images_upload')->where(
+            //20210603大黄注释 删掉文档不删掉服务器的图片,否则复制的文档图片无法显示
+//            foreach ($result as $key => $val) {
+//                $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
+//                if (!is_http_url($image_url) && file_exists('.'.$image_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $image_url)) {
+//                    @unlink(realpath('.'.$image_url));
+//                }
+//            }
+            Db::name('images_upload')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )

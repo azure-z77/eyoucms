@@ -37,7 +37,7 @@ class AuthRole extends Base {
             $map['c.name'] = array('LIKE', "%{$keywords}%");
         }
 
-        $AuthRole =  M('auth_role');     
+        $AuthRole =  Db::name('auth_role');
         $count = $AuthRole->alias('c')->where($map)->count();// 查询满足要求的总记录数
         $Page = new Page($count, 10);// 实例化分页类 传入总记录数和每页显示的记录数
         $fields = "c.*,s.name AS pname";
@@ -119,7 +119,7 @@ class AuthRole extends Base {
 
         // 栏目
         $arctype_data = $arctype_array = array();
-        $arctype = M('arctype')->select();
+        $arctype = Db::name('arctype')->select();
         if(! empty($arctype)){
             foreach ($arctype as $item){
                 if($item['parent_id'] <= 0){
@@ -213,7 +213,7 @@ class AuthRole extends Base {
 
         // 栏目
         $arctype_data = $arctype_array = array();
-        $arctype = M('arctype')->select();
+        $arctype = Db::name('arctype')->select();
         if(! empty($arctype)){
             foreach ($arctype as $item){
                 if($item['parent_id'] <= 0){
@@ -242,21 +242,21 @@ class AuthRole extends Base {
         $id_arr = eyIntval($id_arr);
         if (!empty($id_arr)) {
 
-            $count = M('auth_role')->where(['built_in'=>1,'id'=>['IN',$id_arr]])->count();
+            $count = Db::name('auth_role')->where(['built_in'=>1,'id'=>['IN',$id_arr]])->count();
             if (!empty($count)) {
                 $this->error('系统内置不允许删除！');
             }
 
-            $role = M('auth_role')->where("pid",'IN',$id_arr)->select();
+            $role = Db::name('auth_role')->where("pid",'IN',$id_arr)->select();
             if ($role) {
                 $this->error('请先清空该权限组下的子权限组');
             }
 
-            $role_admin = M('admin')->where("role_id",'IN',$id_arr)->select();
+            $role_admin = Db::name('admin')->where("role_id",'IN',$id_arr)->select();
             if ($role_admin) {
                 $this->error('请先清空所属该权限组的管理员');
             } else {
-                $r = M('auth_role')->where("id",'IN',$id_arr)->delete();
+                $r = Db::name('auth_role')->where("id",'IN',$id_arr)->delete();
                 if($r){
                     adminLog('删除权限组');
                     $this->success('删除成功');

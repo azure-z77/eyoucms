@@ -141,7 +141,7 @@ class Uploadify extends Base
             $where = [
                 'lang' => $this->admin_lang,
             ];
-            $common_pic = M('common_pic')->where($where)->order('id desc')->limit(6)->field('pic_path')->select();
+            $common_pic = Db::name('common_pic')->where($where)->order('id desc')->limit(6)->field('pic_path')->select();
         }
         $this->assign('common_pic', $common_pic);
 

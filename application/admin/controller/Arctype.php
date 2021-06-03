@@ -178,7 +178,7 @@ class Arctype extends Base
                     $channeltype = $post['current_channel'];
                     $topid = 0;
                 } else {
-                    $parentInfo = M('arctype')->field('id,channeltype,topid')->where('id', $post['parent_id'])->find();
+                    $parentInfo = Db::name('arctype')->field('id,channeltype,topid')->where('id', $post['parent_id'])->find();
                     $channeltype = $parentInfo['channeltype'];
                     $topid = !empty($parentInfo['topid']) ? $parentInfo['topid'] : $parentInfo['id'];
                 }
@@ -248,7 +248,7 @@ class Arctype extends Base
         $predirpath = ''; // 生成静态页面代码
         $ptypename = '';
         if (0 < $parent_id) {
-            $info = M('arctype')->where(array('id'=>$parent_id))->find();
+            $info = Db::name('arctype')->where(array('id'=>$parent_id))->find();
             if ($info) {
                 // 级别
                 $grade = $info['grade'] + 1;
@@ -406,7 +406,7 @@ class Arctype extends Base
         $assign_data = array();
 
         $id = input('id/d');
-        $info = M('arctype')->where([
+        $info = Db::name('arctype')->where([
                 'id'    => $id,
                 'lang'  => $this->admin_lang,
             ])->find();
@@ -438,7 +438,7 @@ class Arctype extends Base
         $hierarchy = model('Arctype')->getHierarchy($id);
         if ($hierarchy >= $arctype_max_level) {
             $is_edit_parent_id = 0; // 不可编辑，因为可能会导致超过所限制的最大层级
-            $select_html = M('arctype')->where('id', $info['parent_id'])->getField('typename');
+            $select_html = Db::name('arctype')->where('id', $info['parent_id'])->getField('typename');
             $select_html = !empty($select_html) ? $select_html : '顶级栏目';
         } else {
             // 所属栏目
@@ -524,12 +524,12 @@ class Arctype extends Base
             $post = input('post.');
             $typeid = input('post.typeid/d', 0);
             if(!empty($typeid)){
-                $info = M('arctype')->field('id,typename,current_channel')
+                $info = Db::name('arctype')->field('id,typename,current_channel')
                     ->where([
                         'id'    => $typeid,
                         'lang'  => $this->admin_lang,
                     ])->find();
-                $aid = M('archives')->where([
+                $aid = Db::name('archives')->where([
                         'typeid'    => $typeid,
                         'channel'   => 6,
                         'lang'  => $this->admin_lang,
@@ -546,7 +546,7 @@ class Arctype extends Base
                         'update_time'     => getTime(),
                         'lang'  => $this->admin_lang,
                     );
-                    $aid = M('archives')->insertGetId($archivesData);
+                    $aid = Db::name('archives')->insertGetId($archivesData);
                 }
                 /*--end*/
 
@@ -574,7 +574,7 @@ class Arctype extends Base
         $assign_data = array();
 
         $typeid = input('typeid/d');
-        $info = M('arctype')->where([
+        $info = Db::name('arctype')->where([
                 'id'    => $typeid,
                 'lang'  => $this->admin_lang,
             ])->find();
@@ -853,7 +853,7 @@ class Arctype extends Base
         $post['del_id'] = eyIntval($post['del_id']);
 
         /*当前栏目信息*/
-        $row = M('arctype')->field('id, current_channel, typename')
+        $row = Db::name('arctype')->field('id, current_channel, typename')
             ->where([
                 'id'    => $post['del_id'],
                 'lang'  => $this->admin_lang,
@@ -924,7 +924,7 @@ class Arctype extends Base
         if (intval($id) > 0) {
             $map['id'] = array('neq', $id);
         }
-        $result = M('arctype')->where($map)->find();
+        $result = Db::name('arctype')->where($map)->find();
         if (!empty($result)) {
             respose(array(
                 'status'    => 0,

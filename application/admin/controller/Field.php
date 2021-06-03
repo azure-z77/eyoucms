@@ -84,7 +84,7 @@ class Field extends Base
 
         $condition['a.ifcontrol'] = 0;
 
-        $cfieldM = M('channelfield');
+        $cfieldM = Db::name('channelfield');
         $count   = $cfieldM->alias('a')->where($condition)->count('a.id');// 查询满足要求的总记录数
         $Page    = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list    = $cfieldM->field('a.*')
@@ -100,7 +100,7 @@ class Field extends Base
         $assign_data['pager'] = $Page; // 赋值分页对象
 
         /*字段类型列表*/
-        $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
+        $assign_data['fieldtypeList'] = Db::name('field_type')->field('name,title')->getAllWithIndex('name');
         /*--end*/
 
         // 模型信息
@@ -213,7 +213,7 @@ class Field extends Base
             }
 
             /*当前模型对应的数据表*/
-            $table = M('channeltype')->where('id', $channel_id)->getField('table');
+            $table = Db::name('channeltype')->where('id', $channel_id)->getField('table');
             $table = PREFIX . $table . '_content';
             /*--end*/
 
@@ -248,8 +248,8 @@ class Field extends Base
                     'update_time' => getTime(),
                 );
                 $data    = array_merge($post, $newData);
-                M('channelfield')->save($data);
-                $field_id = M('channelfield')->getLastInsID();
+                Db::name('channelfield')->save($data);
+                $field_id = Db::name('channelfield')->getLastInsID();
                 /*--end*/
 
                 /*保存栏目与字段绑定的记录*/
@@ -446,7 +446,7 @@ class Field extends Base
             }
 
             /*当前模型对应的数据表*/
-            $table = M('channeltype')->where('id', $post['channel_id'])->getField('table');
+            $table = Db::name('channeltype')->where('id', $post['channel_id'])->getField('table');
             $tableName = $table . '_content';
             $table = PREFIX . $tableName;
             /*--end*/
@@ -515,7 +515,7 @@ class Field extends Base
                     'update_time' => getTime(),
                 );
                 $data    = array_merge($post, $newData);
-                M('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
+                Db::name('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
                 /*--end*/
 
                 /*保存栏目与字段绑定的记录*/
@@ -660,10 +660,10 @@ class Field extends Base
                     'id'         => array('eq', $id),
                     'channel_id' => $channel_id,
                 );
-                $result    = M('channelfield')->field('channel_id,name')->where($map)->select();
+                $result    = Db::name('channelfield')->field('channel_id,name')->where($map)->select();
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
-                M('channelfield')->where($map)->delete();
+                Db::name('channelfield')->where($map)->delete();
                 /*--end*/
                 /*删除栏目与字段绑定的记录*/
                 model('ChannelfieldBind')->where(['field_id' => $id])->delete();
@@ -672,7 +672,7 @@ class Field extends Base
                 /*获取模型标题*/
                 $channel_title = '';
                 if (!empty($channel_id)) {
-                    $channel_title = M('channeltype')->where('id', $channel_id)->getField('title');
+                    $channel_title = Db::name('channeltype')->where('id', $channel_id)->getField('title');
                 }
                 /*--end*/
                 adminLog('删除' . $channel_title . '字段：' . implode(',', $name_list));
@@ -698,7 +698,7 @@ class Field extends Base
             $fieldname = input('fieldname/s', ''); // 多图字段
 
             /*除去多图字段值中的图片*/
-            $info     = M('arctype')->field("{$fieldname}")->where("id", $typeid)->find();
+            $info     = Db::name('arctype')->field("{$fieldname}")->where("id", $typeid)->find();
             $valueArr = explode(',', $info[$fieldname]);
             foreach ($valueArr as $key => $val) {
                 if ($path == $val) {
@@ -706,7 +706,7 @@ class Field extends Base
                 }
             }
             $value = implode(',', $valueArr);
-            M('arctype')->where('id', $typeid)->update(array($fieldname => $value, 'update_time' => getTime()));
+            Db::name('arctype')->where('id', $typeid)->update(array($fieldname => $value, 'update_time' => getTime()));
             /*--end*/
         }
     }
@@ -723,12 +723,12 @@ class Field extends Base
             $fieldname = input('fieldname/s', ''); // 多图字段
 
             /*模型附加表*/
-            $table    = M('channeltype')->where('id', $channel)->getField('table');
+            $table    = Db::name('channeltype')->where('id', $channel)->getField('table');
             $tableExt = $table . '_content';
             /*--end*/
 
             /*除去多图字段值中的图片*/
-            $info     = M($tableExt)->field("{$fieldname}")->where("aid", $aid)->find();
+            $info     = Db::name($tableExt)->field("{$fieldname}")->where("aid", $aid)->find();
             $valueArr = explode(',', $info[$fieldname]);
             foreach ($valueArr as $key => $val) {
                 if ($path == $val) {
@@ -736,7 +736,7 @@ class Field extends Base
                 }
             }
             $value = implode(',', $valueArr);
-            M($tableExt)->where('aid', $aid)->update(array($fieldname => $value, 'update_time' => getTime()));
+            Db::name($tableExt)->where('aid', $aid)->update(array($fieldname => $value, 'update_time' => getTime()));
             /*--end*/
         }
     }
@@ -807,7 +807,7 @@ class Field extends Base
         $condition['channel_id'] = array('eq', $channel_id);
         $condition['ifsystem']   = array('neq', 1);
 
-        $cfieldM = M('channelfield');
+        $cfieldM = Db::name('channelfield');
         $count   = $cfieldM->where($condition)->count('id');// 查询满足要求的总记录数
         $Page    = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list    = $cfieldM->where($condition)->order('sort_order asc, ifsystem asc, id desc')->limit($Page->firstRow . ',' . $Page->listRows)->select();
@@ -818,7 +818,7 @@ class Field extends Base
         $assign_data['pager'] = $Page; // 赋值分页对象
 
         /*字段类型列表*/
-        $assign_data['fieldtypeList'] = M('field_type')->field('name,title')->getAllWithIndex('name');
+        $assign_data['fieldtypeList'] = Db::name('field_type')->field('name,title')->getAllWithIndex('name');
         /*--end*/
 
         $assign_data['channel_id'] = $channel_id;
@@ -908,7 +908,7 @@ class Field extends Base
                     'update_time' => getTime(),
                 );
                 $data    = array_merge($post, $newData);
-                M('channelfield')->save($data);
+                Db::name('channelfield')->save($data);
                 /*--end*/
 
                 /*重新生成数据表字段缓存文件*/
@@ -1069,7 +1069,7 @@ class Field extends Base
                     'update_time' => getTime(),
                 );
                 $data    = array_merge($post, $newData);
-                M('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
+                Db::name('channelfield')->where('id', $post['id'])->cache(true, null, "channelfield")->save($data);
                 /*--end*/
 
                 /*重新生成数据表字段缓存文件*/
@@ -1133,10 +1133,10 @@ class Field extends Base
                     'id'         => array('eq', $id),
                     'channel_id' => $channel_id,
                 );
-                $result    = M('channelfield')->field('channel_id,name')->where($map)->select();
+                $result    = Db::name('channelfield')->field('channel_id,name')->where($map)->select();
                 $name_list = get_arr_column($result, 'name');
                 /*删除字段的记录*/
-                M('channelfield')->where($map)->delete();
+                Db::name('channelfield')->where($map)->delete();
                 /*--end*/
 
                 adminLog('删除栏目字段：' . implode(',', $name_list));
@@ -1339,7 +1339,7 @@ class Field extends Base
 
         $typeid = input('param.typeid/d', 0);
         if ($typeid > 0) {
-            $select_html = M('arctype')->where('id', $typeid)->getField('typename');
+            $select_html = Db::name('arctype')->where('id', $typeid)->getField('typename');
             $select_html = !empty($select_html) ? $select_html : '该栏目不存在';
         } else {
             $select_html = allow_release_arctype($typeid, array(8));
@@ -1448,7 +1448,7 @@ class Field extends Base
         $new_id = model('LanguageAttr')->getBindValue($id, 'guestbook_attribute'); // 多语言
         !empty($new_id) && $id = $new_id;
         /*--end*/
-        $info = M('GuestbookAttribute')->where([
+        $info = Db::name('GuestbookAttribute')->where([
             'attr_id' => $id,
             'lang'    => $this->admin_lang,
         ])->find();
@@ -1459,7 +1459,7 @@ class Field extends Base
         $assign_data['field'] = $info;
 
         // 所在栏目
-        $select_html                = M('arctype')->where('id', $info['typeid'])->getField('typename');
+        $select_html                = Db::name('arctype')->where('id', $info['typeid'])->getField('typename');
         $select_html                = !empty($select_html) ? $select_html : '该栏目不存在';
         $assign_data['select_html'] = $select_html;
 

@@ -202,7 +202,7 @@ EOF;
         $aid = intval($aid);
         $attr_id = intval($attr_id);
 
-        $productAttr = M('ProductAttr');        
+        $productAttr = Db::name('ProductAttr');
         if($product_attr_id > 0)
             return $productAttr->where(['product_attr_id'=>$product_attr_id])->select(); 
         if($aid > 0 && $attr_id > 0)
@@ -222,7 +222,7 @@ EOF;
         $aid = intval($aid);
         $attr_id = intval($attr_id);
 
-        $ShopProductAttr = M('ShopProductAttr');
+        $ShopProductAttr = Db::name('ShopProductAttr');
         
         if($product_attr_id > 0) {
             return $ShopProductAttr->where(['product_attr_id'=>$product_attr_id])->select();
@@ -243,7 +243,7 @@ EOF;
         $aid = intval($aid);
         $typeid = intval($typeid);
 
-        $productAttr = M('ProductAttr');
+        $productAttr = Db::name('ProductAttr');
                 
         // 属性类型被更改了 就先删除以前的属性类型 或者没有属性 则删除        
         if($typeid == 0)  

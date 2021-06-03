@@ -29,7 +29,7 @@ class ArchivesFlag extends Base
             $condition['flag_name'] = array('LIKE', "%{$keywords}%");
         }
 
-        $archivesflagM =  M('archives_flag');
+        $archivesflagM =  Db::name('archives_flag');
         $count = $archivesflagM->where($condition)->count('id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $archivesflagM->where($condition)->order('sort_order asc, id asc')->limit($Page->firstRow.','.$Page->listRows)->select();

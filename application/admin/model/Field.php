@@ -77,11 +77,11 @@ class Field extends Model
         $addonRow = array();
         if (0 < intval($aid)) {
             if (6 == $channel_id) {
-                $aid = M('archives')->where(array('typeid'=>$aid, 'channel'=>$channel_id))->getField('aid');
+                $aid = Db::name('archives')->where(array('typeid'=>$aid, 'channel'=>$channel_id))->getField('aid');
             }
-            $tableExt = M('channeltype')->where('id', $channel_id)->getField('table');
+            $tableExt = Db::name('channeltype')->where('id', $channel_id)->getField('table');
             $tableExt .= '_content';
-            $addonRow = M($tableExt)->field('*')->where('aid', $aid)->find();
+            $addonRow = Db::name($tableExt)->field('*')->where('aid', $aid)->find();
         }
         /*--end*/
 
@@ -110,7 +110,7 @@ class Field extends Model
         $addonRow = array();
         if (0 < intval($id)) {
             if (config('global.arctype_channel_id') == $channel_id) {
-                $addonRow = M('arctype')->field('*')->where('id', $id)->find();
+                $addonRow = Db::name('arctype')->field('*')->where('id', $id)->find();
             }
         }
         /*--end*/
@@ -245,7 +245,7 @@ class Field extends Model
                                     'channel_id'    => $val['channel_id'],
                                 ])->find();
                             if (!empty($channelfieldRow) && 1001 == $channelfieldRow['maxlength']) {
-                                $tableExt = M('channeltype')->where('id', $val['channel_id'])->getField('table');
+                                $tableExt = Db::name('channeltype')->where('id', $val['channel_id'])->getField('table');
                                 $tableExt = PREFIX.$tableExt.'_content';
                                 $fieldComment = $channelfieldRow['title'];
                                 empty($fieldComment) && $fieldComment = '图集';
@@ -537,13 +537,13 @@ class Field extends Model
                 'update_time'   => getTime(),
             );
             !empty($nowDataExt) && $nowData = array_merge($nowDataExt, $nowData);
-            $tableExt = M('channeltype')->where('id', $channel_id)->getField('table');
+            $tableExt = Db::name('channeltype')->where('id', $channel_id)->getField('table');
             $tableExt .= '_content';
-            $count = M($tableExt)->where('aid', $data['aid'])->count();
+            $count = Db::name($tableExt)->where('aid', $data['aid'])->count();
             if (empty($count)) {
-                M($tableExt)->insert($nowData);
+                Db::name($tableExt)->insert($nowData);
             } else {
-                M($tableExt)->where('aid', $data['aid'])->save($nowData);
+                Db::name($tableExt)->where('aid', $data['aid'])->save($nowData);
             }
         }
     }

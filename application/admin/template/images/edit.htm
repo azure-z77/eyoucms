@@ -390,11 +390,12 @@
      */
     function ClearPicArr2(obj,path)
     {
+        var aid = "{$field.aid|default='0'}";
         // 删除数据库记录
         $.ajax({
             type:'POST',
             url:"{:url('Images/del_imgupload', ['_ajax'=>1])}",
-            data:{filename:path},
+            data:{filename:path,aid:aid},
             success:function(){
                 $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片  
                 $.ajax({

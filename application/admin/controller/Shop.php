@@ -589,7 +589,7 @@ class Shop extends Base {
         }
 
         // 省份
-        $Template = M('region')->field('a.id, a.name,b.template_money,b.template_id')
+        $Template = Db::name('region')->field('a.id, a.name,b.template_money,b.template_id')
             ->alias('a')
             ->join('__SHOP_SHIPPING_TEMPLATE__ b', 'a.id = b.province_id', 'LEFT')
             ->where($Where)

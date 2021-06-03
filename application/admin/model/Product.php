@@ -86,7 +86,7 @@ class Product extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -117,19 +117,20 @@ class Product extends Model
             'aid' => ['IN', $aidArr]
         ];
         // 同时删除内容
-        M('product_content')->where($where)->delete();
+        Db::name('product_content')->where($where)->delete();
         // 同时删除属性
-        M('product_attr')->where($where)->delete();
+        Db::name('product_attr')->where($where)->delete();
         // 同时删除图片
-        $result = M('product_img')->field('image_url')->where($where)->select();
+        $result = Db::name('product_img')->field('image_url')->where($where)->select();
         if (!empty($result)) {
-            foreach ($result as $key => $val) {
-                $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
-                if (!is_http_url($image_url) && file_exists('.'.$image_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $image_url)) {
-                    @unlink(realpath('.'.$image_url));
-                }
-            }
-            M('product_img')->where($where)->delete();
+            //20210603大黄注释 删掉文档不删掉服务器的图片,否则复制的文档图片无法显示
+//            foreach ($result as $key => $val) {
+//                $image_url = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $val['image_url']);
+//                if (!is_http_url($image_url) && file_exists('.'.$image_url) && preg_match('#^(/uploads/|/public/upload/)(.*)/([^/]+)\.([a-z]+)$#i', $image_url)) {
+//                    @unlink(realpath('.'.$image_url));
+//                }
+//            }
+            Db::name('product_img')->where($where)->delete();
         }
         // 同时删除虚拟商品
         Db::name("product_netdisk")->where($where)->delete();

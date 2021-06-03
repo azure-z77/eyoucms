@@ -382,7 +382,7 @@ class RecycleBin extends Base
         //     $post['del_id'] = eyIntval($post['del_id']);
 
         //     /*当前栏目信息*/
-        //     $row = M('arctype')->field('id, current_channel, typename')
+        //     $row = Db::name('arctype')->field('id, current_channel, typename')
         //         ->where([
         //             'id'    => $post['del_id'],
         //             'lang'  => $this->admin_lang,
@@ -805,7 +805,7 @@ class RecycleBin extends Base
             $condition['a.attr_name'] = array('LIKE', "%{$keywords}%");
         }
 
-        $attr_var_names = M('config')->field('name')
+        $attr_var_names = Db::name('config')->field('name')
             ->where([
                 'is_del'    => 1,
                 'lang'  => $this->admin_lang,
@@ -813,9 +813,9 @@ class RecycleBin extends Base
         $condition['a.attr_var_name'] = array('IN', array_keys($attr_var_names));
         $condition['a.lang']    = $this->admin_lang;
 
-        $count = M('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
+        $count = Db::name('config_attribute')->alias('a')->where($condition)->count();// 查询满足要求的总记录数
         $pageObj = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
-        $list = M('config_attribute')->alias('a')
+        $list = Db::name('config_attribute')->alias('a')
             ->field('a.*, b.id')
             ->join('__CONFIG__ b', 'b.name = a.attr_var_name AND a.lang = b.lang', 'LEFT')
             ->where($condition)

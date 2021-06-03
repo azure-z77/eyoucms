@@ -29,7 +29,7 @@ class Tags extends Base
         }
         $condition['lang'] = array('eq', $this->admin_lang);
 
-        $tagsM =  M('tagindex');
+        $tagsM =  Db::name('tagindex');
         $count = $tagsM->where($condition)->count('id');
         $Page = $pager = new Page($count, config('paginate.list_rows'));
         $show = $Page->show();
@@ -53,7 +53,7 @@ class Tags extends Base
     public function tag_list()
     {
         $condition['lang'] = array('eq', $this->admin_lang);
-        $tagsM =  M('tagindex');
+        $tagsM =  Db::name('tagindex');
         $count = $tagsM->where($condition)->count('id');
         $Page = $pager = new Page($count, 100);
         $show = $Page->show();
@@ -146,19 +146,19 @@ class Tags extends Base
             $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if(!empty($id_arr)){
-                $result = M('tagindex')->field('tag')
+                $result = Db::name('tagindex')->field('tag')
                     ->where([
                         'id'    => ['IN', $id_arr],
                         'lang'  => $this->admin_lang,
                     ])->select();
                 $title_list = get_arr_column($result, 'tag');
 
-                $r = M('tagindex')->where([
+                $r = Db::name('tagindex')->where([
                         'id'    => ['IN', $id_arr],
                         'lang'  => $this->admin_lang,
                     ])->delete();
                 if($r){
-                    M('taglist')->where([
+                    Db::name('taglist')->where([
                         'tid'    => ['IN', $id_arr],
                         'lang'  => $this->admin_lang,
                     ])->delete();
@@ -176,11 +176,11 @@ class Tags extends Base
     
     public function clearall()
     {
-        $r = M('tagindex')->where([
+        $r = Db::name('tagindex')->where([
                 'lang'  => $this->admin_lang,
             ])->delete();
         if(false !== $r){
-            M('taglist')->where([
+            Db::name('taglist')->where([
                 'lang'  => $this->admin_lang,
             ])->delete();
             adminLog('清空Tags标签');

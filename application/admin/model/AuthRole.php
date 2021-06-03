@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 class AuthRole extends Model{
@@ -29,7 +30,7 @@ class AuthRole extends Model{
     }
 
     public function getRole($where){
-        $result = M($this->name)->where($where)->find();
+        $result =Db::name($this->name)->where($where)->find();
         if (!empty($result)) {
             $result['language'] = unserialize($result['language']);
             $result['cud'] = unserialize($result['cud']);
@@ -40,7 +41,7 @@ class AuthRole extends Model{
     }
 
     public function getRoleAll($where = ['status'=>1]){
-        $result = M($this->name)->where($where)->order('id asc')->select();
+        $result =Db::name($this->name)->where($where)->order('id asc')->select();
         foreach ($result as $key => $val) {
             $val['language'] = unserialize($val['language']);
             $val['cud'] = unserialize($val['cud']);
@@ -98,7 +99,7 @@ class AuthRole extends Model{
         }else{
             $data['admin_id'] = session('admin_info.admin_id');
             parent::save($data);
-            $rs = M($this->name)->getLastInsID();
+            $rs = Db::name($this->name)->getLastInsID();
         }
 
         \think\Cache::clear('auth_role');

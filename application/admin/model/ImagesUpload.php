@@ -66,12 +66,11 @@ class ImagesUpload extends Model
     {
         $imgupload = isset($post['imgupload']) ? $post['imgupload'] : array();
         $imgintro = isset($post['imgintro']) ? $post['imgintro'] : array();
+
         if (!empty($imgupload) && count($imgupload) > 1) {
             array_pop($imgupload); // 弹出最后一个
-
             // 删除产品图片
             $this->delImgUpload($aid);
-
              // 添加图片
             $data = array();
             $sort_order = 0;
@@ -110,13 +109,13 @@ class ImagesUpload extends Model
                 );
             }
             if (!empty($data)) {
-                M('ImagesUpload')->insertAll($data);
+                Db::name('ImagesUpload')->insertAll($data);
 
                 // 没有封面图时，取第一张图作为封面图
                 $litpic = isset($post['litpic']) ? $post['litpic'] : '';
                 if (empty($litpic)) {
                     $litpic = $data[0]['image_url'];
-                    M('archives')->where(array('aid'=>$aid))->update(array('litpic'=>$litpic, 'update_time'=>getTime()));
+                    Db::name('archives')->where(array('aid'=>$aid))->update(array('litpic'=>$litpic, 'update_time'=>getTime()));
                 }
             }
             delFile(UPLOAD_PATH."images/thumb/$aid"); // 删除缩略图

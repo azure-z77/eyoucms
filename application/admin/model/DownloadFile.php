@@ -157,7 +157,7 @@ class DownloadFile extends Model
         // 添加到数据库
         if (!empty($data_new_new)) {
             // 批量添加
-            M('DownloadFile')->insertAll($data_new_new);
+            Db::name('DownloadFile')->insertAll($data_new_new);
         }
     }
 }

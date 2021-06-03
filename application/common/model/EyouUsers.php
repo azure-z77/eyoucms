@@ -38,7 +38,7 @@ class EyouUsers extends Model
             'is_system' => 1,
             'lang'      => get_home_lang(),
         ];
-        $level = M('users_level')->where($LevelWhere)->field('level_id,level_name,level_value')->find();
+        $level = Db::name('users_level')->where($LevelWhere)->field('level_id,level_name,level_value')->find();
         if (empty($level)) $level = ['level'=>1, 'level_name'=>'注册会员', 'level_value'=>10];
         /* END */
 
@@ -49,7 +49,7 @@ class EyouUsers extends Model
             'level_maturity_days' => 0,
             'update_time'     => getTime(),
         ];
-        $return = M('users')->where('users_id', $users_id)->update($LevelData);
+        $return = Db::name('users')->where('users_id', $users_id)->update($LevelData);
         /* END */
 
         if (!empty($return)) {

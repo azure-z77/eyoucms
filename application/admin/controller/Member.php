@@ -1882,7 +1882,7 @@ class Member extends Base {
     public function syn_users_login($users_id = 0, $mca = '', $vars = [])
     {
         if (!empty($users_id)) {
-            $users = M('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
+            $users = Db::name('users')->field('a.*,b.level_name,b.level_value,b.discount as level_discount')
                 ->alias('a')
                 ->join('__USERS_LEVEL__ b', 'a.level = b.level_id', 'LEFT')
                 ->where([

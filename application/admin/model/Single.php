@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -53,14 +54,14 @@ class Single extends Model
         }
 
         // 同时删除单页文档表
-        M('archives')->where(
+       Db::name('archives')->where(
                 array(
                     'typeid'=>array('IN', $typeidArr)
                 )
             )
             ->delete();
         // 同时删除内容
-        M('single_content')->where(
+       Db::name('single_content')->where(
                 array(
                     'typeid'=>array('IN', $typeidArr)
                 )

@@ -33,7 +33,7 @@ class Links extends Base
         $condition['a.lang'] = array('eq', $this->admin_lang);
         $fields = "a.*,b.group_name";
 
-        $linksM =  M('links');
+        $linksM =  Db::name('links');
         $count = $linksM->alias("a")->where($condition)->count('a.id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $linksM->alias("a")->join('links_group b',"a.groupid=b.id",'LEFT')->field($fields)->where($condition)->order('a.sort_order asc, a.id asc')->limit($Page->firstRow.','.$Page->listRows)->select();
@@ -73,7 +73,7 @@ class Links extends Base
                 'update_time'    => getTime(),
             );
             $data = array_merge($post, $nowData);
-            $insertId = M('links')->insertGetId($data);
+            $insertId = Db::name('links')->insertGetId($data);
             if (false !== $insertId) {
                 Cache::clear('links');
                 adminLog('新增友情链接：'.$post['title']);
@@ -84,7 +84,7 @@ class Links extends Base
             exit;
         }
 
-        $group_ids = M('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
+        $group_ids = Db::name('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
         $this->assign('group_ids',$group_ids);
 
         return $this->fetch();
@@ -116,7 +116,7 @@ class Links extends Base
                     'update_time'    => getTime(),
                 );
                 $data = array_merge($post, $nowData);
-                $r = M('links')->where([
+                $r = Db::name('links')->where([
                         'id'    => $post['id'],
                         'lang'  => $this->admin_lang,
                     ])
@@ -133,7 +133,7 @@ class Links extends Base
         }
 
         $id = input('id/d');
-        $info = M('links')->where([
+        $info = Db::name('links')->where([
                 'id'    => $id,
                 'lang'  => $this->admin_lang,
             ])->find();
@@ -149,7 +149,7 @@ class Links extends Base
             $info['logo_local'] = handle_subdir_pic($info['logo']);
         }
 
-        $group_ids = M('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
+        $group_ids = Db::name('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
         $this->assign('group_ids',$group_ids);
         $this->assign('info',$info);
 
@@ -165,14 +165,14 @@ class Links extends Base
             $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if(!empty($id_arr)){
-                $result = M('links')->field('title')
+                $result = Db::name('links')->field('title')
                     ->where([
                         'id'    => ['IN', $id_arr],
                         'lang'  => $this->admin_lang,
                     ])->select();
                 $title_list = get_arr_column($result, 'title');
 
-                $r = M('links')->where([
+                $r = Db::name('links')->where([
                         'id'    => ['IN', $id_arr],
                         'lang'  => $this->admin_lang,
                     ])

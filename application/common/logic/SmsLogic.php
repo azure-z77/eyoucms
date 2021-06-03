@@ -38,7 +38,7 @@ class SmsLogic extends Model
     {
         $sms_config = $this->config;
         $sms_type = isset($sms_config['sms_type']) ? $sms_config['sms_type'] : 1;
-        $smsTemp = M('sms_template')->where(["send_scene"=> $source,"sms_type"=> $sms_type])->find();
+        $smsTemp = Db::name('sms_template')->where(["send_scene"=> $source,"sms_type"=> $sms_type])->find();
         if (empty($smsTemp) || empty($smsTemp['sms_sign']) || empty($smsTemp['sms_tpl_code'])|| empty($smsTemp['tpl_content'])){
             return $result = ['status' => -1, 'msg' => '尚未正确配置短信模板，请联系管理员！'];
         }
@@ -111,7 +111,7 @@ class SmsLogic extends Model
         }
 
         //发送记录存储数据库
-        $log_id = M('sms_log')->insertGetId(array('source' => $source,'sms_type' => $sms_type, 'mobile' => $sender, 'code' => $code, 'add_time' => time(), 'status' => 0, 'msg' => $msg, 'is_use' => 0, 'error_msg'=>''));
+        $log_id = Db::name('sms_log')->insertGetId(array('source' => $source,'sms_type' => $sms_type, 'mobile' => $sender, 'code' => $code, 'add_time' => time(), 'status' => 0, 'msg' => $msg, 'is_use' => 0, 'error_msg'=>''));
         if ($sender != '' && check_mobile($sender)) {
             // 如果是正常的手机号码才发送
             try {
@@ -121,10 +121,10 @@ class SmsLogic extends Model
             }
             if ($resp['status'] == 1) {
                 // 修改发送状态为成功
-                M('sms_log')->where(array('id' => $log_id))->save(array('status' => 1));
+                Db::name('sms_log')->where(array('id' => $log_id))->save(array('status' => 1));
             } else {
                 // 发送失败, 将发送失败信息保存数据库
-                M('sms_log')->where(array('id' => $log_id))->update(array('error_msg'=>$resp['msg']));
+                Db::name('sms_log')->where(array('id' => $log_id))->update(array('error_msg'=>$resp['msg']));
             }
             return $resp;
         } else {

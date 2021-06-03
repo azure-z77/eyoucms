@@ -184,7 +184,7 @@ class Custom extends Base
         $assign_data['typeid'] = $typeid;
         $assign_data['tab'] = input('param.tab/d', 3);// 选项卡
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();// 文档属性
-        $assign_data['arctype_info'] = $typeid > 0 ? M('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
+        $assign_data['arctype_info'] = $typeid > 0 ? Db::name('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
         $this->assign($assign_data);
         $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
         $this->assign('recycle_switch', $recycle_switch);
@@ -545,7 +545,7 @@ class Custom extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where([
+            $r = Db::name('archives')->where([
                     'aid'   => $data['aid'],
                     'lang'  => $this->admin_lang,
                 ])->update($data);

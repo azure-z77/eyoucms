@@ -12,6 +12,7 @@
  */
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -41,7 +42,7 @@ class UsersParameter extends Model
                 $id_name => $id_value,
                 'lang'   => $this->admin_lang,
             ];
-            $paraData = M('users_parameter')->where($where)->field('dtype')->find();
+            $paraData = Db::name('users_parameter')->where($where)->field('dtype')->find();
             if ($paraData['dtype'] == 'email') {
                 $usersData = getUsersConfigData('users.users_verification');
                 if ($usersData == '2') {
@@ -63,7 +64,7 @@ class UsersParameter extends Model
                 $id_name => $id_value,
                 'lang'   => $this->admin_lang,
             ];
-            $paraData = M('users_parameter')->where($where)->field('is_hidden')->find();
+            $paraData = Db::name('users_parameter')->where($where)->field('is_hidden')->find();
             if (1 == $paraData['is_hidden']) {
                 $return = [
                     'msg'   => '该属性已被禁用！',

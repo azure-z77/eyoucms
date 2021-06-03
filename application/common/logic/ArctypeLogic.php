@@ -353,7 +353,7 @@ class ArctypeLogic extends Model
                         if (empty($parent_id)) {
                             $topid = 0;
                         } else {
-                            $parentInfo = M('arctype')->field('id,topid')->where('id', $parent_id)->find();
+                            $parentInfo = Db::name('arctype')->field('id,topid')->where('id', $parent_id)->find();
                             $topid = !empty($parentInfo['topid']) ? $parentInfo['topid'] : $parentInfo['id'];
                         }
                         $addsaveData['topid'] = $topid;

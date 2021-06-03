@@ -1120,21 +1120,13 @@
      */
     function ClearPicArr2(obj,path)
     {
-        // 删除数据库记录
+        $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片
         $.ajax({
             type:'POST',
-            url:"{:url('Product/del_proimg')}",
-            data:{filename:path,_ajax:1},
-            success:function(){
-                $(obj).parent().parent().remove(); // 删除完服务器的, 再删除 html上的图片 
-                $.ajax({
-                    type:'POST',
-                    url:"{:url('Uploadify/delupload')}",
-                    data:{action:"del", filename:path,_ajax:1},
-                    success:function(){}
-                });     
-            }
-        });     
+            url:"{:url('Uploadify/delupload')}",
+            data:{action:"del", filename:path,_ajax:1},
+            success:function(){}
+        });
     }
 
 

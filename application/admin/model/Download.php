@@ -81,7 +81,7 @@ class Download extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -157,7 +157,7 @@ class Download extends Model
      */
     public function getAllCateByTypeid($typeid)
     {
-        $result = M('arctype')->field('id,parent_id,typename')
+        $result = Db::name('arctype')->field('id,parent_id,typename')
             ->where(array('id|parent_id'=>$typeid, 'status'=>1))
             ->order('parent_id asc, sort_order asc')
             ->getAllWithIndex('id');   
@@ -176,14 +176,14 @@ class Download extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('download_content')->where(
+        Db::name('download_content')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )
             )
             ->delete();
         // 同时删除软件
-        $result = M('download_file')->field('file_url')
+        $result = Db::name('download_file')->field('file_url')
             ->where(
                 array(
                     'aid'=>array('IN', $aidArr)
@@ -197,13 +197,13 @@ class Download extends Model
                     @unlink(realpath('.'.$file_url));
                 }
             }
-            $r = M('download_file')->where(
+            $r = Db::name('download_file')->where(
                 array(
                     'aid'=>array('IN', $aidArr)
                 )
             )->delete();
             if ($r !== false) {
-                M('download_log')->where(array('aid'=>array('IN', $aidArr)))->delete();
+                Db::name('download_log')->where(array('aid'=>array('IN', $aidArr)))->delete();
             }
         }
         // 同时删除TAG标签

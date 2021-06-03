@@ -13,6 +13,7 @@
 
 namespace app\admin\model;
 
+use think\Db;
 use think\Model;
 
 /**
@@ -59,15 +60,15 @@ class Recruit extends Model
     {
         $result = array();
         $field = !empty($field) ? $field : '*';
-        $result = db('archives')->field($field)
+        $result = Db::name('archives')->field($field)
             ->where([
                 'aid'   => $aid,
                 'lang'  => get_admin_lang(),
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
-            $result['addonFieldExt'] = db($tableName.'_content')->where('aid',$aid)->find();
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
         // 文章TAG标签
@@ -91,7 +92,7 @@ class Recruit extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('recruit_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
+        Db::name('recruit_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

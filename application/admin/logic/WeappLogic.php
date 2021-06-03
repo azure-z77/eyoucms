@@ -51,7 +51,7 @@ class WeappLogic extends Model
      */
     public function insertWeapp()
     {
-        $row        = M('weapp')->field('id,code,config,is_buy')->getAllWithIndex('code'); // 数据库
+        $row        = Db::name('weapp')->field('id,code,config,is_buy')->getAllWithIndex('code'); // 数据库
         $new_arr    = array(); // 本地
         $addData    = array(); // 数据存储变量
         $updateData = array(); // 数据存储变量
@@ -93,7 +93,7 @@ class WeappLogic extends Model
         //数据库有 本地没有
         foreach($row as $k => $v){
             if (!in_array($v['code'], $new_arr) && $v['is_buy'] < 1) {//is_buy  0->本地安装,1-线上购买
-                M('weapp')->where($v)->cache(true, null, 'weapp')->delete();
+                Db::name('weapp')->where($v)->cache(true, null, 'weapp')->delete();
             }
         }
 
@@ -156,7 +156,7 @@ class WeappLogic extends Model
         } else {
             $module = request()->param('sm');
             $module = $module ?: request()->param('sc');
-            $row = M('Weapp')->field('code, name, status')
+            $row = Db::name('Weapp')->field('code, name, status')
                 ->where(array('code'=>$module))
                 ->find();
             if (empty($row)) {

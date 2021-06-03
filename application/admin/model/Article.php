@@ -70,7 +70,7 @@ class Article extends Model
             ])
             ->find();
         if ($isshowbody) {
-            $tableName = M('channeltype')->where('id','eq',$result['channel'])->getField('table');
+            $tableName = Db::name('channeltype')->where('id','eq',$result['channel'])->getField('table');
             $result['addonFieldExt'] = Db::name($tableName.'_content')->where('aid',$aid)->find();
         }
 
@@ -96,7 +96,7 @@ class Article extends Model
             $aidArr = explode(',', $aidArr);
         }
         // 同时删除内容
-        M('article_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
+        Db::name('article_content')->where(array('aid'=>array('IN', $aidArr)))->delete();
         // 同时删除TAG标签
         model('Taglist')->delByAids($aidArr);
     }

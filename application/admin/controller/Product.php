@@ -177,7 +177,7 @@ class Product extends Base
         $assign_data['typeid'] = $typeid;
         $assign_data['tab'] = input('param.tab/d', 3);// 选项卡
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();// 文档属性
-        $assign_data['arctype_info'] = $typeid > 0 ? M('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
+        $assign_data['arctype_info'] = $typeid > 0 ? Db::name('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
         $this->assign($assign_data);
         $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
         $this->assign('recycle_switch', $recycle_switch);
@@ -833,22 +833,11 @@ class Product extends Base
     {
         if (IS_POST) {
             $filename= input('filename/s');
-            $filename= str_replace(['(',')',',',' ','../'],'',$filename);
-            $filename= trim($filename,'.');
-            $filename_tmp = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $filename);
-            if(eyPreventShell($filename) && !empty($filename) && file_exists('.'.$filename_tmp)){
-                $filename_new = trim($filename,'/');
-                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-                $size = getimagesize($filename_new);
-                $fileInfo = explode('/',$size['mime']);
-                if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-                    exit;
-                }
-                if (!empty($filename)) {
-                    M('product_img')->where("image_url = '$filename'")->delete();
-                }
+            $aid = input('aid/d');
+            if (!empty($filename) && !empty($aid)) {
+                Db::name('product_img')->where('image_url','like','%'.$filename)->where('aid',$aid)->delete();
             }
+
         }
     }
 
@@ -925,7 +914,7 @@ class Product extends Base
         // 当前栏目信息
         $arctype_info = array();
         if ($typeid > 0) {
-            $arctype_info = M('arctype')->field('typename')->find($typeid);
+            $arctype_info = Db::name('arctype')->field('typename')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
         $tab = input('param.tab/d', 3);//选项卡
@@ -1071,7 +1060,7 @@ class Product extends Base
         $new_id = model('LanguageAttr')->getBindValue($id, 'product_attribute'); // 多语言
         !empty($new_id) && $id = $new_id;
         /*--end*/
-        $info = M('ProductAttribute')->where([
+        $info = Db::name('ProductAttribute')->where([
                 'attr_id'    => $id,
                 'lang'  => $this->admin_lang,
             ])->find();

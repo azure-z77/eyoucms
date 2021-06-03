@@ -128,7 +128,7 @@ class System extends Base
         /*--end*/
 
         /*自定义变量*/
-        $eyou_row = M('config_attribute')->field('a.attr_id, a.attr_name, a.attr_var_name, a.attr_input_type, b.value, b.id, b.name')
+        $eyou_row = Db::name('config_attribute')->field('a.attr_id, a.attr_name, a.attr_var_name, a.attr_input_type, b.value, b.id, b.name')
             ->alias('a')
             ->join('__CONFIG__ b', 'b.name = a.attr_var_name AND b.lang = a.lang', 'LEFT')
             ->where([
@@ -1202,7 +1202,7 @@ class System extends Base
             unset($sms_config['sms_test_mobile']);
         }
 
-        $send_scene = M('sms_template')->where(['sms_tpl_code'=>['NEQ', ''],'sms_type'=>$param['sms_type'],'is_open'=>1])->order('tpl_id asc')->value("send_scene");
+        $send_scene = Db::name('sms_template')->where(['sms_tpl_code'=>['NEQ', ''],'sms_type'=>$param['sms_type'],'is_open'=>1])->order('tpl_id asc')->value("send_scene");
         $send_scene = intval($send_scene);
         $res = sendSms($send_scene, $param['sms_test_mobile'], array('content'=>mt_rand(1000,9999)),0,$sms_config);
         if (intval($res['status']) == 1) {

@@ -391,7 +391,7 @@ class Weapp extends Base
      */
     public function install($id)
     {
-        $row           = M('Weapp')->field('name,code,thorough,config')->find($id);
+        $row           = Db::name('Weapp')->field('name,code,thorough,config')->find($id);
         $row['config'] = json_decode($row['config'], true);
         $class         = get_weapp_class($row['code']);
         if (!class_exists($class)) {
@@ -434,7 +434,7 @@ class Weapp extends Base
                 }
             }
             /*--end*/
-            $r = M('weapp')->where('id', $id)->update(array('thorough' => 1, 'status' => 1, 'add_time' => getTime()));
+            $r = Db::name('weapp')->where('id', $id)->update(array('thorough' => 1, 'status' => 1, 'add_time' => getTime()));
             if ($r) {
                 cache('hooks', null);
                 cache("hookexec_" . $row['code'], null);
@@ -459,7 +459,7 @@ class Weapp extends Base
     {
         $id       = input('param.id/d', 0);
         $thorough = input('param.thorough/d', 0);
-        $row      = M('Weapp')->field('name,code')->find($id);
+        $row      = Db::name('Weapp')->field('name,code')->find($id);
         $class    = get_weapp_class($row['code']);
         if (!class_exists($class)) {
             $this->error('插件不存在！');
@@ -473,9 +473,9 @@ class Weapp extends Base
         if (true) {
             $is_uninstall = false;
             if (1 == $thorough) {
-                $r = M('weapp')->where('id', $id)->update(array('thorough' => $thorough, 'status' => 0, 'add_time' => getTime()));
+                $r = Db::name('weapp')->where('id', $id)->update(array('thorough' => $thorough, 'status' => 0, 'add_time' => getTime()));
             } else if (0 == $thorough) {
-                $r = M('weapp')->where('id', $id)->update(array('thorough' => $thorough, 'status' => 0, 'update_time' => getTime()));
+                $r = Db::name('weapp')->where('id', $id)->update(array('thorough' => $thorough, 'status' => 0, 'update_time' => getTime()));
                 $r && $is_uninstall = true;
             }
             if (false !== $r) {
@@ -513,7 +513,7 @@ class Weapp extends Base
 
                 // 删除插件相关文件
                 if ($is_uninstall) {
-                    $rdel = M('weapp')->where('id', $id)->delete();
+                    $rdel = Db::name('weapp')->where('id', $id)->delete();
                     $this->unlinkcode($row['code']);
                 }
 
@@ -532,7 +532,7 @@ class Weapp extends Base
     public function enable($id = 0)
     {
         if (0 < $id) {
-            $row   = M('weapp')->field('code')->find($id);
+            $row   = Db::name('weapp')->field('code')->find($id);
             $class = get_weapp_class($row['code']);
             if (!class_exists($class)) {
                 $this->error('插件不存在！');
@@ -541,7 +541,7 @@ class Weapp extends Base
             /*插件启用的前置操作（可无）*/
             $this->beforeEnable($weapp);
             /*--end*/
-            $r = M('weapp')->where('id', $id)->update(array('status' => 1, 'update_time' => getTime()));
+            $r = Db::name('weapp')->where('id', $id)->update(array('status' => 1, 'update_time' => getTime()));
             if ($r) {
                 /*插件启用的后置操作（可无）*/
                 $this->afterEnable($weapp);
@@ -564,7 +564,7 @@ class Weapp extends Base
     public function disable($id = 0)
     {
         if (0 < $id) {
-            $row   = M('weapp')->field('code')->find($id);
+            $row   = Db::name('weapp')->field('code')->find($id);
             $class = get_weapp_class($row['code']);
             if (!class_exists($class)) {
                 $this->error('插件不存在！');
@@ -573,7 +573,7 @@ class Weapp extends Base
             /*插件禁用的前置操作（可无）*/
             $this->beforeDisable($weapp);
             /*--end*/
-            $r = M('weapp')->where('id', $id)->update(array('status' => -1, 'update_time' => getTime()));
+            $r = Db::name('weapp')->where('id', $id)->update(array('status' => -1, 'update_time' => getTime()));
             if ($r) {
                 /*插件禁用的后置操作（可无）*/
                 $this->afterDisable($weapp);
@@ -599,13 +599,13 @@ class Weapp extends Base
             $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if (!empty($id_arr)) {
-                $result    = M('weapp')->field('id,name,code')
+                $result    = Db::name('weapp')->field('id,name,code')
                     ->where([
                         'id' => ['IN', $id_arr],
                     ])->select();
                 $name_list = get_arr_column($result, 'name');
 
-                $r = M('weapp')->where([
+                $r = Db::name('weapp')->where([
                     'id' => ['IN', $id_arr],
                 ])
                     ->delete();

@@ -145,7 +145,7 @@ class Recruit extends Base
         /*当前栏目信息*/
         $arctype_info = array();
         if ($typeid > 0) {
-            $arctype_info = M('arctype')->field('typename')->find($typeid);
+            $arctype_info = Db::name('arctype')->field('typename')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
         /*--end*/
@@ -416,7 +416,7 @@ class Recruit extends Base
             );
             $data = array_merge($post, $newData);
 
-            $r = M('archives')->where([
+            $r = Db::name('archives')->where([
                     'aid'   => $data['aid'],
                     'lang'  => $this->admin_lang,
                 ])->update($data);

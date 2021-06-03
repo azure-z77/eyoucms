@@ -30,7 +30,7 @@ class LinksGroup extends Base
         }
 
 
-        $linksgroupsM =  M('links_group');
+        $linksgroupsM =  Db::name('links_group');
         $count = $linksgroupsM->where($condition)->count('id');// 查询满足要求的总记录数
         $Page = $pager = new Page($count, config('paginate.list_rows'));// 实例化分页类 传入总记录数和每页显示的记录数
         $list = $linksgroupsM->where($condition)->order('sort_order asc, id asc')->limit($Page->firstRow.','.$Page->listRows)->select();
@@ -109,19 +109,19 @@ class LinksGroup extends Base
             $id_arr = input('del_id/a');
             $id_arr = eyIntval($id_arr);
             if(!empty($id_arr)){
-                $result = M('links_group')->field('group_name')
+                $result = Db::name('links_group')->field('group_name')
                     ->where([
                         'id'    => ['IN', $id_arr],
                     ])->select();
                 $group_name_list = get_arr_column($result, 'group_name');
 
-                $r = M('links_group')->where([
+                $r = Db::name('links_group')->where([
                         'id'    => ['IN', $id_arr],
 
                     ])
                     ->cache(true, null, "links_group")
                     ->delete();
-                M('links')->where([
+                Db::name('links')->where([
                     'groupid'    => ['IN', $id_arr],
 
                 ])

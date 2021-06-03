@@ -56,8 +56,6 @@ class ProductImg extends Model
         return $result;
     }
 
-
-
     /**
      * 保存产品图片
      * @author 小虎哥 by 2018-4-3
@@ -66,12 +64,11 @@ class ProductImg extends Model
     {
         $proimg = isset($post['proimg']) ? $post['proimg'] : array();
         $imgintro = isset($post['imgintro']) ? $post['imgintro'] : array();
+
         if (!empty($proimg) && count($proimg) > 1) {
             array_pop($proimg); // 弹出最后一个
-
             // 删除产品图片
             $this->delProImg($aid);
-
              // 添加图片
             $data = array();
             $sort_order = 0;
@@ -110,13 +107,13 @@ class ProductImg extends Model
                 );
             }
             if (!empty($data)) {
-                M('ProductImg')->insertAll($data);
+                Db::name('ProductImg')->insertAll($data);
 
                 // 没有封面图时，取第一张图作为封面图
                 $litpic = isset($post['litpic']) ? $post['litpic'] : '';
                 if (empty($litpic)) {
                     $litpic = $data[0]['image_url'];
-                    M('archives')->where(array('aid'=>$aid))->update(array('litpic'=>$litpic, 'update_time'=>getTime()));
+                    Db::name('archives')->where(array('aid'=>$aid))->update(array('litpic'=>$litpic, 'update_time'=>getTime()));
                 }
             }
             delFile(UPLOAD_PATH."product/thumb/$aid"); // 删除缩略图

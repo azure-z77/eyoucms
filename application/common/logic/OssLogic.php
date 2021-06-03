@@ -71,7 +71,7 @@ class OssLogic
             'name' => ['IN', ['oss_key_id', 'oss_key_secret', 'oss_endpoint','oss_bucket']],
             'lang' => get_admin_lang()
         ];
-        $config = M('config')->field('name, value')->where($where)->select();
+        $config = Db::name('config')->field('name, value')->where($where)->select();
         foreach ($config as $v) {
             $c[$v['name']] = $v['value'];
         }

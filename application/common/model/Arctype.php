@@ -89,7 +89,7 @@ class Arctype extends Model
         $result['typeurl'] = $this->getTypeUrl($result); // 当前栏目的URL
         if (!empty($result['parent_id'])) {
             // 当前栏目的父级栏目信息
-            $parent_row = M('arctype')->where('id', $result['parent_id'])
+            $parent_row = Db::name('arctype')->where('id', $result['parent_id'])
                 ->cache(true,EYOUCMS_CACHE_TIME,"arctype")
                 ->find();
             $ptypeid = $parent_row['id'];
@@ -145,7 +145,7 @@ class Arctype extends Model
         if (!empty($result)) {
             $result['typeurl'] = $this->getTypeUrl($result);
 
-            $result_tmp = M('arctype')->where('id', $result['parent_id'])->find();
+            $result_tmp = Db::name('arctype')->where('id', $result['parent_id'])->find();
             $result['ptypeurl'] = $this->getTypeUrl($result_tmp);
         }
 
@@ -283,7 +283,7 @@ class Arctype extends Model
             'status'  => 1,
             'is_del'  => 0, // 回收站功能
         );
-        $res = M('arctype')->field('parent_id')->where($map)->find();
+        $res = Db::name('arctype')->field('parent_id')->where($map)->find();
 
         if ($res) {
             $newId = $res['parent_id'];
@@ -500,7 +500,7 @@ class Arctype extends Model
                 'status'    => 1,
             ];
             if (false === $is_RecycleBin) $map['is_del'] = 0;
-            $arctype_list = M('Arctype')->field('*, id as typeid')
+            $arctype_list = Db::name('Arctype')->field('*, id as typeid')
                 ->where($map)
                 ->getAllWithIndex('id');
             if (isset($arctype_list[$typeid])) {
@@ -709,7 +709,7 @@ class Arctype extends Model
     {
         $insertId = false;
         if (!empty($data)) {
-            $insertId = M('arctype')->insertGetId($data);
+            $insertId = Db::name('arctype')->insertGetId($data);
             if($insertId){
                 // --存储单页模型
                 if ($data['current_channel'] == 6) {
@@ -722,7 +722,7 @@ class Arctype extends Model
                         'add_time'  => getTime(),
                     );
                     // $archivesData = array_merge($archivesData, $data);
-                    $aid = M('archives')->insertGetId($archivesData);
+                    $aid = Db::name('archives')->insertGetId($archivesData);
                     if ($aid) {
                         // ---------后置操作
                         if (!isset($data['addonFieldExt'])) {
@@ -949,7 +949,7 @@ class Arctype extends Model
         $bool = false;
         if (!empty($data)) {
             $admin_lang = get_admin_lang();
-            $bool = M('arctype')->where([
+            $bool = Db::name('arctype')->where([
                     'id'    => $data['id'],
                     'lang'  => $admin_lang,
                 ])
@@ -1019,15 +1019,15 @@ class Arctype extends Model
                         'update_time'     => getTime(),
                     );
                     // $archivesData = array_merge($archivesData, $data);
-                    $aid = M('single_content')->where(array('typeid'=>$data['id']))->getField('aid');
+                    $aid = Db::name('single_content')->where(array('typeid'=>$data['id']))->getField('aid');
                     if (empty($aid)) {
                         $opt = 'add';
                         $archivesData['lang'] = get_admin_lang();
                         $archivesData['add_time'] = getTime();
-                        $up = $aid = M('archives')->insertGetId($archivesData);
+                        $up = $aid = Db::name('archives')->insertGetId($archivesData);
                     } else {
                         $opt = 'edit';
-                        $up = M('archives')->where([
+                        $up = Db::name('archives')->where([
                                 'aid'   => $aid,
                                 'lang'  => get_admin_lang(),
                             ])->update($archivesData);

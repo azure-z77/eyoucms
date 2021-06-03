@@ -283,7 +283,7 @@ class Archives extends Base
         //当前栏目信息
         $arctype_info = array();
         if ($typeid > 0) {
-            $arctype_info = M('arctype')->field('typename,current_channel')->find($typeid);
+            $arctype_info = Db::name('arctype')->field('typename,current_channel')->find($typeid);
         }
         $assign_data['arctype_info'] = $arctype_info;
 
@@ -490,7 +490,7 @@ class Archives extends Base
                 'typeid'    => $typeid,
                 'update_time'   => getTime(),
             );
-            $r = M('archives')->where([
+            $r = Db::name('archives')->where([
                     'aid' => ['IN', $aids],
                 ])->update($update_data);
             if($r){
@@ -1081,7 +1081,7 @@ EOF;
         $assign_data['pager'] = $Page;
         $assign_data['typeid'] = $typeid;
         $arctype_info = array(); // 当前栏目信息
-        if ($typeid > 0) $arctype_info = M('arctype')->field('typename,current_channel')->find($typeid);
+        if ($typeid > 0) $arctype_info = Db::name('arctype')->field('typename,current_channel')->find($typeid);
         $assign_data['arctype_info'] = $arctype_info;
         $assign_data['arctype_html'] = allow_release_arctype($typeid, array()); // 允许发布文档列表的栏目
         $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo'); // 前台URL模式

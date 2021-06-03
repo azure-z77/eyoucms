@@ -170,7 +170,7 @@ class Special extends Base
         $assign_data['tab'] = input('param.tab/d', 3);// 选项卡
         $assign_data['seo_pseudo'] = tpCache('seo.seo_pseudo');// 前台URL模式
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();// 文档属性
-        $assign_data['arctype_info'] = $typeid > 0 ? M('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
+        $assign_data['arctype_info'] = $typeid > 0 ? Db::name('arctype')->field('typename')->find($typeid) : [];// 当前栏目信息
         $this->assign($assign_data);
         $recycle_switch = tpSetting('recycle.recycle_switch');//回收站开关
         $this->assign('recycle_switch', $recycle_switch);
