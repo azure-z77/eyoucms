@@ -568,7 +568,7 @@ class Ueditor extends Base
         $return_data['path']     = $path;
 
         /*同步到第三方对象存储空间*/
-        $bucket_data = SynImageObjectBucket($return_url);
+        $bucket_data = SynImageObjectBucket($return_url, [], $file);
         $return_data = array_merge($return_data, $bucket_data);
         /*end*/
 

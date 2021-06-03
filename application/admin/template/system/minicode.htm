@@ -1,0 +1,128 @@
+<form class="form-horizontal" id="postMinicode" method="post">
+    <div class="hDiv" id="minicode">
+        <div class="hDivBox">
+            <table cellspacing="0" cellpadding="0" style="width: 100%">
+                <thead>
+                <tr>
+                    <th class="sign w10" axis="col0">
+                        <div class="tc"></div>
+                    </th>
+                    <th abbr="article_title" axis="col3" class="w10">
+                        <div class="tc">
+                            开源小程序设置
+                        </div>
+                    </th>
+                    <th abbr="ac_id" axis="col4">
+                        <div class=""></div>
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="ncap-form-default">
+        <dl class="row">
+            <dt class="tit">
+                <label for="appid"><em>*</em>微信AppId</label>
+            </dt>
+            <dd class="opt">
+                <input type="text" name="minicode[appid]" id="appid" value="{$minicode.appid|default=''}" class="input-txt">
+                <p class="notic">微信公众平台微信AppId，用于微信登录<span style="color: red;">(同微信支付配置AppId)</span></p>
+            </dd>
+        </dl>
+
+        <dl class="row">
+            <dt class="tit">
+                <label for="secret"><em>*</em>微信AppSecret</label>
+            </dt>
+            <dd class="opt">
+                <input type="text" name="minicode[secret]" id="secret" value="{$minicode.secret|default=''}" class="input-txt">
+                <p class="notic">微信公众平台微信AppSecret密钥，用于微信登录</p>
+            </dd>
+        </dl>
+
+        <dl class="row">
+            <div class="bot" style="padding-bottom:0px;">
+                <a href="JavaScript:void(0);" onclick="submit_microsite();" class="ncap-btn-big ncap-btn-green">确认提交</a>
+            </div>
+        </dl>
+    </div>
+</form>
+<script type="text/javascript">
+    // 提交
+    function submit_microsite(){
+        layer_loading("正在处理");
+        $.ajax({
+            url: "{:url('System/minicode', ['_ajax'=>1])}",
+            type: 'POST',
+            dataType: 'JSON',
+            data: $('#postMinicode').serialize(),
+            success: function(res){
+                layer.closeAll();
+                if (1 == res.code) {
+                    layer.msg(res.msg, {icon: 1, time: 1000});
+                    return false;
+                } else {
+                    var icon = 2;
+                    try{
+                        if (res.data.icon) {
+                            icon = res.data.icon;
+                        }
+                    }catch(e){}
+                    layer.alert(res.msg, {icon: icon, title:false});
+                    return false;
+                }
+            },
+            error: function(e){
+                layer.closeAll();
+                showErrorMsg(ey_unknown_error);
+                return false;
+            }
+        });
+    }
+
+    // 检测是否配置微信参数
+    function DetectConfig(type) {
+        if (3 == type) {
+            $('#shop_micro0').removeAttr("disabled");
+            return false;
+        }
+
+        var WX_appid = $('#WX_appid');
+        if (!WX_appid.val() || '' == WX_appid.val()) {
+            WX_appid.focus();
+            layer.msg('请先填写微信AppId');
+            if (1 == type) {
+                $("#shop_micro0").click();
+            } else if (2 == type) {
+                $("#shop_force_use_wechat0").click();
+            }
+            return false;
+        }
+
+        var appsecret = $('#appsecret');
+        if (!appsecret.val() || '' == appsecret.val()) {
+            appsecret.focus();
+            layer.msg('请先填写微信AppSecret');
+            if (1 == type) {
+                $("#shop_micro0").click();
+            } else if (2 == type) {
+                $("#shop_force_use_wechat0").click();
+            }
+            return false;
+        }
+
+        if (2 == type) {
+            // 设置微信端开启
+            $("#shop_force_use_wechat1, #shop_micro1").attr('checked', true);
+            $('#shop_micro0').attr("disabled", "disabled");
+        }
+    }
+
+    // 加载图片显示
+    function wechat_pic_call_back(fileurl_tmp) {
+        $("#wechat_pic").val(fileurl_tmp);
+        $("#img_a_wechat_pic").attr('href', fileurl_tmp);
+        $("#img_i_wechat_pic").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" width=300 height=300>',this,{tips: [1, '#fff']});");
+    }
+</script>

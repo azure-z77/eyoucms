@@ -2373,7 +2373,7 @@ if (!function_exists('SynImageObjectBucket'))
      * $images   本地图片地址
      * $weappList 插件列表
      */
-    function SynImageObjectBucket($images = '', $weappList = [])
+    function SynImageObjectBucket($images = '', $weappList = [], $fileziyuan = [])
     {
         $result = [];
 
@@ -2418,7 +2418,7 @@ if (!function_exists('SynImageObjectBucket'))
             // 同步图片到COS
             $CosData = json_decode($weappList['Cos']['data'], true);
             $cosModel = new \weapp\Cos\model\CosModel;
-            $ResultCos = $cosModel->Synchronize($CosData, $images);
+            $ResultCos = $cosModel->Synchronize($CosData, $images, $fileziyuan);
             // 数据覆盖
             if (!empty($ResultCos) && is_array($ResultCos)) {
                 $result['local_save'] = $CosData['local_save'];
