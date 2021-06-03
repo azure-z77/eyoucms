@@ -323,7 +323,8 @@ class Recruit extends Base
         !empty($arctypeInfo['tempview']) && $tempview = $arctypeInfo['tempview'];
         $this->assign('tempview', $tempview);
         /*--end*/
-
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -519,7 +520,8 @@ class Recruit extends Base
         empty($tempview) && $tempview = $arctypeInfo['tempview'];
         $this->assign('tempview', $tempview);
         /*--end*/
-
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         $this->assign($assign_data);
         return $this->fetch();
     }

@@ -34,7 +34,7 @@ class ActionBeginBehavior {
 
     private function _initialize() {
         if ('POST' == self::$method) {
-            $this->checkRepeatTitle();
+//            $this->checkRepeatTitle();
             $this->clearWeapp();
             $this->instyes();
         } else {
@@ -99,31 +99,31 @@ class ActionBeginBehavior {
      * 发布或编辑时，检测文档标题的重复性
      * @access private
      */
-    private function checkRepeatTitle()
-    {
-        /*只有相应的控制器和操作名才执行，以便提高性能*/
-        $ctlArr = \think\Db::name('channeltype')->field('id,ctl_name,is_repeat_title')
-            ->where('nid','NOT IN', ['guestbook','single'])
-            ->getAllWithIndex('ctl_name');
-        $actArr = ['add','edit'];
-        if (!empty($ctlArr[self::$controllerName]) && in_array(self::$actionName, $actArr)) {
-            /*模型否开启文档重复标题的检测*/
-            if (empty($ctlArr[self::$controllerName]['is_repeat_title'])) {
-                $map = array(
-                    'title' => $_POST['title'],
-                );
-                if ('edit' == self::$actionName) {
-                    $map['aid'] = ['NEQ', $_POST['aid']];
-                }
-                $count = \think\Db::name('archives')->where($map)->count('aid');
-                if(!empty($count)){
-                    $this->error('该标题已存在，请更改');
-                }
-            }
-            /*--end*/
-        }
-        /*--end*/
-    }
+//    private function checkRepeatTitle()
+//    {
+//        /*只有相应的控制器和操作名才执行，以便提高性能*/
+//        $ctlArr = \think\Db::name('channeltype')->field('id,ctl_name,is_repeat_title')
+//            ->where('nid','NOT IN', ['guestbook','single'])
+//            ->getAllWithIndex('ctl_name');
+//        $actArr = ['add','edit'];
+//        if (!empty($ctlArr[self::$controllerName]) && in_array(self::$actionName, $actArr)) {
+//            /*模型否开启文档重复标题的检测*/
+//            if (empty($ctlArr[self::$controllerName]['is_repeat_title'])) {
+//                $map = array(
+//                    'title' => $_POST['title'],
+//                );
+//                if ('edit' == self::$actionName) {
+//                    $map['aid'] = ['NEQ', $_POST['aid']];
+//                }
+//                $count = \think\Db::name('archives')->where($map)->count('aid');
+//                if(!empty($count)){
+//                    $this->error('该标题已存在，请更改');
+//                }
+//            }
+//            /*--end*/
+//        }
+//        /*--end*/
+//    }
 
     /**
      * @access private

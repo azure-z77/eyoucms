@@ -336,6 +336,7 @@ class Download extends Base
         $assign_data['oss_open'] = 0;
         $assign_data['cos_open'] = 0;
         $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         if(!empty($channelRow)){
             $channelRow['data'] = json_decode($channelRow['data'], true);
             $assign_data['qiniu_open'] = !empty($channelRow['data']['qiniuyun_open']) ? $channelRow['data']['qiniuyun_open'] : 0;
@@ -638,6 +639,7 @@ class Download extends Base
         $assign_data['oss_open'] = 0;
         $assign_data['oss_open'] = 0;
         $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         if(!empty($channelRow)){
             $channelRow['data'] = json_decode($channelRow['data'], true);
             $assign_data['qiniu_open'] = !empty($channelRow['data']['qiniuyun_open']) ? $channelRow['data']['qiniuyun_open'] : 0;
@@ -678,22 +680,6 @@ class Download extends Base
         /*允许发布文档列表的栏目，文档所在模型以栏目所在模型为主，兼容切换模型之后的数据编辑*/
         $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
-        /*--end*/
-        
-        /*自定义字段*/
-        // $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
-        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
-        //         'typeid'    => ['IN', [0,$typeid]],
-        //     ])->column('field_id');
-        // if (!empty($channelfieldBindRow)) {
-        //     foreach ($addonFieldExtList as $key => $val) {
-        //         if (!in_array($val['id'], $channelfieldBindRow)) {
-        //             unset($addonFieldExtList[$key]);
-        //         }
-        //     }
-        // }
-        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        // $assign_data['aid'] = $id;
         /*--end*/
 
         // 阅读权限

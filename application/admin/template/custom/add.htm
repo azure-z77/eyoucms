@@ -36,7 +36,7 @@
                     <label for="title"><em>*</em>标题</label>
                 </dt>
                 <dd class="opt">
-                    <input type="text" name="title" value="" id="title" class="input-txt" maxlength="100">
+                    <input type="text" name="title" value="" id="title" class="input-txt" maxlength="100" {eq name="$channelRow.is_repeat_title" value="0"} oninput="check_title_repeat(this);" {/eq}>
                     <span class="err"></span>
                     <p class="notic"></p>
                 </dd>
@@ -322,6 +322,32 @@
         $("#img_a").attr('href', fileurl_tmp);
         $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
         $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
+    }
+    function check_title_repeat(obj) {
+        var title = $(obj).val();
+        if (title){
+            $.ajax({
+                type: "POST",
+                url: "{:url('Archives/check_title_repeat')}",
+                data: {title:title, _ajax:1},
+                dataType: 'json',
+                success: function (data) {
+                    if(data.code == 0){
+                        layer.tips(data.msg, '#title',{
+                            tips: [2, '#F5F5F5'],
+                            area: ['300px', 'auto'],
+                            time: 0
+                        });
+                    }else {
+                        layer.closeAll();
+                    }
+                },
+                error:function(){
+                }
+            });
+        }else{
+            layer.closeAll();
+        }
     }
 </script>
 

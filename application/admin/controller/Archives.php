@@ -1093,4 +1093,19 @@ EOF;
         $this->assign('recycle_switch', $recycle_switch);
         return $this->fetch('index_draft');
     }
+
+    //文档标题重复检测
+    public function check_title_repeat($title='',$aid=0)
+    {
+        $map['title'] = $title;
+        if (!empty($aid)){
+            $map['aid'] = ['NEQ', $aid];
+        }
+        $count = Db::name('archives')->where($map)->count('aid');
+        if (!empty($count)){
+            $this->error("<font color='black'>系统已存在标题为'<font color='red'>".$title."'</font>的文档! </font><a href='javascript:void(0);' onclick='layer.closeAll();'>[<font color='red'>关闭</font>]</a>");
+        }
+        $this->success("没有重复!");
+
+    }
 }

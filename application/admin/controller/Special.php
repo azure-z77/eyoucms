@@ -405,7 +405,8 @@ class Special extends Base
 
         /*文档属性*/
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
-
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         $this->assign($assign_data);
 
         return $this->fetch();
@@ -601,22 +602,6 @@ class Special extends Base
         $arctype_html = allow_release_arctype($typeid, array($info['channel']));
         $assign_data['arctype_html'] = $arctype_html;
         /*--end*/
-        
-        /*自定义字段*/
-        // $addonFieldExtList = model('Field')->getChannelFieldList($info['channel'], 0, $id, $info);
-        // $channelfieldBindRow = Db::name('channelfield_bind')->where([
-        //         'typeid'    => ['IN', [0,$typeid]],
-        //     ])->column('field_id');
-        // if (!empty($channelfieldBindRow)) {
-        //     foreach ($addonFieldExtList as $key => $val) {
-        //         if (!in_array($val['id'], $channelfieldBindRow)) {
-        //             unset($addonFieldExtList[$key]);
-        //         }
-        //     }
-        // }
-        // $assign_data['addonFieldExtList'] = $addonFieldExtList;
-        // $assign_data['aid'] = $id;
-        /*--end*/
 
         // 阅读权限
         $arcrank_list = get_arcrank_list();
@@ -668,7 +653,8 @@ class Special extends Base
 
         /*文档属性*/
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
-
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
         $this->assign($assign_data);
         return $this->fetch();
     }

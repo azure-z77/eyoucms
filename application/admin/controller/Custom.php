@@ -407,6 +407,8 @@ class Custom extends Base
 
         /*文档属性*/
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
 
         $this->assign($assign_data);
 
@@ -652,6 +654,8 @@ class Custom extends Base
 
         /*文档属性*/
         $assign_data['archives_flags'] = model('ArchivesFlag')->getList();
+        $channelRow = Db::name('channeltype')->where('id', $this->channeltype)->find();
+        $assign_data['channelRow'] = $channelRow;
 
         $this->assign($assign_data);
         return $this->fetch();
