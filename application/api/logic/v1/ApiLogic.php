@@ -63,8 +63,31 @@ class ApiLogic extends Model
                 $type = !empty($parse['type']) ? $parse['type'] : 'top';
                 $currentstyle = !empty($parse['currentstyle']) ? $parse['currentstyle'] : '';
                 $showalltext = !empty($parse['showalltext']) ? $parse['showalltext'] : 'off';
+                if (!empty($parse['limit'])) {
+                    $limit = !empty($parse['limit']) ? $parse['limit'] : 10;
+                } else {
+                    $limit = !empty($parse['row']) ? intval($parse['row']) : 10;
+                }
                 $tagChannel = new \think\template\taglib\api\TagChannel;
                 $result[$key][$ekey] = $tagChannel->getChannel($typeid, $type, $currentstyle, $showalltext, $channelid);
+                if (!empty($result[$key][$ekey]['data'])) {
+                    /*指定获取的条数*/
+                    $limitarr = explode(',', $limit);
+                    $offset = (1 == count($limitarr)) ? 0 : $limitarr[0];
+                    $length = (1 == count($limitarr)) ? $limitarr[0] : end($limitarr);
+                    $data = $result[$key][$ekey]['data'];
+                    if ('off' == $showalltext) {
+                        $data = array_slice($data, $offset, $length, true);
+                        $data = array_merge($data);
+                    } else {
+                        $firstData = current($data);
+                        $data = array_slice($data, $offset + 1, $length, true);
+                        empty($data) && $data = [];
+                        $data = array_merge([$firstData], $data);
+                    }
+                    /*end*/
+                    $result[$key][$ekey]['data'] = $data;
+                }
             }
             else if ($key == 'apiList') { // 文档分页列表标签
                 $parse['typeid'] = $typeid;
