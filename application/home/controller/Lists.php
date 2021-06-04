@@ -283,7 +283,14 @@ class Lists extends Base
                 );
                 $count = M('guestbook')->where($map)->count('aid');
                 if ($count > 0) {
-                    $this->error('同一个IP在'.$channel_guestbook_interval.'秒之内不能重复提交！');
+                    if ($this->home_lang == 'cn') {
+                        $msg = '同一个IP在'.$channel_guestbook_interval.'秒之内不能重复提交！';
+                    } else if ($this->home_lang == 'zh') {
+                        $msg = '同一個IP在'.$channel_guestbook_interval.'秒之內不能重複提交！';
+                    } else {
+                        $msg = 'The same IP cannot be submitted repeatedly within '.$channel_guestbook_interval.' seconds!';
+                    }
+                    $this->error($msg);
                 }
             }
             /*end*/
@@ -301,17 +308,38 @@ class Lists extends Base
                     ])->find();
                     if ($ga_data['required'] == 1) {
                         if (empty($value)) {
-                            $this->error($ga_data['attr_name'] . '不能为空！');
+                            if ($this->home_lang == 'cn') {
+                                $msg = $ga_data['attr_name'] . '不能为空！';
+                            } else if ($this->home_lang == 'zh') {
+                                $msg = $ga_data['attr_name'] . '不能為空！';
+                            } else {
+                                $msg = $ga_data['attr_name'] . 'Cannot be empty!';
+                            }
+                            $this->error($msg);
                         } else {
                             if ($ga_data['validate_type'] == 6) {
                                 $pattern  = "/^1\d{10}$/";
                                 if (!preg_match($pattern, $value)) {
-                                    $this->error($ga_data['attr_name'] . '格式不正确！');
+                                    if ($this->home_lang == 'cn') {
+                                        $msg = $ga_data['attr_name'] . '格式不正确！';
+                                    } else if ($this->home_lang == 'zh') {
+                                        $msg = $ga_data['attr_name'] . '格式不正確！';
+                                    } else {
+                                        $msg = $ga_data['attr_name'] . 'Incorrect format!';
+                                    }
+                                    $this->error($msg);
                                 }
                             } elseif ($ga_data['validate_type'] == 7) {
                                 $pattern  = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                                 if (preg_match($pattern, $value) == false) {
-                                    $this->error($ga_data['attr_name'] . '格式不正确！');
+                                    if ($this->home_lang == 'cn') {
+                                        $msg = $ga_data['attr_name'] . '格式不正确！';
+                                    } else if ($this->home_lang == 'zh') {
+                                        $msg = $ga_data['attr_name'] . '格式不正確！';
+                                    } else {
+                                        $msg = $ga_data['attr_name'] . 'Incorrect format!';
+                                    }
+                                    $this->error($msg);
                                 }
                             }
                         }
@@ -330,12 +358,26 @@ class Lists extends Base
             }
             if (1 == $is_vertify) {
                 if (empty($post['vertify'])) {
-                    $this->error('图片验证码不能为空！');
+                    if ($this->home_lang == 'cn') {
+                        $msg = '图片验证码不能为空！';
+                    } else if ($this->home_lang == 'zh') {
+                        $msg = '圖片驗證碼不能為空！';
+                    } else {
+                        $msg = 'Picture verification code cannot be empty!';
+                    }
+                    $this->error($msg);
                 }
 
                 $verify = new Verify();
                 if (!$verify->check($post['vertify'], $token)) {
-                    $this->error('图片验证码不正确！');
+                    if ($this->home_lang == 'cn') {
+                        $msg = '图片验证码不正确！';
+                    } else if ($this->home_lang == 'zh') {
+                        $msg = '圖片驗證碼不正確！';
+                    } else {
+                        $msg = 'The picture verification code is incorrect!';
+                    }
+                    $this->error($msg);
                 }
             }
             /* END */

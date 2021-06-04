@@ -47,7 +47,15 @@
             {/case}
         {/switch}
         <p class="jump">
-            页面自动 <a id="href" href="{$url}">跳转</a> 等待时间： <b id="wait" data-data="{$data}">{$wait}</b>
+            {in name=':get_current_lang()' value='cn,zh'}
+                {eq name=':get_current_lang()' value='zh'}
+                    頁面自動 <a id="href" href="{$url}">跳轉</a> 等待時間： <b id="wait" data-data="{$data}">{$wait}</b>
+                {else /}
+                    页面自动 <a id="href" href="{$url}">跳转</a> 等待时间： <b id="wait" data-data="{$data}">{$wait}</b>
+                {/eq}
+            {else /}
+                Waiting time for page auto <a id="href" href="{$url}">jump</a>: <b id="wait" data-data="{$data}">{$wait}</b>
+            {/in}
         </p>
     </div>
     <script type="text/javascript">
