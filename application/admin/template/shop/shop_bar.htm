@@ -32,7 +32,7 @@
                 </a>
             </li>
             
-            {if condition="$php_servicemeal >= 2"}
+            {if condition="$php_servicemeal > 1"}
             <li>
                 <a {if condition="'ShopService' == $Think.const.CONTROLLER_NAME"}class="current"{/if} href='{:url("ShopService/after_service")}'>
                     <span>售后</span>

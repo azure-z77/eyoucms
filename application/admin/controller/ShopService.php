@@ -30,7 +30,7 @@ class ShopService extends Base {
 
         // 验证功能版授权
         $functionLogic = new \app\common\logic\FunctionLogic;
-        $functionLogic->check_authorfile(2);
+        $functionLogic->check_authorfile(1.5);
         
         $this->language_access(); // 多语言功能操作权限
 
