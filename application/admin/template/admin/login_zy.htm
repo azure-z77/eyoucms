@@ -13,7 +13,7 @@
         <link href="__SKIN__/font/css/iconfont.css" rel="stylesheet" type="text/css" />
         <link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
         <style type="text/css">
-              body {background:url({$global.web_loginbgimg}?t={php}echo getTime();{/php}) center center no-repeat;}
+              body {background:url({$global.web_loginbgimg|handle_subdir_pic=###}?t={php}echo getTime();{/php}) center center no-repeat;}
               
               .input-item{position: relative;}
               .input-item i{position: absolute;font-size: 20px;color: #999;top: 12px;left: 10px;}
@@ -73,9 +73,9 @@
         <div class="container">
             <div class="logo">
                 {notempty name="$is_eyou_authortoken"}
-                <img src="{$global.web_loginlogo|default='__SKIN__/images/login-logo_ey.png'}?v={php}echo time();{/php}">
+                <img src="{$global.web_loginlogo|handle_subdir_pic=###|default='__SKIN__/images/login-logo_ey.png'}?v={php}echo time();{/php}">
                 {else /}
-                <img src="{$global.web_loginlogo|default='__SKIN__/images/login-logo_zy.png'}?v={php}echo time();{/php}">
+                <img src="{$global.web_loginlogo|handle_subdir_pic=###|default='__SKIN__/images/login-logo_zy.png'}?v={php}echo time();{/php}">
                 {/notempty}
             </div>
             <div class="box">

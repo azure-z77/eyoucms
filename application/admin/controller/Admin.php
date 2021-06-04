@@ -251,6 +251,9 @@ class Admin extends Base {
         if (2 <= $this->php_servicemeal) {
             $viewfile = 'admin/login_zy';
         }
+        $this->global = tpCache('global');
+        $this->assign('global', $this->global);
+
         return $this->fetch(":{$viewfile}");
     }
 

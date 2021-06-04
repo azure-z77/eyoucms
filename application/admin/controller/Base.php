@@ -156,9 +156,6 @@ class Base extends Controller {
 
         $this->globalConfig = tpCache('global');
         $this->php_servicemeal = $this->globalConfig['php_servicemeal'];
-        !empty($this->globalConfig['web_adminlogo']) && $this->globalConfig['web_adminlogo'] = handle_subdir_pic($this->globalConfig['web_adminlogo']);
-        !empty($this->globalConfig['web_loginlogo']) && $this->globalConfig['web_loginlogo'] = handle_subdir_pic($this->globalConfig['web_loginlogo']);
-        !empty($this->globalConfig['web_loginbgimg']) && $this->globalConfig['web_loginbgimg'] = handle_subdir_pic($this->globalConfig['web_loginbgimg']);
         $this->assign('global', $this->globalConfig);
     } 
     
