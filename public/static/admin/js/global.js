@@ -1487,3 +1487,29 @@ function ajax_check_htmlfilename()
 
     return flag;
 }
+function check_title_repeat(obj,aid) {
+    var title = $(obj).val();
+    if (title){
+        $.ajax({
+            type: "POST",
+            url : eyou_basefile + "?m="+module_name+"&c=Archives&a=check_title_repeat&lang=" + __lang__,
+            data: {title:title,aid:aid, _ajax:1},
+            dataType: 'json',
+            success: function (data) {
+                if(data.code == 0){
+                    layer.tips(data.msg, '#title',{
+                        tips: [2, '#F5F5F5'],
+                        area: ['300px', 'auto'],
+                        time: 0
+                    });
+                }else {
+                    layer.closeAll();
+                }
+            },
+            error:function(){
+            }
+        });
+    }else{
+        layer.closeAll();
+    }
+}

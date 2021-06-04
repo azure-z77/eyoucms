@@ -324,32 +324,7 @@
         $("#img_i").attr('onmouseover', "layer_tips=layer.tips('<img src="+fileurl_tmp+" class=\\'layer_tips_img\\'>',this,{tips: [1, '#fff']});");
         $("input[name=is_litpic]").attr('checked', true); // 自动勾选属性[图片]
     }
-    function check_title_repeat(obj,aid) {
-        var title = $(obj).val();
-        if (title){
-            $.ajax({
-                type: "POST",
-                url: "{:url('Archives/check_title_repeat')}",
-                data: {title:title,aid:aid, _ajax:1},
-                dataType: 'json',
-                success: function (data) {
-                    if(data.code == 0){
-                        layer.tips(data.msg, '#title',{
-                            tips: [2, '#F5F5F5'],
-                            area: ['300px', 'auto'],
-                            time: 0
-                        });
-                    }else {
-                        layer.closeAll();
-                    }
-                },
-                error:function(){
-                }
-            });
-        }else{
-            layer.closeAll();
-        }
-    }
+
 </script>
 
 {include file="public/footer" /}
