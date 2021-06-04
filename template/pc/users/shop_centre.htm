@@ -48,9 +48,9 @@
 
 									   	<a class="el-button el-button--default {eq name='$field3.select_status' value='3'}active{/eq}" data-toggle="tab" href="{eyou:url link='user/Shop/shop_centre' vars='select_status=3'/}"> 已完成{eyou:if condition="0 != $field3.Completed"} <em>({$field3.Completed})</em> {/eyou:if}</a>
 
-									   	{egt name='$php_servicemeal' value='2'}
+									   	{gt name='$php_servicemeal' value='1'}
 									   	<a class="el-button el-button--default {if empty($field3.select_status) && $field3.access_action == 'after_service'} active {/if}" data-toggle="tab" href="{eyou:url link='user/Shop/after_service'/}"> 售后{eyou:if condition="0 != $field3.AfterService"} <em>({$field3.AfterService})</em> {/eyou:if}</a>
-									   	{/egt}
+									   	{/gt}
 
 								   	</div>
 								   	{/eyou:spstatus}

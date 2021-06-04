@@ -133,11 +133,13 @@
                                     <div class="pay-item-l">已完成</div>
                                     <div class="pay-item-r"><a href="{eyou:url link='user/Shop/shop_centre' vars='select_status=3'/}">{$field3.Completed}</a></div>
                                 </div>
-                                {eyou:egt name='$php_servicemeal' value='2'}
+                                {eyou:gt name='$php_servicemeal' value='1'}
                                     <div class="pay-item">
                                         <div class="pay-item-l">售后</div>
                                         <div class="pay-item-r"><a href="{eyou:url link='user/Shop/after_service'/}">{$field3.AfterService}</a></div>
                                     </div>
+                                {/eyou:gt}
+                                {eyou:egt name='$php_servicemeal' value='2'}
                                     <div class="pay-item">
                                         <div class="pay-item-l">评价</div>
                                         <div class="pay-item-r"><a href="{eyou:url link='user/ShopComment/index'/}">{$field3.CommentList}</a></div>
