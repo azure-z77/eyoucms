@@ -84,10 +84,10 @@
                 </dt>
                 <dd class="opt">
                     <div class="onoff">
-                        <label for="switch0" class="cb-enable {if condition='empty($switch)'}selected{/if}">开启</label>
-                        <label for="switch1" class="cb-disable {if condition='$switch eq 1'}selected{/if}">关闭</label>
-                        <input id="switch0" name="switch" value="0" type="radio" {if condition="empty($switch)"} checked="checked"{/if}>
-                        <input id="switch1" name="switch" value="1" type="radio" {if condition="$switch eq 1"} checked="checked"{/if}>
+                        <label for="recycle_switch0" class="cb-enable {if condition='empty($recycle_switch)'}selected{/if}">开启</label>
+                        <label for="recycle_switch1" class="cb-disable {if condition='$recycle_switch eq 1'}selected{/if}">关闭</label>
+                        <input id="recycle_switch0" name="recycle_switch" value="0" type="radio" {if condition="empty($recycle_switch)"} checked="checked"{/if}>
+                        <input id="recycle_switch1" name="recycle_switch" value="1" type="radio" {if condition="$recycle_switch eq 1"} checked="checked"{/if}>
                     </div>
                 </dd>
             </dl>

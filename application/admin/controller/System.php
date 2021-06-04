@@ -211,7 +211,7 @@ class System extends Base
             $web_tpl_theme_old = tpCache('web.web_tpl_theme');
             /*--end*/
 
-            tpSetting('recycle', ['recycle_switch' => $param['switch']]);//回收站开关
+            tpSetting('recycle', ['recycle_switch' => $param['recycle_switch']]);//回收站开关
 
             /*多语言*/
             if (is_language()) {
@@ -322,7 +322,7 @@ class System extends Base
         
         $this->assign('config',$config);//当前配置项
         $recycle_switch = tpSetting('recycle.recycle_switch');
-        $this->assign('switch', $recycle_switch);//回收站
+        $this->assign('recycle_switch', $recycle_switch);//回收站
 
         return $this->fetch();
     }
