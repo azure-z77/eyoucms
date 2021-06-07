@@ -113,7 +113,7 @@ CREATE TABLE `ey_admin` (
 -- -----------------------------
 -- Records of `ey_admin`
 -- -----------------------------
-INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '18e6a423f5a873ab50c1c55c59c69517', '', '1622687527', '127.0.0.1', '35', '39jpb6ihdco16533nqnk8to1j5', '0', '-1', 'cn', '1', '1', '1622508084', '1622508804');
+INSERT INTO `ey_admin` VALUES ('1', 'admin', '', 'admin', '', '', '18e6a423f5a873ab50c1c55c59c69517', '', '1623035355', '127.0.0.1', '2', '0nt9c6n21i6k9m7nekabs2a404', '0', '-1', 'cn', '1', '1', '1623035349', '1623035355');
 
 -- -----------------------------
 -- Table structure for `ey_admin_log`
@@ -128,759 +128,11 @@ CREATE TABLE `ey_admin_log` (
   `log_time` int(11) DEFAULT '0' COMMENT '日志时间',
   PRIMARY KEY (`log_id`),
   KEY `admin_id` (`admin_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=1324 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='管理员操作日志表';
 
 -- -----------------------------
 -- Records of `ey_admin_log`
 -- -----------------------------
-INSERT INTO `ey_admin_log` VALUES ('578', '1', '安装插件：订单导出', '127.0.0.1', '/login.php', '1622508760');
-INSERT INTO `ey_admin_log` VALUES ('576', '-1', '访问后台', '127.0.0.1', '/login.php', '1622508085');
-INSERT INTO `ey_admin_log` VALUES ('577', '1', '后台登录', '127.0.0.1', '/login.php', '1622508090');
-INSERT INTO `ey_admin_log` VALUES ('579', '1', '编辑会员：admin', '127.0.0.1', '/login.php', '1622508793');
-INSERT INTO `ey_admin_log` VALUES ('580', '1', '编辑会员：admin', '127.0.0.1', '/login.php', '1622508804');
-INSERT INTO `ey_admin_log` VALUES ('581', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622509690');
-INSERT INTO `ey_admin_log` VALUES ('582', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622509694');
-INSERT INTO `ey_admin_log` VALUES ('583', '1', '验证商业授权', '127.0.0.1', '/test/login.php', '1622509717');
-INSERT INTO `ey_admin_log` VALUES ('584', '1', '安全退出', '127.0.0.1', '/test/login.php', '1622509764');
-INSERT INTO `ey_admin_log` VALUES ('585', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622509765');
-INSERT INTO `ey_admin_log` VALUES ('586', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622509765');
-INSERT INTO `ey_admin_log` VALUES ('587', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622509771');
-INSERT INTO `ey_admin_log` VALUES ('588', '1', '验证商业授权', '127.0.0.1', '/test/login.php', '1622509826');
-INSERT INTO `ey_admin_log` VALUES ('589', '1', '验证商业授权', '127.0.0.1', '/test/login.php', '1622509871');
-INSERT INTO `ey_admin_log` VALUES ('590', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622510542');
-INSERT INTO `ey_admin_log` VALUES ('591', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622510543');
-INSERT INTO `ey_admin_log` VALUES ('592', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622510547');
-INSERT INTO `ey_admin_log` VALUES ('593', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622510561');
-INSERT INTO `ey_admin_log` VALUES ('594', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622511970');
-INSERT INTO `ey_admin_log` VALUES ('595', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622511974');
-INSERT INTO `ey_admin_log` VALUES ('596', '1', '安全退出', '127.0.0.1', '/test/login.php', '1622512257');
-INSERT INTO `ey_admin_log` VALUES ('597', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512259');
-INSERT INTO `ey_admin_log` VALUES ('598', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512259');
-INSERT INTO `ey_admin_log` VALUES ('599', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622512263');
-INSERT INTO `ey_admin_log` VALUES ('600', '1', '安全退出', '127.0.0.1', '/test/login.php', '1622512317');
-INSERT INTO `ey_admin_log` VALUES ('601', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512319');
-INSERT INTO `ey_admin_log` VALUES ('602', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512319');
-INSERT INTO `ey_admin_log` VALUES ('603', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622512330');
-INSERT INTO `ey_admin_log` VALUES ('604', '1', '安全退出', '127.0.0.1', '/test/login.php', '1622512400');
-INSERT INTO `ey_admin_log` VALUES ('605', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512401');
-INSERT INTO `ey_admin_log` VALUES ('606', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622512407');
-INSERT INTO `ey_admin_log` VALUES ('607', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622512550');
-INSERT INTO `ey_admin_log` VALUES ('608', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622512558');
-INSERT INTO `ey_admin_log` VALUES ('609', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513534');
-INSERT INTO `ey_admin_log` VALUES ('610', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513594');
-INSERT INTO `ey_admin_log` VALUES ('611', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513654');
-INSERT INTO `ey_admin_log` VALUES ('612', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513701');
-INSERT INTO `ey_admin_log` VALUES ('613', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622513708');
-INSERT INTO `ey_admin_log` VALUES ('614', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513714');
-INSERT INTO `ey_admin_log` VALUES ('615', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513774');
-INSERT INTO `ey_admin_log` VALUES ('616', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513834');
-INSERT INTO `ey_admin_log` VALUES ('617', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513894');
-INSERT INTO `ey_admin_log` VALUES ('618', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622513954');
-INSERT INTO `ey_admin_log` VALUES ('619', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622514014');
-INSERT INTO `ey_admin_log` VALUES ('620', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622514074');
-INSERT INTO `ey_admin_log` VALUES ('621', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622514134');
-INSERT INTO `ey_admin_log` VALUES ('622', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622514147');
-INSERT INTO `ey_admin_log` VALUES ('623', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622527761');
-INSERT INTO `ey_admin_log` VALUES ('624', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622527764');
-INSERT INTO `ey_admin_log` VALUES ('625', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622527940');
-INSERT INTO `ey_admin_log` VALUES ('626', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622527944');
-INSERT INTO `ey_admin_log` VALUES ('627', '1', '批量新增会员：Array', '127.0.0.1', '/test/login.php', '1622527957');
-INSERT INTO `ey_admin_log` VALUES ('628', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622528275');
-INSERT INTO `ey_admin_log` VALUES ('629', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622530006');
-INSERT INTO `ey_admin_log` VALUES ('630', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622530037');
-INSERT INTO `ey_admin_log` VALUES ('631', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532122');
-INSERT INTO `ey_admin_log` VALUES ('632', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622532128');
-INSERT INTO `ey_admin_log` VALUES ('633', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532677');
-INSERT INTO `ey_admin_log` VALUES ('634', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532686');
-INSERT INTO `ey_admin_log` VALUES ('635', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532737');
-INSERT INTO `ey_admin_log` VALUES ('636', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532746');
-INSERT INTO `ey_admin_log` VALUES ('637', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532797');
-INSERT INTO `ey_admin_log` VALUES ('638', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532806');
-INSERT INTO `ey_admin_log` VALUES ('639', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532857');
-INSERT INTO `ey_admin_log` VALUES ('640', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532866');
-INSERT INTO `ey_admin_log` VALUES ('641', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532917');
-INSERT INTO `ey_admin_log` VALUES ('642', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532926');
-INSERT INTO `ey_admin_log` VALUES ('643', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532977');
-INSERT INTO `ey_admin_log` VALUES ('644', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622532986');
-INSERT INTO `ey_admin_log` VALUES ('645', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533037');
-INSERT INTO `ey_admin_log` VALUES ('646', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533046');
-INSERT INTO `ey_admin_log` VALUES ('647', '1', '新增栏目：测试', '127.0.0.1', '/test/login.php', '1622533066');
-INSERT INTO `ey_admin_log` VALUES ('648', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622533087');
-INSERT INTO `ey_admin_log` VALUES ('649', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533097');
-INSERT INTO `ey_admin_log` VALUES ('650', '1', '伪删除栏目：测试', '127.0.0.1', '/test/login.php', '1622533098');
-INSERT INTO `ey_admin_log` VALUES ('651', '1', '新增栏目：实验一', '127.0.0.1', '/test/login.php', '1622533103');
-INSERT INTO `ey_admin_log` VALUES ('652', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533106');
-INSERT INTO `ey_admin_log` VALUES ('653', '1', '伪删除栏目：实验一', '127.0.0.1', '/test/login.php', '1622533114');
-INSERT INTO `ey_admin_log` VALUES ('654', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533157');
-INSERT INTO `ey_admin_log` VALUES ('655', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533166');
-INSERT INTO `ey_admin_log` VALUES ('656', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533217');
-INSERT INTO `ey_admin_log` VALUES ('657', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533226');
-INSERT INTO `ey_admin_log` VALUES ('658', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533277');
-INSERT INTO `ey_admin_log` VALUES ('659', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533286');
-INSERT INTO `ey_admin_log` VALUES ('660', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533337');
-INSERT INTO `ey_admin_log` VALUES ('661', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533346');
-INSERT INTO `ey_admin_log` VALUES ('662', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533397');
-INSERT INTO `ey_admin_log` VALUES ('663', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533406');
-INSERT INTO `ey_admin_log` VALUES ('664', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533457');
-INSERT INTO `ey_admin_log` VALUES ('665', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533466');
-INSERT INTO `ey_admin_log` VALUES ('666', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533517');
-INSERT INTO `ey_admin_log` VALUES ('667', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533526');
-INSERT INTO `ey_admin_log` VALUES ('668', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533577');
-INSERT INTO `ey_admin_log` VALUES ('669', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533586');
-INSERT INTO `ey_admin_log` VALUES ('670', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533637');
-INSERT INTO `ey_admin_log` VALUES ('671', '1', '新增栏目：实验一', '127.0.0.1', '/test/login.php', '1622533641');
-INSERT INTO `ey_admin_log` VALUES ('672', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533646');
-INSERT INTO `ey_admin_log` VALUES ('673', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533697');
-INSERT INTO `ey_admin_log` VALUES ('674', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533706');
-INSERT INTO `ey_admin_log` VALUES ('675', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533757');
-INSERT INTO `ey_admin_log` VALUES ('676', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533766');
-INSERT INTO `ey_admin_log` VALUES ('677', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533817');
-INSERT INTO `ey_admin_log` VALUES ('678', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533826');
-INSERT INTO `ey_admin_log` VALUES ('679', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533877');
-INSERT INTO `ey_admin_log` VALUES ('680', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533886');
-INSERT INTO `ey_admin_log` VALUES ('681', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533937');
-INSERT INTO `ey_admin_log` VALUES ('682', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533946');
-INSERT INTO `ey_admin_log` VALUES ('683', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622533997');
-INSERT INTO `ey_admin_log` VALUES ('684', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534006');
-INSERT INTO `ey_admin_log` VALUES ('685', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534057');
-INSERT INTO `ey_admin_log` VALUES ('686', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534066');
-INSERT INTO `ey_admin_log` VALUES ('687', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534117');
-INSERT INTO `ey_admin_log` VALUES ('688', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534126');
-INSERT INTO `ey_admin_log` VALUES ('689', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534177');
-INSERT INTO `ey_admin_log` VALUES ('690', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534186');
-INSERT INTO `ey_admin_log` VALUES ('691', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534237');
-INSERT INTO `ey_admin_log` VALUES ('692', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534246');
-INSERT INTO `ey_admin_log` VALUES ('693', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534297');
-INSERT INTO `ey_admin_log` VALUES ('694', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534306');
-INSERT INTO `ey_admin_log` VALUES ('695', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534357');
-INSERT INTO `ey_admin_log` VALUES ('696', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534366');
-INSERT INTO `ey_admin_log` VALUES ('697', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534417');
-INSERT INTO `ey_admin_log` VALUES ('698', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534426');
-INSERT INTO `ey_admin_log` VALUES ('699', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534477');
-INSERT INTO `ey_admin_log` VALUES ('700', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534486');
-INSERT INTO `ey_admin_log` VALUES ('701', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534537');
-INSERT INTO `ey_admin_log` VALUES ('702', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534546');
-INSERT INTO `ey_admin_log` VALUES ('703', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534597');
-INSERT INTO `ey_admin_log` VALUES ('704', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534606');
-INSERT INTO `ey_admin_log` VALUES ('705', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534657');
-INSERT INTO `ey_admin_log` VALUES ('706', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534666');
-INSERT INTO `ey_admin_log` VALUES ('707', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534717');
-INSERT INTO `ey_admin_log` VALUES ('708', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534726');
-INSERT INTO `ey_admin_log` VALUES ('709', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534777');
-INSERT INTO `ey_admin_log` VALUES ('710', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534786');
-INSERT INTO `ey_admin_log` VALUES ('711', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534837');
-INSERT INTO `ey_admin_log` VALUES ('712', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534835');
-INSERT INTO `ey_admin_log` VALUES ('713', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534846');
-INSERT INTO `ey_admin_log` VALUES ('714', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622534847');
-INSERT INTO `ey_admin_log` VALUES ('715', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534897');
-INSERT INTO `ey_admin_log` VALUES ('716', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534906');
-INSERT INTO `ey_admin_log` VALUES ('717', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534946');
-INSERT INTO `ey_admin_log` VALUES ('718', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622534952');
-INSERT INTO `ey_admin_log` VALUES ('719', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534957');
-INSERT INTO `ey_admin_log` VALUES ('720', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622534966');
-INSERT INTO `ey_admin_log` VALUES ('721', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535017');
-INSERT INTO `ey_admin_log` VALUES ('722', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535026');
-INSERT INTO `ey_admin_log` VALUES ('723', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622535074');
-INSERT INTO `ey_admin_log` VALUES ('724', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535077');
-INSERT INTO `ey_admin_log` VALUES ('725', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535086');
-INSERT INTO `ey_admin_log` VALUES ('726', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535137');
-INSERT INTO `ey_admin_log` VALUES ('727', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535146');
-INSERT INTO `ey_admin_log` VALUES ('728', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535149');
-INSERT INTO `ey_admin_log` VALUES ('729', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622535154');
-INSERT INTO `ey_admin_log` VALUES ('730', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535197');
-INSERT INTO `ey_admin_log` VALUES ('731', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535257');
-INSERT INTO `ey_admin_log` VALUES ('732', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535317');
-INSERT INTO `ey_admin_log` VALUES ('733', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535377');
-INSERT INTO `ey_admin_log` VALUES ('734', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535437');
-INSERT INTO `ey_admin_log` VALUES ('735', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535497');
-INSERT INTO `ey_admin_log` VALUES ('736', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535557');
-INSERT INTO `ey_admin_log` VALUES ('737', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535617');
-INSERT INTO `ey_admin_log` VALUES ('738', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535677');
-INSERT INTO `ey_admin_log` VALUES ('739', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535737');
-INSERT INTO `ey_admin_log` VALUES ('740', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535797');
-INSERT INTO `ey_admin_log` VALUES ('741', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535857');
-INSERT INTO `ey_admin_log` VALUES ('742', '1', '安全退出', '127.0.0.1', '/test/login.php', '1622535907');
-INSERT INTO `ey_admin_log` VALUES ('743', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535909');
-INSERT INTO `ey_admin_log` VALUES ('744', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535917');
-INSERT INTO `ey_admin_log` VALUES ('745', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622535916');
-INSERT INTO `ey_admin_log` VALUES ('746', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622535977');
-INSERT INTO `ey_admin_log` VALUES ('747', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536037');
-INSERT INTO `ey_admin_log` VALUES ('748', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536097');
-INSERT INTO `ey_admin_log` VALUES ('749', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536157');
-INSERT INTO `ey_admin_log` VALUES ('750', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536217');
-INSERT INTO `ey_admin_log` VALUES ('751', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536277');
-INSERT INTO `ey_admin_log` VALUES ('752', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536337');
-INSERT INTO `ey_admin_log` VALUES ('753', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536397');
-INSERT INTO `ey_admin_log` VALUES ('754', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536457');
-INSERT INTO `ey_admin_log` VALUES ('755', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536517');
-INSERT INTO `ey_admin_log` VALUES ('756', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622536577');
-INSERT INTO `ey_admin_log` VALUES ('757', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538674');
-INSERT INTO `ey_admin_log` VALUES ('758', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538733');
-INSERT INTO `ey_admin_log` VALUES ('759', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538793');
-INSERT INTO `ey_admin_log` VALUES ('760', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538853');
-INSERT INTO `ey_admin_log` VALUES ('761', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538913');
-INSERT INTO `ey_admin_log` VALUES ('762', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622538973');
-INSERT INTO `ey_admin_log` VALUES ('763', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539034');
-INSERT INTO `ey_admin_log` VALUES ('764', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539094');
-INSERT INTO `ey_admin_log` VALUES ('765', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539154');
-INSERT INTO `ey_admin_log` VALUES ('766', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539214');
-INSERT INTO `ey_admin_log` VALUES ('767', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539274');
-INSERT INTO `ey_admin_log` VALUES ('768', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539334');
-INSERT INTO `ey_admin_log` VALUES ('769', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539394');
-INSERT INTO `ey_admin_log` VALUES ('770', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539454');
-INSERT INTO `ey_admin_log` VALUES ('771', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539514');
-INSERT INTO `ey_admin_log` VALUES ('772', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539574');
-INSERT INTO `ey_admin_log` VALUES ('773', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539634');
-INSERT INTO `ey_admin_log` VALUES ('774', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539694');
-INSERT INTO `ey_admin_log` VALUES ('775', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539754');
-INSERT INTO `ey_admin_log` VALUES ('776', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539814');
-INSERT INTO `ey_admin_log` VALUES ('777', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539874');
-INSERT INTO `ey_admin_log` VALUES ('778', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539934');
-INSERT INTO `ey_admin_log` VALUES ('779', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622539994');
-INSERT INTO `ey_admin_log` VALUES ('780', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540054');
-INSERT INTO `ey_admin_log` VALUES ('781', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540114');
-INSERT INTO `ey_admin_log` VALUES ('782', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540174');
-INSERT INTO `ey_admin_log` VALUES ('783', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540234');
-INSERT INTO `ey_admin_log` VALUES ('784', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540294');
-INSERT INTO `ey_admin_log` VALUES ('785', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540354');
-INSERT INTO `ey_admin_log` VALUES ('786', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540414');
-INSERT INTO `ey_admin_log` VALUES ('787', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540474');
-INSERT INTO `ey_admin_log` VALUES ('788', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540534');
-INSERT INTO `ey_admin_log` VALUES ('789', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540594');
-INSERT INTO `ey_admin_log` VALUES ('790', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540654');
-INSERT INTO `ey_admin_log` VALUES ('791', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540714');
-INSERT INTO `ey_admin_log` VALUES ('792', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540774');
-INSERT INTO `ey_admin_log` VALUES ('793', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540834');
-INSERT INTO `ey_admin_log` VALUES ('794', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540894');
-INSERT INTO `ey_admin_log` VALUES ('795', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622540954');
-INSERT INTO `ey_admin_log` VALUES ('796', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541014');
-INSERT INTO `ey_admin_log` VALUES ('797', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541074');
-INSERT INTO `ey_admin_log` VALUES ('798', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541134');
-INSERT INTO `ey_admin_log` VALUES ('799', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541194');
-INSERT INTO `ey_admin_log` VALUES ('800', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541254');
-INSERT INTO `ey_admin_log` VALUES ('801', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541314');
-INSERT INTO `ey_admin_log` VALUES ('802', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541374');
-INSERT INTO `ey_admin_log` VALUES ('803', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541434');
-INSERT INTO `ey_admin_log` VALUES ('804', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541494');
-INSERT INTO `ey_admin_log` VALUES ('805', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541554');
-INSERT INTO `ey_admin_log` VALUES ('806', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541614');
-INSERT INTO `ey_admin_log` VALUES ('807', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541674');
-INSERT INTO `ey_admin_log` VALUES ('808', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541734');
-INSERT INTO `ey_admin_log` VALUES ('809', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541794');
-INSERT INTO `ey_admin_log` VALUES ('810', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541854');
-INSERT INTO `ey_admin_log` VALUES ('811', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541914');
-INSERT INTO `ey_admin_log` VALUES ('812', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622541974');
-INSERT INTO `ey_admin_log` VALUES ('813', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542034');
-INSERT INTO `ey_admin_log` VALUES ('814', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542094');
-INSERT INTO `ey_admin_log` VALUES ('815', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542154');
-INSERT INTO `ey_admin_log` VALUES ('816', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542214');
-INSERT INTO `ey_admin_log` VALUES ('817', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542274');
-INSERT INTO `ey_admin_log` VALUES ('818', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542334');
-INSERT INTO `ey_admin_log` VALUES ('819', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542394');
-INSERT INTO `ey_admin_log` VALUES ('820', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542454');
-INSERT INTO `ey_admin_log` VALUES ('821', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542514');
-INSERT INTO `ey_admin_log` VALUES ('822', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542574');
-INSERT INTO `ey_admin_log` VALUES ('823', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542634');
-INSERT INTO `ey_admin_log` VALUES ('824', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542694');
-INSERT INTO `ey_admin_log` VALUES ('825', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542754');
-INSERT INTO `ey_admin_log` VALUES ('826', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542814');
-INSERT INTO `ey_admin_log` VALUES ('827', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542874');
-INSERT INTO `ey_admin_log` VALUES ('828', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542934');
-INSERT INTO `ey_admin_log` VALUES ('829', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542992');
-INSERT INTO `ey_admin_log` VALUES ('830', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622542994');
-INSERT INTO `ey_admin_log` VALUES ('831', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622542998');
-INSERT INTO `ey_admin_log` VALUES ('832', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543054');
-INSERT INTO `ey_admin_log` VALUES ('833', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543114');
-INSERT INTO `ey_admin_log` VALUES ('834', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543174');
-INSERT INTO `ey_admin_log` VALUES ('835', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543234');
-INSERT INTO `ey_admin_log` VALUES ('836', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543294');
-INSERT INTO `ey_admin_log` VALUES ('837', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543354');
-INSERT INTO `ey_admin_log` VALUES ('838', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622543414');
-INSERT INTO `ey_admin_log` VALUES ('839', '-1', '访问后台', '127.0.0.1', '/test/login.php/', '1622594120');
-INSERT INTO `ey_admin_log` VALUES ('840', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622594125');
-INSERT INTO `ey_admin_log` VALUES ('841', '1', '新增文章：seo是什么？', '127.0.0.1', '/test/login.php', '1622594143');
-INSERT INTO `ey_admin_log` VALUES ('842', '1', '新增文章：seo是什么？', '127.0.0.1', '/test/login.php', '1622594156');
-INSERT INTO `ey_admin_log` VALUES ('843', '1', '新增文章：seo是什么？', '127.0.0.1', '/test/login.php', '1622594162');
-INSERT INTO `ey_admin_log` VALUES ('844', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622594180');
-INSERT INTO `ey_admin_log` VALUES ('845', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622594513');
-INSERT INTO `ey_admin_log` VALUES ('846', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622594513');
-INSERT INTO `ey_admin_log` VALUES ('847', '1', '安装插件：系统医生', '127.0.0.1', '/test/login.php', '1622594514');
-INSERT INTO `ey_admin_log` VALUES ('848', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622594516');
-INSERT INTO `ey_admin_log` VALUES ('849', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622594821');
-INSERT INTO `ey_admin_log` VALUES ('850', '1', '验证商业授权', '127.0.0.1', '/test/login.php', '1622594871');
-INSERT INTO `ey_admin_log` VALUES ('851', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622595042');
-INSERT INTO `ey_admin_log` VALUES ('852', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622595052');
-INSERT INTO `ey_admin_log` VALUES ('853', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622598181');
-INSERT INTO `ey_admin_log` VALUES ('854', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622598717');
-INSERT INTO `ey_admin_log` VALUES ('855', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622598740');
-INSERT INTO `ey_admin_log` VALUES ('856', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622598744');
-INSERT INTO `ey_admin_log` VALUES ('857', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622598752');
-INSERT INTO `ey_admin_log` VALUES ('858', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622598999');
-INSERT INTO `ey_admin_log` VALUES ('859', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622600470');
-INSERT INTO `ey_admin_log` VALUES ('860', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622600470');
-INSERT INTO `ey_admin_log` VALUES ('861', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622600474');
-INSERT INTO `ey_admin_log` VALUES ('862', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602371');
-INSERT INTO `ey_admin_log` VALUES ('863', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602431');
-INSERT INTO `ey_admin_log` VALUES ('864', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602493');
-INSERT INTO `ey_admin_log` VALUES ('865', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602553');
-INSERT INTO `ey_admin_log` VALUES ('866', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602614');
-INSERT INTO `ey_admin_log` VALUES ('867', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602675');
-INSERT INTO `ey_admin_log` VALUES ('868', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602722');
-INSERT INTO `ey_admin_log` VALUES ('869', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602726');
-INSERT INTO `ey_admin_log` VALUES ('870', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622602734');
-INSERT INTO `ey_admin_log` VALUES ('871', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602773');
-INSERT INTO `ey_admin_log` VALUES ('872', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602833');
-INSERT INTO `ey_admin_log` VALUES ('873', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602834');
-INSERT INTO `ey_admin_log` VALUES ('874', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602893');
-INSERT INTO `ey_admin_log` VALUES ('875', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622602950');
-INSERT INTO `ey_admin_log` VALUES ('876', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622602957');
-INSERT INTO `ey_admin_log` VALUES ('877', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622603032');
-INSERT INTO `ey_admin_log` VALUES ('878', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622604107');
-INSERT INTO `ey_admin_log` VALUES ('879', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622604113');
-INSERT INTO `ey_admin_log` VALUES ('880', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622604191');
-INSERT INTO `ey_admin_log` VALUES ('881', '1', '新增文章：123', '127.0.0.1', '/test/login.php', '1622604349');
-INSERT INTO `ey_admin_log` VALUES ('882', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622604455');
-INSERT INTO `ey_admin_log` VALUES ('883', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622604460');
-INSERT INTO `ey_admin_log` VALUES ('884', '1', '新增产品：456', '127.0.0.1', '/test/login.php', '1622604481');
-INSERT INTO `ey_admin_log` VALUES ('885', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622607838');
-INSERT INTO `ey_admin_log` VALUES ('886', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622607898');
-INSERT INTO `ey_admin_log` VALUES ('887', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622607958');
-INSERT INTO `ey_admin_log` VALUES ('888', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608018');
-INSERT INTO `ey_admin_log` VALUES ('889', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608078');
-INSERT INTO `ey_admin_log` VALUES ('890', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608122');
-INSERT INTO `ey_admin_log` VALUES ('891', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608138');
-INSERT INTO `ey_admin_log` VALUES ('892', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608182');
-INSERT INTO `ey_admin_log` VALUES ('893', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608198');
-INSERT INTO `ey_admin_log` VALUES ('894', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608242');
-INSERT INTO `ey_admin_log` VALUES ('895', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608258');
-INSERT INTO `ey_admin_log` VALUES ('896', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608302');
-INSERT INTO `ey_admin_log` VALUES ('897', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608318');
-INSERT INTO `ey_admin_log` VALUES ('898', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608360');
-INSERT INTO `ey_admin_log` VALUES ('899', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608378');
-INSERT INTO `ey_admin_log` VALUES ('900', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608420');
-INSERT INTO `ey_admin_log` VALUES ('901', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608438');
-INSERT INTO `ey_admin_log` VALUES ('902', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608480');
-INSERT INTO `ey_admin_log` VALUES ('903', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608498');
-INSERT INTO `ey_admin_log` VALUES ('904', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608540');
-INSERT INTO `ey_admin_log` VALUES ('905', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608558');
-INSERT INTO `ey_admin_log` VALUES ('906', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608600');
-INSERT INTO `ey_admin_log` VALUES ('907', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608618');
-INSERT INTO `ey_admin_log` VALUES ('908', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608660');
-INSERT INTO `ey_admin_log` VALUES ('909', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608678');
-INSERT INTO `ey_admin_log` VALUES ('910', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608720');
-INSERT INTO `ey_admin_log` VALUES ('911', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608738');
-INSERT INTO `ey_admin_log` VALUES ('912', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608798');
-INSERT INTO `ey_admin_log` VALUES ('913', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608858');
-INSERT INTO `ey_admin_log` VALUES ('914', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608918');
-INSERT INTO `ey_admin_log` VALUES ('915', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622608978');
-INSERT INTO `ey_admin_log` VALUES ('916', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609038');
-INSERT INTO `ey_admin_log` VALUES ('917', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609098');
-INSERT INTO `ey_admin_log` VALUES ('918', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609158');
-INSERT INTO `ey_admin_log` VALUES ('919', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609218');
-INSERT INTO `ey_admin_log` VALUES ('920', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609278');
-INSERT INTO `ey_admin_log` VALUES ('921', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609338');
-INSERT INTO `ey_admin_log` VALUES ('922', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609398');
-INSERT INTO `ey_admin_log` VALUES ('923', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609458');
-INSERT INTO `ey_admin_log` VALUES ('924', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609518');
-INSERT INTO `ey_admin_log` VALUES ('925', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609578');
-INSERT INTO `ey_admin_log` VALUES ('926', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609638');
-INSERT INTO `ey_admin_log` VALUES ('927', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609698');
-INSERT INTO `ey_admin_log` VALUES ('928', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609758');
-INSERT INTO `ey_admin_log` VALUES ('929', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609818');
-INSERT INTO `ey_admin_log` VALUES ('930', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609878');
-INSERT INTO `ey_admin_log` VALUES ('931', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609938');
-INSERT INTO `ey_admin_log` VALUES ('932', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622609998');
-INSERT INTO `ey_admin_log` VALUES ('933', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610058');
-INSERT INTO `ey_admin_log` VALUES ('934', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610118');
-INSERT INTO `ey_admin_log` VALUES ('935', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610178');
-INSERT INTO `ey_admin_log` VALUES ('936', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610238');
-INSERT INTO `ey_admin_log` VALUES ('937', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610298');
-INSERT INTO `ey_admin_log` VALUES ('938', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610358');
-INSERT INTO `ey_admin_log` VALUES ('939', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610418');
-INSERT INTO `ey_admin_log` VALUES ('940', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610478');
-INSERT INTO `ey_admin_log` VALUES ('941', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610538');
-INSERT INTO `ey_admin_log` VALUES ('942', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610598');
-INSERT INTO `ey_admin_log` VALUES ('943', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610658');
-INSERT INTO `ey_admin_log` VALUES ('944', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610718');
-INSERT INTO `ey_admin_log` VALUES ('945', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610778');
-INSERT INTO `ey_admin_log` VALUES ('946', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610838');
-INSERT INTO `ey_admin_log` VALUES ('947', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610898');
-INSERT INTO `ey_admin_log` VALUES ('948', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622610958');
-INSERT INTO `ey_admin_log` VALUES ('949', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611018');
-INSERT INTO `ey_admin_log` VALUES ('950', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611078');
-INSERT INTO `ey_admin_log` VALUES ('951', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611138');
-INSERT INTO `ey_admin_log` VALUES ('952', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611198');
-INSERT INTO `ey_admin_log` VALUES ('953', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611258');
-INSERT INTO `ey_admin_log` VALUES ('954', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611318');
-INSERT INTO `ey_admin_log` VALUES ('955', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611378');
-INSERT INTO `ey_admin_log` VALUES ('956', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611438');
-INSERT INTO `ey_admin_log` VALUES ('957', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611498');
-INSERT INTO `ey_admin_log` VALUES ('958', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611558');
-INSERT INTO `ey_admin_log` VALUES ('959', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611618');
-INSERT INTO `ey_admin_log` VALUES ('960', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611678');
-INSERT INTO `ey_admin_log` VALUES ('961', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611738');
-INSERT INTO `ey_admin_log` VALUES ('962', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611798');
-INSERT INTO `ey_admin_log` VALUES ('963', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611858');
-INSERT INTO `ey_admin_log` VALUES ('964', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611918');
-INSERT INTO `ey_admin_log` VALUES ('965', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622611978');
-INSERT INTO `ey_admin_log` VALUES ('966', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612038');
-INSERT INTO `ey_admin_log` VALUES ('967', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612098');
-INSERT INTO `ey_admin_log` VALUES ('968', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612158');
-INSERT INTO `ey_admin_log` VALUES ('969', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612218');
-INSERT INTO `ey_admin_log` VALUES ('970', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612278');
-INSERT INTO `ey_admin_log` VALUES ('971', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612338');
-INSERT INTO `ey_admin_log` VALUES ('972', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612398');
-INSERT INTO `ey_admin_log` VALUES ('973', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612458');
-INSERT INTO `ey_admin_log` VALUES ('974', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612518');
-INSERT INTO `ey_admin_log` VALUES ('975', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612578');
-INSERT INTO `ey_admin_log` VALUES ('976', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612638');
-INSERT INTO `ey_admin_log` VALUES ('977', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612698');
-INSERT INTO `ey_admin_log` VALUES ('978', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612758');
-INSERT INTO `ey_admin_log` VALUES ('979', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612818');
-INSERT INTO `ey_admin_log` VALUES ('980', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612878');
-INSERT INTO `ey_admin_log` VALUES ('981', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612938');
-INSERT INTO `ey_admin_log` VALUES ('982', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622612998');
-INSERT INTO `ey_admin_log` VALUES ('983', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613058');
-INSERT INTO `ey_admin_log` VALUES ('984', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613118');
-INSERT INTO `ey_admin_log` VALUES ('985', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613178');
-INSERT INTO `ey_admin_log` VALUES ('986', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613238');
-INSERT INTO `ey_admin_log` VALUES ('987', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613298');
-INSERT INTO `ey_admin_log` VALUES ('988', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613358');
-INSERT INTO `ey_admin_log` VALUES ('989', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613418');
-INSERT INTO `ey_admin_log` VALUES ('990', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613478');
-INSERT INTO `ey_admin_log` VALUES ('991', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613538');
-INSERT INTO `ey_admin_log` VALUES ('992', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613598');
-INSERT INTO `ey_admin_log` VALUES ('993', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613640');
-INSERT INTO `ey_admin_log` VALUES ('994', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613658');
-INSERT INTO `ey_admin_log` VALUES ('995', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613689');
-INSERT INTO `ey_admin_log` VALUES ('996', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613700');
-INSERT INTO `ey_admin_log` VALUES ('997', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613718');
-INSERT INTO `ey_admin_log` VALUES ('998', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613749');
-INSERT INTO `ey_admin_log` VALUES ('999', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613760');
-INSERT INTO `ey_admin_log` VALUES ('1000', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613778');
-INSERT INTO `ey_admin_log` VALUES ('1001', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613809');
-INSERT INTO `ey_admin_log` VALUES ('1002', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613820');
-INSERT INTO `ey_admin_log` VALUES ('1003', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613838');
-INSERT INTO `ey_admin_log` VALUES ('1004', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613869');
-INSERT INTO `ey_admin_log` VALUES ('1005', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613880');
-INSERT INTO `ey_admin_log` VALUES ('1006', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613898');
-INSERT INTO `ey_admin_log` VALUES ('1007', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613929');
-INSERT INTO `ey_admin_log` VALUES ('1008', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613940');
-INSERT INTO `ey_admin_log` VALUES ('1009', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613958');
-INSERT INTO `ey_admin_log` VALUES ('1010', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622613989');
-INSERT INTO `ey_admin_log` VALUES ('1011', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614000');
-INSERT INTO `ey_admin_log` VALUES ('1012', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614018');
-INSERT INTO `ey_admin_log` VALUES ('1013', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614032');
-INSERT INTO `ey_admin_log` VALUES ('1014', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614035');
-INSERT INTO `ey_admin_log` VALUES ('1015', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614038');
-INSERT INTO `ey_admin_log` VALUES ('1016', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622614043');
-INSERT INTO `ey_admin_log` VALUES ('1017', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614060');
-INSERT INTO `ey_admin_log` VALUES ('1018', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614078');
-INSERT INTO `ey_admin_log` VALUES ('1019', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614120');
-INSERT INTO `ey_admin_log` VALUES ('1020', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614138');
-INSERT INTO `ey_admin_log` VALUES ('1021', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614180');
-INSERT INTO `ey_admin_log` VALUES ('1022', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614198');
-INSERT INTO `ey_admin_log` VALUES ('1023', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614240');
-INSERT INTO `ey_admin_log` VALUES ('1024', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614258');
-INSERT INTO `ey_admin_log` VALUES ('1025', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614300');
-INSERT INTO `ey_admin_log` VALUES ('1026', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614318');
-INSERT INTO `ey_admin_log` VALUES ('1027', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614360');
-INSERT INTO `ey_admin_log` VALUES ('1028', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614378');
-INSERT INTO `ey_admin_log` VALUES ('1029', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614420');
-INSERT INTO `ey_admin_log` VALUES ('1030', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614438');
-INSERT INTO `ey_admin_log` VALUES ('1031', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614498');
-INSERT INTO `ey_admin_log` VALUES ('1032', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614558');
-INSERT INTO `ey_admin_log` VALUES ('1033', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614618');
-INSERT INTO `ey_admin_log` VALUES ('1034', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614678');
-INSERT INTO `ey_admin_log` VALUES ('1035', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614738');
-INSERT INTO `ey_admin_log` VALUES ('1036', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614798');
-INSERT INTO `ey_admin_log` VALUES ('1037', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614858');
-INSERT INTO `ey_admin_log` VALUES ('1038', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614918');
-INSERT INTO `ey_admin_log` VALUES ('1039', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622614978');
-INSERT INTO `ey_admin_log` VALUES ('1040', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615038');
-INSERT INTO `ey_admin_log` VALUES ('1041', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615098');
-INSERT INTO `ey_admin_log` VALUES ('1042', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615158');
-INSERT INTO `ey_admin_log` VALUES ('1043', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615182');
-INSERT INTO `ey_admin_log` VALUES ('1044', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615182');
-INSERT INTO `ey_admin_log` VALUES ('1045', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615218');
-INSERT INTO `ey_admin_log` VALUES ('1046', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615278');
-INSERT INTO `ey_admin_log` VALUES ('1047', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615338');
-INSERT INTO `ey_admin_log` VALUES ('1048', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615398');
-INSERT INTO `ey_admin_log` VALUES ('1049', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615458');
-INSERT INTO `ey_admin_log` VALUES ('1050', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615518');
-INSERT INTO `ey_admin_log` VALUES ('1051', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615578');
-INSERT INTO `ey_admin_log` VALUES ('1052', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615638');
-INSERT INTO `ey_admin_log` VALUES ('1053', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615698');
-INSERT INTO `ey_admin_log` VALUES ('1054', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615758');
-INSERT INTO `ey_admin_log` VALUES ('1055', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615818');
-INSERT INTO `ey_admin_log` VALUES ('1056', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615878');
-INSERT INTO `ey_admin_log` VALUES ('1057', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615938');
-INSERT INTO `ey_admin_log` VALUES ('1058', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622615998');
-INSERT INTO `ey_admin_log` VALUES ('1059', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616058');
-INSERT INTO `ey_admin_log` VALUES ('1060', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616118');
-INSERT INTO `ey_admin_log` VALUES ('1061', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616178');
-INSERT INTO `ey_admin_log` VALUES ('1062', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616238');
-INSERT INTO `ey_admin_log` VALUES ('1063', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616298');
-INSERT INTO `ey_admin_log` VALUES ('1064', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616358');
-INSERT INTO `ey_admin_log` VALUES ('1065', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616418');
-INSERT INTO `ey_admin_log` VALUES ('1066', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616478');
-INSERT INTO `ey_admin_log` VALUES ('1067', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616538');
-INSERT INTO `ey_admin_log` VALUES ('1068', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616598');
-INSERT INTO `ey_admin_log` VALUES ('1069', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616658');
-INSERT INTO `ey_admin_log` VALUES ('1070', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616718');
-INSERT INTO `ey_admin_log` VALUES ('1071', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616778');
-INSERT INTO `ey_admin_log` VALUES ('1072', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616838');
-INSERT INTO `ey_admin_log` VALUES ('1073', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616898');
-INSERT INTO `ey_admin_log` VALUES ('1074', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622616958');
-INSERT INTO `ey_admin_log` VALUES ('1075', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617018');
-INSERT INTO `ey_admin_log` VALUES ('1076', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617078');
-INSERT INTO `ey_admin_log` VALUES ('1077', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617138');
-INSERT INTO `ey_admin_log` VALUES ('1078', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617198');
-INSERT INTO `ey_admin_log` VALUES ('1079', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617258');
-INSERT INTO `ey_admin_log` VALUES ('1080', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617318');
-INSERT INTO `ey_admin_log` VALUES ('1081', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617378');
-INSERT INTO `ey_admin_log` VALUES ('1082', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617438');
-INSERT INTO `ey_admin_log` VALUES ('1083', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617498');
-INSERT INTO `ey_admin_log` VALUES ('1084', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617558');
-INSERT INTO `ey_admin_log` VALUES ('1085', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622617569');
-INSERT INTO `ey_admin_log` VALUES ('1086', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617618');
-INSERT INTO `ey_admin_log` VALUES ('1087', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617678');
-INSERT INTO `ey_admin_log` VALUES ('1088', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617738');
-INSERT INTO `ey_admin_log` VALUES ('1089', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617798');
-INSERT INTO `ey_admin_log` VALUES ('1090', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617858');
-INSERT INTO `ey_admin_log` VALUES ('1091', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617918');
-INSERT INTO `ey_admin_log` VALUES ('1092', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622617978');
-INSERT INTO `ey_admin_log` VALUES ('1093', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618038');
-INSERT INTO `ey_admin_log` VALUES ('1094', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618098');
-INSERT INTO `ey_admin_log` VALUES ('1095', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618158');
-INSERT INTO `ey_admin_log` VALUES ('1096', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618218');
-INSERT INTO `ey_admin_log` VALUES ('1097', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618278');
-INSERT INTO `ey_admin_log` VALUES ('1098', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618338');
-INSERT INTO `ey_admin_log` VALUES ('1099', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618398');
-INSERT INTO `ey_admin_log` VALUES ('1100', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618458');
-INSERT INTO `ey_admin_log` VALUES ('1101', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618518');
-INSERT INTO `ey_admin_log` VALUES ('1102', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618578');
-INSERT INTO `ey_admin_log` VALUES ('1103', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618638');
-INSERT INTO `ey_admin_log` VALUES ('1104', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618698');
-INSERT INTO `ey_admin_log` VALUES ('1105', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618758');
-INSERT INTO `ey_admin_log` VALUES ('1106', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618818');
-INSERT INTO `ey_admin_log` VALUES ('1107', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618878');
-INSERT INTO `ey_admin_log` VALUES ('1108', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618938');
-INSERT INTO `ey_admin_log` VALUES ('1109', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622618998');
-INSERT INTO `ey_admin_log` VALUES ('1110', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619058');
-INSERT INTO `ey_admin_log` VALUES ('1111', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619118');
-INSERT INTO `ey_admin_log` VALUES ('1112', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619178');
-INSERT INTO `ey_admin_log` VALUES ('1113', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619238');
-INSERT INTO `ey_admin_log` VALUES ('1114', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619298');
-INSERT INTO `ey_admin_log` VALUES ('1115', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619358');
-INSERT INTO `ey_admin_log` VALUES ('1116', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619377');
-INSERT INTO `ey_admin_log` VALUES ('1117', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622619381');
-INSERT INTO `ey_admin_log` VALUES ('1118', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619418');
-INSERT INTO `ey_admin_log` VALUES ('1119', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619478');
-INSERT INTO `ey_admin_log` VALUES ('1120', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619538');
-INSERT INTO `ey_admin_log` VALUES ('1121', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619598');
-INSERT INTO `ey_admin_log` VALUES ('1122', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619658');
-INSERT INTO `ey_admin_log` VALUES ('1123', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619718');
-INSERT INTO `ey_admin_log` VALUES ('1124', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619778');
-INSERT INTO `ey_admin_log` VALUES ('1125', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619838');
-INSERT INTO `ey_admin_log` VALUES ('1126', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619898');
-INSERT INTO `ey_admin_log` VALUES ('1127', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622619958');
-INSERT INTO `ey_admin_log` VALUES ('1128', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620018');
-INSERT INTO `ey_admin_log` VALUES ('1129', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620078');
-INSERT INTO `ey_admin_log` VALUES ('1130', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620138');
-INSERT INTO `ey_admin_log` VALUES ('1131', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620198');
-INSERT INTO `ey_admin_log` VALUES ('1132', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620258');
-INSERT INTO `ey_admin_log` VALUES ('1133', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620318');
-INSERT INTO `ey_admin_log` VALUES ('1134', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620378');
-INSERT INTO `ey_admin_log` VALUES ('1135', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620438');
-INSERT INTO `ey_admin_log` VALUES ('1136', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620498');
-INSERT INTO `ey_admin_log` VALUES ('1137', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620558');
-INSERT INTO `ey_admin_log` VALUES ('1138', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620618');
-INSERT INTO `ey_admin_log` VALUES ('1139', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620678');
-INSERT INTO `ey_admin_log` VALUES ('1140', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620738');
-INSERT INTO `ey_admin_log` VALUES ('1141', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620798');
-INSERT INTO `ey_admin_log` VALUES ('1142', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620858');
-INSERT INTO `ey_admin_log` VALUES ('1143', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620918');
-INSERT INTO `ey_admin_log` VALUES ('1144', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622620978');
-INSERT INTO `ey_admin_log` VALUES ('1145', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621038');
-INSERT INTO `ey_admin_log` VALUES ('1146', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621098');
-INSERT INTO `ey_admin_log` VALUES ('1147', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621158');
-INSERT INTO `ey_admin_log` VALUES ('1148', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621218');
-INSERT INTO `ey_admin_log` VALUES ('1149', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621278');
-INSERT INTO `ey_admin_log` VALUES ('1150', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621338');
-INSERT INTO `ey_admin_log` VALUES ('1151', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621398');
-INSERT INTO `ey_admin_log` VALUES ('1152', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621458');
-INSERT INTO `ey_admin_log` VALUES ('1153', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621518');
-INSERT INTO `ey_admin_log` VALUES ('1154', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621578');
-INSERT INTO `ey_admin_log` VALUES ('1155', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621638');
-INSERT INTO `ey_admin_log` VALUES ('1156', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621698');
-INSERT INTO `ey_admin_log` VALUES ('1157', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622621758');
-INSERT INTO `ey_admin_log` VALUES ('1158', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627147');
-INSERT INTO `ey_admin_log` VALUES ('1159', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627207');
-INSERT INTO `ey_admin_log` VALUES ('1160', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627267');
-INSERT INTO `ey_admin_log` VALUES ('1161', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627327');
-INSERT INTO `ey_admin_log` VALUES ('1162', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627387');
-INSERT INTO `ey_admin_log` VALUES ('1163', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627447');
-INSERT INTO `ey_admin_log` VALUES ('1164', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627507');
-INSERT INTO `ey_admin_log` VALUES ('1165', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627567');
-INSERT INTO `ey_admin_log` VALUES ('1166', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627627');
-INSERT INTO `ey_admin_log` VALUES ('1167', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627687');
-INSERT INTO `ey_admin_log` VALUES ('1168', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627747');
-INSERT INTO `ey_admin_log` VALUES ('1169', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627807');
-INSERT INTO `ey_admin_log` VALUES ('1170', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627867');
-INSERT INTO `ey_admin_log` VALUES ('1171', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627927');
-INSERT INTO `ey_admin_log` VALUES ('1172', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622627987');
-INSERT INTO `ey_admin_log` VALUES ('1173', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628047');
-INSERT INTO `ey_admin_log` VALUES ('1174', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628107');
-INSERT INTO `ey_admin_log` VALUES ('1175', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628167');
-INSERT INTO `ey_admin_log` VALUES ('1176', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628227');
-INSERT INTO `ey_admin_log` VALUES ('1177', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628287');
-INSERT INTO `ey_admin_log` VALUES ('1178', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628347');
-INSERT INTO `ey_admin_log` VALUES ('1179', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628407');
-INSERT INTO `ey_admin_log` VALUES ('1180', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628467');
-INSERT INTO `ey_admin_log` VALUES ('1181', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628527');
-INSERT INTO `ey_admin_log` VALUES ('1182', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628587');
-INSERT INTO `ey_admin_log` VALUES ('1183', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628647');
-INSERT INTO `ey_admin_log` VALUES ('1184', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628707');
-INSERT INTO `ey_admin_log` VALUES ('1185', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628759');
-INSERT INTO `ey_admin_log` VALUES ('1186', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622628765');
-INSERT INTO `ey_admin_log` VALUES ('1187', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628767');
-INSERT INTO `ey_admin_log` VALUES ('1188', '1', '新增文章：123', '127.0.0.1', '/test/login.php', '1622628798');
-INSERT INTO `ey_admin_log` VALUES ('1189', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622628827');
-INSERT INTO `ey_admin_log` VALUES ('1190', '1', '编辑模型：招聘模型', '127.0.0.1', '/test/login.php', '1622629081');
-INSERT INTO `ey_admin_log` VALUES ('1191', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629615');
-INSERT INTO `ey_admin_log` VALUES ('1192', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629622');
-INSERT INTO `ey_admin_log` VALUES ('1193', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629630');
-INSERT INTO `ey_admin_log` VALUES ('1194', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629640');
-INSERT INTO `ey_admin_log` VALUES ('1195', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629696');
-INSERT INTO `ey_admin_log` VALUES ('1196', '1', '编辑模型：', '127.0.0.1', '/test/login.php', '1622629721');
-INSERT INTO `ey_admin_log` VALUES ('1197', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680407');
-INSERT INTO `ey_admin_log` VALUES ('1198', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680465');
-INSERT INTO `ey_admin_log` VALUES ('1199', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680519');
-INSERT INTO `ey_admin_log` VALUES ('1200', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680580');
-INSERT INTO `ey_admin_log` VALUES ('1201', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680639');
-INSERT INTO `ey_admin_log` VALUES ('1202', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680700');
-INSERT INTO `ey_admin_log` VALUES ('1203', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680759');
-INSERT INTO `ey_admin_log` VALUES ('1204', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680820');
-INSERT INTO `ey_admin_log` VALUES ('1205', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680881');
-INSERT INTO `ey_admin_log` VALUES ('1206', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622680942');
-INSERT INTO `ey_admin_log` VALUES ('1207', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681003');
-INSERT INTO `ey_admin_log` VALUES ('1208', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681064');
-INSERT INTO `ey_admin_log` VALUES ('1209', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681125');
-INSERT INTO `ey_admin_log` VALUES ('1210', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681186');
-INSERT INTO `ey_admin_log` VALUES ('1211', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681247');
-INSERT INTO `ey_admin_log` VALUES ('1212', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681307');
-INSERT INTO `ey_admin_log` VALUES ('1213', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681367');
-INSERT INTO `ey_admin_log` VALUES ('1214', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681427');
-INSERT INTO `ey_admin_log` VALUES ('1215', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681487');
-INSERT INTO `ey_admin_log` VALUES ('1216', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681548');
-INSERT INTO `ey_admin_log` VALUES ('1217', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681607');
-INSERT INTO `ey_admin_log` VALUES ('1218', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681667');
-INSERT INTO `ey_admin_log` VALUES ('1219', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681727');
-INSERT INTO `ey_admin_log` VALUES ('1220', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681787');
-INSERT INTO `ey_admin_log` VALUES ('1221', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681847');
-INSERT INTO `ey_admin_log` VALUES ('1222', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681908');
-INSERT INTO `ey_admin_log` VALUES ('1223', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622681968');
-INSERT INTO `ey_admin_log` VALUES ('1224', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682028');
-INSERT INTO `ey_admin_log` VALUES ('1225', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682089');
-INSERT INTO `ey_admin_log` VALUES ('1226', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682147');
-INSERT INTO `ey_admin_log` VALUES ('1227', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682207');
-INSERT INTO `ey_admin_log` VALUES ('1228', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682267');
-INSERT INTO `ey_admin_log` VALUES ('1229', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682327');
-INSERT INTO `ey_admin_log` VALUES ('1230', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682388');
-INSERT INTO `ey_admin_log` VALUES ('1231', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682447');
-INSERT INTO `ey_admin_log` VALUES ('1232', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682507');
-INSERT INTO `ey_admin_log` VALUES ('1233', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682567');
-INSERT INTO `ey_admin_log` VALUES ('1234', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682629');
-INSERT INTO `ey_admin_log` VALUES ('1235', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682687');
-INSERT INTO `ey_admin_log` VALUES ('1236', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682747');
-INSERT INTO `ey_admin_log` VALUES ('1237', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682807');
-INSERT INTO `ey_admin_log` VALUES ('1238', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682867');
-INSERT INTO `ey_admin_log` VALUES ('1239', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682927');
-INSERT INTO `ey_admin_log` VALUES ('1240', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622682987');
-INSERT INTO `ey_admin_log` VALUES ('1241', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683047');
-INSERT INTO `ey_admin_log` VALUES ('1242', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683107');
-INSERT INTO `ey_admin_log` VALUES ('1243', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683167');
-INSERT INTO `ey_admin_log` VALUES ('1244', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683227');
-INSERT INTO `ey_admin_log` VALUES ('1245', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683287');
-INSERT INTO `ey_admin_log` VALUES ('1246', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683339');
-INSERT INTO `ey_admin_log` VALUES ('1247', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683399');
-INSERT INTO `ey_admin_log` VALUES ('1248', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683459');
-INSERT INTO `ey_admin_log` VALUES ('1249', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683519');
-INSERT INTO `ey_admin_log` VALUES ('1250', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683579');
-INSERT INTO `ey_admin_log` VALUES ('1251', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683640');
-INSERT INTO `ey_admin_log` VALUES ('1252', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683701');
-INSERT INTO `ey_admin_log` VALUES ('1253', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683762');
-INSERT INTO `ey_admin_log` VALUES ('1254', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683823');
-INSERT INTO `ey_admin_log` VALUES ('1255', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683884');
-INSERT INTO `ey_admin_log` VALUES ('1256', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622683945');
-INSERT INTO `ey_admin_log` VALUES ('1257', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684006');
-INSERT INTO `ey_admin_log` VALUES ('1258', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684068');
-INSERT INTO `ey_admin_log` VALUES ('1259', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684127');
-INSERT INTO `ey_admin_log` VALUES ('1260', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684187');
-INSERT INTO `ey_admin_log` VALUES ('1261', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684247');
-INSERT INTO `ey_admin_log` VALUES ('1262', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684309');
-INSERT INTO `ey_admin_log` VALUES ('1263', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684367');
-INSERT INTO `ey_admin_log` VALUES ('1264', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684428');
-INSERT INTO `ey_admin_log` VALUES ('1265', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684487');
-INSERT INTO `ey_admin_log` VALUES ('1266', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684548');
-INSERT INTO `ey_admin_log` VALUES ('1267', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684607');
-INSERT INTO `ey_admin_log` VALUES ('1268', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684667');
-INSERT INTO `ey_admin_log` VALUES ('1269', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684728');
-INSERT INTO `ey_admin_log` VALUES ('1270', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684787');
-INSERT INTO `ey_admin_log` VALUES ('1271', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684848');
-INSERT INTO `ey_admin_log` VALUES ('1272', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684907');
-INSERT INTO `ey_admin_log` VALUES ('1273', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622684967');
-INSERT INTO `ey_admin_log` VALUES ('1274', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685027');
-INSERT INTO `ey_admin_log` VALUES ('1275', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685087');
-INSERT INTO `ey_admin_log` VALUES ('1276', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685147');
-INSERT INTO `ey_admin_log` VALUES ('1277', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685207');
-INSERT INTO `ey_admin_log` VALUES ('1278', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685267');
-INSERT INTO `ey_admin_log` VALUES ('1279', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685327');
-INSERT INTO `ey_admin_log` VALUES ('1280', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685387');
-INSERT INTO `ey_admin_log` VALUES ('1281', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685447');
-INSERT INTO `ey_admin_log` VALUES ('1282', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685507');
-INSERT INTO `ey_admin_log` VALUES ('1283', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685559');
-INSERT INTO `ey_admin_log` VALUES ('1284', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685620');
-INSERT INTO `ey_admin_log` VALUES ('1285', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685680');
-INSERT INTO `ey_admin_log` VALUES ('1286', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685741');
-INSERT INTO `ey_admin_log` VALUES ('1287', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685799');
-INSERT INTO `ey_admin_log` VALUES ('1288', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685860');
-INSERT INTO `ey_admin_log` VALUES ('1289', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685921');
-INSERT INTO `ey_admin_log` VALUES ('1290', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622685982');
-INSERT INTO `ey_admin_log` VALUES ('1291', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686043');
-INSERT INTO `ey_admin_log` VALUES ('1292', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686104');
-INSERT INTO `ey_admin_log` VALUES ('1293', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686165');
-INSERT INTO `ey_admin_log` VALUES ('1294', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686218');
-INSERT INTO `ey_admin_log` VALUES ('1295', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686279');
-INSERT INTO `ey_admin_log` VALUES ('1296', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686339');
-INSERT INTO `ey_admin_log` VALUES ('1297', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686399');
-INSERT INTO `ey_admin_log` VALUES ('1298', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686459');
-INSERT INTO `ey_admin_log` VALUES ('1299', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686519');
-INSERT INTO `ey_admin_log` VALUES ('1300', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686580');
-INSERT INTO `ey_admin_log` VALUES ('1301', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686641');
-INSERT INTO `ey_admin_log` VALUES ('1302', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686702');
-INSERT INTO `ey_admin_log` VALUES ('1303', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686763');
-INSERT INTO `ey_admin_log` VALUES ('1304', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686824');
-INSERT INTO `ey_admin_log` VALUES ('1305', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686885');
-INSERT INTO `ey_admin_log` VALUES ('1306', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686944');
-INSERT INTO `ey_admin_log` VALUES ('1307', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622686999');
-INSERT INTO `ey_admin_log` VALUES ('1308', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687056');
-INSERT INTO `ey_admin_log` VALUES ('1309', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687056');
-INSERT INTO `ey_admin_log` VALUES ('1310', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687059');
-INSERT INTO `ey_admin_log` VALUES ('1311', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687060');
-INSERT INTO `ey_admin_log` VALUES ('1312', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687059');
-INSERT INTO `ey_admin_log` VALUES ('1313', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622687066');
-INSERT INTO `ey_admin_log` VALUES ('1314', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687119');
-INSERT INTO `ey_admin_log` VALUES ('1315', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687179');
-INSERT INTO `ey_admin_log` VALUES ('1316', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687239');
-INSERT INTO `ey_admin_log` VALUES ('1317', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687299');
-INSERT INTO `ey_admin_log` VALUES ('1318', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687359');
-INSERT INTO `ey_admin_log` VALUES ('1319', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687419');
-INSERT INTO `ey_admin_log` VALUES ('1320', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687479');
-INSERT INTO `ey_admin_log` VALUES ('1321', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687523');
-INSERT INTO `ey_admin_log` VALUES ('1322', '1', '后台登录', '127.0.0.1', '/test/login.php', '1622687527');
-INSERT INTO `ey_admin_log` VALUES ('1323', '-1', '访问后台', '127.0.0.1', '/test/login.php', '1622687539');
 
 -- -----------------------------
 -- Table structure for `ey_archives`
@@ -936,7 +188,7 @@ CREATE TABLE `ey_archives` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`aid`),
   KEY `aid` (`typeid`,`channel`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8 COMMENT='文档主表';
+) ENGINE=MyISAM AUTO_INCREMENT=106 DEFAULT CHARSET=utf8 COMMENT='文档主表';
 
 -- -----------------------------
 -- Records of `ey_archives`
@@ -988,12 +240,6 @@ INSERT INTO `ey_archives` VALUES ('100', '26', '2', '0', '小新 Air 超轻薄�
 INSERT INTO `ey_archives` VALUES ('101', '27', '2', '0', '联想 X1无线运动蓝牙耳机', '/abc/uploads/allimg/20190808/3ade68e134d3f8fbbd3401c545541106.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '110', '0', '', '0', '', '', '', '3', '99.00', '0', '0.00', '0', '2997', '1', '0', 'view_product.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1565229341', '1610615602');
 INSERT INTO `ey_archives` VALUES ('102', '28', '2', '0', '联想智能音箱MINI', '/abc/uploads/allimg/20190808/989d19deb2377e199ec63d5ef9244be8.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '223', '0', '', '0', '', '', 'CMS人性化推荐 它更懂你；可轻松实现联想SIOT设备控制', '3', '319.00', '0', '0.00', '0', '2997', '1', '0', 'view_product.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1565229484', '1610615586');
 INSERT INTO `ey_archives` VALUES ('103', '28', '2', '0', '联想智能音箱G1', '/abc/uploads/allimg/20190808/13fba5d0f2454c4b8fee4ada1d3fb39b.jpg', '0', '0', '0', '0', '0', '1', '0', '0', '0', 'admin', '172', '0', '', '0', '', '', '怦然心动的多彩生活 | 贴心的智能体验', '3', '539.00', '0', '0.00', '0', '2997', '1', '0', 'view_product.htm', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1565229770', '1610615580');
-INSERT INTO `ey_archives` VALUES ('106', '11', '1', '0', 'seo是什么？', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '963', '0', '', '0', '', '', 'cddd', '0', '0.00', '0', '0.00', '0', '0', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622594137', '1622594137');
-INSERT INTO `ey_archives` VALUES ('107', '11', '1', '0', 'seo是什么？', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '959', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '0', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622594153', '1622594153');
-INSERT INTO `ey_archives` VALUES ('108', '11', '1', '0', 'seo是什么？', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '731', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '0', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622594159', '1622594159');
-INSERT INTO `ey_archives` VALUES ('109', '2', '1', '0', '123', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '690', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '0', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622604345', '1622604345');
-INSERT INTO `ey_archives` VALUES ('110', '20', '2', '0', '456', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '653', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '0', '0', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622604477', '1622604477');
-INSERT INTO `ey_archives` VALUES ('111', '2', '1', '0', '123', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '小编', '925', '0', '', '0', '', '', '', '0', '0.00', '0', '0.00', '0', '0', '1', '0', '', '1', '100', 'cn', '1', '0', '0', '0', '0', '0', '0', '0', '0', '', '1622628785', '1622628785');
 
 -- -----------------------------
 -- Table structure for `ey_archives_flag`
@@ -1164,38 +410,35 @@ CREATE TABLE `ey_arctype` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `dirname` (`dirname`,`lang`) USING BTREE,
   KEY `parent_id` (`channeltype`,`parent_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
+) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8 COMMENT='文档栏目表';
 
 -- -----------------------------
 -- Records of `ey_arctype`
 -- -----------------------------
 INSERT INTO `ey_arctype` VALUES ('1', '6', '6', '0', '0', '关于我们', 'guanyuwomen', '/guanyuwomen', '', '0', '', '/uploads/allimg/20210106/1-2101061SJ5D4.jpg', 'lists_single.htm', '', '', '', '', '1', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539465', '1609929468');
-INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '0', '新闻动态', 'xinwendongtai', '/xinwendongtai', 'News &amp; Trends', '0', '', '/uploads/allimg/20210106/1-2101061SQ3C4.jpg', 'lists_article.htm', 'view_article.htm', '', '', '', '2', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526539487', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '0', '产品展示', 'chanpinzhanshi', '/chanpinzhanshi', 'Product show', '0', '', '/uploads/allimg/20210106/1-2101061SR5120.jpg', 'lists_product.htm', 'view_product.htm', '', '', '未来，期待与用户携手缔造一个更好的易而优CMS', '3', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526539505', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '0', '解决方案', 'kehuanli', '/kehuanli', 'Case', '0', '', '/uploads/allimg/20210106/1-2101061ST0127.jpg', 'lists_images.htm', 'view_images.htm', '', '', '', '4', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526539517', '1622629622');
-INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '0', '资料下载', 'ziliaoxiazai', '/ziliaoxiazai', 'Download', '0', '', '/uploads/allimg/20210106/1-2101061S911K5.jpg', 'lists_download.htm', 'view_download.htm', '', '', '', '5', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526539530', '1622629721');
-INSERT INTO `ey_arctype` VALUES ('6', '1', '8', '23', '23', '在线应聘', 'zaixianyingpin', '/rencaizhaopin/zaixianyingpin', '', '1', '', '', 'lists_guestbook.htm', '', '', '', '', '100', '1', '0', '0', '0', '0', '1', '', '', 'cn', '1526539546', '1622604191');
+INSERT INTO `ey_arctype` VALUES ('2', '1', '1', '0', '0', '新闻动态', 'xinwendongtai', '/xinwendongtai', 'News &amp; Trends', '0', '', '/uploads/allimg/20210106/1-2101061SQ3C4.jpg', 'lists_article.htm', 'view_article.htm', '', '', '', '2', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526539487', '1609929495');
+INSERT INTO `ey_arctype` VALUES ('3', '2', '2', '0', '0', '产品展示', 'chanpinzhanshi', '/chanpinzhanshi', 'Product show', '0', '', '/uploads/allimg/20210106/1-2101061SR5120.jpg', 'lists_product.htm', 'view_product.htm', '', '', '未来，期待与用户携手缔造一个更好的易而优CMS', '3', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539505', '1609929507');
+INSERT INTO `ey_arctype` VALUES ('4', '3', '3', '0', '0', '解决方案', 'kehuanli', '/kehuanli', 'Case', '0', '', '/uploads/allimg/20210106/1-2101061ST0127.jpg', 'lists_images.htm', 'view_images.htm', '', '', '', '4', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539517', '1609929522');
+INSERT INTO `ey_arctype` VALUES ('5', '4', '4', '0', '0', '资料下载', 'ziliaoxiazai', '/ziliaoxiazai', 'Download', '0', '', '/uploads/allimg/20210106/1-2101061S911K5.jpg', 'lists_download.htm', 'view_download.htm', '', '', '', '5', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539530', '1609929553');
+INSERT INTO `ey_arctype` VALUES ('6', '1', '8', '23', '23', '在线应聘', 'zaixianyingpin', '/rencaizhaopin/zaixianyingpin', '', '1', '', '', 'lists_guestbook.htm', '', '', '', '', '100', '1', '0', '0', '0', '0', '1', '0', '', 'cn', '1526539546', '1609929573');
 INSERT INTO `ey_arctype` VALUES ('8', '6', '6', '1', '1', '公司简介', 'gongsijianjie', '/guanyuwomen/gongsijianjie', 'About Us', '1', '', '', 'lists_single.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526540452', '1609929701');
-INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '1', '公司荣誉', 'gsry', '/guanyuwomen/gsry', 'GLORIES Glories', '1', '', '', 'lists_article_img.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540478', '1622533618');
-INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '2', '公司动态', 'gongsidongtai', '/xinwendongtai/gongsidongtai', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526540530', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', '2', '行业资讯', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526540543', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '2', '媒体报道', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526540554', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '3', '手机数码', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612114', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '3', '电脑产品', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612188', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '3', '周边配件', 'peijian', '/chanpinzhanshi/peijian', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612218', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('23', '1', '9', '0', '0', '人才招聘', 'rencaizhaopin', '/rencaizhaopin', 'Recruitment ', '0', '', '/uploads/allimg/20210106/1-2101061S931938.jpg', 'lists_recruit.htm', 'view_recruit.htm', '', '', '', '6', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612255', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '3', '智能手机', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612571', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '3', '畅玩手机', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612606', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '3', '笔记本电脑', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612635', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '3', '耳机', 'erji', '/chanpinzhanshi/peijian/erji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612661', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '3', '音箱', 'yinxiang', '/chanpinzhanshi/peijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612678', '1622629615');
-INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '3', '充电宝', 'chongdianbao', '/chanpinzhanshi/peijian/chongdianbao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '', '', 'cn', '1526612691', '1622629615');
+INSERT INTO `ey_arctype` VALUES ('9', '6', '1', '1', '1', '公司荣誉', 'gsry', '/guanyuwomen/gsry', 'GLORIES Glories', '1', '', '', 'lists_article_img.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540478', '1609929468');
+INSERT INTO `ey_arctype` VALUES ('10', '1', '1', '2', '2', '公司动态', 'gongsidongtai', '/xinwendongtai/gongsidongtai', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540530', '1609929495');
+INSERT INTO `ey_arctype` VALUES ('11', '1', '1', '2', '2', '行业资讯', 'xingyezixun', '/xinwendongtai/xingyezixun', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540543', '1609929495');
+INSERT INTO `ey_arctype` VALUES ('12', '1', '1', '2', '2', '媒体报道', 'meitibaodao', '/xinwendongtai/meitibaodao', '', '1', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '1', '', 'cn', '1526540554', '1609929495');
+INSERT INTO `ey_arctype` VALUES ('20', '2', '2', '3', '3', '手机数码', 'shouji', '/chanpinzhanshi/shouji', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612114', '1609929507');
+INSERT INTO `ey_arctype` VALUES ('21', '2', '2', '3', '3', '电脑产品', 'diannao', '/chanpinzhanshi/diannao', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612188', '1609929507');
+INSERT INTO `ey_arctype` VALUES ('22', '2', '2', '3', '3', '周边配件', 'peijian', '/chanpinzhanshi/peijian', '', '1', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612218', '1609929507');
+INSERT INTO `ey_arctype` VALUES ('23', '1', '9', '0', '0', '人才招聘', 'rencaizhaopin', '/rencaizhaopin', 'Recruitment ', '0', '', '/uploads/allimg/20210106/1-2101061S931938.jpg', 'lists_recruit.htm', 'view_recruit.htm', '', '', '', '6', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612255', '1609929573');
+INSERT INTO `ey_arctype` VALUES ('24', '2', '2', '20', '3', '智能手机', 'zhinenshouji', '/chanpinzhanshi/shouji/zhinenshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612571', '1610334638');
+INSERT INTO `ey_arctype` VALUES ('25', '2', '2', '20', '3', '畅玩手机', 'changwanshouji', '/chanpinzhanshi/shouji/changwanshouji', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612606', '1610334638');
+INSERT INTO `ey_arctype` VALUES ('26', '2', '2', '21', '3', '笔记本电脑', 'bijibendiannao', '/chanpinzhanshi/diannao/bijibendiannao', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612635', '1610334638');
+INSERT INTO `ey_arctype` VALUES ('27', '2', '2', '22', '3', '耳机', 'erji', '/chanpinzhanshi/peijian/erji', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612661', '1610334638');
+INSERT INTO `ey_arctype` VALUES ('28', '2', '2', '22', '3', '音箱', 'yinxiang', '/chanpinzhanshi/peijian/yinxiang', '', '2', '', '', '', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612678', '1610334638');
+INSERT INTO `ey_arctype` VALUES ('29', '2', '2', '22', '3', '充电宝', 'chongdianbao', '/chanpinzhanshi/peijian/chongdianbao', '', '2', '', '', 'lists_product.htm', 'view_product.htm', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526612691', '1610334638');
 INSERT INTO `ey_arctype` VALUES ('30', '6', '8', '0', '0', '联系我们', 'lianxiwomen986', '/lianxiwomen986', 'Online Message', '0', '', '/uploads/allimg/20210106/1-2101061T032D7.jpg', 'lists_guestbook.htm', '', '', '', '', '100', '0', '0', '0', '0', '0', '1', '0', '', 'cn', '1526634493', '1610347982');
-INSERT INTO `ey_arctype` VALUES ('64', '3', '3', '4', '4', '系统方案', 'xitong', '/kehuanli/xitong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '', '', 'cn', '1565083870', '1622629622');
-INSERT INTO `ey_arctype` VALUES ('66', '3', '3', '4', '4', '应用方案', 'yingyong', '/kehuanli/yingyong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '', '', 'cn', '1565083875', '1622629622');
-INSERT INTO `ey_arctype` VALUES ('68', '1', '1', '0', '0', '测试', 'ceshi', '/ceshi', '', '0', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '1', '1', '1', '1', '', '', 'cn', '1622533066', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('69', '1', '1', '0', '0', '实验一', 'shiyanyi', '/shiyanyi', '', '0', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '1', '1', '1', '1', '', '', 'cn', '1622533103', '1622604191');
-INSERT INTO `ey_arctype` VALUES ('70', '1', '1', '0', '0', '实验一', 'shiyanyi397', '/shiyanyi397', '', '0', '', '', 'lists_article.htm', 'view_article.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '', '', 'cn', '1622533641', '1622604191');
+INSERT INTO `ey_arctype` VALUES ('64', '3', '3', '4', '4', '系统方案', 'xitong', '/kehuanli/xitong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '0', '', 'cn', '1565083870', '1609929522');
+INSERT INTO `ey_arctype` VALUES ('66', '3', '3', '4', '4', '应用方案', 'yingyong', '/kehuanli/yingyong', '', '1', '', '', 'lists_images.htm', 'view_images.htm', '', '', '', '100', '0', '0', '1', '0', '0', '1', '0', '', 'cn', '1565083875', '1609929522');
 
 -- -----------------------------
 -- Table structure for `ey_article_content`
@@ -1209,7 +452,7 @@ CREATE TABLE `ey_article_content` (
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `news_id` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=50 DEFAULT CHARSET=utf8 COMMENT='文章附加表';
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='文章附加表';
 
 -- -----------------------------
 -- Records of `ey_article_content`
@@ -1241,11 +484,6 @@ INSERT INTO `ey_article_content` VALUES ('41', '84', '', '1610615703', '16106157
 INSERT INTO `ey_article_content` VALUES ('42', '85', '', '1610615688', '1610615688');
 INSERT INTO `ey_article_content` VALUES ('43', '86', '', '1610615683', '1610615683');
 INSERT INTO `ey_article_content` VALUES ('44', '87', '', '1610615678', '1610615678');
-INSERT INTO `ey_article_content` VALUES ('45', '106', 'cddd', '1622594143', '1622594143');
-INSERT INTO `ey_article_content` VALUES ('46', '107', '', '1622594156', '1622594156');
-INSERT INTO `ey_article_content` VALUES ('47', '108', '', '1622594162', '1622594162');
-INSERT INTO `ey_article_content` VALUES ('48', '109', '', '1622604348', '1622604348');
-INSERT INTO `ey_article_content` VALUES ('49', '111', '', '1622628798', '1622628798');
 
 -- -----------------------------
 -- Table structure for `ey_article_order`
@@ -1436,8 +674,8 @@ CREATE TABLE `ey_auth_role` (
 -- -----------------------------
 -- Records of `ey_auth_role`
 -- -----------------------------
-INSERT INTO `ey_auth_role` VALUES ('1', '优化推广员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:8:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"8\";i:4;s:1:\"9\";i:5;s:2:\"10\";i:6;s:2:\"14\";i:7;i:2;}s:7:\"arctype\";a:80:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";i:63;s:2:\"54\";i:64;s:2:\"55\";i:65;s:2:\"56\";i:66;s:2:\"57\";i:67;s:2:\"58\";i:68;s:2:\"59\";i:69;s:2:\"60\";i:70;s:2:\"61\";i:71;s:2:\"62\";i:72;s:2:\"63\";i:73;s:2:\"64\";i:74;s:2:\"65\";i:75;s:2:\"66\";i:76;s:2:\"67\";i:77;s:2:\"68\";i:78;s:2:\"69\";i:79;s:2:\"70\";}}', '1', '100', '1', '0', '1541207843', '0');
-INSERT INTO `ey_auth_role` VALUES ('2', '内容管理员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:4:{i:0;s:1:\"1\";i:1;s:2:\"10\";i:2;s:2:\"14\";i:3;i:2;}s:7:\"arctype\";a:80:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";i:63;s:2:\"54\";i:64;s:2:\"55\";i:65;s:2:\"56\";i:66;s:2:\"57\";i:67;s:2:\"58\";i:68;s:2:\"59\";i:69;s:2:\"60\";i:70;s:2:\"61\";i:71;s:2:\"62\";i:72;s:2:\"63\";i:73;s:2:\"64\";i:74;s:2:\"65\";i:75;s:2:\"66\";i:76;s:2:\"67\";i:77;s:2:\"68\";i:78;s:2:\"69\";i:79;s:2:\"70\";}}', '1', '100', '1', '0', '1541207846', '0');
+INSERT INTO `ey_auth_role` VALUES ('1', '优化推广员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:8:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"8\";i:4;s:1:\"9\";i:5;s:2:\"10\";i:6;s:2:\"14\";i:7;i:2;}s:7:\"arctype\";a:77:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";i:63;s:2:\"54\";i:64;s:2:\"55\";i:65;s:2:\"56\";i:66;s:2:\"57\";i:67;s:2:\"58\";i:68;s:2:\"59\";i:69;s:2:\"60\";i:70;s:2:\"61\";i:71;s:2:\"62\";i:72;s:2:\"63\";i:73;s:2:\"64\";i:74;s:2:\"65\";i:75;s:2:\"66\";i:76;s:2:\"67\";}}', '1', '100', '1', '0', '1541207843', '0');
+INSERT INTO `ey_auth_role` VALUES ('2', '内容管理员', '0', '', '0', 'a:1:{i:0;s:2:\"cn\";}', '0', '1', '1', 'a:3:{i:0;s:3:\"add\";i:1;s:4:\"edit\";i:2;s:3:\"del\";}', 'a:2:{s:5:\"rules\";a:4:{i:0;s:1:\"1\";i:1;s:2:\"10\";i:2;s:2:\"14\";i:3;i:2;}s:7:\"arctype\";a:77:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"4\";i:4;s:1:\"5\";i:5;s:1:\"6\";i:6;s:2:\"33\";i:7;s:2:\"34\";i:8;s:2:\"35\";i:9;s:2:\"36\";i:10;s:2:\"37\";i:11;s:2:\"38\";i:12;s:2:\"39\";i:13;s:2:\"40\";i:14;s:2:\"41\";i:15;s:2:\"42\";i:16;s:2:\"43\";i:17;s:2:\"44\";i:18;s:2:\"45\";i:19;s:2:\"46\";i:20;s:2:\"47\";i:21;s:2:\"48\";i:22;s:1:\"8\";i:23;s:2:\"32\";i:24;s:1:\"9\";i:25;s:2:\"30\";i:26;s:2:\"31\";i:27;s:2:\"11\";i:28;s:2:\"12\";i:29;s:2:\"13\";i:30;s:2:\"23\";i:31;s:2:\"20\";i:32;s:2:\"24\";i:33;s:2:\"25\";i:34;s:2:\"21\";i:35;s:2:\"26\";i:36;s:2:\"22\";i:37;s:2:\"27\";i:38;s:2:\"28\";i:39;s:2:\"29\";i:40;s:2:\"31\";i:41;s:2:\"32\";i:42;s:2:\"33\";i:43;s:2:\"34\";i:44;s:2:\"35\";i:45;s:2:\"36\";i:46;s:2:\"37\";i:47;s:2:\"38\";i:48;s:2:\"39\";i:49;s:2:\"40\";i:50;s:2:\"41\";i:51;s:2:\"42\";i:52;s:2:\"43\";i:53;s:2:\"44\";i:54;s:2:\"45\";i:55;s:2:\"46\";i:56;s:2:\"47\";i:57;s:2:\"48\";i:58;s:2:\"49\";i:59;s:2:\"50\";i:60;s:2:\"51\";i:61;s:2:\"52\";i:62;s:2:\"53\";i:63;s:2:\"54\";i:64;s:2:\"55\";i:65;s:2:\"56\";i:66;s:2:\"57\";i:67;s:2:\"58\";i:68;s:2:\"59\";i:69;s:2:\"60\";i:70;s:2:\"61\";i:71;s:2:\"62\";i:72;s:2:\"63\";i:73;s:2:\"64\";i:74;s:2:\"65\";i:75;s:2:\"66\";i:76;s:2:\"67\";}}', '1', '100', '1', '0', '1541207846', '0');
 
 -- -----------------------------
 -- Table structure for `ey_channelfield`
@@ -1527,7 +765,7 @@ INSERT INTO `ey_channelfield` VALUES ('54', 'del_method', '0', '伪删除状态�
 INSERT INTO `ey_channelfield` VALUES ('55', 'prom_type', '0', '产品类型：0普通产品，1虚拟产品', 'switch', 'tinyint(1) unsigned', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('56', 'users_price', '0', '价格', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '0', '100', '1', '1557042574', '1557042574');
 INSERT INTO `ey_channelfield` VALUES ('57', 'prom_type', '2', '产品类型：0普通产品，1虚拟产品', 'switch', 'tinyint(1) unsigned', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1557042574', '1557042574');
-INSERT INTO `ey_channelfield` VALUES ('58', 'users_price', '2', '价格', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '0', '100', '1', '1557042574', '1622619488');
+INSERT INTO `ey_channelfield` VALUES ('58', 'users_price', '2', '价格', 'decimal', 'decimal(10,2)', '10', '0.00', '', '', '0', '0', '1', '0', '1', '1', '0', '100', '1', '1557042574', '1563498415');
 INSERT INTO `ey_channelfield` VALUES ('59', 'update_time', '2', '更新时间', 'datetime', 'int(11)', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1563518642', '1563518642');
 INSERT INTO `ey_channelfield` VALUES ('60', 'add_time', '2', '新增时间', 'datetime', 'int(11)', '11', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1563518642', '1563518642');
 INSERT INTO `ey_channelfield` VALUES ('61', 'del_method', '2', '伪删除状态，1为主动删除，2为跟随上级栏目被动删除', 'switch', 'tinyint(1)', '1', '0', '', '', '0', '0', '1', '0', '1', '1', '1', '100', '1', '1563518642', '1563518642');
@@ -2014,15 +1252,15 @@ CREATE TABLE `ey_channeltype` (
 -- -----------------------------
 -- Records of `ey_channeltype`
 -- -----------------------------
-INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '0', '1', '0', '{\"is_article_pay\":\"0\"}', '0', '1', '0', '1622604191');
-INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '0', '1', '1', 'null', '0', '4', '0', '1622629721');
-INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '0', '1', '1', 'null', '0', '2', '0', '1622629615');
+INSERT INTO `ey_channeltype` VALUES ('1', 'article', '文章模型', '文章', 'article', 'Article', '1', '1', '1', '1', '1', '', '0', '1', '0', '1564532747');
+INSERT INTO `ey_channeltype` VALUES ('4', 'download', '下载模型', '下载', 'download', 'Download', '1', '1', '1', '1', '1', '', '0', '4', '0', '1564532747');
+INSERT INTO `ey_channeltype` VALUES ('2', 'product', '产品模型', '产品', 'product', 'Product', '1', '1', '1', '1', '1', '', '0', '2', '0', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('8', 'guestbook', '留言模型', '留言', 'guestbook', 'Guestbook', '1', '1', '1', '1', '1', '', '0', '8', '1509197711', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('6', 'single', '单页模型', '单页', 'single', 'Single', '1', '1', '1', '1', '1', '', '0', '6', '1523091961', '1564532747');
-INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '0', '1', '1', 'null', '0', '3', '1523929121', '1622629622');
-INSERT INTO `ey_channeltype` VALUES ('9', 'recruit', '招聘模型', '人才招聘', 'recruit', 'Recruit', '1', '0', '0', '1', '1', 'null', '0', '50', '1563526560', '1622629081');
+INSERT INTO `ey_channeltype` VALUES ('3', 'images', '图集模型', '图集', 'images', 'Images', '1', '1', '1', '1', '1', '', '0', '3', '1523929121', '1564532747');
+INSERT INTO `ey_channeltype` VALUES ('9', 'recruit', '招聘模型', '人才招聘', 'recruit', 'Recruit', '1', '0', '1', '1', '1', '', '0', '50', '1563526560', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('5', 'media', '视频模型', '视频', 'media', 'Media', '0', '1', '1', '1', '1', '', '0', '5', '1509197711', '1564532747');
-INSERT INTO `ey_channeltype` VALUES ('7', 'special', '专题模型', '专题', 'special', 'Special', '0', '1', '0', '1', '1', 'null', '0', '7', '1509197711', '1622629640');
+INSERT INTO `ey_channeltype` VALUES ('7', 'special', '专题模型', '专题', 'special', 'Special', '0', '1', '1', '1', '1', '', '0', '7', '1509197711', '1564532747');
 INSERT INTO `ey_channeltype` VALUES ('51', 'ask', '问答模型', '问答', 'ask', 'Ask', '0', '1', '1', '1', '1', '', '0', '9', '1509197711', '1564532747');
 
 -- -----------------------------
@@ -2069,7 +1307,7 @@ CREATE TABLE `ey_config` (
   `is_del` tinyint(1) DEFAULT '0' COMMENT '是否已删除，0=否，1=是',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=328 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=325 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
 
 -- -----------------------------
 -- Records of `ey_config`
@@ -2096,9 +1334,9 @@ INSERT INTO `ey_config` VALUES ('25', 'mark_txt_size', '30', 'water', '', 'cn', 
 INSERT INTO `ey_config` VALUES ('26', 'mark_txt_color', '#000000', 'water', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('27', 'oss_switch', '0', 'oss', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('28', 'web_name', '某某网络科技有限公司', 'web', '', 'cn', '0', '1565096132');
-INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/test/uploads/allimg/20210114/1-2101140933194M.png', 'web', '', 'cn', '0', '1622509866');
+INSERT INTO `ey_config` VALUES ('29', 'web_logo', '/abf/uploads/allimg/20210114/1-2101140933194M.png', 'web', '', 'cn', '0', '1610696352');
 INSERT INTO `ey_config` VALUES ('30', 'web_ico', '/favicon.ico', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://eycms.hk', 'web', '', 'cn', '0', '1622594886');
+INSERT INTO `ey_config` VALUES ('31', 'web_basehost', 'http://127.0.0.4', 'web', '', 'cn', '0', '1591263789');
 INSERT INTO `ey_config` VALUES ('32', 'web_description', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('79', 'web_recordnum', '琼ICP备xxxxxxxx号', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('33', 'web_copyright', 'Copyright © 2012-2021 EYOUCMS. 易优CMS 版权所有', 'web', '', 'cn', '0', '1610589933');
@@ -2115,10 +1353,10 @@ INSERT INTO `ey_config` VALUES ('46', 'sitemap_txt', '0', 'sitemap', '', 'cn', '
 INSERT INTO `ey_config` VALUES ('47', 'sitemap_zzbaidutoken', '', 'sitemap', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('48', 'seo_expires_in', '7200', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('55', 'web_title', '易优Demo站点 -  Powered by Eyoucms.com', 'web', '', 'cn', '0', '1565096132');
-INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '7d066868e2adcb6a5b883b9e051e3d95', 'web', '', 'cn', '0', '1622594871');
+INSERT INTO `ey_config` VALUES ('57', 'web_authortoken', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('60', 'web_attr_1', '400-123-4567', 'web', '', 'cn', '0', '1563503492');
-INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '1', 'seo', '', 'cn', '0', '1622687529');
-INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '/test', 'web', '', 'cn', '0', '1622598760');
+INSERT INTO `ey_config` VALUES ('62', 'seo_inlet', '1', 'seo', '', 'cn', '0', '1553566003');
+INSERT INTO `ey_config` VALUES ('63', 'web_cmspath', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('64', 'web_sqldatapath', '/data/sqldata', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('65', 'web_cmsurl', '', 'web', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('66', 'web_templets_dir', '/template', 'web', '', 'cn', '0', '0');
@@ -2129,8 +1367,8 @@ INSERT INTO `ey_config` VALUES ('70', 'web_eyoucms', 'http://www.eyoucms.com', '
 INSERT INTO `ey_config` VALUES ('78', '_cmscopyright', 'cbQ1AmriPQ7LHyth9xeHH6Lj', 'php', '', 'cn', '0', '1571040555');
 INSERT INTO `ey_config` VALUES ('76', 'seo_liststitle_format', '2', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('77', 'web_status', '0', 'web', '', 'cn', '0', '0');
-INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', 'cn', '0', '1622619377');
-INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/test/login.php', 'web', '', 'cn', '0', '1622509690');
+INSERT INTO `ey_config` VALUES ('80', 'web_is_authortoken', '0', 'web', '', 'cn', '0', '1623035350');
+INSERT INTO `ey_config` VALUES ('81', 'web_adminbasefile', '/login.php', 'web', '', 'cn', '0', '1614152866');
 INSERT INTO `ey_config` VALUES ('82', 'seo_rewrite_format', '1', 'seo', '', 'cn', '0', '0');
 INSERT INTO `ey_config` VALUES ('83', 'web_cmsmode', '2', 'web', '', 'cn', '0', '1610588047');
 INSERT INTO `ey_config` VALUES ('84', 'web_htmlcache_expires_in', '0', 'web', '', 'cn', '0', '1546477337');
@@ -2154,16 +1392,16 @@ INSERT INTO `ey_config` VALUES ('227', 'seo_html_arcdir', '', 'seo', '', 'cn', '
 INSERT INTO `ey_config` VALUES ('228', 'seo_html_listname', '2', 'seo', '', 'cn', '0', '1567578996');
 INSERT INTO `ey_config` VALUES ('229', 'seo_html_pagename', '2', 'seo', '', 'cn', '0', '1567578996');
 INSERT INTO `ey_config` VALUES ('230', 'seo_force_inlet', '1', 'seo', '', 'cn', '0', '1567578996');
-INSERT INTO `ey_config` VALUES ('193', 'system_version', 'v1.5.4', 'system', '', 'cn', '0', '1622508099');
+INSERT INTO `ey_config` VALUES ('193', 'system_version', 'v1.5.4', 'system', '', 'cn', '0', '1623035827');
 INSERT INTO `ey_config` VALUES ('195', 'web_users_switch', '1', 'web', '', 'cn', '0', '1563498413');
 INSERT INTO `ey_config` VALUES ('199', 'system_correctarctypedirpath', '1', 'system', '', 'cn', '0', '1563503940');
-INSERT INTO `ey_config` VALUES ('203', 'web_attr_13', '/test/uploads/allimg/20210115/1-210115153Z9511.png', 'web', '', 'cn', '0', '1622509866');
+INSERT INTO `ey_config` VALUES ('203', 'web_attr_13', '/abf/uploads/allimg/20210115/1-210115153Z9511.png', 'web', '', 'cn', '0', '1610696352');
 INSERT INTO `ey_config` VALUES ('225', 'system_synleveldata', '1', 'system', '', 'cn', '0', '1564532901');
 INSERT INTO `ey_config` VALUES ('235', 'system_robots_edit', '1', 'system', '', 'cn', '0', '1571038279');
 INSERT INTO `ey_config` VALUES ('237', 'syn_gb_attribute_showlist', '1', 'syn', '', 'cn', '0', '1576764161');
 INSERT INTO `ey_config` VALUES ('238', 'system_smtp_tpl_5', '1', 'system', '', 'cn', '0', '1587364685');
 INSERT INTO `ey_config` VALUES ('240', 'syn_admin_logic_sms_template', '1', 'syn', '', 'cn', '0', '1591262356');
-INSERT INTO `ey_config` VALUES ('241', 'php_weapp_plugin_open', '1', 'php', '', 'cn', '0', '1622688804');
+INSERT INTO `ey_config` VALUES ('241', 'php_weapp_plugin_open', '1', 'php', '', 'cn', '0', '1623035844');
 INSERT INTO `ey_config` VALUES ('243', 'syn_admin_logic_unlink', '1', 'syn', '', 'cn', '0', '1591262356');
 INSERT INTO `ey_config` VALUES ('244', 'syn_admin_logic_update_basic', '1', 'syn', '', 'cn', '0', '1591262356');
 INSERT INTO `ey_config` VALUES ('245', 'syn_admin_logic_update_tag', '1', 'syn', '', 'cn', '0', '1591262356');
@@ -2175,25 +1413,25 @@ INSERT INTO `ey_config` VALUES ('253', 'syn_admin_logic_arctype_topid', '2', 'sy
 INSERT INTO `ey_config` VALUES ('254', 'syn_admin_logic_arctype_topid2', '1', 'syn', '', 'cn', '0', '1609929250');
 INSERT INTO `ey_config` VALUES ('255', 'web_attr_15', 'demo@eyoucms.com', 'web', '', 'cn', '0', '1609930161');
 INSERT INTO `ey_config` VALUES ('256', 'web_attr_16', '广东省广州市天河区某某科技园', 'web', '', 'cn', '0', '1609930161');
-INSERT INTO `ey_config` VALUES ('257', 'web_attr_17', '/test/uploads/allimg/20210106/1-2101061T919343.jpg', 'web', '', 'cn', '0', '1622509866');
+INSERT INTO `ey_config` VALUES ('257', 'web_attr_17', '/abf/uploads/allimg/20210106/1-2101061T919343.jpg', 'web', '', 'cn', '0', '1610696352');
 INSERT INTO `ey_config` VALUES ('261', 'web_recordnum_mode', '0', 'web', '', 'cn', '0', '1609930161');
 INSERT INTO `ey_config` VALUES ('262', 'thumb_open', '0', 'thumb', '', 'cn', '0', '1609985492');
 INSERT INTO `ey_config` VALUES ('263', 'thumb_mode', '2', 'thumb', '', 'cn', '0', '1609985492');
 INSERT INTO `ey_config` VALUES ('264', 'thumb_color', '#FFFFFF', 'thumb', '', 'cn', '0', '1609985492');
 INSERT INTO `ey_config` VALUES ('265', 'thumb_width', '300', 'thumb', '', 'cn', '0', '1609985492');
 INSERT INTO `ey_config` VALUES ('266', 'thumb_height', '300', 'thumb', '', 'cn', '0', '1609985492');
-INSERT INTO `ey_config` VALUES ('297', 'system_usecodelist', 'd4fcCFYEBgkDBFNRAQAGAQcPVQdSVwUFAVwHAAIYGlFHXBt2CVhZXlpaQU0TV0YCR2BTDFhaRkZJGwcbD0F+DgoSXEoIVUAbHxZQQwtEJlwIXlgLQEdcVFUJBBsZQQxDX0R9UR9ZX1daRBEOE0pGDUcNFCBUcVodCFBbUEURV0NJRA8aXBZyUEpZCg9YFhZXKFZaDhIZEVNHAxdzXA1CCQxEFRpeFgwbak0IBFcTRhRHDhRYEmBUA0cVFwgFQQJDMA1cXhMWGhsCBUFbEy4RSAxdXwNfRVIdRxUXCAZBAkMoCUxKCF1YXhEYQVAFRF4aIlJMC1dSEUhHCAAbD0F6AAwCTEsOW0NVRhZPQwBQRgJHbVcMEhkRVVIbDxt2DFQNAAVNUQlaFBURBVtDC0QiVwpDRhBZW0dGSRsEABdZGiUMFVpNFUcUFREGU0MLRDdQCkJHF1FbEUhHCwQbD0FgCBALUG0DFhobAQZBWxMkBUwGX2EDRFBBRkkbBw0XWRo1Cg9XXANMFBURBlZDC0QzWQtZXxdlR19GSRsHDxdZGjUQFlBZCFNTUEldBAYTSkYKUhUMQGJaUQsRShcVF1EAQ19Ed1cSXVVcERhBUwhEXho2X1kVdkBfCDFcTU0XTxpSVUQDGiVbW0lBURASYQ8HTBBFU0AcFwBVRwMXalwEVgQBRBUaVQYUAxF5Cg9YBQtNC0MUThIGAEZfG3ZYRgtXFBFEFRpVABQDEWcGD0IPEFETUhROEgYGRl8bdl1eBkFDSUQKDkQOFHVaVwYPQgNGFEcEAUAKF2cWBFdGX1ARGk1HVQEaXBZhWEFREEMdRFcBRw0UMVlHVgpHFRcNBUECQzcPXlASV1pQUF9BTRNSVRpfFX4LVFARSEcNBxsPQXsECxVMS0QYFA0AFllDdhMBSxFUWhdSFx9GUQ0XAxclTyIKAlwaShYCDBEOQTBDVEYURwMAQAoXfBQAS1RNXBVdQ0lEDQ9EDhRrVkMCE1VESBpRDxRYEnhSFEcVFw0MQQJDNRNKUAdYWhsfFlZRE1xGdQpCRQdDFx9GUAgXAxczWRgXA1hcRBgUDAEWWUN0HhRXF0MUThIAAEZfG2JBeAZWFEdKGw1SFgwbZFsRCl4UAF0XFRpABQARXkd1WlpaGhpNR1MPGlwWYlhAXyUNXhFGFEcCAUAKF3cNHAkFCBdPGlRdRAMaL1pAUEdRQU0TU10aXxVjEVVHQEZJGwMJF1kaLQwTQFkIFhobBQVBWxMtAUEJXlEKRBcfRlMLFwMXN1kGFQpMS0QYFA8AFllDegMdTwpFUhESGRFSURsPG2IBVA4CD1caShYADBEOQSBEEgtaDEIUThIDBUZfG3lWQRddExxEFRpQAxQDEXUKFkMPEF1HGxRUCRcJRilWUlBbIV9DSUQOCEQOFHpcWQ4EXxIXGkkVAVMSDxEiBEpBUUEOVENJRA4KRA4UeltRAApTBw1cEBUaQAcGEV5HaUBKXQFZCAETShpKFgENEQ5BL14lCFEGXBROEgIGRl8bYVNtDlQjBhJRGkoWAQ8RDkEnUBUQWwpbWgdTQRFIRw4CGw9BawQGE0tREk0UFREDW0MLRCdXCEdEB0NGEUhHDgwbD0FvETEJfEEJQRQVEQxTQwtENFcWQ1MQQxcfRl0IFwMXJ1wOFkQVGl4GFAMRdQoyVAcWWw0VGkAIBhFeR3hRT1QNWwQBFVxZFFdeGx8WW1UTXEZqAFZSA0JWEUhHAQAbD0FqBAEWWFsNUUIbHxZbVxNcRmgNWEINQxcfRl0OFwMXNVcVABUbFEQMDhsJFicISFZUCkcbFFoJFwlGJFpWVkANTAwKAlBeHxYaGwoEQVsTAlBeBnV3K3pjYgMmb2RodiIJKzMkXmIyYXBOd2E1EVIkVXYDYFENemNlJiRoBWt0MAk0JCRrbTRhY0l7fCIrVyI1fSt2BwZjcWZVNmtkcG81bhEDMmtLN2xdDGt1UgJ4NwwINXJaNFVxZgAvfGRjZDYJWT0nCG4/YmAJenI1GWg0JWoAYFEFeWByDCZxZ2h2MggNPCB/SSdoGQxrZhIxSwUUDxdUXwNeYUE+NVwEDEcyUVUIKFUNA3BDD3dsChVpBVZ3FHtaDWBmBVALalhYfQVIOB8+VXIxeF11d2EEAmk0F2RKVVUKQAJlVgp2eQtDCGIiIzx9bTNiZWFEZTY5ZDAqag12eCVIBHwhDgFWeHBSXDMJL3ZpI1twfXVlATNGXylqJ198NGVvdDZUe2F/dw99Ng4KWG9XBHRsYg0QNFYePHkxW3MlZXdkITMMZmhCMl0DIwJdbyBTf3xyRjUUCBwATAEAVQhRR2pRKQBsamQqcCInAXFtI3F8G04', 'system', '', 'cn', '0', '1622594538');
+INSERT INTO `ey_config` VALUES ('297', 'system_usecodelist', 'a944VVVTVAUHAAEFUQwMBwJSWFFWAAIEUFMFB1BqFnYOVFcCDA1GGRVnVFsJWkFBHBMnCw1DU0ZfUBBDHRN2XAxRVgwVEQsFBwAAF00XcApJXAgKC0dEWxMdRCNVdV1BDFFWDBURCxcbEnVcGFhdDVlBEwsvVlpYEx1EK1hfTlAIGhRHPBoPUFFFExlDYFMEEh1DMQlSUEETHUQpREFdUghZVxUEGkYZFXFdXBhAWixDQkNIQHpZQUNfDw9WExgaJl1CDAIERhkVclBcBUBHC19EDRFAGxRuUF9ETRNyW1QNXVsRDAwKFxsSd1oOQUQRWV8VRk4Vcl1CUhMSQhMYGjJQVxAUFgVbFRwTbQhAWQplVENIQHVXQFJZMQBFVEYaTRp8ChINCFpWVEIXTRdgDFlfBQEaFRoWZlAID1hEYUoNGhRHMRYUXFZeVlAIT10EVxNNRjBYVFtFQkRNE39bTAhbXUdJQTddWEd3QA1ZYAZIRUNIQHRZWUFDAxJCYV1bFU1KAEdPRmZeV19QBRcYQX1YDw0BWENaRRNKQ3JQR1AOTUxHSUE3UFlDWEEIQ1FBHBMiAAlSTxYdEyoIUlRaSwQaFEcxEQVbRFZUR0MZFjRRQwQXQBsUZ1hDAw8THRZqCF9QEQYPDVZcEh0XKVxQBhIdQycHWUVBQhNKQ3ZEUUsVW1QQB0FIF3FHcloFUBZPEmATVkAbFHtBVBQARVhCXUMUGjcAFAVHUxIdFyxUREEcEzEREV9XWF0TSkN8XkFLBEsaSUczBUxFVVBRQxkWNEh8BAoXFRoWZl4UCl5DUF0TGhRHKQwHWk4SHRc1VEcIdl0OE0AbFHBYSFZRABMYGihWTgwRBkYZFWVCUBNGFk8SfQgRG1ZYFh0TLQRIXV1fCUwaSUc3BVJHXERGQxkWKFVIFgsQU0UWHRMxA11eU1EPGhRHJBYQWlVZRBdNF1cBAAAjVTNzdHJgeSQnfHN1aSB3ehI3MSZzdn9zQidhdQRqZjcyFXtjcgBwIApBdXxuWGpvNyciJl5bdmVZDVBwFH5rJVUNcmBfe2kjIEJmdQkJWWknESUxcAdycmQ7YGZTSGgkMgF6YF9rfSNQe1JsXw11fCMkLTxzfVV3BA1jZiV2YDYyVnR3YmN5MiR8c2VqEnx+MwwgFQBZU20aEFNgDEVtTjIKQWobY0AsVlRWRGw1C2E1BhpReWQHemU3B31UVAMUDgRaWQJ0Qi8DaUt/UjAADFI2Dj5tUl5DeiJcATB+RRABLl9sTXlWPyp7A38IN3ppJDw7D3R/ZlZBIm0EIXFjCjEmcHNAdGAeLGtkZkgEanknMzIxUn9nd1I2cGIxdGA0VSNgXnZ0YApQZWBmXCl8fSgpIVVdZnJWTRR0cgdncBsXM3FjBHBiCidpd1MIM3dUMzw1Ml1TeFZYJUZtUXJCKE8uXUddekdRVFBiBWEtem1QBjtUZ1QSbA', 'system', '', 'cn', '0', '1610350612');
 INSERT INTO `ey_config` VALUES ('298', 'web_theme_color_model', '1', 'web', '', 'cn', '0', '1610357887');
 INSERT INTO `ey_config` VALUES ('299', 'web_adminlogo', '/public/static/admin/images/logo_ey.png', 'web', '', 'cn', '0', '1610357887');
 INSERT INTO `ey_config` VALUES ('300', 'web_loginlogo', '/public/static/admin/images/login-logo_ey.png', 'web', '', 'cn', '0', '1610357887');
-INSERT INTO `ey_config` VALUES ('301', 'web_loginbgimg_model', '3', 'web', '', 'cn', '0', '1622510544');
+INSERT INTO `ey_config` VALUES ('301', 'web_loginbgimg_model', '1', 'web', '', 'cn', '0', '1610352403');
 INSERT INTO `ey_config` VALUES ('302', 'web_loginlogo', '/public/static/admin/images/login-logo_ey.png', 'web', '', 'cn', '0', '1610357887');
-INSERT INTO `ey_config` VALUES ('303', 'web_loginbgimg', '/test/public/static/admin/loginbg/login-bg-3.png', 'web', '', 'cn', '0', '1622687057');
+INSERT INTO `ey_config` VALUES ('303', 'web_loginbgimg', '/public/static/admin/images/login-bg.jpg', 'web', '', 'cn', '0', '1610352403');
 INSERT INTO `ey_config` VALUES ('304', 'syn_admin_logic_1608884981', '1', 'syn', '', 'cn', '0', '1610352406');
 INSERT INTO `ey_config` VALUES ('305', 'web_users_tpl_theme', '', 'web', '', 'cn', '0', '1610352449');
-INSERT INTO `ey_config` VALUES ('272', 'php_serviceinfo', '8ec3AQFSUQEBBQFTCVAPAgIBAAFVA1NWAgFQBlMfRgtTRgIGB1ZQHRNXRBpQUhQMRhpNR1ReXFRYWxAMQAEdAVoXFllaQE0TUlpVBhsMFAEACFdTCAcJUANUVlUAUgVXVVwAAlNbBAEEBFRQXQ8DFEgaBB1AWENQQmpbWEBeVE4VEEpIXhcVbkVcXAYbDAYaRlsNCkNUbkJUVxAMUkhGF0cAV1xQCw9uX0BcQQMGGhQNVhUXXxMLFxMZEEMLAEZYB0gaREIHE1hVFwtBGxoUVAVRBRBvUl5AX0EQDFJIRhVSBUhBbhINRFZcXzxWRlNYRgJQSRJBWFETDwAaQA0XPVgIXBMLUk0TQkFQF0xFFAxVFEMMQ25VUF0XCAZORgUGUztMWFwHQwsAAwNRDAcHD10KTUdFQVVURVBtQgsJAUANVQ4DA1dYBQkDBU8bV0NCDFcTA1ldVFhCUhAMQDgRWlUCD21EV1MCAWlEVlsPDmoRDwdQAW1EAVQFUGoXXAJVUzhNBVRTUm1EAVRSWGpDAVYMWTlFBwINCWlHAFVQVz5CUg0JBj4UBVRTBz9MUFAGVRpNR1FERV1eR19FBVVGWBU4TQlTB1RtRAADWl9qQw5UXgU5RQVUVgRpRw9UUVQ+QlENBQc+FAVUBFA/TAAFDlxkFFMHBQJpRAAFUgQ4EVcDVFxtRAQHAQAXHUFYQ0JeC0oMFlcDEw8TaUcOAAFRPkJRCghXPhQJAVNVP0wCU1VRZBRcBgQBaUQBVwdROBFWUlVZbURVUwUJaURVCg4OahEOVlEDbUQABlFUahdRUFJTOE1XV1JQEx0XUBZNXllECUsGVB4EEw8TaUcOAAFRPkJRCghXPhQJAVNVP0wCU1VRZBRcBgQBaUQBVwdROBFWUlVZbURVUwUJaURVCg4OahEOVlEDbUQABlFUahdRUFJTOE1XV1JQE0w', 'php', '', 'cn', '0', '1622688804');
-INSERT INTO `ey_config` VALUES ('273', 'php_servicemeal', '2', 'php', '', 'cn', '0', '1622680465');
-INSERT INTO `ey_config` VALUES ('274', 'php_servicecode', '7d066868e2adcb6a5b883b9e051e3d95', 'php', '', 'cn', '0', '1622619377');
+INSERT INTO `ey_config` VALUES ('272', 'php_serviceinfo', '047cCFIJVFVSUwcBVgFdUg0GUAMEBVRVVw9QDQofG19WRAgPVABRSUABQkgPB0cOFxVPQAJYDlYKVhADEFULARxWHAhMDUZJQABYVQNBXxZTDwBUVFNQVAFaVA9UVQEOV1EDDVFYVgEAWgIBUVFSBBcbQQceRwpFBkttUFxGAwYeREZKG1YRET0XXlwDQV8EGRUADglEBmgUXVAbCFQVFEcWVlcPWA0LPQ1CXERZVRgXXg0WFFhBDUEaHhtHDV0UCFYeGhdKARcLBxULREFJFldWCgYTaABYFlZGGwhUFRRFA1NIEmYUCRcEXl85DBVRWxVZU0oVE14HGggIHkZQRW0JXlxAA1RJQBBDUBIWFhYPBk9AD0Q8UwZUEAMCSBtXVgJtTAtUAUdYUgEDVVNXDQYCVU5EQhNTAkxXZkYNVFMQXAMOUApUV1tUBQJKQQRBQV8MEABeD1IOS1UbCEZlQwoEVA8+TFFXUVNrRFMBXAxpQlQEUwY/QlddAltuEQFQBQJuTVZcVVY+FgNUVwI5QQIFV1o6QlUEWwBuTARTDQVuEwQNWg44EFYGUQc6FgNSBQZBTkRWFkMLV0BUQQMIFAhEbk1aWwFQPhYCA18FOUENBwUGOkJXUgANbkwLUgwGbhMHDVYPOBBWBgZQOhZTBw0PPxdQAFcEP00HDlYCZUMHUgJcPkwCA1JSFR1EAhBAXVgRDxVQURVZGm5MCgZcA24TBwpbXzgQWlNRVToWUVFWAj8XXwFWBz9NBlwDV2VDBgMDWT5MU1dWW2tEUFBdDGlCVVVSBD9CVg9WX24RDAICAm5NBF9UVEBPFVATFw1bR1oQBVcZVhVZGm5MCgZcA24TBwpbXzgQWlNRVToWUVFWAj8XXwFWBz9NBlwDV2VDBgMDWT5MU1dWW2tEUFBdDGlCVVVSBD9CVg9WX24RDAICAm5NBF9UVEAe', 'php', '', 'cn', '0', '1623035844');
+INSERT INTO `ey_config` VALUES ('273', 'php_servicemeal', '1', 'php', '', 'cn', '0', '1623035839');
+INSERT INTO `ey_config` VALUES ('274', 'php_servicecode', 'f8c62d3cbbf6f188e7153a2db9507270', 'php', '', 'cn', '0', '1623035350');
 INSERT INTO `ey_config` VALUES ('278', 'syn_admin_logic_check_oneself', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('279', 'syn_admin_logic_links_group', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('280', 'sms_type', '1', 'sms', '', 'cn', '0', '1610334638');
@@ -2207,7 +1445,7 @@ INSERT INTO `ey_config` VALUES ('294', 'syn_admin_logic_1609039608', '1', 'syn',
 INSERT INTO `ey_config` VALUES ('295', 'syn_admin_logic_1609291091', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('296', 'admin_logic_1610086647', '1', 'syn', '', 'cn', '0', '1610334638');
 INSERT INTO `ey_config` VALUES ('307', 'web_mobile_domain_open', '0', 'web', '', 'cn', '0', '1610585089');
-INSERT INTO `ey_config` VALUES ('308', 'web_login_expiretime', '36000', 'web', '', 'cn', '0', '1622598760');
+INSERT INTO `ey_config` VALUES ('308', 'web_login_expiretime', '3600', 'web', '', 'cn', '0', '1610585089');
 INSERT INTO `ey_config` VALUES ('309', 'web_tpl_theme', '', 'web', '', 'cn', '0', '1610585089');
 INSERT INTO `ey_config` VALUES ('310', 'syn_admin_logic_video_addfields_2', '1', 'syn', '', 'cn', '0', '1614152870');
 INSERT INTO `ey_config` VALUES ('311', 'syn_admin_logic_1608884981_2', '1', 'syn', '', 'cn', '0', '1614152870');
@@ -2221,12 +1459,9 @@ INSERT INTO `ey_config` VALUES ('318', 'syn_admin_logic_balance_pay', '1', 'syn'
 INSERT INTO `ey_config` VALUES ('319', 'syn_admin_logic_1610086648', '1', 'syn', '', 'cn', '0', '1616460912');
 INSERT INTO `ey_config` VALUES ('320', 'syn_admin_logic_1614829120', '1', 'syn', '', 'cn', '0', '1616460912');
 INSERT INTO `ey_config` VALUES ('321', 'syn_admin_logic_1616123192', '1', 'syn', '', 'cn', '0', '1616460912');
-INSERT INTO `ey_config` VALUES ('322', 'syn_admin_logic_1614829121', '1', 'syn', '', 'cn', '0', '1622508111');
-INSERT INTO `ey_config` VALUES ('323', 'syn_admin_logic_ask_answer_like', '1', 'syn', '', 'cn', '0', '1622508111');
-INSERT INTO `ey_config` VALUES ('324', 'syn_admin_logic_archives_1618279798', '1', 'syn', '', 'cn', '0', '1622508111');
-INSERT INTO `ey_config` VALUES ('325', 'system_explanation_welcome', '1', 'system', '', 'cn', '0', '1622513279');
-INSERT INTO `ey_config` VALUES ('326', 'system_explanation_welcome_2', '1', 'system', '', 'cn', '0', '1622513279');
-INSERT INTO `ey_config` VALUES ('327', 'switch', '0', 'web', '', 'cn', '0', '1622620581');
+INSERT INTO `ey_config` VALUES ('322', 'syn_admin_logic_1614829121', '1', 'syn', '', 'cn', '0', '1623035839');
+INSERT INTO `ey_config` VALUES ('323', 'syn_admin_logic_ask_answer_like', '1', 'syn', '', 'cn', '0', '1623035839');
+INSERT INTO `ey_config` VALUES ('324', 'syn_admin_logic_archives_1618279798', '1', 'syn', '', 'cn', '0', '1623035839');
 
 -- -----------------------------
 -- Table structure for `ey_config_attribute`
@@ -2310,7 +1545,7 @@ CREATE TABLE `ey_diyminipro_setting` (
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `type` (`name`) USING BTREE,
-  KEY `mini_id` (`mini_id`,`lang`) USING BTREE
+  KEY `mini_id` (`mini_id`,`lang`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='微信小程序多功能配置表';
 
 
@@ -2411,7 +1646,7 @@ CREATE TABLE `ey_download_log` (
   `update_time` int(11) DEFAULT '0' COMMENT '编辑时间',
   PRIMARY KEY (`log_id`),
   KEY `file_id` (`file_id`,`aid`,`users_id`) USING BTREE,
-  KEY `aid` (`aid`) USING BTREE
+  KEY `aid` (`aid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='下载记录表';
 
 
@@ -2427,7 +1662,7 @@ CREATE TABLE `ey_field_type` (
   `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`name`),
-  UNIQUE KEY `name` (`name`) USING BTREE
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='字段类型表';
 
 -- -----------------------------
@@ -2656,7 +1891,7 @@ CREATE TABLE `ey_language_attr` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `attr_value` (`attr_name`,`lang`) USING BTREE
+  KEY `attr_value` (`attr_name`,`lang`)
 ) ENGINE=MyISAM AUTO_INCREMENT=131 DEFAULT CHARSET=utf8 COMMENT='多语言模板变量关联绑定表';
 
 -- -----------------------------
@@ -3002,7 +2237,7 @@ CREATE TABLE `ey_media_content` (
   `total_video` int(10) NOT NULL DEFAULT '0' COMMENT '视频数',
   `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`) USING BTREE,
   KEY `aid` (`aid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='视频附加表';
 
@@ -3030,7 +2265,7 @@ CREATE TABLE `ey_media_file` (
   `sort_order` smallint(5) NOT NULL DEFAULT '0' COMMENT '排序',
   `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '上传时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`file_id`),
+  PRIMARY KEY (`file_id`) USING BTREE,
   KEY `aid` (`aid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='视频附件表';
 
@@ -3189,7 +2424,7 @@ CREATE TABLE `ey_product_content` (
   `yanse` enum('银色','绿色','黑色','灰色') DEFAULT '银色' COMMENT '机身颜色',
   PRIMARY KEY (`id`),
   KEY `news_id` (`aid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='产品附加表';
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='产品附加表';
 
 -- -----------------------------
 -- Records of `ey_product_content`
@@ -3206,7 +2441,6 @@ INSERT INTO `ey_product_content` VALUES ('14', '100', '&lt;p&gt;&lt;img style=&q
 INSERT INTO `ey_product_content` VALUES ('15', '101', '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img style=&quot;max-width:100%!important;height:auto;&quot; src=&quot;/abc/uploads/ueditor/20190808/cd0d121db4625c6b9ace794c921ac645.jpg&quot; title=&quot;联想 X1无线运动蓝牙耳机(图1)&quot; alt=&quot;联想 X1无线运动蓝牙耳机(图1)&quot;/&gt;&lt;/p&gt;', '1610615602', '1610615602', '2019年', '0-1000', '黑色');
 INSERT INTO `ey_product_content` VALUES ('16', '102', '&lt;p style=&quot;text-align:center&quot;&gt;&lt;img style=&quot;max-width:100%!important;height:auto;&quot; src=&quot;/abc/uploads/ueditor/20190808/a7bc6e179f0ae1ff8499c3bb34a1a233.jpg&quot; title=&quot;联想智能音箱MINI(图1)&quot; alt=&quot;联想智能音箱MINI(图1)&quot;/&gt;&lt;/p&gt;', '1610615586', '1610615586', '2018年', '0-1000', '绿色');
 INSERT INTO `ey_product_content` VALUES ('17', '103', '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img style=&quot;max-width:100%!important;height:auto;&quot; src=&quot;/abc/uploads/ueditor/20190808/aedbc2e4cd0257c38a1677f5825a3662.jpg&quot; title=&quot;联想智能音箱G1(图1)&quot; alt=&quot;联想智能音箱G1(图1)&quot;/&gt;&lt;/p&gt;', '1610615580', '1610615580', '2019年', '0-1000', '灰色');
-INSERT INTO `ey_product_content` VALUES ('18', '110', '', '1622604481', '1622604481', '2019年', '0-1000', '银色');
 
 -- -----------------------------
 -- Table structure for `ey_product_img`
@@ -3268,7 +2502,7 @@ CREATE TABLE `ey_product_netdisk` (
   `lang` varchar(10) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`nd_id`),
+  PRIMARY KEY (`nd_id`) USING BTREE,
   KEY `aid` (`aid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='产品虚拟表';
 
@@ -3435,14 +2669,14 @@ CREATE TABLE `ey_quickentry` (
 -- -----------------------------
 -- Records of `ey_quickentry`
 -- -----------------------------
-INSERT INTO `ey_quickentry` VALUES ('1', '产品', '产品列表', '1', 'Product', 'index', 'channel=2', '1', '0', '1', '3', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('2', '下载', '下载列表', '1', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('3', '文章', '文章列表', '1', 'Article', 'index', 'channel=1', '1', '0', '1', '6', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('4', '图集', '图集列表', '1', 'Images', 'index', 'channel=3', '1', '0', '1', '7', '1569232484', '1622688799');
+INSERT INTO `ey_quickentry` VALUES ('1', '产品', '产品列表', '1', 'Product', 'index', 'channel=2', '1', '0', '1', '3', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('2', '下载', '下载列表', '1', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('3', '文章', '文章列表', '1', 'Article', 'index', 'channel=1', '1', '0', '1', '6', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('4', '图集', '图集列表', '1', 'Images', 'index', 'channel=3', '1', '0', '1', '7', '1569232484', '1623036400');
 INSERT INTO `ey_quickentry` VALUES ('5', '内容管理', '内容列表', '1', 'Archives', 'index', '', '0', '0', '1', '13', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('7', '回收站', '回收站', '1', 'RecycleBin', 'archives_index', '', '0', '1', '1', '4', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('8', '栏目管理', '栏目管理', '1', 'Arctype', 'index', '', '0', '0', '1', '5', '1569232484', '1571893529');
-INSERT INTO `ey_quickentry` VALUES ('9', '留言', '留言列表', '1', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '6', '1569232484', '1622688799');
+INSERT INTO `ey_quickentry` VALUES ('9', '留言', '留言列表', '1', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '6', '1569232484', '1623036400');
 INSERT INTO `ey_quickentry` VALUES ('10', '网站信息', '网站信息', '1', 'System', 'web', '', '0', '0', '1', '7', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('11', '水印配置', '水印配置', '1', 'System', 'water', '', '0', '1', '1', '8', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('12', '缩略图配置', '缩略图配置', '1', 'System', 'thumb', '', '0', '1', '1', '9', '1569232484', '1571893529');
@@ -3456,23 +2690,23 @@ INSERT INTO `ey_quickentry` VALUES ('19', '友情链接', '友情链接', '1', '
 INSERT INTO `ey_quickentry` VALUES ('20', 'Tags管理', 'Tags管理', '1', 'Tags', 'index', '', '0', '1', '1', '14', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('21', '管理员管理', '管理员管理', '1', 'Admin', 'index', '', '0', '0', '1', '15', '1569232484', '1571893529');
 INSERT INTO `ey_quickentry` VALUES ('22', '接口配置', '接口配置', '1', 'System', 'api_conf', '', '0', '1', '1', '16', '1569232484', '1571893529');
-INSERT INTO `ey_quickentry` VALUES ('23', '文章', '文章列表', '2', 'Article', 'index', 'channel=1', '1', '1', '1', '1', '1569310798', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('24', '产品', '产品列表', '2', 'Product', 'index', 'channel=2', '1', '0', '1', '2', '1569310798', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('25', '下载', '下载列表', '2', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569310798', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('26', '图集', '图集列表', '2', 'Images', 'index', 'channel=3', '1', '0', '1', '3', '1569310798', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('27', '留言', '留言列表', '2', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '5', '1569310798', '1622688799');
+INSERT INTO `ey_quickentry` VALUES ('23', '文章', '文章列表', '2', 'Article', 'index', 'channel=1', '1', '1', '1', '1', '1569310798', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('24', '产品', '产品列表', '2', 'Product', 'index', 'channel=2', '1', '0', '1', '2', '1569310798', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('25', '下载', '下载列表', '2', 'Download', 'index', 'channel=4', '1', '0', '1', '4', '1569310798', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('26', '图集', '图集列表', '2', 'Images', 'index', 'channel=3', '1', '0', '1', '3', '1569310798', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('27', '留言', '留言列表', '2', 'Guestbook', 'index', 'channel=8', '1', '0', '1', '5', '1569310798', '1623036400');
 INSERT INTO `ey_quickentry` VALUES ('28', '广告', '广告管理', '2', 'AdPosition', 'index', '', '0', '1', '1', '8', '1569232484', '1571898872');
 INSERT INTO `ey_quickentry` VALUES ('29', '友情链接', '友情链接', '2', 'Links', 'index', '', '0', '1', '1', '9', '1569232484', '1571898872');
 INSERT INTO `ey_quickentry` VALUES ('30', 'Tags标签', 'Tags管理', '2', 'Tags', 'index', '', '0', '1', '1', '10', '1569232484', '1571898872');
-INSERT INTO `ey_quickentry` VALUES ('31', '会员', '会员管理', '2', 'Member', 'users_index', '', '0', '0', '1', '7', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('32', '插件应用', '插件应用', '1', 'Weapp', 'index', '', '0', '0', '1', '17', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('33', '会员中心', '会员中心', '1', 'Member', 'users_index', '', '0', '0', '1', '18', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('34', '商城中心', '商城中心', '1', 'Shop', 'index', '', '0', '0', '0', '19', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('35', '订单', '订单管理', '2', 'Shop', 'index', '', '0', '0', '0', '6', '1569232484', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('36', '人才招聘', '人才招聘列表', '1', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233851', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('37', '人才招聘', '人才招聘列表', '2', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233853', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('39', '专题', '专题列表', '2', 'Special', 'index', 'channel=7', '1', '0', '0', '7', '1600078966', '1622688799');
-INSERT INTO `ey_quickentry` VALUES ('41', '视频', '视频列表', '2', 'Media', 'index', 'channel=5', '1', '0', '0', '4', '1569310798', '1622688799');
+INSERT INTO `ey_quickentry` VALUES ('31', '会员', '会员管理', '2', 'Member', 'users_index', '', '0', '0', '1', '7', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('32', '插件应用', '插件应用', '1', 'Weapp', 'index', '', '0', '0', '1', '17', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('33', '会员中心', '会员中心', '1', 'Member', 'users_index', '', '0', '0', '1', '18', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('34', '商城中心', '商城中心', '1', 'Shop', 'index', '', '0', '0', '0', '19', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('35', '订单', '订单管理', '2', 'Shop', 'index', '', '0', '0', '0', '6', '1569232484', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('36', '人才招聘', '人才招聘列表', '1', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233851', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('37', '人才招聘', '人才招聘列表', '2', 'Custom', 'index', 'channel=9', '1', '0', '1', '100', '1574233853', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('39', '专题', '专题列表', '2', 'Special', 'index', 'channel=7', '1', '0', '0', '7', '1600078966', '1623036400');
+INSERT INTO `ey_quickentry` VALUES ('41', '视频', '视频列表', '2', 'Media', 'index', 'channel=5', '1', '0', '0', '4', '1569310798', '1623036400');
 
 -- -----------------------------
 -- Table structure for `ey_recruit_content`
@@ -3517,7 +2751,7 @@ CREATE TABLE `ey_region` (
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`) USING BTREE,
   KEY `level` (`level`) USING BTREE,
-  KEY `initial` (`initial`) USING BTREE
+  KEY `initial` (`initial`)
 ) ENGINE=MyISAM AUTO_INCREMENT=47964 DEFAULT CHARSET=utf8 COMMENT='区域表';
 
 -- -----------------------------
@@ -7798,7 +7032,7 @@ CREATE TABLE `ey_search_word` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `word` (`word`) USING BTREE
+  KEY `word` (`word`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='搜索词统计表';
 
 -- -----------------------------
@@ -7820,14 +7054,13 @@ CREATE TABLE `ey_setting` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `inc_type` (`inc_type`,`lang`) USING BTREE
+  KEY `inc_type` (`inc_type`,`lang`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='系统非全局配置表';
 
 -- -----------------------------
 -- Records of `ey_setting`
 -- -----------------------------
-INSERT INTO `ey_setting` VALUES ('1', 'ask_ques_steps', '1、写问题标题，描述具体现象。杜绝 “求救，大佬，小白…” 等和问题无关的词汇。\r\n2、选择问题的分类，选择正确的内容分类，能更快的得到其他人的回复。\r\n3、遇到的问题比较急需解决，可以给问题悬赏一定的金额报酬，能让更多同行参与进来出谋策划，从中选择自己心仪的答案。\r\n4、写问题内容详细描述你碰到的困难，写清楚你尝试了什么方法，错误代码，软件的版本等，更容易得到答案。\r\n5、点击发布。', 'ask', 'cn', '1622508111');
-INSERT INTO `ey_setting` VALUES ('2', 'recycle_switch', '0', 'recycle', 'cn', '1622620581');
+INSERT INTO `ey_setting` VALUES ('1', 'ask_ques_steps', '1、写问题标题，描述具体现象。杜绝 “求救，大佬，小白…” 等和问题无关的词汇。\r\n2、选择问题的分类，选择正确的内容分类，能更快的得到其他人的回复。\r\n3、遇到的问题比较急需解决，可以给问题悬赏一定的金额报酬，能让更多同行参与进来出谋策划，从中选择自己心仪的答案。\r\n4、写问题内容详细描述你碰到的困难，写清楚你尝试了什么方法，错误代码，软件的版本等，更容易得到答案。\r\n5、点击发布。', 'ask', 'cn', '1623035839');
 
 -- -----------------------------
 -- Table structure for `ey_sharp_active`
@@ -7841,7 +7074,7 @@ CREATE TABLE `ey_sharp_active` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`active_id`)
+  PRIMARY KEY (`active_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场表';
 
 
@@ -7859,7 +7092,7 @@ CREATE TABLE `ey_sharp_active_goods` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场与商品关联表';
 
 
@@ -7875,7 +7108,7 @@ CREATE TABLE `ey_sharp_active_time` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`active_time_id`)
+  PRIMARY KEY (`active_time_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-活动会场场次表';
 
 
@@ -7898,7 +7131,7 @@ CREATE TABLE `ey_sharp_goods` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`sharp_goods_id`)
+  PRIMARY KEY (`sharp_goods_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='整点秒杀-商品表';
 
 
@@ -7935,7 +7168,7 @@ CREATE TABLE `ey_shop_address` (
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '添加时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`addr_id`),
-  KEY `users_id` (`users_id`) USING BTREE
+  KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='收货地址表';
 
 
@@ -8679,8 +7912,8 @@ CREATE TABLE `ey_shop_order` (
   `use_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '会员的优惠券数据表ID',
   `coupon_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '使用的优惠券金额',
   PRIMARY KEY (`order_id`),
-  UNIQUE KEY `order_code` (`order_code`) USING BTREE,
-  KEY `users_id` (`users_id`) USING BTREE
+  UNIQUE KEY `order_code` (`order_code`),
+  KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单主表';
 
 
@@ -8706,10 +7939,10 @@ CREATE TABLE `ey_shop_order_comment` (
   `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '添加时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`comment_id`),
-  KEY `users_id` (`users_id`) USING BTREE,
-  KEY `order_id` (`order_id`) USING BTREE,
-  KEY `details_id` (`details_id`) USING BTREE,
-  KEY `product_id` (`product_id`) USING BTREE
+  KEY `users_id` (`users_id`),
+  KEY `order_id` (`order_id`),
+  KEY `details_id` (`details_id`),
+  KEY `product_id` (`product_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='商品评价表';
 
 
@@ -8734,7 +7967,7 @@ CREATE TABLE `ey_shop_order_details` (
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '下单时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`details_id`),
-  KEY `users_id` (`users_id`) USING BTREE
+  KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单详情表';
 
 
@@ -8756,7 +7989,7 @@ CREATE TABLE `ey_shop_order_log` (
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '操作时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '操作时间',
   PRIMARY KEY (`action_id`),
-  KEY `order_id` (`order_id`) USING BTREE
+  KEY `order_id` (`order_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='订单操作记录表';
 
 
@@ -9168,35 +8401,19 @@ DROP TABLE IF EXISTS `ey_sql_cache_table`;
 CREATE TABLE `ey_sql_cache_table` (
   `cache_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `sql_name` varchar(60) NOT NULL DEFAULT '' COMMENT 'mysql语句的标识名称，目前由模型名称+模型ID组成',
-  `sql_result` varchar(1000) NOT NULL DEFAULT '' COMMENT 'mysql执行结果',
+  `sql_result` text NOT NULL COMMENT 'mysql执行结果',
   `sql_md5` varchar(60) NOT NULL DEFAULT '' COMMENT 'mysql语句MD5的值',
   `sql_query` text NOT NULL COMMENT '完整mysql语句',
   `add_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`cache_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COMMENT='mysql缓存表';
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='mysql缓存表';
 
 -- -----------------------------
 -- Records of `ey_sql_cache_table`
 -- -----------------------------
-INSERT INTO `ey_sql_cache_table` VALUES ('1', 'ArchivesMaxID', '111', '494a17e43cff13eeb4b9c9837c29026c', 'SELECT MAX(aid) AS tp_max FROM `ey_archives` LIMIT 1', '1622533114', '1622628798');
-INSERT INTO `ey_sql_cache_table` VALUES ('8', '|article|1|12|', '5', '8718c121f5e90edc3e91ddfd8dfdc3c0', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (12)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622594184', '1622594184');
-INSERT INTO `ey_sql_cache_table` VALUES ('20', '|article|1|9|', '4', 'e2404b9338f0dd935b78a5501df1c9a6', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (9)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622604485', '1622604485');
-INSERT INTO `ey_sql_cache_table` VALUES ('4', '|users_release|1|all|', '0', '9a88aa4046e8f0e80b006adc41b2210a', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`users_id` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0 LIMIT 1', '1622533655', '1622533655');
-INSERT INTO `ey_sql_cache_table` VALUES ('5', '|archives|!=8,6,5,7,51|', '45', '79384ebcdb28f5eed29a07a310ff31ee', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`channel` NOT IN (8,6,5,7,51)  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622594128', '1622594128');
-INSERT INTO `ey_sql_cache_table` VALUES ('6', '|article|1|11|', '7', 'f9fd2ba868672856134a315e159dc52a', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (11)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622594130', '1622594162');
-INSERT INTO `ey_sql_cache_table` VALUES ('24', '|model|all|count|', '{\"1\":{\"channel\":1,\"total\":22},\"2\":{\"channel\":2,\"total\":13},\"3\":{\"channel\":3,\"total\":6},\"4\":{\"channel\":4,\"total\":4},\"6\":{\"channel\":6,\"total\":2},\"9\":{\"channel\":9,\"total\":6}}', 'd5ac17fe5649c6d04f4b174c42f2d535', 'SELECT channel, count(aid) as total FROM `ey_archives` WHERE  `lang` = \'cn\'  AND `status` = 1  AND `is_del` = 0  AND (  (users_id = 0 OR (users_id > 0 AND arcrank >= 0)) ) GROUP BY `channel`', '1622628860', '1622628860');
-INSERT INTO `ey_sql_cache_table` VALUES ('10', '|article|1|10|', '4', '3f6f2b155ad35cdf92173c14b566b442', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (10)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622596667', '1622596667');
-INSERT INTO `ey_sql_cache_table` VALUES ('11', '|product|2|20|', '5', 'effbf8a7f3aa3d388c0e1d1634f1949a', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (20,24,25)  AND `a`.`channel` = 2  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622598053', '1622604481');
-INSERT INTO `ey_sql_cache_table` VALUES ('12', '|article|1|2|', '18', '4425888e72359642895bde265a2c516f', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (2,10,11,12)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622599908', '1622628798');
-INSERT INTO `ey_sql_cache_table` VALUES ('13', '|images|3|4|', '6', 'b77fe767549db698797c3ad4330238f1', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (4,64,66)  AND `a`.`channel` = 3  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622600603', '1622600603');
-INSERT INTO `ey_sql_cache_table` VALUES ('14', '|product|2|3|', '13', 'cf40a9765c99e9b93f2f01f390621731', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (3,20,24,25,21,26,22,27,28,29)  AND `a`.`channel` = 2  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622602769', '1622604481');
-INSERT INTO `ey_sql_cache_table` VALUES ('15', '|download|4|5|', '4', 'e0d0190e5e7d297dbbe0a9230e7d7114', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (5)  AND `a`.`channel` = 4  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622602783', '1622602783');
-INSERT INTO `ey_sql_cache_table` VALUES ('16', '|recruit|9|23|', '6', '3136b432369dc02c58187b0b135bfcae', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (23,6)  AND `a`.`channel` = 9  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622602788', '1622602788');
-INSERT INTO `ey_sql_cache_table` VALUES ('17', '|article|1|70|', '0', '6ab602ee247d23fecb173d39700f698c', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (70)  AND `a`.`channel` = 1  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622602799', '1622602799');
-INSERT INTO `ey_sql_cache_table` VALUES ('18', '|archives|!=8,6,5,7,51|', '1', '9046aeb96b5de4a86c14a88cb15dd34a', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`title` LIKE \'%联想智能音箱G1%\'  AND `a`.`channel` NOT IN (8,6,5,7,51)  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622603296', '1622603296');
-INSERT INTO `ey_sql_cache_table` VALUES ('23', '|arctype|all|count|', '{\"2\":{\"typeid\":2,\"num\":2},\"5\":{\"typeid\":5,\"num\":4},\"9\":{\"typeid\":9,\"num\":4},\"10\":{\"typeid\":10,\"num\":4},\"11\":{\"typeid\":11,\"num\":7},\"12\":{\"typeid\":12,\"num\":5},\"20\":{\"typeid\":20,\"num\":2},\"23\":{\"typeid\":23,\"num\":6},\"24\":{\"typeid\":24,\"num\":3},\"26\":{\"typeid\":26,\"num\":4},\"27\":{\"typeid\":27,\"num\":2},\"28\":{\"typeid\":28,\"num\":2},\"64\":{\"typeid\":64,\"num\":4},\"66\":{\"typeid\":66,\"num\":2}}', '8d7e2c28c692cbb5b32cf82431eba9bd', 'SELECT typeid, count(typeid) as num FROM `ey_archives` WHERE  `channel` IN (1,2,3,4,5,7,9,51)  AND `lang` = \'cn\'  AND `is_del` = 0  AND (  (users_id = 0 OR (users_id > 0 AND arcrank >= 0)) ) GROUP BY `typeid`', '1622628802', '1622628802');
-INSERT INTO `ey_sql_cache_table` VALUES ('25', '|images|3|64|', '4', 'b6a8a6ee18c689fd2805efb717fc23cc', 'SELECT COUNT(aid) AS tp_count FROM `ey_archives` `a` WHERE  `a`.`typeid` IN (64)  AND `a`.`channel` = 3  AND `a`.`lang` = \'cn\'  AND `a`.`is_del` = 0  AND (  (a.users_id = 0 OR (a.users_id > 0 AND a.arcrank >= 0)) ) LIMIT 1', '1622688794', '1622688794');
+INSERT INTO `ey_sql_cache_table` VALUES ('1', 'ArchivesMaxID', '105', '494a17e43cff13eeb4b9c9837c29026c', 'SELECT MAX(aid) AS tp_max FROM `ey_archives` LIMIT 1', '1623035839', '1623035839');
+INSERT INTO `ey_sql_cache_table` VALUES ('2', '|model|all|count|', '{\"1\":{\"channel\":1,\"total\":17},\"2\":{\"channel\":2,\"total\":12},\"3\":{\"channel\":3,\"total\":6},\"4\":{\"channel\":4,\"total\":4},\"6\":{\"channel\":6,\"total\":2},\"9\":{\"channel\":9,\"total\":6}}', 'd5ac17fe5649c6d04f4b174c42f2d535', 'SELECT channel, count(aid) as total FROM `ey_archives` WHERE  `lang` = \'cn\'  AND `status` = 1  AND `is_del` = 0  AND (  (users_id = 0 OR (users_id > 0 AND arcrank >= 0)) ) GROUP BY `channel`', '1623035839', '1623035839');
 
 -- -----------------------------
 -- Table structure for `ey_tagindex`
@@ -9357,13 +8574,12 @@ CREATE TABLE `ey_users` (
   `update_time` int(11) unsigned DEFAULT '0' COMMENT '更新时间',
   `coin` int(11) unsigned DEFAULT '0' COMMENT '金币',
   PRIMARY KEY (`users_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='会员信息表';
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='会员信息表';
 
 -- -----------------------------
 -- Records of `ey_users`
 -- -----------------------------
-INSERT INTO `ey_users` VALUES ('1', 'admin', '18e6a423f5a873ab50c1c55c59c69517', 'admin', '0', '13644444444', '0', '123@11.com', '', '1111.00', '0.00', '3', '0', '1564475243', '1622687527', '127.0.0.1', '4', '', '0', '0', '0', '1', '0', '0', '1.00', '0.00', '1', '2', '', '0', '0', '1', 'cn', '0', '0', '1622687527', '0');
-INSERT INTO `ey_users` VALUES ('4', 'test', '0b03cd1fbc204cb47dac79f6df1118fe', 'test', '0', '', '0', '', '', '0.00', '0.00', '0', '0', '1622527957', '0', '', '0', '/test/public/static/common/images/dfboy.png', '0', '0', '0', '1', '1622527957', '0', '1.00', '0.00', '1', '1', '', '0', '0', '0', 'cn', '0', '0', '0', '0');
+INSERT INTO `ey_users` VALUES ('1', 'admin', '18e6a423f5a873ab50c1c55c59c69517', 'admin', '0', '13644444444', '0', '123@11.com', '', '0.00', '0.00', '3', '0', '1564475243', '1623035355', '127.0.0.1', '4', '', '0', '0', '0', '1', '0', '', '1.00', '0.00', '1', '2', '', '0', '0', '1', 'cn', '0', '0', '1623035355', '0');
 
 -- -----------------------------
 -- Table structure for `ey_users_bottom_menu`
@@ -9410,7 +8626,7 @@ CREATE TABLE `ey_users_collection` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='我的收藏';
 
 -- -----------------------------
@@ -9431,12 +8647,12 @@ CREATE TABLE `ey_users_config` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='会员功能配置表';
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='会员功能配置表';
 
 -- -----------------------------
 -- Records of `ey_users_config`
 -- -----------------------------
-INSERT INTO `ey_users_config` VALUES ('1', 'shop_open', '1', '', 'shop', 'cn', '1622619488');
+INSERT INTO `ey_users_config` VALUES ('1', 'shop_open', '0', '', 'shop', 'cn', '1619594927');
 INSERT INTO `ey_users_config` VALUES ('2', 'pay_open', '1', '', 'pay', 'cn', '1563498414');
 INSERT INTO `ey_users_config` VALUES ('3', 'users_reg_notallow', 'www,bbs,ftp,mail,user,users,admin,administrator,eyoucms', '不允许注册的会员名', 'users', 'cn', '1547890773');
 INSERT INTO `ey_users_config` VALUES ('4', 'level_member_upgrade', '1', '', 'level', 'cn', '1564555772');
@@ -9451,8 +8667,6 @@ INSERT INTO `ey_users_config` VALUES ('12', 'users_open_reg', '0', '', 'users', 
 INSERT INTO `ey_users_config` VALUES ('13', 'users_verification', '0', '', 'users', 'cn', '1610352452');
 INSERT INTO `ey_users_config` VALUES ('14', 'theme_color', '#ff9600', '', 'theme', 'cn', '1610616432');
 INSERT INTO `ey_users_config` VALUES ('15', 'pay_balance_open', '1', '', 'pay', 'cn', '1616460912');
-INSERT INTO `ey_users_config` VALUES ('16', 'is_automatic_review', '0', '', 'users', 'cn', '1622533618');
-INSERT INTO `ey_users_config` VALUES ('17', 'is_open_posts_count', '0', '', 'users', 'cn', '1622533618');
 
 -- -----------------------------
 -- Table structure for `ey_users_footprint`
@@ -9469,7 +8683,7 @@ CREATE TABLE `ey_users_footprint` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`) USING BTREE,
   KEY `users_id` (`users_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='我的足迹';
 
@@ -9543,8 +8757,8 @@ CREATE TABLE `ey_users_list` (
 -- -----------------------------
 -- Records of `ey_users_list`
 -- -----------------------------
-INSERT INTO `ey_users_list` VALUES ('1', '1', '1', '13644444444', 'cn', '1564475243', '1622508804');
-INSERT INTO `ey_users_list` VALUES ('2', '1', '2', '123@11.com', 'cn', '1564475243', '1622508804');
+INSERT INTO `ey_users_list` VALUES ('1', '1', '1', '13644444444', 'cn', '1564475243', '0');
+INSERT INTO `ey_users_list` VALUES ('2', '1', '2', '123@11.com', 'cn', '1564475243', '0');
 
 -- -----------------------------
 -- Table structure for `ey_users_menu`
@@ -9570,7 +8784,7 @@ CREATE TABLE `ey_users_menu` (
 -- -----------------------------
 INSERT INTO `ey_users_menu` VALUES ('1', '个人信息', 'v1', 'user/Users/index', '', '1', '100', '1', 'cn', '1555904190', '1555917737');
 INSERT INTO `ey_users_menu` VALUES ('2', '账户充值', 'v1', 'user/Pay/pay_consumer_details', '', '0', '100', '1', 'cn', '1555904190', '1563498414');
-INSERT INTO `ey_users_menu` VALUES ('3', '商城中心', 'v1', 'user/Shop/shop_centre', '', '0', '100', '1', 'cn', '1555904190', '1622619488');
+INSERT INTO `ey_users_menu` VALUES ('3', '商城中心', 'v1', 'user/Shop/shop_centre', '', '0', '100', '1', 'cn', '1555904190', '1563498415');
 INSERT INTO `ey_users_menu` VALUES ('4', '会员升级', 'v1', 'user/Level/level_centre', '', '0', '100', '1', 'cn', '1555904190', '1564555772');
 INSERT INTO `ey_users_menu` VALUES ('5', '会员投稿', 'v1', 'user/UsersRelease/release_centre', '', '0', '100', '1', 'cn', '1555904190', '1564555773');
 INSERT INTO `ey_users_menu` VALUES ('6', '我的下载', 'v1', 'user/Download/index', '', '0', '100', '1', 'cn', '1590484667', '1602320126');
@@ -9601,12 +8815,8 @@ CREATE TABLE `ey_users_money` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`moneyid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='金额明细表';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='金额明细表';
 
--- -----------------------------
--- Records of `ey_users_money`
--- -----------------------------
-INSERT INTO `ey_users_money` VALUES ('1', '1', '100.00', '0.00', 'a:10:{s:7:\"type_id\";i:1;s:9:\"type_name\";s:21:\"升级为中级会员\";s:8:\"level_id\";i:2;s:5:\"price\";s:6:\"100.00\";s:8:\"limit_id\";i:2;s:8:\"activity\";s:0:\"\";s:10:\"sort_order\";i:100;s:4:\"lang\";s:2:\"cn\";s:8:\"add_time\";i:1564532901;s:11:\"update_time\";i:1610620458;}', '0', '2', 'balance', '', 's:112:\"会员当前级别为【注册会员】，使用余额支付【 升级为中级会员】，支付金额为100.00\";', '20210601162250880015', 'cn', '1622508800', '1622508800');
 
 -- -----------------------------
 -- Table structure for `ey_users_notice`
@@ -9621,7 +8831,7 @@ CREATE TABLE `ey_users_notice` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='站内通知';
 
 
@@ -9638,7 +8848,7 @@ CREATE TABLE `ey_users_notice_read` (
   `lang` varchar(50) DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='用户已读站内通知';
 
 
@@ -9749,7 +8959,7 @@ CREATE TABLE `ey_users_signin` (
   `lang` varchar(50) NOT NULL DEFAULT 'cn' COMMENT '语言标识',
   `add_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '签到时间',
   PRIMARY KEY (`id`),
-  KEY `users_id` (`users_id`) USING BTREE
+  KEY `users_id` (`users_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户签到表';
 
 -- -----------------------------
@@ -9801,21 +9011,8 @@ CREATE TABLE `ey_weapp` (
   `add_time` int(11) DEFAULT '0' COMMENT '新增时间',
   `update_time` int(11) DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `code` (`code`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COMMENT='插件应用表';
-
--- -----------------------------
--- Records of `ey_weapp`
--- -----------------------------
-INSERT INTO `ey_weapp` VALUES ('24', 'Cos', '腾讯云COS对象存储', '{\"code\":\"Cos\",\"name\":\"\\u817e\\u8baf\\u4e91COS\\u5bf9\\u8c61\\u5b58\\u50a8\",\"version\":\"v1.0.0\",\"min_version\":\"1.5.2\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/allimg\\/210322\\/1-2103221123130-L.png\",\"description\":\"\\u63d2\\u4ef6\\u63cf\\u8ff0 \\u817e\\u8baf\\u4e91COS\\u5bf9\\u8c61\\u5b58\\u50a8\\u63d2\\u4ef6\\u662f\\u6613\\u4f18\\u56e2\\u961f\\u54cd\\u5e94\\u7528\\u6237\\u7684\\u9700\\u6c42\\u5f00\\u53d1\\u4e00\\u4e2a\\u53ef\\u4ee5\\u901a\\u8fc7\\u540e\\u53f0\\u53d1\\u5e03\\u65b0\\u56fe\\u7247\\u65f6\\u901a\\u8fc7\\u63a5\\u53e3\\u65b9\\u5f0f\\u4fdd\\u5b58\\u5230\\u817e\\u8baf\\u4e91COS\\u5b58\\u50a8\\u7a7a\\u95f4\\uff0c\\u4ee5\\u8fbe\\u5230\\u63d0\\u9ad8\\u7f51\\u7ad9\\u8bbf\\u95ee\\u901f\\u5ea6\\u548c\\u964d\\u4f4e\\u56fe\\u7247\\u52a0\\u8f7d\\u65f6\\u95f4\\u7684\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('23', 'Downloads', '会员下载次数限制', '{\"code\":\"Downloads\",\"name\":\"\\u4f1a\\u5458\\u4e0b\\u8f7d\\u6b21\\u6570\\u9650\\u5236\",\"version\":\"v1.0.0\",\"min_version\":\"1.4.8\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/200731\\/1-200I114423V02.jpg\",\"description\":\"\\u3010\\u63d2\\u4ef6\\u4ecb\\u7ecd\\u3011 \\u6613\\u4f18\\u4f1a\\u5458\\u4e0b\\u8f7d\\u6b21\\u6570\\u9650\\u5236 \\u63d2\\u4ef6\\u662f\\u9488\\u5bf9\\u7528\\u6237\\u9700\\u6c42\\u5b9a\\u5236\\u7684\\u4e00\\u4e2a\\u5c0f\\u529f\\u80fd\\uff0c\\u5f00\\u542f\\u4e0b\\u8f7d\\u6a21\\u578b\\u60c5\\u51b5\\u4e0b\\uff0c\\u53ef\\u4ee5\\u65b9\\u4fbf\\u9650\\u5236\\u5404\\u4e2a\\u4f1a\\u5458\\u7b49\\u7ea7\\u7ec4\\u5f53\\u65e5\\u7684\\u4e0b\\u8f7d\\u91cf\\uff0c\\u5229\\u4e8e\\u7ad9\\u957f\\u7ba1\\u7406\\u3002\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('22', 'AliyunOss', '对象存储OSS', '{\"code\":\"AliyunOss\",\"name\":\"\\u5bf9\\u8c61\\u5b58\\u50a8OSS\",\"version\":\"v1.0.0\",\"min_version\":\"1.4.6\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/200616\\/5-200616161K3295.jpg\",\"description\":\"\\u63d2\\u4ef6\\u63cf\\u8ff0 \\u5bf9\\u8c61\\u5b58\\u50a8OSS\\u63d2\\u4ef6\\u662f\\u6613\\u4f18\\u56e2\\u961f\\u54cd\\u5e94\\u7528\\u6237\\u7684\\u9700\\u6c42\\u5f00\\u53d1\\u4e00\\u4e2a\\u53ef\\u4ee5\\u901a\\u8fc7\\u540e\\u53f0\\u53d1\\u5e03\\u65b0\\u56fe\\u7247\\u65f6\\u901a\\u8fc7\\u63a5\\u53e3\\u65b9\\u5f0f\\u4fdd\\u5b58\\u5230\\u963f\\u91cc\\u4e91OSS\\u5b58\\u50a8\\u7a7a\\u95f4\\uff0c\\u4ee5\\u8fbe\\u5230\\u63d0\\u9ad8\\u7f51\\u7ad9\\u8bbf\\u95ee\\u901f\\u5ea6\\u548c\\u964d\\u4f4e\\u56fe\\u7247\\u548c\\u89c6\\u9891\\u52a0\\u8f7d\\u65f6\\u95f4\\u7684\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('21', 'Systemdoctor', '易优系统助手', '{\"code\":\"Systemdoctor\",\"name\":\"\\u6613\\u4f18\\u7cfb\\u7edf\\u52a9\\u624b\",\"version\":\"v1.1.0\",\"min_version\":\"1.0.0\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/200904\\/5-200Z40U91c09.jpg\",\"description\":\"\\u3010\\u63d2\\u4ef6\\u8bf4\\u660e\\u3011 \\u6613\\u4f18\\u7cfb\\u7edf\\u533b\\u751f \\u63d2\\u4ef6\\u4e3b\\u8981\\u65b9\\u4fbf\\u7528\\u6237 \\u8bca\\u65ad\\u7cfb\\u7edf\\uff0c\\u81ea\\u884c\\u4fee\\u590d\\u7591\\u96be\\u6742\\u75c7\\uff0c\\u53ca\\u4e00\\u4e9bsql\\u64cd\\u4f5c\\u529f\\u80fd\\uff0c\\u540e\\u7eed\\u6301\\u7eed\\u66f4\\u65b0\\u589e\\u52a0\\u5b89\\u5168\\u3001\\u7ef4\\u62a4\\u65b9\\u9762\\u529f\\u80fd\\uff0c\\u65b9\\u4fbf\\u7528\\u6237\\u9632\\u62a4\\u597d\\u81ea\\u5df1\\u7684\\u7f51\\u7ad9\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('20', 'Likearticle', '相关文档标签', '{\"code\":\"Likearticle\",\"name\":\"\\u76f8\\u5173\\u6587\\u6863\\u6807\\u7b7e\",\"version\":\"v1.0.0\",\"min_version\":\"1.4.3\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/191224\\/1-19122411151V54.gif\",\"description\":\"\\u63d2\\u4ef6\\u63cf\\u8ff0 \\u6613\\u4f18\\u76f8\\u5173\\u6587\\u6863\\u63d2\\u4ef6 \\uff0c \\u901a\\u8fc7\\u6587\\u6863tag\\u6807\\u7b7e\\u53ca\\u5173\\u952e\\u8bcd\\u81ea\\u52a8\\u5173\\u8054\\u6587\\u6863\\uff0c\\u5728\\u524d\\u7aef\\u7528likearticle\\u6807\\u7b7e\\u8c03\\u7528\\u76f8\\u5173\\u6587\\u6863\\u3002 \\u3002 likearticle\\u6807\\u7b7e\\u8c03\\u7528\\u6559\\u7a0b\\u8bf7\\u70b9\\u51fb\\u67e5\\u770b\\u5e2e\\u52a9\\u6307\\u5357\\uff08\\uff09\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('19', 'WxLogin', '微信扫码登录', '{\"code\":\"WxLogin\",\"name\":\"\\u5fae\\u4fe1\\u626b\\u7801\\u767b\\u5f55\",\"version\":\"v1.1.0\",\"min_version\":\"1.4.3\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/200616\\/5-2006161G91a95.jpg\",\"description\":\"\\u6613\\u4f18\\u5fae\\u4fe1\\u626b\\u7801\\u767b\\u5f55\\u63d2\\u4ef6\\uff0c \\u662f\\u4e00\\u6b3e\\u7531\\u6613\\u4f18\\u56e2\\u961f\\u5f00\\u53d1\\u7684eyoucms \\u5fae\\u4fe1\\u767b\\u5f55\\u63d2\\u4ef6\\uff0c\\u5fae\\u4fe1\\u626b\\u63cf\\u767b\\u5f55\\uff0c\\u81ea\\u52a8\\u83b7\\u53d6\\u7528\\u6237\\u6635\\u79f0\\u4e0e\\u5934\\u50cf\\u3002 \\u964d\\u4f4e\\u4e86\\u6ce8\\u518c\\u95e8\\u69db\\uff0c\\u5feb\\u6377\\u65b9\\u4fbf\\uff01 \\u5b89\\u88c5\\u5b8c\\u6210\\u540e\\uff0c\\u81ea\\u52a8\\u70b9\\u4eae\\u4f1a\\u5458\\u4e2d\\u5fc3\\u767b\\u5f55\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('18', 'QqLogin', 'QQ一键登录', '{\"code\":\"QqLogin\",\"name\":\"QQ\\u4e00\\u952e\\u767b\\u5f55\",\"version\":\"v1.3.1\",\"min_version\":\"1.4.3\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/allimg\\/191220\\/1-191220161U50-L.jpg\",\"description\":\"\\u6613\\u4f18QQ\\u4e00\\u952e\\u767b\\u5f55\\u63d2\\u4ef6\\u662f\\u65b9\\u4fbf\\u4f1a\\u5458\\u8fdb\\u884c\\u6ce8\\u518c\\u767b\\u5f55\\u64cd\\u4f5c\\uff0c\\u4e3a\\u7ad9\\u957f\\u5e26\\u6765\\u66f4\\u591a\\u6d3b\\u8dc3\\u4f1a\\u5458 \\u4f7f\\u7528\\u6b64\\u63d2\\u4ef6\\u8981\\u6ce8\\u610f\\u4e00\\u4e0b\\u51e0\\u70b9\\uff1a 1\\u3001\\u6b64\\u63d2\\u4ef6\\u4f7f\\u7528\\u524d\\u8bf7\\u5230 http:\\/\\/connect.opensns.qq.com\\u7533\\u8bf7appid, appkey, \\u5e76\\u6ce8\\u518ccallback\\u5730\\u5740\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('17', 'Qiniuyun', '七牛云图片加速', '{\"code\":\"Qiniuyun\",\"name\":\"\\u4e03\\u725b\\u4e91\\u56fe\\u7247\\u52a0\\u901f\",\"version\":\"v1.0.4\",\"min_version\":\"1.3.6\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/allimg\\/191022\\/5-1910221912130-L.png\",\"description\":\"\\u63d2\\u4ef6\\u63cf\\u8ff0 \\u4e03\\u725b\\u4e91\\u56fe\\u7247\\u52a0\\u901f\\u63d2\\u4ef6\\u662f\\u6613\\u4f18\\u56e2\\u961f\\u54cd\\u5e94\\u7528\\u6237\\u7684\\u9700\\u6c42\\u5f00\\u53d1\\u4e00\\u4e2a\\u53ef\\u4ee5\\u901a\\u8fc7\\u540e\\u53f0\\u53d1\\u5e03\\u65b0\\u56fe\\u7247\\u65f6\\u901a\\u8fc7\\u63a5\\u53e3\\u65b9\\u5f0f\\u4fdd\\u5b58\\u5230\\u4e03\\u725b\\u4e91\\u5b58\\u50a8\\u7a7a\\u95f4\\uff0c\\u4ee5\\u8fbe\\u5230\\u63d0\\u9ad8\\u7f51\\u7ad9\\u8bbf\\u95ee\\u901f\\u5ea6\\u548c\\u964d\\u4f4e\\u56fe\\u7247\\u52a0\\u8f7d\\u65f6\\u95f4\\u7684\\u63d2\\u4ef6\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
-INSERT INTO `ey_weapp` VALUES ('16', 'PictureCleaning', '多余图片清理', '{\"code\":\"PictureCleaning\",\"name\":\"\\u591a\\u4f59\\u56fe\\u7247\\u6e05\\u7406\",\"version\":\"v1.0.5\",\"min_version\":\"1.3.3\",\"author\":\"\\u533f\\u540d\",\"litpic\":\"https:\\/\\/www.eyoucms.com\\/uploads\\/allimg\\/191022\\/5-1910221910540-L.png\",\"description\":\"\\u6709\\u65f6\\u5019\\u5220\\u9664\\u4e86\\u6587\\u6863\\u6216\\u8005\\u662f\\u6f14\\u793a\\u6570\\u636e\\uff0c\\u6587\\u6863\\u91cc\\u9762\\u7684\\u56fe\\u7247\\u6ca1\\u6709\\u8ddf\\u7740\\u6e05\\u9664\\uff0c\\u8fd9\\u7c7b\\u7684\\u56fe\\u7247\\u591a\\u4e86\\u4f1a\\u5360\\u7528\\u7f51\\u7ad9\\u7a7a\\u95f4\\uff0c\\u7279\\u522b\\u662f\\u865a\\u62df\\u4e3b\\u673a\\u7528\\u6237\\u3002\\u4e3a\\u4e86\\u65b9\\u4fbf\\u7ad9\\u957f\\u5feb\\u901f\\u67e5\\u627e\\u5e76\\u6e05\\u9664\\u591a\\u4f59\\u56fe\\u7247\\uff0c\\u6613\\u4f18\\u56e2\\u961f\\u63a8\\u51fa\\u8fd9\\u6b3e\",\"scene\":\"0\",\"permission\":[]}', '', '0', '1', '0', 'default', '1', '1', '100', '1622622099', '1622622099');
+  KEY `code` (`code`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='插件应用表';
 
 -- -----------------------------
 -- Table structure for `ey_wx_users`
