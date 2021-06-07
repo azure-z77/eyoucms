@@ -180,7 +180,7 @@ class Article extends Base
                     $this->assign('data', $data);
                 }
             }
-            return $this->fetch('system/pay_recharge_detail_layer');
+            return $this->fetch('system/article_pay');
         }
         $this->error('参数错误！');
     }
