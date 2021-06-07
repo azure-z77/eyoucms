@@ -144,10 +144,6 @@ class TagArclist extends Base
             }
         }
 
-        // 查询当前模型的内容条数，是否达到优化标准
-        // $Execute = $this->GetCurrentModelData($channeltype);
-        $Execute = 0;
-
         // 查询条件
         $condition = array();
         foreach (array('keyword','typeid','notypeid','flag','noflag','channel','joinaid') as $key) {
