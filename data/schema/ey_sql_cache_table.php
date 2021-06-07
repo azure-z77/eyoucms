@@ -21,9 +21,9 @@ return array (
   'sql_result' => 
   array (
     'name' => 'sql_result',
-    'type' => 'varchar(1000)',
+    'type' => 'text',
     'notnull' => false,
-    'default' => '',
+    'default' => NULL,
     'primary' => false,
     'autoinc' => false,
   ),

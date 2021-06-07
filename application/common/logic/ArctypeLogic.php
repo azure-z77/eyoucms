@@ -71,7 +71,7 @@ class ArctypeLogic extends Model
                 unset($where[$key]);
             }
             $fields = "c.*, c.id as typeid, count(s.id) as has_children, '' as children";
-            $res = DB::name('arctype')
+            $res = Db::name('arctype')
                 ->field($fields)
                 ->alias('c')
                 ->join('__ARCTYPE__ s','s.parent_id = c.id','LEFT')
