@@ -410,20 +410,15 @@ function CartUnifiedAlgorithm(symbol){
 }
 
 // 去购车去
-function shop_cart_list(url){
+function shop_cart_list(url) {
     if (!window.layer) {
         var mymessage = confirm('加入购物车成功，前往购物车！');
-        if(mymessage == true){
-            window.location.href = url;
-        }
+        if (mymessage == true) window.location.href = url;
     } else {
         var confirms = layer.confirm('已加入购物车成功！', {
-            title: false
-            , btn: ['前往购物车']
+            title: false,
+            btn: ['前往购物车']
         }, function (index) {
-            layer.close(index);
-            window.location.reload();
-        }, function () {
             layer.close(confirms);
             window.location.href = url;
         });
