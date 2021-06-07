@@ -1131,6 +1131,13 @@ class Index extends Base
                         }
                         $data['is_syn'] = $is_syn;
                         /*--end*/
+                        // 同时关闭会员相关的开关
+                        if (empty($value)) {
+                            getUsersConfigData('users', ['users_open_release' => 0]); // 会员投稿
+                            getUsersConfigData('level', ['level_member_upgrade' => 0]); // 会员升级
+                            getUsersConfigData('shop', ['shop_open' => 0]); // 商城中心
+                            getUsersConfigData('pay', ['pay_open' => 0]); // 支付功能
+                        }
                     } else if ($name == 'web_language_switch') { // 多语言开关
                         // 统计多语言数量
                         model('Language')->setLangNum();
