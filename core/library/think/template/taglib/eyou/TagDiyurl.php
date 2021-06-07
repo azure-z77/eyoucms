@@ -37,40 +37,37 @@ class TagDiyurl extends Base
             $Param['tid'] = !empty($this->tid) ? $this->tid : '';
             // 排序条件
             $SortAsc = !empty($Param['sort_asc']) && 'desc' == $Param['sort_asc'] ? 'asc' : 'desc';
+            // 伪静态下则获取 request 数据
+            $Param['m'] = !empty($Param['m']) ? $Param['m'] : $this->request->module();
+            $Param['c'] = !empty($Param['c']) ? $Param['c'] : $this->request->controller();
+            $Param['a'] = !empty($Param['a']) ? $Param['a'] : $this->request->action();
             // 当前模型、控制器、方法
             $DynamicURL = "{$Param['m']}/{$Param['c']}/{$Param['a']}";
             // 删除指定参数
             unset($Param['m'], $Param['c'], $Param['a'], $Param['sort_asc']);
-            // 默认排序
             if (!empty($type) && 'DefaultUrl' == $type) {
+                // 默认排序
                 $urlList['DefaultUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'default');
-            }
-            // 最新排序
-            if (!empty($type) && 'NewUrl' == $type) {
+            } else if (!empty($type) && 'NewUrl' == $type) {
+                // 最新排序
                 $urlList['NewUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'new');
-            }
-            // 评价数排序(默认高到低排序)
-            if (!empty($type) && 'AppraiseUrl' == $type) {
+            } else if (!empty($type) && 'AppraiseUrl' == $type) {
+                // 评价数排序(默认高到低排序)
                 $urlList['AppraiseUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'appraise');
-            }
-            // 销量数排序(默认高到低排序)
-            if (!empty($type) && 'SalesUrl' == $type) {
+            } else if (!empty($type) && 'SalesUrl' == $type) {
+                // 销量数排序(默认高到低排序)
                 $urlList['SalesUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'sales');
-            }
-            // 收藏数排序(默认高到低排序)
-            if (!empty($type) && 'CollectionUrl' == $type) {
+            } else if (!empty($type) && 'CollectionUrl' == $type) {
+                // 收藏数排序(默认高到低排序)
                 $urlList['CollectionUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'collection');
-            }
-            // 点击数排序(默认高到低排序)
-            if (!empty($type) && 'ClickUrl' == $type) {
+            } else if (!empty($type) && 'ClickUrl' == $type) {
+                // 点击数排序(默认高到低排序)
                 $urlList['ClickUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'click');
-            }
-            // 下载数排序(默认高到低排序)
-            if (!empty($type) && 'DownloadUrl' == $type) {
+            } else if (!empty($type) && 'DownloadUrl' == $type) {
+                // 下载数排序(默认高到低排序)
                 $urlList['DownloadUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'download');
-            }
-            // 价格排序
-            if (!empty($type) && 'PriceUrl' == $type) {
+            } else if (!empty($type) && 'PriceUrl' == $type) {
+                // 价格排序
                 $urlList['PriceUrl'] = $this->GetSortHtmlCode($DynamicURL, $Param, $Class, 'price', $SortAsc);
             }
             // 取出指定的URL
