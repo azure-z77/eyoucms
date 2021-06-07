@@ -23,7 +23,7 @@ if (!function_exists('switch_exception'))
     // 模板错误提示
     function switch_exception() {
         $web_exception = tpCache('web.web_exception');
-        if (true || !empty($web_exception)) {
+        if (!empty($web_exception)) {
             config('ey_config.web_exception', $web_exception);
             error_reporting(-1);
         }

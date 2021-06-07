@@ -107,7 +107,7 @@
          dataType:'json',
          data:{_ajax:1},
          success:function(res){
-             fid = res.data.typeid;
+             findex = res.data.typeid;
              achieve = res.data.achievepage;
              allpagetotal = res.data.allpagetotal;
              channelpagetotal = res.data.channelpagetotal;
@@ -137,16 +137,16 @@
              url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=buildChannel&lang="+__lang__,
              type:'POST',
              dataType:'json',
-             data:{'id':0,'fid':articlefid,'achieve':channelachieve,_ajax:1},
+             data:{'id':0,'findex':articlefid,'achieve':channelachieve,_ajax:1},
              beforeSend:function(){
              },
              success:function(res){
-                 articlefid = res.data.fid;
+                 articlefid = res.data.findex;
                  channelachieve = res.data.achievepage;
                  msg += res.msg;
                  progress = (((achieve+channelachieve)/allpagetotal)*100).toFixed(1);
                  $("#title").html('成功创建栏目：');
-                 $(".filepath").html(res.data.fid);
+                 $(".filepath").html(res.data.findex);
                  $(".progress-bar").css('width',progress+'%');
                  $(".percent").text(progress);
                  if (channelachieve === channelpagetotal){
@@ -171,9 +171,9 @@
              url:__root_dir__+"/index.php?m=home&c=Buildhtml&a=buildArticle&lang="+__lang__,
              type:'POST',
              dataType:'json',
-             data:{'id':0,'fid':channelfid,'achieve':articleachieve,_ajax:1},
+             data:{'id':0,'findex':channelfid,'achieve':articleachieve,_ajax:1},
              success:function(res){
-                 channelfid = res.data.fid;
+                 channelfid = res.data.findex;
                  articleachieve = res.data.achievepage;
                  msg += res.msg;
                  progress = (((achieve+articleachieve)/allpagetotal)*100).toFixed(1);

@@ -147,10 +147,10 @@ class Buildhtml extends Base
         function_exists('set_time_limit') && set_time_limit(0);
 
         $typeid      = input("param.id/d", 0); // 栏目ID
-        $fid         = input("param.fid/d", 0);
+        $findex         = input("param.findex/d", 0);
         $achievepage = input("param.achieve/d", 0); // 已完成文档数
         $this->clearCache();
-        $data = $this->handelBuildArticle($typeid, 0, $fid, $achievepage);
+        $data = $this->handelBuildArticle($typeid, 0, $findex, $achievepage);
 
         $this->success($data[0], null, $data[1]);
     }
@@ -199,7 +199,7 @@ class Buildhtml extends Base
      * 处理生成内容页
      * $typeid      栏目id
      * $aid         内容页id
-     * $fid         下一次执行栏目id
+     * $findex         下一次执行栏目id
      * $achievepage 已完成文档数
      * $batch       是否分批次执行，true：分批，false：不分批
      * limit        每次执行多少条数据
@@ -228,12 +228,12 @@ class Buildhtml extends Base
                 $limit--;
                 $nextid++;
             }
-            $data['fid'] = $nextid;
+            $data['findex'] = $nextid;
         } else if (!$batch) {
             foreach ($info as $key => $row) {
                 $msg                 .= $msg_temp = $this->createArticle($row, $globalConfig, $arctypeRow, $allTags, $has_children_Row, $allAttrInfo);
                 $data['achievepage'] += 1;
-                $data['fid']         = $key;
+                $data['findex']         = $key;
             }
         }
         if ($data['allpagetotal'] == $data['achievepage']) {  //生成完全部页面，删除缓存
@@ -367,7 +367,7 @@ class Buildhtml extends Base
     /*
      * 生成栏目静态页面
      * $id  tpyeid  栏目id
-     * $fid         下一次执行栏目id
+     * $findex         下一次执行栏目id
      * $achievepage 已完成页数
      *$batch        是否分批次执行，true：分批，false：不分批
      *
@@ -376,10 +376,10 @@ class Buildhtml extends Base
     {
         function_exists('set_time_limit') && set_time_limit(0);
         $id          = input("param.id/d", 0); // 栏目ID
-        $fid         = input("param.fid/d", 0);
+        $findex         = input("param.findex/d", 0);
         $achievepage = input("param.achieve/d", 0);
         $this->clearCache();
-        $data = $this->handleBuildChannel($id, $fid, $achievepage);
+        $data = $this->handleBuildChannel($id, $findex, $achievepage);
 
         $this->success($data[0], null, $data[1]);
     }
@@ -413,13 +413,13 @@ class Buildhtml extends Base
     /*
      * 处理生成栏目页
      * $id           typeid
-     * $fid         下一次执行栏目id
+     * $findex         下一次执行栏目id
      * $achievepage 已完成页数
      * $batch        是否分批次执行，true：分批，false：不分批
      * $parent        是否获取下级栏目    true：获取，false：不获取
      * $aid           文章页id，不等于0时，表示只获取文章页所在的列表页重新生成静态(在添加或者编辑文档内容时使用)
      */
-    private function handleBuildChannel($id, $fid = 0, $achievepage = 0, $batch = true, $parent = true, $aid = 0)
+    private function handleBuildChannel($id, $findex = 0, $achievepage = 0, $batch = true, $parent = true, $aid = 0)
     {
         $msg                  = '';
         $globalConfig         = $this->eyou['global'];
@@ -441,18 +441,18 @@ class Buildhtml extends Base
         $info = array_values($info);//重组数组
         /***********2020 05 19 新增 e*************/
         if ($batch && $data['allpagetotal'] > $data['achievepage']) {
-            $row                 = !empty($info[$fid]) ? $info[$fid] : [];
+            $row                 = !empty($info[$findex]) ? $info[$findex] : [];
             !empty($row) && $msg .= $msg_temp = $this->createChannel($row, $globalConfig, $has_children_Row);
             $data['pagetotal']   = !empty($row['pagetotal']) ? $row['pagetotal'] : 1;
             $data['achievepage'] += !empty($row['pagetotal']) ? $row['pagetotal'] : 1;
-            $data['fid']         = $fid + 1;
+            $data['findex']         = $findex + 1;
             $data['typeid']      = !empty($row['typeid']) ? $row['typeid'] : 0;
         } else if (!$batch) {
             foreach ($info as $key => $row) {
                 $msg                 .= $msg_temp = $this->createChannel($row, $globalConfig, $has_children_Row, $aid);
                 $data['pagetotal']   = $row['pagetotal'];
                 $data['achievepage'] += $row['pagetotal'];
-                $data['fid']         = $key;
+                $data['findex']         = $key;
                 $data['typeid']      = $row['typeid'];
             }
         }

@@ -646,31 +646,6 @@ class Images extends Base
         }
     }
 
-//    /**
-//     * 删除图集相册图
-//     */
-//    public function del_imgupload()
-//    {
-//        if (IS_POST) {
-//            $filename= input('filename/s');
-//            $filename= str_replace(['(',')',',',' ','../'],'',$filename);
-//            $filename= trim($filename,'.');
-//            $filename_tmp = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $filename);
-//            if(eyPreventShell($filename) && !empty($filename) && file_exists('.'.$filename_tmp)){
-//                $filename_new = trim($filename,'/');
-//                $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
-//                $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
-//                $size = getimagesize($filename_new);
-//                $fileInfo = explode('/',$size['mime']);
-//                if((file_exists($filename_new) && $fileInfo[0] != 'image') || $phpfile || !in_array($filetype, explode(',', config('global.image_ext')))){
-//                    exit;
-//                }
-//                if (!empty($filename)) {
-//                    Db::name('images_upload')->where("image_url = '$filename'")->delete();
-//                }
-//            }
-//        }
-//    }
     /**
      * 删除图集相册图
      */
