@@ -306,6 +306,7 @@ class TagArclist extends Base
                         ->limit($limit)
                         ->select();
                 }
+                $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
 
                 foreach ($result as $key => $val) {
                     array_push($aidArr, $val['aid']); // 收集文档ID
@@ -415,7 +416,6 @@ class TagArclist extends Base
             $arcmulti_db = \think\Db::name('arcmulti');
             $arcmultiRow = $arcmulti_db->field('tagid')->where(['tagid'=>$tagidmd5])->find();
             $attstr = addslashes(serialize($tag)); //记录属性,以便分页样式统一调用
-            $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
             if (empty($arcmultiRow)) {
                 $arcmulti_db->insert([
                     'tagid' => $tagidmd5,

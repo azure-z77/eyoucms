@@ -808,24 +808,37 @@ EOF;
         }
     }
 
-    /**
-     * 区分专业版与基础版的登录界面
-     * @return [type] [description]
-     */
-    public function logintheme_logic()
+    public function admin_logic_1623036205()
     {
-        $web_loginbgimg_model = tpCache('web.web_loginbgimg_model');
-        if ($web_loginbgimg_model != 'custom') {
-            $data = [];
-            $servicemeal = tpCache('php.php_servicemeal');
-            if (2 <= $servicemeal) { // 专业版
-                $web_loginbgimg = ROOT_DIR.'/public/static/admin/loginbg/login-bg-3.png';
-                $data['web_loginbgimg_model'] = 3;
-            } else {
-                $web_loginbgimg = ROOT_DIR.'/public/static/admin/loginbg/login-bg.png';
+        $syn_admin_logic_1623036205 = tpCache('syn.syn_admin_logic_1623036205', [], 'cn');
+        if (empty($syn_admin_logic_1623036205)) {
+            $getTableInfo = Db::name('sql_cache_table')->getTableFields();
+            if (in_array('sql_result', $getTableInfo)) {
+                $Prefix = config('database.prefix');
+                $SqlCacheTableSql = "ALTER TABLE `{$Prefix}sql_cache_table` MODIFY COLUMN `sql_result` text NOT NULL COMMENT 'mysql执行结果' AFTER `sql_name`";
+                Db::execute($SqlCacheTableSql);
             }
-            $data['web_loginbgimg'] = $web_loginbgimg;
-            tpCache('web', $data);
+            // 标记已执行
+            tpCache('syn', ['syn_admin_logic_1623036205'=>1], 'cn');
+        }
+
+        // 修复登录logo和背景图的切换
+        $admin_logic_1623055490 = tpCache('syn.admin_logic_1623055490', [], 'cn');
+        if (empty($admin_logic_1623055490)) {
+            $servicemeal = tpCache('php.php_servicemeal');
+            if (2 <= $servicemeal) {
+                $data = [];
+                $web_loginlogo = tpCache('web.web_loginlogo');
+                if (stristr($web_loginlogo, 'login-logo_ey.png')) {
+                    $data['web_loginlogo'] = ROOT_DIR.'/public/static/admin/images/login-logo_zy.png';
+                }
+                $web_loginbgimg_model = tpCache('web.web_loginbgimg_model');
+                if ($web_loginbgimg_model != 'custom') {
+                    $data['web_loginbgimg'] = ROOT_DIR.'/public/static/admin/loginbg/login-bg-3.png';
+                }
+                !empty($data) && tpCache('web', $data);
+            }
+            tpCache('syn', ['admin_logic_1623055490'=>1], 'cn');
         }
     }
 }

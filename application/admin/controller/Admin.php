@@ -244,7 +244,6 @@ class Admin extends Base {
 
         $ajaxLogic = new AjaxLogic;
         $ajaxLogic->login_handle();
-        $ajaxLogic->logintheme_logic();
         
         session('admin_info', null);
         $viewfile = 'admin/login';

@@ -224,6 +224,9 @@ class Index extends Base
         $ajaxLogic->admin_logic_1617069276();
         // 纠正商品主表的评价数(appraise 字段)、收藏数(collection 字段)(v1.6.1节点去掉--陈风任)
         $ajaxLogic->admin_logic_archives_1618279798();
+
+        // 纠正SQL缓存表结果字段类型(v1.6.1节点去掉--陈风任)
+        $ajaxLogic->admin_logic_1623036205();
         
         return $this->fetch();
     }
