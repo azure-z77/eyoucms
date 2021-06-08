@@ -840,5 +840,16 @@ EOF;
             }
             tpCache('syn', ['admin_logic_1623055490'=>1], 'cn');
         }
+
+        $admin_logic_1623133485 = tpCache('syn.admin_logic_1623133485', [], 'cn');
+        if (empty($admin_logic_1623133485)) {
+            $system_use_language = 0;
+            $count = Db::name('language')->count();
+            if (1 < $count) {
+                $system_use_language = 1;
+            }
+            tpCache('system', ['system_use_language'=>$system_use_language]);
+            tpCache('syn', ['admin_logic_1623133485'=>1], 'cn');
+        }
     }
 }

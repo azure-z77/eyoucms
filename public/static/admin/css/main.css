@@ -1151,7 +1151,7 @@ span.err{color:#F00; display:none;}
 .eycms_cont_left dl:last-child,.eycms_cont_left dl:first-child{border-bottom: none;}
 .eycms_cont_left dl dt{ padding:15px 25px 5px; color:#e7e7e7;}
 .eycms_cont_left dl dd a{ display:block; overflow: hidden;vertical-align: middle;  outline:none; padding-left:15px; height:42px; line-height:40px;transition:all .3s;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s  }
-.eycms_cont_left dl dd a i,.eycms_cont_left dl.jslist dt i{ margin-right:8px; width:28px; text-align:center; color:#fff; position:relative; top:2px; font-size:20px;display: inline-block; }
+.eycms_cont_left dl dd a i,.eycms_cont_left dl.jslist dt i{ margin-right:8px; width:28px; text-align:center; color:#fff; position:relative; top:2px; font-size:18px;display: inline-block; }
 .eycms_cont_left dl dd a:hover,.eycms_cont_left dl dd a.on,.eycms_cont_left dl dt.on{ background:#2189be;  }
 .eycms_cont_left dl.on{}
 .eycms_cont_left dl dd a:active{ background:#2189be; }
@@ -2417,7 +2417,7 @@ div.bot2 {
 .on-off_panel .on-off_list li a{
     display: flex;
     align-items: center;
-    padding:15px;
+    padding:10px;
     background-color: #ffffff;
     line-height: 60px;
     text-decoration: none;
@@ -2437,7 +2437,7 @@ div.bot2 {
     white-space: nowrap;
     font-size: 16px;
 }
-
+.on-off_panel .on-off_list li a img{ width:60px;}
 .on-off_panel .on-off_list li a:hover {
      box-shadow: 0 4px 13px -1px #EBEBEB;
 }

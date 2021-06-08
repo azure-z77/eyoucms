@@ -97,7 +97,7 @@
                         {/eq}
 
                         {eq name="'Language@index'|is_check_access" value="1"}
-                            {if condition="$php_servicemeal > 1"}
+                            {if condition="$php_servicemeal >= 1 || !empty($global.system_use_language)"}
                             <li class="more_li">
                                 <div class="on-off_btn">
                                     <div class="on-off_btn_l">

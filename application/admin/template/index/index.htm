@@ -97,7 +97,7 @@
               {/notempty}
 
               <!-- 多语言 -->
-              {empty name="$is_eyou_authortoken"}
+              {if condition="$php_servicemeal >= 1 || !empty($global.system_use_language)"}
               <em id="Language_index" class="eyou_tool em_lang" data-expanded="close" {if condition='empty($web_language_switch)'}style="display: none;"{/if}>
                 <a class="btn btn-default dropdown-toggle" title="支持多语言切换" href="javascript:void(0);" onclick="valide(this);">
                   <i class="fa fa-globe"></i>
@@ -112,7 +112,7 @@
                     </li>
                 </ul>
                </em>
-              {/empty}
+              {/if}
               <!-- 多语言 -->   
 
               <!-- 小程序 start --> 
