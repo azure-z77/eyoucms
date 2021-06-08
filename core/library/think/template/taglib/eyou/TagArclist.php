@@ -284,28 +284,39 @@ class TagArclist extends Base
             default:
             {
                 $field = "b.*, a.*";
-                if ('rand()' == $orderby) {
-                    $result = $this->archives_db
-                        ->field("b.*, a.*")
-                        ->alias('a')
-                        ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                        ->where($where_str)
-                        ->where('a.lang', $this->home_lang)
-                        ->limit(500)
-                        ->select();
-                    shuffle($result);
-                    $result = array_slice($result, 1, 10);
-                } else {
-                    $result = $this->archives_db
-                        ->field($field)
-                        ->alias('a')
-                        ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
-                        ->where($where_str)
-                        ->where('a.lang', $this->home_lang)
-                        ->orderRaw($orderby)
-                        ->limit($limit)
-                        ->select();
-                }
+                $result = $this->archives_db
+                    ->field($field)
+                    ->alias('a')
+                    ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+                    ->where($where_str)
+                    ->where('a.lang', $this->home_lang)
+                    ->orderRaw($orderby)
+                    ->limit($limit)
+                    ->select();
+                $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
+                // if ('rand()' == $orderby) {
+                //     $result = $this->archives_db
+                //         ->field("b.*, a.*")
+                //         ->alias('a')
+                //         ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+                //         ->where($where_str)
+                //         ->where('a.lang', $this->home_lang)
+                //         ->limit(500)
+                //         ->select();
+                //     shuffle($result);
+                //     $result = array_slice($result, 1, 10);
+                // } else {
+                //     $result = $this->archives_db
+                //         ->field($field)
+                //         ->alias('a')
+                //         ->join('__ARCTYPE__ b', 'b.id = a.typeid', 'LEFT')
+                //         ->where($where_str)
+                //         ->where('a.lang', $this->home_lang)
+                //         ->orderRaw($orderby)
+                //         ->limit($limit)
+                //         ->select();
+                // }
+                // $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
                 $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
 
                 foreach ($result as $key => $val) {
@@ -466,37 +477,5 @@ class TagArclist extends Base
         }
 
         return $tagidmd5;
-    }
-
-    // 查询当前模型的内容条数，是否达到优化标准(目前以14W数据为优化标准)
-    private function GetCurrentModelData($channeltype = 0)
-    {
-        if (empty($channeltype)) return 0;
-
-        switch ($channeltype) {
-            case '1':
-                $SqlName = '|article|1|';
-                break;
-            case '2':
-                $SqlName = '|product|2|';
-                break;
-            case '3':
-                $SqlName = '|images|3|';
-                break;
-            case '4':
-                $SqlName = '|download|4|';
-                break;
-            case '5':
-                $SqlName = '|media|5|';
-                break;
-            case '7':
-                $SqlName = '|special|7|';
-                break;
-            default:
-                $SqlName = '|custom|';
-                break;
-        }
-        $SqlResult = Db::name('sql_cache_table')->where('sql_name', 'LIKE', "%{$SqlName}%")->order('cache_id asc')->getField('sql_result');
-        return !empty($SqlResult) && $SqlResult >= '100000' ? 1 : 0;
     }
 }
