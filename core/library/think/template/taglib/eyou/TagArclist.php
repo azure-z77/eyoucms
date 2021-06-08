@@ -317,7 +317,6 @@ class TagArclist extends Base
                 //         ->select();
                 // }
                 // $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
-                $querysql = $this->archives_db->getLastSql(); // 用于arclist标签的分页
 
                 foreach ($result as $key => $val) {
                     array_push($aidArr, $val['aid']); // 收集文档ID
