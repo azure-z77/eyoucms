@@ -129,6 +129,11 @@ class Level extends Base {
         // 支付状态
         $pay_status_arr = config('global.pay_status_arr');
         $this->assign('pay_status_arr',$pay_status_arr);
+
+        //是否开启文章付费
+        $channelRow = Db::name('channeltype')->where('nid', 'article')->find();
+        $channelRow['data'] = json_decode($channelRow['data'], true);
+        $this->assign('channelRow',$channelRow);
         
         return $this->fetch();
     }

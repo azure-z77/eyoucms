@@ -25,6 +25,8 @@
 			{/if}	
 		{/eq}
 
+
+		{eq name="$channelRow.data.is_article_pay" value="1"}
 		{eq name="'Member@article_index'|is_check_access" value="1"}
 		{if condition="!empty($channeltype_row[1]['status'])"}
 		{eq name="'Member@article_index'|is_check_access" value="1"}
@@ -33,5 +35,6 @@
 		</label>
 		{/eq}
 		{/if}
+		{/eq}
 		{/eq}
 	</div>

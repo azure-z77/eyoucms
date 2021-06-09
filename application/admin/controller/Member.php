@@ -1336,6 +1336,11 @@ class Member extends Base {
         $pay_method_arr = config('global.pay_method_arr');
         $this->assign('pay_method_arr',$pay_method_arr);
 
+        //是否开启文章付费
+        $channelRow = Db::name('channeltype')->where('nid', 'article')->find();
+        $channelRow['data'] = json_decode($channelRow['data'], true);
+        $this->assign('channelRow',$channelRow);
+
         return $this->fetch();
     }
 
@@ -1821,7 +1826,11 @@ class Member extends Base {
             ->limit($Page->firstRow.','.$Page->listRows)
             ->select();
         $this->assign('list', $list);
-        
+        //是否开启文章付费
+        $channelRow = Db::name('channeltype')->where('nid', 'article')->find();
+        $channelRow['data'] = json_decode($channelRow['data'], true);
+        $this->assign('channelRow',$channelRow);
+
         return $this->fetch();
     }
 
