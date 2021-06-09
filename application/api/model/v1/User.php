@@ -112,7 +112,17 @@ class User extends UserBase
      */
     private function wxlogin($code)
     {
-        $inc =  tpSetting('minicode');
+        $weapp_data = Db::name('weapp')->where('code','OpenMinicode')->find();
+        if (0 == $weapp_data['status']){
+            $this->error('请先安装开源微信小程序(企业版)插件');
+        }else if (-1 == $weapp_data['status']){
+            $this->error('请先启用开源微信小程序(企业版)插件');
+        }
+        if (empty($weapp_data['data'])){
+            $this->error('请先配置开源微信小程序(企业版)插件');
+        }
+
+        $inc =  json_decode($weapp_data['data'],true);
         // 微信登录 (获取session_key)
         $session = $this->wxUserSessionKey($code, $inc);
         if (isset($session['errcode'])) {
