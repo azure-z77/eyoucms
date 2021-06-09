@@ -4,7 +4,7 @@
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width:auto;box-shadow:none;">
-    <div class="flexigrid" style="margin-top: 0px;">
+    <div class="flexigrid" style="margin-top: 0px;min-height: 600px;">
         <div class="mDiv" style="padding: 0 0 10px;">
             <form id="searchForm" class="navbar-form form-inline" action="{:url('Archives/index_draft')}" method="get" onSubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
@@ -173,7 +173,7 @@
             </span>
             <div class="nav-dropup">
                 <button class="layui-btn layui-btn-primary dropdown-bt">批量操作<i class="layui-icon layui-icon-up"></i></button>
-                <div class="dropdown-menus" style="display:none;">
+                <div class="dropdown-menus" style="display:none; {if condition='0 < $pager->totalRows && ($pager->totalRows < 4 || $pager->listRows < 4)'}top:30px;bottom:unset;border-bottom:1px solid rgba(0,0,0,.15);border-top:none;{/if}">
                     {eq name="'Archives@batch_attr'|is_check_access" value="1"}
                     <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量新增属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'add'])}">新增属性</a>
                     <a href="javascript:void(0);" onclick="batch_attr(this, 'ids', '批量删除属性');" data-url="{:url('Archives/batch_attr', ['opt'=>'del'])}">删除属性</a>
