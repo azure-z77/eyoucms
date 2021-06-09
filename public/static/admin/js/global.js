@@ -1513,3 +1513,33 @@ function check_title_repeat(obj,aid) {
         layer.closeAll();
     }
 }
+
+function set_author()
+{
+    layer.prompt({
+            title:'<font color="red">设置作者默认名称</font>'
+        },
+        function(val, index){
+            $.ajax({
+                url: eyou_basefile + "?m=admin&c=Admin&a=ajax_setfield&_ajax=1",
+                type: 'POST',
+                dataType: 'JSON',
+                data: {field:'pen_name',value:val},
+                success: function(res){
+                    if (res.code == 1) {
+                        $('#author').val(val);
+                        layer.msg(res.msg, {icon: 1, time:1000});
+                    } else {
+                        showErrorMsg(res.msg);
+                        return false;
+                    }
+                },
+                error: function(e){
+                    showErrorMsg(e.responseText);
+                    return false;
+                }
+            });
+            layer.close(index);
+        }
+    );
+}
