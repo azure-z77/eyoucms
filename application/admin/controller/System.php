@@ -648,12 +648,6 @@ class System extends Base
         $this->assign('login', $login);
         /* END */
 
-        /*开源小程序配置*/
-        $login = !empty($userConfig['wechat_login_config']) ? unserialize($userConfig['wechat_login_config']) : [];
-        $this->assign('minicode', tpSetting('minicode'));
-        /* END */
-
-
         /*邮箱配置*/
         // $smtp = tpCache('smtp');
         // $this->assign('smtp', $smtp);
@@ -939,21 +933,8 @@ class System extends Base
             }
         }
     }
-
-    /**
-     * 开源小程序配置
-     */
-    public function minicode()
-    {
-        if (IS_POST) {
-            $post = input('post.');
-            if (!empty($post)) {
-                tpSetting('minicode',$post['minicode']);
-                $this->success('设置成功！');
-            }
-        }
-    }
-
+    
+    
     /**
      * 邮件模板列表 - 编辑
      */
