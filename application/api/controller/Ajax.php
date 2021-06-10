@@ -1130,45 +1130,39 @@ class Ajax extends Base
     //文章付费
     public function ajax_get_content($aid=0)
     {
+        \think\Session::pause(); // 暂停session，防止session阻塞机制
         if (empty($aid)){
             $this->error('缺少文档id');
         }
         $artData = Db::name('archives')
             ->alias('a')
-            ->field('a.users_price,b.content')
+            ->field('a.users_price, b.content')
             ->join('article_content b','a.aid = b.aid')
             ->where('a.aid',$aid)
             ->find();
-        $pay_data = Db::name('article_pay')->field('part_free,free_content')->where('aid',$aid)->find();
-
-        $users_id = session('users_id');
-
-        if (0<$artData['users_price'] && !empty($pay_data)){
-            if (empty($users_id)){
-                $result['content'] = $pay_data['free_content'];
-                $result['display'] = 1;//1显示购买 0-不显示
-            }else{
+        if (0 < $artData['users_price']) { // 付费阅读
+            $users_id = session('users_id');
+            $pay_data = Db::name('article_pay')->field('part_free,free_content')->where('aid',$aid)->find();
+            $free_content = '';
+            if (!empty($pay_data['part_free'])) { // 允许试看
+                $free_content = !empty($pay_data['free_content']) ? $pay_data['free_content'] : '';
+            }
+            if (empty($users_id)) {
+                $result['display'] = 1; // 1-显示购买 0-不显示
+                $result['content'] = $free_content;
+            } else {
                 $is_pay = Db::name('article_order')->where(['users_id'=>$users_id,'order_status'=>1,'product_id'=>$aid])->find();
-                if (empty($is_pay)){
-                    $result['display'] = 1;//1显示购买 0-不显示
-                    if(0 == $pay_data['part_free']){
-                        $result['content'] = '';
-                    }else if(in_array($pay_data['part_free'],[1,2])){
-                        $result['content'] = $pay_data['free_content'];
-                    }
-                }else{
+                if (empty($is_pay)){ // 没有购买
+                    $result['display'] = 1;// 1-显示购买 0-不显示
+                    $result['content'] = $free_content;
+                }else{ // 已经购买
                     $result['display'] = 0;
-                    if(0 == $pay_data['part_free']){
-                        $result['content'] = $artData['content'];
-                    }else if(1 == $pay_data['part_free']){
-                        $result['content'] = $pay_data['free_content'].$artData['content'];
-                    }else if(2 == $pay_data['part_free']){
-                        $result['content'] = $artData['content'];
-                    }
+                    $result['content'] = $artData['content'];
                 }
             }
-        }else{
-            $result['display'] = 0;
+        }
+        else { // 免费阅读
+            $result['display'] = 0; // 1-显示购买 0-不显示
             $result['content'] = $artData['content'];
         }
 

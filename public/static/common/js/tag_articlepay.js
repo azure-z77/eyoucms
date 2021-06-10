@@ -1,3 +1,22 @@
+var ey_jquery_1618968479 = false;
+if (!window.jQuery) {
+    ey_jquery_1618968479 = true;
+} else {
+    var ey_jq_ver_1618968479 = jQuery.fn.jquery;
+    if (ey_jq_ver_1618968479 < '1.8.0') {
+        ey_jquery_1618968479 = true;
+    }
+}
+
+if (ey_jquery_1618968479) {
+    document.write(unescape("%3Cscript src='"+root_dir_1618968479+"/public/static/common/js/jquery.min.js' type='text/javascript'%3E%3C/script%3E"));
+    document.write(unescape("%3Cscript type='text/javascript'%3E try{jQuery.noConflict();}catch(e){} %3C/script%3E"));
+}
+
+if (!window.layer || !layer.v) {
+    document.write(unescape("%3Cscript src='"+root_dir_1618968479+"/public/plugins/layer-v3.1.0/layer.js' type='text/javascript'%3E%3C/script%3E"));
+}
+
 var PayPolling;
 function ey_article_1618968479(aid) {
     // 步骤一:创建异步对象
@@ -27,7 +46,11 @@ function ey_article_1618968479(aid) {
                         window.location.href = res.data.url+'&referurl='+window.location.href;
                     }
                 }else{
-                    layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                    if (!window.layer) {
+                        alert(res.msg);
+                    } else {
+                        layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                    }
                 }
             }
       　}
@@ -50,16 +73,19 @@ function ey_ajax_get_content_1618968479(aid,url) {
         if (ajax.readyState==4 && ajax.status==200) {
             var json = ajax.responseText;
             var res  = JSON.parse(json);
-            console.log(res)
             if (1 == res.code) {
-                document.getElementById('article_content_'+aid+'_1619061972').html = res.data.content;
+                document.getElementById('article_content_'+aid+'_1619061972').innerHTML = res.data.content;
                 if (1 == res.data.display) {
                     document.getElementById('article_display_'+aid+'_1619061972').style.display = "block";
                 }else if (0 == res.data.display) {
                     document.getElementById('article_display_'+aid+'_1619061972').style.display = "none";
                 }
             } else {
-                layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                if (!window.layer) {
+                    alert(res.msg);
+                } else {
+                    layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                }
             }
         }
     };
@@ -93,7 +119,6 @@ function ArticleBuyNow(aid){
                     area: ['500px', '202px'],
                     content: res.url
                 });
-                // window.location.href = res.url;
             } else {
                 if (res.data.url){
                     //登录
@@ -103,7 +128,11 @@ function ArticleBuyNow(aid){
                         window.location.href = res.data.url+'&referurl='+window.location.href;
                     }
                 }else{
-                    layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                    if (!window.layer) {
+                        alert(res.msg);
+                    } else {
+                        layer.alert(res.msg, {icon: 5, title: false, closeBtn: false});
+                    }
                 }
             }
         }
@@ -117,7 +146,7 @@ function PayIsRecharge(msg ,url,unified_id,unified_number,transaction_type) {
         closeBtn: 0,
         btn: ['去充值','其他方式支付'],
         cancel: function(index, layero){
-            $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
+            jQuery('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
         }
     }, function() {
         // 去充值
@@ -128,7 +157,7 @@ function PayIsRecharge(msg ,url,unified_id,unified_number,transaction_type) {
             closeBtn: 0,
             btn: ['立即支付','其他方式支付'],
             cancel: function(index, layero){
-                $('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
+                jQuery('#PayBalancePayment').prop("disabled", false).css("pointer-events", "");
             }
         }, function() {
             // 立即支付
@@ -137,12 +166,12 @@ function PayIsRecharge(msg ,url,unified_id,unified_number,transaction_type) {
         }, function(index) {
             // 选择其他方式支付
             layer.closeAll(index);
-            ArticleBuyNow(aid);
+            ArticleBuyNow(aid_1618968479);
         });
     }, function(index) {
         // 选择其他方式支付时;
         layer.closeAll(index);
-        ArticleBuyNow(aid);
+        ArticleBuyNow(aid_1618968479);
     });
 }
 // 订单轮询
@@ -153,7 +182,7 @@ function OrderPayPolling(data) {
             window.location.reload();
         });
     }
-    $.ajax({
+    jQuery.ajax({
         url: data.OrderPayPolling,
         data: {
             pay_id: data.pay_id,
@@ -166,7 +195,6 @@ function OrderPayPolling(data) {
         type:'post',
         dataType:'json',
         success:function(res){
-            console.log(res)
             if (1 == res.code) {
                 if (res.data) {
                     window.clearInterval(PayPolling);

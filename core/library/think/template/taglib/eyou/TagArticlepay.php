@@ -44,7 +44,7 @@ class TagArticlepay extends Base
             ->join('article_content b','a.aid = b.aid')
             ->where('a.aid',$aid)
             ->find();
-        $result['displayId'] = ' id="article_display_'.$aid.'_1619061972" ';
+        $result['displayId'] = ' id="article_display_'.$aid.'_1619061972" style="display:none;" ';
 
         $pay_data = Db::name('article_pay')->field('part_free,free_content')->where('aid',$aid)->find();
 
@@ -67,7 +67,6 @@ class TagArticlepay extends Base
                 }
             }
         }else{
-            $result['displayId'] = ' id="article_display_'.$aid.'_1619061972" style="display:none;" ';
             $result['content'] = $artData['content'];
         }
 
@@ -83,18 +82,19 @@ class TagArticlepay extends Base
             $result['onclick'] = ' href="javascript:void(0);" onclick="ArticleBuyNow('.$aid.');" ';//第二种弹框页支付
         }
         $version = getCmsVersion();
-        $get_content_url = url('api/Ajax/ajax_get_content');
+        $get_content_url = "{$this->root_dir}/index.php?m=api&c=Ajax&a=ajax_get_content";
         $buy_url = url('user/Article/buy');
 
         $result['hidden'] = <<<EOF
-            <script type="text/javascript">
-                var buy_url_1618968479 = '{$buy_url}';
-                var aid = '{$aid}';
-            </script>
+<script type="text/javascript">
+    var buy_url_1618968479 = '{$buy_url}';
+    var aid_1618968479 = {$aid};
+    var root_dir_1618968479 = '{$this->root_dir}';
+</script>
 <script type="text/javascript" src="{$this->root_dir}/public/static/common/js/tag_articlepay.js?v={$version}"></script>
-            <script type="text/javascript">
-                ey_ajax_get_content_1618968479({$aid},'{$get_content_url}');
-            </script>
+<script type="text/javascript">
+    ey_ajax_get_content_1618968479({$aid},'{$get_content_url}');
+</script>
 EOF;
         return $result;
     }
