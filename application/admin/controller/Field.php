@@ -470,7 +470,15 @@ class Field extends Base
                 }
                 $whereStr = implode(' AND ', $whereArr);
                 if (in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
-                    $new_dfvalue = !empty($dfvalueArr[0]) ? $dfvalueArr[0] : NULL;
+                    if (!empty($dfvalueArr[0])) {
+                        $new_dfvalue = $dfvalueArr[0];
+                        $old_dfvalue_arr = explode(',', $post['old_dfvalue']);
+                        if (!in_array($new_dfvalue, $old_dfvalue_arr)) {
+                            $new_dfvalue = NULL;
+                        }
+                    } else {
+                        $new_dfvalue = NULL;
+                    }
                 } else {
                     $new_dfvalue = '';
                 }
@@ -1024,7 +1032,15 @@ class Field extends Base
                 }
                 $whereStr = implode(' OR ', $whereArr);
                 if (in_array($post['dtype'], ['radio', 'select', 'checkbox'])) {
-                    $new_dfvalue = NULL;
+                    if (!empty($dfvalueArr[0])) {
+                        $new_dfvalue = $dfvalueArr[0];
+                        $old_dfvalue_arr = explode(',', $post['old_dfvalue']);
+                        if (!in_array($new_dfvalue, $old_dfvalue_arr)) {
+                            $new_dfvalue = NULL;
+                        }
+                    } else {
+                        $new_dfvalue = NULL;
+                    }
                 } else {
                     $new_dfvalue = '';
                 }
