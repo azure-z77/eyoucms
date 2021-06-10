@@ -153,6 +153,7 @@
     </div>
 </div>
 <script type="text/javascript">
+    var init = true;
     var parentObj = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
     $(function(){
         relation_aids();
@@ -198,48 +199,78 @@
 
     function relation_aids(aids, checked)
     {
-        var tagaids = getCookie("tagaids_1619141574");
-        if (aids) {
-            if (checked) {
-                if (tagaids.length > 0) {
-                    tagaids_new = tagaids+','+aids;
-                } else {
-                    tagaids_new = aids;
-                }
-                var tagaids_new_tmp = tagaids_new.split(',');
-                var new_arr = [];
-                for(var i = 0; i < tagaids_new_tmp.length; i++) {  
-                    var items = tagaids_new_tmp[i];
-                    //判断元素是否存在于new_arr中，如果不存在则插入到new_ar中
-                    if($.inArray(items, new_arr) == -1) {  
-                        new_arr.push(items);  
-                    }  
-                }
-                tagaids_new = new_arr.join(',');
-            } else {
-                var tagaidslist = tagaids.split(',');
-                var aidslist = aids.split(',');
-                for (var i = 0; i < aidslist.length; i++) {
-                    if (0 <= $.inArray(aidslist[i], tagaidslist)) {
-                        tagaidslist.splice($.inArray(aidslist[i], tagaidslist), 1);
+        if (init == true) {
+            layer_loading('正在加载');
+            init = false;
+        }
+        $.ajax({
+            type : 'GET',
+            url : "{:url('Tags/ajax_recordfile')}",
+            data : {opt:'get', _ajax:1},
+            dataType : 'json',
+            success : function(res){
+                layer.closeAll();
+                if (res.code == 1) {
+                    var tagaids = res.data;
+                    if (aids) {
+                        if (checked) {
+                            if (tagaids.length > 0) {
+                                tagaids_new = tagaids+','+aids;
+                            } else {
+                                tagaids_new = aids;
+                            }
+                            var tagaids_new_tmp = tagaids_new.split(',');
+                            var new_arr = [];
+                            for(var i = 0; i < tagaids_new_tmp.length; i++) {  
+                                var items = tagaids_new_tmp[i];
+                                //判断元素是否存在于new_arr中，如果不存在则插入到new_ar中
+                                if($.inArray(items, new_arr) == -1) {  
+                                    new_arr.push(items);  
+                                }  
+                            }
+                            tagaids_new = new_arr.join(',');
+                        } else {
+                            var tagaidslist = tagaids.split(',');
+                            var aidslist = aids.split(',');
+                            for (var i = 0; i < aidslist.length; i++) {
+                                if (0 <= $.inArray(aidslist[i], tagaidslist)) {
+                                    tagaidslist.splice($.inArray(aidslist[i], tagaidslist), 1);
+                                }
+                            }
+                            tagaids_new = tagaidslist.join(',');
+                        }
+                        $.ajax({
+                            type : 'POST',
+                            url : "{:url('Tags/ajax_recordfile')}",
+                            data : {opt:'set', value:tagaids_new, _ajax:1},
+                            dataType : 'json',
+                            success : function(res){
+
+                            },
+                            error: function(e){
+                                showErrorAlert(e.responseText);
+                            }
+                        });
+                    } else {
+                        tagaids_new = tagaids;
+                    }
+
+                    if (tagaids_new.length > 0) {
+                        var tagaid_arr = tagaids_new.split(',');
+                        for (var i = 0; i < tagaid_arr.length; i++) {
+                            $('#checkbox_'+tagaid_arr[i]).prop('checked','checked');
+                        }
+                        $('#relation_count').html(tagaid_arr.length);
+                    } else {
+                        $('#relation_count').html(0);
                     }
                 }
-                tagaids_new = tagaidslist.join(',');
+            },
+            error: function(e){
+                layer.closeAll();
+                showErrorAlert(e.responseText);
             }
-            setCookies("tagaids_1619141574", tagaids_new);
-        } else {
-            tagaids_new = tagaids;
-        }
-
-        if (tagaids_new.length > 0) {
-            var tagaid_arr = tagaids_new.split(',');
-            for (var i = 0; i < tagaid_arr.length; i++) {
-                $('#checkbox_'+tagaid_arr[i]).prop('checked','checked');
-            }
-            $('#relation_count').html(tagaid_arr.length);
-        } else {
-            $('#relation_count').html(0);
-        }
+        });
     }
 
     /**
@@ -248,11 +279,10 @@
      */
     function save() {
         layer_loading('正在处理');
-        var tagaids = getCookie("tagaids_1619141574");
         $.ajax({
             type : 'post',
             url : "{:url('Tags/relation_archives_save', ['tid'=>$tid])}",
-            data : {tagaids:tagaids, _ajax:1},
+            data : {_ajax:1},
             dataType : 'json',
             success : function(res){
                 layer.closeAll();

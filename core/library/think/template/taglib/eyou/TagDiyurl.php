@@ -72,7 +72,9 @@ class TagDiyurl extends Base
             }
             // 取出指定的URL
             $parseStr = !empty($urlList[$type]) ? $urlList[$type] : '';
-        } else {
+        }
+
+        if (empty($parseStr)) {
             switch ($type) {
                 case "tags":     // 标签主页
                     $parseStr = url('home/Tags/index');
@@ -101,6 +103,7 @@ class TagDiyurl extends Base
                     break;
             }
         }
+
         return $parseStr;
     }
 

@@ -136,7 +136,12 @@ class TagSpecnode extends Base
         $condition['a.status'] = 1;
         $condition['a.is_del'] = 0;
         $condition['a.lang'] = $this->home_lang;
-        $condition['a.channel'] = ['IN', config('global.allow_release_channel')];
+
+        $allow_release_channel = config('global.allow_release_channel');
+        $index = array_search(7, $allow_release_channel); // 过滤专题模型
+        unset($allow_release_channel[$index]);
+        $condition['a.channel'] = ['IN', $allow_release_channel];
+        
         /*定时文档显示插件*/
         if (is_dir('./weapp/TimingTask/')) {
             $TimingTaskRow = model('Weapp')->getWeappList('TimingTask');

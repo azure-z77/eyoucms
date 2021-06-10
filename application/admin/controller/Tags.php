@@ -454,11 +454,11 @@ class Tags extends Base
 
         // 当前页已关联的文档
         $tid = input('param.tid/d');
-        $tagaids_str = cookie("tagaids_1619141574");
+        $tagaids_str = $this->readTagaidsFile();
         if (empty($tagaids_str)) {
             $tagaids = Db::name('taglist')->where(['tid'=>$tid])->column('aid');
             $tagaids_str = implode(',', $tagaids);
-            cookie("tagaids_1619141574", $tagaids_str);
+            $this->writeTagaidsFile($tagaids_str);
         }
         $assign_data['tid'] = $tid;
 
@@ -472,6 +472,9 @@ class Tags extends Base
         if (IS_POST) {
             $tid = input('param.tid/d');
             $tagaids = input('post.tagaids/s');
+            if (empty($tagaids)) {
+                $tagaids = $this->readTagaidsFile();
+            }
             $tagaids = trim($tagaids, ',');
             $aids_new = [];
             if (!empty($tagaids)) {
@@ -517,5 +520,66 @@ class Tags extends Base
             }
             $this->error('操作失败');
         }
+    }
+
+    /**
+     * 用于Tag关联文档的逻辑
+     * @return [type] [description]
+     */
+    public function ajax_recordfile()
+    {
+        \think\Session::pause(); // 暂停session，防止session阻塞机制
+        if (IS_AJAX) {
+            $opt = input('param.opt/s');
+            $value = input('param.value/s');
+            $filename = ROOT_PATH . 'data/conf/tagaids_1619141574.txt';
+            if ('set' == $opt) {
+                $redata = $this->writeTagaidsFile($value);
+                if (true !== $redata) {
+                    $this->error($redata);
+                }
+                $this->success('写入成功！');
+            }
+            else if ('get' == $opt) {
+                $tagaids = $this->readTagaidsFile();
+                $this->success('读取成功！', null, $tagaids);
+            }
+        }
+    }
+
+    /**
+     * 读取关联tagaids文件 - 应用于tag关联文档
+     * @return [type] [description]
+     */
+    private function readTagaidsFile()
+    {
+        $tagaids = '';
+        $filename = ROOT_PATH . 'data/conf/tagaids_1619141574.txt';
+        if (file_exists($filename)) {
+            $fp      = fopen($filename, 'r');
+            $tagaids = fread($fp, filesize($filename));
+            fclose($fp);
+            $tagaids = $tagaids ? $tagaids : '';
+        }
+        return $tagaids;
+    }
+
+    /**
+     * 写入关联tagaids文件 - 应用于tag关联文档
+     * @return [type] [description]
+     */
+    private function writeTagaidsFile($value = '')
+    {
+        $filename = ROOT_PATH . 'data/conf/tagaids_1619141574.txt';
+        if (!file_exists($filename)) tp_mkdir(dirname($filename));
+        $fp = fopen($filename, "w+");
+        if (empty($fp)) {
+            return "请设置" . $filename . "的权限为744";
+        } else {
+            if (fwrite($fp, $value)) {
+                fclose($fp);
+            }
+        }
+        return true;
     }
 }

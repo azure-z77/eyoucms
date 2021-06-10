@@ -134,7 +134,7 @@ class Think
                         $web_users_tpl_theme = config('ey_config.web_users_tpl_theme');
                         $web_users_tpl_theme = !empty($web_users_tpl_theme) ? $web_users_tpl_theme : 'users';
                         if (isMobile()) {
-                            if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir)) {
+                            if (file_exists('./template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/'.$users_wap_tpl_dir.'/users_login.htm')) {
                                 !empty($users_wap_tpl_dir) && $web_users_tpl_theme .= $depr . $users_wap_tpl_dir;
                                 $path = str_replace('/mobile/', '/pc/', $path);
                             }
@@ -157,7 +157,7 @@ class Think
                             $users_wap_tpl_dir = config('ey_config.users_wap_tpl_dir');
                             $web_ask_tpl_theme = 'ask';
                             if (isMobile()) {
-                                if (file_exists('./template/'.TPL_THEME.'pc/'.$web_ask_tpl_theme.'/'.$users_wap_tpl_dir)) {
+                                if (file_exists('./template/'.TPL_THEME.'pc/'.$web_ask_tpl_theme.'/'.$users_wap_tpl_dir.'/users_login.htm')) {
                                     !empty($users_wap_tpl_dir) && $web_ask_tpl_theme .= $depr . $users_wap_tpl_dir;
                                     $path = str_replace('/mobile/', '/pc/', $path);
                                 }

@@ -588,6 +588,12 @@ function showErrorMsg(msg){
     // layer.open({content:msg,time:2000});
     layer.msg(msg, {icon: 5,time: 2000});
 }
+function showErrorAlert(msg, icon){
+    if (!icon && icon != 0) {
+        icon = 5;
+    }
+    layer.alert(msg, {icon: icon, title: false, closeBtn: false});
+}
 //关闭页面
 function CloseWebPage(){
     if (navigator.userAgent.indexOf("MSIE") > 0) {
