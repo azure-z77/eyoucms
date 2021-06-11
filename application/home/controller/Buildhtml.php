@@ -21,6 +21,7 @@ class Buildhtml extends Base
     public function _initialize()
     {
         parent::_initialize();
+        @ini_set('memory_limit','-1');
     }
 
     /*
