@@ -3,8 +3,10 @@
 <body style="overflow: auto; cursor: default; -moz-user-select: inherit;background-color:#F4F4F4; padding: 20px; ">
     <div id="append_parent"></div>
     <div id="ajaxwaitid"></div>
-    {include file="shop/left" /}
-    <div class="page" style="min-width:auto;margin-left:98px;">
+    {empty name='$oldinlet'}
+        {include file="shop/left" /}
+    {/empty}
+    <div class="page" {empty name='$oldinlet'}style="min-width:auto;margin-left:98px;"{/empty}>
     <div class="flexigrid">
         <div class="mDiv">
             
@@ -13,8 +15,9 @@
                 <div class="ftitle">
                     <div class="sDiv2">
                         <input type="text" size="30" name="keywords" value="{$Request.param.keywords}" class="qsbox" placeholder="名称搜索...">
+                        <input type="hidden" name="oldinlet" value="{$oldinlet}">
                         <input type="submit" class="btn" value="搜索">
-						<i class="fa fa-search"></i>
+                        <i class="fa fa-search"></i>
                     </div>
                 </div>
             </form>
@@ -72,7 +75,6 @@
                                 <td class="sign">
                                     <div class="tc w40"><input type="checkbox" autocomplete="off" name="ids[]" value="{$vo.list_id}"></div>
                                 </td>
-
                                 <td class="sign none">
                                     <div class="tc w10"><input type="hidden" name="list_id[]" value="{$vo.list_id}"></div>
                                 </td>
@@ -115,7 +117,7 @@
                                              <a href="javascript:void(0);" data-url="{:url('ShopProduct/attrlist_edit',array('list_id'=>$vo['list_id']))}" class="btn blue" onclick="AttrBbuteEdit(this)">编辑</a>
                                         {/eq}
                                         {eq name="$Think.const.CONTROLLER_NAME.'@attrlist_del'|is_check_access" value="1"}
-										<i></i>
+                                            <i></i>
                                             <a class="btn red"  href="javascript:void(0);" data-url="{:url('ShopProduct/attrlist_del')}" data-id="{$vo.list_id}" onclick="DelFind(this);">删除</a>
                                         {/eq}
                                     </div>
@@ -145,6 +147,7 @@
                 <div class="fbutton checkboxall">
                     <input type="checkbox" autocomplete="off" class="checkAll">
                 </div>
+
                 {eq name="$Think.const.CONTROLLER_NAME.'@attrlist_del'|is_check_access" value="1"}
                     <div class="fbutton">
                         <a onclick="DelBatch(this, 'ids');" data-url="{:url('ShopProduct/attrlist_del')}" class="layui-btn layui-btn-primary">
@@ -161,7 +164,7 @@
                     </div>
 
                     <div class="fbutton">
-                        <a href="javascript:void(0);" data-url="{:url('ShopProduct/attrlist_save', ['_ajax'=>1])}" onclick="AddAttrListData(this);" class="layui-btn layui-btn-primary">
+                        <a href="javascript:void(0);" data-url="{:url('ShopProduct/attrlist_save', ['oldinlet'=>$oldinlet, '_ajax'=>1])}" onclick="AddAttrListData(this);" class="layui-btn layui-btn-primary">
                             <span class="">保存</span>
                         </a>
                     </div>
@@ -199,6 +202,13 @@
             $('#searchForm').submit();
         });
     });
+
+    function languageTigs(obj)
+    {
+        var msg = $(obj).attr('title');
+        layer.alert(msg, {icon: 4, title: false});
+        return false;
+    }
 
     // 提交
     function AddAttrListData(obj){
