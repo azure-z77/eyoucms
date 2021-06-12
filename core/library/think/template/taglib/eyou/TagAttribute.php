@@ -16,7 +16,7 @@ namespace think\template\taglib\eyou;
 use think\Db;
 
 /**
- * 栏目属性
+ * 产品参数
  */
 class TagAttribute extends Base
 {
@@ -47,16 +47,16 @@ class TagAttribute extends Base
 
             // 新版参数
             $where = [
+                'b.aid'     => $aid
                 'a.list_id' => $attrid,
                 'a.status'  => 1,
-                'b.aid'     => $aid
             ];
             $result = M('shop_product_attribute')
                 ->alias('a')
                 ->field('a.attr_name as name, b.attr_value as value')
                 ->join('__SHOP_PRODUCT_ATTR__ b', 'a.attr_id = b.attr_id', 'LEFT')
                 ->where($where)
-                ->order('sort_order asc')
+                ->order('a.sort_order asc, a.attr_id asc')
                 ->select();
         } else {
             // 旧版参数

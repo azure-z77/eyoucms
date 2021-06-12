@@ -171,6 +171,13 @@ class Language extends Model
         }
         /*--end*/
 
+        /*复制新产品参数分组表以及新产品参数表数据*/
+        $syn_status = $this->syn_shop_product_attrlist($mark, $post['copy_lang']);
+        if (false === $syn_status) {
+            return $syn_status;
+        }
+        /*--end*/
+
         /*复制友情链接分组表以及友情链接表数据*/
         $syn_status = $this->syn_links_group($mark, $post['copy_lang']);
         if (false === $syn_status) {
@@ -330,6 +337,10 @@ class Language extends Model
             Db::name('single_content')->where("aid",'IN',$aids)->delete(); // 单页内容表
             /*同步删除产品属性表数据*/
             Db::name('product_attribute')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除新产品参数分组表数据*/
+            Db::name('shop_product_attrlist')->where("lang",'IN',$lang_list)->delete();
+            /*同步删除新产品参数表数据*/
+            Db::name('shop_product_attribute')->where("lang",'IN',$lang_list)->delete();
             /*同步删除留言属性表数据*/
             Db::name('guestbook_attribute')->where("lang",'IN',$lang_list)->delete();
             /*同步删除广告表数据*/
@@ -607,6 +618,112 @@ class Language extends Model
                 return false;
             }
         }
+
+        return true;
+    }
+
+    /**
+     * 创建语言时，同步新产品参数分组以及新产品参数数据，并进行多语言关联绑定
+     *
+     * @param string $mark 新增语言
+     * @param string $copy_lang 复制语言
+     */
+    private function syn_shop_product_attrlist($mark = '', $copy_lang = 'cn')
+    {
+        $attrlist_db = Db::name('shop_product_attrlist');
+
+        /*删除新增语言之前的多余数据*/
+        $count = $attrlist_db->where('lang',$mark)->count();
+        if (!empty($count)) {
+            $attrlist_db->where("lang",$mark)->delete();
+        }
+        /*--end*/
+
+        // 新产品参数分组列表
+        $bindAttrlistArr = []; // 源新产品参数分组ID与目标新产品参数分组ID的对应数组
+        $attrlistRow = $attrlist_db->where([
+            'lang'=>$copy_lang
+            ])->order('list_id asc')
+            ->select();
+
+        if (empty($mark) || empty($attrlistRow)) {
+            return -1;
+        }
+
+        /*复制新产品参数表数据*/
+        $bindAttributeArr = []; // 源新产品参数ID与目标新产品参数ID的对应数组
+        $attribute_db = Db::name('shop_product_attribute');
+        $attributeRow = $attribute_db->where('lang',$copy_lang)
+            ->order('attr_id asc')
+            ->select();
+        $attributeRow = group_same_key($attributeRow, 'list_id');
+        /*--end*/
+
+        /*复制新产品参数分组表数据*/
+        foreach ($attrlistRow as $key => $val) {
+            $data = $val;
+            unset($data['list_id']);
+            $data['lang'] = $mark;
+            // $data['list_name'] = $mark.$data['list_name']; // 临时测试
+            $list_id = $attrlist_db->insertGetId($data);
+            if (empty($list_id)) {
+                return false; // 同步失败
+            }
+            $bindAttrlistArr[$val['list_id']] = $list_id;
+            /*复制新产品参数表数据*/
+            if (!empty($attributeRow[$val['list_id']])) {
+                foreach ($attributeRow[$val['list_id']] as $k2 => $v2) {
+                    $attributeArr = $v2;
+                    $attributeArr['list_id'] = $list_id;
+                    $attributeArr['lang'] = $mark;
+                    unset($attributeArr['attr_id']);
+                    // $attributeArr['attr_name'] = $mark.$attributeArr['attr_name']; // 临时测试
+                    $new_attr_id = $attribute_db->insertGetId($attributeArr);
+                    if (empty($new_attr_id)) {
+                        return false; // 同步失败
+                    }
+                    $bindAttributeArr[$v2['attr_id']] = $new_attr_id;
+                }
+            }
+            /*--end*/
+        }
+        /*--end*/
+
+        // $langAttrData = [];
+
+        // /*新增新产品参数分组ID与源新产品参数分组ID的绑定*/
+        // foreach ($bindAttrlistArr as $key => $val) {
+        //     $langAttrData[] = [
+        //         'attr_name' => 'spattrlist_'.$key,
+        //         'attr_value'    => $val,
+        //         'lang'  => $mark,
+        //         'attr_group' => 'shop_product_attrlist',
+        //         'add_time'  => getTime(),
+        //         'update_time'  => getTime(),
+        //     ];
+        // }
+        // /*--end*/
+        // /*新增新产品参数ID与源新产品参数ID的绑定*/
+        // foreach ($bindAttributeArr as $key => $val) {
+        //     $langAttrData[] = [
+        //         'attr_name' => 'spattribute_'.$key,
+        //         'attr_value'    => $val,
+        //         'lang'  => $mark,
+        //         'attr_group' => 'shop_product_attribute',
+        //         'add_time'  => getTime(),
+        //         'update_time'  => getTime(),
+        //     ];
+        // }
+        // /*--end*/
+
+        // // 批量存储
+        // if (!empty($langAttrData)) {
+        //     $insertObject = model('LanguageAttr')->saveAll($langAttrData);
+        //     $insertNum = count($insertObject);
+        //     if ($insertNum != count($langAttrData)) {
+        //         return false;
+        //     }
+        // }
 
         return true;
     }

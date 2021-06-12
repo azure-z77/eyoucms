@@ -851,5 +851,52 @@ EOF;
             tpCache('system', ['system_use_language'=>$system_use_language]);
             tpCache('syn', ['admin_logic_1623133485'=>1], 'cn');
         }
+
+        // 标记用户是否使用旧产品参数
+        $syn_admin_logic_1623377269 = tpSetting('syn.syn_admin_logic_1623377269', [], 'cn');
+        if (empty($syn_admin_logic_1623377269)) {
+            $aids = Db::name('product_attr')->where(['product_attr_id'=>['GT',0]])->column('aid');
+            if (empty($aids)) {
+                $system_old_product_attr = 0;
+            } else {
+                $count = Db::name('archives')->where(['aid'=>['IN', $aids]])->count();
+                if (empty($count)) { // 这里会误伤正在新增旧产品参数，还没有发布文档的用户
+                    $system_old_product_attr = 0;
+                    // Db::name('product_attr')->where(['product_attr_id'=>['GT', 0]])->delete();
+                    // Db::name('product_attribute')->where(['attr_id'=>['GT', 0]])->delete();
+                } else {
+                    $system_old_product_attr = 1;
+                }
+            }
+            tpSetting('system', ['system_old_product_attr'=>$system_old_product_attr], 'cn');
+
+            // 新参数属性表加多语言字段
+            schemaTable('shop_product_attribute');
+            $getTableInfo = Db::name('shop_product_attribute')->getTableFields();
+            if (!in_array('lang', $getTableInfo)) {
+                $Prefix = config('database.prefix');
+                $SqlCacheTableSql = "ALTER TABLE `{$Prefix}shop_product_attribute` ADD COLUMN `lang`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'cn' COMMENT '语言标识' AFTER `sort_order`";
+                $r = Db::execute($SqlCacheTableSql);
+                if ($r !== false) {
+                    schemaTable('shop_product_attribute');
+                    Db::name('shop_product_attribute')->where(['attr_id'=>['GT',0]])->update(['lang'=>get_main_lang(), 'update_time'=>getTime()]);
+                }
+            }
+
+            // 新参数分组表加多语言字段
+            schemaTable('shop_product_attrlist');
+            $getTableInfo = Db::name('shop_product_attrlist')->getTableFields();
+            if (!in_array('lang', $getTableInfo)) {
+                $Prefix = config('database.prefix');
+                $SqlCacheTableSql = "ALTER TABLE `{$Prefix}shop_product_attrlist` ADD COLUMN `lang`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'cn' COMMENT '语言标识' AFTER `sort_order`;";
+                $r = Db::execute($SqlCacheTableSql);
+                if ($r !== false) {
+                    schemaTable('shop_product_attrlist');
+                    Db::name('shop_product_attrlist')->where(['list_id'=>['GT',0]])->update(['lang'=>get_main_lang(), 'update_time'=>getTime()]);
+                }
+            }
+
+            tpSetting('syn', ['syn_admin_logic_1623377269'=>1], 'cn');
+        }
     }
 }

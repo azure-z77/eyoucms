@@ -1436,7 +1436,7 @@ class Shop extends UserBase
             ->field('a.attr_name as name, b.attr_value as value')
             ->join('__SHOP_PRODUCT_ATTR__ b', 'a.attr_id = b.attr_id', 'LEFT')
             ->where($where)
-            ->order('sort_order asc')
+            ->order('a.sort_order asc, a.attr_id asc')
             ->select();
         foreach ($attrData as $val) {
             $attr_value .= $val['name'] . '：' . $val['value'] . '<br/>';

@@ -507,8 +507,8 @@ class Arctype extends Base
         $assign_data['nid'] = 'arctype';
         /*--end*/
 
-        /*是否有旧参数存在，只要有旧参数，就可以启用旧参数功能*/
-        $assign_data['is_old_product_attr'] = Db::name("product_attr")->where('product_attr_id', 'gt', 0)->count();
+        /*之前标记旧参数可用，就开放入口*/
+        $assign_data['is_old_product_attr'] = tpSetting('system.system_old_product_attr', [], 'cn');
         /*end*/
 
         $this->assign($assign_data);

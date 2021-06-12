@@ -959,6 +959,7 @@ class Ajax extends Base
                         'update_time' => getTime(),
                     ]);
                     if (!empty($r)) {
+                        Db::name('archives')->where('aid', $aid)->setInc('collection');
                         $this->success('收藏成功', null, ['opt'=>'add']);
                     }
                 }
@@ -967,6 +968,7 @@ class Ajax extends Base
                     'users_id'  => $users_id,
                     'aid' => $aid,
                 ])->delete();
+                Db::name('archives')->where('aid', $aid)->setDec('collection');
                 $this->success('取消成功', null, ['opt'=>'cancel']);
             }
             $this->error('收藏失败', null);

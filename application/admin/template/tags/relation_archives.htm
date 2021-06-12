@@ -51,6 +51,9 @@
                         <th abbr="article_time" axis="col6" class="w150">
                             <div class="tc">所属栏目</div>
                         </th>
+                        <th abbr="article_time" axis="col6" class="w150">
+                            <div class="tc">所属模型</div>
+                        </th>
                         <th abbr="article_time" axis="col6" class="w80">
                             <div class="tc">浏览量</div>
                         </th>
@@ -99,6 +102,9 @@
                             </td>
                             <td class="">
                                 <div class="w150 tc"><a href="{:url('Tags/relation_archives', array('tid'=>$tid,'typeid'=>$vo['typeid']))}">{$vo.typename|default='<i class="red">数据出错！</i>'}</a></div>
+                            </td>
+                            <td class="">
+                                <div class="w150 tc">{$channeltype_list[$vo['current_channel']]['title']|default=''}</div>
                             </td>
                             <td>
                                 <div class="tc w80">

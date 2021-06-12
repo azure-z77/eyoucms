@@ -19,9 +19,7 @@
             
             <ul class="tab-base nc-row">
                 <li><a href="javascript:void(0);" data-index='1' class="tab current"><span>常规选项</span></a></li>
-                {eq name='$is_showcanshu' value='1'}
-                <li><a href="javascript:void(0);" data-index='2' class="tab"><span>参数选项</span></a></li>
-                {/eq}
+                <li><a href="javascript:void(0);" data-index='2' class="tab"><span>产品参数</span></a></li>
                 <li><a href="javascript:void(0);" data-index='3' class="tab"><span>SEO选项</span></a></li>
                 <li><a href="javascript:void(0);" data-index='4' class="tab"><span>其他选项</span></a></li>
             </ul>
@@ -824,6 +822,7 @@
                                         <option value="{$vo.list_id}">{$vo.list_name}</option>
                                     {/volist}
                                 </select>
+                                &nbsp;<a href="JavaScript:void(0);" onclick="attrlistLayer(this)" style="font-size: 12px;padding-left: 10px;">[管理]</a>
                             </div>
                             <div id='AttrSelectName' style="margin: 1px;"></div>
                         </div>
@@ -836,21 +835,61 @@
                     function AttrListSelect(obj) {
                         var aid = '';
                         var list_id = $(obj).val();
-                        if (parseInt(list_id) < 1) return false;
+                        if (parseInt(list_id) < 1) {
+                            $("#AttrSelectName").empty();
+                            return false;
+                        }
                         $('#AttrSelectName').html('<div style="color: red;font-size: 12px;text-align: center;">加载中……</div>');
                         // 商品栏目切换时 ajax 调用  返回不同的属性输入框     
                         $.ajax({
                             type:'GET',
                             data:{aid:aid, list_id:list_id, _ajax:1}, 
                             url:"{:url('Product/ajax_get_shop_attr_input')}",
-                            success:function(data) {
-                                $("#AttrSelectName").empty().append(data);
+                            success:function(res) {
+                                $("#AttrSelectName").empty().append(res);
                             },
                             error: function(e){
                                 layer.closeAll();
                                 showErrorAlert(e.responseText);
                             }
                         });
+                    }
+
+                    function attrlistLayer(obj)
+                    {
+                        var url = "{:url('ShopProduct/attrlist_index', ['oldinlet'=>1])}";
+                        //iframe窗
+                        layer.open({
+                            type: 2,
+                            title: '产品参数管理',
+                            fixed: true, //不固定
+                            shadeClose: false,
+                            shade: 0.3,
+                            area: ['100%', '100%'],
+                            content: url,
+                            end: function(index){
+                                var list_id = $('#attrlist_id').val();
+                                $.ajax({
+                                    url:"{:url('Product/ajax_get_shop_attrlist')}",
+                                    type:'GET',
+                                    data:{list_id:list_id, _ajax:1},
+                                    success:function(res) {
+                                        var html = "<option value='0'>请选择参数</option>";
+                                        html += res;
+                                        $("#attrlist_id").empty().append(html);
+
+                                        // 删掉选中的参数之后，默认不选中，参数属性同时要清空掉
+                                        if ($('#attrlist_id').val() < 1) {
+                                            $("#AttrSelectName").empty();
+                                        }
+                                    },
+                                    error: function(e){
+                                        showErrorAlert(e.responseText);
+                                    }
+                                });
+                            }
+                        });
+                        layer.full(iframes);
                     }
                 </script>
             {/notempty}

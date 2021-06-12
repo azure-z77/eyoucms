@@ -14,7 +14,7 @@
 namespace think\template\taglib\eyou;
 
 /**
- * 栏目属性值
+ * 产品参数
  */
 class TagAttr extends Base
 {

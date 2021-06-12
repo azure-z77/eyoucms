@@ -451,6 +451,10 @@ class Tags extends Base
         }
         $assign_data['arctype_html'] = allow_release_arctype($typeid, $allow_release_channel);
         /*--end*/
+        
+        // 模型列表
+        $channeltype_list = getChanneltypeList();
+        $this->assign('channeltype_list', $channeltype_list);
 
         // 当前页已关联的文档
         $tid = input('param.tid/d');

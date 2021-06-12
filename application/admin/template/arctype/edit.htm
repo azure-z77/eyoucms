@@ -19,8 +19,12 @@
             <ul class="tab-base nc-row">
                 <li><a href="javascript:void(0);" data-index='1' class="tab {eq name='$tab' value='1'}current{/eq}"><span>常规选项</span></a></li>
                 <li><a href="javascript:void(0);" data-index='2' class="tab {eq name='$tab' value='2'}current{/eq}"><span>高级选项</span></a></li>
-                {if condition="2 == $field['current_channel'] && 0 < $is_old_product_attr"}
-                    <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '产品参数列表', '100%', '100%');"><span>参数列表</span></a></li>
+                {if condition="2 == $field['current_channel']"}
+                    {notempty name='$is_old_product_attr'}
+                        <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '产品参数列表', '100%', '100%');"><span>产品参数</span></a></li>
+                    {else /}
+                        <li><a href="javascript:void(0);" data-href="{:url('ShopProduct/attrlist_index', ['oldinlet'=>1])}" onclick="openFullframe(this, '产品参数列表', '100%', '100%');"><span>产品参数</span></a></li>
+                    {/notempty}
                 {elseif condition="8 == $field['current_channel']"}
                     <li><a href="javascript:void(0);" data-href="{:url($channeltype_list[$field['current_channel']]['ctl_name'].'/attribute_index', ['typeid'=>$Request.param.id])}" onclick="openFullframe(this, '留言属性列表', '100%', '100%');"><span>属性列表</span></a></li>
                 {/if}

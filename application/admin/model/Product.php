@@ -120,6 +120,8 @@ class Product extends Model
         Db::name('product_content')->where($where)->delete();
         // 同时删除属性
         Db::name('product_attr')->where($where)->delete();
+        // 同时删除产品属性
+        Db::name('shop_product_attr')->where($where)->delete();
         // 同时删除图片
         $result = Db::name('product_img')->field('image_url')->where($where)->select();
         if (!empty($result)) {
