@@ -689,42 +689,6 @@ class Language extends Model
         }
         /*--end*/
 
-        // $langAttrData = [];
-
-        // /*新增新产品参数分组ID与源新产品参数分组ID的绑定*/
-        // foreach ($bindAttrlistArr as $key => $val) {
-        //     $langAttrData[] = [
-        //         'attr_name' => 'spattrlist_'.$key,
-        //         'attr_value'    => $val,
-        //         'lang'  => $mark,
-        //         'attr_group' => 'shop_product_attrlist',
-        //         'add_time'  => getTime(),
-        //         'update_time'  => getTime(),
-        //     ];
-        // }
-        // /*--end*/
-        // /*新增新产品参数ID与源新产品参数ID的绑定*/
-        // foreach ($bindAttributeArr as $key => $val) {
-        //     $langAttrData[] = [
-        //         'attr_name' => 'spattribute_'.$key,
-        //         'attr_value'    => $val,
-        //         'lang'  => $mark,
-        //         'attr_group' => 'shop_product_attribute',
-        //         'add_time'  => getTime(),
-        //         'update_time'  => getTime(),
-        //     ];
-        // }
-        // /*--end*/
-
-        // // 批量存储
-        // if (!empty($langAttrData)) {
-        //     $insertObject = model('LanguageAttr')->saveAll($langAttrData);
-        //     $insertNum = count($insertObject);
-        //     if ($insertNum != count($langAttrData)) {
-        //         return false;
-        //     }
-        // }
-
         return true;
     }
 
