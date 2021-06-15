@@ -47,7 +47,7 @@ class TagAttribute extends Base
 
             // 新版参数
             $where = [
-                'b.aid'     => $aid
+                'b.aid'     => $aid,
                 'a.list_id' => $attrid,
                 'a.status'  => 1,
             ];
