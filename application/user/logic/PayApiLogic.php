@@ -221,6 +221,7 @@ class PayApiLogic extends Model
                     $update['wechat_pay_type'] = $wechat_pay_type;
                 }
                 $this->shop_order_db->where($where)->update($update);
+                $OrderData['pay_name'] = $post['pay_mark'];
             }
         } else if (3 == $post['transaction_type']) {
             // 获取会员升级订单
@@ -552,7 +553,7 @@ class PayApiLogic extends Model
         } else if (2 == $Post['transaction_type']) {
             // 付款成功后，订单并未修改状态时，修改订单状态并返回
             if (empty($Order['order_status'])) {
-                $returnData = pay_success_logic($this->users_id, $Order['order_code'], $PayDetails, 'wechat');
+                $returnData = pay_success_logic($this->users_id, $Order['order_code'], $PayDetails, $Order['pay_name']);
                 if (is_array($returnData)) {
                     if (1 == $returnData['code']) {
                         $this->success($returnData['msg'], $returnData['url'], $returnData['data']);
