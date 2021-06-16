@@ -1,7 +1,7 @@
 # 易优CMS
 
 #### 新产品推荐（小程序开源分享）
-坚决做一款小程序标签化API接口，小白也能快速搭建前端+后台完整带数据的小程序CMS。https://gitee.com/weng_xianhu/eyminicms
+坚决做一款小程序标签化API接口，小白也能快速搭建前端+后台完整带数据的小程序CMS。https://gitee.com/weng_xianhu/eymini
 
 ```
 如果对您有帮助，您可以点右上角 “Star” 收藏一下 ，获取第一时间更新，谢谢！
