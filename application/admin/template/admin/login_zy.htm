@@ -13,7 +13,7 @@
         <link href="__SKIN__/font/css/iconfont.css" rel="stylesheet" type="text/css" />
         <link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
         <style type="text/css">
-              body {background:url({$global.web_loginbgimg|handle_subdir_pic=###}?t={php}echo getTime();{/php}) center center no-repeat;}
+              body {background:url('{$global.web_loginbgimg|handle_subdir_pic=###|default='__SKIN__/loginbg/login-bg-3.png'}') center center no-repeat;}
               
               .input-item{position: relative;}
               .input-item i{position: absolute;font-size: 20px;color: #999;top: 12px;left: 10px;}

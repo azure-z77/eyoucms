@@ -12,7 +12,7 @@
         <link href="__SKIN__/css/login.css" rel="stylesheet" type="text/css" />
         <link href="__SKIN__/css/diy_style.css?v={$version}" rel="stylesheet" type="text/css" />
         <style type="text/css">
-            body {background:#6f8489 url({$global.web_loginbgimg|handle_subdir_pic=###}?t={php}echo getTime();{/php}) left top no-repeat;}
+            body {background:#6f8489 url('{$global.web_loginbgimg|handle_subdir_pic=###|default='__SKIN__/loginbg/login-bg-1.png'}') left top no-repeat;}
         </style>
         <script type="text/javascript" src="__SKIN__/js/jquery.js"></script>
         <script type="text/javascript" src="__SKIN__/js/jquery.SuperSlide.2.1.2.js"></script>
