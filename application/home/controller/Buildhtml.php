@@ -296,20 +296,13 @@ class Buildhtml extends Base
             $result['arcurl'] = $result['pageurl'] = arcurl('home/View/index', $result, true, true);
         }
         /*--end*/
-
-        // seo
-        $result['seo_title']       = set_arcseotitle($result['title'], $result['seo_title'], $result['typename']);
+        
+        $result['seo_title']       = set_arcseotitle($result['title'], $result['seo_title'], $result['typename'], $result['typeid']);
         $result['seo_description'] = @msubstr(checkStrHtml($result['seo_description']), 0, $arc_seo_description_length, false);
-
-        /*支持子目录*/
-        $result['litpic'] = handle_subdir_pic($result['litpic']);
-        /*--end*/
-
+        $result['tags'] = !empty($result['tags']['tag_arr']) ? $result['tags']['tag_arr'] : '';
+        $result['litpic'] = handle_subdir_pic($result['litpic']); // 支持子目录
         $result = view_logic($aid, $result['channel'], $result, $allAttrInfo); // 模型对应逻辑
-
-        /*自定义字段的数据格式处理*/
-        $result = $this->fieldLogic->getChannelFieldList($result, $result['channel']);
-        /*--end*/
+        $result = $this->fieldLogic->getChannelFieldList($result, $result['channel']); // 自定义字段的数据格式处理
 
         $eyou       = array(
             'type'  => $arctypeInfo,
@@ -700,7 +693,10 @@ class Buildhtml extends Base
         /*--end*/
 
         // seo
-        $result['seo_title'] = set_typeseotitle($result['typename'], $result['seo_title']);
+        if (!isset($result['seo_title_tmp'])) {
+            $result['seo_title_tmp'] = $result['seo_title'];
+        }
+        $result['seo_title'] = set_typeseotitle($result['typename'], $result['seo_title_tmp']);
 
         /*获取当前页面URL*/
         $result['pageurl'] = $result['typeurl'];

@@ -46,8 +46,12 @@ if (!function_exists('adminLog'))
         M('admin_log')->add($add);
         
         // 只保留最近一个月的操作日志
-        $ajaxLogic = new \app\admin\logic\AjaxLogic;
-        $ajaxLogic->del_adminlog();
+        try {
+            $ajaxLogic = new \app\admin\logic\AjaxLogic;
+            $ajaxLogic->del_adminlog();
+        } catch (\Exception $e) {
+            
+        }
     }
 }
 
@@ -1485,7 +1489,9 @@ if (!function_exists('downloadExcel')) {
         header('Pragma:public');
         echo '<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . $strTable . '</html>';
     }
+}
 
+if (!function_exists('check_single_uiset')) {
     /**
      * 检测指定单页模板是否支持可视化
      */

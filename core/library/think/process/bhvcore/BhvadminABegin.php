@@ -47,7 +47,9 @@ class BhvadminABegin {
             }
             $this->checksp();
         } else {
-            $this->checkspview();
+            if (!preg_match('/^attrlist_/i', self::$actionName) && !preg_match('/^attribute_/i', self::$actionName)) {
+                $this->checkspview();
+            }
             $this->ojbkCJ();
         }
     }

@@ -75,7 +75,7 @@ class TagType extends Base
             $addfields = str_replace('，', ',', $addfields); // 替换中文逗号
             $addfields = trim($addfields, ',');
             $rowExt = Db::name('single_content')->field($addfields)->where('typeid', $result['id'])->find();
-            $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $result['current_channel']);
+            $rowExt = $this->fieldLogic->getChannelFieldList($rowExt, $result['current_channel'], false, true);
             is_array($rowExt) && $result = array_merge($result, $rowExt);
         }
         /*--end*/

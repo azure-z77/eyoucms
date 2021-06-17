@@ -29,7 +29,7 @@ class FieldLogic extends Model
      * @param array $batch 是否批量列表
      * @author 小虎哥 by 2018-7-25
      */
-    public function getChannelFieldList($data, $channel_id = '', $batch = false)
+    public function getChannelFieldList($data, $channel_id = '', $batch = false, $is_minipro = false)
     {
         if (!empty($data) && !empty($channel_id)) {
             /*获取模型对应的附加表字段信息*/
@@ -38,7 +38,7 @@ class FieldLogic extends Model
             );
             $fieldInfo = model('Channelfield')->getListByWhere($map, '*', 'name');
             /*--end*/
-            $data = $this->handleAddonFieldList($data, $fieldInfo, $batch);
+            $data = $this->handleAddonFieldList($data, $fieldInfo, $batch, $is_minipro);
         } else {
             $data = array();
         }
@@ -77,7 +77,7 @@ class FieldLogic extends Model
      * @param array $batch 是否批量列表
      * @author 小虎哥 by 2018-7-25
      */
-    public function handleAddonFieldList($data, $fieldInfo, $batch = false)
+    public function handleAddonFieldList($data, $fieldInfo, $batch = false, $is_minipro = false)
     {
         if (false !== $batch) {
             return $this->handleBatchAddonFieldList($data, $fieldInfo);
@@ -199,6 +199,12 @@ class FieldLogic extends Model
                         /*支持子目录*/
                         $val = handle_subdir_pic($val, 'html');
                         /*--end*/
+
+                        if (true === $is_minipro) {
+                            $baseTag = new \think\template\taglib\api\Base;
+                            $val = $baseTag->html_httpimgurl($val);
+                        }
+
                         break;
                     }
 

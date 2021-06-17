@@ -37,7 +37,7 @@ class Api extends Base
         $args = [$aid, $users];
         $cacheKey = "api-model-v1-Api-getArchivesView-".json_encode($args);
         $result = cache($cacheKey);
-        if (true || empty($result)) {
+        if (empty($result)) {
             $detail = $this->getViewInfo($aid, $users);
             if (!empty($detail)) {
                 if (0 <= $detail['arcrank']) { // 待审核稿件
