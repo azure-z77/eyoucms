@@ -203,7 +203,7 @@ class Article extends Base
             $post['tags'] = implode(',', $post['tags']);
 
             $content = input('post.addonFieldExt.content', '', null);
-            if (!empty($post['users_price'])) {
+            if (!empty($post['users_price']) && 0 < $post['users_price']) {
                 $content = input('post.free_content', '', null);
             }
 
@@ -303,7 +303,7 @@ class Article extends Base
             $aid = Db::name('archives')->insertGetId($data);
             if (!empty($aid)) {
                 $_POST['aid'] = $aid;
-                if (!empty($post['users_price'])) {
+                if (!empty($post['users_price']) && 0 < $post['users_price']) {
                     if (empty($post['size'])) {$post['size'] = 1;}
                     $free_content = $post['free_content'];
                     if (2 == $post['part_free']){
@@ -410,7 +410,7 @@ class Article extends Base
 
             $typeid = input('post.typeid/d', 0);
             $content = input('post.addonFieldExt.content', '', null);
-            if (!empty($post['users_price'])) {
+            if (!empty($post['users_price']) && 0 < $post['users_price']) {
                 $content = input('post.free_content', '', null);
             }
 
@@ -512,7 +512,7 @@ class Article extends Base
             $data = array_merge($post, $newData);
             $r = Db::name('archives')->where(['aid' => $data['aid'], 'lang'  => $this->admin_lang])->update($data);
             if (!empty($r)) {
-                if (!empty($post['users_price'])) {
+                if (!empty($post['users_price']) && 0 < $post['users_price']) {
                     if (empty($post['size'])) {$post['size'] = 1;}
                     $free_content = $post['free_content'];
                     if (2 == $post['part_free']){
