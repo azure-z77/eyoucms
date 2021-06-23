@@ -465,13 +465,6 @@ class UsersRelease extends Model
                     {
                         if (isset($addonRow[$val['name']])) {
                             $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
-                            if (is_http_url($val['dfvalue'])){
-                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
-                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
-                                }
-                            }
                         }
                         break;
                     }
@@ -479,13 +472,6 @@ class UsersRelease extends Model
                     {
                         if (isset($addonRow[$val['name']])) {
                             $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']]);
-                            if (is_http_url($val['dfvalue'])){
-                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
-                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
-                                }
-                            }
                         }
                         $ext = tpCache('basic.file_type');
                         $val['ext'] = !empty($ext) ? $ext : "zip|gz|rar|iso|doc|xls|ppt|wps";
@@ -496,13 +482,6 @@ class UsersRelease extends Model
                     {
                         if (isset($addonRow[$val['name']])) {
                             $val['dfvalue'] = handle_subdir_pic($addonRow[$val['name']],'media');
-                            if (is_http_url($val['dfvalue'])){
-                                if (substr($val['dfvalue'], 0, strlen('http:')) === 'http:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('http:'));
-                                }elseif (substr($val['dfvalue'], 0, strlen('https:')) === 'https:'){
-                                    $val['dfvalue'] = substr($val['dfvalue'],strlen('https:'));
-                                }
-                            }
                         }
                         $val['upload_flag'] = 'local';
                         $WeappConfig = Db::name('weapp')->field('code, status')->where('code', 'IN', ['Qiniuyun', 'AliyunOss', 'Cos'])->where('status',1)->select();
@@ -529,13 +508,6 @@ class UsersRelease extends Model
                             //支持子目录
                             foreach ($eyou_imgupload_list as $k1 => $v1) {
                                 $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
-                                if (is_http_url($eyou_imgupload_list[$k1])){
-                                    if (substr($eyou_imgupload_list[$k1], 0, strlen('http:')) === 'http:'){
-                                        $eyou_imgupload_list[$k1] = substr($eyou_imgupload_list[$k1],strlen('http:'));
-                                    }elseif (substr($eyou_imgupload_list[$k1], 0, strlen('https:')) === 'https:'){
-                                        $eyou_imgupload_list[$k1] = substr($eyou_imgupload_list[$k1],strlen('https:'));
-                                    }
-                                }
                             }
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
                         }

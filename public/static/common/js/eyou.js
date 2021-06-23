@@ -277,13 +277,9 @@ jQuery(function($){
             area: ['400px', '280px'],
             content: __root_dir__+'/index.php?m=api&c=Uiset&a=upload&id='+e_id+'&page='+e_page+'&urltypeid='+__urltypeid__+'&urlaid='+__urlaid__+'&v='+v+'&lang='+__lang__,
             success: function(layero, index){
-                // layer.iframeAuto(index);
                 var body = layer.getChildFrame('body', index);
                 body.find('input[name=oldhtml]').val(oldhtml);
-                body.find('a.imgsrc').attr('href',imgsrc);
-                body.find('a.imgsrc img').attr('src',imgsrc);
-                // var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                // console.log(body.html()) //得到iframe页的body内容
+                body.find('.imgsrc img').attr('src',imgsrc);
             }
         });
     }
@@ -316,12 +312,8 @@ jQuery(function($){
             area: ['400px', '280px'],
             content: __root_dir__+'/index.php?m=api&c=Uiset&a=background&id='+e_id+'&page='+e_page+'&urltypeid='+__urltypeid__+'&urlaid='+__urlaid__+'&v='+v+'&lang='+__lang__,
             success: function(layero, index){
-                // layer.iframeAuto(index);
                 var body = layer.getChildFrame('body', index);
-                body.find('a.imgsrc').attr('href',imgsrc);
-                body.find('a.imgsrc img').attr('src',imgsrc);
-                // var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                // console.log(body.html()) //得到iframe页的body内容
+                body.find('.imgsrc img').attr('src',imgsrc);
             }
         });
     }

@@ -438,8 +438,6 @@
                                     $('#{$vo.fieldArr}_{$vo.name|default=\'\'}_title_upload_media').text('上传文件');
                                 }, 2000);
                                 var video_url = res1.data.domain + "/" + res2.key;
-                                video_url = video_url.replace("http://", "//");
-                                video_url = video_url.replace("https://", "//");
                                 $("#{$vo.fieldArr}_{$vo.name|default=''}").val(video_url);
                                 $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").show();
                                 $("#media_a_{$vo.fieldArr}_{$vo.name|default=''}").attr('href',video_url);

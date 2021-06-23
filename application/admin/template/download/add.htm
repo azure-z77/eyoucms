@@ -616,8 +616,6 @@
                                 },
                                 success: function (res2) {
                                     var video_url = res1.data.domain + "/" + res2.key;
-                                    video_url = video_url.replace("http://", "//");
-                                    video_url = video_url.replace("https://", "//");
                                     var html = '';
                                     html += '<input type="hidden" name="fileupload[file_url][]" value="'+ video_url +'">';
                                     html += '<input type="hidden" name="fileupload[file_mime][]" value="'+ file_mime +'">';

@@ -119,7 +119,7 @@ class Driver
         $tmpSerCode = base64_decode($tmpSerCode);
 
         $web_basehost = $request->host(true);
-        if (false !== filter_var($web_basehost, FILTER_VALIDATE_IP)) {
+        if (false !== filter_var($web_basehost, FILTER_VALIDATE_IP) || file_exists('./data/conf/multidomain.txt')) {
             $web_basehost = tpCache('web.web_basehost');
         }
         $web_basehost = preg_replace('/^(([^\:]+):)?(\/\/)?([^\/\:]*)(.*)$/i', '${4}', $web_basehost);

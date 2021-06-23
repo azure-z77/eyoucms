@@ -50,6 +50,8 @@ return array(
     'upgrade_dev'   => 0,
     // 特定场景专用
     'opencodetype'  => 0,
+    // 模板引擎禁用函数
+    'tpl_deny_func_list' => 'phpinfo,eval,exit,exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source,file_put_contents,fsockopen,fopen,fwrite',
     // CMS根目录文件夹
     'wwwroot_dir' => ['application','core','data','extend','install','public','template','uploads','vendor','weapp'],
     // 禁用栏目的目录名称
