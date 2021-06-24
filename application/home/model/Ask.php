@@ -260,7 +260,8 @@ class Ask extends Model
         foreach ($RepliesData as $key => $value) {
             /*头像处理*/
             $value['head_pic'] = get_head_pic($value['head_pic']);
-            /* END */
+            /*个人主页URL*/
+            $value['usershomeurl'] = usershomeurl($value['users_id']);
             // 将二维数组以ask_id值作为键，并归类数组，效果同等group_same_key
             $RepliesDataNew[$value['ask_id']][] = $value;
         }
@@ -291,7 +292,7 @@ class Ask extends Model
                 $result['AskData'][$key]['HeadPic']    = array_slice($UsersConut, 0, 3);
                 $result['AskData'][$key]['UsersConut'] = '等' . count($UsersConut) . '人参与讨论';
             } else {
-                $result['AskData'][$key]['HeadPic']    = ['0' => ['head_pic' => $value['head_pic']]];
+                $result['AskData'][$key]['HeadPic']    = ['0' => ['head_pic' => $value['head_pic'], 'usershomeurl'=>usershomeurl($value['users_id'])]];
                 $result['AskData'][$key]['UsersConut'] = $value['nickname'];
             }
 
@@ -567,6 +568,8 @@ class Ask extends Model
         $info['seo_title'] = $info['ask_title'].' - '.$info['type_name'];
         $info['seo_keywords'] = $info['ask_title'];
         $info['seo_description'] = @msubstr(checkStrHtml($info['content']), 0, config('global.arc_seo_description_length'), false);
+        // 个人主页URL
+        $info['usershomeurl'] = usershomeurl($info['users_id']);
         // 返回数据
         $ResultData = [
             'code' => 1,
@@ -638,6 +641,8 @@ class Ask extends Model
             $value['content'] = htmlspecialchars_decode($value['content']);
             // 头像处理
             $value['head_pic'] = get_head_pic($value['head_pic']);
+            // 个人主页URL
+            $value['usershomeurl'] = usershomeurl($value['users_id']);
             // 会员昵称
             $value['nickname'] = !empty($value['nickname']) ? $value['nickname'] : $value['username'];
 
@@ -854,6 +859,7 @@ class Ask extends Model
                 } else {
                     $val['head_pic'] = get_head_pic();
                 }
+                $val['usershomeurl'] = usershomeurl($val['users_id']); // 个人主页
                 $list[$key] = $val;
             }
         } elseif ($type == 'money') {
@@ -889,6 +895,7 @@ class Ask extends Model
                                 continue;
                             }
                         }
+                        $val['usershomeurl'] = usershomeurl($val['users_id']); // 个人主页
                         $list[$key] = $val;
                     }
                 }
@@ -1024,23 +1031,24 @@ class Ask extends Model
     // 获取问答设置内容
     public function getAskSetting($action = null)
     {
+        $result = [];
         $data = tpSetting('ask');
         if (!empty($data)) {
             $AskQuesSteps = in_array($action, ['add_ask', 'edit_ask']) ? str_replace("\n", "<br/>", $data['ask_ques_steps']) : '';
             $result = [
                 // 一键入群设置
                 'Qq' => [
-                    'ask_qq' => $data['ask_qq'],
-                    'ask_intro' => $data['ask_intro'],
-                    'ask_qq_link' => $data['ask_qq_link']
+                    'ask_qq' => !empty($data['ask_qq']) ? $data['ask_qq'] : '',
+                    'ask_intro' => !empty($data['ask_intro']) ? $data['ask_intro'] : '',
+                    'ask_qq_link' => !empty($data['ask_qq_link']) ? $data['ask_qq_link'] : '',
                 ],
                 // 问答提问步骤
                 'ask_ques_steps' => $AskQuesSteps,
                 // 积分管理设置的积分名称
                 'score_name' => getUsersConfigData('score.score_name'),
             ];
-            return $result;
         }
+        return $result;
     }
 
 }

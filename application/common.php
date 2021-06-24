@@ -3446,4 +3446,33 @@ if (!function_exists('SendNotifyMessage'))
         }
     }
 }
+
+if (!function_exists('usershomeurl')) 
+{
+    /**
+     * 个人主页URL
+     * @param  [type] $users_id [description]
+     * @return [type]           [description]
+     */
+    function usershomeurl($users_id)
+    {
+        $usershomeurl = '';
+        static $is_users_weapp = null;
+        static $users_seo_pseudo = 1;
+        if (is_dir('./weapp/Users/') && null === $is_users_weapp) {
+            $weappInfo = \think\Db::name('weapp')->field('data,status')->where(['code' => 'Users'])->find();
+            if (!empty($weappInfo['status'])) {
+                $is_users_weapp = true;
+                $weappInfo['data'] = unserialize($weappInfo['data']);
+                $users_seo_pseudo = !empty($weappInfo['data']['seo_pseudo']) ? intval($weappInfo['data']['seo_pseudo']) : 1;
+            }
+        }
+
+        if (true === $is_users_weapp) {
+            $usershomeurl = url('plugins/Users/userask', ['id'=>$users_id], true, false, $users_seo_pseudo);
+        }
+
+        return $usershomeurl;
+    }
+}
  
