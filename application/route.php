@@ -52,9 +52,9 @@ config('ey_config.web_tpl_theme', $web_tpl_theme);
 /*辨识响应式模板，还是PC与移动的分离模板*/
 $num = 0;
 $response_type = 0; // 默认是响应式
-$tpldirList = ["template/{$web_tpl_theme}pc","template/{$web_tpl_theme}mobile"];
+$tpldirList = ["template/{$web_tpl_theme}pc/index.htm","template/{$web_tpl_theme}mobile/index.htm"];
 foreach ($tpldirList as $key => $val) {
-    if (is_dir($val)) {
+    if (file_exists($val)) {
         $num++;
         if ($num >= 2) {
             $response_type = 1; // PC与移动端分离

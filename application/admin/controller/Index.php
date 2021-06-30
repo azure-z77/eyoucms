@@ -946,6 +946,11 @@ class Index extends Base
      */
     public function switch_map()
     {
+        $web_users_tpl_theme = tpCache('web.web_users_tpl_theme');
+        if (empty($web_users_tpl_theme)) {
+            $web_users_tpl_theme = 'users'; 
+        }
+        
         if (IS_POST) {
             $inc_type = input('post.inc_type/s');
             $name = input('post.name/s');
@@ -986,7 +991,7 @@ class Index extends Base
                     if (in_array($name, ['shop_open'])) {
                         // $data['reload'] = 1;
                         /*检测是否存在订单中心模板*/
-                        if ('v1.0.1' > getVersion('version_themeshop') && !empty($value)) {
+                        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/shop_centre.htm') && !empty($value)) {
                             $is_syn = 1;
                         } else {
                             $is_syn = 0;
@@ -1127,7 +1132,7 @@ class Index extends Base
                     if (in_array($name, ['web_users_switch'])) {
                         // $data['reload'] = 1;
                         /*检测是否存在会员中心模板*/
-                        if ('v1.0.1' > getVersion('version_themeusers') && !empty($value)) {
+                        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/users_login.htm') && !empty($value)) {
                             $is_syn = 1;
                         } else {
                             $is_syn = 0;
@@ -1175,7 +1180,7 @@ class Index extends Base
         $this->assign('is_online',$is_online);
 
         /*检测是否存在会员中心模板*/
-        if ('v1.0.1' > getVersion('version_themeusers')) {
+        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/users_login.htm')) {
             $is_themeusers_exist = 1;
         } else {
             $is_themeusers_exist = 0;
@@ -1184,7 +1189,7 @@ class Index extends Base
         /*--end*/
 
         /*检测是否存在商城中心模板*/
-        if ('v1.0.1' > getVersion('version_themeshop')) {
+        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme.'/shop_centre.htm')) {
             $is_themeshop_exist = 1;
         } else {
             $is_themeshop_exist = 0;

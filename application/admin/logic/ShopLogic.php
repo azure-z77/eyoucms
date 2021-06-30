@@ -76,7 +76,7 @@ class ShopLogic extends Model
         if (empty($web_users_tpl_theme)) {
             $web_users_tpl_theme = 'users'; 
         }
-        if ('v1.0.1' > $this->version && !file_exists($this->planPath_pc.$web_users_tpl_theme.'/shop_centre.htm')) {
+        if (!file_exists($this->planPath_pc.$web_users_tpl_theme.'/shop_centre.htm')) {
             return $this->OneKeyUpgrade();
         } else {
             return true;

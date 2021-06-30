@@ -609,7 +609,7 @@ class TagList extends Base
                     }
                     if (!empty($where_or_flag)) {
                         $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
-                        array_push($condition, $where_flag_str);
+                        $condition[] = Db::raw($where_flag_str);
                     } 
                 } elseif ($key == 'noflag') {
                     $flag_arr = explode(",", $param[$key]);
@@ -637,7 +637,7 @@ class TagList extends Base
                     }
                     if (!empty($where_or_flag)) {
                         $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
-                        array_push($condition, $where_flag_str);
+                        $condition[] = Db::raw($where_flag_str);
                     }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);
@@ -958,7 +958,7 @@ class TagList extends Base
                     }
                     if (!empty($where_or_flag)) {
                         $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
-                        array_push($condition, $where_flag_str);
+                        $condition[] = Db::raw($where_flag_str);
                     } 
                 } elseif ($key == 'noflag') {
                     $flag_arr = explode(",", $param[$key]);
@@ -986,7 +986,7 @@ class TagList extends Base
                     }
                     if (!empty($where_or_flag)) {
                         $where_flag_str = " (".implode(" OR ", $where_or_flag).") ";
-                        array_push($condition, $where_flag_str);
+                        $condition[] = Db::raw($where_flag_str);
                     }
                 } else {
                     $condition['a.'.$key] = array('eq', $param[$key]);

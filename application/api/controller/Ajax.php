@@ -35,6 +35,7 @@ class Ajax extends Base
             $this->success('请求成功', null, $res);
         }
     }
+
     /**
      * 内容页浏览量的自增接口
      */
@@ -1175,6 +1176,7 @@ class Ajax extends Base
 
         $this->success('success', null,$result);
     }
+
     //获取第三方上传的域名
     public function get_third_domain()
     {

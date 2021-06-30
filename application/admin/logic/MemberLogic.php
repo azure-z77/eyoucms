@@ -61,7 +61,7 @@ class MemberLogic extends Model
             $web_users_tpl_theme = 'users'; 
         }
         
-        if ('v1.0.1' > $this->version && !file_exists($this->planPath_pc.$web_users_tpl_theme)) {
+        if (!file_exists($this->planPath_pc.$web_users_tpl_theme.'/users_login.htm')) {
             return $this->OneKeyUpgrade();
         } else {
             return true;

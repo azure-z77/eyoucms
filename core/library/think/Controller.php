@@ -149,7 +149,7 @@ class Controller
             $this->is_mobile = 1;
         }
 
-        if($this->is_mobile == 1 && file_exists(ROOT_PATH.'template/'.$this->tpl_theme.'mobile')) {
+        if($this->is_mobile == 1 && file_exists(ROOT_PATH.'template/'.$this->tpl_theme.'mobile/index.htm')) {
             !defined('THEME_STYLE') && define('THEME_STYLE', 'mobile'); // 手机端标识
             !defined('THEME_STYLE_PATH') && define('THEME_STYLE_PATH', $this->tpl_theme.THEME_STYLE); // 手机端模板根目录
         } else {

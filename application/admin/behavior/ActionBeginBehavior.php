@@ -38,6 +38,7 @@ class ActionBeginBehavior {
             $this->clearWeapp();
             $this->instyes();
         } else {
+            $this->unotice();
             $this->verifyfile();
         }
     }
@@ -75,6 +76,18 @@ class ActionBeginBehavior {
                 tpCache('php', [$tmp2=>$data['pid']]);
             }
             /*--end*/
+        }
+    }
+
+    private function unotice(){
+        $str = 'VXNlcnNOb3RpY2U=';
+        if (self::$controllerName == base64_decode($str)) {
+            $str = 'd2ViLndlYl9pc19hdXRob3J0b2tlbg==';
+            $value = tpCache(base64_decode($str));
+            if (-1 == $value) {
+                $str = '6K+l5Yqf6IO95LuF6ZmQ5LqO5ZWG5Lia5o6I5p2D5Z+f5ZCN77yB';
+                $this->error(base64_decode($str));
+            }
         }
     }
 

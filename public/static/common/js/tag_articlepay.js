@@ -28,7 +28,7 @@ function ey_article_1618968479(aid) {
     // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
     ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     //步骤三:发送请求+数据
-    ajax.send('_ajax=1&aid=' + aid+'&return_url='+window.location.href);
+    ajax.send('_ajax=1&aid=' + aid+'&return_url='+encodeURIComponent(window.location.href));
     //步骤四:注册事件 onreadystatechange 状态改变就会调用
     ajax.onreadystatechange = function () {
         //步骤五 请求成功，处理逻辑
@@ -41,9 +41,9 @@ function ey_article_1618968479(aid) {
                 if (res.data.url){
                     //登录
                     if (-1 == res.data.url.indexOf('?')) {
-                        window.location.href = res.data.url+'?referurl='+window.location.href;
+                        window.location.href = res.data.url+'?referurl='+encodeURIComponent(window.location.href);
                     }else{
-                        window.location.href = res.data.url+'&referurl='+window.location.href;
+                        window.location.href = res.data.url+'&referurl='+encodeURIComponent(window.location.href);
                     }
                 }else{
                     if (!window.layer) {
@@ -93,7 +93,7 @@ function ey_ajax_get_content_1618968479(aid,url) {
 
 // 立即购买
 function ArticleBuyNow(aid){
-// 步骤一:创建异步对象
+    // 步骤一:创建异步对象
     var ajax = new XMLHttpRequest();
     //步骤二:设置请求的url参数,参数一是请求的类型,参数二是请求的url,可以带参数,动态的传递参数starName到服务端
     ajax.open("post", buy_url_1618968479, true);
@@ -102,7 +102,7 @@ function ArticleBuyNow(aid){
     // 如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
     ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     //步骤三:发送请求+数据
-    ajax.send('_ajax=1&aid=' + aid+'&return_url='+window.location.href);
+    ajax.send('_ajax=1&aid=' + aid+'&return_url='+encodeURIComponent(window.location.href));
     //步骤四:注册事件 onreadystatechange 状态改变就会调用
     ajax.onreadystatechange = function () {
         //步骤五 请求成功，处理逻辑
@@ -122,10 +122,14 @@ function ArticleBuyNow(aid){
             } else {
                 if (res.data.url){
                     //登录
-                    if (-1 == res.data.url.indexOf('?')) {
-                        window.location.href = res.data.url+'?referurl='+window.location.href;
-                    }else{
-                        window.location.href = res.data.url+'&referurl='+window.location.href;
+                    if (document.getElementById('ey_login_id_1609665117')) {
+                        $('#ey_login_id_1609665117').trigger('click');
+                    } else {
+                        if (-1 == res.data.url.indexOf('?')) {
+                            window.location.href = res.data.url+'?referurl='+encodeURIComponent(window.location.href);
+                        }else{
+                            window.location.href = res.data.url+'&referurl='+encodeURIComponent(window.location.href);
+                        }
                     }
                 }else{
                     if (!window.layer) {

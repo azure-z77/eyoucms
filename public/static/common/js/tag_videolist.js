@@ -52,7 +52,14 @@ function changeVideoUrl1586341922_sp1(id, aid, uhash, type) {
                         if (document.getElementById("VideoDiv13579")) {
                             document.getElementById("VideoDiv13579").style.display = 'none';
                         }
-                        obj.src = res.url;
+                        
+                        if (obj.getElementsByTagName('source')[0]) {
+                            obj.getElementsByTagName('source')[0].src = res.url;
+                            obj.load();
+                        } else {
+                            obj.src = res.url;
+                        }
+
                         if ('video' == obj.tagName.toLowerCase()) {
                             obj.controls = 'controls';
                             var autoplay = vars1612143009.autoplay;
@@ -130,7 +137,14 @@ function changeVideoUrl1586341922_sp2(id, aid, uhash, type) {
                         if (document.getElementById("VideoDiv13579")) {
                             document.getElementById("VideoDiv13579").style.display = 'none';
                         }
-                        obj.src = res.url;
+
+                        if (obj.getElementsByTagName('source')[0]) {
+                            obj.getElementsByTagName('source')[0].src = res.url;
+                            obj.load();
+                        } else {
+                            obj.src = res.url;
+                        }
+
                         if ('video' == obj.tagName.toLowerCase()) {
                             obj.controls = 'controls';
                             var autoplay = vars1612143009.autoplay;
@@ -213,7 +227,14 @@ function changeVideoUrl1586341922_sp3(id, aid, uhash, type) {
                         if (document.getElementById("VideoDiv13579")) {
                             document.getElementById("VideoDiv13579").setAttribute("style", "display: none");
                         }
-                        obj.src = res.url;
+                        
+                        if (obj.getElementsByTagName('source')[0]) {
+                            obj.getElementsByTagName('source')[0].src = res.url;
+                            obj.load();
+                        } else {
+                            obj.src = res.url;
+                        }
+
                         if ('video' == obj.tagName.toLowerCase()) {
                             obj.controls = 'controls';
                             var autoplay = vars1612143009.autoplay;

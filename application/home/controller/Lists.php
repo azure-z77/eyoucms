@@ -449,9 +449,17 @@ class Lists extends Base
                         'update_time' => getTime(),
                     ]);
                 }
+                
+                if ($this->home_lang == 'cn') {
+                    $msg = '操作成功';
+                } else if ($this->home_lang == 'zh') {
+                    $msg = '操作成功';
+                } else {
+                    $msg = 'success';
+                }
                 $channel_guestbook_time = tpSetting('channel_guestbook.channel_guestbook_time');
                 $channel_guestbook_time = !empty($channel_guestbook_time) ? intval($channel_guestbook_time) : 5;
-                $this->success('操作成功！', $gourl, $dataStr, $channel_guestbook_time);
+                $this->success($msg, $gourl, $dataStr, $channel_guestbook_time);
             }
         }
 

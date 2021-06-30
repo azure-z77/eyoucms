@@ -1324,10 +1324,18 @@ if (!function_exists('func_common')) {
      */
     function func_common($fileElementId = 'uploadImage', $path = 'temp', $file_type = "")
     {
+        $lang = get_current_lang();
         $file = request()->file($fileElementId);
 
         if (empty($file)) {
-            return ['errcode' => 1, 'errmsg' => '请选择上传图片'];
+            if ($lang == 'cn') {
+                $errmsg = '请选择上传图片';
+            } else if ($lang == 'zh') {
+                $errmsg = '請選擇上傳圖片';
+            } else {
+                $errmsg = 'Please select upload picture';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg];
         }
 
         $validate = array();
@@ -1342,7 +1350,14 @@ if (!function_exists('func_common')) {
         //拓展名
         $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
         if (!in_array($ext, $validate['ext'])) {
-            return ['errcode' => 1, 'errmsg' => '上传图片后缀名必须为' . $validate_ext];
+            if ($lang == 'cn') {
+                $errmsg = '上传图片后缀名必须为';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳圖片后綴名必須為';
+            } else {
+                $errmsg = 'Upload image suffix must be ';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg . $validate_ext];
         }
         /*拓展名验证end*/
 
@@ -1357,7 +1372,14 @@ if (!function_exists('func_common')) {
 
         /*验证图片一句话木马*/
         if (false === check_illegal($_FILES[$fileElementId]['tmp_name'])) {
-            return ['errcode'=>1,'errmsg'=>'疑似木马图片！'];
+            if ($lang == 'cn') {
+                $errmsg = '疑似木马图片';
+            } else if ($lang == 'zh') {
+                $errmsg = '疑似木馬圖片';
+            } else {
+                $errmsg = 'Suspected Trojan images';
+            }
+            return ['errcode'=>1,'errmsg'=>$errmsg];
         }
         /*--end*/
 
@@ -1398,9 +1420,24 @@ if (!function_exists('func_common')) {
         }
 
         if ($return_url) {
-            return ['errcode' => 0, 'errmsg' => '上传成功', 'img_url' => $return_url];
-        } else {
-            return ['errcode' => 1, 'errmsg' => '上传失败'];
+            if ($lang == 'cn') {
+                $errmsg = '上传成功';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳成功';
+            } else {
+                $errmsg = 'Upload succeeded';
+            }
+            return ['errcode' => 0, 'errmsg' => $errmsg, 'img_url' => $return_url];
+        }
+        else {
+            if ($lang == 'cn') {
+                $errmsg = '上传失败';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳失敗';
+            } else {
+                $errmsg = 'Upload failed';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg];
         }
     }
 }
@@ -1416,9 +1453,17 @@ if (!function_exists('func_common_doc')) {
      */
     function func_common_doc($fileElementId = 'uploadFile', $path = 'temp', $file_type = "")
     {
+        $lang = get_current_lang();
         $file = request()->file($fileElementId);
         if (empty($file)) {
-            return ['errcode' => 1, 'errmsg' => '请选择上传文件'];
+            if ($lang == 'cn') {
+                $errmsg = '请选择上传文件';
+            } else if ($lang == 'zh') {
+                $errmsg = '請選擇上傳文件';
+            } else {
+                $errmsg = 'Please select upload file';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg];
         }
 
         $validate = array();
@@ -1433,7 +1478,14 @@ if (!function_exists('func_common_doc')) {
         //拓展名
         $ext = pathinfo($file->getInfo('name'), PATHINFO_EXTENSION);
         if (!in_array($ext, $validate['ext'])) {
-            return ['errcode' => 1, 'errmsg' => '上传文件后缀名必须为' . $validate_ext];
+            if ($lang == 'cn') {
+                $errmsg = '上传文件后缀名必须为';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳文件后綴名必須為';
+            } else {
+                $errmsg = 'Upload file suffix must be ';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg . $validate_ext];
         }
         /*拓展名验证end*/
 
@@ -1476,9 +1528,24 @@ if (!function_exists('func_common_doc')) {
         }
 
         if ($return_url) {
-            return ['errcode' => 0, 'errmsg' => '上传成功', 'img_url' => $return_url];
-        } else {
-            return ['errcode' => 1, 'errmsg' => '上传失败'];
+            if ($lang == 'cn') {
+                $errmsg = '上传成功';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳成功';
+            } else {
+                $errmsg = 'Upload succeeded';
+            }
+            return ['errcode' => 0, 'errmsg' => $errmsg, 'img_url' => $return_url];
+        }
+        else {
+            if ($lang == 'cn') {
+                $errmsg = '上传失败';
+            } else if ($lang == 'zh') {
+                $errmsg = '上傳失敗';
+            } else {
+                $errmsg = 'Upload failed';
+            }
+            return ['errcode' => 1, 'errmsg' => $errmsg];
         }
     }
 }
