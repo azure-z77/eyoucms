@@ -352,73 +352,95 @@ class PayApi extends Model
 
     /*
      *   支付宝新版支付，生成支付链接方法。
-     *   @params string $data   : 订单表数据，必须传入
-     *   return string $alipay_url : 支付宝支付链接
+     *   @params string $data 订单表数据，必须传入
      */
-    public function getNewAliPayPayUrl($data)
+    public function getNewAliPayPayUrl($data = [])
     {
-        // 引入SDK文件
-        vendor('alipay.pagepay.service.AlipayTradeService');
-        vendor('alipay.pagepay.buildermodel.AlipayTradePagePayContentBuilder');
+        if (empty($data)) return false;
 
         // 获取支付宝配置信息
         $where = [
             'pay_id' => 2,
             'pay_mark' => 'alipay'
         ];
-        $PayInfo = Db::name('pay_api_config')->where($where)->getField('pay_info');
-        if (empty($PayInfo)) return false;
-        $alipay = unserialize($PayInfo);
+        $PayApiConfig = Db::name('pay_api_config')->field('pay_info, pay_terminal')->where($where)->find();
+        if (empty($PayApiConfig['pay_info'])) return false;
+        $PayInfo = unserialize($PayApiConfig['pay_info']);
+        $PayTerminal = !empty($PayApiConfig['pay_terminal']) ? unserialize($PayApiConfig['pay_terminal']) : [];
+        
+        // 后台支付宝支付配置信息
+        $config['app_id'] = $PayInfo['app_id'];
+        $config['merchant_private_key'] = $PayInfo['merchant_private_key'];
+        $config['alipay_public_key'] = $PayInfo['alipay_public_key'];
 
-        $type = $data['transaction_type'];
-        // 参数拼装
-        $config['app_id'] = $alipay['app_id'];
-        $config['merchant_private_key'] = $alipay['merchant_private_key'];
-        $config['transaction_type'] = $type;
+        // 支付订单类型
+        $config['transaction_type'] = $type = $data['transaction_type'];
 
         // 异步地址
-        $notify_url = request()->domain().ROOT_DIR.'/index.php?transaction_type='.$type.'&is_notify=1';
-        $config['notify_url'] = $notify_url;
+        $config['notify_url'] = request()->domain() . ROOT_DIR . '/index.php?transaction_type=' . $type . '&is_notify=1';
 
         // 同步地址
-        $return_url = url('user/Pay/alipay_return', ['transaction_type'=>$type,'is_notify'=>2], true, true);
-        $config['return_url'] = $return_url;
+        $config['return_url'] = url('user/Pay/alipay_return', ['transaction_type' => $type, 'is_notify' => 2], true, true);
 
-        $config['charset']    = 'UTF-8';
-        $config['sign_type']  = 'RSA2';
+        // 支付接口固定参数
+        $config['charset'] = 'UTF-8';
+        $config['sign_type'] = 'RSA2';
         $config['gatewayUrl'] = 'https://openapi.alipay.com/gateway.do';
-        $config['alipay_public_key'] = $alipay['alipay_public_key'];
-        // 实例化
-        $payRequestBuilder = new \AlipayTradePagePayContentBuilder;
-        $aop               = new \AlipayTradeService($config);
+        
+        // 商户订单号，商户网站订单系统中唯一订单号，必填
+        $out_trade_no = trim($data['unified_number']);
 
-        $out_trade_no = trim($data['unified_number']);//商户订单号，商户网站订单系统中唯一订单号，必填
-        $subject      = '支付';//订单名称，必填
-        $total_amount = trim($data['unified_amount']);//付款金额，必填
-        $body         = '支付宝支付';//商品描述，可空
+        // 付款金额，必填
+        $total_amount = trim($data['unified_amount']);
+
+        // 订单名称，必填
+        $subject = '支付';
+
+        // 商品描述，可空
+        $body = '支付宝支付';
+
+        // 处理订单名称级商品描述
         if (1 == config('global.opencodetype')) {
             $web_name = tpCache('web.web_name');
             $web_name = !empty($web_name) ? "[{$web_name}]" : "";
-            $subject = $web_name.$subject;
-            $body = $web_name.$body;
+            $subject = $web_name . $subject;
+            $body = $web_name . $body;
         }
-        //构造参数
-        $payRequestBuilder->setBody($body."订单号:{$out_trade_no}");
-        $payRequestBuilder->setSubject($subject."订单号:{$out_trade_no}");
-        $payRequestBuilder->setTotalAmount($total_amount);
-        $payRequestBuilder->setOutTradeNo($out_trade_no);
+
+        // 引入SDK文件
+        vendor('alipay.pagepay.service.AlipayTradeService');
+        vendor('alipay.pagepay.buildermodel.AlipayTradePagePayContentBuilder');
+
+        // 实例化并且构造参数
+        $PayContentBuilder = new \AlipayTradePagePayContentBuilder($PayTerminal, isMobile());
+        $PayContentBuilder->setBody($body . "订单号:{$out_trade_no}");
+        $PayContentBuilder->setSubject($subject . "订单号:{$out_trade_no}");
+        $PayContentBuilder->setOutTradeNo($out_trade_no);
+        $PayContentBuilder->setTotalAmount($total_amount);
 
         // 调用SDK进行支付宝支付
-        $response = $aop->pagePay($payRequestBuilder,$config['return_url'],$config['notify_url']);
+        $TradeService = new \AlipayTradeService($config);
+
+        // 支付宝支付终端分发调用
+        if (true === isMobile() && !empty($PayTerminal['mobile'])) {
+            // 支付宝手机端支付调用
+            $response = $TradeService->wapPay($PayContentBuilder, $config['return_url'], $config['notify_url']);
+        } else if (!empty($PayTerminal['computer']) || !empty($PayTerminal[0])) {
+            // 支付宝电脑端支付调用
+            $response = $TradeService->pagePay($PayContentBuilder, $config['return_url'], $config['notify_url']);
+        } else {
+            // 支付终端全部关闭
+            return '后台支付宝支付配置中支付终端全部关闭，请联系管理员！';
+        }
     }
 
     /*
      *   支付宝旧版支付，生成支付链接方法。
-     *   @params string $data   : 订单表数据，必须传入
-     *   @params string $alipay : 支付宝配置信息，通过 getUsersConfigData 方法调用数据
-     *   return string $alipay_url : 支付宝支付链接
+     *   @params string $data 订单表数据，必须传入
+     *   @params string $alipay 支付宝配置信息，通过 getUsersConfigData 方法调用数据
+     *   return string $alipay_url 支付宝支付链接
      */
-    public function getOldAliPayPayUrl($data, $alipay)
+    public function getOldAliPayPayUrl($data = [], $alipay = [])
     {
         // 重要参数，支付宝配置信息
         if (empty($alipay)) {
@@ -501,7 +523,8 @@ class PayApi extends Model
 
         $param      = substr($param, 0, -1);
         $sign       = substr($sign, 0, -1) . $security_check_code;
-        $alipay_url = 'https://www.alipay.com/cooperate/gateway.do?' . $param . '&sign=' . MD5($sign) . '&sign_type=MD5';
+        // $alipay_url = 'https://www.alipay.com/cooperate/gateway.do?' . $param . '&sign=' . MD5($sign) . '&sign_type=MD5';
+        $alipay_url = 'https://mapi.alipay.com/gateway.do?' . $param . '&sign=' . MD5($sign) . '&sign_type=MD5';
         return $alipay_url;
     }
 

@@ -9,7 +9,7 @@
 <div id="ajaxwaitid"></div>
 <div class="page" style="min-width: 400px;">
     <div class="flexigrid">
-        <form class="form-horizontal" id="postAlipayForm">
+        <form class="form-horizontal" id="postAlipayForm" onselectstart="return false;">
             <input type="hidden" name="pay_id" value="{$Config.pay_id}">
             <div class="ncap-form-default"/>
                 <dl class="row">
@@ -25,24 +25,6 @@
                         </div>
                     </dd>
                 </dl>
-                <!-- <dl class="row">
-                    <dt class="tit">
-                        <label>支付终端</label>
-                    </dt>
-                    <dd class="opt">
-                        <ul class="nc-row ncap-waybill-list">
-                            <li style="width: 100%;">
-                                <label class="label">
-                                    <input class="check" type="checkbox" name="pay_terminal[]" value="1" {if condition="in_array(1, $Config.pay_terminal)"} checked="checked" {/if}>电脑端
-                                </label>
-                                &nbsp; &nbsp;
-                                <label class="label">
-                                    <input class="check" type="checkbox" name="pay_terminal[]" value="2" {if condition="in_array(2, $Config.pay_terminal)"} checked="checked" {/if}>手机浏览器
-                                </label>
-                            </li>
-                        </ul>
-                    </dd>
-                </dl> -->
                 <dl class="row">
                     <dt class="tit">
                         <label for="uname"><em></em>使用支付宝版本</label>
@@ -61,6 +43,28 @@
                 </dl>
 
                 <div id="new_version" {if condition="$pay_info.version == 1 || $php_version == 1"}class="none"{/if}>
+                    <dl class="row">
+                        <dt class="tit">
+                            <label>支付终端</label>
+                        </dt>
+                        <dd class="opt">
+                            <ul class="nc-row ncap-waybill-list">
+                                <li style="width: 100%;">
+                                    <label class="label">
+                                        <input class="check" type="checkbox" name="pay_terminal[computer]" value="1" {if condition="!empty($Config.pay_terminal.computer)"} checked="checked" {/if} onclick="ConfigDetect(this);">电脑端
+                                        <input type="hidden" name="pay_terminal[c_mark]" id="computer_mark" value="{$Config.pay_terminal.c_mark}">
+                                    </label>
+                                    &nbsp; &nbsp;
+                                    <label class="label">
+                                        <input class="check" type="checkbox" name="pay_terminal[mobile]" value="2" {if condition="!empty($Config.pay_terminal.mobile)"} checked="checked" {/if} onclick="ConfigDetect(this);">移动端
+                                        <input type="hidden" name="pay_terminal[m_mark]" id="mobile_mark" value="{$Config.pay_terminal.m_mark}">
+                                    </label>
+                                    <a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=11848', '终端签约教程');" style="font-size: 12px; padding-left: 10px; position: absolute;">[终端签约教程]</a>
+                                    <!-- <a href="JavaScript:void(0);" onclick="click_to_eyou_1575506523('https://www.eyoucms.com/plus/view.php?aid=11848', '终端签约教程');" id="UseTutorial" {if condition="in_array(2, $Config.pay_terminal)"} style="font-size: 12px; padding-left: 10px; position: absolute;" {else/} style="font-size: 12px; padding-left: 10px; position: absolute; display: none;" {/if}>[使用教程]</a> -->
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
                     <dl class="row">
                         <dt class="tit">
                             <label for="username"><em class="em_empty {notempty name='$pay_info.is_open_alipay'} none {/notempty}">*</em>支付宝APPID</label>
@@ -230,6 +234,62 @@
                 return false;
             }
         });
+    }
+
+    // 记录支付宝支付配置支付终端是否已签约
+    function ConfigDetect(obj) {
+        if ($(obj).prop('checked')) {
+            // 检测是否完善支付宝配置
+            var AppID = $('#app_id').val();
+            var MerchantPrivateKey = $('#merchant_private_key').val();
+            var AlipayPublicKey = $('#alipay_public_key').val();
+            if (!AppID || !MerchantPrivateKey || !AlipayPublicKey) {
+                $(obj).attr('checked', false);
+                layer.alert('请先完善支付宝配置再选择', {icon: 2, title: false});
+                return false;
+            }
+
+            // 是否签约
+            if (1 == $(obj).val()) {
+                var computerMark = $('#computer_mark').val();
+                if (1 != computerMark) {
+                    var msg = '<span style="color: red;">【电脑网站支付】</span>';
+                    layer.confirm('是否已在支付宝应用能力列表中签约'+msg+'能力？', {
+                        title: false,
+                        closeBtn: 0,
+                        btn: ['已签约，不再提醒', '未签约'],
+                    }, function() {
+                        $('#computer_mark').val(1);
+                        layer.closeAll();
+                    }, function(index) {
+                        $(obj).attr('checked', false);
+                        layer.closeAll(index);
+                    });
+                }
+            } else {
+                var mobileMark = $('#mobile_mark').val();
+                if (2 != mobileMark) {
+                    var msg = '<span style="color: red;">【手机网站支付】</span>';
+                    layer.confirm('是否已在支付宝应用能力列表中签约'+msg+'能力？', {
+                        title: false,
+                        closeBtn: 0,
+                        btn: ['已签约，不再提醒', '未签约'],
+                    }, function() {
+                        $('#mobile_mark').val(2);
+                        layer.closeAll();
+                    }, function(index) {
+                        $(obj).attr('checked', false);
+                        layer.closeAll(index);
+                    });
+                }
+            }
+
+            // 勾选移动端则执行
+            // if (2 == $(obj).val()) $('#UseTutorial').show();
+        } else {
+            // 取消勾选移动端则执行
+            // if (2 == $(obj).val()) $('#UseTutorial').hide();
+        }
     }
 </script>
 {include file="public/footer" /}

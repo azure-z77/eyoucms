@@ -52,7 +52,7 @@ class Shop extends Base {
 
     public function home()
     {
-        $this->redirect(url('Statistics/index'));
+        $this->redirect(url('Statistics/index', [], true, true));
         exit;
     }
 

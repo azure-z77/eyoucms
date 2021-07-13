@@ -198,7 +198,7 @@ class PayApi extends Base {
 
         // 保存配置
         $SynData['pay_info'] = serialize($post['pay_info']);
-        // $SynData['pay_terminal'] = serialize($post['pay_terminal']);
+        $SynData['pay_terminal'] = serialize($post['pay_terminal']);
         $SynData['update_time'] = getTime();
         $where = [
             'pay_id' => $post['pay_id'],

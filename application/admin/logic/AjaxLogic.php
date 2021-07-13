@@ -898,5 +898,22 @@ EOF;
 
             tpSetting('syn', ['syn_admin_logic_1623377269'=>1], 'cn');
         }
+
+        // 纠正支付宝支付配置支付终端数据
+        $syn_admin_logic_1625725290 = tpSetting('syn.syn_admin_logic_1625725290', [], 'cn');
+        if (empty($syn_admin_logic_1625725290)) {
+            $PayInfo = Db::name('pay_api_config')->where(['pay_id'=>'2'])->getField('pay_info');
+            $PayInfo = !empty($PayInfo) ? unserialize($PayInfo) : [];
+            $PayTerminal = ['computer' => 0, 'c_mark' => 0, 'mobile' => 0, 'm_mark' => 0];
+            if (!empty($PayInfo['app_id']) && !empty($PayInfo['merchant_private_key']) && !empty($PayInfo['alipay_public_key'])) {
+                $PayTerminal = ['computer' => 1, 'c_mark' => 1, 'mobile' => 0, 'm_mark' => 0];
+            }
+            $UpAliPay = [
+                'update_time' => getTime(),
+                'pay_terminal' => serialize($PayTerminal)
+            ];
+            $ResultID = Db::name('pay_api_config')->where(['pay_id'=>'2'])->update($UpAliPay);
+            !empty($ResultID) && tpSetting('syn', ['syn_admin_logic_1625725290'=>1], 'cn');
+        }
     }
 }

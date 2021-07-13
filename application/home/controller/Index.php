@@ -13,6 +13,7 @@
 
 namespace app\home\controller;
 
+use think\Db;
 use app\user\logic\PayLogic;
 
 class Index extends Base
@@ -91,6 +92,16 @@ class Index extends Base
         // 获取回调的参数
         $InputXml = file_get_contents("php://input");
         if (!empty($InputXml)) {
+            $pay_info = Db::name('pay_api_config')->where('pay_mark', 'wechat')->value('pay_info');
+            if (!empty($pay_info)) {
+                $pay_info = unserialize($pay_info);
+                if (empty($pay_info['appid']) || !stristr($InputXml, "[{$pay_info['appid']}]")) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+            
             // 解析参数
             $JsonXml = json_encode(simplexml_load_string($InputXml, 'SimpleXMLElement', LIBXML_NOCDATA));
             // 转换数组

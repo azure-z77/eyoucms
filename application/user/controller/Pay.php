@@ -910,7 +910,8 @@ class Pay extends Base
         $data['unified_amount']   = input('param.unified_amount/f');
         $data['transaction_type'] = input('param.transaction_type/d');
         // 调用新版支付宝支付方法
-        model('PayApi')->getNewAliPayPayUrl($data);
+        $Result = model('PayApi')->getNewAliPayPayUrl($data);
+        if (!empty($Result)) $this->error($Result);
     }
 
     // 支付宝回调接口，处理订单数据

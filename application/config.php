@@ -367,19 +367,19 @@ return array(
     // +----------------------------------------------------------------------
     'http_exception_template' => array(
         // 还可以定义其它的HTTP status
-        400 => ROOT_PATH.'public/static/errpage/400.html',
+        400 => ROOT_PATH.'public/errpage/400.html',
         // 还可以定义其它的HTTP status
-        401 => ROOT_PATH.'public/static/errpage/401.html',
+        401 => ROOT_PATH.'public/errpage/401.html',
         // 还可以定义其它的HTTP
-        403 => ROOT_PATH.'public/static/errpage/403.html',
+        403 => ROOT_PATH.'public/errpage/403.html',
         // 还可以定义其它的HTTP
-        404 => ROOT_PATH.'public/static/errpage/404.html',
+        404 => ROOT_PATH.'public/errpage/404.html',
         // 还可以定义其它的HTTP
-        405 => ROOT_PATH.'public/static/errpage/405.html',
+        405 => ROOT_PATH.'public/errpage/405.html',
         // 还可以定义其它的HTTP
-        500 => ROOT_PATH.'public/static/errpage/500.html',
+        500 => ROOT_PATH.'public/errpage/500.html',
         // 还可以定义其它的HTTP status
-        503 => ROOT_PATH.'public/static/errpage/503.html',
+        503 => ROOT_PATH.'public/errpage/503.html',
     ),
 
     /**假设这个访问地址是 www.xxxxx.dev/home/goods/goodsInfo/id/1.html 

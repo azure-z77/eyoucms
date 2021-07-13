@@ -374,10 +374,10 @@
                     <label>{if condition="1 == $vo.is_required"}<!-- <em>*</em> -->{/if}{$vo.title}</label>
                 </dt>
                 <dd class="opt">
-                    <a id="download_file_{$vo.fieldArr}_{$vo.name|default=''}" style="margin-right: 30px;text-decoration: underline;{eyou:notempty name='$vo.dfvalue' /}display: '';{eyou:else /}display: none;{/eyou:notempty}"
-                       {eyou:notempty name='$vo.dfvalue' /} href="{$vo.dfvalue|default=''}" download="{$vo.dfvalue|get_filename=###}" {/eyou:notempty}>
+                    <a id="download_file_{$vo.fieldArr}_{$vo.name|default=''}" style="margin-right: 30px;text-decoration: underline;{eyou:notempty name='$vo.info' /}display: '';{eyou:else /}display: none;{/eyou:notempty}"
+                       {eyou:notempty name='$vo.info' /} href="{$vo.info|default=''}" download="{$vo.info|get_filename=###}" {/eyou:notempty}>
                     <img src="__STATIC__/common/images/file.png" alt="" style="width: 16px;height:  16px;">下载附件</a>
-                    <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.dfvalue|default=''}" style="display: none;">
+                    <input type="text" id="{$vo.fieldArr}_{$vo.name|default=''}" name="{$vo.fieldArr}[{$vo.name|default=''}]" value="{$vo.info|default=''}" style="display: none;">
                     <button type="button" class="layui-btn" id="upload_{$vo.fieldArr}_{$vo.name|default=''}" style="height: 30px;line-height: 30px;padding: 0 5px;background-color: #4fc0e8;">上传文件</button>
                 </dd>
             </dl>

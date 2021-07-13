@@ -2542,6 +2542,7 @@ if (!function_exists('getAllArctypeCount'))
         if ($id){
             $map_arc['typeid'] = array('in',get_arr_column($info,'typeid'));
         }
+        $map_arc['channel'] = ['IN', config('global.allow_release_channel')];
         $map_arc['is_del'] = 0;
         $map_arc['status'] = 1;
         $map_arc['lang'] = $home_lang;
