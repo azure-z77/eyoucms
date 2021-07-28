@@ -222,7 +222,7 @@ function payTag2(obj) {
             $('#payment_type').val('yezf_balance');
             $('#yezf_balance_tips').show();
         } else {
-            $('#payment_type').val('zxzf_wechat');
+            $('#payment_type').val(type);
         }
     }
 }

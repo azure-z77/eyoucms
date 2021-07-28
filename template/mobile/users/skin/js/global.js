@@ -209,7 +209,7 @@ function upload_single_pic_1609837252(e,input_id){
     var formData = new FormData();
     formData.append('file',file);
     formData.append('_ajax',1);
-    layer_loading('正在处理');
+    LoaDing('正在处理');
     $.ajax({
         type: 'post',
         url: eyou_basefile + "?m=user&c=Uploadify&a=imageUp",
@@ -224,12 +224,12 @@ function upload_single_pic_1609837252(e,input_id){
                 layer.closeAll();
             } else {
                 layer.closeAll();
-                showErrorAlert(res.state);
+                showMbErrorAlert(res.state);
             }
         },
         error : function(e) {
             layer.closeAll();
-            showErrorAlert(e.responseText);
+            showMbErrorAlert(e.responseText);
         }
     })
 }

@@ -126,6 +126,7 @@
                                 </div>
                             </div>
                             <div class="el-row mt20 ">
+                                <input type="hidden" name='referurl' value="{$referurl|default=''}">
                                 <input type="hidden" name='order_number' id="UnifiedNumber" value="{$OrderNumber}">
                                 <a href="JavaScript:void(0);" id='Pay' onclick="UsersUpgradePay(this);" class="button2 el-button--primary">
                                     立即支付

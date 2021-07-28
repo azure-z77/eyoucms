@@ -71,11 +71,12 @@
 								{eyou:volist name="list" id="vo"}
 									<tr>
 										<td><div class="cell">{$vo.order_number}</div></td>
-										<td><div class="cell red tc">
-											{eyou:if condition="0 == $vo.cause_type"}
-												-{$vo.money}
+										<td>
+											<div class="cell red tc">
+											{eyou:if condition="in_array($vo.cause_type, [0, 3])"}
+											-{$vo.money}
 											{eyou:else /}
-												+{$vo.money}
+											+{$vo.money}
 											{/eyou:if}
 											</div>
 										</td>
