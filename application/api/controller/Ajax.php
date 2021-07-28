@@ -343,9 +343,12 @@ class Ajax extends Base
                         $users[$val] = '';
                     }
                 }
-                $users['url'] = url('user/Users/centre');
                 unset($users['password']);
                 unset($users['paypwd']);
+                // 头像处理
+                $head_pic = get_head_pic(htmlspecialchars_decode($users['head_pic']));
+                $users['head_pic'] = func_preg_replace(['http://thirdqq.qlogo.cn'], ['https://thirdqq.qlogo.cn'], $head_pic);
+                $users['url'] = url('user/Users/centre');
                 $dtypes = [];
                 foreach ($users as $key => $val) {
                     $html_key = md5($key.'-'.$t_uniqid);

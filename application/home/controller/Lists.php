@@ -74,7 +74,7 @@ class Lists extends Base
         }
         $map['a.is_del'] = 0; // 回收站功能
         $map['a.lang']   = $this->home_lang; // 多语言
-        $row             = M('arctype')->field('a.id, a.current_channel, b.nid')
+        $row             = Db::name('arctype')->field('a.id, a.current_channel, b.nid')
             ->alias('a')
             ->join('__CHANNELTYPE__ b', 'a.current_channel = b.id', 'LEFT')
             ->where($map)
@@ -281,7 +281,7 @@ class Lists extends Base
                     'lang'     => $this->home_lang,
                     'add_time' => array('gt', getTime() - $channel_guestbook_interval),
                 );
-                $count = M('guestbook')->where($map)->count('aid');
+                $count = Db::name('guestbook')->where($map)->count('aid');
                 if ($count > 0) {
                     if ($this->home_lang == 'cn') {
                         $msg = '同一个IP在'.$channel_guestbook_interval.'秒之内不能重复提交！';
@@ -419,11 +419,11 @@ class Lists extends Base
                 }
                 $md5data         = md5(serialize($formdata));
                 $data['md5data'] = $md5data;
-                $guestbookRow    = M('guestbook')->field('aid')->where(['md5data' => $md5data])->find();
+                $guestbookRow    = Db::name('guestbook')->field('aid')->where(['md5data' => $md5data])->find();
                 /*--end*/
                 $dataStr = '';
                 if (empty($guestbookRow)) { // 非重复表单的才能写入数据库
-                    $aid = M('guestbook')->insertGetId($data);
+                    $aid = Db::name('guestbook')->insertGetId($data);
                     if ($aid > 0) {
                         $res = $this->saveGuestbookAttr($aid, $typeid);
                         if ($res){
@@ -514,9 +514,7 @@ class Lists extends Base
         /*--end*/
 
         foreach ($post as $k => $v) {
-            if (!strstr($k, 'attr_'))
-                continue;
-
+            if (!strstr($k, 'attr_')) continue;
             $attr_id = str_replace('attr_', '', $k);
             is_array($v) && $v = implode(PHP_EOL, $v);
 
@@ -537,7 +535,7 @@ class Lists extends Base
                 'add_time'    => getTime(),
                 'update_time' => getTime(),
             );
-            M('GuestbookAttr')->add($adddata);
+            Db::name('GuestbookAttr')->add($adddata);
         }
     }
 }

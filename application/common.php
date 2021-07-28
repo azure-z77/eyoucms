@@ -2264,22 +2264,23 @@ if (!function_exists('get_archives_data'))
      * @param string $id 产品ID，购物车下单页传入aid，订单列表订单详情页传入product_id
      * @return return array_new
      */
-    function get_archives_data($array,$id)
+    function get_archives_data($array = [], $id = '')
     {
         // 目前定义订单中心和评论中使用
-        
         if (empty($array) || empty($id)) {
             return false;
         }
-        $array_new    = array();
 
-        $aids         = get_arr_column($array, $id);
-        $archivesList = \think\Db::name('archives')->field('*')->where('aid','IN',$aids)->getAllWithIndex('aid');
-        $typeids      = get_arr_column($archivesList, 'typeid');
-        $arctypeList  = \think\Db::name('arctype')->field('*')->where('id','IN',$typeids)->getAllWithIndex('id');
-        
-        foreach ($archivesList as $key2 => $val2) {
-            $array_new[$key2] = array_merge($arctypeList[$val2['typeid']],$val2);
+        static $array_new    = null;
+        if (null === $array_new) {
+            $aids         = get_arr_column($array, $id);
+            $archivesList = \think\Db::name('archives')->field('*')->where('aid','IN',$aids)->select();
+            $typeids      = get_arr_column($archivesList, 'typeid');
+            $arctypeList  = \think\Db::name('arctype')->field('*')->where('id','IN',$typeids)->getAllWithIndex('id');
+            
+            foreach ($archivesList as $key2 => $val2) {
+                $array_new[$val2['aid']] = array_merge($arctypeList[$val2['typeid']], $val2);
+            }
         }
 
         return $array_new;
@@ -3026,6 +3027,9 @@ if (!function_exists('GetUsersLatestData'))
             return $LatestData;
         }else{
             // session中不存在会员ID则返回空
+            session('users_id', null);
+            session('users', null);
+            cookie('users_id', null);
             return false;
         }
     }
@@ -3186,12 +3190,6 @@ if (!function_exists('pay_success_logic'))
 
                 // 订单操作完成，返回跳转
                 $url = url('user/Shop/shop_centre');
-                // if ('alipay' == $paycode) {
-                //     $url = url('user/Shop/shop_centre');
-                // } else {
-                //     $url = url('user/Shop/shop_order_details', ['order_id' => $orderData['order_id']]);
-                // }
-
                 if (true === $autoSendGoods) {
                     $msg = '支付订单完成！';
                 } else {

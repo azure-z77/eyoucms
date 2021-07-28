@@ -1193,12 +1193,12 @@ class Field extends Base
         $condition['a.is_del'] = 0;
         $condition['a.lang'] = $this->admin_lang;
 
-        $count = DB::name('guestbook_attribute')->alias('a')
+        $count = Db::name('guestbook_attribute')->alias('a')
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
             ->where($condition)
             ->count();
         $Page  = new Page($count, config('paginate.list_rows'));
-        $list  = DB::name('guestbook_attribute')
+        $list  = Db::name('guestbook_attribute')
             ->field("a.attr_id")
             ->alias('a')
             ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')
@@ -1210,7 +1210,7 @@ class Field extends Base
         if ($list) {
             $attr_ida = array_keys($list);
             $fields   = "b.*, a.*";
-            $row      = DB::name('guestbook_attribute')
+            $row      = Db::name('guestbook_attribute')
                 ->field($fields)
                 ->alias('a')
                 ->join('__ARCTYPE__ b', 'a.typeid = b.id', 'LEFT')

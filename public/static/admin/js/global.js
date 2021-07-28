@@ -758,12 +758,9 @@ function GetUploadify(num,elementid,path,callback,url)
     }
     if (num > 0) {
 
+        if (!url) url = GetUploadify_url;
+
         var is_water = 1;
-
-        if (!url) {
-            url = GetUploadify_url;
-        }
-
         if ('water' == url) {
             is_water = 0;
             url = GetUploadify_url;
@@ -1228,7 +1225,7 @@ function click_to_eyou_1575506523(url,title,width,height) {
         shadeClose: false,
         shade: 0.3,
         maxmin: false, //开启最大化最小化按钮
-        area: ['80%', '80%'],
+        area: [width, height],
         content: url
     });
 }

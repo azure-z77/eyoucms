@@ -15,13 +15,13 @@ return array(
     // 数据库类型
     'type'            => 'mysql',
     // 服务器地址
-    'hostname'        => '192.168.0.105',
+    'hostname'        => '127.0.0.1',
     // 数据库名
-    'database'        => 'eyoucms_mayun',
+    'database'        => 'e5',
     // 用户名
     'username'        => 'root',
     // 密码
-    'password'        => 'root',
+    'password'        => 'root888',
     // 端口
     'hostport'        => '3306',
     // 连接dsn
@@ -57,5 +57,5 @@ return array(
     // Query类
     'query'           => '\\think\\db\\Query',
     // 是否需要断线重连
-    'break_reconnect' => true,
+    'break_reconnect' => false,
 );

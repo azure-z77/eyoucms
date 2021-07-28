@@ -83,15 +83,8 @@ class TagLikearticle extends Base
         //tag标签
         if (3 > count($keywords)) {
             $where_taglist = [];
-            if (!empty($typeidArr)) {
-                $where_taglist['typeid'] = ['IN', $typeidArr];
-                if (!empty($this->aid)) {
-                    $tids = Db::name('taglist')->where(['aid'=>$this->aid])->column('tid');
-                    $where_taglist['tid'] = ['IN', $tids];
-                }
-            } else {
-                !empty($this->aid) && $where_taglist['aid'] = $this->aid;
-            }
+            !empty($this->aid) && $where_taglist['aid'] = $this->aid;
+            !empty($typeidArr) && $where_taglist['typeid'] = ['IN', $typeidArr];
             $tag                  = Db::name('taglist')->field('tag')->where($where_taglist)->select();
             if (!empty($tag)) {
                 foreach ($tag as $key => $value) {

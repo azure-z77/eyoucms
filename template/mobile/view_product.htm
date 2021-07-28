@@ -68,11 +68,12 @@
                                         <p class="text-gray text-default">{$eyou.field.seo_description}</p>
                                         <div class="blank-small"></div>
                                     </div>
+                                    <!-- 价格 标签开始 -->
+                                    <div class="ey-price text-large text-yellow Conv_DINCondensedC">￥{$eyou.field.users_price}</div>
+                                    <!-- 价格 标签结束 -->
+
                                     <!--购物车组件start-->
                                     {eyou:sppurchase id='field' currentstyle='btn-danger'}
-                                    <!-- 价格 标签开始 -->
-                                    <div class="ey-price text-large text-yellow Conv_DINCondensedC">￥{$field.users_price}</div>
-                                    <!-- 价格 标签结束 -->
 
                                     <div class="blank-middle"></div>
 
@@ -139,8 +140,7 @@
                                 <div class="line">
                                     <ul class="tab-nav">
                                         <li class="active"><a href="#overview">商品介绍</a></li>
-                                        <li><a href="#specification">商品参数</a> </li>
-                                        <!-- <li><a href="#comment">商品评价</a> </li> -->
+                                        <!-- <li><a href="#specification">商品参数</a> </li> -->
                                     </ul>
                                 </div>
                             </div>
@@ -159,31 +159,19 @@
                                                     {$eyou.field.content}
                                                 </div>
                                             </div>
-                                            <div class="tab-panel" id="specification">
+                                            <!--产品参数调用自动——开始-->
+                                            <!-- <div class="tab-panel" id="specification">
                                                 <div class="content overflow-x">
                                                     <div class="blank-middle"></div>
-                                                    <!--产品参数调用自动——开始-->
                                                     <ul class="attribute">
                                                         {eyou:attribute type='newattr'
                                                         attrid='$eyou.field.attrlist_id'}
                                                         <li><span>{$attr.name}：</span>{$attr.value} </li>
                                                         {/eyou:attribute}
                                                     </ul>
-                                                    <!--产品参数调用——结束-->
                                                 </div>
-                                            </div>
-                                            <div class="tab-panel" id="comment">
-                                                <div class="content overflow-x">
-                                                    <div class="layout">
-                                                    <!-- 评价展示区域：请参考评价标签手册，下载商品评价模板文件拷贝到模板目录 mobile/system 里,具体教程链接  -->
-                                                    {eyou:comment aid='$eyou.field.aid' id='c_field'}
-                                                        <div class="evalute" {$c_field.CommentID}></div>
-                                                        {$c_field.hidden}
-                                                    {/eyou:comment}
-                                                    <!-- END -->
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            </div> -->
+                                            <!--产品参数调用——结束-->
                                         </div>
                                     </div>
                                 </div>

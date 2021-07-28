@@ -170,6 +170,11 @@ class TagSppayapilist extends Base
                 $PayApiList[$key]['hidden'] = '';
                 $PayInfo = unserialize($value['pay_info']);
                 if ('wechat' == $value['pay_mark']) {
+                    if (!empty($PayInfo['is_open_wechat'])) {
+                        $r1 = $this->findHupijiaoIsExis('wechat');
+                        if ($r1 == true) unset($PayApiList[$key]);
+                    } 
+                    /*
                     if (0 == $PayInfo['is_open_wechat']) {
                         if (empty($PayInfo['appid']) || empty($PayInfo['mchid']) || empty($PayInfo['key'])) {
                             $r1 = $this->findHupijiaoIsExis('wechat');
@@ -179,7 +184,13 @@ class TagSppayapilist extends Base
                         $r1 = $this->findHupijiaoIsExis('wechat');
                         if ($r1 == true) unset($PayApiList[$key]);
                     }
+                    */
                 } else if ('alipay' == $value['pay_mark']) {
+                    if (!empty($PayInfo['is_open_alipay'])) {
+                        $r1 = $this->findHupijiaoIsExis('alipay');
+                        if ($r1 == true) unset($PayApiList[$key]);
+                    }
+                    /*
                     if (0 == $PayInfo['is_open_alipay']) {
                         if (version_compare(PHP_VERSION,'5.5.0','<')) {
                             // 旧版支付宝
@@ -206,6 +217,7 @@ class TagSppayapilist extends Base
                         $r1 = $this->findHupijiaoIsExis('alipay');
                         if ($r1 == true) unset($PayApiList[$key]);
                     }
+                    */
                 } else if (0 == $value['system_built']) {
                     if (0 == $PayInfo['is_open_pay']) {
                         foreach ($PayInfo as $kk => $vv) {

@@ -202,3 +202,21 @@ function payTag(showContent, selfObj, type) {
         }
     }
 }
+
+// 支付方式选择
+function payTag2(obj) {
+    var type = $(obj).data('type');
+    $('#yezf_balance_tips').hide();
+    if ('hdfk_payOnDelivery' == type) { // 货到付款
+        $('#payment_method').val(1);
+        $('#payment_type').val('hdfk_payOnDelivery');
+    } else {
+        $('#payment_method').val(0);
+        if ('yezf_balance' == type) { // 余额支付
+            $('#payment_type').val('yezf_balance');
+            $('#yezf_balance_tips').show();
+        } else {
+            $('#payment_type').val('zxzf_wechat');
+        }
+    }
+}

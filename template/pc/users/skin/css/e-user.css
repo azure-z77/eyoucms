@@ -245,10 +245,12 @@ a:focus,*:focus {
 	position: absolute;
 	left: 30px;
 	top: 15px;
+    width: 200px;
 }
 .ey-header .ey-logo img{
 	max-height: 50px;
-	max-width: 265px;
+	max-width: 200px;
+    min-width: 200px;
 }
 /* .ey-header .ey-header-nav{
 	padding-top: 20px;
@@ -362,7 +364,7 @@ a:focus,*:focus {
 	right: 30px;
 	top: 20px;
 }
-@media (max-width: 1366px){
+@media (max-width: 1650px){
 	.ey-header .ey-logo {
 		display: none;
 	}

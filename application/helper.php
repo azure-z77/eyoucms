@@ -631,12 +631,9 @@ if (!function_exists('eyPreventShell')) {
      */
     function eyPreventShell($data = '')
     {
-        if (is_string($data) && (preg_match('/^phar:\/\//i', $data) || stristr($data, 'phar://'))) {
+        $redata = true;
+        if (!is_array($data) && (preg_match('/^phar:\/\//i', $data) || stristr($data, 'phar://'))) {
             $redata = false;
-        } else if (is_numeric($data)) {
-            $redata = intval($data);
-        } else {
-            $redata = $data;
         }
 
         return $redata;

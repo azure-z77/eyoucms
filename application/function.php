@@ -2742,7 +2742,7 @@ if (!function_exists('print_water')) {
                         }
                         $transparency = intval((100 - $water['mark_degree']) * (127 / 100));
                         $color        .= dechex($transparency);
-                        $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
+                        $image->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
                     }
                 } else {
                     /*支持子目录*/
@@ -2758,7 +2758,7 @@ if (!function_exists('print_water')) {
                             $quality       = $water['mark_quality'] ? $water['mark_quality'] : 80;
                             $waterTempPath = dirname($waterPath) . '/temp_' . basename($waterPath);
                             $image->open($waterPath)->save($waterTempPath, null, $quality);
-                            $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
+                            $image->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
                             @unlink($waterTempPath);
                         }
                     }

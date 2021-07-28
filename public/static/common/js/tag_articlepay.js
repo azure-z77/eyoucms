@@ -56,6 +56,7 @@ function ey_article_1618968479(aid) {
       　}
     };
 }
+
 function ey_ajax_get_content_1618968479(aid,url) {
     // 步骤一:创建异步对象
     var ajax = new XMLHttpRequest();

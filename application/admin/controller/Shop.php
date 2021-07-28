@@ -124,7 +124,7 @@ class Shop extends Base {
 
         // 订单状态查询
         $order_status = input('order_status/s');
-        if (!empty($order_status)) $Where['a.order_status'] = 10 == $order_status ? 0 : $order_status;
+        if (!empty($order_status)) $Where['a.order_status'] = (10 == $order_status) ? 0 : $order_status;
         // 查询满足要求的总记录数
         $count = $this->shop_order_db->alias('a')->where($Where)->count('order_id');
         // 实例化分页类 传入总记录数和每页显示的记录数
@@ -137,22 +137,31 @@ class Shop extends Base {
             ->order('a.order_id desc')
             ->limit($pageObj->firstRow.','.$pageObj->listRows)
             ->select();
+        $order_ids = [];
         $OrderReminderID = [];
         foreach ($list as $key => $value) {
+            array_push($order_ids, $value['order_id']);
             if (1 == $value['order_status']) array_push($OrderReminderID, $value['order_id']);
+        }
 
+        $DetailsData = $this->shop_order_details_db->where('order_id','IN',$order_ids)->order('details_id asc')->select();
+        $DetailsDataGroup = group_same_key($DetailsData, 'order_id');
+        foreach ($list as $key => $value) {
             // 查询订单明细表数据
-            $DetailsData = $this->shop_order_details_db->where('order_id', $value['order_id'])->select();
             $ArchivesData = get_archives_data($DetailsData, 'product_id');
 
             // 处理订单详细表数据处理
             $value['litpic'] = get_default_pic();
-            foreach ($DetailsData as $kkk => $vvv) {
-                // 产品图片
-                if (!empty($vvv['litpic'])) $value['litpic'] = handle_subdir_pic(get_default_pic($vvv['litpic']));
-
-                // 产品前台链接
-                $value['arcurl'] = get_arcurl($ArchivesData[$vvv['product_id']]);
+            foreach ($DetailsDataGroup[$value['order_id']] as $kkk => $vvv) {
+                if (0 == $kkk) {
+                    // 产品图片
+                    if (!empty($vvv['litpic'])) {
+                        $value['litpic'] = handle_subdir_pic(get_default_pic($vvv['litpic']));
+                    }
+                    // 产品前台链接
+                    $value['arcurl'] = get_arcurl($ArchivesData[$vvv['product_id']]);
+                    break;
+                }
             }
             $list[$key] = $value;
         }
@@ -189,7 +198,7 @@ class Shop extends Base {
         );
 
         // 计算单页总额
-        $total_money = $this->shop_order_db->alias('a')->where($Where)->value("SUM(`order_amount`) as `total_money`");
+        $total_money = $this->shop_order_db->alias('a')->where($Where)->where('order_id','IN',$order_ids)->value("SUM(`order_amount`) as `total_money`");
 
         /*查询已退还的总额*/
         $list_order_id = get_arr_column($list, 'order_id');

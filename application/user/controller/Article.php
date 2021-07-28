@@ -34,7 +34,7 @@ class Article extends Base
 
             // 提交的订单信息判断
             $post = input('post.');
-            if (empty($post) || empty($post['aid'])) $this->error('操作异常，请刷新重试');
+            if (empty($post['aid'])) $this->error('操作异常，请刷新重试');
 
             // 查询是否已购买
             $where = [
