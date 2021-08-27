@@ -430,7 +430,7 @@ class Field extends Model
                                 ];
                             }
                         }
-                        $val = serialize($imgData);
+                        $val = !empty($imgData) ? serialize($imgData) : '';
                         break;
                     }
 

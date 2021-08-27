@@ -337,19 +337,19 @@ class Request
 
         if (is_null($this->subDomain)) {
 
-            if (!empty($ignoreIP) && preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $this->host(true))) {
+            $host = !empty($host) ? $host : $this->host(true);
+
+            if (!empty($ignoreIP) && preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i', $host)) {
                 return '';
             }
 
             // 获取当前主域名
-            $rootDomain = Config::get('url_domain_root');
-
-            if ($rootDomain) {
-                // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                $domain = explode('.', rtrim(stristr($this->host(true), $rootDomain, true), '.'));
-            } else {
-                $domain = explode('.', $this->host(true), -2);
+            $url_domain_root = Config::get('url_domain_root');
+            if (empty($url_domain_root)) {
+                $url_domain_root = $this->rootDomain($host);
             }
+
+            $domain = explode('.', rtrim(stristr($host, $url_domain_root, true), '.'));
 
             $this->subDomain = implode('.', $domain);
         }

@@ -241,9 +241,12 @@ EOF;
 
                 if (isset($this->usersConfig['users_open_website_login']) && empty($this->usersConfig['users_open_website_login'])) {
                     $this->redirect($ReturnUrl);
-                    exit;
                 } else {
-                    $this->success('授权成功！', $ReturnUrl);
+                    if (IS_AJAX_POST) {
+                        $this->success('授权成功！', $ReturnUrl);
+                    } else {
+                        $this->redirect($ReturnUrl);
+                    }
                 }
             }
             $this->error('非手机端微信、小程序，不可以使用微信登陆，请选择本站登陆！');
@@ -278,10 +281,12 @@ EOF;
         $Users = $this->users_db->where($where)->find();
         if (!empty($Users)) {
             // 已注册
+            $eyou_referurl = session('eyou_referurl');
             session('users_id', $Users['users_id']);
             session('users', $Users);
+            session('eyou_referurl', '');
             cookie('users_id', $Users['users_id']);
-            $this->redirect(session('eyou_referurl'));
+            $this->redirect($eyou_referurl);
         } else {
             // 未注册
             $username = substr($WeChatData['openid'], 6, 8);
@@ -323,11 +328,13 @@ EOF;
             $users_id = $this->users_db->add($UsersData);
             if (!empty($users_id)) {
                 // 新增成功，将会员信息存入session
+                $eyou_referurl = session('eyou_referurl');
                 $GetUsers = $this->users_db->where('users_id', $users_id)->find();
                 session('users_id', $GetUsers['users_id']);
                 session('users', $GetUsers);
+                session('eyou_referurl', '');
                 cookie('users_id', $GetUsers['users_id']);
-                $this->redirect(session('eyou_referurl'));
+                $this->redirect($eyou_referurl);
             } else {
                 $this->error('未知错误，无法继续！');
             }
@@ -338,12 +345,20 @@ EOF;
     public function login()
     {
         // 若已登录则重定向
-        if ($this->users_id > 0) {
-            $this->redirect('user/Users/centre');
-            exit;
+        if ($this->users_id > 0) $this->redirect('user/Users/centre');
+
+        // 回跳路径
+        $referurl = input('param.referurl/s', null, 'htmlspecialchars_decode,urldecode');
+        if (empty($referurl)) {
+            if (isset($_SERVER['HTTP_REFERER']) && stristr($_SERVER['HTTP_REFERER'], $this->request->host())) {
+                $referurl = $_SERVER['HTTP_REFERER'];
+            } else {
+                $referurl = url("user/Users/centre");
+            }
         }
-        
-        // 若为微信端并且开启微商城模式则重定向
+        session('eyou_referurl', $referurl);
+
+        // 若为微信端并且开启微商城模式则重定向直接使用微信登录
         if (isWeixin() && !empty($this->usersConfig['shop_micro'])) {
             $WeChatLoginConfig = !empty($this->usersConfig['wechat_login_config']) ? unserialize($this->usersConfig['wechat_login_config']) : [];
             if (!empty($WeChatLoginConfig)) {
@@ -351,12 +366,9 @@ EOF;
             }
         }
 
-        // 若为微信端则重定向
+        // 若为微信端并且没有开启微商城模式则重定向到登录选择页
         $website = input('param.website/s');
-        if (isWeixin() && empty($website)) {
-            $this->redirect('user/Users/users_select_login');
-            exit;
-        }
+        if (isWeixin() && empty($website)) $this->redirect('user/Users/users_select_login');
 
         // 默认开启验证码
         $is_vertify          = 1;
@@ -429,9 +441,7 @@ EOF;
                     // 会员users_id存入session
                     model('EyouUsers')->loginAfter($users);
 
-                    // 回跳路径
-                    $url = input('post.referurl/s', null, 'htmlspecialchars_decode,urldecode');
-                    $this->success('登录成功', $url);
+                    $this->success('登录成功', $referurl);
                 } else {
                     $this->error('密码不正确！', null, ['status' => 1]);
                 }
@@ -508,15 +518,6 @@ EOF;
             $this->assign('type', $type);
         }
 
-        // 跳转链接
-        $referurl = input('param.referurl/s', null, 'htmlspecialchars_decode,urldecode');
-        if (empty($referurl)) {
-            if (isset($_SERVER['HTTP_REFERER']) && stristr($_SERVER['HTTP_REFERER'], $this->request->host())) {
-                $referurl = $_SERVER['HTTP_REFERER'];
-            } else {
-                $referurl = url("user/Users/centre");
-            }
-        }
         cookie('referurl', $referurl);
         $this->assign('referurl', $referurl);
         return $this->fetch('users_login');
@@ -1332,7 +1333,7 @@ EOF;
     {
         if (IS_AJAX_POST) {
             $head_pic_url = input('param.filename/s', '');
-            if (!empty($head_pic_url) && !is_http_url($head_pic_url)) {
+            if (!empty($head_pic_url) && !is_http_url($head_pic_url) && file_exists('.'.handle_subdir_pic($head_pic_url, 'img', false, true))) {
                 $usersData['head_pic']    = $head_pic_url;
                 $usersData['update_time'] = getTime();
                 $return                   = $this->users_db->where([
@@ -1351,9 +1352,11 @@ EOF;
 
                     /*删除之前的头像文件*/
                     if (!stristr($this->users['head_pic'], '/public/static/common/images/')) {
-                        @unlink('.'.preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/)#i', '$2', $this->users['head_pic']));
+                        @unlink('.'.handle_subdir_pic($this->users['head_pic'], 'img', false, true));
                     }
                     /*end*/
+
+                    $head_pic_url = func_thumb_img($head_pic_url, 200, 200);
 
                     $this->success('上传成功', null, ['head_pic'=>$head_pic_url]);
                 }

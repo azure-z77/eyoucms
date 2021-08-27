@@ -84,7 +84,7 @@ class Links extends Base
             exit;
         }
 
-        $group_ids = Db::name('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
+        $group_ids = Db::name('links_group')->field('id,group_name,status')->where(['lang'=>$this->admin_lang])->order("sort_order asc, id asc")->select();
         $this->assign('group_ids',$group_ids);
 
         return $this->fetch();
@@ -149,7 +149,7 @@ class Links extends Base
             $info['logo_local'] = handle_subdir_pic($info['logo']);
         }
 
-        $group_ids = Db::name('links_group')->field('id,group_name,status')->order("sort_order asc, id asc")->select();
+        $group_ids = Db::name('links_group')->field('id,group_name,status')->where(['lang'=>$this->admin_lang])->order("sort_order asc, id asc")->select();
         $this->assign('group_ids',$group_ids);
         $this->assign('info',$info);
 

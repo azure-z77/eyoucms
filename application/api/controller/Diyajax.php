@@ -63,6 +63,9 @@ class Diyajax extends Base
                 $data = [
                     'ey_is_login'   => 0,
                     'ey_third_party_login'  => $this->is_third_party_login(),
+                    'ey_third_party_qqlogin'  => $this->is_third_party_login('qq'),
+                    'ey_third_party_wxlogin'  => $this->is_third_party_login('wx'),
+                    'ey_third_party_wblogin'  => $this->is_third_party_login('wb'),
                     'ey_login_vertify'  => $this->is_login_vertify(),
                 ];
             }
@@ -73,23 +76,73 @@ class Diyajax extends Base
     }
 
     /**
-     * 是否启用第三方登录
+     * 是否启用并开启第三方登录
      * @return boolean [description]
      */
-    private function is_third_party_login()
+    private function is_third_party_login($type = '')
     {
-        $is_third_party_login = 0;
-        if (is_dir('./weapp/QqLogin/') || is_dir('./weapp/WxLogin/') || is_dir('./weapp/Wblogin/')) {
-            $result = Db::name('weapp')->field('id')->where([
-                    'code'  => ['IN', ['QqLogin','WxLogin','Wblogin']],
-                    'status'    => 1,
-                ])->select();
-            if (!empty($result)) {
-                $is_third_party_login = 1;
+        static $result = null;
+        if (null === $result) {
+            $result = Db::name('weapp')->field('id,code,data')->where([
+                   'code'  => ['IN', ['QqLogin','WxLogin','Wblogin']],
+                   'status'    => 1,
+               ])->getAllWithIndex('code');
+        }
+        $value = 0;
+        if (empty($type)) {
+           $qqlogin = 0;
+           if (!empty($result['QqLogin']['data'])) {
+               $qqData = unserialize($result['QqLogin']['data']);
+               if (!empty($qqData['login_show'])) {
+                   $qqlogin = 1;
+               }
+           }
+           
+           $wxlogin = 0;
+           if (!empty($result['WxLogin']['data'])) {
+               $wxData = unserialize($result['WxLogin']['data']);
+               if (!empty($wxData['login_show'])) {
+                   $wxlogin = 1;
+               }
+           }
+           
+           $wblogin = 0;
+           if (!empty($result['WbLogin']['data'])) {
+               $wbData = unserialize($result['WbLogin']['data']);
+               if (!empty($wbData['login_show'])) {
+                   $wblogin = 1;
+               }
+           }
+           
+           if ($qqlogin == 1 || $wxlogin == 1 || $wblogin == 1) {
+               $value = 1;
+           } 
+        } else {
+            if ('qq' == $type) {
+                if (!empty($result['QqLogin']['data'])) {
+                   $qqData = unserialize($result['QqLogin']['data']);
+                   if (!empty($qqData['login_show'])) {
+                       $value = 1;
+                   }
+                }
+            } else if ('wx' == $type) {
+                if (!empty($result['WxLogin']['data'])) {
+                   $wxData = unserialize($result['WxLogin']['data']);
+                   if (!empty($wxData['login_show'])) {
+                       $value = 1;
+                   }
+                }
+            } else if ('wb' == $type) {
+                if (!empty($result['Wblogin']['data'])) {
+                   $wbData = unserialize($result['WbLogin']['data']);
+                   if (!empty($wbData['login_show'])) {
+                       $value = 1;
+                   }
+                }
             }
         }
-
-        return $is_third_party_login;
+    
+        return $value;
     }
 
     /**

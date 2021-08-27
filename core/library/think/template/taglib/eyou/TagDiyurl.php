@@ -82,6 +82,14 @@ class TagDiyurl extends Base
                 case "login":     // 登录
                     $parseStr = url('user/Users/login');
                     break;
+                case "login_users": // 登录后跳转到会员中心
+                    $url = url('user/Users/login');
+                    if (stristr($url, '?')) {
+                        $parseStr = $url."&referurl=".urlencode(url('user/Users/index'));
+                    } else {
+                        $parseStr = $url."?referurl=".urlencode(url('user/Users/index'));
+                    }
+                    break;
                 case "reg":     // 注册
                     $parseStr = url('user/Users/reg');
                     break;

@@ -26,6 +26,21 @@ function tag_userinfo_1608459452(result)
     if (document.getElementById('ey_third_party_login')) {
         third_party_login_display = document.getElementById('ey_third_party_login').style.display;
         document.getElementById('ey_third_party_login').style.display = 'none';
+        if (document.getElementById('ey_third_party_wxlogin')) {
+            var third_party_wxlogin_display = '';
+            third_party_wxlogin_display = document.getElementById('ey_third_party_wxlogin').style.display;
+            document.getElementById('ey_third_party_wxlogin').style.display = 'none';
+        }
+        if (document.getElementById('ey_third_party_wblogin')) {
+            var third_party_wblogin_display = '';
+            third_party_wblogin_display = document.getElementById('ey_third_party_wblogin').style.display;
+            document.getElementById('ey_third_party_wblogin').style.display = 'none';
+        }
+        if (document.getElementById('ey_third_party_qqlogin')) {
+            var third_party_qqlogin_display = '';
+            third_party_qqlogin_display = document.getElementById('ey_third_party_qqlogin').style.display;
+            document.getElementById('ey_third_party_qqlogin').style.display = 'none';
+        }
     }
     /*end*/
 
@@ -63,6 +78,15 @@ function tag_userinfo_1608459452(result)
                     /*第三方快捷登录*/
                     if (1 == res.data.ey_third_party_login && document.getElementById('ey_third_party_login')) {
                         document.getElementById('ey_third_party_login').style.display = third_party_login_display;
+                        if (1 == res.data.ey_third_party_wxlogin && document.getElementById('ey_third_party_wxlogin')) {
+                            document.getElementById('ey_third_party_wxlogin').style.display = third_party_wxlogin_display;
+                        }
+                        if (1 == res.data.ey_third_party_wblogin && document.getElementById('ey_third_party_wblogin')) {
+                            document.getElementById('ey_third_party_wblogin').style.display = third_party_wblogin_display;
+                        }
+                        if (1 == res.data.ey_third_party_qqlogin && document.getElementById('ey_third_party_qqlogin')) {
+                            document.getElementById('ey_third_party_qqlogin').style.display = third_party_qqlogin_display;
+                        }
                     }
                     /*end*/
                 }

@@ -191,7 +191,7 @@ class SqlCacheTable extends Model
 	}
 
 	// 更新投稿缓存数据
-	public function UpdateDraftSqlCacheTable($post = [], $opt = '')
+	public function UpdateDraftSqlCacheTable($post = [], $opt = '', $users_release = false)
 	{
 		if ('add' == $opt) {
 			// 添加时操作
@@ -226,8 +226,8 @@ class SqlCacheTable extends Model
 			// 编辑时操作
 			$CutsDown = $Increase = [];
 			if ($post['old_typeid'] != $post['typeid']) {
-				$UsersID = !empty($post['users_id']) ? $post['users_id'] : session('users_id');
 				$Archives = '|archives|draft|';
+				$UsersID = !empty($post['users_id']) ? $post['users_id'] : session('users_id');
 				$UsersRelease = '|users_release|' . $UsersID . '|';
 
 				$TypeID = [];
@@ -252,6 +252,12 @@ class SqlCacheTable extends Model
 					} else {
 						$Increase = $SqlName;
 					}
+				}
+			} else {
+				if (!empty($users_release)) {
+					$Archives = '|archives|draft|';
+					array_push($Increase, $Archives);
+					array_push($Increase, $Archives . $post['typeid'] . '|');
 				}
 			}
 

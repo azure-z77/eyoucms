@@ -85,16 +85,24 @@ class Common extends Controller {
         $this->theme_style_path = THEME_STYLE_PATH; // 模板目录
         //全局变量
         $this->eyou['global'] = $global;
+
         // 多语言变量
-        try {
-            $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
-        } catch (\Exception $e) {
-            $this->home_lang = $this->main_lang;
-            $langCookieVar = \think\Config::get('global.home_lang');
-            \think\Cookie::set($langCookieVar, $this->home_lang);
-            $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+        if (config('lang_switch_on')) {
+            try {
+                $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+            } catch (\Exception $e) {
+                $this->home_lang = $this->main_lang;
+                $langCookieVar = \think\Config::get('global.home_lang');
+                \think\Cookie::set($langCookieVar, $this->home_lang);
+                $langArr = include_once APP_PATH."lang/{$this->home_lang}.php";
+            }
+            $this->eyou['lang'] = !empty($langArr) ? $langArr : [];
+            $lang_info = cookie('lang_info');
+            if (!empty($lang_info)) {
+                $this->eyou['global'] = array_merge($this->eyou['global'], $lang_info);
+            }
         }
-        $this->eyou['lang'] = !empty($langArr) ? $langArr : [];
+
         /*电脑版与手机版的切换*/
         $v = I('param.v/s', 'pc');
         $v = trim($v, '/');

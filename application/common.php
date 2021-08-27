@@ -734,18 +734,21 @@ if (!function_exists('handle_subdir_pic'))
      * 处理子目录与根目录的图片平缓切换
      * @param string $str 图片路径或html代码
      */
-    function handle_subdir_pic($str = '', $type = 'img', $domain = false)
+    function handle_subdir_pic($str = '', $type = 'img', $domain = false, $clear_root_dir = false)
     {
         static $request = null;
         if (null === $request) {
             $request = \think\Request::instance();
         }
 
-        $root_dir = ROOT_DIR;
+        $root_dir = $add_root_dir = ROOT_DIR;
+        if ($clear_root_dir == true && $domain == false) {
+            $add_root_dir = '';
+        }
         switch ($type) {
             case 'img':
                 if (!is_http_url($str) && !empty($str)) {
-                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $root_dir.'$2', $str);
+                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', $add_root_dir.'$2', $str);
                 }else if (is_http_url($str) && !empty($str)) {
                     $StrData = parse_url($str);
                     $strlen  = strlen($root_dir);
@@ -787,7 +790,7 @@ if (!function_exists('handle_subdir_pic'))
                                         $str = $tcp.$qnyData['domain'].$StrData['path'];
                                     }else{
                                         // 若切换了存储空间或访问域名，与数据库中存储的图片路径域名不一致时，访问本地路径，保证图片正常
-                                        $str = $root_dir.$StrData['path'];
+                                        $str = $add_root_dir.$StrData['path'];
                                     }
                                 }
                             }
@@ -803,7 +806,7 @@ if (!function_exists('handle_subdir_pic'))
                             }
                             else {
                                 // 关闭
-                                $str = $root_dir.$StrData['path'];
+                                $str = $add_root_dir.$StrData['path'];
                             }
                         }
                     }
@@ -811,18 +814,18 @@ if (!function_exists('handle_subdir_pic'))
                 break;
 
             case 'html':
-                $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$root_dir.'$4$5', $str);
+                $str = preg_replace('#(.*)(\#39;|&quot;|"|\')(/[/\w]+)?(/public/upload/|/public/plugins/|/uploads/)(.*)#iU', '$1$2'.$add_root_dir.'$4$5', $str);
                 break;
 
             case 'soft':
                 if (!is_http_url($str) && !empty($str)) {
-                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', $root_dir.'$2', $str);
+                    $str = preg_replace('#^(/[/\w]+)?(/public/upload/soft/|/uploads/soft/)#i', $add_root_dir.'$2', $str);
                 }
                 break;
 
             case 'media':  //多媒体文件
                 if (!is_http_url($str) && !empty($str)) {
-                    $str = preg_replace('#^(/[/\w]+)?(/uploads/media/)#i', $root_dir.'$2', $str);
+                    $str = preg_replace('#^(/[/\w]+)?(/uploads/media/)#i', $add_root_dir.'$2', $str);
                 }
                 break;
 
@@ -1534,7 +1537,6 @@ if (!function_exists('get_home_lang'))
             if (empty($home_lang)) {
                 $home_lang = \think\Db::name('language')->where([
                         'is_home_default'   => 1,
-                        'status'    => 1,
                     ])->getField('mark');
             }
             \think\Cookie::set($keys, $home_lang);
@@ -1605,7 +1607,7 @@ if (!function_exists('switch_language'))
         \think\Lang::setLangCookieVar($langCookieVar);
 
         /*单语言执行代码 - 排序不要乱改，影响很大*/
-        $langRow = \think\Db::name('language')->field('mark,is_home_default')
+        $langRow = \think\Db::name('language')->field('title,mark,is_home_default')
             ->order('id asc')
             ->cache(true, EYOUCMS_CACHE_TIME, 'language')
             ->select();
@@ -1614,6 +1616,7 @@ if (!function_exists('switch_language'))
             $lang = $langRow['mark'];
             \think\Config::set('cache.path', CACHE_PATH.$lang.DS);
             \think\Cookie::set($langCookieVar, $lang);
+            cookie('site_info', null);
             return true;
         }
         /*--end*/
@@ -1661,12 +1664,38 @@ if (!function_exists('switch_language'))
                 // $lang = \think\Db::name('language')->order('id asc')->getField('mark');
             } else {
                 abort(404,'页面不存在');
-                foreach ($langRow as $key => $val) {
+            }
+        }
+        $lang_info = [];
+        foreach ($langRow as $key => $val) {
+            if ($val['mark'] == $lang) {
+                $lang_info['lang_title'] = $val['title'];
+                /*单独域名*/
+                $inletStr = (1 == config('ey_config.seo_inlet')) ? '' : '/index.php'; // 去掉入口文件
+                $url = $val['url'];
+                if (empty($url)) {
                     if (1 == $val['is_home_default']) {
-                        $lang = $val['mark'];
-                        break;
+                        $url = ROOT_DIR.'/'; // 支持子目录
+                    } else {
+                        $seoConfig = tpCache('seo', [], $val['mark']);
+                        $seo_pseudo = !empty($seoConfig['seo_pseudo']) ? $seoConfig['seo_pseudo'] : config('ey_config.seo_pseudo');
+                        if (1 == $seo_pseudo) {
+                            $url = $request->domain().ROOT_DIR.$inletStr; // 支持子目录
+                            if (!empty($inletStr)) {
+                                $url .= '?';
+                            } else {
+                                $url .= '/?';
+                            }
+                            $url .= http_build_query(['lang'=>$val['mark']]);
+                        } else {
+                            $url = ROOT_DIR.$inletStr.'/'.$val['mark']; // 支持子目录
+                        }
                     }
                 }
+                /*--end*/
+                $lang_info['lang_url'] = $url;
+                cookie('lang_info', $lang_info);
+                break;
             }
         }
         \think\Config::set('cache.path', CACHE_PATH.$lang.DS);
@@ -2142,7 +2171,7 @@ if (!function_exists('download_file'))
      * @param $down_path 文件路径
      * @param $file_mime 文件类型
      */
-    function download_file($down_path = '', $file_mime = '')
+    function download_file($down_path = '', $file_mime = '', $file_name = '')
     {
         $down_path = iconv("utf-8","gb2312//IGNORE",$down_path);
         
@@ -2153,6 +2182,14 @@ if (!function_exists('download_file'))
         //文件名
         $filename = explode('/', $down_path);
         $filename = end($filename);
+        if (!empty($file_name)) {
+            $arr = explode('.', $filename);
+            $ext = end($arr);
+            $arr1 = explode('.', $file_name);
+            unset($arr1[count($arr1) - 1]);
+            $filename = implode('.', $arr1).'.'.$ext;
+        }
+
         //以只读和二进制模式打开文件
         $file = fopen('.'.$down_path, "rb");
         //文件大小
@@ -3371,7 +3408,7 @@ if (!function_exists('getTrueAid')) {
 if (!function_exists('SendNotifyMessage')) 
 {
     /**
-     * 添加会员余额明细表
+     * 发送站内信通知
      * 参数说明：
      * $ContentArr  需要存入的通知内容
      * $SendScene   发送来源
@@ -3474,4 +3511,150 @@ if (!function_exists('usershomeurl'))
         return $usershomeurl;
     }
 }
- 
+
+if (!function_exists('restric_type_logic')) 
+{
+    /**
+     * 付费限制模式与之前三个字段 arc_level_id、 users_pricem、 users_free 组合逻辑兼容
+     * @param array $post [description]
+     */
+    function restric_type_logic(&$post = [])
+    {
+        if (empty($post['restric_type'])) { // 免费
+            $post['arc_level_id'] = 0;
+            $post['users_price'] = 0;
+            $post['users_free'] = 0;
+        } else if (1 == $post['restric_type']) { // 付费
+            $post['arc_level_id'] = 0;
+            $post['users_free'] = 0;
+            if (empty($post['users_price'])) {
+                return ['code'=>0, 'msg'=>'购买价格不能为空！'];
+            }
+        } else if (2 == $post['restric_type']) { // 会员专享
+            $post['users_price'] = 0;
+            $post['users_free'] = 1;
+        } else if (3 == $post['restric_type']) { // 会员付费
+            $post['users_free'] = 0;
+            if (empty($post['users_price'])) {
+                return ['code'=>0, 'msg'=>'购买价格不能为空！'];
+            }
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('clear_session_file')) 
+{
+    /**
+     * 清理过期的data/session文件
+     * @param array $post [description]
+     */
+    function clear_session_file()
+    {
+        $path = \think\Config::get('session.path');
+        if (!empty($path) && file_exists($path)) {
+            $time = getTime();
+            $web_login_expiretime = tpCache('web.web_login_expiretime');
+            empty($web_login_expiretime) && $web_login_expiretime = config('login_expire');
+            $files = glob($path.'/sess_*');
+            foreach ($files as $key => $file) {
+                clearstatcache(); // 清除文件状态缓存
+                $filemtime = filemtime($file);
+                if (false === $filemtime) {
+                    $filemtime = $time;
+                }
+                $filesize = filesize($file);
+                if (false === $filesize) {
+                    $filesize = 1;
+                }
+                if (empty($filesize) || (($time - $filemtime) > ($web_login_expiretime + 300))) {
+                    $referurl = '';
+                    if (isset($_SERVER['HTTP_REFERER'])) {
+                        $referurl = $_SERVER['HTTP_REFERER'];
+                    }
+                    @unlink($file);
+                }
+            }
+        }
+    }
+}
+
+if (!function_exists('func_thumb_img')) 
+{
+    /**
+     * 压缩图 - 从原始图来处理出来
+     * @param type $original_img  图片路径
+     * @param type $width     生成缩略图的宽度
+     * @param type $height    生成缩略图的高度
+     * @param type $quality   压缩系数
+     */
+    function func_thumb_img($original_img = '', $width = '', $height = '', $quality = 75)
+    {
+        // 缩略图配置
+        static $thumbextra = null;
+        static $thumbConfig = null;
+        if (null === $thumbextra) {
+            @ini_set('memory_limit', '-1'); // 内存不限制，防止图片大小过大，导致缩略图处理失败，网站打不开
+            $thumbConfig = tpCache('thumb');
+            $thumbextra = config('global.thumb');
+            empty($thumbConfig['thumb_width']) && $thumbConfig['thumb_width'] = $thumbextra['width'];
+            empty($thumbConfig['thumb_height']) && $thumbConfig['thumb_height'] = $thumbextra['height'];
+        }
+
+        $c_width = !empty($width) ? intval($width) : intval($thumbConfig['thumb_width']);
+        $c_height = !empty($height) ? intval($height) : intval($thumbConfig['thumb_height']);
+        if ((empty($c_width) && empty($c_height)) || stristr($original_img,'.gif')) {
+            return $original_img;
+        }
+
+        $original_img = preg_replace('#^(/[/\w]+)?(/public/upload/|/public/static/|/uploads/|/weapp/)#i', '$2', $original_img); // 支持子目录
+        $original_img = trim($original_img, '/');
+
+        //获取图像信息
+        $info = @getimagesize('./'.$original_img);
+        $img_width = !empty($info[0]) ? intval($info[0]) : 0;
+        $img_height = !empty($info[1]) ? intval($info[1]) : 0;
+
+        // 过滤实际图片大小比设置最大宽高小的，直接忽视
+        if (!empty($img_width) && !empty($img_height) && $img_width <= $c_width && $img_height <= $c_height) {
+            return $original_img;
+        }
+
+        //检测图像合法性
+        if (false === $info || (IMAGETYPE_GIF === $info[2] && empty($info['bits']))) {
+            return $original_img;
+        } else {
+            if (!empty($info['mime']) && stristr($info['mime'], 'bmp') && version_compare(PHP_VERSION,'7.2.0','<')) {
+                return $original_img;
+            }
+        }
+
+        try {
+            vendor('topthink.think-image.src.Image');
+            vendor('topthink.think-image.src.image.Exception');
+            $image = \think\Image::open('./'.$original_img);
+            $image->thumb($c_width, $c_height, 1)->save($original_img, NULL, $quality); //按照原图的比例生成一个最大为$width*$height的缩略图并保存
+        } catch (think\Exception $e) {}
+
+        return $original_img;
+    }
+}
+
+/**
+ * ------------- 此行代码请保持最底部 --------------
+ */
+if (!function_exists('function_1601946443')) 
+{
+    /**
+     * 引入插件公共函数
+     */
+    function function_1601946443()
+    {
+        $file_1601946443 = glob('weapp/*/function.php');
+        foreach ($file_1601946443 as $key => $val) {
+            include_once ROOT_PATH.$val;
+        }
+    }
+}
+// function_1601946443();

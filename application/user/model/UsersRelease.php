@@ -59,7 +59,7 @@ class UsersRelease extends Model
             model('SqlCacheTable')->UpdateSqlCacheTable($post, $opt, $table, true);
         } else if (isset($post['arcrank']) && -1 == $post['arcrank']) {
             // 投稿待审核
-            model('SqlCacheTable')->UpdateDraftSqlCacheTable($post, $opt);
+            model('SqlCacheTable')->UpdateDraftSqlCacheTable($post, $opt, true);
         }
     }
 
@@ -199,6 +199,15 @@ class UsersRelease extends Model
             $nowDataExt = array();
             $fieldTypeList = model('Channelfield')->getListByWhere(array('channel_id'=>$channel_id), 'name,dtype', 'name');
             foreach ($dataExt as $key => $val) {
+
+                /*处理复选框取消选中的情况下*/
+                if (preg_match('/^(.*)(_eyempty)$/', $key) && empty($val)) {
+                    $key = preg_replace('/^(.*)(_eyempty)$/', '$1', $key);
+                    $nowDataExt[$key] = '';
+                    continue;
+                }
+                /*end*/
+
                 $key = preg_replace('/^(.*)(_eyou_is_remote|_eyou_remote|_eyou_local)$/', '$1', $key);
                 $dtype = !empty($fieldTypeList[$key]) ? $fieldTypeList[$key]['dtype'] : '';
                 switch ($dtype) {
@@ -223,6 +232,20 @@ class UsersRelease extends Model
                     }
 
                     case 'imgs':
+                    {
+                        $eyou_imgupload_list = [];
+                        foreach ($val as $k2 => $v2) {
+                            $v2 = trim($v2);
+                            if (empty($v2)) continue;
+                            $eyou_imgupload_list[] = [
+                                'image_url' => handle_subdir_pic($v2),
+                                'intro'     => '',
+                            ];
+                        }
+                        $val = serialize($eyou_imgupload_list);
+                        break;
+                    }
+
                     case 'files':
                     {
                         foreach ($val as $k2 => $v2) {
@@ -504,10 +527,20 @@ class UsersRelease extends Model
                     {
                         $val[$val['name'].'_eyou_imgupload_list'] = array();
                         if (isset($addonRow[$val['name']]) && !empty($addonRow[$val['name']])) {
-                            $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
+                            if (preg_match('/^a\:(\d+)\:\{/', $addonRow[$val['name']])) {
+                                $eyou_imgupload_list = unserialize($addonRow[$val['name']]);
+                            } else {
+                                $eyou_imgupload_list = explode(',', $addonRow[$val['name']]);
+                                foreach ($eyou_imgupload_list as $_k => $_v) {
+                                    $eyou_imgupload_list[$_k] = [
+                                        'image_url' => $_v,
+                                        'intro'     => '',
+                                    ];
+                                }
+                            }
                             //支持子目录
                             foreach ($eyou_imgupload_list as $k1 => $v1) {
-                                $eyou_imgupload_list[$k1] = handle_subdir_pic($v1);
+                                $eyou_imgupload_list[$k1]['image_url'] = handle_subdir_pic($v1['image_url']);
                             }
                             $val[$val['name'].'_eyou_imgupload_list'] = $eyou_imgupload_list;
                         }

@@ -264,8 +264,10 @@ class Language extends Base
             $this->error('数据不存在，请联系管理员！');
             exit;
         }
-
         $this->assign('row',$row);
+
+        $count = Db::name('language')->count();
+        $this->assign('count', $count);
 
         return $this->fetch();
     }

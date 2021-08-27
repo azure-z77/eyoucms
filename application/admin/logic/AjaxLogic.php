@@ -915,5 +915,65 @@ EOF;
             $ResultID = Db::name('pay_api_config')->where(['pay_id'=>'2'])->update($UpAliPay);
             !empty($ResultID) && tpSetting('syn', ['syn_admin_logic_1625725290'=>1], 'cn');
         }
+
+        // 纠正友情链接分组的多语言问题
+        $syn_admin_logic_1629252424 = tpSetting('syn.syn_admin_logic_1629252424', [], 'cn');
+        if (empty($syn_admin_logic_1629252424)) {
+            // 第一个默认分组
+            $firstRow = Db::name('links_group')->where(['id'=>1])->find();
+            if (is_language()) {
+                Db::name('links_group')->where(['lang'=>['NEQ', $firstRow['lang']]])->delete();
+                Db::name('language_attribute')->where(['attr_group'=>'links_group'])->delete();
+                Db::name('language_attr')->where(['attr_group'=>'links_group'])->delete();
+                $language_attribute_data = $language_attr_data = [];
+                $row = Db::name('links_group')->where(['lang'=>$firstRow['lang']])->select();
+                foreach ($row as $key => $val) {
+                    $language_attribute_data[] = [
+                        'attr_title'    => $val['group_name'],
+                        'attr_name'    => 'linksgroup'.$val['id'],
+                        'attr_group'    => 'links_group',
+                        'is_del'    => 0,
+                        'add_time'    => getTime(),
+                        'update_time'    => getTime(),
+                    ];
+                    $language_attr_data[] = [
+                        'attr_name'    => 'linksgroup'.$val['id'],
+                        'attr_value'    => $val['id'],
+                        'attr_group'    => 'links_group',
+                        'lang'    => $val['lang'],
+                        'add_time'    => getTime(),
+                        'update_time'    => getTime(),
+                    ];
+                }
+
+                $row = Db::name('links_group')->where(['lang'=>['EQ', $firstRow['lang']]])->select();
+                $langRow = Db::name('language')->field('mark')->where([
+                    'mark' => ['NEQ', $firstRow['lang']],
+                ])->order('id asc')->select();
+                foreach ($row as $_k => $_v) {
+                    foreach ($langRow as $key => $val) {
+                        $saveData = $_v;
+                        unset($saveData['id']);
+                        $saveData['group_name'] = $val['mark'].$_v['group_name'];
+                        $saveData['lang'] = $val['mark'];
+                        $groupid = Db::name('links_group')->insertGetId($saveData);
+                        $language_attr_data[] = [
+                            'attr_name'    => 'linksgroup'.$_v['id'],
+                            'attr_value'    => $groupid,
+                            'attr_group'    => 'links_group',
+                            'lang'    => $val['mark'],
+                            'add_time'    => getTime(),
+                            'update_time'    => getTime(),
+                        ];
+                    }
+                }
+                !empty($language_attribute_data) && Db::name('language_attribute')->insertAll($language_attribute_data);
+                !empty($language_attr_data) && Db::name('language_attr')->insertAll($language_attr_data);
+            } else {
+                Db::name('links_group')->where(['lang'=>['NEQ', $firstRow['lang']]])->delete();
+                Db::name('links')->where(['lang'=>['NEQ', $firstRow['lang']]])->delete();
+            }
+            tpSetting('syn', ['syn_admin_logic_1629252424'=>1], 'cn');
+        }
     }
 }

@@ -76,10 +76,17 @@ function ey_ajax_get_content_1618968479(aid,url) {
             var res  = JSON.parse(json);
             if (1 == res.code) {
                 document.getElementById('article_content_'+aid+'_1619061972').innerHTML = res.data.content;
-                if (1 == res.data.display) {
+                
+                if (res.data.display && 1 == res.data.display) {
                     document.getElementById('article_display_'+aid+'_1619061972').style.display = "block";
-                }else if (0 == res.data.display) {
+                }else if (res.data.display && 0 == res.data.display) {
                     document.getElementById('article_display_'+aid+'_1619061972').style.display = "none";
+                }
+
+                if (res.data.vipDisplay && 1 == res.data.vipDisplay) {
+                    document.getElementById('article_vipDisplay_'+aid+'_1619061972').style.display = "block";
+                }else if (res.data.vipDisplay && 0 == res.data.vipDisplay) {
+                    document.getElementById('article_vipDisplay_'+aid+'_1619061972').style.display = "none";
                 }
             } else {
                 if (!window.layer) {
@@ -221,4 +228,17 @@ function OrderPayPolling(data) {
             }
         }
     });
+}
+
+// 购买升级
+function BuyVipClick()
+{
+    var url = buy_vip_url_1618968479;
+    if (url.indexOf('?') > -1) {
+        url += '&';
+    } else {
+        url += '?';
+    }
+    url += 'referurl='+encodeURIComponent(window.location.href);
+    window.location.href = url;
 }

@@ -110,12 +110,12 @@ class ProductSpecData extends Model
     // 编辑产品时，规格原数据处理
     public function GetProductSpecData($id)
     {
-        $assign_data = [];
+        $assign_data = ['spec_mark_id_arr' => 0];
         // 商城配置
         $shopConfig = getUsersConfigData('shop');
         $assign_data['shopConfig'] = $shopConfig;
         // 已选规格处理
-        if (isset($shopConfig['shop_open_spec']) && 1 == $shopConfig['shop_open_spec']) {
+        if (!empty($shopConfig['shop_open']) && isset($shopConfig['shop_open_spec']) && 1 == $shopConfig['shop_open_spec']) {
             session('spec_arr',null);
             $SpecWhere = [
                 'aid' => $id,

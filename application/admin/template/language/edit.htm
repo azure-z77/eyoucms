@@ -42,12 +42,17 @@
                     <label>语言状态</label>
                 </dt>
                 <dd class="opt">
-                    <div class="onoff">
-                        <label for="status1" class="cb-enable {if condition='$row.status eq 1'}selected{/if}">开启</label>
-                        <label for="status0" class="cb-disable {if condition='$row.status eq 0'}selected{/if}">关闭</label>
-                        <input id="status1" name="status" value="1" type="radio" {if condition="$row.status eq 1"} checked="checked"{/if}>
-                        <input id="status0" name="status" value="0" type="radio" {if condition="$row.status eq 0"} checked="checked"{/if}>
-                    </div>
+                    {gt name='$count' value='1'}
+                        <div class="onoff">
+                            <label for="status1" class="cb-enable {if condition='$row.status eq 1'}selected{/if}">开启</label>
+                            <label for="status0" class="cb-disable {if condition='$row.status eq 0'}selected{/if}">关闭</label>
+                            <input id="status1" name="status" value="1" type="radio" {if condition="$row.status eq 1"} checked="checked"{/if}>
+                            <input id="status0" name="status" value="0" type="radio" {if condition="$row.status eq 0"} checked="checked"{/if}>
+                        </div>
+                    {else /}
+                        开启
+                        <input type="hidden" name="status" value="1">
+                    {/gt}
                     <p class="notic"></p>
                 </dd>
             </dl>
@@ -56,12 +61,17 @@
                     <label>前台默认语言</label>
                 </dt>
                 <dd class="opt">
-                    <div class="onoff">
-                        <label for="is_home_default1" class="cb-enable {if condition='$row.is_home_default eq 1'}selected{/if}">开启</label>
-                        <label for="is_home_default0" class="cb-disable {if condition='$row.is_home_default eq 0'}selected{/if}">关闭</label>
-                        <input id="is_home_default1" name="is_home_default" value="1" type="radio" {if condition="$row.is_home_default eq 1"} checked="checked"{/if}>
-                        <input id="is_home_default0" name="is_home_default" value="0" type="radio" {if condition="$row.is_home_default eq 0"} checked="checked"{/if}>
-                    </div>
+                    {gt name='$count' value='1'}
+                        <div class="onoff">
+                            <label for="is_home_default1" class="cb-enable {if condition='$row.is_home_default eq 1'}selected{/if}">开启</label>
+                            <label for="is_home_default0" class="cb-disable {if condition='$row.is_home_default eq 0'}selected{/if}">关闭</label>
+                            <input id="is_home_default1" name="is_home_default" value="1" type="radio" {if condition="$row.is_home_default eq 1"} checked="checked"{/if}>
+                            <input id="is_home_default0" name="is_home_default" value="0" type="radio" {if condition="$row.is_home_default eq 0"} checked="checked"{/if}>
+                        </div>
+                    {else /}
+                        开启
+                        <input type="hidden" name="is_home_default" value="1">
+                    {/gt}
                     <!-- <p class="clear"></p> -->
                     <p class="notic"></p>
                 </dd>

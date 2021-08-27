@@ -369,11 +369,11 @@ function CartUnifiedAlgorithm(symbol){
         // 直接修改数量
         if ('1' > QuantityObj.value || '' == QuantityObj.value) {
             quantity = 1;
-            if (!window.layer) {
-                alert('商品数量最少为1');
-            } else {
-                layer.alert('商品数量最少为1', {icon: 5, title: false, closeBtn: false});
-            }
+            // if (!window.layer) {
+            //     alert('商品数量最少为1');
+            // } else {
+            //     layer.alert('商品数量最少为1', {icon: 5, title: false, closeBtn: false});
+            // }
         }else{
             if (Number(QuantityObj.value) > Number(StockCountObj.value)) {
                 quantity = Number(StockCountObj.value);
@@ -390,11 +390,11 @@ function CartUnifiedAlgorithm(symbol){
     }else{
         quantity = 1;
         // 如果数量小于1则自动填充1
-        if (!window.layer) {
-            alert('商品数量最少为1');
-        } else {
-            layer.alert('商品数量最少为1', {icon: 5, title: false, closeBtn: false});
-        }
+        // if (!window.layer) {
+        //     alert('商品数量最少为1');
+        // } else {
+        //     layer.alert('商品数量最少为1', {icon: 5, title: false, closeBtn: false});
+        // }
     }
     // 数量是否大于库存量
     if (StockCountObj.value < quantity) {
@@ -430,9 +430,15 @@ function is_login(url){
     if (document.getElementById('ey_login_id_1609665117')) {
         $('#ey_login_id_1609665117').trigger('click');
     } else {
-        var mymessage = confirm('您还没未登录，请登录后购买！');
-        if(mymessage == true){
-            window.location.href = url;
+        if (!window.layer) {
+            var mymessage = confirm('您还没未登录，请登录后购买！');
+            if(mymessage == true){
+                window.location.href = url;
+            }
+        } else {
+            layer.alert('您还没未登录，请登录后购买！', {icon: 5, title: false}, function(){
+                window.location.href = url;
+            });
         }
     }
 }
@@ -482,12 +488,12 @@ function SpecSelect(spec_mark_id, spec_value_id, discount_price) {
             document.getElementById('SelectValueIds').value  = SelectValueIds;
             if (discount_price) {
                 var old_price   = Number(SpecData[i]['spec_price']);
-                document.getElementById('old_price').innerText   = old_price.toFixed(2);
+                document.getElementById('old_price').innerText   = parseFloat(old_price.toFixed(2));
                 var users_price = Number(SpecData[i]['spec_price']) * discount_price;
-                document.getElementById('users_price').innerText = users_price.toFixed(2);
+                document.getElementById('users_price').innerText = parseFloat(users_price.toFixed(2));
             }else{
                 var users_price = Number(SpecData[i]['spec_price']);
-                document.getElementById('users_price').innerText = users_price.toFixed(2);
+                document.getElementById('users_price').innerText = parseFloat(users_price.toFixed(2));
             }
             if (document.getElementById('stock_count')) {
                 document.getElementById('stock_count').innerText = SpecData[i]['spec_stock'];

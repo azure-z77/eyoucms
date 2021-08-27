@@ -315,7 +315,7 @@ class ShopProduct extends Base
 
             //做自动通过审核判断
             if ($admin_info['role_id'] > 0 && $auth_role_info['check_oneself'] < 1) {
-                unset($post['arcrank']);
+                $post['arcrank'] = -1;
             }
 
             // --存储数据

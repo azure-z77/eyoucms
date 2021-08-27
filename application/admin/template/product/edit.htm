@@ -333,7 +333,7 @@
         {/if}
         
         {if condition="!empty($ifcontrolRow['users_price'])"}
-            <dl class="row spec_type_1" {notempty name="$spec_mark_id_arr" value="1"}style="display: none;"{/notempty}>
+            <dl class="row spec_type_1" {notempty name="$spec_mark_id_arr"} style="display: none;" {/notempty}>
                 <dt class="tit">
                     <label for="users_price">
                         {if condition="1 == $shopConfig['shop_open']"}<em>*</em>{/if}价格
@@ -348,7 +348,7 @@
         {/if}
         
         {if condition="1 == $shopConfig['shop_open'] && !empty($ifcontrolRow['users_price'])"}
-            <dl class="row spec_type_1" {notempty name="$spec_mark_id_arr" value="1"}style="display: none;"{/notempty}>
+            <dl class="row spec_type_1" {notempty name="$spec_mark_id_arr"} style="display: none;" {/notempty}>
                 <dt class="tit">
                     <label for="stock_count">库存</label>
                 </dt>

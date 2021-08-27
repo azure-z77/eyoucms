@@ -860,6 +860,17 @@ class Index extends Base
                     }
                     break;
 
+                // 多语言表
+                case 'language':
+                    {
+                        $return = model('Language')->isValidateStatus($id_name,$id_value,$field,$value);
+                        if (is_array($return)) {
+                            $time = !empty($return['time']) ? $return['time'] : 3;
+                            $this->error($return['msg'], null, [], $time);
+                        }
+                    }
+                    break;
+
                 default:
                     # code...
                     break;

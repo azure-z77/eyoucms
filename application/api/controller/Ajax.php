@@ -61,6 +61,34 @@ class Ajax extends Base
     }
 
     /**
+     * 付费文档的订单数/用户数
+     */
+    public function freebuynum()
+    {
+        \think\Session::pause(); // 暂停session，防止session阻塞机制
+        if (IS_AJAX) {
+            $freebuynum = 0;
+            $aid = input('aid/d', 0);
+            $channelid = input('channelid/d', 0);
+            if ($aid > 0) {
+                if (empty($channelid)) {
+                    $channelid = Db::name('archives')->where(['aid'=>$aid])->value('channel');
+                }
+                
+                if (1 == $channelid) {
+                    $freebuynum = Db::name('article_order')->where(['order_status'=>1,'product_id'=>$aid])->count();
+                } else if (5 == $channelid) {
+                    $freebuynum = Db::name('media_order')->where(['order_status'=>1,'product_id'=>$aid])->count();
+                }
+            }
+            echo($freebuynum);
+            exit;
+        } else {
+            abort(404);
+        }
+    }
+
+    /**
      * 文档下载次数
      */
     public function downcount()
@@ -273,7 +301,16 @@ class Ajax extends Base
                         $this->success('请求成功', null, $users);
                     }
                 }
-                $this->success('请先登录', null, ['ey_is_login'=>0]);
+                
+                $data = [
+                    'ey_is_login'   => 0,
+                    'ey_third_party_login'  => $this->is_third_party_login(),
+                    'ey_third_party_qqlogin'  => $this->is_third_party_login('qq'),
+                    'ey_third_party_wxlogin'  => $this->is_third_party_login('wx'),
+                    'ey_third_party_wblogin'  => $this->is_third_party_login('wb'),
+                    'ey_login_vertify'  => $this->is_login_vertify(),
+                ];
+                $this->success('请先登录', null, $data);
             }
             else if ('reg' == $type)
             {
@@ -304,10 +341,107 @@ class Ajax extends Base
                 }
                 $this->success('请求成功', null, $users);
             }
+            else if ('collect' == $type)
+            {
+                if (!empty($users_id)) {
+                    $users['ey_is_login'] = 1;
+                    $users['ey_collect_num_20191212'] = Db::name('users_collection')->where(['users_id'=>$users_id])->count();
+                } else {
+                    $users['ey_is_login'] = 0;
+                    $users['ey_collect_num_20191212'] = 0;
+                }
+                $this->success('请求成功', null, $users);
+            }
             $this->error('访问错误');
         } else {
             abort(404);
         }
+    }
+
+    /**
+     * 是否启用并开启第三方登录
+     * @return boolean [description]
+     */
+    private function is_third_party_login($type = '')
+    {
+        static $result = null;
+        if (null === $result) {
+            $result = Db::name('weapp')->field('id,code,data')->where([
+                   'code'  => ['IN', ['QqLogin','WxLogin','Wblogin']],
+                   'status'    => 1,
+               ])->getAllWithIndex('code');
+        }
+        $value = 0;
+        if (empty($type)) {
+           $qqlogin = 0;
+           if (!empty($result['QqLogin']['data'])) {
+               $qqData = unserialize($result['QqLogin']['data']);
+               if (!empty($qqData['login_show'])) {
+                   $qqlogin = 1;
+               }
+           }
+           
+           $wxlogin = 0;
+           if (!empty($result['WxLogin']['data'])) {
+               $wxData = unserialize($result['WxLogin']['data']);
+               if (!empty($wxData['login_show'])) {
+                   $wxlogin = 1;
+               }
+           }
+           
+           $wblogin = 0;
+           if (!empty($result['WbLogin']['data'])) {
+               $wbData = unserialize($result['WbLogin']['data']);
+               if (!empty($wbData['login_show'])) {
+                   $wblogin = 1;
+               }
+           }
+           
+           if ($qqlogin == 1 || $wxlogin == 1 || $wblogin == 1) {
+               $value = 1;
+           } 
+        } else {
+            if ('qq' == $type) {
+                if (!empty($result['QqLogin']['data'])) {
+                   $qqData = unserialize($result['QqLogin']['data']);
+                   if (!empty($qqData['login_show'])) {
+                       $value = 1;
+                   }
+                }
+            } else if ('wx' == $type) {
+                if (!empty($result['WxLogin']['data'])) {
+                   $wxData = unserialize($result['WxLogin']['data']);
+                   if (!empty($wxData['login_show'])) {
+                       $value = 1;
+                   }
+                }
+            } else if ('wb' == $type) {
+                if (!empty($result['Wblogin']['data'])) {
+                   $wbData = unserialize($result['WbLogin']['data']);
+                   if (!empty($wbData['login_show'])) {
+                       $value = 1;
+                   }
+                }
+            }
+        }
+    
+        return $value;
+    }
+
+    /**
+     * 是否开启登录图形验证码
+     * @return boolean [description]
+     */
+    private function is_login_vertify()
+    {
+        // 默认开启验证码
+        $is_vertify          = 1;
+        $users_login_captcha = config('captcha.users_login');
+        if (!function_exists('imagettftext') || empty($users_login_captcha['is_on'])) {
+            $is_vertify = 0; // 函数不存在，不符合开启的条件
+        }
+
+        return $is_vertify;
     }
 
     /**

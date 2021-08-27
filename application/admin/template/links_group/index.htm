@@ -52,7 +52,14 @@
                         {foreach name="list" item="vo" key="k" }
                         <tr class="tr">
                             <td class="sort">
-                                <div class="w40 tc"><input type="hidden" name="id[]" value="{$vo.id}">{$vo.id}</div>
+                                <div class="w40 tc">
+                                    <input type="hidden" name="id[]" value="{$vo.id}">
+                                    {eq name='$main_lang' value='$admin_lang'}
+                                        {$vo.id}
+                                    {else /}
+                                        {$main_group_list[$vo['id']]['id']|default=$vo['id']}
+                                    {/eq}
+                                </div>
                             </td>
                             <td style="width: 100%">
                                 <div class="text-l10">
@@ -74,15 +81,21 @@
                             </td>
                             <td class="operation">
                                 <div class="w120 tc">
-                                    {neq name="$vo.id" value="1"}
+                                    {eq name='$main_lang' value='$admin_lang'}
+                                        {neq name="$vo.id" value="1"}
+                                            {eq name="'LinksGroup@del'|is_check_access" value="1"}
+                                                <a class="btn red"  href="javascript:void(0);" data-url="{:url('LinksGroup/del')}" data-title="{$vo.group_name}" data-id="{$vo.id}" onClick="delGroup(this);">删除</a>
+                                            {/eq}
+                                        {else/}
+                                            {eq name="'LinksGroup@del'|is_check_access" value="1"}
+                                                <a class="btn grey"  href="javascript:void(0);">删除</a>
+                                            {/eq}
+                                        {/neq}
+                                    {else /}
                                         {eq name="'LinksGroup@del'|is_check_access" value="1"}
-                                            <a class="btn red"  href="javascript:void(0);" data-url="{:url('LinksGroup/del')}" data-title="{$vo.group_name}" data-id="{$vo.id}" onClick="delGroup(this);">删除</a>
+                                            <a class="btn grey"  href="javascript:void(0);" title="请切换到主语言删除">删除</a>
                                         {/eq}
-                                    {else/}
-                                        {eq name="'LinksGroup@del'|is_check_access" value="1"}
-                                            <a class="btn grey"  href="javascript:void(0);">删除</a>
-                                        {/eq}
-                                    {/neq}
+                                    {/eq}
                                 </div>
                             </td>
                         </tr>
@@ -96,16 +109,18 @@
         </div>
         <div class="footer-oper">
             {eq name="$Think.const.CONTROLLER_NAME.'@linksgroup_save'|is_check_access" value="1"}
-            <div class="fbutton">
-                <a href="javascript:void(0);" data-url="{:url('LinksGroup/linksgroup_save', ['_ajax'=>1])}" onclick="linksgroup_save(this);" class="layui-btn layui-btn-primary">
-                    <span class="">保存</span>
-                </a>
-            </div>
-            <div class="fbutton">
-                <a href="javascript:void(0);" onclick="link_group_add();" class="layui-btn layui-btn-primary">
-                    <span>新增分组</span>
-                </a>
-            </div>
+                <div class="fbutton">
+                    <a href="javascript:void(0);" data-url="{:url('LinksGroup/linksgroup_save', ['_ajax'=>1])}" onclick="linksgroup_save(this);" class="layui-btn layui-btn-primary">
+                        <span class="">保存</span>
+                    </a>
+                </div>
+                {eq name='$main_lang' value='$admin_lang'}
+                <div class="fbutton">
+                    <a href="javascript:void(0);" onclick="link_group_add();" class="layui-btn layui-btn-primary">
+                        <span>新增分组</span>
+                    </a>
+                </div>
+                {/eq}
             {/eq}
             {include file="public/page" /}
         </div>

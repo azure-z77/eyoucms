@@ -301,6 +301,12 @@ class Language extends Model
     public function afterDel($id_arr = [], $lang_list = [])
     {
         if (!empty($id_arr) && !empty($lang_list)) {
+            // 至少保留一个语言是开启状态
+            $row = Db::name('language')->where(['status'=>1])->select();
+            if (empty($row)) {
+                Db::name('language')->where(['is_home_default'=>1])->update(['status'=>1,'update_time'=>getTime()]);
+            }
+
             \think\Cache::clear('language');
             foreach ($lang_list as $key => $lang) {
                 delFile(RUNTIME_PATH.'cache'.DS.$lang, true);
@@ -721,7 +727,6 @@ class Language extends Model
         }
 
         /*复制友情链接表数据*/
-        $bindLinksArr = []; // 源友情链接ID与目标友情链接ID的对应数组
         $links_db = Db::name('links');
         $linksRow = $links_db->where('lang',$copy_lang)
             ->order('id asc')
@@ -752,7 +757,6 @@ class Language extends Model
                     if (empty($new_links_id)) {
                         return false; // 同步失败
                     }
-                    $bindLinksArr[$v2['id']] = $new_links_id;
                 }
             }
             /*--end*/
@@ -773,18 +777,6 @@ class Language extends Model
             ];
         }
         /*--end*/
-        /*新增友情链接ID与源友情链接ID的绑定*/
-        foreach ($bindLinksArr as $key => $val) {
-            $langAttrData[] = [
-                'attr_name' => 'links'.$key,
-                'attr_value'    => $val,
-                'lang'  => $mark,
-                'attr_group' => 'links',
-                'add_time'  => getTime(),
-                'update_time'  => getTime(),
-            ];
-        }
-        /*--end*/
 
         // 批量存储
         if (!empty($langAttrData)) {
@@ -796,5 +788,23 @@ class Language extends Model
         }
 
         return true;
+    }
+
+    public function isValidateStatus($id_name = '', $id_value = '', $field = '', $value = '')
+    {
+        $return = true;
+
+        $value = trim($value);
+        if ($value == 0 && $field == 'status') {
+            $count = Db::name('language')->where(['status'=>1])->count();
+            if ($count <= 1) {
+                $return = [
+                    'time'  => 2,
+                    'msg'   => '至少要开启一个语言',
+                ];
+            }
+        }
+
+        return $return;
     }
 }

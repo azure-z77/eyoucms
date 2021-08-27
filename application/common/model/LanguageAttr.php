@@ -184,6 +184,20 @@ class LanguageAttr extends Model
                         }
                     }
                     break;
+
+                case 'links_group':
+                    {
+                        if (!is_array($bind_value)) {// 获取关联绑定的广告位置ID
+                            $attr_name = 'linksgroup'.$bind_value;
+                            $bind_value = Db::name('language_attr')->where([
+                                    'attr_name'    => $attr_name,
+                                    'lang'  => $lang,
+                                    'attr_group' => $attr_group,
+                                ])->getField('attr_value');
+                            empty($bind_value) && $bind_value = '';
+                        }
+                    }
+                    break;
                 
                 default:
                     # code...

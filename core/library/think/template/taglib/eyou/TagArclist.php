@@ -23,7 +23,6 @@ class TagArclist extends Base
 {
     public $fieldLogic;
     public $archives_db;
-    public $url_screen_var;
 
     //初始化
     protected function _initialize()
@@ -36,9 +35,6 @@ class TagArclist extends Base
             $this->tid = $this->archives_db->where('aid', $this->aid)->getField('typeid');
         }
         /*--end*/
-        
-        // 定义筛选标识
-        $this->url_screen_var = config('global.url_screen_var');
     }
 
     /**
@@ -60,85 +56,6 @@ class TagArclist extends Base
      */
     public function getArclist($param = array(),  $row = 15, $orderby = '', $addfields = '', $orderway = '', $tagid = '', $tag = '', $pagesize = 0, $thumb = '', $arcrank = '')
     {
-        $condition = array();
-
-        /*自定义字段筛选*/
-        $url_screen_var = 0;
-        if (!empty($tag['url_params'])) {
-            $paramNew = $tag['url_params'] = json_decode(base64_decode($tag['url_params']), true);
-            $url_screen_var = !empty($paramNew[$this->url_screen_var]) ? $paramNew[$this->url_screen_var] : 0;
-        } else {
-            $UrlParams = $paramNew = input('param.');
-            $url_screen_var = !empty($paramNew[$this->url_screen_var]) ? $paramNew[$this->url_screen_var] : 0;
-            foreach ($UrlParams as $key => $value) {
-                if (in_array($key, ['m', 'c', 'a'])) {
-                    unset($UrlParams[$key]);
-                }
-            }
-            $tag['url_params'] = base64_encode(json_encode($UrlParams));
-        }
-        if (1 == $url_screen_var) {
-            /*自定义字段筛选*/
-            $field_where = [
-                'is_screening' => 1,
-                // 根据需求新增条件
-            ];
-            // 所有应用于搜索的自定义字段
-            $channelfield = Db::name('channelfield')->where($field_where)->field('channel_id,id,name,dtype,dfvalue')->select();
-            // 查询当前栏目所属模型
-            $channel_id = Db::name('arctype')->where('id', $paramNew['tid'])->getField('current_channel');
-            // 所有模型类别
-            $channeltype_list = config('global.channeltype_list');
-            $channel_table = array_search($channel_id, $channeltype_list);
-            // 查询获取aid初始sql语句
-            $wheres = [];
-            $where_multiple = [];
-            foreach ($channelfield as $key => $value) {
-                // 值不为空则执行
-                $fieldname = $value['name'];
-                if (!empty($fieldname) && !empty($paramNew[$fieldname])) {
-                    // 分割参数，判断多选或单选，拼装sql语句
-                    $val_arr  = explode('|', trim($paramNew[$fieldname], '|'));
-                    if (!empty($val_arr)) {
-                        if ('' == $val_arr[0]) {
-                            // 选择全部时拼装sql语句
-                            // $wheres[$fieldname] = ['NEQ', null];
-                        } else {
-                            if (1 == count($val_arr)) {
-                                // 多选字段类型
-                                if ('checkbox' == $value['dtype']) {
-                                    $val_arr[0] = addslashes($val_arr[0]);
-                                    $dfvalue_tmp = explode(',', $value['dfvalue']);
-                                    if (in_array($val_arr[0], $dfvalue_tmp)) {
-                                        array_push($where_multiple, "FIND_IN_SET('".$val_arr[0]."',{$fieldname})");
-                                    }
-                                } else {
-                                    $wheres[$fieldname] = $val_arr[0];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            $where_multiple_str = "";
-            !empty($where_multiple) && $where_multiple_str = implode(' AND ', $where_multiple);
-            $aid_result = Db::name($channel_table.'_content')->field('aid')
-                ->where($wheres)
-                ->where($where_multiple_str)
-                ->select();
-            if (!empty($aid_result)) {
-                array_push($condition, "a.aid IN (".implode(',', get_arr_column($aid_result, "aid")).")");
-            } else {
-                $pages = Db::name('archives')->field("aid")->where("aid=0")->paginate($pagesize);
-                $result['pages'] = $pages; // 分页显示输出
-                $result['list'] = []; // 赋值数据集
-                return $result;
-            }
-            /*结束*/
-        }
-        /*--end*/
-
         $result = false;
 
         $channeltype = ("" != $param['channel'] && is_numeric($param['channel'])) ? intval($param['channel']) : '';
@@ -228,6 +145,7 @@ class TagArclist extends Base
         }
 
         // 查询条件
+        $condition = array();
         foreach (array('keyword','typeid','notypeid','flag','noflag','channel','joinaid') as $key) {
             if (isset($param[$key]) && $param[$key] !== '') {
                 if ($key == 'channel') {
@@ -332,10 +250,7 @@ class TagArclist extends Base
         
         // 给排序字段加上表别名
         $orderby = getOrderBy($orderby, $orderway, true);
-        
-        // 获取排序信息 --- 陈风任
-        $orderby = $this->GetSortData($orderby, $paramNew);
-        
+
         // 用于arclist标签的分页
         if (0 < $pagesize) {
             $tag['typeid'] = $typeid;
@@ -547,27 +462,6 @@ class TagArclist extends Base
             'list' => $result,
         ];
         return $data;
-    }
-    
-    // 排序处理
-    private function GetSortData($orderby = '', $Param = [])
-    {
-        if (!empty($Param['sort']) && 'sales' == $Param['sort']) {
-            $orderby = 'a.sales_num desc, ' . $orderby;
-        } else if (!empty($Param['sort']) && 'price' == $Param['sort']) {
-            $orderby = 'a.users_price ' . $Param['sort_asc'] . ', ' . $orderby;
-        } else if (!empty($Param['sort']) && 'appraise' == $Param['sort']) {
-            $orderby = 'a.appraise desc, ' . $orderby;
-        } else if (!empty($Param['sort']) && 'new' == $Param['sort']) {
-            $orderby = 'a.add_time desc, ' . $orderby;
-        } else if (!empty($Param['sort']) && 'collection' == $Param['sort']) {
-            $orderby = 'a.collection desc, ' . $orderby;
-        } else if (!empty($Param['sort']) && 'click' == $Param['sort']) {
-            $orderby = 'a.click desc, ' . $orderby;
-        } else if (!empty($Param['sort']) && 'download' == $Param['sort']) {
-            $orderby = 'a.downcount desc, ' . $orderby;
-        }
-        return $orderby;
     }
 
     // 生成hash唯一串
