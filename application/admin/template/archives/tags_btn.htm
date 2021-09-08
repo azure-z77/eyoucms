@@ -1,7 +1,7 @@
 <!-- 扩展 -->
     {eq name="$Think.const.CONTROLLER_NAME.'@add'|is_check_access" value="1"}
         <div class="fbutton" style="float: none;">
-            <a href="{gt name="$Request.param.typeid" value="0"}{:url($Think.const.CONTROLLER_NAME.'/add', ['channel'=>$Request.param.channel, 'typeid'=>$Request.param.typeid])}{else /}javascript:quick_release({$is_arctype|default='1'});{/gt}">
+            <a href="{gt name="$Request.param.typeid" value="0"}{:url($Think.const.CONTROLLER_NAME.'/add', ['channel'=>$Request.param.channel, 'typeid'=>$Request.param.typeid], true, true)}{else /}javascript:quick_release({$is_arctype|default='1'});{/gt}">
                 <div class="add">
                     {eq name="$Think.const.CONTROLLER_NAME" value="Special"}
                     <span><i class="layui-icon layui-icon-addition"></i>发布专题</span>

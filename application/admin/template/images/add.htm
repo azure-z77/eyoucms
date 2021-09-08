@@ -110,7 +110,7 @@
                             <tbody>
                             <tr>
                                 <td>
-                                    <div class="sort-list">
+                                    <div class="sort-list-img">
                                         <div class="images_upload">
                                         </div>
                                     </div>
@@ -125,7 +125,7 @@
                     </div>
                     <!-- 上传图片显示的样板 start -->
                     <div class="images_upload_tpl none">
-                        <div class="images_upload">
+                        <div class="images_upload images_upload_html">
                             <div style="position: relative; height: 130px;">
                                 <input type="hidden" name="imgupload[]" value="" />
                                 <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
@@ -355,16 +355,18 @@
 
     // 上传图集相册回调函数
     function imgupload_call_back(paths){
-        
         var  last_div = $(".images_upload_tpl").html();
-        // var  last_div = $(".images_upload:last").prop("outerHTML");  
         for (var i=0;i<paths.length ;i++ )
         {
-            $(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
-            $(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
-            $(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-            $(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"ClearPicArr2(this,'"+paths[i]+"')").text('');
-            $(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
+            if ($(".sort-list-img .images_upload_html").length > 0) {
+                $(".sort-list-img .images_upload_html:last").after(last_div);  // 插入一个 新图片
+            } else {
+                $(".sort-list-img .images_upload:last").before(last_div);  // 插入一个 新图片
+            }
+            $(".sort-list-img .images_upload_html:last").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
+            $(".sort-list-img .images_upload_html:last").find('img').attr('src',paths[i]);// 修改他的图片路径
+            $(".sort-list-img .images_upload_html:last").find('a:eq(1)').attr('onclick',"ClearPicArr2(this,'"+paths[i]+"')").text('');
+            $(".sort-list-img .images_upload_html:last").find('input').val(paths[i]); // 设置隐藏域 要提交的值
         }              
     }
     /*
@@ -385,7 +387,7 @@
 
     /** 以下 图集相册的拖动排序相关 js*/
 
-    $( ".sort-list" ).sortable({
+    $( ".sort-list-img" ).sortable({
         start: function( event, ui) {
         
         }
@@ -405,7 +407,7 @@
         }
     });
     //因为他们要拖动，所以尽量设置他们的文字不能选择。 
-    $( ".sort-list" ).disableSelection();
+    $( ".sort-list-img" ).disableSelection();
 
 </script>
 

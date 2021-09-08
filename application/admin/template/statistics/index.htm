@@ -371,6 +371,39 @@
 
 		// 使用刚指定的配置项和数据显示图表。
 		myChart.setOption(option);
+
+	    $(document).ready(function(){
+	        {eq name="$is_syn_theme_shop" value="1"}
+	            syn_theme_shop();
+	        {/eq}
+	        function syn_theme_shop()
+	        {
+	            layer_loading('商城初始化');
+	            // 确定
+	            $.ajax({
+	                type : 'get',
+	                url : "{:url('Shop/ajax_syn_theme_shop')}",
+	                data : {_ajax:1},
+	                dataType : 'json',
+	                success : function(res){
+	                    layer.closeAll();
+	                    if(res.code == 1){
+	                        layer.msg(res.msg, {icon: 1, time: 1000});
+	                    }else{
+	                        layer.alert(res.msg, {icon: 2, title:false}, function(){
+	                            window.location.reload();
+	                        });
+	                    }
+	                },
+	                error: function(e){
+	                    layer.closeAll();
+	                    layer.alert(ey_unknown_error, {icon: 2, title:false}, function(){
+	                        window.location.reload();
+	                    });
+	                }
+	            })
+	        }
+	    });
 	</script>
 	{include file="public/footer" /}
 </body>

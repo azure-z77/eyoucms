@@ -103,7 +103,9 @@ class Member extends Base {
         }
         
         /*检测是否存在会员中心模板*/
-        if ('v1.0.1' > getVersion('version_themeusers')) {
+        $web_users_tpl_theme = $this->globalConfig['web_users_tpl_theme'];
+        empty($web_users_tpl_theme) && $web_users_tpl_theme = 'users';
+        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme)) {
             $is_syn_theme_users = 1;
         } else {
             $is_syn_theme_users = 0;
@@ -984,11 +986,6 @@ class Member extends Base {
         if (IS_POST) {
             $post = input('post.');
 
-            /*商城入口*/
-            $shop_open = $post['shop']['shop_open'];
-            $shop_open_old = !empty($this->userConfig['shop_open']) ? $this->userConfig['shop_open'] : 0;
-            /*--end*/
-
             // 邮件验证的检测
             if (2 == $post['users']['users_verification']) {
                 $users_config_email = $this->users_config_email();
@@ -1018,15 +1015,6 @@ class Member extends Base {
         // 获取会员配置信息
         $this->assign('info',$this->userConfig);
 
-        /*检测是否存在订单中心模板*/
-        if ('v1.0.1' > getVersion('version_themeshop') && !empty($this->userConfig['shop_open'])) {
-            $is_syn_theme_shop = 1;
-        } else {
-            $is_syn_theme_shop = 0;
-        }
-        $this->assign('is_syn_theme_shop',$is_syn_theme_shop);
-        /*--end*/
-
         // 获取会员配置信息
         $this->assign('web_users_tpl_theme', tpCache('web.web_users_tpl_theme'));
 
@@ -1044,14 +1032,6 @@ class Member extends Base {
         }
         $this->assign('tpl_theme_list', $tpl_theme_list);
         /*end*/
-
-        return $this->fetch();
-    }
-
-    // 第三方登录配置
-    public function ajax_set_oauth_config()
-    {
-        $oauth = input('param.oauth/s', 'qq');
 
         return $this->fetch();
     }

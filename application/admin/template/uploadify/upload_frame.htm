@@ -138,9 +138,11 @@ $(function(){
         var fileurl_tmp = [];
         if(callback != "undefined"){    
             if(num > 1){    
-                 $("input[name^='fileurl_tmp']").each(function(index,dom){
-                    fileurl_tmp[index] = dom.value;
-                 });    
+                var src = '';
+                 ("input[name^='fileurl_tmp']").each(function(index,dom){
+                    src = $('.WU_FILE_'+index).find("input[name^='fileurl_tmp']").val() || dom.value;
+                    fileurl_tmp[index] = src;
+                });    
             }else{
                 fileurl_tmp = $("input[name^='fileurl_tmp']").val();    
             }

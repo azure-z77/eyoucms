@@ -1219,6 +1219,7 @@ if (!function_exists('saveRemote')) {
 
         $imgUrl = htmlspecialchars($fieldName);
         $imgUrl = str_replace("&amp;", "&", $imgUrl);
+        $imgUrl = preg_replace('/#/', '', $imgUrl);
 
         //http开头验证
         if (strpos($imgUrl, "http") !== 0) {
@@ -1404,7 +1405,7 @@ if (!function_exists('func_common')) {
         $return_url = "";
         $info = $file->rule(function ($file) {
             $users_id_tmp = 1;
-            if (session('?users_id')) {
+            if (session('?users_id') && 'admin' != request()->module()) {
                 $users_id_tmp = session('users_id');
             } else if (session('?admin_id')) {
                 $users_id_tmp = session('admin_id');
@@ -1516,7 +1517,7 @@ if (!function_exists('func_common_doc')) {
         $info = $file->rule(function ($file) {
             // return md5(mt_rand());
             $users_id = 1;
-            if (session('?users_id')) {
+            if (session('?users_id') && 'admin' != request()->module()) {
                 $users_id = session('users_id');
             } else if (session('?admin_id')) {
                 $users_id = session('admin_id');
@@ -1908,15 +1909,15 @@ if (!function_exists('getVersion')) {
      *
      * @return string
      */
-    function getVersion($filename = 'version', $ver = 'v1.0.0')
+    function getVersion($filename = 'version', $ver = 'v1.0.0', $is_write = false)
     {
         $version_txt_path = ROOT_PATH . 'data/conf/' . $filename . '.txt';
-        if (file_exists($version_txt_path)) {
+        if (file_exists($version_txt_path) && false === $is_write) {
             $fp      = fopen($version_txt_path, 'r');
             $content = fread($fp, filesize($version_txt_path));
             fclose($fp);
             $ver = $content ? $content : $ver;
-        } else {
+        } else if (!file_exists($version_txt_path) || true === $is_write) {
             $r = tp_mkdir(dirname($version_txt_path));
             if ($r) {
                 $fp = fopen($version_txt_path, "w+") or die("请设置" . $version_txt_path . "的权限为777");
@@ -2551,6 +2552,7 @@ if (!function_exists('remote_to_local')) {
 
         foreach ($img_array as $key => $value) {
             $imgUrl = trim($value);
+            $imgUrl = preg_replace('/#/', '', $imgUrl);
             // 本站图片
             if (preg_match("#" . $basehost . "#i", $imgUrl)) {
                 continue;
@@ -2634,9 +2636,9 @@ if (!function_exists('remote_to_local')) {
             }
 
             $fileurl = ROOT_DIR . substr($file['fullName'], 1);
-            if ($is_weixin_img == true) {
-                $fileurl .= "?";
-            }
+            // if ($is_weixin_img == true) {
+            //     $fileurl .= "?";
+            // }
 
             /*            $search  = array("'".$imgUrl."'", '"'.$imgUrl.'"');
                         $replace = array($fileurl, $fileurl);

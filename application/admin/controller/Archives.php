@@ -348,11 +348,11 @@ class Archives extends Base
             } else {
                 $ctl_name = $row['ctl_name'];
             }
-            $gourl = url('Archives/index_archives', array('typeid'=>$typeid));
+            $gourl = url('Archives/index_archives', array('typeid'=>$typeid), true, true);
             $data['gourl'] = $gourl;
-            $jumpUrl = url("{$ctl_name}/add", $data);
+            $jumpUrl = url("{$ctl_name}/add", $data, true, true);
         } else {
-            $jumpUrl = url("Archives/release");
+            $jumpUrl = url("Archives/release", [], true, true);
         }
         $this->redirect($jumpUrl);
     }
@@ -387,7 +387,7 @@ class Archives extends Base
         }
         $arcurl = input('param.arcurl/s');
         $data['arcurl'] = $arcurl;
-        $jumpUrl = url("{$ctl_name}/edit", $data);
+        $jumpUrl = url("{$ctl_name}/edit", $data, true, true);
         $this->redirect($jumpUrl);
     }
 
@@ -421,7 +421,7 @@ class Archives extends Base
                 if ($r !== false) {
                     adminLog('审核文档-id：'.implode(',', $aids));
                     /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                     model('SqlCacheTable')->InsertSqlCacheTable(true);
                     /* END */
                     $this->success('操作成功！');
@@ -449,7 +449,7 @@ class Archives extends Base
                 if ($r !== false) {
                     adminLog('取消审核-id：'.implode(',', $aids));
                     /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                     model('SqlCacheTable')->InsertSqlCacheTable(true);
                     /* END */
                     $this->success('操作成功！');
@@ -495,7 +495,7 @@ class Archives extends Base
                 ])->update($update_data);
             if($r){
                 /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                 model('SqlCacheTable')->InsertSqlCacheTable(true);
                 /* END */
                 adminLog('移动文档-id：'.$aids);

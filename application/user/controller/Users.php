@@ -242,11 +242,7 @@ EOF;
                 if (isset($this->usersConfig['users_open_website_login']) && empty($this->usersConfig['users_open_website_login'])) {
                     $this->redirect($ReturnUrl);
                 } else {
-                    if (IS_AJAX_POST) {
-                        $this->success('授权成功！', $ReturnUrl);
-                    } else {
-                        $this->redirect($ReturnUrl);
-                    }
+                    $this->success('授权成功！', $ReturnUrl);
                 }
             }
             $this->error('非手机端微信、小程序，不可以使用微信登陆，请选择本站登陆！');

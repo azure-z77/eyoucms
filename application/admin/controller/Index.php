@@ -88,15 +88,6 @@ class Index extends Base
         $this->assign('admin_info', getAdminInfo(session('admin_id')));
         $this->assign('menu',getMenuList());
 
-        /*检测是否存在会员中心模板*/
-        if ('v1.0.1' > getVersion('version_themeusers') && !empty($this->globalConfig['web_users_switch'])) {
-            $is_syn_theme_users = 1;
-        } else {
-            $is_syn_theme_users = 0;
-        }
-        $this->assign('is_syn_theme_users',$is_syn_theme_users);
-        /*--end*/
-
         // 是否开启安全补丁
         $security_patch = tpSetting('upgrade.upgrade_security_patch');
         if (empty($security_patch)) $security_patch = 0;
@@ -957,6 +948,9 @@ class Index extends Base
      */
     public function switch_map()
     {
+        $web_users_tpl_theme = $this->globalConfig['web_users_tpl_theme'];
+        empty($web_users_tpl_theme) && $web_users_tpl_theme = 'users';
+
         if (IS_POST) {
             $inc_type = input('post.inc_type/s');
             $name = input('post.name/s');
@@ -997,7 +991,8 @@ class Index extends Base
                     if (in_array($name, ['shop_open'])) {
                         // $data['reload'] = 1;
                         /*检测是否存在订单中心模板*/
-                        if ('v1.0.1' > getVersion('version_themeshop') && !empty($value)) {
+                        $shop_tpl_list = glob("./template/".TPL_THEME."pc/{$web_users_tpl_theme}/shop_*");
+                        if (!empty($value) && empty($shop_tpl_list)) {
                             $is_syn = 1;
                         } else {
                             $is_syn = 0;
@@ -1138,7 +1133,7 @@ class Index extends Base
                     if (in_array($name, ['web_users_switch'])) {
                         // $data['reload'] = 1;
                         /*检测是否存在会员中心模板*/
-                        if ('v1.0.1' > getVersion('version_themeusers') && !empty($value)) {
+                        if (!empty($value) && !file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme)) {
                             $is_syn = 1;
                         } else {
                             $is_syn = 0;
@@ -1186,7 +1181,7 @@ class Index extends Base
         $this->assign('is_online',$is_online);
 
         /*检测是否存在会员中心模板*/
-        if ('v1.0.1' > getVersion('version_themeusers')) {
+        if (!file_exists('template/'.TPL_THEME.'pc/'.$web_users_tpl_theme)) {
             $is_themeusers_exist = 1;
         } else {
             $is_themeusers_exist = 0;
@@ -1195,7 +1190,8 @@ class Index extends Base
         /*--end*/
 
         /*检测是否存在商城中心模板*/
-        if ('v1.0.1' > getVersion('version_themeshop')) {
+        $shop_tpl_list = glob("./template/".TPL_THEME."pc/{$web_users_tpl_theme}/shop_*");
+        if (empty($shop_tpl_list)) {
             $is_themeshop_exist = 1;
         } else {
             $is_themeshop_exist = 0;
@@ -1232,7 +1228,7 @@ class Index extends Base
             $ArchivesMaxID = Db::name('archives')->max('aid');
             if ($ArchivesMaxID != $CacheMaxID) {
                 /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                 model('SqlCacheTable')->InsertSqlCacheTable(true);
                 /* END */
             }

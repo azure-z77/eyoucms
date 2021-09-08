@@ -246,7 +246,7 @@
                                     <td >
                                         <div class="sort-list-{$vo.fieldArr}_{$vo.name|default=''}">
                                             {volist name="$vo[$vo['name'].'_eyou_imgupload_list']" id="v2" key="k2"}
-                                            <div class="images_upload" style="display:inline-block;">
+                                            <div class="images_upload images_upload_html" style="display:inline-block;">
                                                 <div style="position: relative; height: 130px;">
                                                     <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="{$v2['image_url']}">
                                                     <a href="{$v2['image_url']}" onclick="" class="upimg" target="_blank" title="拖动修改排序">
@@ -257,8 +257,7 @@
                                                 <textarea rows="5" cols="60" name="{$vo.fieldArr}[{$vo.name|default=''}_eyou_intro][]" style="height:28px; width: 136px;" placeholder="图片注释">{$v2.intro}</textarea>
                                             </div>
                                             {/volist}
-                                            <div class="images_upload">
-                                            </div>
+                                            <div class="images_upload"></div>
                                         </div>
                                         <a href="javascript:void(0);" onClick="GetUploadify(100,'','allimg','{$vo.fieldArr}_{$vo.name|default=''}_call_back');"  class="img-upload mb15" title="点击上传">
                                              <div class="y-line"></div>
@@ -271,7 +270,7 @@
                         </div>
                         <!-- 上传图片显示的样板 start -->
                         <div class="{$vo.fieldArr}_{$vo.name|default=''}_upload_tpl none">
-                            <div class="images_upload" style="display:inline-block;">
+                            <div class="images_upload images_upload_html" style="display:inline-block;">
                                 <div style="position: relative; height: 130px;">
                                     <input type="hidden" name="{$vo.fieldArr}[{$vo.name|default=''}][]" value="" />
                                     <a href="javascript:void(0);" onClick="" class="upimg" title="拖动修改排序">
@@ -292,11 +291,15 @@
                         var  last_div = $(".{$vo.fieldArr}_{$vo.name|default=''}_upload_tpl").html();
                         for (var i=0;i<paths.length ;i++ )
                         {
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").before(last_div);  // 插入一个 新图片
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('img').attr('src',paths[i]);// 修改他的图片路径
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('');
-                            $("#dl_{$vo.fieldArr}_{$vo.name|default=''}").find(".images_upload:eq(0)").find('input').val(paths[i]); // 设置隐藏域 要提交的值
+                            if ($(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html").length > 0) {
+                                $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html:last").after(last_div);  // 插入一个 新图片
+                            } else {
+                                $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload:last").before(last_div);  // 插入一个 新图片
+                            }
+                            $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html:last").find('a:eq(0)').attr('href',paths[i]).attr('onclick','').attr('target', "_blank");// 修改他的链接地址
+                            $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html:last").find('img').attr('src',paths[i]);// 修改他的图片路径
+                            $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html:last").find('a:eq(1)').attr('onclick',"{$vo.fieldArr}_{$vo.name|default=''}_ClearPicArr2(this,'"+paths[i]+"')").text('');
+                            $(".sort-list-{$vo.fieldArr}_{$vo.name|default=''} .images_upload_html:last").find('input').val(paths[i]); // 设置隐藏域 要提交的值
                         }             
                     }
                     /*

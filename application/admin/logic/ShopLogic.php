@@ -72,7 +72,10 @@ class ShopLogic extends Model
     public function syn_theme_shop()
     {
         error_reporting(0);//关闭所有错误报告
-        if ('v1.0.1' > $this->version) {
+        $web_users_tpl_theme = tpCache('web.web_users_tpl_theme');
+        empty($web_users_tpl_theme) && $web_users_tpl_theme = 'users';
+        $shop_tpl_list = glob("./{$this->planPath_pc}{$web_users_tpl_theme}/shop_*");
+        if (empty($shop_tpl_list)) {
             return $this->OneKeyUpgrade();
         } else {
             return true;

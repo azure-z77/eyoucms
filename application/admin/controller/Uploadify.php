@@ -316,7 +316,7 @@ class Uploadify extends Base
             $filename= str_replace(['(',')',',',' ','../'],'',$filename);
             $filename= trim($filename,'.');
             $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/admin/logo/)#i', '$2', $filename);
-            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){
+            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && is_file('.'.$filename) && stristr($filename, 'uploads/')){
                 if (stristr($filename, '/admin/logo/')) {
                     $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
                     $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件

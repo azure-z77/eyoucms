@@ -707,7 +707,7 @@ class Arctype extends Base
                     }
                     adminLog('删除栏目：'.$row['typename']);
                     /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                     model('SqlCacheTable')->InsertSqlCacheTable(true);
                     /* END */
                     $this->success("操作成功".$msg);
@@ -717,7 +717,7 @@ class Arctype extends Base
                 if (false !== $r) {
                     adminLog('伪删除栏目：'.$row['typename']);
                     /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-                    Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+                    Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
                     model('SqlCacheTable')->InsertSqlCacheTable(true);
                     /* END */
                     $this->success('删除成功');
@@ -832,7 +832,7 @@ class Arctype extends Base
                 adminLog('伪删除栏目：' . trim($typename, ','));
             }
             /*清空sql_cache_table数据缓存表 并 添加查询执行语句到mysql缓存表*/
-            Db::name('sql_cache_table')->query('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
+            Db::name('sql_cache_table')->execute('TRUNCATE TABLE '.config('database.prefix').'sql_cache_table');
             model('SqlCacheTable')->InsertSqlCacheTable(true);
             /* END */
             $this->success('删除成功');

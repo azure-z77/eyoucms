@@ -79,7 +79,7 @@ class Uploadify extends Base {
             $filename= str_replace(['(',')',',',' ','../'],'',$filename);
             $filename= trim($filename,'.');
             $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/)#i', '$2', $filename);
-            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && file_exists('.'.$filename)){
+            if(eyPreventShell($filename) && $action=='del' && !empty($filename) && is_file('.'.$filename) && stristr($filename, 'uploads/')){
                 $fileArr = explode('/', $filename);
                 if ($fileArr[3] != $this->users_id) {
                     return false;
@@ -298,6 +298,7 @@ class Uploadify extends Base {
     private function saveRemote($config,$fieldName){
         $imgUrl = htmlspecialchars($fieldName);
         $imgUrl = str_replace("&amp;","&",$imgUrl);
+        $imgUrl = preg_replace('/#/', '', $imgUrl);
 
         //http开头验证
         if(strpos($imgUrl,"http") !== 0){
@@ -490,7 +491,7 @@ class Uploadify extends Base {
                             }
                             $transparency = intval((100 - $water['mark_degree']) * (127/100));
                             $color .= dechex($transparency);
-                            $image->open($imgresource)->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
+                            $image->text($water['mark_txt'], $ttf, $size, $color, $water['mark_sel'])->save($imgresource);
                             $return_data['mark_txt'] = $water['mark_txt'];
                         }
                     }else{
@@ -502,7 +503,7 @@ class Uploadify extends Base {
                             $quality = $water['mark_quality'] ? $water['mark_quality'] : 80;
                             $waterTempPath = dirname($waterPath).'/temp_'.basename($waterPath);
                             $image->open($waterPath)->save($waterTempPath, null, $quality);
-                            $image->open($imgresource)->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
+                            $image->water($waterTempPath, $water['mark_sel'], $water['mark_degree'])->save($imgresource);
                             @unlink($waterTempPath);
                         }
                     }
@@ -649,7 +650,7 @@ class Uploadify extends Base {
         $filename= str_replace('../','',$filenames);
         $filename= trim($filename,'.');
         $filename = preg_replace('#^(/[/\w]+)?(/public/upload/|/uploads/|/public/static/admin/logo/)#i', '$2', $filename);
-        if(eyPreventShell($filename) && !empty($filename) && file_exists('.'.$filename)){
+        if(eyPreventShell($filename) && !empty($filename) && is_file('.'.$filename) && stristr($filename, 'uploads/')){
             $filename_new = trim($filename,'/');
             $filetype = preg_replace('/^(.*)\.(\w+)$/i', '$2', $filename);
             $phpfile = strtolower(strstr($filename,'.php'));  //排除PHP文件
@@ -739,7 +740,8 @@ class Uploadify extends Base {
         }
         echo json_encode($return);
     }
-    public function uhash( $file ) {
+    
+    private function uhash( $file ) {
         $fragment = 65536;
 
         $rh = fopen($file, 'rb');

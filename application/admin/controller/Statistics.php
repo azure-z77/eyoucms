@@ -18,9 +18,15 @@ use think\Config;
 // 数据统计
 class Statistics extends Base {
 
+    private $UsersConfigData = [];
+
     public function _initialize() {
         parent::_initialize();
         $this->language_access(); // 多语言功能操作权限
+
+        // 会员中心配置信息
+        $this->UsersConfigData = getUsersConfigData('all');
+        $this->assign('userConfig',$this->UsersConfigData);
     }
     
     /**
@@ -49,6 +55,18 @@ class Statistics extends Base {
         // 用户消费榜
         $UserConsumption = $this->GetUserConsumption();
         $this->assign('UserConsumption', $UserConsumption);
+
+        /*检测是否存在订单中心模板*/
+        $web_users_tpl_theme = $this->globalConfig['web_users_tpl_theme'];
+        empty($web_users_tpl_theme) && $web_users_tpl_theme = 'users';
+        $shop_tpl_list = glob("./template/".TPL_THEME."pc/{$web_users_tpl_theme}/shop_*");
+        if (empty($shop_tpl_list) && !empty($this->UsersConfigData['shop_open'])) {
+            $is_syn_theme_shop = 1;
+        } else {
+            $is_syn_theme_shop = 0;
+        }
+        $this->assign('is_syn_theme_shop',$is_syn_theme_shop);
+        /*--end*/
 
         return $this->fetch();
     }

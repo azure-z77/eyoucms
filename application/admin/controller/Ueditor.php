@@ -325,6 +325,7 @@ class Ueditor extends Base
     private function saveRemote($config,$fieldName){
         $imgUrl = htmlspecialchars($fieldName);
         $imgUrl = str_replace("&amp;","&",$imgUrl);
+        $imgUrl = preg_replace('/#/', '', $imgUrl);
 
         //http开头验证
         if(strpos($imgUrl,"http") !== 0){
@@ -620,7 +621,7 @@ class Ueditor extends Base
         respose($return_data);
     }
 
-    public function uhash( $file ) {
+    private function uhash( $file ) {
         $fragment = 65536;
 
         $rh = fopen($file, 'rb');
@@ -683,7 +684,8 @@ class Ueditor extends Base
 
         // 使用自定义的文件保存规则
         $info = $file->rule(function ($file) {
-            return  $this->fileName;
+            // return  $this->fileName;
+            return session('admin_id').'-'.dd2char(date("ymdHis").mt_rand(100,999)); // 使用自定义的文件保存规则
         })->move(UPLOAD_PATH.$this->savePath);
         if($info){
             // 拼装数据存入session
@@ -691,7 +693,7 @@ class Ueditor extends Base
             $return = array(
                 'code'      => 1,
                 'msg'       => '上传成功',
-                'file_url'  => '/' . UPLOAD_PATH.$this->savePath.$fileName,
+                'file_url'  => '/' . UPLOAD_PATH.$this->savePath.$info->getSaveName(),
                 'file_mime' => $file->getInfo('type'),
                 'file_name' => $fileName,
                 'file_ext'  => '.' . $file_ext,
