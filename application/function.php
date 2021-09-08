@@ -1394,7 +1394,7 @@ if (!function_exists('func_common')) {
         // 过滤后的新文件名
         $fileName = $newfileName . '.' . $file_ext;
 
-        if (session('?users_id')) {
+        if (session('?users_id') && 'admin' != request()->module()) {
             $users_id = session('users_id');
             $savePath = UPLOAD_PATH.'user/'.session('users_id').'/';
         } else {
